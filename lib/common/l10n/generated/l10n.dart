@@ -811,6 +811,26 @@ class S {
     );
   }
 
+    /// `Auto Refresh Time`
+  String get auto_shutdown_time {
+    return Intl.message(
+      'Auto ShutDown Time',
+      name: 'auto_shutdown_time',
+      desc: '',
+      args: [],
+    );
+  }
+
+/// `Auto refresh favorites rooms status`
+  String get auto_shutdown_time_subtitle {
+    return Intl.message(
+      'Auto close app',
+      name: 'auto_shutdown_time_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+  
   /// `Auto refresh favorites rooms status`
   String get auto_refresh_time_subtitle {
     return Intl.message(

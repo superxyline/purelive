@@ -96,6 +96,8 @@
 
     "auto_refresh_time": "Auto Refresh Time",
     "auto_refresh_time_subtitle": "Auto refresh favorites rooms status",
+    "auto_shutdown_time_subtitle": "Auto close app",
+    "auto_shutdown_time": "Auto ShutDown Time",
 
     "about": "About",
     "version": "Version",

@@ -96,6 +96,8 @@
 
     "auto_refresh_time": "定时刷新时间",
     "auto_refresh_time_subtitle": "定时刷新关注直播间状态",
+    "auto_shutdown_time_subtitle": "定时关闭app",
+    "auto_shutdown_time": "定时关闭时间",
 
     "about": "关于",
     "version": "版本",

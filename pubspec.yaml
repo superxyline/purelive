@@ -50,7 +50,7 @@ dependencies:
 
   # barrage wall
   flutter_barrage: ^0.5.4
-  
+  flutter_exit_app: ^1.1.2
   # video player mobile
   better_player:
     git:
@@ -68,7 +68,7 @@ dependencies:
   wakelock: ^0.6.2
   dlna_dart: ^0.0.8
   battery_plus: ^4.0.2
-  
+  stop_watch_timer: ^3.0.1
   # storage
   file_picker: ^5.2.5
   permission_handler: ^10.2.0

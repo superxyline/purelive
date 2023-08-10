@@ -45,8 +45,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "auto_backup": MessageLookupByLibrary.simpleMessage("Auto Backup"),
         "auto_refresh_time":
             MessageLookupByLibrary.simpleMessage("Auto Refresh Time"),
+        "auto_shutdown_time":
+            MessageLookupByLibrary.simpleMessage("Auto ShutDown Time"),
         "auto_refresh_time_subtitle": MessageLookupByLibrary.simpleMessage(
             "Auto refresh favorites rooms status"),
+        "auto_shutdown_time_subtitle": MessageLookupByLibrary.simpleMessage(
+            "Auto close app"),
         "backup_directory":
             MessageLookupByLibrary.simpleMessage("Backup Directory"),
         "backup_recover":

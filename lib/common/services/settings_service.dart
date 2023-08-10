@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 
 class SettingsService extends GetxController {
   SettingsService() {
@@ -17,11 +18,19 @@ class SettingsService extends GetxController {
     autoRefreshTime.listen((value) {
       PrefUtil.setInt('autoRefreshTime', value);
     });
+    autoShutDownTime.listen((value) {
+      PrefUtil.setInt('autoShutDownTime', value);
+      onShutDownChanged();
+    });
     enableBackgroundPlay.listen((value) {
       PrefUtil.setBool('enableBackgroundPlay', value);
     });
     enableScreenKeepOn.listen((value) {
       PrefUtil.setBool('enableScreenKeepOn', value);
+    });
+    enableAutoShutDownTime.listen((value) {
+      PrefUtil.setBool('enableAutoShutDownTime', value);
+      onShutDownChanged();
     });
     enableAutoCheckUpdate.listen((value) {
       PrefUtil.setBool('enableAutoCheckUpdate', value);
@@ -48,6 +57,11 @@ class SettingsService extends GetxController {
       backupDirectory.value = value;
       PrefUtil.setString('backupDirectory', value);
     });
+    onShutDownChanged();
+    _stopWatchTimer.fetchEnded.listen((value) {
+      _stopWatchTimer.onStopTimer();
+      FlutterExitApp.exitApp();
+    });
   }
 
   // Theme settings
@@ -66,6 +80,16 @@ class SettingsService extends GetxController {
     Get.changeThemeMode(themeMode);
   }
 
+  Future<void> onShutDownChanged() async {
+    if (enableAutoShutDownTime.isTrue) {
+      _stopWatchTimer.onStopTimer();
+      _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.toInt(), add: false);
+      _stopWatchTimer.onStartTimer();
+    } else {
+      _stopWatchTimer.onStopTimer();
+    }
+  }
+
   static Map<String, Color> themeColors = {
     "Crimson": const Color.fromARGB(255, 220, 20, 60),
     "Orange": Colors.orange,
@@ -81,7 +105,12 @@ class SettingsService extends GetxController {
   };
   final themeColorName = (PrefUtil.getString('themeColor') ?? "Blue").obs;
 
+  final StopWatchTimer _stopWatchTimer =
+      StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
+
   get themeColor => SettingsService.themeColors[themeColorName.value]!;
+
+  StopWatchTimer get stopWatchTimer => _stopWatchTimer;
 
   void changeThemeColor(String color) {
     themeColorName.value = color;
@@ -108,6 +137,8 @@ class SettingsService extends GetxController {
   // Custom settings
   final autoRefreshTime = (PrefUtil.getInt('autoRefreshTime') ?? 60).obs;
 
+  final autoShutDownTime = (PrefUtil.getInt('autoShutDownTime') ?? 120).obs;
+
   final enableDenseFavorites =
       (PrefUtil.getBool('enableDenseFavorites') ?? false).obs;
 
@@ -123,7 +154,11 @@ class SettingsService extends GetxController {
   final enableFullScreenDefault =
       (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
 
+  final enableAutoShutDownTime =
+      (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
+
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
+
   final preferResolution =
       (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
 
@@ -135,6 +170,7 @@ class SettingsService extends GetxController {
   }
 
   static const List<String> platforms = ['bilibili', 'douyu', 'huya'];
+
   final preferPlatform =
       (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
 
@@ -186,6 +222,7 @@ class SettingsService extends GetxController {
     historyRooms[idx] = room;
     return true;
   }
+
   void addRoomToHistory(LiveRoom room) {
     if (historyRooms.contains(room)) {
       historyRooms.remove(room);
@@ -196,7 +233,7 @@ class SettingsService extends GetxController {
     }
     historyRooms.add(room);
   }
-  
+
   // Favorite areas storage
   final favoriteAreas = ((PrefUtil.getStringList('favoriteAreas') ?? [])
           .map((e) => LiveArea.fromJson(jsonDecode(e)))

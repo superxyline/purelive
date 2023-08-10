@@ -44,6 +44,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "areas_title": MessageLookupByLibrary.simpleMessage("分区"),
         "auto_backup": MessageLookupByLibrary.simpleMessage("自动备份"),
         "auto_refresh_time": MessageLookupByLibrary.simpleMessage("定时刷新时间"),
+        "auto_shutdown_time": MessageLookupByLibrary.simpleMessage("定时关闭时间"),
+        "auto_shutdown_time_subtitle":
+            MessageLookupByLibrary.simpleMessage("定时关闭App"),
         "auto_refresh_time_subtitle":
             MessageLookupByLibrary.simpleMessage("定时刷新关注直播间状态"),
         "backup_directory": MessageLookupByLibrary.simpleMessage("备份目录"),

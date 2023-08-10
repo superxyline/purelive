@@ -115,6 +115,12 @@ class SettingsPage extends GetView<SettingsService> {
             trailing: Obx(() => Text('${controller.autoRefreshTime}s')),
             onTap: showAutoRefreshTimeSetDialog,
           ),
+          ListTile(
+            title: Text(S.of(context).auto_shutdown_time),
+            subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
+            trailing: Obx(() => Text('${controller.autoShutDownTime} minute')),
+            onTap: showAutoShutDownTimeSetDialog,
+          ),
         ],
       ),
     );
@@ -253,6 +259,38 @@ class SettingsPage extends GetView<SettingsService> {
                 ),
                 Text('${S.of(context).auto_refresh_time}:'
                     ' ${controller.autoRefreshTime}s'),
+              ],
+            )),
+      ),
+    );
+  }
+
+  void showAutoShutDownTimeSetDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        // title: Text(S.of(context).auto_refresh_time),
+        content: Obx(() => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SwitchListTile(
+                  title: Text(S.of(context).auto_shutdown_time_subtitle),
+                  value: controller.enableAutoShutDownTime.value,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (bool value) =>
+                      controller.enableAutoShutDownTime.value = value,
+                ),
+                Slider(
+                  min: 1,
+                  max: 120,
+                  label: S.of(context).auto_refresh_time,
+                  value: controller.autoShutDownTime.toDouble(),
+                  onChanged: (value) {
+                    controller.autoShutDownTime.value = value.toInt();
+                  },
+                ),
+                Text('${S.of(context).auto_shutdown_time}:'
+                    ' ${controller.autoShutDownTime} minute'),
               ],
             )),
       ),

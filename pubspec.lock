@@ -304,6 +304,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.3.1"
+  flutter_exit_app:
+    dependency: "direct main"
+    description:
+      name: flutter_exit_app
+      sha256: a8dc0eafc095ffb04790fb39f49f22f3de4e0470112221094a716d5843a7add6
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.2"
   flutter_js:
     dependency: "direct main"
     description:
@@ -844,6 +852,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.11.0"
+  stop_watch_timer:
+    dependency: "direct main"
+    description:
+      name: stop_watch_timer
+      sha256: "3fe040c5bf04004f6d21a454a859e90b0d3e2323d24d2d9e80d5d9df9ff614cc"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.1"
   stream_channel:
     dependency: transitive
     description:
