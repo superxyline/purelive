@@ -10,5 +10,5 @@
 
 哔哩哔哩/虎牙/斗鱼
 
-下载地址 [纯粹直播](https://wwvr.lanzouw.com/iC0qQ14xrqob)
-密码 fipd
+下载地址 [纯粹直播](https://wwvr.lanzouw.com/b01f6rqab)
+密码 40l9
