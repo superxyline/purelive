@@ -31,8 +31,6 @@ class HuyaSite implements LiveSite {
     return await jsonDecode(resp.body);
   }
   int getUuid() {
-    // 3011359689
-    // 2710600307
     var now = DateTime.now().microsecondsSinceEpoch;
     var rand = math.Random().nextInt(1000);
     return (now % 10000000000 * 1000  + rand) % 4294967295;
@@ -49,7 +47,6 @@ class HuyaSite implements LiveSite {
     String jsonParams = jsonEncode(params);
     var resp = await http.post(Uri.parse(url),
         body: jsonParams, headers: {'Content-Type': 'application/json'});
-
     return jsonDecode(resp.body)['data']['uid'].toString();
   }
 
@@ -58,7 +55,6 @@ class HuyaSite implements LiveSite {
     String sFlvAntiCode = s['sFlvAntiCode'];
     String uid = await getAnonymousUid();
     List<String> sFlvAntiCodeArr = sFlvAntiCode.split('&');
-    log(sFlvAntiCodeArr.toString(), name: 'HuyaApi.q'); 
     Map<String, List> q = {};
     for (var element in sFlvAntiCodeArr) {
       List<String> liveArr = element.split('=');
@@ -81,9 +77,8 @@ class HuyaSite implements LiveSite {
     q.remove('fm');
     q.removeWhere((key, value) => key == 'txyp');
     var urlPar = Map.from(q).entries.map((entry) => '${entry.key}=${entry.value[0]}').toList().join('&');
-    var params = s["sFlvUrl"] + '/' + s["sStreamName"] +'.' + s["sFlvUrlSuffix"] + '?' + urlPar;
-    log(params.toString(), name: 'HuyaApi.params'); 
-    return params;
+    String params = s["sFlvUrl"] + '/' + s["sStreamName"] +'.' + s["sFlvUrlSuffix"] + '?' + urlPar;
+    return params.replaceAll('http://', 'https://');
   }
   Future<dynamic> getRealUrl(String roomId) async {
     var roomUrl = 'https://m.huya.com/$roomId';
@@ -106,8 +101,14 @@ class HuyaSite implements LiveSite {
     var eLiveStatus = roomInfo["roomInfo"]["eLiveStatus"];
     if (eLiveStatus == 2) {
       return await processAnticode(roomInfo);
+    }else if (eLiveStatus == 3) {
+      // 回放
+         return  'https:${utf8.decode(base64.decode(roomInfo["roomProfile"]["liveLineUrl"]))}';
+    }else {
+      // 未开播
+      return '';
     }
-    return await processAnticode(roomInfo);
+
   }
 
   @override
@@ -124,7 +125,6 @@ class HuyaSite implements LiveSite {
       dynamic response = await _getJson(url);
       if (response['status'] == 200) {
         Map data = response['data']['stream']['flv'];
-
         // 获取支持的分辨率
         Map<String, String> rates = {};
         for (var rate in data['rateArray']) {
@@ -160,7 +160,6 @@ class HuyaSite implements LiveSite {
       dynamic response = await _getJson(url);
       if (response['status'] == 200) {
         dynamic data = response['data'];
-
         room.platform = 'huya';
         room.userId = data['profileInfo']?['uid']?.toString() ?? '';
         room.nick = data['profileInfo']?['nick'] ?? '';

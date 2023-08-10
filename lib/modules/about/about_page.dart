@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/routes/app_pages.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'widgets/version_dialog.dart';
@@ -40,28 +39,6 @@ class _AboutPageState extends State<AboutPage> {
             onTap: showLicenseDialog,
           ),
           SectionTitle(title: S.of(context).project),
-          ListTile(
-            title: Text(S.of(context).support_donate),
-            onTap: () => Get.toNamed(AppPages.donate),
-          ),
-          ListTile(
-            title: Text(S.of(context).issue_feedback),
-            onTap: () {
-              launchUrl(
-                Uri.parse(VersionUtil.issuesUrl),
-                mode: LaunchMode.externalApplication,
-              );
-            },
-          ),
-          ListTile(
-            title: Text(S.of(context).develop_progress),
-            onTap: () {
-              launchUrl(
-                Uri.parse(VersionUtil.kanbanUrl),
-                mode: LaunchMode.externalApplication,
-              );
-            },
-          ),
           ListTile(
             title: Text(S.of(context).project_page),
             subtitle: const Text(VersionUtil.projectUrl),

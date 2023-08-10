@@ -24,18 +24,6 @@ class _ContactPageState extends State<ContactPage> {
         children: [
           SectionTitle(title: S.of(context).contact),
           ListTile(
-            leading: const Icon(CustomIcons.telegram, size: 32),
-            title: Text(S.of(context).telegram),
-            subtitle: const Text(VersionUtil.telegramGroup),
-            onLongPress: () => clipboard(VersionUtil.telegramGroup),
-            onTap: () {
-              launchUrl(
-                Uri.parse(VersionUtil.telegramGroupUrl),
-                mode: LaunchMode.externalApplication,
-              );
-            },
-          ),
-          ListTile(
             leading: const Icon(CustomIcons.mail_squared, size: 34),
             title: Text(S.of(context).email),
             subtitle: const Text(VersionUtil.email),

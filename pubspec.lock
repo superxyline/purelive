@@ -55,7 +55,7 @@ packages:
       path: "."
       ref: Issue1057
       resolved-ref: e45f447b6d3ae6a3404ddfd9663f8aeae864ddec
-      url: "https://kgithub.com/matthewrice345/betterplayer.git"
+      url: "https://github.hscsec.cn/matthewrice345/betterplayer.git"
     source: git
     version: "0.0.83"
   boolean_selector:

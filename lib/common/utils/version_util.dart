@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class VersionUtil {
-  static const String version = '1.1.0';
-  static const String projectUrl = 'https://github.com/Jackiu1997/pure_live';
+  static const String version = '1.1.1';
+  static const String projectUrl = 'https://github.com/liuchuancong/pure_live';
   static const String releaseUrl =
       'https://api.github.com/repos/Jackiu1997/pure_live/releases';
   static const String issuesUrl =
@@ -11,10 +11,10 @@ class VersionUtil {
   static const String kanbanUrl =
       'https://jackiu-notes.notion.site/50bc0d3d377445eea029c6e3d4195671?v=663125e639b047cea5e69d8264926b8b';
 
-  static const String githubUrl = 'https://github.com/Jackiu1997';
-  static const String email = 'jackiu1997@gmail.com';
+  static const String githubUrl = 'https://github.com/liuchuancong';
+  static const String email = '17792321552@163.com';
   static const String emailUrl =
-      'mailto:jackiu1997@gmail.com?subject=PureLive Feedback';
+      'mailto:17792321552@163.com?subject=PureLive Feedback';
   static const String telegramGroup = 't.me/pure_live_channel';
   static const String telegramGroupUrl = 'https://t.me/pure_live_channel';
 
