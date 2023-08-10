@@ -1,16 +1,14 @@
-# pure_live
+# 纯粹直播
 
-A new Flutter project.
+本仓库仅为维护bug处理，不为原作者，支持[原作者](https://github.com/Jackiu1997/pure_live "pure_live")
 
-## Getting Started
+## 功能
 
-This project is a starting point for a Flutter application.
+已实现粘贴，播放,本地下载,待下载,分享等功能
 
-A few resources to get you started if this is your first Flutter project:
+## 支持平台
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+哔哩哔哩/虎牙/斗鱼
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+下载地址 [纯粹直播](https://wwvr.lanzouw.com/iC0qQ14xrqob)
+密码 fipd
