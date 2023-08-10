@@ -282,7 +282,7 @@ class SettingsPage extends GetView<SettingsService> {
                 ),
                 Slider(
                   min: 1,
-                  max: 120,
+                  max: 1200,
                   label: S.of(context).auto_refresh_time,
                   value: controller.autoShutDownTime.toDouble(),
                   onChanged: (value) {
