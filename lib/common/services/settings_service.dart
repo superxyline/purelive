@@ -317,4 +317,22 @@ class SettingsService extends GetxController {
     json['preferPlatform'] = preferPlatform.value;
     return json;
   }
+
+  defaultConfig() {
+    Map<String, dynamic> json = {
+      "favoriteRooms": [],
+      "favoriteAreas": [],
+      "themeMode": "Dark",
+      "themeColor": "Chrome",
+      "enableDynamicTheme": false,
+      "enableDenseFavorites": false,
+      "enableBackgroundPlay": false,
+      "enableScreenKeepOn": true,
+      "enableAutoCheckUpdate": false,
+      "enableFullScreenDefault": false,
+      "preferResolution": "原画",
+      "preferPlatform": "bilibili"
+    };
+     return json;
+  }
 }

@@ -6,6 +6,7 @@ import '../../routes/app_pages.dart';
 
 class MenuButton extends GetView<AuthController> {
   const MenuButton({Key? key}) : super(key: key);
+
   final menuRoutes = const [
     AppPages.settings,
     AppPages.about,
@@ -24,16 +25,24 @@ class MenuButton extends GetView<AuthController> {
       offset: const Offset(12, 0),
       position: PopupMenuPosition.under,
       icon: const Icon(Icons.menu_rounded),
-      onSelected: (int index) => Get.toNamed(menuRoutes[index]),
+      onSelected: (int index) {
+        if (index == 4) {
+          if (controller.isLogin) {
+            Get.toNamed(AppPages.mine);
+          } else {
+            Get.toNamed(AppPages.signIn);
+          }
+        } else {
+          Get.toNamed(menuRoutes[index]);
+        }
+      },
       itemBuilder: (context) => [
         PopupMenuItem(
           value: 4,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: Icon(controller.isLogin
-                ? Icons.login_outlined
-                : Icons.account_circle),
-            text:  controller.isLogin ? '退出登录': '登录',
+            leading: const Icon(Icons.account_circle),
+            text: controller.isLogin ? '我的' : '登录',
           ),
         ),
         PopupMenuItem(
