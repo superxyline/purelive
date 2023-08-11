@@ -41,7 +41,6 @@ class SupBaseManager {
   Future<void> uploadConfig() async {
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
-    log(service.toJson().toString());
     List<dynamic> data =
         await client.from(tableName).select().eq(userColumnName, userId);
     if (data.isNotEmpty) {
@@ -66,15 +65,12 @@ class SupBaseManager {
   Future<void> readConfig() async {
     final userId = Get.find<AuthController>().userId;
     final isLogin = Get.find<AuthController>().isLogin;
-     log(isLogin.toString());
     if (isLogin == true) {
       final SettingsService service = Get.find<SettingsService>();
-      log(service.toJson().toString());
       List<dynamic> data =
           await client.from(tableName).select().eq(userColumnName, userId);
       if (data.isNotEmpty) {
         String json = data[0][configColumnName];
-        log(json);
         service.fromJson(jsonDecode(json));
       }
     }
