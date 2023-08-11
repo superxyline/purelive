@@ -30,7 +30,7 @@ class _SignInPageState extends State<SignInPage> {
                 onSignInComplete: (AuthResponse response) {
                   SupBaseManager().readConfig();
                   Get.rawSnackbar(message: '登陆成功');
-                  Get.toNamed(AppPages.initial);
+                  Get.offAllNamed(AppPages.initial);
                 },
                 onSignUpComplete: (AuthResponse response) {
                   Get.rawSnackbar(message: '请确认您的邮箱');
