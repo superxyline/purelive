@@ -26,14 +26,14 @@ class _SignInPageState extends State<SignInPage> {
           child: Column(
             children: [
               SupaEmailAuth(
-                redirectTo: kIsWeb ? null : 'purelive',
+                redirectTo: kIsWeb ? null : 'purelive://signin',
                 onSignInComplete: (AuthResponse response) {
                   SupBaseManager().readConfig();
                   Get.rawSnackbar(message: '登陆成功');
                   Get.toNamed(AppPages.initial);
                 },
                 onSignUpComplete: (AuthResponse response) {
-                  Get.rawSnackbar(message: '登陆失败');
+                  Get.rawSnackbar(message: '请确认您的邮箱');
                 },
               ),
             ],
