@@ -51,6 +51,10 @@ dependencies:
   # barrage wall
   flutter_barrage: ^0.5.4
   flutter_exit_app: ^1.1.2
+
+  # database
+  supabase_flutter: ^1.10.12
+  supabase_auth_ui: ^0.2.1
   # video player mobile
   better_player:
     git:

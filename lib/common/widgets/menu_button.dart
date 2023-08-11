@@ -1,16 +1,17 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/auth/auth_controller.dart';
 
 import '../../routes/app_pages.dart';
 
-class MenuButton extends StatelessWidget {
+class MenuButton extends GetView<AuthController> {
   const MenuButton({Key? key}) : super(key: key);
-
   final menuRoutes = const [
     AppPages.settings,
     AppPages.about,
     AppPages.contact,
     AppPages.history,
+    AppPages.signIn
   ];
 
   @override
@@ -25,6 +26,16 @@ class MenuButton extends StatelessWidget {
       icon: const Icon(Icons.menu_rounded),
       onSelected: (int index) => Get.toNamed(menuRoutes[index]),
       itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 4,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: MenuListTile(
+            leading: Icon(controller.isLogin
+                ? Icons.login_outlined
+                : Icons.account_circle),
+            text:  controller.isLogin ? '退出登录': '登录',
+          ),
+        ),
         PopupMenuItem(
           value: 0,
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -48,7 +59,8 @@ class MenuButton extends StatelessWidget {
             leading: const Icon(Icons.contact_support),
             text: S.of(context).contact,
           ),
-        ),PopupMenuItem(
+        ),
+        PopupMenuItem(
           value: 3,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(

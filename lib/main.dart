@@ -7,11 +7,14 @@ import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/areas/areas_controller.dart';
+import 'package:pure_live/modules/auth/auth_controller.dart';
 import 'package:pure_live/modules/favorite/favorite_controller.dart';
 import 'package:pure_live/modules/popular/popular_controller.dart';
+import 'package:pure_live/plugins/supbase.dart';
 import 'package:pure_live/routes/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,12 +24,14 @@ void main() async {
     DartVLC.initialize();
     await windowManager.ensureInitialized();
   }
+  await SupBaseManager.getInstance().initial();
   initService();
 
   runApp(MyApp());
 }
 
 void initService() {
+  Get.put(AuthController());
   Get.put(SettingsService());
   Get.put(FavoriteController());
   Get.put(PopularController());

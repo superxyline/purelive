@@ -5,7 +5,6 @@ import 'package:pure_live/modules/about/donate_page.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
-import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/contact/contact_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/home/home_page.dart';
@@ -17,7 +16,9 @@ import 'package:pure_live/modules/settings/settings_page.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/history/history_page.dart';
-
+import 'package:pure_live/modules/backup/backup_page.dart';
+// auth
+import 'package:pure_live/modules/auth/sign_in_page.dart';
 
 class AppPages {
   AppPages._();
@@ -38,6 +39,8 @@ class AppPages {
   static const history = '/history';
   static const donate = '/donate';
 
+  static const signIn = '/sign_in';
+
   static toAreaRooms(LiveArea area) {
     Get.toNamed(areaRooms, arguments: area);
   }
@@ -50,6 +53,10 @@ class AppPages {
     GetPage(
       name: initial,
       page: HomePage.new,
+    ),
+    GetPage(
+      name: signIn,
+      page: SignInPage.new,
     ),
     GetPage(
       name: favorite,
