@@ -43,6 +43,7 @@ class SupBaseManager {
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data =
         await client.from(tableName).select().eq(userColumnName, userId);
+        log(data.toString());
     if (data.isNotEmpty) {
       client
           .from(tableName)
@@ -53,10 +54,11 @@ class SupBaseManager {
             Get.rawSnackbar(message: '上传失败');
           });
     } else {
+      log(service.toJson().toString());
       client.from(tableName).insert({
         userColumnName: userId,
-        configColumnName: service.toJson().toString()
-      }).then((value) => Get.rawSnackbar(message: '上传成功'), onError: () {
+        configColumnName: jsonEncode(service.toJson())
+      }).then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
         Get.rawSnackbar(message: '上传失败');
       });
     }
