@@ -1,10 +1,10 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/plugins/supbase.dart';
 import 'package:pure_live/routes/app_pages.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-import 'dart:developer';
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
 
@@ -26,7 +26,7 @@ class _SignInPageState extends State<SignInPage> {
           child: Column(
             children: [
               SupaEmailAuth(
-                redirectTo: null,
+                redirectTo: kIsWeb ? null : 'purelive',
                 onSignInComplete: (AuthResponse response) {
                   SupBaseManager().readConfig();
                   Get.rawSnackbar(message: '登陆成功');
