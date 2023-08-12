@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -48,39 +49,44 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicColorBuilder(
-      builder: (lightDynamic, darkDynamic) {
-        return Obx(() {
-          var themeColor =
-              SettingsService.themeColors[settings.themeColorName]!;
-          // 主题颜色设定/Monet取色
-          var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
-          var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
-          if (settings.enableDynamicTheme.value) {
-            lightTheme = MyTheme(colorScheme: lightDynamic).lightThemeData;
-            darkTheme = MyTheme(colorScheme: darkDynamic).darkThemeData;
-          }
-
-          return GetMaterialApp(
-            title: 'PureLive',
-            themeMode:
-                SettingsService.themeModes[settings.themeModeName.value]!,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            locale: SettingsService.languages[settings.languageName.value]!,
-            supportedLocales: S.delegate.supportedLocales,
-            localizationsDelegates: const [
-              S.delegate,
-              RefreshLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            initialRoute: AppPages.initial,
-            getPages: AppPages.routes,
-          );
-        });
+    return Shortcuts(
+       shortcuts: {
+         LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
       },
+      child: DynamicColorBuilder(
+        builder: (lightDynamic, darkDynamic) {
+          return Obx(() {
+            var themeColor =
+                SettingsService.themeColors[settings.themeColorName]!;
+            // 主题颜色设定/Monet取色
+            var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
+            var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
+            if (settings.enableDynamicTheme.value) {
+              lightTheme = MyTheme(colorScheme: lightDynamic).lightThemeData;
+              darkTheme = MyTheme(colorScheme: darkDynamic).darkThemeData;
+            }
+    
+            return GetMaterialApp(
+              title: 'PureLive',
+              themeMode:
+                  SettingsService.themeModes[settings.themeModeName.value]!,
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              locale: SettingsService.languages[settings.languageName.value]!,
+              supportedLocales: S.delegate.supportedLocales,
+              localizationsDelegates: const [
+                S.delegate,
+                RefreshLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              initialRoute: AppPages.initial,
+              getPages: AppPages.routes,
+            );
+          });
+        },
+      ),
     );
   }
 }
