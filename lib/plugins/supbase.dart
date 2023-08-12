@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
+import 'package:pure_live/modules/favorite/favorite_controller.dart';
 import 'package:pure_live/routes/app_pages.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -43,7 +44,7 @@ class SupBaseManager {
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data =
         await client.from(tableName).select().eq(userColumnName, userId);
-        log(data.toString());
+    log(data.toString());
     if (data.isNotEmpty) {
       client
           .from(tableName)
@@ -67,6 +68,7 @@ class SupBaseManager {
   Future<void> readConfig() async {
     final userId = Get.find<AuthController>().userId;
     final isLogin = Get.find<AuthController>().isLogin;
+    final FavoriteController favoriteController = Get.find<FavoriteController>();
     if (isLogin == true) {
       final SettingsService service = Get.find<SettingsService>();
       List<dynamic> data =
@@ -74,6 +76,7 @@ class SupBaseManager {
       if (data.isNotEmpty) {
         String json = data[0][configColumnName];
         service.fromJson(jsonDecode(json));
+        favoriteController.onRefresh();
       }
     }
   }

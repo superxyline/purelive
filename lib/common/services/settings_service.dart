@@ -18,20 +18,32 @@ class SettingsService extends GetxController {
     autoRefreshTime.listen((value) {
       PrefUtil.setInt('autoRefreshTime', value);
     });
-    autoShutDownTime.listen((value) {
-      PrefUtil.setInt('autoShutDownTime', value);
-      onShutDownChanged();
-    });
+    debounce(autoShutDownTime, (callback) {
+      PrefUtil.setInt('autoShutDownTime', autoShutDownTime.value);
+      if (enableAutoShutDownTime.isTrue) {
+        _stopWatchTimer.onStopTimer();
+        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
+        _stopWatchTimer.onStartTimer();
+      } else {
+        _stopWatchTimer.onStopTimer();
+      }
+    }, time: 1.seconds);
     enableBackgroundPlay.listen((value) {
       PrefUtil.setBool('enableBackgroundPlay', value);
     });
     enableScreenKeepOn.listen((value) {
       PrefUtil.setBool('enableScreenKeepOn', value);
     });
-    enableAutoShutDownTime.listen((value) {
-      PrefUtil.setBool('enableAutoShutDownTime', value);
-      onShutDownChanged();
-    });
+    debounce(enableAutoShutDownTime, (callback) {
+      PrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
+      if (enableAutoShutDownTime.value == true) {
+        _stopWatchTimer.onStopTimer();
+        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
+        _stopWatchTimer.onStartTimer();
+      } else {
+        _stopWatchTimer.onStopTimer();
+      }
+    }, time: 1.seconds);
     enableAutoCheckUpdate.listen((value) {
       PrefUtil.setBool('enableAutoCheckUpdate', value);
     });
@@ -57,7 +69,7 @@ class SettingsService extends GetxController {
       backupDirectory.value = value;
       PrefUtil.setString('backupDirectory', value);
     });
-    onShutDownChanged();
+    onInitShutDown();
     _stopWatchTimer.fetchEnded.listen((value) {
       _stopWatchTimer.onStopTimer();
       FlutterExitApp.exitApp();
@@ -80,13 +92,10 @@ class SettingsService extends GetxController {
     Get.changeThemeMode(themeMode);
   }
 
-  Future<void> onShutDownChanged() async {
+  void onInitShutDown() {
     if (enableAutoShutDownTime.isTrue) {
-      _stopWatchTimer.onStopTimer();
-      _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.toInt(), add: false);
+      _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
       _stopWatchTimer.onStartTimer();
-    } else {
-      _stopWatchTimer.onStopTimer();
     }
   }
 
@@ -333,6 +342,6 @@ class SettingsService extends GetxController {
       "preferResolution": "原画",
       "preferPlatform": "bilibili"
     };
-     return json;
+    return json;
   }
 }
