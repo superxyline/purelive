@@ -1,6 +1,6 @@
 # 纯粹直播
 
-本仓库仅为维护bug处理，不为原作者，支持[原作者](https://github.com/Jackiu1997/pure_live "pure_live")
+本仓库仅为维护bug处理以及新功能开发，不为原作者，点此链接访问[原仓库](https://github.com/Jackiu1997/pure_live "pure_live")
 
 ## 功能
 
