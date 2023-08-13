@@ -67,4 +67,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
   Widget build(BuildContext context) {
     return _buildPlayer();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }
