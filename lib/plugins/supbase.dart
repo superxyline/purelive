@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -44,18 +43,15 @@ class SupBaseManager {
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data =
         await client.from(tableName).select().eq(userColumnName, userId);
-    log(data.toString());
     if (data.isNotEmpty) {
       client
           .from(tableName)
           .update({configColumnName: jsonEncode(service.toJson())})
           .eq(userColumnName, userId)
           .then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
-            log(err.toString());
             Get.rawSnackbar(message: '上传失败');
           });
     } else {
-      log(service.toJson().toString());
       client.from(tableName).insert({
         userColumnName: userId,
         configColumnName: jsonEncode(service.toJson())

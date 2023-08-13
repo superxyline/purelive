@@ -146,13 +146,13 @@ class VideoController with ChangeNotifier {
   }
 
   dynamic mobileStateListener(dynamic state) {
-    if(mobileController?.videoPlayerController != null){
-    hasError.value =
-        mobileController?.videoPlayerController?.value.hasError ?? true;
-    isPlaying.value = mobileController?.isPlaying() ?? false;
-    isBuffering.value = mobileController?.isBuffering() ?? false;
-    isPipMode.value =
-        mobileController?.videoPlayerController?.value.isPip ?? false;
+    if (mobileController?.videoPlayerController != null) {
+      hasError.value =
+          mobileController?.videoPlayerController?.value.hasError ?? true;
+      isPlaying.value = mobileController?.isPlaying() ?? false;
+      isBuffering.value = mobileController?.isBuffering() ?? false;
+      isPipMode.value =
+          mobileController?.videoPlayerController?.value.isPip ?? false;
     }
   }
 
@@ -215,9 +215,6 @@ class VideoController with ChangeNotifier {
     danmakuController.dispose();
     desktopController?.dispose();
     mobileController?.removeEventsListener(mobileStateListener);
-    mobileController?.videoPlayerController?.dispose();
-    mobileController?.dispose();
-    mobileController = null;
     super.dispose();
   }
 
@@ -225,10 +222,9 @@ class VideoController with ChangeNotifier {
     if (Platform.isWindows || Platform.isLinux) {
       setDataSource(datasource);
     } else if (Platform.isAndroid || Platform.isIOS) {
-      if(mobileController?.videoPlayerController != null){
-      mobileController?.retryDataSource();
+      if (mobileController?.videoPlayerController != null) {
+        mobileController?.retryDataSource();
       }
-
     }
   }
 

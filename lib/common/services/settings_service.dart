@@ -178,6 +178,17 @@ class SettingsService extends GetxController {
     }
   }
 
+  void changeShutDownConfig(int minutes, bool isAutoShutDown) {
+    autoShutDownTime.value = minutes;
+    enableAutoShutDownTime.value = isAutoShutDown;
+    PrefUtil.setInt('autoShutDownTime', minutes);
+    PrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
+    onInitShutDown();
+  }
+  void changeAutoRefreshConfig(int seconds) {
+    autoRefreshTime.value = seconds;
+    PrefUtil.setInt('autoRefreshTime', seconds);
+  }
   static const List<String> platforms = ['bilibili', 'douyu', 'huya'];
 
   final preferPlatform =
@@ -298,6 +309,10 @@ class SettingsService extends GetxController {
 
     changeThemeMode(json['themeMode'] ?? "System");
     changeThemeColor(json['themeColor'] ?? "Crimson");
+    autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
+    autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
+
+    enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
     enableDenseFavorites.value = json['enableDenseFavorites'] ?? false;
     enableBackgroundPlay.value = json['enableBackgroundPlay'] ?? false;
@@ -306,6 +321,9 @@ class SettingsService extends GetxController {
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
     changePreferResolution(json['preferResolution'] ?? resolutions[0]);
     changePreferPlatform(json['preferPlatform'] ?? platforms[0]);
+    changeShutDownConfig(
+        json['autoShutDownTime'] ?? 120, json['enableAutoShutDownTime'] ?? false);
+    changeAutoRefreshConfig(json['autoRefreshTime'] ?? 60);
   }
 
   Map<String, dynamic> toJson() {
@@ -316,6 +334,11 @@ class SettingsService extends GetxController {
         favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['themeMode'] = themeModeName.value;
     json['themeColor'] = themeColorName.value;
+
+    json['autoRefreshTime'] = autoRefreshTime.value;
+    json['autoShutDownTime'] = autoShutDownTime.value;
+    json['enableAutoShutDownTime'] = enableAutoShutDownTime.value;
+
     json['enableDynamicTheme'] = enableDynamicTheme.value;
     json['enableDenseFavorites'] = enableDenseFavorites.value;
     json['enableBackgroundPlay'] = enableBackgroundPlay.value;
@@ -334,6 +357,9 @@ class SettingsService extends GetxController {
       "themeMode": "Dark",
       "themeColor": "Chrome",
       "enableDynamicTheme": false,
+      "autoShutDownTime": 120,
+      "autoRefreshTime": 60,
+      "enableAutoShutDownTime": false,
       "enableDenseFavorites": false,
       "enableBackgroundPlay": false,
       "enableScreenKeepOn": true,

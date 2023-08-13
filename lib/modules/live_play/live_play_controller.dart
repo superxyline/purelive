@@ -19,7 +19,7 @@ class LivePlayController extends GetxController {
   final messages = <LiveMessage>[].obs;
 
   // 控制唯一子组件
-  VideoController? videoController;
+  VideoController? videoController; 
   final playerKey = GlobalKey();
   final danmakuViewKey = GlobalKey();
 
