@@ -322,8 +322,8 @@ class SettingsService extends GetxController {
     changePreferResolution(json['preferResolution'] ?? resolutions[0]);
     changePreferPlatform(json['preferPlatform'] ?? platforms[0]);
     changeShutDownConfig(
-        json['autoShutDownTime'], json['enableAutoShutDownTime']);
-    changeAutoRefreshConfig(json['autoRefreshTime']);
+        json['autoShutDownTime'] ?? 120, json['enableAutoShutDownTime'] ?? false);
+    changeAutoRefreshConfig(json['autoRefreshTime'] ?? 60);
   }
 
   Map<String, dynamic> toJson() {
