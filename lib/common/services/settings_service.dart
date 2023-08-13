@@ -178,14 +178,17 @@ class SettingsService extends GetxController {
     }
   }
 
-  void changeShutDownconfig(int minutes, bool isAutoShutDown) {
+  void changeShutDownConfig(int minutes, bool isAutoShutDown) {
     autoShutDownTime.value = minutes;
     enableAutoShutDownTime.value = isAutoShutDown;
     PrefUtil.setInt('autoShutDownTime', minutes);
     PrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
     onInitShutDown();
   }
-
+  void changeAutoRefreshConfig(int seconds) {
+    autoRefreshTime.value = seconds;
+    PrefUtil.setInt('autoRefreshTime', seconds);
+  }
   static const List<String> platforms = ['bilibili', 'douyu', 'huya'];
 
   final preferPlatform =
@@ -318,8 +321,9 @@ class SettingsService extends GetxController {
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
     changePreferResolution(json['preferResolution'] ?? resolutions[0]);
     changePreferPlatform(json['preferPlatform'] ?? platforms[0]);
-    changeShutDownconfig(
+    changeShutDownConfig(
         json['autoShutDownTime'], json['enableAutoShutDownTime']);
+    changeAutoRefreshConfig(json['autoRefreshTime']);
   }
 
   Map<String, dynamic> toJson() {
