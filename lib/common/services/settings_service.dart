@@ -309,11 +309,11 @@ class SettingsService extends GetxController {
         .map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e)))
         .toList();
 
-    changeThemeMode(json['themeMode'] ?? "System");
-    changeThemeColor(json['themeColor'] ?? "Crimson");
+    
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
-
+    themeColorName.value = json['themeColor'] ?? "Crimson";
+    themeModeName.value = json['themeMode'] ?? "System";
     enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
     enableDenseFavorites.value = json['enableDenseFavorites'] ?? false;
@@ -324,6 +324,8 @@ class SettingsService extends GetxController {
     languageName.value = json['languageName'] ?? "简体中文";
     preferResolution.value = json['preferResolution'] ?? resolutions[0];
     preferPlatform.value = json['preferPlatform'] ?? platforms[0];
+    changeThemeMode(themeModeName.value);
+    changeThemeColor(themeColorName.value);
     changeLanguage(languageName.value);
     changePreferResolution(preferResolution.value);
     changePreferPlatform(preferPlatform.value);
@@ -360,7 +362,7 @@ class SettingsService extends GetxController {
     Map<String, dynamic> json = {
       "favoriteRooms": [],
       "favoriteAreas": [],
-      "themeMode": "Dark",
+      "themeMode": "Light",
       "themeColor": "Chrome",
       "enableDynamicTheme": false,
       "autoShutDownTime": 120,
