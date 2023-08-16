@@ -1,3 +1,4 @@
+
 import 'dart:io';
 
 import 'package:dart_vlc/dart_vlc.dart';
@@ -24,7 +25,9 @@ void main() async {
     DartVLC.initialize();
     await windowManager.ensureInitialized();
   }
+  // 先初始化supdatabase
   await SupBaseManager.getInstance().initial();
+  // 初始化服务
   initService();
 
   runApp(MyApp());

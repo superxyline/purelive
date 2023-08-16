@@ -18,20 +18,32 @@ class SettingsService extends GetxController {
     autoRefreshTime.listen((value) {
       PrefUtil.setInt('autoRefreshTime', value);
     });
-    autoShutDownTime.listen((value) {
-      PrefUtil.setInt('autoShutDownTime', value);
-      onShutDownChanged();
-    });
+    debounce(autoShutDownTime, (callback) {
+      PrefUtil.setInt('autoShutDownTime', autoShutDownTime.value);
+      if (enableAutoShutDownTime.isTrue) {
+        _stopWatchTimer.onStopTimer();
+        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
+        _stopWatchTimer.onStartTimer();
+      } else {
+        _stopWatchTimer.onStopTimer();
+      }
+    }, time: 1.seconds);
     enableBackgroundPlay.listen((value) {
       PrefUtil.setBool('enableBackgroundPlay', value);
     });
     enableScreenKeepOn.listen((value) {
       PrefUtil.setBool('enableScreenKeepOn', value);
     });
-    enableAutoShutDownTime.listen((value) {
-      PrefUtil.setBool('enableAutoShutDownTime', value);
-      onShutDownChanged();
-    });
+    debounce(enableAutoShutDownTime, (callback) {
+      PrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
+      if (enableAutoShutDownTime.value == true) {
+        _stopWatchTimer.onStopTimer();
+        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
+        _stopWatchTimer.onStartTimer();
+      } else {
+        _stopWatchTimer.onStopTimer();
+      }
+    }, time: 1.seconds);
     enableAutoCheckUpdate.listen((value) {
       PrefUtil.setBool('enableAutoCheckUpdate', value);
     });
@@ -57,7 +69,7 @@ class SettingsService extends GetxController {
       backupDirectory.value = value;
       PrefUtil.setString('backupDirectory', value);
     });
-    onShutDownChanged();
+    onInitShutDown();
     _stopWatchTimer.fetchEnded.listen((value) {
       _stopWatchTimer.onStopTimer();
       FlutterExitApp.exitApp();
@@ -80,13 +92,10 @@ class SettingsService extends GetxController {
     Get.changeThemeMode(themeMode);
   }
 
-  Future<void> onShutDownChanged() async {
+  void onInitShutDown() {
     if (enableAutoShutDownTime.isTrue) {
-      _stopWatchTimer.onStopTimer();
-      _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.toInt(), add: false);
+      _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
       _stopWatchTimer.onStartTimer();
-    } else {
-      _stopWatchTimer.onStopTimer();
     }
   }
 
@@ -169,6 +178,17 @@ class SettingsService extends GetxController {
     }
   }
 
+  void changeShutDownConfig(int minutes, bool isAutoShutDown) {
+    autoShutDownTime.value = minutes;
+    enableAutoShutDownTime.value = isAutoShutDown;
+    PrefUtil.setInt('autoShutDownTime', minutes);
+    PrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
+    onInitShutDown();
+  }
+  void changeAutoRefreshConfig(int seconds) {
+    autoRefreshTime.value = seconds;
+    PrefUtil.setInt('autoRefreshTime', seconds);
+  }
   static const List<String> platforms = ['bilibili', 'douyu', 'huya'];
 
   final preferPlatform =
@@ -289,6 +309,10 @@ class SettingsService extends GetxController {
 
     changeThemeMode(json['themeMode'] ?? "System");
     changeThemeColor(json['themeColor'] ?? "Crimson");
+    autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
+    autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
+
+    enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
     enableDenseFavorites.value = json['enableDenseFavorites'] ?? false;
     enableBackgroundPlay.value = json['enableBackgroundPlay'] ?? false;
@@ -297,6 +321,9 @@ class SettingsService extends GetxController {
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
     changePreferResolution(json['preferResolution'] ?? resolutions[0]);
     changePreferPlatform(json['preferPlatform'] ?? platforms[0]);
+    changeShutDownConfig(
+        json['autoShutDownTime'] ?? 120, json['enableAutoShutDownTime'] ?? false);
+    changeAutoRefreshConfig(json['autoRefreshTime'] ?? 60);
   }
 
   Map<String, dynamic> toJson() {
@@ -307,6 +334,11 @@ class SettingsService extends GetxController {
         favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['themeMode'] = themeModeName.value;
     json['themeColor'] = themeColorName.value;
+
+    json['autoRefreshTime'] = autoRefreshTime.value;
+    json['autoShutDownTime'] = autoShutDownTime.value;
+    json['enableAutoShutDownTime'] = enableAutoShutDownTime.value;
+
     json['enableDynamicTheme'] = enableDynamicTheme.value;
     json['enableDenseFavorites'] = enableDenseFavorites.value;
     json['enableBackgroundPlay'] = enableBackgroundPlay.value;
@@ -315,6 +347,27 @@ class SettingsService extends GetxController {
     json['enableFullScreenDefault'] = enableFullScreenDefault.value;
     json['preferResolution'] = preferResolution.value;
     json['preferPlatform'] = preferPlatform.value;
+    return json;
+  }
+
+  defaultConfig() {
+    Map<String, dynamic> json = {
+      "favoriteRooms": [],
+      "favoriteAreas": [],
+      "themeMode": "Dark",
+      "themeColor": "Chrome",
+      "enableDynamicTheme": false,
+      "autoShutDownTime": 120,
+      "autoRefreshTime": 60,
+      "enableAutoShutDownTime": false,
+      "enableDenseFavorites": false,
+      "enableBackgroundPlay": false,
+      "enableScreenKeepOn": true,
+      "enableAutoCheckUpdate": false,
+      "enableFullScreenDefault": false,
+      "preferResolution": "原画",
+      "preferPlatform": "bilibili"
+    };
     return json;
   }
 }

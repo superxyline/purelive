@@ -5,6 +5,7 @@ import 'package:pure_live/modules/about/donate_page.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
+import 'package:pure_live/modules/auth/mine_page.dart';
 import 'package:pure_live/modules/contact/contact_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/home/home_page.dart';
@@ -40,7 +41,7 @@ class AppPages {
   static const donate = '/donate';
 
   static const signIn = '/sign_in';
-
+  static const mine = '/mine';
   static toAreaRooms(LiveArea area) {
     Get.toNamed(areaRooms, arguments: area);
   }
@@ -57,6 +58,10 @@ class AppPages {
     GetPage(
       name: signIn,
       page: SignInPage.new,
+    ),
+    GetPage(
+      name: mine,
+      page: MinePage.new,
     ),
     GetPage(
       name: favorite,
