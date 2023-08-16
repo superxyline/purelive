@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:get/get.dart';

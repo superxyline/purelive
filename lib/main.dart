@@ -16,7 +16,6 @@ import 'package:pure_live/routes/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();

@@ -79,7 +79,7 @@ class NewVersionDialog extends StatelessWidget {
               Navigator.pop(context);
             }
             launchUrl(
-              Uri.parse('https://github.com/Jackiu1997/pure_live/releases'),
+              Uri.parse('https://github.com/liuchuancong/pure_live/releases'),
               mode: LaunchMode.externalApplication,
             );
           },

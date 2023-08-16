@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 class VersionUtil {
@@ -27,6 +28,7 @@ class VersionUtil {
       var latest = (await jsonDecode(response.body))[0];
       latestVersion = latest['tag_name'].replaceAll('v', '');
       latestUpdateLog = latest['body'];
+      log(latestVersion);
     } catch (e) {
       latestUpdateLog = e.toString();
     }
