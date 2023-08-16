@@ -54,7 +54,8 @@ dependencies:
 
   # database
   supabase_flutter: ^1.10.12
-  supabase_auth_ui: ^0.2.1
+  email_validator: ^2.1.17
+  font_awesome_flutter: ^10.5.0
   # video player mobile
   better_player:
     git:
