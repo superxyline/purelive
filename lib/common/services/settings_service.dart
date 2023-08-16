@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:get/get.dart';
@@ -185,10 +186,12 @@ class SettingsService extends GetxController {
     PrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
     onInitShutDown();
   }
+
   void changeAutoRefreshConfig(int seconds) {
     autoRefreshTime.value = seconds;
     PrefUtil.setInt('autoRefreshTime', seconds);
   }
+
   static const List<String> platforms = ['bilibili', 'douyu', 'huya'];
 
   final preferPlatform =
@@ -319,11 +322,14 @@ class SettingsService extends GetxController {
     enableScreenKeepOn.value = json['enableScreenKeepOn'] ?? false;
     enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
-    changePreferResolution(json['preferResolution'] ?? resolutions[0]);
-    changePreferPlatform(json['preferPlatform'] ?? platforms[0]);
-    changeShutDownConfig(
-        json['autoShutDownTime'] ?? 120, json['enableAutoShutDownTime'] ?? false);
-    changeAutoRefreshConfig(json['autoRefreshTime'] ?? 60);
+    languageName.value = json['languageName'] ?? "简体中文";
+    preferResolution.value = json['preferResolution'] ?? resolutions[0];
+    preferPlatform.value = json['preferPlatform'] ?? platforms[0];
+    changeLanguage(languageName.value);
+    changePreferResolution(preferResolution.value);
+    changePreferPlatform(preferPlatform.value);
+    changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
+    changeAutoRefreshConfig(autoRefreshTime.value);
   }
 
   Map<String, dynamic> toJson() {
@@ -347,6 +353,7 @@ class SettingsService extends GetxController {
     json['enableFullScreenDefault'] = enableFullScreenDefault.value;
     json['preferResolution'] = preferResolution.value;
     json['preferPlatform'] = preferPlatform.value;
+    json['languageName'] = languageName.value;
     return json;
   }
 
@@ -359,6 +366,7 @@ class SettingsService extends GetxController {
       "enableDynamicTheme": false,
       "autoShutDownTime": 120,
       "autoRefreshTime": 60,
+      "languageName": languageName.value,
       "enableAutoShutDownTime": false,
       "enableDenseFavorites": false,
       "enableBackgroundPlay": false,

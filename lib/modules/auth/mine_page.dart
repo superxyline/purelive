@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/supbase.dart';
 
 class MinePage extends StatefulWidget {
@@ -9,12 +9,11 @@ class MinePage extends StatefulWidget {
 }
 
 class _MinePageState extends State<MinePage> {
-
-  void uploadUserConifg(){
+  void uploadUserConifg() {
     SupBaseManager().uploadConfig();
   }
 
-  void singOut(){
+  void singOut() {
     SupBaseManager().signOut();
   }
 
@@ -22,7 +21,7 @@ class _MinePageState extends State<MinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('我的'),
+        title: Text(S.of(context).supbase_mine),
       ),
       body: ListView(
           scrollDirection: Axis.vertical,
@@ -34,13 +33,13 @@ class _MinePageState extends State<MinePage> {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.upload_file_outlined, size: 32),
-                    subtitle: const Text('关注直播间以及主题等'),
-                    title: const Text('上传用户配置文件'),
-                    onTap:uploadUserConifg,
+                    subtitle: Text(S.of(context).supbase_mine_streams),
+                    title: Text(S.of(context).supbase_mine_profiles),
+                    onTap: uploadUserConifg,
                   ),
                   ListTile(
                     leading: const Icon(Icons.login_outlined, size: 32),
-                    title: const Text('退出登录'),
+                    title: Text(S.of(context).supbase_log_out),
                     onTap: singOut,
                   ),
                 ],

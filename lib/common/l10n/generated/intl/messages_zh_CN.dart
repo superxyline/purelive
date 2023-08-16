@@ -31,9 +31,11 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m4(roomid, platform, nickname, title, livestatus) =>
       "房间号: ${roomid}\n平台: ${platform}\n昵称: ${nickname}\n标题: ${title}\n状态: ${livestatus}";
 
-  static String m5(time) => "${time} 分钟";
+  static String m5(error) => "发生意外错误：${error}";
 
-  static String m6(name) => "确定要取消关注${name}吗？";
+  static String m6(time) => "${time} 分钟";
+
+  static String m7(name) => "确定要取消关注${name}吗？";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -44,11 +46,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "areas_title": MessageLookupByLibrary.simpleMessage("分区"),
         "auto_backup": MessageLookupByLibrary.simpleMessage("自动备份"),
         "auto_refresh_time": MessageLookupByLibrary.simpleMessage("定时刷新时间"),
-        "auto_shutdown_time": MessageLookupByLibrary.simpleMessage("定时关闭时间"),
-        "auto_shutdown_time_subtitle":
-            MessageLookupByLibrary.simpleMessage("定时关闭App"),
         "auto_refresh_time_subtitle":
             MessageLookupByLibrary.simpleMessage("定时刷新关注直播间状态"),
+        "auto_shutdown_time": MessageLookupByLibrary.simpleMessage("定时关闭时间"),
+        "auto_shutdown_time_subtitle":
+            MessageLookupByLibrary.simpleMessage("定时关闭app"),
         "backup_directory": MessageLookupByLibrary.simpleMessage("备份目录"),
         "backup_recover": MessageLookupByLibrary.simpleMessage("备份与恢复"),
         "backup_recover_subtitle":
@@ -188,12 +190,38 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_title": MessageLookupByLibrary.simpleMessage("设置"),
         "settings_videofit_title": MessageLookupByLibrary.simpleMessage("比例设置"),
         "show_offline_rooms": MessageLookupByLibrary.simpleMessage("显示未直播的直播间"),
+        "supbase_back_sign_in": MessageLookupByLibrary.simpleMessage("返回登录"),
+        "supbase_enter_email": MessageLookupByLibrary.simpleMessage("请输入邮箱地址"),
+        "supbase_enter_password": MessageLookupByLibrary.simpleMessage("请输入密码"),
+        "supbase_enter_valid_email":
+            MessageLookupByLibrary.simpleMessage("请输入有效的邮箱地址"),
+        "supbase_enter_valid_password":
+            MessageLookupByLibrary.simpleMessage("请输入至少6个字符的密码"),
+        "supbase_forgot_password":
+            MessageLookupByLibrary.simpleMessage("忘记密码?"),
+        "supbase_has_account": MessageLookupByLibrary.simpleMessage("已有帐户? 登录"),
+        "supbase_log_out": MessageLookupByLibrary.simpleMessage("退出登录"),
+        "supbase_mine": MessageLookupByLibrary.simpleMessage("我的"),
+        "supbase_mine_profiles":
+            MessageLookupByLibrary.simpleMessage("上传用户配置文件"),
+        "supbase_mine_streams":
+            MessageLookupByLibrary.simpleMessage("关注直播间以及主题等"),
+        "supbase_no_account": MessageLookupByLibrary.simpleMessage("没有账户? 注册"),
+        "supbase_reset_password":
+            MessageLookupByLibrary.simpleMessage("重置邮箱密码"),
+        "supbase_sign_confirm": MessageLookupByLibrary.simpleMessage("请打开邮箱确认"),
+        "supbase_sign_failure": MessageLookupByLibrary.simpleMessage("登录失败!"),
+        "supbase_sign_in": MessageLookupByLibrary.simpleMessage("登录"),
+        "supbase_sign_success": MessageLookupByLibrary.simpleMessage("登录成功!"),
+        "supbase_sign_up": MessageLookupByLibrary.simpleMessage("注册"),
+        "supbase_unexpected_err": m5,
+        "supbase_update_password": MessageLookupByLibrary.simpleMessage("更新密码"),
         "support_donate": MessageLookupByLibrary.simpleMessage("捐赠支持"),
         "switch_platform": MessageLookupByLibrary.simpleMessage("切换直播平台"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
-        "timedclose_time": m5,
+        "timedclose_time": m6,
         "unfollow": MessageLookupByLibrary.simpleMessage("取消关注"),
-        "unfollow_message": m6,
+        "unfollow_message": m7,
         "update": MessageLookupByLibrary.simpleMessage("更新"),
         "version": MessageLookupByLibrary.simpleMessage("版本"),
         "video": MessageLookupByLibrary.simpleMessage("视频"),

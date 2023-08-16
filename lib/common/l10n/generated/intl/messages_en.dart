@@ -31,9 +31,11 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m4(roomid, platform, nickname, title, livestatus) =>
       "RoomId: ${roomid}\nPlatform: ${platform}\nName: ${nickname}\nTitle: ${title}\nLiveStatus: ${livestatus}";
 
-  static String m5(time) => "${time} Min";
+  static String m5(error) => "Unexpected error has occurred: ${error}";
 
-  static String m6(name) => "Are you sure to unfollow ${name}?";
+  static String m6(time) => "${time} Min";
+
+  static String m7(name) => "Are you sure to unfollow ${name}?";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -45,12 +47,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "auto_backup": MessageLookupByLibrary.simpleMessage("Auto Backup"),
         "auto_refresh_time":
             MessageLookupByLibrary.simpleMessage("Auto Refresh Time"),
-        "auto_shutdown_time":
-            MessageLookupByLibrary.simpleMessage("Auto ShutDown Time"),
         "auto_refresh_time_subtitle": MessageLookupByLibrary.simpleMessage(
             "Auto refresh favorites rooms status"),
-        "auto_shutdown_time_subtitle": MessageLookupByLibrary.simpleMessage(
-            "Auto close app"),
+        "auto_shutdown_time":
+            MessageLookupByLibrary.simpleMessage("Auto ShutDown Time"),
+        "auto_shutdown_time_subtitle":
+            MessageLookupByLibrary.simpleMessage("Auto close app"),
         "backup_directory":
             MessageLookupByLibrary.simpleMessage("Backup Directory"),
         "backup_recover":
@@ -227,14 +229,49 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Video Fit"),
         "show_offline_rooms":
             MessageLookupByLibrary.simpleMessage("Show Offline Rooms"),
+        "supbase_back_sign_in":
+            MessageLookupByLibrary.simpleMessage("Back to sign in"),
+        "supbase_enter_email":
+            MessageLookupByLibrary.simpleMessage("Enter your email"),
+        "supbase_enter_password":
+            MessageLookupByLibrary.simpleMessage("Enter your password"),
+        "supbase_enter_valid_email": MessageLookupByLibrary.simpleMessage(
+            "Please enter a valid email address"),
+        "supbase_enter_valid_password": MessageLookupByLibrary.simpleMessage(
+            "Please enter a password that is at least 6 characters long"),
+        "supbase_forgot_password":
+            MessageLookupByLibrary.simpleMessage("Forgot your password?"),
+        "supbase_has_account": MessageLookupByLibrary.simpleMessage(
+            "Already have an account? Sign in"),
+        "supbase_log_out": MessageLookupByLibrary.simpleMessage("Log out"),
+        "supbase_mine": MessageLookupByLibrary.simpleMessage("Mine"),
+        "supbase_mine_profiles":
+            MessageLookupByLibrary.simpleMessage("Uploading user profiles"),
+        "supbase_mine_streams": MessageLookupByLibrary.simpleMessage(
+            "Follow the live streams as well as topics, etc."),
+        "supbase_no_account": MessageLookupByLibrary.simpleMessage(
+            "Don\'t have an account? Sign up"),
+        "supbase_reset_password":
+            MessageLookupByLibrary.simpleMessage("Send password reset email"),
+        "supbase_sign_confirm": MessageLookupByLibrary.simpleMessage(
+            "Please open the email to confirm"),
+        "supbase_sign_failure":
+            MessageLookupByLibrary.simpleMessage("Sign in failure!"),
+        "supbase_sign_in": MessageLookupByLibrary.simpleMessage("Sign In"),
+        "supbase_sign_success":
+            MessageLookupByLibrary.simpleMessage("Sign in successful!"),
+        "supbase_sign_up": MessageLookupByLibrary.simpleMessage("Sign Up"),
+        "supbase_unexpected_err": m5,
+        "supbase_update_password":
+            MessageLookupByLibrary.simpleMessage("Update Password"),
         "support_donate":
             MessageLookupByLibrary.simpleMessage("Donate Support"),
         "switch_platform":
             MessageLookupByLibrary.simpleMessage("Switch platform"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
-        "timedclose_time": m5,
+        "timedclose_time": m6,
         "unfollow": MessageLookupByLibrary.simpleMessage("Unfollow"),
-        "unfollow_message": m6,
+        "unfollow_message": m7,
         "update": MessageLookupByLibrary.simpleMessage("Update"),
         "version": MessageLookupByLibrary.simpleMessage("Version"),
         "video": MessageLookupByLibrary.simpleMessage("Video"),

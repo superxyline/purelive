@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -44,21 +45,21 @@ class _SupaResetPasswordState extends State<SupaResetPassword> {
           TextFormField(
             validator: (value) {
               if (value == null || value.isEmpty || value.length < 6) {
-                return 'Please enter a password that is at least 6 characters long';
+                return S.of(context).supbase_enter_valid_password;
               }
               return null;
             },
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.lock),
-              label: Text('Enter your password'),
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.lock),
+              label: Text(S.of(context).supbase_enter_password),
             ),
             controller: _password,
           ),
           spacer(16),
           ElevatedButton(
-            child: const Text(
-              'Update Password',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child:  Text(
+              S.of(context).supbase_update_password,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             onPressed: () async {
               if (!_formKey.currentState!.validate()) {
@@ -80,7 +81,7 @@ class _SupaResetPasswordState extends State<SupaResetPassword> {
               } catch (error) {
                 if (widget.onError == null) {
                   context.showErrorSnackBar(
-                      'Unexpected error has occurred: $error');
+                      S.of(context).supbase_unexpected_err(error));
                 } else {
                   widget.onError?.call(error);
                 }

@@ -159,5 +159,31 @@
 
 
     "history": "History",
-    "empty_history": "No history here"
+    "empty_history": "No history here",
+
+    "supbase_sign_in": "Sign In",
+    "supbase_sign_up": "Sign Up",
+    "supbase_sign_success": "Sign in successful!",
+    "supbase_sign_failure": "Sign in failure!",
+    "supbase_sign_confirm": "Please open the email to confirm",
+
+    "supbase_mine": "Mine",
+    "supbase_mine_profiles": "Uploading user profiles",
+    "supbase_mine_streams": "Follow the live streams as well as topics, etc.",
+    "supbase_log_out": "Log out",
+
+    "supbase_enter_email": "Enter your email",
+    "supbase_enter_valid_email": "Please enter a valid email address",
+    "supbase_enter_valid_password": "Please enter a password that is at least 6 characters long",
+    "supbase_enter_password": "Enter your password",
+    "supbase_unexpected_err": "Unexpected error has occurred: {error}",
+    "supbase_forgot_password": "Forgot your password?",
+    "supbase_no_account": "Don't have an account? Sign up",
+    "supbase_has_account": "Already have an account? Sign in",
+    "supbase_reset_password": "Send password reset email",
+
+    "supbase_back_sign_in": "Back to sign in",
+    "supbase_update_password": "Update Password"
+    
+    
 }

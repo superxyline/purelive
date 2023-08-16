@@ -1,5 +1,5 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:flutter/material.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -133,13 +133,13 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
               if (value == null ||
                   value.isEmpty ||
                   !EmailValidator.validate(_emailController.text)) {
-                return 'Please enter a valid email address';
+                return S.of(context).supbase_enter_valid_email;
               }
               return null;
             },
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.email),
-              label: Text('Enter your email'),
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.email),
+              label: Text(S.of(context).supbase_enter_email),
             ),
             controller: _emailController,
           ),
@@ -148,13 +148,13 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
             TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty || value.length < 6) {
-                  return 'Please enter a password that is at least 6 characters long';
+                  return S.of(context).supbase_enter_valid_password;
                 }
                 return null;
               },
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.lock),
-                label: Text('Enter your password'),
+              decoration:  InputDecoration(
+                prefixIcon: const Icon(Icons.lock),
+                label: Text(S.of(context).supbase_enter_password),
               ),
               obscureText: true,
               controller: _passwordController,
@@ -184,7 +184,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                         strokeWidth: 1.5,
                       ),
                     )
-                  : Text(_isSigningIn ? 'Sign In' : 'Sign Up'),
+                  : Text(_isSigningIn ? S.of(context).supbase_sign_in : S.of(context).supbase_sign_up),
               onPressed: () async {
                 if (!_formKey.currentState!.validate()) {
                   return;
@@ -220,8 +220,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   }
                 } catch (error) {
                   if (widget.onError == null) {
-                    context.showErrorSnackBar(
-                        'Unexpected error has occurred: $error');
+                    context.showErrorSnackBar(S.of(context).supbase_unexpected_err(error));
                   } else {
                     widget.onError?.call(error);
                   }
@@ -241,7 +240,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                     _forgotPassword = true;
                   });
                 },
-                child: const Text('Forgot your password?'),
+                child: Text(S.of(context).supbase_forgot_password),
               ),
             ],
             TextButton(
@@ -253,8 +252,8 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                 });
               },
               child: Text(_isSigningIn
-                  ? 'Don\'t have an account? Sign up'
-                  : 'Already have an account? Sign in'),
+                  ? S.of(context).supbase_no_account
+                  : S.of(context).supbase_has_account),
             ),
           ],
           if (_isSigningIn && _forgotPassword) ...[
@@ -278,7 +277,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   widget.onError?.call(error);
                 }
               },
-              child: const Text('Send password reset email'),
+              child:  Text(S.of(context).supbase_reset_password), 
             ),
             spacer(16),
             TextButton(
@@ -287,7 +286,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   _forgotPassword = false;
                 });
               },
-              child: const Text('Back to sign in'),
+              child: Text(S.of(context).supbase_back_sign_in), 
             ),
           ],
           spacer(16),
