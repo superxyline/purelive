@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
-import 'package:battery_plus/battery_plus.dart';
+
 import 'package:better_player/better_player.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/services.dart';
@@ -59,15 +60,7 @@ class VideoController with ChangeNotifier {
     showController.value = true;
   }
 
-  // Battery level control
-  final Battery _battery = Battery();
-  final batteryLevel = 100.obs;
-  void initBattery() {
-    _battery.batteryLevel.then((value) => batteryLevel.value = value);
-    _battery.onBatteryStateChanged.listen((state) async {
-      batteryLevel.value = await _battery.batteryLevel;
-    });
-  }
+
 
   // Timed shutdown control
   final shutdownMinute = 0.obs;
@@ -99,7 +92,6 @@ class VideoController with ChangeNotifier {
     if (allowScreenKeepOn) Wakelock.enable();
     initVideoController();
     initDanmaku();
-    initBattery();
   }
 
   void initVideoController() {
@@ -139,9 +131,14 @@ class VideoController with ChangeNotifier {
     }
   }
 
-  dynamic desktopStateListener(dynamic state) {
-    hasError.value = desktopController?.playback.isCompleted ?? false;
-    isPlaying.value = desktopController?.playback.isPlaying ?? false;
+  dynamic desktopStateListener(PlaybackState state) {
+    hasError.value = state.isCompleted;
+    if(state.isPlaying){
+      Timer(const Duration(seconds: 4), () {
+    isPlaying.value = state.isPlaying;
+       });
+    }
+
     isBuffering.value = (desktopController?.bufferingProgress ?? 1.0) < 1.0;
   }
 

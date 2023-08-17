@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get_rx/get_rx.dart';
@@ -45,6 +46,14 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
             },
             child: Stack(children: [
               DanmakuViewer(controller: controller),
+              !controller.isPlaying.value ? Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: Colors.white,),
+                  ),
+                ),
+              ): Container(),
               GestureDetector(
                 onTap: () {
                   if (controller.showSettting.value) {
@@ -220,10 +229,33 @@ class _DatetimeInfoState extends State<DatetimeInfo> {
   }
 }
 
-class BatteryInfo extends StatelessWidget {
+class BatteryInfo extends StatefulWidget {
   const BatteryInfo({Key? key, required this.controller}) : super(key: key);
 
   final VideoController controller;
+
+  @override
+  State<BatteryInfo> createState() => _BatteryInfoState();
+}
+
+class _BatteryInfoState extends State<BatteryInfo> {
+  // Battery level control
+  final Battery _battery = Battery();
+
+  final batteryLevel = 100.obs;
+
+  void initBattery() {
+    _battery.batteryLevel.then((value) => batteryLevel.value = value);
+    _battery.onBatteryStateChanged.listen((state) async {
+      batteryLevel.value = await _battery.batteryLevel;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // initBattery();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +272,7 @@ class BatteryInfo extends StatelessWidget {
         ),
         child: Center(
           child: Obx(() => Text(
-                '${controller.batteryLevel.value}',
+                '${batteryLevel.value}',
                 style: const TextStyle(color: Colors.white, fontSize: 9),
               )),
         ),
