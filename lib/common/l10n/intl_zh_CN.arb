@@ -1,6 +1,6 @@
 {
     "app_name": "纯粹直播",
-    "app_legalese": "本项目是一个纯本地直播转码应用，登录使用第三方Supbase服务，本人不收集用户信息，应用程序直接请求直播官方接口，所有操作生成的数据由用户本地保留，可选择性使用Supbase同步数据。",
+    "app_legalese": "本项目是一个纯本地直播转码应用，登录使用第三方SupaBase服务，本人不收集用户信息，应用程序直接请求直播官方接口，所有操作生成的数据由用户本地保留，可选择性使用SupaBase同步数据。",
 
     "cancel": "取消",
     "confirm": "确认",
@@ -160,27 +160,27 @@
     "history": "历史记录",
     "empty_history": "无观看历史记录",
 
-    "supbase_sign_in": "登录",
-    "supbase_sign_up": "注册",
-    "supbase_sign_success": "登录成功!",
-    "supbase_sign_failure": "登录失败!",
-    "supbase_sign_confirm": "请打开邮箱确认",
+    "supabase_sign_in": "登录",
+    "supabase_sign_up": "注册",
+    "supabase_sign_success": "登录成功!",
+    "supabase_sign_failure": "登录失败!",
+    "supabase_sign_confirm": "请打开邮箱确认",
 
-    "supbase_mine": "我的",
-    "supbase_mine_profiles": "上传用户配置文件",
-    "supbase_mine_streams": "关注直播间以及主题等",
-    "supbase_log_out": "退出登录",
+    "supabase_mine": "我的",
+    "supabase_mine_profiles": "上传用户配置文件",
+    "supabase_mine_streams": "关注直播间以及主题等",
+    "supabase_log_out": "退出登录",
     
-    "supbase_enter_email": "请输入邮箱地址",
-    "supbase_enter_valid_email": "请输入有效的邮箱地址",
-    "supbase_enter_valid_password": "请输入至少6个字符的密码",
-    "supbase_enter_password": "请输入密码",
-    "supbase_unexpected_err": "发生意外错误：{error}",
-    "supbase_forgot_password": "忘记密码?",
-    "supbase_no_account": "没有账户? 注册",
-    "supbase_has_account": "已有帐户? 登录",
-    "supbase_reset_password": "重置邮箱密码",
+    "supabase_enter_email": "请输入邮箱地址",
+    "supabase_enter_valid_email": "请输入有效的邮箱地址",
+    "supabase_enter_valid_password": "请输入至少6个字符的密码",
+    "supabase_enter_password": "请输入密码",
+    "supabase_unexpected_err": "发生意外错误：{error}",
+    "supabase_forgot_password": "忘记密码?",
+    "supabase_no_account": "没有账户? 注册",
+    "supabase_has_account": "已有帐户? 登录",
+    "supabase_reset_password": "重置邮箱密码",
 
-    "supbase_back_sign_in": "返回登录",
-    "supbase_update_password": "更新密码"
+    "supabase_back_sign_in": "返回登录",
+    "supabase_update_password": "更新密码"
 }

@@ -1,5 +1,5 @@
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/supbase.dart';
+import 'package:pure_live/plugins/supabase.dart';
 
 class MinePage extends StatefulWidget {
   const MinePage({super.key});
@@ -10,18 +10,18 @@ class MinePage extends StatefulWidget {
 
 class _MinePageState extends State<MinePage> {
   void uploadUserConifg() {
-    SupBaseManager().uploadConfig();
+    SupaBaseManager().uploadConfig();
   }
 
   void singOut() {
-    SupBaseManager().signOut();
+    SupaBaseManager().signOut();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).supbase_mine),
+        title: Text(S.of(context).supabase_mine),
       ),
       body: ListView(
           scrollDirection: Axis.vertical,
@@ -33,13 +33,13 @@ class _MinePageState extends State<MinePage> {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.upload_file_outlined, size: 32),
-                    subtitle: Text(S.of(context).supbase_mine_streams),
-                    title: Text(S.of(context).supbase_mine_profiles),
+                    subtitle: Text(S.of(context).supabase_mine_streams),
+                    title: Text(S.of(context).supabase_mine_profiles),
                     onTap: uploadUserConifg,
                   ),
                   ListTile(
                     leading: const Icon(Icons.login_outlined, size: 32),
-                    title: Text(S.of(context).supbase_log_out),
+                    title: Text(S.of(context).supabase_log_out),
                     onTap: singOut,
                   ),
                 ],
