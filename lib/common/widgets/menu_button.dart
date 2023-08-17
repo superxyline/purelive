@@ -42,7 +42,7 @@ class MenuButton extends GetView<AuthController> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.account_circle),
-            text: controller.isLogin ? S.of(context).supbase_mine : S.of(context).supbase_sign_in,
+            text: controller.isLogin ? S.of(context).supabase_mine : S.of(context).supabase_sign_in,
           ),
         ),
         PopupMenuItem(

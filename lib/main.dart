@@ -11,7 +11,7 @@ import 'package:pure_live/modules/areas/areas_controller.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
 import 'package:pure_live/modules/favorite/favorite_controller.dart';
 import 'package:pure_live/modules/popular/popular_controller.dart';
-import 'package:pure_live/plugins/supbase.dart';
+import 'package:pure_live/plugins/supabase.dart';
 import 'package:pure_live/routes/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
@@ -25,7 +25,7 @@ void main() async {
     await windowManager.ensureInitialized();
   }
   // 先初始化supdatabase
-  await SupBaseManager.getInstance().initial();
+  await SupaBaseManager.getInstance().initial();
   // 初始化服务
   initService();
 
