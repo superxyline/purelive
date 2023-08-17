@@ -171,12 +171,12 @@ flutter_intl:
 
 # windows msix package
 msix_config:
-  display_name: Pure Live
-  publisher_display_name: puretech.com
-  identity_name: com.puretech.purelive
-  msix_version: 1.1.0.0
+  display_name: 纯粹直播
+  # publisher_display_name: puretech.com
+  # identity_name: com.puretech.purelive
+  msix_version: 1.0.0.0
   logo_path: assets/icons/icon.png
-  capabilities: internetClient
-  certificate_path: ~\keystore\puretech_signcert.pfx
+  # capabilities: internetClient
+  certificate_path: assets/keystore/CERTIFICATE.pfx
   certificate_password: xxxx
-  publisher: CN=puretech.com, O=Puretech Corporation, C=CN
+  # publisher: O=puretech.com, C=CN

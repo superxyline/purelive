@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-
 import 'package:better_player/better_player.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/services.dart';
@@ -59,8 +58,6 @@ class VideoController with ChangeNotifier {
     });
     showController.value = true;
   }
-
-
 
   // Timed shutdown control
   final shutdownMinute = 0.obs;
@@ -133,10 +130,10 @@ class VideoController with ChangeNotifier {
 
   dynamic desktopStateListener(PlaybackState state) {
     hasError.value = state.isCompleted;
-    if(state.isPlaying){
-      Timer(const Duration(seconds: 4), () {
-    isPlaying.value = state.isPlaying;
-       });
+    if (state.isPlaying) {
+      Timer(const Duration(seconds: 2), () {
+        isPlaying.value = state.isPlaying;
+      });
     }
 
     isBuffering.value = (desktopController?.bufferingProgress ?? 1.0) < 1.0;
