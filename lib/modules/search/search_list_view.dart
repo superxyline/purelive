@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -58,6 +60,15 @@ class _OwnerCardState extends State<OwnerCard> {
 
   late bool isFavorite = settings.isFavorite(widget.room);
 
+  ImageProvider? getRoomAvatar(avatar) {
+    try {
+      return CachedNetworkImageProvider(avatar,errorListener: () {log("CachedNetworkImageProvider: Image failed to load!");});
+    } catch (e) {
+      return null;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -65,7 +76,7 @@ class _OwnerCardState extends State<OwnerCard> {
         onTap: () => _onTap(context),
         leading: CircleAvatar(
           foregroundImage: widget.room.avatar.isNotEmpty
-              ? CachedNetworkImageProvider(widget.room.avatar)
+              ? getRoomAvatar(widget.room.avatar)
               : null,
           radius: 20,
           backgroundColor: Theme.of(context).disabledColor,
