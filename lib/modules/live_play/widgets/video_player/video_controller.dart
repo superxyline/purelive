@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
+import 'package:battery_plus/battery_plus.dart';
 import 'package:better_player/better_player.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/services.dart';
@@ -50,7 +50,7 @@ class VideoController with ChangeNotifier {
   final showController = true.obs;
   final showSettting = false.obs;
   final showLocked = false.obs;
-
+  bool playBackisPlaying = false;
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
@@ -89,6 +89,19 @@ class VideoController with ChangeNotifier {
     if (allowScreenKeepOn) Wakelock.enable();
     initVideoController();
     initDanmaku();
+    initBattery();
+  }
+
+  // Battery level control
+  final Battery _battery = Battery();
+  final batteryLevel = 100.obs;
+  void initBattery() {
+    if (!Platform.isWindows) {
+      _battery.batteryLevel.then((value) => batteryLevel.value = value);
+      _battery.onBatteryStateChanged.listen((state) async {
+        batteryLevel.value = await _battery.batteryLevel;
+      });
+    }
   }
 
   void initVideoController() {
@@ -96,6 +109,13 @@ class VideoController with ChangeNotifier {
       desktopController = Player(id: 100);
       setDataSource(datasource);
       desktopController?.playbackStream.listen(desktopStateListener);
+      desktopController?.bufferingProgressStream.listen((double value) {
+        if (playBackisPlaying && value != 0.0) {
+          isPlaying.value = true;
+        } else {
+          isPlaying.value = false;
+        }
+      });
     } else if (Platform.isAndroid || Platform.isIOS) {
       mobileController = BetterPlayerController(
         BetterPlayerConfiguration(
@@ -130,12 +150,7 @@ class VideoController with ChangeNotifier {
 
   dynamic desktopStateListener(PlaybackState state) {
     hasError.value = state.isCompleted;
-    if (state.isPlaying) {
-      Timer(const Duration(seconds: 2), () {
-        isPlaying.value = state.isPlaying;
-      });
-    }
-
+    playBackisPlaying = state.isPlaying;
     isBuffering.value = (desktopController?.bufferingProgress ?? 1.0) < 1.0;
   }
 
@@ -232,10 +247,7 @@ class VideoController with ChangeNotifier {
 
     if (Platform.isWindows || Platform.isLinux) {
       desktopController?.pause();
-      desktopController?.open(
-        Media.directShow(rawUrl: datasource),
-        autoStart: true,
-      );
+      desktopController?.open(Media.directShow(rawUrl: datasource));
     } else if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.setupDataSource(BetterPlayerDataSource(
         BetterPlayerDataSourceType.network,
