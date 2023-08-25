@@ -12,6 +12,7 @@ import 'package:pure_live/modules/auth/auth_controller.dart';
 import 'package:pure_live/modules/favorite/favorite_controller.dart';
 import 'package:pure_live/modules/popular/popular_controller.dart';
 import 'package:pure_live/plugins/supabase.dart';
+import 'package:pure_live/plugins/window_util.dart';
 import 'package:pure_live/routes/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
@@ -23,13 +24,15 @@ void main() async {
   if (Platform.isWindows) {
     DartVLC.initialize();
     await windowManager.ensureInitialized();
+    WindowUtil.init(width: 1280, height: 720);
+    WindowUtil.setTitle();
   }
   // 先初始化supdatabase
   await SupaBaseManager.getInstance().initial();
   // 初始化服务
   initService();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 void initService() {
@@ -40,11 +43,37 @@ void initService() {
   Get.put(AreasController());
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WindowListener {
   final settings = Get.find<SettingsService>();
+  @override
+  void initState() {
+    super.initState();
+    windowManager.addListener(this);
+  }
 
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  void onWindowFocus() {
+    setState(() {});
+    super.onWindowFocus();
+  }
+
+  @override
+  void onWindowEvent(String eventName) {
+    WindowUtil.setPosition();
+  }
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
