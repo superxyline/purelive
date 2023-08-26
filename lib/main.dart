@@ -24,8 +24,7 @@ void main() async {
   if (Platform.isWindows) {
     DartVLC.initialize();
     await windowManager.ensureInitialized();
-    WindowUtil.init(width: 1280, height: 720);
-    WindowUtil.setTitle();
+    await WindowUtil.init(width: 1280, height: 720);
   }
   // 先初始化supdatabase
   await SupaBaseManager.getInstance().initial();
@@ -56,6 +55,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
   void initState() {
     super.initState();
     windowManager.addListener(this);
+     _init();
   }
 
   @override
@@ -73,6 +73,13 @@ class _MyAppState extends State<MyApp> with WindowListener {
   @override
   void onWindowEvent(String eventName) {
     WindowUtil.setPosition();
+  }
+
+  void _init() async {
+    // Add this line to override the default close handler
+    await WindowUtil.setTitle();
+    await WindowUtil.setWindowsPort();
+    setState(() {});
   }
   @override
   Widget build(BuildContext context) {
