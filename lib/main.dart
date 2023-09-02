@@ -1,10 +1,9 @@
-
 import 'dart:io';
 
-import 'package:dart_vlc/dart_vlc.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/areas/areas_controller.dart';
@@ -19,10 +18,11 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
+
   if (Platform.isWindows) {
-    DartVLC.initialize();
     await windowManager.ensureInitialized();
     await WindowUtil.init(width: 1280, height: 720);
   }
@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
   void initState() {
     super.initState();
     windowManager.addListener(this);
-     _init();
+    _init();
   }
 
   @override
@@ -76,11 +76,14 @@ class _MyAppState extends State<MyApp> with WindowListener {
   }
 
   void _init() async {
-    // Add this line to override the default close handler
-    await WindowUtil.setTitle();
-    await WindowUtil.setWindowsPort();
-    setState(() {});
+    if (Platform.isWindows) {
+      // Add this line to override the default close handler
+      await WindowUtil.setTitle();
+      await WindowUtil.setWindowsPort();
+      setState(() {});
+    }
   }
+
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(

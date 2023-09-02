@@ -31,7 +31,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
   @override
   void initState() {
     super.initState();
-    controller.enableController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.enableController();
+    });
+    
   }
 
   @override
@@ -46,14 +49,6 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
             },
             child: Stack(children: [
               DanmakuViewer(controller: controller),
-              !controller.isPlaying.value ? Positioned.fill(
-                child: Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white,),
-                  ),
-                ),
-              ): Container(),
               GestureDetector(
                 onTap: () {
                   if (controller.showSettting.value) {
@@ -168,7 +163,7 @@ class TopActionBar extends StatelessWidget {
                 child: Text(
                   controller.room.title,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(color: Colors.white, fontSize: 16,decoration: TextDecoration.none),
                 ),
               ),
             ),
@@ -416,8 +411,8 @@ class _BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
           setState(() => _updateDargVarVal = v);
         });
       } else {
-        await controller.volumn().then((double v) {
-          setState(() => _updateDargVarVal = v);
+        await controller.volumn().then((double? v) {
+          setState(() => _updateDargVarVal = v!);
         });
       }
     }

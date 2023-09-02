@@ -35,6 +35,7 @@ class DanmakuText extends StatelessWidget {
         softWrap: false,
         textAlign: textAlign,
         style: TextStyle(
+          decoration: TextDecoration.none,
           fontSize: fontSize,
           color: color,
         ),
