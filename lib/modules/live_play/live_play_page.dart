@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'widgets/index.dart';
 
@@ -16,7 +16,7 @@ class LivePlayPage extends GetView<LivePlayController> {
   @override
   Widget build(BuildContext context) {
     if (settings.enableScreenKeepOn.value) {
-      Wakelock.toggle(enable: settings.enableScreenKeepOn.value);
+      WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
 
     return Scaffold(

@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:email_validator/email_validator.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
+// It's handy to then extract the Supabase client in a variable for later uses
+final supabase = Supabase.instance.client;
 /// Information about the metadata to pass to the signup form
 ///
 /// You can use this object to create additional fields that will be passed to the metadata of the user upon signup.

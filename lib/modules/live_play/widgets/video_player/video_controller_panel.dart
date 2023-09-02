@@ -46,14 +46,6 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
             },
             child: Stack(children: [
               DanmakuViewer(controller: controller),
-              !controller.isPlaying.value ? Positioned.fill(
-                child: Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white,),
-                  ),
-                ),
-              ): Container(),
               GestureDetector(
                 onTap: () {
                   if (controller.showSettting.value) {
