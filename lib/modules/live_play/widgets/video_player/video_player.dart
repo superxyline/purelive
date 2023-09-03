@@ -32,7 +32,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
     return media_kit_video.Video(
           key: widget.controller.key,
           controller: widget.controller.controller,
-           filterQuality:FilterQuality.high,
           fit: widget.controller.videoFit.value,
           controls: (state) => _buildVideoPanel(),
         );

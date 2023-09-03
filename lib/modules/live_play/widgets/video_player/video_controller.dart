@@ -357,7 +357,6 @@ class DesktopFullscreen extends StatelessWidget {
       body: Stack(
         children: [
           media_kit_video.Video(
-                filterQuality:FilterQuality.high,
                 controller: controller.controller,
                 fit: controller.videoFit.value,
                 controls: (state) => VideoControllerPanel(controller: controller),
