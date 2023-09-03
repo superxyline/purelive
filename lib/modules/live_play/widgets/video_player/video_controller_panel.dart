@@ -218,7 +218,7 @@ class _DatetimeInfoState extends State<DatetimeInfo> {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
       child: Text(
         '$hour:$minute',
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: const TextStyle(color: Colors.white, fontSize: 14,decoration: TextDecoration.none),
       ),
     );
   }
@@ -260,6 +260,7 @@ class _BatteryInfoState extends State<BatteryInfo> {
       child: Container(
         width: 35,
         height: 15,
+        padding: const EdgeInsets.only(top: 2.5),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.4),
           border: Border.all(color: Colors.white),
@@ -268,7 +269,7 @@ class _BatteryInfoState extends State<BatteryInfo> {
         child: Center(
           child: Obx(() => Text(
                 '${batteryLevel.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 9),
+                style: const TextStyle(color: Colors.white, fontSize: 9,decoration: TextDecoration.none),
               )),
         ),
       ),
