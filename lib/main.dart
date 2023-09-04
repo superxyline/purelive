@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/areas/areas_controller.dart';
@@ -18,7 +19,10 @@ import 'package:media_kit/media_kit.dart'; // Provides [Player], [Media], [Playl
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+<<<<<<< HEAD
     // Necessary initialization for package:media_kit.
+=======
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   MediaKit.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
@@ -77,8 +81,13 @@ class _MyAppState extends State<MyApp> with WindowListener {
   }
 
   void _init() async {
+<<<<<<< HEAD
     // Add this line to override the default close handler
     if (Platform.isWindows) {
+=======
+    if (Platform.isWindows) {
+      // Add this line to override the default close handler
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
       await WindowUtil.setTitle();
       await WindowUtil.setWindowsPort();
       setState(() {});

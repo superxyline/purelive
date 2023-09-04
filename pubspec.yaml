@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.5
+version: 1.1.6
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -61,10 +61,15 @@ dependencies:
   media_kit_video: ^1.1.8                        # For video rendering.
   media_kit_libs_video: ^1.0.1                   # Native video dependencies.
   bordered_text: ^2.0.0
+<<<<<<< HEAD
   screen_brightness: ^0.2.2+1
   volume_controller: ^2.0.7
 
   # video player windows
+=======
+  screen_brightness: ^0.2.2
+  flutter_volume_controller: ^1.2.7 
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   window_manager: ^0.3.6
   
   # system hardware utils
@@ -84,7 +89,7 @@ dependencies:
   date_format: ^2.0.7
   path: ^1.8.2
   file: ^6.1.4
-  path_provider: ^2.0.13
+  path_provider: ^2.1.1
   dart_tars_protocol:
     git: https://github.com/xiaoyaocz/dart_tars_protocol.git
   html_unescape: ^2.0.0
@@ -172,7 +177,7 @@ msix_config:
   display_name: 纯粹直播
   # publisher_display_name: puretech.com
   # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.2
+  msix_version: 1.0.0.3
   logo_path: assets/icons/icon.png
   # capabilities: internetClient
   certificate_path: assets/keystore/CERTIFICATE.pfx

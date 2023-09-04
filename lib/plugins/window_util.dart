@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pure_live/common/utils/index.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter/material.dart';

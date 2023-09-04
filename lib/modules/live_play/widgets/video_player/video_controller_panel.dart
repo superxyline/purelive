@@ -31,7 +31,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
   @override
   void initState() {
     super.initState();
-    controller.enableController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.enableController();
+    });
+    
   }
 
   @override
@@ -160,7 +163,7 @@ class TopActionBar extends StatelessWidget {
                 child: Text(
                   controller.room.title,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(color: Colors.white, fontSize: 16,decoration: TextDecoration.none),
                 ),
               ),
             ),
@@ -215,7 +218,7 @@ class _DatetimeInfoState extends State<DatetimeInfo> {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
       child: Text(
         '$hour:$minute',
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: const TextStyle(color: Colors.white, fontSize: 14,decoration: TextDecoration.none),
       ),
     );
   }
@@ -257,6 +260,7 @@ class _BatteryInfoState extends State<BatteryInfo> {
       child: Container(
         width: 35,
         height: 15,
+        padding: const EdgeInsets.only(top: 2.5),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.4),
           border: Border.all(color: Colors.white),
@@ -265,7 +269,7 @@ class _BatteryInfoState extends State<BatteryInfo> {
         child: Center(
           child: Obx(() => Text(
                 '${batteryLevel.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 9),
+                style: const TextStyle(color: Colors.white, fontSize: 9,decoration: TextDecoration.none),
               )),
         ),
       ),
@@ -408,8 +412,8 @@ class _BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
           setState(() => _updateDargVarVal = v);
         });
       } else {
-        await controller.volumn().then((double v) {
-          setState(() => _updateDargVarVal = v);
+        await controller.volumn().then((double? v) {
+          setState(() => _updateDargVarVal = v!);
         });
       }
     }

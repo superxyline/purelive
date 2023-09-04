@@ -9,6 +9,10 @@ import app_links
 import battery_plus
 import dynamic_color
 import flutter_js
+<<<<<<< HEAD
+=======
+import flutter_volume_controller
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
 import media_kit_libs_macos_video
 import media_kit_video
 import package_info_plus
@@ -27,6 +31,10 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   BatteryPlusMacosPlugin.register(with: registry.registrar(forPlugin: "BatteryPlusMacosPlugin"))
   DynamicColorPlugin.register(with: registry.registrar(forPlugin: "DynamicColorPlugin"))
   FlutterJsPlugin.register(with: registry.registrar(forPlugin: "FlutterJsPlugin"))
+<<<<<<< HEAD
+=======
+  FlutterVolumeControllerPlugin.register(with: registry.registrar(forPlugin: "FlutterVolumeControllerPlugin"))
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   MediaKitLibsMacosVideoPlugin.register(with: registry.registrar(forPlugin: "MediaKitLibsMacosVideoPlugin"))
   MediaKitVideoPlugin.register(with: registry.registrar(forPlugin: "MediaKitVideoPlugin"))
   FLTPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FLTPackageInfoPlusPlugin"))

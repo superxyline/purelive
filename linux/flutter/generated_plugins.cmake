@@ -5,6 +5,10 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   dynamic_color
   flutter_js
+<<<<<<< HEAD
+=======
+  flutter_volume_controller
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   media_kit_libs_linux
   media_kit_video
   screen_retriever

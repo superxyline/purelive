@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
@@ -27,10 +32,18 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   Widget _buildVideoFrame() {
     return media_kit_video.Video(
+<<<<<<< HEAD
       controller: widget.controller.controller,
       fit: widget.controller.videoFit.value,
       controls: media_kit_video.NoVideoControls,
     );
+=======
+          key: widget.controller.key,
+          controller: widget.controller.controller,
+          fit: widget.controller.videoFit.value,
+          controls: (state) => _buildVideoPanel(),
+        );
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   }
 
   Widget _buildVideoPanel() {
@@ -43,8 +56,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   Widget _buildPlayer() {
     return Stack(
       children: [
-        _buildVideoFrame(),
-        _buildVideoPanel(),
+        _buildVideoFrame()
       ],
     );
   }

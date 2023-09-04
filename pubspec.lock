@@ -168,7 +168,11 @@ packages:
       sha256: "706b5707578e0c1b4b7550f64078f0a0f19dec3f50a178ffae7006b0a9ca58fb"
       url: "https://pub.flutter-io.cn"
     source: hosted
+<<<<<<< HEAD
     version: "1.0.0"
+=======
+    version: "0.17.3"
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   dart_tars_protocol:
     dependency: "direct main"
     description:
@@ -337,6 +341,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_volume_controller:
+    dependency: "direct main"
+    description:
+      name: flutter_volume_controller
+      sha256: "7f88cb046b00fd80e98bcb7926b9e3879f004f30905109fdf6c5d09b8d28eb2e"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.7"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -509,7 +521,11 @@ packages:
       sha256: "9528f2f296073ff54cb9fee677df673ace1218163c3bc7628093e7eed5203d41"
       url: "https://pub.flutter-io.cn"
     source: hosted
+<<<<<<< HEAD
     version: "0.5.0"
+=======
+    version: "0.2.0"
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   media_kit:
     dependency: "direct main"
     description:
@@ -1204,7 +1220,7 @@ packages:
     source: hosted
     version: "2.1.4"
   volume_controller:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: volume_controller
       sha256: "189bdc7a554f476b412e4c8b2f474562b09d74bc458c23667356bce3ca1d48c9"
@@ -1227,6 +1243,7 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
+<<<<<<< HEAD
   web:
     dependency: transitive
     description:
@@ -1235,6 +1252,8 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.4-beta"
+=======
+>>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   web_socket_channel:
     dependency: "direct main"
     description:
