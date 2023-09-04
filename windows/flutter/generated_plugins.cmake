@@ -7,10 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
   dynamic_color
   flutter_js
-<<<<<<< HEAD
-=======
   flutter_volume_controller
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   media_kit_libs_windows_video
   media_kit_video
   permission_handler_windows

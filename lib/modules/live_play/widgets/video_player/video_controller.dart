@@ -1,33 +1,17 @@
 import 'dart:async';
-<<<<<<< HEAD
-import 'dart:developer';
-import 'dart:io';
-
-import 'package:battery_plus/battery_plus.dart';
-import 'package:flutter/services.dart';
-=======
 
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
 import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:pure_live/common/index.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-<<<<<<< HEAD
-import 'package:volume_controller/volume_controller.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:media_kit/media_kit.dart'; // Provides [Player], [Media], [Playlist] etc.
-import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
-import 'package:window_manager/window_manager.dart';
-=======
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
 import 'danmaku_text.dart';
 import 'video_controller_panel.dart';
 
@@ -43,13 +27,6 @@ class VideoController with ChangeNotifier {
   final bool autoPlay;
   final videoFit = BoxFit.contain.obs;
 
-<<<<<<< HEAD
-  // Create a [Player] to control playback.
-  late final player = Player();
-  // Create a [VideoController] to handle video output from [Player].
-  late final controller = media_kit_video.VideoController(player);
-  VolumeController volumeController = VolumeController()..showSystemUI = false;
-=======
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
   late final GlobalKey<media_kit_video.VideoState> key =
@@ -60,7 +37,6 @@ class VideoController with ChangeNotifier {
   late final controller = media_kit_video.VideoController(player, configuration: const media_kit_video.VideoControllerConfiguration(
     enableHardwareAcceleration: true
   ));
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   ScreenBrightness brightnessController = ScreenBrightness();
 
   final hasError = false.obs;
@@ -133,22 +109,6 @@ class VideoController with ChangeNotifier {
   }
 
   void initVideoController() {
-<<<<<<< HEAD
-    // fix auto fullscreen
-    if (fullScreenByDefault && datasource.isNotEmpty) {
-      Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
-    }
-    setDataSource(datasource);
-    player.stream.playing.listen(
-      (bool playing) {
-        if (playing) {
-          isPlaying.value = true;
-        } else {
-          isPlaying.value = false;
-        }
-      },
-    );
-=======
     FlutterVolumeController.showSystemUI = false;
     setDataSource(datasource);
     player.stream.playing.listen((bool playing) {
@@ -162,7 +122,6 @@ class VideoController with ChangeNotifier {
       if (fullScreenByDefault && datasource.isNotEmpty) {
         Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
       }
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   }
 
   // Danmaku player control
@@ -236,12 +195,7 @@ class VideoController with ChangeNotifier {
       hasError.value = true;
       return;
     }
-<<<<<<< HEAD
-    final Media playable = Media(datasource);
-    await player.open(playable);
-=======
     player.open(Media(datasource));
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   }
 
   void setVideoFit(BoxFit fit) {
@@ -268,35 +222,8 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(milliseconds: 500), () {
       enableController();
     });
-<<<<<<< HEAD
-
-    if (Platform.isWindows || Platform.isLinux) {
-      if (!isFullscreen.value) {
-        WindowManager.instance.setFullScreen(true);
-        Get.to(() => DesktopFullscreen(controller: this));
-      } else {
-        WindowManager.instance.setFullScreen(false);
-        Get.back();
-        // 重设大小，修复窗口大小BUG
-        WindowManager.instance.getSize().then((value) => WindowManager.instance
-            .setSize(Size(value.width + 1, value.height + 1)));
-      }
-      isFullscreen.toggle();
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      // mobileController?.toggleFullScreen();
-      Timer(const Duration(milliseconds: 400), () {
-        isFullscreen.toggle();
-        // fix immersion status bar problem
-        if (Platform.isAndroid) {
-          SystemChrome.setEnabledSystemUIMode(!isFullscreen.value
-              ? SystemUiMode.edgeToEdge
-              : SystemUiMode.immersiveSticky);
-        }
-      });
-=======
     if (key.currentState?.isFullscreen() ?? false) {
       key.currentState?.exitFullscreen();
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
     } else {
       key.currentState?.enterFullscreen();
     }
@@ -335,13 +262,8 @@ class VideoController with ChangeNotifier {
   void enterPipMode(BuildContext context) async {}
 
   // volumn & brightness
-<<<<<<< HEAD
-  Future<double> volumn() async {
-    return await volumeController.getVolume();
-=======
   Future<double?> volumn() async {
      return await FlutterVolumeController.getVolume();
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   }
 
   Future<double> brightness() async {
@@ -355,11 +277,7 @@ class VideoController with ChangeNotifier {
   }
 
   void setVolumn(double value) async {
-<<<<<<< HEAD
-    volumeController.setVolume(value);
-=======
     await FlutterVolumeController.setVolume(value);
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   }
 
   void setBrightness(double value) async {
@@ -437,11 +355,7 @@ class DesktopFullscreen extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-<<<<<<< HEAD
-          Obx(() => media_kit_video.Video(
-=======
           media_kit_video.Video(
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
                 controller: controller.controller,
                 fit: controller.videoFit.value,
                 controls: (state) => VideoControllerPanel(controller: controller),

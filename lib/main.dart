@@ -15,14 +15,9 @@ import 'package:pure_live/plugins/window_util.dart';
 import 'package:pure_live/routes/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:media_kit/media_kit.dart'; // Provides [Player], [Media], [Playlist] etc.
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-<<<<<<< HEAD
-    // Necessary initialization for package:media_kit.
-=======
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
   MediaKit.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
@@ -81,13 +76,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
   }
 
   void _init() async {
-<<<<<<< HEAD
-    // Add this line to override the default close handler
-    if (Platform.isWindows) {
-=======
     if (Platform.isWindows) {
       // Add this line to override the default close handler
->>>>>>> 3248227e738197247e8ebbc391480065a5c0fab4
       await WindowUtil.setTitle();
       await WindowUtil.setWindowsPort();
       setState(() {});
