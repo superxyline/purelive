@@ -100,7 +100,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
           }
 
           return GetMaterialApp(
-            title: 'PureLive',
+            title: '纯粹直播',
             themeMode:
                 SettingsService.themeModes[settings.themeModeName.value]!,
             theme: lightTheme,

@@ -27,16 +27,7 @@ class VideoController with ChangeNotifier {
   final bool autoPlay;
   final videoFit = BoxFit.contain.obs;
 
-  // Video player status
-  // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
-  late final GlobalKey<media_kit_video.VideoState> key =
-      GlobalKey<media_kit_video.VideoState>();
-  // Create a [Player] to control playback.
-  late final player = Player();
-  // Create a [VideoController] to handle video output from [Player].
-  late final controller = media_kit_video.VideoController(player, configuration: const media_kit_video.VideoControllerConfiguration(
-    enableHardwareAcceleration: true
-  ));
+
   ScreenBrightness brightnessController = ScreenBrightness();
 
   final hasError = false.obs;
@@ -48,7 +39,19 @@ class VideoController with ChangeNotifier {
   bool get supportPip => Platform.isAndroid;
   bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
-
+    // Video player status
+  // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
+  late final GlobalKey<media_kit_video.VideoState> key =
+      GlobalKey<media_kit_video.VideoState>();
+  // Create a [Player] to control playback.
+  late final player = Player();
+  // Create a [VideoController] to handle video output from [Player].
+  String? vo  = Platform.isAndroid ? 'gpu' : 'libmpv';
+  String? hwdec  = Platform.isAndroid ? 'mediacodec' : 'auto';
+  late final controller = media_kit_video.VideoController(player, configuration:  media_kit_video.VideoControllerConfiguration(
+    enableHardwareAcceleration: false,
+    hwdec: hwdec
+  ));
   // Controller ui status
   Timer? showControllerTimer;
   final showController = true.obs;
