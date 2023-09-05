@@ -171,8 +171,8 @@ class TopActionBar extends StatelessWidget {
               const DatetimeInfo(),
               BatteryInfo(controller: controller),
             ],
-            if (!controller.fullscreenUI && controller.supportPip)
-              PIPButton(controller: controller),
+            // if (!controller.fullscreenUI && controller.supportPip)
+            //   PIPButton(controller: controller),
           ]),
         ),
       ),
@@ -346,6 +346,7 @@ class DanmakuViewer extends StatelessWidget {
                 controller: controller.danmakuController,
                 speed: controller.danmakuSpeed.value.toInt(),
                 maxBulletHeight: controller.danmakuFontSize * 1.5,
+                safeBottomHeight: 50,
                 massiveMode: false, // disabled by default
                 child: Container(),
               ),

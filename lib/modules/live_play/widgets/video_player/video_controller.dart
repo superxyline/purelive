@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'dart:io';
 
@@ -27,7 +28,6 @@ class VideoController with ChangeNotifier {
   final bool autoPlay;
   final videoFit = BoxFit.contain.obs;
 
-
   ScreenBrightness brightnessController = ScreenBrightness();
 
   final hasError = false.obs;
@@ -39,19 +39,18 @@ class VideoController with ChangeNotifier {
   bool get supportPip => Platform.isAndroid;
   bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
-    // Video player status
+  // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
   late final GlobalKey<media_kit_video.VideoState> key =
       GlobalKey<media_kit_video.VideoState>();
   // Create a [Player] to control playback.
   late final player = Player();
   // Create a [VideoController] to handle video output from [Player].
-  String? vo  = Platform.isAndroid ? 'gpu' : 'libmpv';
-  String? hwdec  = Platform.isAndroid ? 'mediacodec' : 'auto';
-  late final controller = media_kit_video.VideoController(player, configuration:  media_kit_video.VideoControllerConfiguration(
-    enableHardwareAcceleration: false,
-    hwdec: hwdec
-  ));
+  String? vo = Platform.isAndroid ? 'mediacodec_embed' : 'libmpv';
+  String? hwdec = Platform.isAndroid ? 'mediacodec' : 'auto';
+  late final controller = media_kit_video.VideoController(player,
+      configuration: media_kit_video.VideoControllerConfiguration(
+          enableHardwareAcceleration: true, vo: vo, hwdec: hwdec));
   // Controller ui status
   Timer? showControllerTimer;
   final showController = true.obs;
@@ -114,17 +113,20 @@ class VideoController with ChangeNotifier {
   void initVideoController() {
     FlutterVolumeController.showSystemUI = false;
     setDataSource(datasource);
-    player.stream.playing.listen((bool playing) {
+    controller.player.stream.playing.listen((bool playing) {
       if (playing) {
         isPlaying.value = true;
       } else {
         isPlaying.value = false;
       }
     });
-     // fix auto fullscreen
-      if (fullScreenByDefault && datasource.isNotEmpty) {
-        Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
-      }
+    controller.player.stream.error.listen((String err) {
+      log(err);
+    });
+    // fix auto fullscreen
+    if (fullScreenByDefault && datasource.isNotEmpty) {
+      Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
+    }
   }
 
   // Danmaku player control
@@ -210,10 +212,10 @@ class VideoController with ChangeNotifier {
     player.playOrPause();
   }
 
-   void toggleFullScreen() {
+  void toggleFullScreen() {
     // disable locked
     showLocked.value = false;
-     // fix danmaku overlap bug
+    // fix danmaku overlap bug
     if (!hideDanmaku.value) {
       hideDanmaku.value = true;
       Timer(const Duration(milliseconds: 500), () {
@@ -262,11 +264,13 @@ class VideoController with ChangeNotifier {
     enableController();
   }
 
-  void enterPipMode(BuildContext context) async {}
+  void enterPipMode(BuildContext context) async {
+    
+  }
 
   // volumn & brightness
   Future<double?> volumn() async {
-     return await FlutterVolumeController.getVolume();
+    return await FlutterVolumeController.getVolume();
   }
 
   Future<double> brightness() async {
@@ -359,10 +363,10 @@ class DesktopFullscreen extends StatelessWidget {
       body: Stack(
         children: [
           media_kit_video.Video(
-                controller: controller.controller,
-                fit: controller.videoFit.value,
-                controls: (state) => VideoControllerPanel(controller: controller),
-              )
+            controller: controller.controller,
+            fit: controller.videoFit.value,
+            controls: (state) => VideoControllerPanel(controller: controller),
+          )
         ],
       ),
     );

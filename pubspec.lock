@@ -259,10 +259,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_barrage
-      sha256: cc79a9bb08bcfd76e9856337c168f4b19e16916ca7bb6d929cc6f02663d3387c
+      sha256: d47404608dc66d4a08a5224179cfb4405aefe524f915d03dee4f5fab0cca3094
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.5.5"
+    version: "0.5.4"
   flutter_blurhash:
     dependency: transitive
     description:
