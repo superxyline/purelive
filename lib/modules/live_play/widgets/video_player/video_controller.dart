@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
@@ -12,7 +12,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-
+import 'package:better_player/better_player.dart';
 import 'danmaku_text.dart';
 import 'video_controller_panel.dart';
 
@@ -44,13 +44,10 @@ class VideoController with ChangeNotifier {
   late final GlobalKey<media_kit_video.VideoState> key =
       GlobalKey<media_kit_video.VideoState>();
   // Create a [Player] to control playback.
-  late final player = Player();
+  late Player player;
   // Create a [VideoController] to handle video output from [Player].
-  String? vo = Platform.isAndroid ? 'mediacodec_embed' : 'libmpv';
-  String? hwdec = Platform.isAndroid ? 'mediacodec' : 'auto';
-  late final controller = media_kit_video.VideoController(player,
-      configuration: media_kit_video.VideoControllerConfiguration(
-          enableHardwareAcceleration: true, vo: vo, hwdec: hwdec));
+  late media_kit_video.VideoController desktopController;
+  BetterPlayerController? mobileController;
   // Controller ui status
   Timer? showControllerTimer;
   final showController = true.obs;
@@ -112,20 +109,57 @@ class VideoController with ChangeNotifier {
 
   void initVideoController() {
     FlutterVolumeController.showSystemUI = false;
-    setDataSource(datasource);
-    controller.player.stream.playing.listen((bool playing) {
-      if (playing) {
-        isPlaying.value = true;
-      } else {
-        isPlaying.value = false;
-      }
-    });
-    controller.player.stream.error.listen((String err) {
-      log(err);
-    });
+    if (Platform.isWindows || Platform.isLinux) {
+      player = Player();
+      desktopController = media_kit_video.VideoController(player);
+      setDataSource(datasource);
+      desktopController.player.stream.playing.listen((bool playing) {
+        if (playing) {
+          isPlaying.value = true;
+        } else {
+          isPlaying.value = false;
+        }
+      });
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      mobileController = BetterPlayerController(
+        BetterPlayerConfiguration(
+          autoPlay: true,
+          fit: videoFit.value,
+          allowedScreenSleep: !allowScreenKeepOn,
+          autoDetectFullscreenDeviceOrientation: true,
+          autoDetectFullscreenAspectRatio: true,
+          errorBuilder: (context, errorMessage) => Container(),
+          routePageBuilder: (context, animation, second, controllerProvider) =>
+              AnimatedBuilder(
+            animation: animation,
+            builder: (context, child) => MobileFullscreen(
+              controller: this,
+              controllerProvider: controllerProvider,
+            ),
+          ),
+        ),
+      );
+      mobileController?.setControlsEnabled(false);
+      setDataSource(datasource);
+      mobileController?.addEventsListener(mobileStateListener);
+    } else {
+      throw UnimplementedError('Unsupported Platform');
+    }
+
     // fix auto fullscreen
     if (fullScreenByDefault && datasource.isNotEmpty) {
       Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
+    }
+  }
+
+  dynamic mobileStateListener(dynamic state) {
+    if (mobileController?.videoPlayerController != null) {
+      hasError.value =
+          mobileController?.videoPlayerController?.value.hasError ?? true;
+      isPlaying.value = mobileController?.isPlaying() ?? false;
+      isBuffering.value = mobileController?.isBuffering() ?? false;
+      isPipMode.value =
+          mobileController?.videoPlayerController?.value.isPip ?? false;
     }
   }
 
@@ -185,11 +219,22 @@ class VideoController with ChangeNotifier {
     _shutdownTimer?.cancel();
     brightnessController.resetScreenBrightness();
     danmakuController.dispose();
-    player.dispose();
+    if(Platform.isAndroid || Platform.isIOS) {
+      mobileController?.removeEventsListener(mobileStateListener);
+    } else {
+      player.dispose();
+    }
     super.dispose();
   }
 
   void refresh() {
+     if (Platform.isWindows || Platform.isLinux) {
+      setDataSource(datasource);
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      if (mobileController?.videoPlayerController != null) {
+        mobileController?.retryDataSource();
+      }
+    }
     setDataSource(datasource);
   }
 
@@ -200,7 +245,27 @@ class VideoController with ChangeNotifier {
       hasError.value = true;
       return;
     }
-    player.open(Media(datasource));
+    if (Platform.isWindows || Platform.isLinux) {
+      player.open(Media(datasource));
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      mobileController?.setupDataSource(BetterPlayerDataSource(
+        BetterPlayerDataSourceType.network,
+        url,
+        liveStream: true,
+        notificationConfiguration: allowBackgroundPlay
+            ? BetterPlayerNotificationConfiguration(
+                showNotification: true,
+                title: room.title,
+                author: room.nick,
+                imageUrl: room.avatar,
+                activityName: "MainActivity",
+              )
+            : null,
+      ));
+      mobileController?.pause();
+    } else {
+      throw UnimplementedError('Unsupported Platform');
+    }
   }
 
   void setVideoFit(BoxFit fit) {
@@ -227,12 +292,28 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(milliseconds: 500), () {
       enableController();
     });
-    if (key.currentState?.isFullscreen() ?? false) {
-      key.currentState?.exitFullscreen();
+
+    if (Platform.isWindows || Platform.isLinux) {
+      if (key.currentState?.isFullscreen() ?? false) {
+        key.currentState?.exitFullscreen();
+      } else {
+        key.currentState?.enterFullscreen();
+      }
+      isFullscreen.toggle();
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      mobileController?.toggleFullScreen();
+      Timer(const Duration(milliseconds: 400), () {
+        isFullscreen.toggle();
+        // fix immersion status bar problem
+        if (Platform.isAndroid) {
+          SystemChrome.setEnabledSystemUIMode(!isFullscreen.value
+              ? SystemUiMode.edgeToEdge
+              : SystemUiMode.immersiveSticky);
+        }
+      });
     } else {
-      key.currentState?.enterFullscreen();
+      throw UnimplementedError('Unsupported Platform');
     }
-    isFullscreen.toggle();
   }
 
   void toggleWindowFullScreen() {
@@ -265,7 +346,16 @@ class VideoController with ChangeNotifier {
   }
 
   void enterPipMode(BuildContext context) async {
-    
+    if ((Platform.isAndroid || Platform.isIOS)) {
+      if (await mobileController?.isPictureInPictureSupported() ?? false) {
+        isPipMode.value = true;
+        mobileController?.enablePictureInPicture(playerKey);
+      } else {
+        SnackBarUtil.error('暂不支持画中画');
+      }
+    } else {
+      throw UnimplementedError('Unsupported Platform');
+    }
   }
 
   // volumn & brightness
@@ -297,9 +387,11 @@ class MobileFullscreen extends StatefulWidget {
   const MobileFullscreen({
     Key? key,
     required this.controller,
+    required this.controllerProvider,
   }) : super(key: key);
 
   final VideoController controller;
+  final BetterPlayerControllerProvider controllerProvider;
 
   @override
   State<MobileFullscreen> createState() => _MobileFullscreenState();
@@ -341,6 +433,7 @@ class _MobileFullscreenState extends State<MobileFullscreen>
           child: Stack(
             alignment: Alignment.center,
             children: [
+              widget.controllerProvider,
               VideoControllerPanel(controller: widget.controller),
             ],
           ),
@@ -363,7 +456,7 @@ class DesktopFullscreen extends StatelessWidget {
       body: Stack(
         children: [
           media_kit_video.Video(
-            controller: controller.controller,
+            controller: controller.desktopController,
             fit: controller.videoFit.value,
             controls: (state) => VideoControllerPanel(controller: controller),
           )

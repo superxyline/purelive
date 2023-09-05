@@ -171,8 +171,8 @@ class TopActionBar extends StatelessWidget {
               const DatetimeInfo(),
               BatteryInfo(controller: controller),
             ],
-            // if (!controller.fullscreenUI && controller.supportPip)
-            //   PIPButton(controller: controller),
+            if (!controller.fullscreenUI && controller.supportPip)
+              PIPButton(controller: controller),
           ]),
         ),
       ),
@@ -260,7 +260,6 @@ class _BatteryInfoState extends State<BatteryInfo> {
       child: Container(
         width: 35,
         height: 15,
-        padding: const EdgeInsets.only(top: 2.5),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.4),
           border: Border.all(color: Colors.white),

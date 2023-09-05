@@ -18,11 +18,10 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MediaKit.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
-
   if (Platform.isWindows) {
+    MediaKit.ensureInitialized();
     await windowManager.ensureInitialized();
     await WindowUtil.init(width: 1280, height: 720);
   }

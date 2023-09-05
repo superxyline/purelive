@@ -1,5 +1,6 @@
+import 'dart:io';
 
-
+import 'package:better_player/better_player.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
@@ -28,25 +29,33 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 
   Widget _buildVideoFrame() {
-    return media_kit_video.Video(
-          key: widget.controller.key,
-          controller: widget.controller.controller,
-          fit: widget.controller.videoFit.value,
-          controls: (state) => _buildVideoPanel(),
-        );
+    if (Platform.isWindows || Platform.isLinux) {
+      return media_kit_video.Video(
+        key: widget.controller.key,
+        controller: widget.controller.desktopController,
+        fit: widget.controller.videoFit.value,
+        controls: (state) => _buildVideoPanel(),
+      );
+    } else {
+      return BetterPlayer(
+        key: widget.controller.playerKey,
+        controller: widget.controller.mobileController!,
+      );
+    }
   }
 
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
-      key: Key("${widget.controller.hashCode}_danmaku"),
-      controller: widget.controller,
-    );
+        key: Key("${widget.controller.hashCode}_danmaku"),
+        controller: widget.controller,
+      );
   }
 
   Widget _buildPlayer() {
     return Stack(
       children: [
-        _buildVideoFrame()
+        _buildVideoFrame(),
+        if(Platform.isAndroid || Platform.isIOS)_buildVideoPanel(),
       ],
     );
   }

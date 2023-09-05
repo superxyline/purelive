@@ -11,7 +11,7 @@ class WindowUtil {
     WindowOptions windowOptions = WindowOptions(
         size: Size(windowsWidth, windowsHeight),
         center: false,
-        minimumSize: const Size(800, 600));
+        minimumSize: const Size(900, 535));
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();

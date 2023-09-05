@@ -49,6 +49,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.2"
+  better_player:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: e09f7b81b6ce5f28a781193864c0867edccdbed3
+      url: "https://github.com/AnonymHK/betterplayer.git"
+    source: git
+    version: "0.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -169,6 +178,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.0"
+  cupertino_icons:
+    dependency: transitive
+    description:
+      name: cupertino_icons
+      sha256: e35129dc44c9118cee2a5603506d823bab99c68393879edb440e0090d07586be
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.5"
   dart_tars_protocol:
     dependency: "direct main"
     description:
@@ -350,6 +367,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_widget_from_html_core:
+    dependency: transitive
+    description:
+      name: flutter_widget_from_html_core
+      sha256: "719da7fba82343efb9ad3be528a768dec4a4d8f3b37ebd9eef8d93e891a1d58f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.10.4"
   font_awesome_flutter:
     dependency: "direct main"
     description:
@@ -1211,6 +1236,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.4"
+  visibility_detector:
+    dependency: transitive
+    description:
+      name: visibility_detector
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.0+2"
   volume_controller:
     dependency: transitive
     description:
