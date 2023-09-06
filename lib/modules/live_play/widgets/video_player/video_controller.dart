@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
@@ -99,9 +98,9 @@ class VideoController with ChangeNotifier {
   final Battery _battery = Battery();
   final batteryLevel = 100.obs;
   void initBattery() {
-    if (!Platform.isWindows) {
+    if (Platform.isAndroid || Platform.isIOS) {
       _battery.batteryLevel.then((value) => batteryLevel.value = value);
-      _battery.onBatteryStateChanged.listen((state) async {
+      _battery.onBatteryStateChanged.listen((BatteryState state) async {
         batteryLevel.value = await _battery.batteryLevel;
       });
     }
@@ -219,7 +218,7 @@ class VideoController with ChangeNotifier {
     _shutdownTimer?.cancel();
     brightnessController.resetScreenBrightness();
     danmakuController.dispose();
-    if(Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.removeEventsListener(mobileStateListener);
     } else {
       player.dispose();
@@ -228,7 +227,7 @@ class VideoController with ChangeNotifier {
   }
 
   void refresh() {
-     if (Platform.isWindows || Platform.isLinux) {
+    if (Platform.isWindows || Platform.isLinux) {
       setDataSource(datasource);
     } else if (Platform.isAndroid || Platform.isIOS) {
       if (mobileController?.videoPlayerController != null) {
@@ -270,11 +269,24 @@ class VideoController with ChangeNotifier {
 
   void setVideoFit(BoxFit fit) {
     videoFit.value = fit;
+    if (Platform.isWindows || Platform.isLinux) {
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      mobileController?.setOverriddenFit(videoFit.value);
+      mobileController?.retryDataSource();
+    } else {
+      throw UnimplementedError('Unsupported Platform');
+    }
     notifyListeners();
   }
 
   void togglePlayPause() {
-    player.playOrPause();
+    if (Platform.isWindows || Platform.isLinux) {
+      player.playOrPause();
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      isPlaying.value ? mobileController!.pause() : mobileController!.play();
+    } else {
+      throw UnimplementedError('Unsupported Platform');
+    }
   }
 
   void toggleFullScreen() {

@@ -25,8 +25,8 @@ class WindowUtil {
   static Future<void> setWindowsPort() async {
     double? windowsXPosition = PrefUtil.getDouble('windowsXPosition') ?? 0.0;
     double? windowsYPosition = PrefUtil.getDouble('windowsYPosition') ?? 0.0;
-    double? windowsWidth = PrefUtil.getDouble('windowsWidth') ?? 1280;
-    double? windowsHeight = PrefUtil.getDouble('windowsHeight') ?? 720;
+    double? windowsWidth = PrefUtil.getDouble('windowsWidth') ?? 900;
+    double? windowsHeight = PrefUtil.getDouble('windowsHeight') ?? 535;
     await windowManager.setBounds(Rect.fromLTWH(
         windowsXPosition, windowsYPosition, windowsWidth, windowsHeight));
   }
