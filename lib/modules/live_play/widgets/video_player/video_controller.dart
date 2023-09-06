@@ -15,7 +15,7 @@ import 'package:better_player_v3/better_player.dart';
 import 'danmaku_text.dart';
 import 'video_controller_panel.dart';
 
-class VideoController with ChangeNotifier {
+class VideoController with ChangeNotifier, WidgetsBindingObserver {
   final GlobalKey playerKey;
   final LiveRoom room;
   final String datasourceType;
@@ -92,6 +92,7 @@ class VideoController with ChangeNotifier {
     initVideoController();
     initDanmaku();
     initBattery();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   // Battery level control
@@ -104,6 +105,14 @@ class VideoController with ChangeNotifier {
         batteryLevel.value = await _battery.batteryLevel;
       });
     }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setDataSource(datasource);
+    }
+    super.didChangeAppLifecycleState(state);
   }
 
   void initVideoController() {
@@ -225,6 +234,7 @@ class VideoController with ChangeNotifier {
     } else {
       player.dispose();
     }
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -422,7 +432,9 @@ class _MobileFullscreenState extends State<MobileFullscreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      widget.controller.refresh();
+      if (Platform.isAndroid || Platform.isIOS) {
+        widget.controller.refresh();
+      }
     }
   }
 

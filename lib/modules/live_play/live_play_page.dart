@@ -7,7 +7,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'widgets/index.dart';
 
 // ignore: must_be_immutable
-class LivePlayPage extends GetView<LivePlayController> {
+class LivePlayPage extends GetView<LivePlayController>  {
   LivePlayPage({Key? key}) : super(key: key);
 
   final SettingsService settings = Get.find<SettingsService>();
