@@ -2,19 +2,19 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/about/about_page.dart';
 import 'package:pure_live/modules/about/donate_page.dart';
-import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
+import 'package:pure_live/modules/area_rooms/area_rooms_binding.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/auth/mine_page.dart';
 import 'package:pure_live/modules/contact/contact_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/home/home_page.dart';
-import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/modules/live_play/live_play_binding.dart';
 import 'package:pure_live/modules/live_play/live_play_page.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
+import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/settings/settings_binding.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
-import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/history/history_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
@@ -54,6 +54,8 @@ class AppPages {
     GetPage(
       name: initial,
       page: HomePage.new,
+      participatesInRootNavigator: true,
+      preventDuplicates: true,
     ),
     GetPage(
       name: signIn,
@@ -78,7 +80,7 @@ class AppPages {
     GetPage(
       name: settings,
       page: SettingsPage.new,
-      binding: SettingsBinding(),
+      bindings: [SettingsBinding()],
     ),
     GetPage(
       name: history,
@@ -87,7 +89,7 @@ class AppPages {
     GetPage(
       name: search,
       page: SearchPage.new,
-      binding: SearchBinding(),
+      bindings: [SearchBinding()],
     ),
     GetPage(
       name: contact,
@@ -108,16 +110,12 @@ class AppPages {
     GetPage(
       name: areaRooms,
       page: AreasRoomPage.new,
-      binding: BindingsBuilder.put(
-        () => AreaRoomsController(Get.arguments),
-      ),
+      bindings: [AreaRoomsBinding()],
     ),
     GetPage(
       name: livePlay,
       page: LivePlayPage.new,
-      binding: BindingsBuilder.put(
-        () => LivePlayController(Get.arguments),
-      ),
+      bindings: [LivePlayBinding()],
     ),
   ];
 }

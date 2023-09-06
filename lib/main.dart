@@ -114,6 +114,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
               GlobalCupertinoLocalizations.delegate,
             ],
             initialRoute: AppPages.initial,
+            defaultTransition: Transition.native,
             getPages: AppPages.routes,
           );
         });

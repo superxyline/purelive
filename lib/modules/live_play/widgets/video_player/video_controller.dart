@@ -221,6 +221,7 @@ class VideoController with ChangeNotifier {
     if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.removeEventsListener(mobileStateListener);
       mobileController?.dispose();
+      mobileController = null;
     } else {
       player.dispose();
     }
