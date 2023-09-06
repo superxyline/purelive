@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:better_player/better_player.dart';
+import 'package:better_player_v3/better_player.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';

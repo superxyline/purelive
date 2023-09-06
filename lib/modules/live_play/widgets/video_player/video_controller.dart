@@ -11,7 +11,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:better_player/better_player.dart';
+import 'package:better_player_v3/better_player.dart';
 import 'danmaku_text.dart';
 import 'video_controller_panel.dart';
 
@@ -220,6 +220,7 @@ class VideoController with ChangeNotifier {
     danmakuController.dispose();
     if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.removeEventsListener(mobileStateListener);
+      mobileController?.dispose();
     } else {
       player.dispose();
     }
@@ -255,8 +256,8 @@ class VideoController with ChangeNotifier {
             ? BetterPlayerNotificationConfiguration(
                 showNotification: true,
                 title: room.title,
-                author: room.nick,
                 imageUrl: room.avatar,
+                author: room.nick,
                 activityName: "MainActivity",
               )
             : null,
