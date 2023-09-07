@@ -274,12 +274,11 @@ packages:
   flutter_barrage:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: d8b349e4dfa8e924165557acb1ca1f7df38a57c6
-      url: "https://github.com/danielwii/flutter_barrage.git"
-    source: git
-    version: "0.5.5"
+      name: flutter_barrage
+      sha256: d47404608dc66d4a08a5224179cfb4405aefe524f915d03dee4f5fab0cca3094
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.5.4"
   flutter_blurhash:
     dependency: transitive
     description:
