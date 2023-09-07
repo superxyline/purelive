@@ -13,7 +13,7 @@ import 'intl/messages_all.dart';
 // ignore_for_file: avoid_redundant_argument_values, avoid_escaping_inner_quotes
 
 class S {
-  S();
+  S(this.localeName);
 
   static S? _current;
 
@@ -26,15 +26,14 @@ class S {
   static const AppLocalizationDelegate delegate = AppLocalizationDelegate();
 
   static Future<S> load(Locale locale) {
-    final name = (locale.countryCode?.isEmpty ?? false)
-        ? locale.languageCode
-        : locale.toString();
-    final localeName = Intl.canonicalizedLocale(name);
+    final String name =
+        locale.countryCode == null || locale.countryCode!.isEmpty
+            ? locale.languageCode
+            : locale.toString();
+    final String localeName = Intl.canonicalizedLocale(name);
     return initializeMessages(localeName).then((_) {
-      Intl.defaultLocale = localeName;
-      final instance = S();
+      final instance = S(localeName);
       S._current = instance;
-
       return instance;
     });
   }
@@ -50,6 +49,8 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  final String localeName;
+
   /// `PureLive`
   String get app_name {
     return Intl.message(
@@ -57,6 +58,7 @@ class S {
       name: 'app_name',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -67,6 +69,7 @@ class S {
       name: 'app_legalese',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -77,6 +80,7 @@ class S {
       name: 'cancel',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -87,6 +91,7 @@ class S {
       name: 'confirm',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -97,6 +102,7 @@ class S {
       name: 'update',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -107,6 +113,7 @@ class S {
       name: 'remove',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -117,6 +124,7 @@ class S {
       name: 'move_to_top',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -127,6 +135,7 @@ class S {
       name: 'favorites_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -137,6 +146,7 @@ class S {
       name: 'empty_favorite_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -147,6 +157,7 @@ class S {
       name: 'empty_favorite_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -157,6 +168,7 @@ class S {
       name: 'empty_favorite_offline_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -167,6 +179,7 @@ class S {
       name: 'empty_favorite_offline_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -177,6 +190,7 @@ class S {
       name: 'empty_favorite_online_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -187,6 +201,7 @@ class S {
       name: 'empty_favorite_online_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -197,6 +212,7 @@ class S {
       name: 'show_offline_rooms',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -207,6 +223,7 @@ class S {
       name: 'hide_offline_rooms',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -228,6 +245,7 @@ class S {
       name: 'online_room_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -238,6 +256,7 @@ class S {
       name: 'offline_room_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -248,6 +267,7 @@ class S {
       name: 'popular_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -258,6 +278,7 @@ class S {
       name: 'empty_live_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -268,6 +289,7 @@ class S {
       name: 'empty_live_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -278,6 +300,7 @@ class S {
       name: 'areas_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -288,6 +311,7 @@ class S {
       name: 'empty_areas_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -298,6 +322,7 @@ class S {
       name: 'empty_areas_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -308,6 +333,7 @@ class S {
       name: 'empty_areas_room_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -318,6 +344,7 @@ class S {
       name: 'empty_areas_room_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -328,6 +355,7 @@ class S {
       name: 'switch_platform',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -338,6 +366,7 @@ class S {
       name: 'favorite_areas',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -348,6 +377,7 @@ class S {
       name: 'search_input_hint',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -358,6 +388,7 @@ class S {
       name: 'only_living',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -368,6 +399,7 @@ class S {
       name: 'empty_search_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -378,6 +410,7 @@ class S {
       name: 'empty_search_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -388,6 +421,7 @@ class S {
       name: 'settings_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -398,6 +432,7 @@ class S {
       name: 'general',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -408,6 +443,7 @@ class S {
       name: 'video',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -418,6 +454,7 @@ class S {
       name: 'custom',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -428,6 +465,7 @@ class S {
       name: 'experiment',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -438,6 +476,7 @@ class S {
       name: 'change_theme_color',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -448,6 +487,7 @@ class S {
       name: 'change_theme_color_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -458,6 +498,7 @@ class S {
       name: 'change_theme_mode',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -468,6 +509,7 @@ class S {
       name: 'change_theme_mode_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -478,6 +520,7 @@ class S {
       name: 'change_language',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -488,6 +531,7 @@ class S {
       name: 'change_language_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -498,6 +542,7 @@ class S {
       name: 'backup_recover',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -508,6 +553,7 @@ class S {
       name: 'backup_recover_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -518,6 +564,7 @@ class S {
       name: 'create_backup',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -528,6 +575,7 @@ class S {
       name: 'create_backup_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -538,6 +586,7 @@ class S {
       name: 'recover_backup',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -548,6 +597,7 @@ class S {
       name: 'recover_backup_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -558,6 +608,7 @@ class S {
       name: 'auto_backup',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -568,6 +619,7 @@ class S {
       name: 'backup_directory',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -578,6 +630,7 @@ class S {
       name: 'create_backup_success',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -588,6 +641,7 @@ class S {
       name: 'create_backup_failed',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -598,6 +652,7 @@ class S {
       name: 'select_recover_file',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -608,6 +663,7 @@ class S {
       name: 'recover_backup_success',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -618,6 +674,7 @@ class S {
       name: 'recover_backup_failed',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -628,6 +685,7 @@ class S {
       name: 'enable_dynamic_color',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -638,6 +696,7 @@ class S {
       name: 'enable_dynamic_color_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -648,6 +707,7 @@ class S {
       name: 'enable_dense_favorites_mode',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -658,6 +718,7 @@ class S {
       name: 'enable_dense_favorites_mode_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -668,6 +729,7 @@ class S {
       name: 'enable_background_play',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -678,6 +740,7 @@ class S {
       name: 'enable_background_play_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -688,6 +751,7 @@ class S {
       name: 'enable_screen_keep_on',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -698,6 +762,7 @@ class S {
       name: 'enable_screen_keep_on_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -708,6 +773,7 @@ class S {
       name: 'enable_fullscreen_default',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -718,6 +784,7 @@ class S {
       name: 'enable_fullscreen_default_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -728,6 +795,7 @@ class S {
       name: 'enable_auto_check_update',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -738,6 +806,7 @@ class S {
       name: 'enable_auto_check_update_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -748,6 +817,7 @@ class S {
       name: 'float_overlay_ratio',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -758,6 +828,7 @@ class S {
       name: 'float_overlay_ratio_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -768,6 +839,7 @@ class S {
       name: 'prefer_platform',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -778,6 +850,7 @@ class S {
       name: 'prefer_platform_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -788,6 +861,7 @@ class S {
       name: 'prefer_resolution',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -798,6 +872,7 @@ class S {
       name: 'prefer_resolution_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -808,6 +883,7 @@ class S {
       name: 'auto_refresh_time',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -818,6 +894,7 @@ class S {
       name: 'auto_refresh_time_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -828,6 +905,7 @@ class S {
       name: 'auto_shutdown_time_subtitle',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -838,6 +916,7 @@ class S {
       name: 'auto_shutdown_time',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -848,6 +927,7 @@ class S {
       name: 'about',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -858,6 +938,7 @@ class S {
       name: 'version',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -868,6 +949,7 @@ class S {
       name: 'what_is_new',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -878,6 +960,7 @@ class S {
       name: 'check_update',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -898,6 +981,7 @@ class S {
       name: 'no_new_version_info',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -908,6 +992,7 @@ class S {
       name: 'license',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -918,6 +1003,7 @@ class S {
       name: 'project',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -928,6 +1014,7 @@ class S {
       name: 'support_donate',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -938,6 +1025,7 @@ class S {
       name: 'issue_feedback',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -948,6 +1036,7 @@ class S {
       name: 'develop_progress',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -958,6 +1047,7 @@ class S {
       name: 'project_page',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -968,6 +1058,7 @@ class S {
       name: 'project_alert',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -978,6 +1069,7 @@ class S {
       name: 'contact',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -988,6 +1080,7 @@ class S {
       name: 'qq_group',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1008,6 +1101,7 @@ class S {
       name: 'telegram',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1018,6 +1112,7 @@ class S {
       name: 'email',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1028,6 +1123,7 @@ class S {
       name: 'github',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1038,6 +1134,7 @@ class S {
       name: 'help',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1048,6 +1145,7 @@ class S {
       name: 'settings_timedclose_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1068,6 +1166,7 @@ class S {
       name: 'settings_videofit_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1078,6 +1177,7 @@ class S {
       name: 'videofit_contain',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1088,6 +1188,7 @@ class S {
       name: 'videofit_fill',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1098,6 +1199,7 @@ class S {
       name: 'videofit_cover',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1108,6 +1210,7 @@ class S {
       name: 'videofit_fitwidth',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1118,6 +1221,7 @@ class S {
       name: 'videofit_fitheight',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1128,6 +1232,7 @@ class S {
       name: 'settings_danmaku_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1138,6 +1243,7 @@ class S {
       name: 'settings_danmaku_area',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1148,6 +1254,7 @@ class S {
       name: 'settings_danmaku_opacity',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1158,6 +1265,7 @@ class S {
       name: 'settings_danmaku_speed',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1168,6 +1276,7 @@ class S {
       name: 'settings_danmaku_fontsize',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1178,6 +1287,7 @@ class S {
       name: 'settings_danmaku_fontBorder',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1188,6 +1298,7 @@ class S {
       name: 'settings_danmaku_amount',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1198,6 +1309,7 @@ class S {
       name: 'follow',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1208,6 +1320,7 @@ class S {
       name: 'unfollow',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1228,6 +1341,7 @@ class S {
       name: 'followed',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1238,6 +1352,7 @@ class S {
       name: 'offline',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1268,6 +1383,7 @@ class S {
       name: 'float_window_play',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1278,6 +1394,7 @@ class S {
       name: 'dlan_button_info',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1288,6 +1405,7 @@ class S {
       name: 'dlan_title',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1298,6 +1416,7 @@ class S {
       name: 'dlan_device_not_found',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1308,6 +1427,7 @@ class S {
       name: 'play_video_failed',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1318,6 +1438,7 @@ class S {
       name: 'retry',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1328,6 +1449,7 @@ class S {
       name: 'replay',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1338,6 +1460,7 @@ class S {
       name: 'history',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1348,6 +1471,7 @@ class S {
       name: 'empty_history',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1358,6 +1482,7 @@ class S {
       name: 'supabase_sign_in',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1368,6 +1493,7 @@ class S {
       name: 'supabase_sign_up',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1378,6 +1504,7 @@ class S {
       name: 'supabase_sign_success',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1388,6 +1515,7 @@ class S {
       name: 'supabase_sign_failure',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1398,6 +1526,7 @@ class S {
       name: 'supabase_sign_confirm',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1408,6 +1537,7 @@ class S {
       name: 'supabase_mine',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1418,6 +1548,7 @@ class S {
       name: 'supabase_mine_profiles',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1428,6 +1559,7 @@ class S {
       name: 'supabase_mine_streams',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1438,6 +1570,7 @@ class S {
       name: 'supabase_log_out',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1448,6 +1581,7 @@ class S {
       name: 'supabase_enter_email',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1458,6 +1592,7 @@ class S {
       name: 'supabase_enter_valid_email',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1468,6 +1603,7 @@ class S {
       name: 'supabase_enter_valid_password',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1478,6 +1614,7 @@ class S {
       name: 'supabase_enter_password',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1498,6 +1635,7 @@ class S {
       name: 'supabase_forgot_password',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1508,6 +1646,7 @@ class S {
       name: 'supabase_no_account',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1518,6 +1657,7 @@ class S {
       name: 'supabase_has_account',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1528,6 +1668,7 @@ class S {
       name: 'supabase_reset_password',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1538,6 +1679,7 @@ class S {
       name: 'supabase_back_sign_in',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 
@@ -1548,6 +1690,7 @@ class S {
       name: 'supabase_update_password',
       desc: '',
       args: [],
+      locale: localeName,
     );
   }
 }
