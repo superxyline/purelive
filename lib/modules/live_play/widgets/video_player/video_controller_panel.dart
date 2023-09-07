@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get_rx/get_rx.dart';
@@ -234,22 +233,10 @@ class BatteryInfo extends StatefulWidget {
 }
 
 class _BatteryInfoState extends State<BatteryInfo> {
-  // Battery level control
-  final Battery _battery = Battery();
-
-  final batteryLevel = 100.obs;
-
-  void initBattery() {
-    _battery.batteryLevel.then((value) => batteryLevel.value = value);
-    _battery.onBatteryStateChanged.listen((state) async {
-      batteryLevel.value = await _battery.batteryLevel;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    // initBattery();
   }
 
   @override
@@ -267,7 +254,7 @@ class _BatteryInfoState extends State<BatteryInfo> {
         ),
         child: Center(
           child: Obx(() => Text(
-                '${batteryLevel.value}',
+                '${widget.controller.batteryLevel.value}',
                 style: const TextStyle(color: Colors.white, fontSize: 9,decoration: TextDecoration.none),
               )),
         ),
