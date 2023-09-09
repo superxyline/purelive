@@ -47,7 +47,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
-      key: Key("${widget.controller.hashCode}_danmaku"),
       controller: widget.controller,
     );
   }

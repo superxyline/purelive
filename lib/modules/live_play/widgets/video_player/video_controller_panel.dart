@@ -3,11 +3,15 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
+
+final GlobalKey<BrightnessVolumnDargAreaState> brightness =
+    GlobalKey<BrightnessVolumnDargAreaState>();
 
 class VideoControllerPanel extends StatefulWidget {
   final VideoController controller;
@@ -33,50 +37,89 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.enableController();
     });
-    
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => controller.hasError.value
-        ? ErrorWidget(controller: controller)
-        : MouseRegion(
-            onHover: (event) => controller.enableController(),
-            onExit: (event) {
-              controller.showControllerTimer?.cancel();
-              controller.showController.toggle();
-            },
-            child: Stack(children: [
-              DanmakuViewer(controller: controller),
-              GestureDetector(
-                onTap: () {
-                  if (controller.showSettting.value) {
-                    controller.showSettting.toggle();
-                  } else {
-                    controller.isPlaying.value
-                        ? controller.enableController()
-                        : controller.togglePlayPause();
-                  }
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.mediaPlay): () =>
+            controller.desktopController.player.play(),
+        const SingleActivator(LogicalKeyboardKey.mediaPause): () =>
+            controller.desktopController.player.pause(),
+        const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () =>
+            controller.desktopController.player.playOrPause(),
+        const SingleActivator(LogicalKeyboardKey.space): () =>
+            controller.desktopController.player.playOrPause(),
+         const SingleActivator(LogicalKeyboardKey.keyR): () =>
+            controller.refresh(),
+        const SingleActivator(LogicalKeyboardKey.arrowUp): () async {
+          double? volume = 1.0;
+          volume = await controller.volumn();
+          volume = (volume! + 0.05);
+          volume = min(volume, 1.0);
+          volume = max(volume, 0.0);
+          controller.setVolumn(volume);
+          brightness.currentState?.updateVolumn(volume);
+        },
+        const SingleActivator(LogicalKeyboardKey.arrowDown): () async {
+          double? volume = 1.0;
+          volume = await controller.volumn();
+          volume = (volume! - 0.05);
+          volume = min(volume, 1.0);
+          volume = max(volume, 0.0);
+          controller.setVolumn(volume); 
+          brightness.currentState?.updateVolumn(volume);
+        },
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            controller.toggleFullScreen(),
+      },
+      child: Focus(
+        autofocus: true,
+        child: Obx(() => controller.hasError.value
+            ? ErrorWidget(controller: controller)
+            : MouseRegion(
+                onHover: (event) => controller.enableController(),
+                onExit: (event) {
+                  controller.showControllerTimer?.cancel();
+                  controller.showController.toggle();
                 },
-                onDoubleTap: () => controller.isWindowFullscreen.value
-                    ? controller.toggleWindowFullScreen()
-                    : controller.toggleFullScreen(),
-                child: BrightnessVolumnDargArea(controller: controller),
-              ),
-              SettingsPanel(
-                controller: controller,
-              ),
-              LockButton(controller: controller),
-              TopActionBar(
-                controller: controller,
-                barHeight: barHeight,
-              ),
-              BottomActionBar(
-                controller: controller,
-                barHeight: barHeight,
-              ),
-            ]),
-          ));
+                child: Stack(children: [
+                  DanmakuViewer(controller: controller),
+                  GestureDetector(
+                    onTap: () {
+                      if (controller.showSettting.value) {
+                        controller.showSettting.toggle();
+                      } else {
+                        controller.isPlaying.value
+                            ? controller.enableController()
+                            : controller.togglePlayPause();
+                      }
+                    },
+                    onDoubleTap: () => controller.isWindowFullscreen.value
+                        ? controller.toggleWindowFullScreen()
+                        : controller.toggleFullScreen(),
+                    child: BrightnessVolumnDargArea(
+                      controller: controller,
+                      key: brightness,
+                    ),
+                  ),
+                  SettingsPanel(
+                    controller: controller,
+                  ),
+                  LockButton(controller: controller),
+                  TopActionBar(
+                    controller: controller,
+                    barHeight: barHeight,
+                  ),
+                  BottomActionBar(
+                    controller: controller,
+                    barHeight: barHeight,
+                  ),
+                ]),
+              )),
+      ),
+    );
   }
 }
 
@@ -162,7 +205,10 @@ class TopActionBar extends StatelessWidget {
                 child: Text(
                   controller.room.title,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white, fontSize: 16,decoration: TextDecoration.none),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      decoration: TextDecoration.none),
                 ),
               ),
             ),
@@ -217,7 +263,8 @@ class _DatetimeInfoState extends State<DatetimeInfo> {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
       child: Text(
         '$hour:$minute',
-        style: const TextStyle(color: Colors.white, fontSize: 14,decoration: TextDecoration.none),
+        style: const TextStyle(
+            color: Colors.white, fontSize: 14, decoration: TextDecoration.none),
       ),
     );
   }
@@ -233,7 +280,6 @@ class BatteryInfo extends StatefulWidget {
 }
 
 class _BatteryInfoState extends State<BatteryInfo> {
-
   @override
   void initState() {
     super.initState();
@@ -255,7 +301,10 @@ class _BatteryInfoState extends State<BatteryInfo> {
         child: Center(
           child: Obx(() => Text(
                 '${widget.controller.batteryLevel.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 9,decoration: TextDecoration.none),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    decoration: TextDecoration.none),
               )),
         ),
       ),
@@ -352,10 +401,10 @@ class BrightnessVolumnDargArea extends StatefulWidget {
 
   @override
   State<BrightnessVolumnDargArea> createState() =>
-      _BrightnessVolumnDargAreaState();
+      BrightnessVolumnDargAreaState();
 }
 
-class _BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
+class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
   VideoController get controller => widget.controller;
 
   // Darg bv ui control
@@ -373,6 +422,14 @@ class _BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
   void dispose() {
     _hideBVTimer?.cancel();
     super.dispose();
+  }
+
+  void updateVolumn(double? volume) {
+    _isDargLeft = false;
+    _cancelAndRestartHideBVTimer();
+    setState(() {
+      _updateDargVarVal = volume!;
+    });
   }
 
   void _cancelAndRestartHideBVTimer() {

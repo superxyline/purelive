@@ -53,6 +53,8 @@ class VideoController with ChangeNotifier {
   final showSettting = false.obs;
   final showLocked = false.obs;
   bool playBackisPlaying = false;
+
+  double volume = 0.0;
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
@@ -216,9 +218,9 @@ class VideoController with ChangeNotifier {
   void dispose() {
     if (allowScreenKeepOn) WakelockPlus.disable();
     _shutdownTimer?.cancel();
-     if (Platform.isAndroid || Platform.isIOS) {
-       brightnessController.resetScreenBrightness();
-     }
+    if (Platform.isAndroid || Platform.isIOS) {
+      brightnessController.resetScreenBrightness();
+    }
     danmakuController.dispose();
     if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.removeEventsListener(mobileStateListener);
@@ -292,6 +294,7 @@ class VideoController with ChangeNotifier {
       throw UnimplementedError('Unsupported Platform');
     }
   }
+
 
   void toggleFullScreen() {
     // disable locked
@@ -469,10 +472,45 @@ class DesktopFullscreen extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          media_kit_video.Video(
-            controller: controller.desktopController,
-            fit: controller.videoFit.value,
-            controls: (state) => VideoControllerPanel(controller: controller),
+          CallbackShortcuts(
+            bindings: {
+              // Default key-board shortcuts.
+              // https://support.google.com/youtube/answer/7631406
+              const SingleActivator(LogicalKeyboardKey.mediaPlay): () =>
+                  controller.desktopController.player.play(),
+              const SingleActivator(LogicalKeyboardKey.mediaPause): () =>
+                  controller.desktopController.player.pause(),
+              const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () =>
+                  controller.desktopController.player.playOrPause(),
+              const SingleActivator(LogicalKeyboardKey.space): () =>
+                  controller.desktopController.player.playOrPause(),
+
+              const SingleActivator(LogicalKeyboardKey.arrowUp): () {
+                final volume =
+                    controller.desktopController.player.state.volume + 5.0;
+                controller.desktopController.player
+                    .setVolume(volume.clamp(0.0, 100.0));
+              },
+              const SingleActivator(LogicalKeyboardKey.arrowDown): () {
+                final volume =
+                    controller.desktopController.player.state.volume - 5.0;
+                controller.desktopController.player
+                    .setVolume(volume.clamp(0.0, 100.0));
+              },
+              const SingleActivator(LogicalKeyboardKey.keyF): () =>
+                  controller.toggleFullScreen(),
+              const SingleActivator(LogicalKeyboardKey.escape): () =>
+                  controller.toggleFullScreen(),
+            },
+            child: Focus(
+              autofocus: true,
+              child: Obx(() => media_kit_video.Video(
+                    controller: controller.desktopController,
+                    fit: controller.videoFit.value,
+                    controls: (state) =>
+                        VideoControllerPanel(controller: controller),
+                  )),
+            ),
           )
         ],
       ),
