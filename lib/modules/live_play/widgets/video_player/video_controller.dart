@@ -398,16 +398,6 @@ class VideoController with ChangeNotifier {
 }
 
 // use fullscreen with controller provider
-
-
-
-
-
-
-
-
-
-
 class MobileFullscreen extends StatefulWidget {
   const MobileFullscreen({
     Key? key,
