@@ -10,8 +10,7 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
-final GlobalKey<BrightnessVolumnDargAreaState> brightness =
-    GlobalKey<BrightnessVolumnDargAreaState>();
+
 
 class VideoControllerPanel extends StatefulWidget {
   final VideoController controller;
@@ -60,7 +59,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
           volume = min(volume, 1.0);
           volume = max(volume, 0.0);
           controller.setVolumn(volume);
-          brightness.currentState?.updateVolumn(volume);
+          controller.brightnessKey.currentState?.updateVolumn(volume);
         },
         const SingleActivator(LogicalKeyboardKey.arrowDown): () async {
           double? volume = 1.0;
@@ -69,7 +68,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
           volume = min(volume, 1.0);
           volume = max(volume, 0.0);
           controller.setVolumn(volume); 
-          brightness.currentState?.updateVolumn(volume);
+          controller.brightnessKey.currentState?.updateVolumn(volume);
         },
         const SingleActivator(LogicalKeyboardKey.escape): () =>
             controller.toggleFullScreen(),
@@ -101,7 +100,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                         : controller.toggleFullScreen(),
                     child: BrightnessVolumnDargArea(
                       controller: controller,
-                      key: brightness,
+                      key: controller.brightnessKey,
                     ),
                   ),
                   SettingsPanel(
