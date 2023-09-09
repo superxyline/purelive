@@ -28,7 +28,7 @@ class VideoController with ChangeNotifier {
   final videoFit = BoxFit.contain.obs;
 
   ScreenBrightness brightnessController = ScreenBrightness();
-
+  double initBrightness = 0.0;
   final hasError = false.obs;
   final isPlaying = false.obs;
   final isBuffering = false.obs;
@@ -105,6 +105,7 @@ class VideoController with ChangeNotifier {
       });
     }
   }
+
   void initVideoController() {
     FlutterVolumeController.showSystemUI = false;
     if (Platform.isWindows || Platform.isLinux) {
@@ -215,7 +216,9 @@ class VideoController with ChangeNotifier {
   void dispose() {
     if (allowScreenKeepOn) WakelockPlus.disable();
     _shutdownTimer?.cancel();
-    brightnessController.resetScreenBrightness();
+     if (Platform.isAndroid || Platform.isIOS) {
+       brightnessController.resetScreenBrightness();
+     }
     danmakuController.dispose();
     if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.removeEventsListener(mobileStateListener);
@@ -377,13 +380,7 @@ class VideoController with ChangeNotifier {
   }
 
   Future<double> brightness() async {
-    if (Platform.isWindows || Platform.isLinux) {
-      return await brightnessController.current;
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      return await brightnessController.current;
-    } else {
-      throw UnimplementedError('Unsupported Platform');
-    }
+    return await brightnessController.current;
   }
 
   void setVolumn(double value) async {
@@ -391,7 +388,9 @@ class VideoController with ChangeNotifier {
   }
 
   void setBrightness(double value) async {
-    await brightnessController.setScreenBrightness(value);
+    if (Platform.isAndroid || Platform.isIOS) {
+      await brightnessController.setScreenBrightness(value);
+    }
   }
 }
 

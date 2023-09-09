@@ -62,7 +62,7 @@ dependencies:
   media_kit_libs_video: ^1.0.1                   # Native video dependencies.
   better_player_v3: ^0.0.2
   bordered_text: ^2.0.0
-  screen_brightness: ^0.2.2
+  screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7 
   window_manager: ^0.3.6
   

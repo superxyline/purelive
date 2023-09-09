@@ -10,8 +10,7 @@ class WindowUtil {
     double? windowsHeight = PrefUtil.getDouble('windowsHeight') ?? height;
     WindowOptions windowOptions = WindowOptions(
         size: Size(windowsWidth, windowsHeight),
-        center: false,
-        minimumSize: const Size(900, 535));
+        center: false);
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
