@@ -6,12 +6,10 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'widgets/index.dart';
 
-// ignore: must_be_immutable
-class LivePlayPage extends GetView<LivePlayController>  {
+class LivePlayPage extends GetWidget<LivePlayController>  {
   LivePlayPage({Key? key}) : super(key: key);
 
   final SettingsService settings = Get.find<SettingsService>();
-  final GlobalKey videoPlayerKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -108,10 +106,8 @@ class LivePlayPage extends GetView<LivePlayController>  {
           color: Colors.black,
           child: Obx(
             () => controller.success.value
-                ? VideoPlayer(
-                    key: videoPlayerKey,
-                    controller: controller.videoController!,
-                  )
+                ? VideoPlayer(controller: controller.videoController!,
+)
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),

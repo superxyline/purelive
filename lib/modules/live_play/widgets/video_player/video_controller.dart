@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -38,16 +39,20 @@ class VideoController with ChangeNotifier {
   bool get supportPip => Platform.isAndroid;
   bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
+  final refreshCompleted = true.obs;
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
-  late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
+  late final GlobalKey<media_kit_video.VideoState> key =
+      GlobalKey<media_kit_video.VideoState>();
 
-  late final GlobalKey<BrightnessVolumnDargAreaState> brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
+  GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
+      GlobalKey<BrightnessVolumnDargAreaState>();
   // Create a [Player] to control playback.
   late Player player;
   // Create a [VideoController] to handle video output from [Player].
   late media_kit_video.VideoController desktopController;
   BetterPlayerController? mobileController;
+  LivePlayController livePlayController = Get.find<LivePlayController>();
   // Controller ui status
   Timer? showControllerTimer;
   final showController = true.obs;
@@ -165,8 +170,16 @@ class VideoController with ChangeNotifier {
     }
   }
 
+  refreshView() {
+    refreshCompleted.value = false;
+    Timer(const Duration(microseconds: 200), () {
+      brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
+      refreshCompleted.value = true;
+    });
+  }
+
   // Danmaku player control
-  final danmakuController = BarrageWallController();
+  BarrageWallController danmakuController = BarrageWallController();
   final hideDanmaku = false.obs;
   final danmakuArea = 1.0.obs;
   final danmakuSpeed = 8.0.obs;
@@ -333,6 +346,7 @@ class VideoController with ChangeNotifier {
     } else {
       throw UnimplementedError('Unsupported Platform');
     }
+    refreshView();
   }
 
   void toggleWindowFullScreen() {
@@ -353,7 +367,10 @@ class VideoController with ChangeNotifier {
 
     if (Platform.isWindows || Platform.isLinux) {
       if (!isWindowFullscreen.value) {
-        Get.to(() => DesktopFullscreen(controller: this));
+        Get.to(() => DesktopFullscreen(
+              controller: this,
+              key: UniqueKey(),
+            ));
       } else {
         Get.back();
       }
@@ -362,6 +379,7 @@ class VideoController with ChangeNotifier {
       throw UnimplementedError('Unsupported Platform');
     }
     enableController();
+    refreshView();
   }
 
   void enterPipMode(BuildContext context) async {
