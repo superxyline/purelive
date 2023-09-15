@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -19,7 +17,7 @@ class LivePlayController extends GetxController {
   final messages = <LiveMessage>[].obs;
 
   // 控制唯一子组件
-  VideoController? videoController; 
+  VideoController? videoController;
   final playerKey = GlobalKey();
   final danmakuViewKey = GlobalKey();
 
@@ -41,22 +39,17 @@ class LivePlayController extends GetxController {
     site.liveSite.getLiveStream(room).then((value) {
       liveStream = value;
       setPreferResolution();
-
-      // add delay to avoid hero animation lag
-      int delay = (Platform.isWindows || Platform.isLinux) ? 500 : 0;
-      Timer(Duration(milliseconds: delay), () {
-        videoController = VideoController(
-          playerKey: playerKey,
-          room: room,
-          datasourceType: 'network',
-          datasource: selectedStreamUrl,
-          allowBackgroundPlay: settings.enableBackgroundPlay.value,
-          allowScreenKeepOn: settings.enableScreenKeepOn.value,
-          fullScreenByDefault: settings.enableFullScreenDefault.value,
-          autoPlay: true,
-        );
-        success.value = true;
-      });
+      videoController = VideoController(
+        playerKey: playerKey,
+        room: room,
+        datasourceType: 'network',
+        datasource: selectedStreamUrl,
+        allowBackgroundPlay: settings.enableBackgroundPlay.value,
+        allowScreenKeepOn: settings.enableScreenKeepOn.value,
+        fullScreenByDefault: settings.enableFullScreenDefault.value,
+        autoPlay: true,
+      );
+      success.value = true;
     }).then((value) => settings.addRoomToHistory(room));
 
     // start danmaku server

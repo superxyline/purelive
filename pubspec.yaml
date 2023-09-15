@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.3
+version: 1.1.9
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -49,43 +49,43 @@ dependencies:
   flutter_staggered_grid_view: ^0.7.0
 
   # barrage wall
-  flutter_barrage: ^0.5.4
+  flutter_barrage: 0.5.4
   flutter_exit_app: ^1.1.2
 
   # database
-  supabase_flutter: ^1.10.12
-  supabase_auth_ui: ^0.2.1
+  supabase_flutter: ^1.10.14
+  email_validator: ^2.1.17
+  font_awesome_flutter: ^10.5.0
   # video player mobile
-  better_player:
-    git:
-      url: https://github.hscsec.cn/matthewrice345/betterplayer.git
-      ref: Issue1057
+  media_kit: ^1.1.7                              # Primary package.
+  media_kit_video: ^1.1.8                        # For video rendering.
+  media_kit_libs_video: ^1.0.1                   # Native video dependencies.
+  better_player_v3: ^0.0.2
   bordered_text: ^2.0.0
-  screen_brightness: ^0.2.2
-  volume_controller: ^2.0.6
-
-  # video player windows
-  dart_vlc: ^0.4.0
-  window_manager: ^0.3.1
+  screen_brightness: ^0.2.2+1
+  flutter_volume_controller: ^1.2.7 
+  window_manager: ^0.3.6
   
   # system hardware utils
-  wakelock: ^0.6.2
+  wakelock_plus: ^1.1.1
   dlna_dart: ^0.0.8
   battery_plus: ^4.0.2
   stop_watch_timer: ^3.0.1
   # storage
   file_picker: ^5.2.5
   permission_handler: ^10.2.0
-  shared_preferences: ^2.0.15
+  shared_preferences: ^2.2.0
   flutter_cache_manager: ^3.3.0
   
   # utils
-  get: ^4.6.5
+  get:
+    git:
+      url: https://github.com/jonataslaw/getx.git
   intl: ^0.18.0
   date_format: ^2.0.7
   path: ^1.8.2
   file: ^6.1.4
-  path_provider: ^2.0.13
+  path_provider: ^2.1.1
   dart_tars_protocol:
     git: https://github.com/xiaoyaocz/dart_tars_protocol.git
   html_unescape: ^2.0.0
@@ -170,12 +170,12 @@ flutter_intl:
 
 # windows msix package
 msix_config:
-  display_name: Pure Live
-  publisher_display_name: puretech.com
-  identity_name: com.puretech.purelive
-  msix_version: 1.1.0.0
+  display_name: 纯粹直播
+  # publisher_display_name: puretech.com
+  # identity_name: com.puretech.purelive
+  msix_version: 1.0.0.10
   logo_path: assets/icons/icon.png
-  capabilities: internetClient
-  certificate_path: ~\keystore\puretech_signcert.pfx
+  # capabilities: internetClient
+  certificate_path: assets/keystore/CERTIFICATE.pfx
   certificate_password: xxxx
-  publisher: CN=puretech.com, O=Puretech Corporation, C=CN
+  # publisher: O=puretech.com, C=CN

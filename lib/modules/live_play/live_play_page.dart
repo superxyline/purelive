@@ -2,21 +2,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'widgets/index.dart';
 
-// ignore: must_be_immutable
-class LivePlayPage extends GetView<LivePlayController> {
+class LivePlayPage extends GetWidget<LivePlayController>  {
   LivePlayPage({Key? key}) : super(key: key);
 
   final SettingsService settings = Get.find<SettingsService>();
-  final GlobalKey videoPlayerKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     if (settings.enableScreenKeepOn.value) {
-      Wakelock.toggle(enable: settings.enableScreenKeepOn.value);
+      WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
 
     return Scaffold(
@@ -108,10 +106,8 @@ class LivePlayPage extends GetView<LivePlayController> {
           color: Colors.black,
           child: Obx(
             () => controller.success.value
-                ? VideoPlayer(
-                    key: videoPlayerKey,
-                    controller: controller.videoController!,
-                  )
+                ? VideoPlayer(controller: controller.videoController!,
+)
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),

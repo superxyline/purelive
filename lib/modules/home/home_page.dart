@@ -35,22 +35,9 @@ class _HomePageState extends State<HomePage>
           ));
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         }
-
-        await VersionUtil.checkUpdate();
-        if (Get.find<SettingsService>().enableAutoCheckUpdate.value &&
-            VersionUtil.hasNewVersion()) {
-          late OverlayEntry entry;
-          entry = OverlayEntry(
-            builder: (context) => Container(
-              alignment: Alignment.center,
-              color: Colors.black54,
-              child: NewVersionDialog(entry: entry),
-            ),
-          );
-          Overlay.of(Get.context!).insert(entry);
-        }
       },
     );
+    addToOverlay();
   }
 
   int _selectedIndex = 0;
@@ -63,6 +50,33 @@ class _HomePageState extends State<HomePage>
 
   void onDestinationSelected(int index) {
     setState(() => _selectedIndex = index);
+  }
+
+  Future<void> addToOverlay() async {
+    final overlay = Overlay.maybeOf(context);
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) => Container(
+        alignment: Alignment.center,
+        color: Colors.black54,
+        child: NewVersionDialog(entry: entry),
+      ),
+    );
+
+    await VersionUtil.checkUpdate();
+    bool isHasNerVersion =
+        Get.find<SettingsService>().enableAutoCheckUpdate.value &&
+            VersionUtil.hasNewVersion();
+    if (mounted) {
+      if (overlay != null && isHasNerVersion) {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => overlay.insert(entry));
+      } else {
+        if (overlay != null && isHasNerVersion) {
+          overlay.insert(entry);
+        }
+      }
+    }
   }
 
   @override

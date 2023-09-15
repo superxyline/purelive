@@ -51,11 +51,11 @@ class NewVersionDialog extends StatelessWidget {
                 Navigator.pop(context);
               }
               launchUrl(
-                Uri.parse('https://wwrg.lanzouy.com/b047m4fyh'),
+                Uri.parse('https://wwvr.lanzouw.com/b01f6rqab'),
                 mode: LaunchMode.externalApplication,
               );
             },
-            child: const Text('国内下载：蓝奏云（3344）'),
+            child: const Text('国内下载：蓝奏云（40l9）'),
           )
         ],
       ),
@@ -79,7 +79,7 @@ class NewVersionDialog extends StatelessWidget {
               Navigator.pop(context);
             }
             launchUrl(
-              Uri.parse('https://github.com/Jackiu1997/pure_live/releases'),
+              Uri.parse('https://github.com/liuchuancong/pure_live/releases'),
               mode: LaunchMode.externalApplication,
             );
           },

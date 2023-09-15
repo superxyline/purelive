@@ -185,10 +185,12 @@ class SettingsService extends GetxController {
     PrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
     onInitShutDown();
   }
+
   void changeAutoRefreshConfig(int seconds) {
     autoRefreshTime.value = seconds;
     PrefUtil.setInt('autoRefreshTime', seconds);
   }
+
   static const List<String> platforms = ['bilibili', 'douyu', 'huya'];
 
   final preferPlatform =
@@ -307,11 +309,11 @@ class SettingsService extends GetxController {
         .map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e)))
         .toList();
 
-    changeThemeMode(json['themeMode'] ?? "System");
-    changeThemeColor(json['themeColor'] ?? "Crimson");
+    
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
-
+    themeColorName.value = json['themeColor'] ?? "Crimson";
+    themeModeName.value = json['themeMode'] ?? "System";
     enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
     enableDenseFavorites.value = json['enableDenseFavorites'] ?? false;
@@ -319,11 +321,16 @@ class SettingsService extends GetxController {
     enableScreenKeepOn.value = json['enableScreenKeepOn'] ?? false;
     enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
-    changePreferResolution(json['preferResolution'] ?? resolutions[0]);
-    changePreferPlatform(json['preferPlatform'] ?? platforms[0]);
-    changeShutDownConfig(
-        json['autoShutDownTime'] ?? 120, json['enableAutoShutDownTime'] ?? false);
-    changeAutoRefreshConfig(json['autoRefreshTime'] ?? 60);
+    languageName.value = json['languageName'] ?? "简体中文";
+    preferResolution.value = json['preferResolution'] ?? resolutions[0];
+    preferPlatform.value = json['preferPlatform'] ?? platforms[0];
+    changeThemeMode(themeModeName.value);
+    changeThemeColor(themeColorName.value);
+    changeLanguage(languageName.value);
+    changePreferResolution(preferResolution.value);
+    changePreferPlatform(preferPlatform.value);
+    changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
+    changeAutoRefreshConfig(autoRefreshTime.value);
   }
 
   Map<String, dynamic> toJson() {
@@ -347,6 +354,7 @@ class SettingsService extends GetxController {
     json['enableFullScreenDefault'] = enableFullScreenDefault.value;
     json['preferResolution'] = preferResolution.value;
     json['preferPlatform'] = preferPlatform.value;
+    json['languageName'] = languageName.value;
     return json;
   }
 
@@ -354,11 +362,12 @@ class SettingsService extends GetxController {
     Map<String, dynamic> json = {
       "favoriteRooms": [],
       "favoriteAreas": [],
-      "themeMode": "Dark",
+      "themeMode": "Light",
       "themeColor": "Chrome",
       "enableDynamicTheme": false,
       "autoShutDownTime": 120,
       "autoRefreshTime": 60,
+      "languageName": languageName.value,
       "enableAutoShutDownTime": false,
       "enableDenseFavorites": false,
       "enableBackgroundPlay": false,

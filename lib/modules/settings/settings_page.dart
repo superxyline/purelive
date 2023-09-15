@@ -3,7 +3,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 
 class SettingsPage extends GetView<SettingsService> {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   BuildContext get context => Get.context!;
 

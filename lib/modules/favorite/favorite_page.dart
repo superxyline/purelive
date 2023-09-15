@@ -1,3 +1,5 @@
+
+
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -68,7 +70,6 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
         crossAxisCount =
             width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
       }
-
       return Obx(() => SmartRefresher(
             enablePullDown: true,
             physics: const BouncingScrollPhysics(),
@@ -84,7 +85,7 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
                     itemBuilder: (context, index) => RoomCard(
                       room: controller.onlineRooms[index],
                       dense: dense,
-                    ),
+                    ) ,
                   )
                 : EmptyView(
                     icon: Icons.favorite_rounded,

@@ -1,15 +1,14 @@
 import 'dart:io';
 
-import 'package:better_player/better_player.dart';
-import 'package:dart_vlc/dart_vlc.dart';
+import 'package:better_player_v3/better_player.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
+import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 
 class VideoPlayer extends StatefulWidget {
   final VideoController controller;
-
   const VideoPlayer({
     Key? key,
     required this.controller,
@@ -32,12 +31,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   Widget _buildVideoFrame() {
     if (Platform.isWindows || Platform.isLinux) {
-      return Obx(() => Video(
-            key: widget.controller.playerKey,
-            player: widget.controller.desktopController,
-            scale: 1.0, // default
-            showControls: false, // default
+      return Obx(() => media_kit_video.Video(
+            key: widget.controller.key,
+            controller: widget.controller.desktopController,
             fit: widget.controller.videoFit.value,
+            controls: (state) => _buildVideoPanel(),
           ));
     } else {
       return BetterPlayer(
@@ -49,7 +47,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
-      key: Key("${widget.controller.hashCode}_danmaku"),
       controller: widget.controller,
     );
   }
@@ -58,7 +55,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     return Stack(
       children: [
         _buildVideoFrame(),
-        _buildVideoPanel(),
+        if (Platform.isAndroid || Platform.isIOS) _buildVideoPanel(),
       ],
     );
   }

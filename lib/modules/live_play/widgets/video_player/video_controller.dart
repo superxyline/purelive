@@ -2,17 +2,17 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
-import 'package:better_player/better_player.dart';
-import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-import 'package:volume_controller/volume_controller.dart';
-import 'package:wakelock/wakelock.dart';
-import 'package:window_manager/window_manager.dart';
-
+import 'package:flutter_volume_controller/flutter_volume_controller.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:better_player_v3/better_player.dart';
 import 'danmaku_text.dart';
 import 'video_controller_panel.dart';
 
@@ -28,12 +28,8 @@ class VideoController with ChangeNotifier {
   final bool autoPlay;
   final videoFit = BoxFit.contain.obs;
 
-  // Video player status
-  Player? desktopController;
-  BetterPlayerController? mobileController;
-  VolumeController volumeController = VolumeController()..showSystemUI = false;
   ScreenBrightness brightnessController = ScreenBrightness();
-
+  double initBrightness = 0.0;
   final hasError = false.obs;
   final isPlaying = false.obs;
   final isBuffering = false.obs;
@@ -42,31 +38,35 @@ class VideoController with ChangeNotifier {
   final isWindowFullscreen = false.obs;
   bool get supportPip => Platform.isAndroid;
   bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
-
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
+  final refreshCompleted = true.obs;
+  // Video player status
+  // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
+  late final GlobalKey<media_kit_video.VideoState> key =
+      GlobalKey<media_kit_video.VideoState>();
 
+  GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
+      GlobalKey<BrightnessVolumnDargAreaState>();
+  // Create a [Player] to control playback.
+  late Player player;
+  // Create a [VideoController] to handle video output from [Player].
+  late media_kit_video.VideoController desktopController;
+  BetterPlayerController? mobileController;
+  LivePlayController livePlayController = Get.find<LivePlayController>();
   // Controller ui status
   Timer? showControllerTimer;
   final showController = true.obs;
   final showSettting = false.obs;
   final showLocked = false.obs;
+  bool playBackisPlaying = false;
 
+  double volume = 0.0;
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
       showController.value = false;
     });
     showController.value = true;
-  }
-
-  // Battery level control
-  final Battery _battery = Battery();
-  final batteryLevel = 100.obs;
-  void initBattery() {
-    _battery.batteryLevel.then((value) => batteryLevel.value = value);
-    _battery.onBatteryStateChanged.listen((state) async {
-      batteryLevel.value = await _battery.batteryLevel;
-    });
   }
 
   // Timed shutdown control
@@ -96,17 +96,37 @@ class VideoController with ChangeNotifier {
     BoxFit fitMode = BoxFit.contain,
   }) {
     videoFit.value = fitMode;
-    if (allowScreenKeepOn) Wakelock.enable();
+    if (allowScreenKeepOn) WakelockPlus.enable();
     initVideoController();
     initDanmaku();
     initBattery();
   }
 
+  // Battery level control
+  final Battery _battery = Battery();
+  final batteryLevel = 100.obs;
+  void initBattery() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      _battery.batteryLevel.then((value) => batteryLevel.value = value);
+      _battery.onBatteryStateChanged.listen((BatteryState state) async {
+        batteryLevel.value = await _battery.batteryLevel;
+      });
+    }
+  }
+
   void initVideoController() {
+    FlutterVolumeController.showSystemUI = false;
     if (Platform.isWindows || Platform.isLinux) {
-      desktopController = Player(id: 100);
+      player = Player();
+      desktopController = media_kit_video.VideoController(player);
       setDataSource(datasource);
-      desktopController?.playbackStream.listen(desktopStateListener);
+      desktopController.player.stream.playing.listen((bool playing) {
+        if (playing) {
+          isPlaying.value = true;
+        } else {
+          isPlaying.value = false;
+        }
+      });
     } else if (Platform.isAndroid || Platform.isIOS) {
       mobileController = BetterPlayerController(
         BetterPlayerConfiguration(
@@ -128,21 +148,15 @@ class VideoController with ChangeNotifier {
       );
       mobileController?.setControlsEnabled(false);
       setDataSource(datasource);
-
-      // fix auto fullscreen
-      if (fullScreenByDefault && datasource.isNotEmpty) {
-        Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
-      }
       mobileController?.addEventsListener(mobileStateListener);
     } else {
       throw UnimplementedError('Unsupported Platform');
     }
-  }
 
-  dynamic desktopStateListener(dynamic state) {
-    hasError.value = desktopController?.playback.isCompleted ?? false;
-    isPlaying.value = desktopController?.playback.isPlaying ?? false;
-    isBuffering.value = (desktopController?.bufferingProgress ?? 1.0) < 1.0;
+    // fix auto fullscreen
+    if (fullScreenByDefault && datasource.isNotEmpty) {
+      Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
+    }
   }
 
   dynamic mobileStateListener(dynamic state) {
@@ -156,8 +170,16 @@ class VideoController with ChangeNotifier {
     }
   }
 
+  refreshView() {
+    refreshCompleted.value = false;
+    Timer(const Duration(microseconds: 200), () {
+      brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
+      refreshCompleted.value = true;
+    });
+  }
+
   // Danmaku player control
-  final danmakuController = BarrageWallController();
+  BarrageWallController danmakuController = BarrageWallController();
   final hideDanmaku = false.obs;
   final danmakuArea = 1.0.obs;
   final danmakuSpeed = 8.0.obs;
@@ -194,7 +216,6 @@ class VideoController with ChangeNotifier {
 
   void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
-
     danmakuController.send([
       Bullet(
         child: DanmakuText(
@@ -209,12 +230,19 @@ class VideoController with ChangeNotifier {
 
   @override
   void dispose() {
-    if (allowScreenKeepOn) Wakelock.disable();
+    if (allowScreenKeepOn) WakelockPlus.disable();
     _shutdownTimer?.cancel();
-    brightnessController.resetScreenBrightness();
+    if (Platform.isAndroid || Platform.isIOS) {
+      brightnessController.resetScreenBrightness();
+    }
     danmakuController.dispose();
-    desktopController?.dispose();
-    mobileController?.removeEventsListener(mobileStateListener);
+    if (Platform.isAndroid || Platform.isIOS) {
+      mobileController?.removeEventsListener(mobileStateListener);
+      mobileController?.dispose();
+      mobileController = null;
+    } else {
+      player.dispose();
+    }
     super.dispose();
   }
 
@@ -226,22 +254,18 @@ class VideoController with ChangeNotifier {
         mobileController?.retryDataSource();
       }
     }
+    setDataSource(datasource);
   }
 
-  void setDataSource(String url) {
+  void setDataSource(String url) async {
     datasource = url;
     // fix datasource empty error
     if (datasource.isEmpty) {
       hasError.value = true;
       return;
     }
-
     if (Platform.isWindows || Platform.isLinux) {
-      desktopController?.pause();
-      desktopController?.open(
-        Media.directShow(rawUrl: datasource),
-        autoStart: true,
-      );
+      player.open(Media(datasource));
     } else if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.setupDataSource(BetterPlayerDataSource(
         BetterPlayerDataSourceType.network,
@@ -251,8 +275,8 @@ class VideoController with ChangeNotifier {
             ? BetterPlayerNotificationConfiguration(
                 showNotification: true,
                 title: room.title,
-                author: room.nick,
                 imageUrl: room.avatar,
+                author: room.nick,
                 activityName: "MainActivity",
               )
             : null,
@@ -277,7 +301,7 @@ class VideoController with ChangeNotifier {
 
   void togglePlayPause() {
     if (Platform.isWindows || Platform.isLinux) {
-      isPlaying.value ? desktopController!.pause() : desktopController!.play();
+      player.playOrPause();
     } else if (Platform.isAndroid || Platform.isIOS) {
       isPlaying.value ? mobileController!.pause() : mobileController!.play();
     } else {
@@ -302,15 +326,10 @@ class VideoController with ChangeNotifier {
     });
 
     if (Platform.isWindows || Platform.isLinux) {
-      if (!isFullscreen.value) {
-        WindowManager.instance.setFullScreen(true);
-        Get.to(() => DesktopFullscreen(controller: this));
+      if (key.currentState?.isFullscreen() ?? false) {
+        key.currentState?.exitFullscreen();
       } else {
-        WindowManager.instance.setFullScreen(false);
-        Get.back();
-        // 重设大小，修复窗口大小BUG
-        WindowManager.instance.getSize().then((value) => WindowManager.instance
-            .setSize(Size(value.width + 1, value.height + 1)));
+        key.currentState?.enterFullscreen();
       }
       isFullscreen.toggle();
     } else if (Platform.isAndroid || Platform.isIOS) {
@@ -327,6 +346,7 @@ class VideoController with ChangeNotifier {
     } else {
       throw UnimplementedError('Unsupported Platform');
     }
+    refreshView();
   }
 
   void toggleWindowFullScreen() {
@@ -347,7 +367,10 @@ class VideoController with ChangeNotifier {
 
     if (Platform.isWindows || Platform.isLinux) {
       if (!isWindowFullscreen.value) {
-        Get.to(() => DesktopFullscreen(controller: this));
+        Get.to(() => DesktopFullscreen(
+              controller: this,
+              key: UniqueKey(),
+            ));
       } else {
         Get.back();
       }
@@ -356,6 +379,7 @@ class VideoController with ChangeNotifier {
       throw UnimplementedError('Unsupported Platform');
     }
     enableController();
+    refreshView();
   }
 
   void enterPipMode(BuildContext context) async {
@@ -372,43 +396,21 @@ class VideoController with ChangeNotifier {
   }
 
   // volumn & brightness
-  Future<double> volumn() async {
-    if (Platform.isWindows || Platform.isLinux) {
-      return Future(() => desktopController?.general.volume ?? 1);
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      return await volumeController.getVolume();
-    } else {
-      throw UnimplementedError('Unsupported Platform');
-    }
+  Future<double?> volumn() async {
+    return await FlutterVolumeController.getVolume();
   }
 
   Future<double> brightness() async {
-    if (Platform.isWindows || Platform.isLinux) {
-      return await brightnessController.current;
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      return await brightnessController.current;
-    } else {
-      throw UnimplementedError('Unsupported Platform');
-    }
+    return await brightnessController.current;
   }
 
   void setVolumn(double value) async {
-    if (Platform.isWindows || Platform.isLinux) {
-      desktopController?.setVolume(value);
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      volumeController.setVolume(value);
-    } else {
-      throw UnimplementedError('Unsupported Platform');
-    }
+    await FlutterVolumeController.setVolume(value);
   }
 
   void setBrightness(double value) async {
-    if (Platform.isWindows || Platform.isLinux) {
-      brightnessController.setScreenBrightness(value);
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      brightnessController.setScreenBrightness(value);
-    } else {
-      throw UnimplementedError('Unsupported Platform');
+    if (Platform.isAndroid || Platform.isIOS) {
+      await brightnessController.setScreenBrightness(value);
     }
   }
 }
@@ -439,7 +441,9 @@ class _MobileFullscreenState extends State<MobileFullscreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      widget.controller.refresh();
+      if (Platform.isAndroid || Platform.isIOS) {
+        widget.controller.refresh();
+      }
     }
   }
 
@@ -483,14 +487,15 @@ class DesktopFullscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          Obx(() => Video(
-                player: controller.desktopController,
+          Obx(() => media_kit_video.Video(
+                controller: controller.desktopController,
                 fit: controller.videoFit.value,
-              )),
-          VideoControllerPanel(controller: controller),
+                controls: (state) =>
+                    VideoControllerPanel(controller: controller),
+              ))
         ],
       ),
     );
