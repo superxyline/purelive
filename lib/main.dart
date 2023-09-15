@@ -10,7 +10,6 @@ import 'package:pure_live/modules/areas/areas_controller.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
 import 'package:pure_live/modules/favorite/favorite_controller.dart';
 import 'package:pure_live/modules/popular/popular_controller.dart';
-import 'package:pure_live/plugins/shelf_util.dart';
 import 'package:pure_live/plugins/supabase.dart';
 import 'package:pure_live/plugins/window_util.dart';
 import 'package:pure_live/routes/app_pages.dart';
@@ -21,7 +20,6 @@ void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
-  ShelfUtil.setup();
   if (Platform.isWindows) {
     
     await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
