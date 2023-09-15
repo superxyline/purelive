@@ -65,7 +65,7 @@ dependencies:
   screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7 
   window_manager: ^0.3.6
-  
+  windows_single_instance: ^1.0.0
   # system hardware utils
   wakelock_plus: ^1.1.1
   dlna_dart: ^0.0.8
