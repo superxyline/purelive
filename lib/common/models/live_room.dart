@@ -1,6 +1,6 @@
 enum LiveStatus { live, offline, replay, unknown }
 
-enum Platforms { huya, bilibili, douyu, unknown }
+enum Platforms { huya, bilibili, douyu,douyin,unknown }
 
 class LiveRoom {
   String roomId;
