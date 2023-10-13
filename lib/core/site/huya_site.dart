@@ -118,9 +118,6 @@ class HuyaSite implements LiveSite {
     String url = 'https://mp.huya.com/cache.php?m=Live'
         '&do=profileRoom&roomid=${room.roomId}';
     String readUrl = await getRealUrl(room.roomId.toString());
-    // String uid = anonymousUidInfo['data']['uid'];
-
-    log(readUrl.toString(), name: 'HuyaApi.uid');
     try {
       dynamic response = await _getJson(url);
       if (response['status'] == 200) {

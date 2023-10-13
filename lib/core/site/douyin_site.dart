@@ -44,22 +44,163 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<List<List<LiveArea>>> getAreaList() {
-    // TODO: implement getAreaList
-    throw UnimplementedError();
+  Future<List<List<LiveArea>>> getAreaList() async {
+    List<List<LiveArea>> areaList = [];
+
+    try {
+      var result = await HttpClient.instance.getText(
+        "https://live.douyin.com/hot_live",
+        queryParameters: {},
+        header: {
+          "Authority": "live.douyin.com",
+          "Referer": "https://live.douyin.com",
+          "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51",
+        },
+      );
+
+      var renderData =
+          RegExp(r'\{\\"pathname\\":\\"\/hot_live\\",\\"categoryData.*?\]\\n')
+                  .firstMatch(result)
+                  ?.group(0) ??
+              "";
+      var renderDataJson = json.decode(renderData
+          .trim()
+          .replaceAll('\\"', '"')
+          .replaceAll(r"\\", r"\")
+          .replaceAll(']\\n', ""));
+
+      List<dynamic> data = renderDataJson["categoryData"] ?? [];
+      for (var areaType in data) {
+        List<LiveArea> subAreaList = [];
+        List<dynamic> areaInfoList = areaType["sub_partition"];
+        var id =
+            '${areaType["partition"]["id_str"]},${areaType["partition"]["type"]}';
+        for (var areaInfo in areaInfoList) {
+          var subId =
+              '${areaInfo["partition"]["id_str"]},${areaInfo["partition"]["type"]}';
+          LiveArea area = LiveArea();
+          area.platform = 'douyin';
+          area.areaType = id;
+          area.typeName = areaType["partition"]["title"] ?? '';
+          area.areaId = subId;
+          area.areaName = areaInfo["partition"]["title"] ?? '';
+          area.areaPic = areaInfo['pic'] ?? '';
+          subAreaList.add(area);
+        }
+        areaList.add(subAreaList);
+      }
+    } catch (e) {
+      log(e.toString(), name: 'DouyuApi.getAreaList');
+      return areaList;
+    }
+    return areaList;
   }
 
   @override
   Future<List<LiveRoom>> getAreaRooms(LiveArea area,
-      {int page = 1, int size = 20}) {
-    // TODO: implement getAreaRooms
-    throw UnimplementedError();
+      {int page = 1, int size = 20}) async {
+    List<LiveRoom> list = [];
+
+    try {
+      var ids = area.areaId.split(',');
+      var partitionId = ids[0];
+      var partitionType = ids[1];
+      var result = await HttpClient.instance.getJson(
+        "https://live.douyin.com/webcast/web/partition/detail/room/",
+        queryParameters: {
+          "aid": 6383,
+          "app_name": "douyin_web",
+          "live_id": 1,
+          "device_platform": "web",
+          "count": 20,
+          "offset": (page - 1) * 20,
+          "partition": partitionId,
+          "partition_type": partitionType,
+          "req_from": 2
+        },
+        header: await getRequestHeaders(),
+      );
+      List<dynamic> roomInfoList = result["data"]["data"] ?? [];
+      for (var roomInfo in roomInfoList) {
+        var room = LiveRoom(roomInfo['web_rid'].toString());
+        room.platform = 'douyin';
+        room.userId = roomInfo['web_rid'];
+        room.nick = roomInfo["room"]["owner"]["nickname"] ?? '';
+        room.title = roomInfo["room"]["title"] ?? '';
+        room.cover = roomInfo["room"]["cover"]["url_list"][0] ?? '';
+        room.avatar =
+            roomInfo["room"]["owner"]["avatar_thumb"]["url_list"][0].toString();
+        room.area = roomInfo['tag_name'];
+        room.watching =
+            roomInfo["room"]?["room_view_stats"]?["display_value"].toString() ??
+                '';
+        room.liveStatus = LiveStatus.live;
+        list.add(room);
+      }
+    } catch (e) {
+      log(e.toString(), name: 'BilibiliApi.getAreaRooms');
+      return list;
+    }
+    return list;
   }
 
   @override
-  Future<Map<String, List<String>>> getLiveStream(LiveRoom room) {
-    // TODO: implement getLiveStream
-    throw UnimplementedError();
+  Future<Map<String, List<String>>> getLiveStream(LiveRoom room) async {
+    Map<String, List<String>> links = {};
+    try {
+      var detail = await getRoomWebDetail(room.roomId);
+      var requestHeader = await getRequestHeaders();
+      var webRid = room.roomId;
+      var realRoomId =
+          detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
+      var result = await HttpClient.instance.getJson(
+        "https://live.douyin.com/webcast/room/web/enter/",
+        queryParameters: {
+          "aid": 6383,
+          "app_name": "douyin_web",
+          "live_id": 1,
+          "device_platform": "web",
+          "enter_from": "web_live",
+          "web_rid": webRid,
+          "room_id_str": realRoomId,
+          "enter_source": "",
+          "Room-Enter-User-Login-Ab": 0,
+          "is_need_double_stream": false,
+          "cookie_enabled": true,
+          "screen_width": 1980,
+          "screen_height": 1080,
+          "browser_language": "zh-CN",
+          "browser_platform": "Win32",
+          "browser_name": "Edge",
+          "browser_version": "114.0.1823.51"
+        },
+        header: requestHeader,
+      );
+
+      var roomInfo = result["data"]["data"][0];
+      Map data = roomInfo["stream_url"];
+      var streamflvUrls = [];
+      var streamhlsUrls = [];
+      data['flv_pull_url'].forEach((key, value) {
+        streamflvUrls.add(value);
+      });
+      data['hls_pull_url_map'].forEach((key, value) {
+        streamhlsUrls.add(value);
+      });
+      List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
+      var index = 0;
+      for (var rate in resolutions.take(streamflvUrls.length)) {
+        links[rate] ??= [];
+        links[rate]?.add(streamflvUrls[index]);
+        links[rate]?.add(streamhlsUrls[index]);
+        index++;
+      }
+    } catch (e) {
+      log(e.toString(), name: 'HuyaApi.getRoomStreamLink');
+      return links;
+    }
+    return links;
   }
 
   @override
@@ -81,25 +222,25 @@ class DouyinSite implements LiveSite {
         },
         header: await getRequestHeaders(),
       );
-      debugPrint('result');
-      log(result["data"]["data"].toString());
       //  debugPrint(result["data"]["data"].toString());
       for (var roomInfo in result["data"]["data"] ?? []) {
         var room = LiveRoom(roomInfo['web_rid'].toString());
         room.platform = 'douyin';
-        room.userId = roomInfo["web_rid"];
-        room.nick = roomInfo["room"]["owner"]["nickname"].toString();
-        room.title = roomInfo["room"]["title"].toString();
-        room.cover = roomInfo["room"]["cover"]["url_list"][0].toString();
+        room.userId = roomInfo['web_rid'];
+        room.nick = roomInfo["room"]["owner"]["nickname"] ?? '';
+        room.title = roomInfo["room"]["title"] ?? '';
+        room.cover = roomInfo["room"]["cover"]["url_list"][0] ?? '';
         room.avatar =
-            roomInfo["owner"]["avatar_thumb"]["url_list"][0].toString();
+            roomInfo["room"]["owner"]["avatar_thumb"]["url_list"][0].toString();
+        room.area = roomInfo['tag_name'];
         room.watching =
-            roomInfo["room"]["room_view_stats"]["display_value"].toString();
+            roomInfo["room"]?["room_view_stats"]?["display_value"].toString() ??
+                '';
         room.liveStatus = LiveStatus.live;
         list.add(room);
       }
     } catch (e) {
-      log(e.toString(), name: 'BilibiliApi.getRecommend');
+      log(e.toString(), name: 'DouYinApi.getRecommend');
       return list;
     }
     return list;
@@ -137,6 +278,25 @@ class DouyinSite implements LiveSite {
     //     .toString();
   }
 
+  Future<DouyinDanmakuArgs?> getDouyinDanmakuArgs(String roomId) async {
+    try {
+      var detail = await getRoomWebDetail(roomId);
+      var realRoomId = detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
+      var webRid = roomId;
+      var userUniqueId =
+          detail["userStore"]["odin"]["user_unique_id"].toString();
+      return DouyinDanmakuArgs(
+        webRid: webRid,
+        roomId: realRoomId,
+        userId: userUniqueId,
+        cookie: headers["cookie"] ?? '',
+      );
+    } catch (e) {
+      log(e.toString(), name: 'DouYin.getDouyinDanmakuArgs');
+      return null;
+    }
+  }
+
   @override
   Future<LiveRoom> getRoomInfo(LiveRoom room) async {
     try {
@@ -168,24 +328,12 @@ class DouyinSite implements LiveSite {
         },
         header: requestHeader,
       );
+
       var roomInfo = result["data"]["data"][0];
       var userInfo = result["data"]["user"];
-    debugPrint(roomInfo.toString());
-      room.platform = 'douyin';
-      room.userId = room.roomId;
-      room.title = roomInfo['room_info']?['title'] ?? '';
-      room.nick = roomInfo['anchor_info']?['base_info']?['uname'] ?? '';
-      room.cover = roomInfo['room_info']?['cover'] ?? '';
-      room.avatar = roomInfo['anchor_info']?['base_info']?['face'] ?? '';
-      room.area = roomInfo['room_info']?['area_name'] ?? '';
-      room.watching = roomInfo['watched_show']?['num']?.toString() ?? '';
-      room.followers =
-          roomInfo['anchor_info']?['relation_info']?['attention']?.toString() ??
-              '';
-      room.liveStatus = (roomInfo['room_info']?.containsKey('live_status') &&
-              roomInfo['room_info']?['live_status'] == 1)
-          ? LiveStatus.live
-          : LiveStatus.offline;
+      room.followers = userInfo['follow_info']['follow_status_str'] ?? '';
+      room.liveStatus =
+          roomInfo['status'] == 2 ? LiveStatus.live : LiveStatus.offline;
     } catch (e) {
       log(e.toString(), name: 'BilibiliApi.getRoomInfo');
       return room;
@@ -212,7 +360,7 @@ class DouyinSite implements LiveSite {
         "is_filter_search": "0",
         "from_group_id": "",
         "offset": ((1 - 1) * 10).toString(),
-        "count": "10",
+        "count": "20",
         "pc_client_type": "1",
         "version_code": "170400",
         "version_name": "17.4.0",
@@ -237,7 +385,6 @@ class DouyinSite implements LiveSite {
         "webid": "7247041636524377637",
       });
       var requlestUrl = await signUrl(uri.toString());
-      debugPrint(requlestUrl);
       var result = await HttpClient.instance.getJson(
         requlestUrl,
         queryParameters: {},
@@ -251,28 +398,23 @@ class DouyinSite implements LiveSite {
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51",
         },
       );
-      debugPrint(result["data"]);
-      //  List<dynamic> ownerList = response["data"]["list"];
-      //     for (var ownerInfo in ownerList) {
-      //       LiveRoom owner = LiveRoom(ownerInfo['roomId'].toString());
-      //       owner.platform = "douyu";
-      //       owner.userId = ownerInfo['ownerUID']?.toString() ?? '';
-      //       owner.nick = ownerInfo["nickname"] ?? '';
-      //       owner.title = ownerInfo["roomName"] ?? '';
-      //       owner.cover = ownerInfo["roomSrc"] ?? '';
-      //       owner.avatar = ownerInfo["avatar"] ?? '';
-      //       owner.area = ownerInfo["cateName"] ?? '';
-      //       owner.watching = ownerInfo["hn"] ?? '';
-      //       owner.liveStatus =
-      //           (ownerInfo.containsKey("isLive") && ownerInfo["isLive"] == 1)
-      //               ? LiveStatus.live
-      //               : LiveStatus.offline;
-      //       list.add(owner);
-      //     }
-      for (var item in result["data"] ?? []) {
-        var itemData = json.decode(item["lives"]["rawdata"].toString());
-        log(itemData);
-        // list.add(roomItem);
+      List<dynamic> ownerList = result["data"] ?? [];
+      // log(json.decode(ownerList[0]["lives"]["rawdata"].toString())["owner"]["web_rid"].toString());
+      for (var item in ownerList) {
+        var ownerInfo = json.decode(item["lives"]["rawdata"].toString());
+
+        LiveRoom owner = LiveRoom(ownerInfo["owner"]["web_rid"].toString());
+        owner.platform = "douyin";
+        owner.userId = ownerInfo["owner"]["web_rid"]?.toString() ?? '';
+        owner.nick = ownerInfo["owner"]["nickname"] ?? '';
+        owner.title = ownerInfo["title"] ?? '';
+        owner.cover = ownerInfo["cover"]["url_list"][0] ?? '';
+        owner.avatar =
+            ownerInfo["owner"]["avatar_thumb"]["url_list"][0].toString();
+        owner.liveStatus = ownerInfo["owner"]['status'] == 2
+            ? LiveStatus.live
+            : LiveStatus.offline;
+        list.add(owner);
       }
     } catch (e) {
       log(e.toString(), name: 'DouyinApi.search');
