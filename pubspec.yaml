@@ -50,25 +50,23 @@ dependencies:
   flutter_staggered_grid_view: ^0.7.0
 
   # barrage wall
-  ns_danmaku: #弹幕
-    git: 
-        url: https://github.com/xiaoyaocz/flutter_ns_danmaku.git
-        ref: master
+  flutter_barrage: 0.5.4
   flutter_exit_app: ^1.1.2
 
   # database
   supabase_flutter: ^1.10.14
+  better_player_v3: ^0.0.2
   email_validator: ^2.1.17
   font_awesome_flutter: ^10.5.0
   # video player mobile
-  media_kit: ^1.1.7                              # Primary package.
-  media_kit_video: ^1.1.8                        # For video rendering.
-  media_kit_libs_video: ^1.0.1                   # Native video dependencies.
-  better_player_v3: ^0.0.2
+  media_kit: ^1.1.8+2                           # Primary package.
+  media_kit_video: ^1.2.1                        # For video rendering.
+  media_kit_libs_video: ^1.0.3                   # Native video dependencies.
   bordered_text: ^2.0.0
   screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7 
-  window_manager: ^0.3.6
+  auto_orientation: ^2.3.1 #屏幕方向
+  window_manager: ^0.3.7
   windows_single_instance: ^1.0.0
   protobuf: ^3.1.0
   fixnum: ^1.1.0
