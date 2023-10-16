@@ -222,7 +222,6 @@ class DouyinSite implements LiveSite {
         },
         header: await getRequestHeaders(),
       );
-      //  debugPrint(result["data"]["data"].toString());
       for (var roomInfo in result["data"]["data"] ?? []) {
         var room = LiveRoom(roomInfo['web_rid'].toString());
         room.platform = 'douyin';
@@ -281,15 +280,17 @@ class DouyinSite implements LiveSite {
   Future<DouyinDanmakuArgs?> getDouyinDanmakuArgs(String roomId) async {
     try {
       var detail = await getRoomWebDetail(roomId);
-      var realRoomId = detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
+      var realRoomId =
+          detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
       var webRid = roomId;
       var userUniqueId =
           detail["userStore"]["odin"]["user_unique_id"].toString();
+      var requestHeader = await getRequestHeaders();
       return DouyinDanmakuArgs(
         webRid: webRid,
         roomId: realRoomId,
         userId: userUniqueId,
-        cookie: headers["cookie"] ?? '',
+        cookie: requestHeader["cookie"] ?? '',
       );
     } catch (e) {
       log(e.toString(), name: 'DouYin.getDouyinDanmakuArgs');

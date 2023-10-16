@@ -48,10 +48,8 @@ class DouyinDanmaku implements LiveDanmaku {
 
   @override
   Future start(dynamic args) async {
-    log(args.toString());
 
   DouyinDanmakuArgs? danmakuArgs = await DouyinSite().getDouyinDanmakuArgs(args.toString());
-    log(danmakuArgs.toString());
     var ts = DateTime.now().millisecondsSinceEpoch;
     var uri = Uri.parse(serverUrl).replace(scheme: "wss", queryParameters: {
       "app_name": "douyin_web",
@@ -90,6 +88,7 @@ class DouyinDanmaku implements LiveDanmaku {
     });
     var url = uri.toString();
     var backupUrl = url.replaceAll("webcast3-ws-web-lq", "webcast5-ws-web-lf");
+  
     webScoketUtils = WebScoketUtils(
       url: url,
       backupUrl: backupUrl,
@@ -141,6 +140,7 @@ class DouyinDanmaku implements LiveDanmaku {
       //return;
     }
     for (var msg in payloadPackage.messagesList) {
+      log(msg.toString());
       if (msg.method == 'WebcastChatMessage') {
         unPackWebcastChatMessage(msg.payload);
       } else if (msg.method == 'WebcastRoomUserSeqMessage') {

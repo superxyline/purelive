@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barrage/flutter_barrage.dart';
+import 'package:ns_danmaku/ns_danmaku.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:pure_live/common/index.dart';
@@ -29,7 +29,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
   VideoController get controller => widget.controller;
   double currentVolumn = 1.0;
   bool showVolumn = true;
-   Timer? _hideVolumn;
+  Timer? _hideVolumn;
   void restartTimer() {
     _hideVolumn?.cancel();
     _hideVolumn = Timer(const Duration(seconds: 1), () {
@@ -38,11 +38,12 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
     setState(() => showVolumn = false);
   }
 
-   @override
+  @override
   void dispose() {
     _hideVolumn?.cancel();
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +52,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
     });
   }
 
-   void updateVolumn(double? volume) {
+  void updateVolumn(double? volume) {
     restartTimer();
     setState(() {
       currentVolumn = volume!;
@@ -66,117 +67,122 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
         : currentVolumn < 0.5
             ? Icons.volume_down
             : Icons.volume_up;
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.mediaPlay): () =>
-            controller.desktopController.player.play(),
-        const SingleActivator(LogicalKeyboardKey.mediaPause): () =>
-            controller.desktopController.player.pause(),
-        const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () =>
-            controller.desktopController.player.playOrPause(),
-        const SingleActivator(LogicalKeyboardKey.space): () =>
-            controller.desktopController.player.playOrPause(),
-        const SingleActivator(LogicalKeyboardKey.keyR): () =>
-            controller.refresh(),
-        const SingleActivator(LogicalKeyboardKey.arrowUp): () async {
-          double? volume = 1.0;
-          volume = await controller.volumn();
-          volume = (volume! + 0.05);
-          volume = min(volume, 1.0);
-          volume = max(volume, 0.0);
-          controller.setVolumn(volume);
-          updateVolumn(volume);
+    return Material(
+       type: MaterialType.transparency,
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.mediaPlay): () =>
+              controller.desktopController.player.play(),
+          const SingleActivator(LogicalKeyboardKey.mediaPause): () =>
+              controller.desktopController.player.pause(),
+          const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () =>
+              controller.desktopController.player.playOrPause(),
+          const SingleActivator(LogicalKeyboardKey.space): () =>
+              controller.desktopController.player.playOrPause(),
+          const SingleActivator(LogicalKeyboardKey.keyR): () =>
+              controller.refresh(),
+          const SingleActivator(LogicalKeyboardKey.arrowUp): () async {
+            double? volume = 1.0;
+            volume = await controller.volumn();
+            volume = (volume! + 0.05);
+            volume = min(volume, 1.0);
+            volume = max(volume, 0.0);
+            controller.setVolumn(volume);
+            updateVolumn(volume);
+          },
+          const SingleActivator(LogicalKeyboardKey.arrowDown): () async {
+            double? volume = 1.0;
+            volume = await controller.volumn();
+            volume = (volume! - 0.05);
+            volume = min(volume, 1.0);
+            volume = max(volume, 0.0);
+            controller.setVolumn(volume);
+            updateVolumn(volume);
+          },
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              controller.toggleFullScreen(),
         },
-        const SingleActivator(LogicalKeyboardKey.arrowDown): () async {
-          double? volume = 1.0;
-          volume = await controller.volumn();
-          volume = (volume! - 0.05);
-          volume = min(volume, 1.0);
-          volume = max(volume, 0.0);
-          controller.setVolumn(volume);
-          updateVolumn(volume);
-        },
-        const SingleActivator(LogicalKeyboardKey.escape): () =>
-            controller.toggleFullScreen(),
-      },
-      child: Focus(
-        autofocus: true,
-        child: Obx(() => controller.hasError.value
-            ? ErrorWidget(controller: controller)
-            : MouseRegion(
-                onHover: (event) => controller.enableController(),
-                onExit: (event) {
-                  controller.showControllerTimer?.cancel();
-                  controller.showController.toggle();
-                },
-                child: Stack(children: [
-                  Container(
-                    color: Colors.transparent,
-                    alignment: Alignment.center,
-                    child: AnimatedOpacity(
-                      opacity: !showVolumn ? 0.8 : 0.0,
-                      duration: const Duration(milliseconds: 300),
-                      child: Card(
-                        color: Colors.black,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Icon(iconData, color: Colors.white),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 4),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: SizedBox(
-                                    width: 100,
-                                    height: 20,
-                                    child: LinearProgressIndicator(
-                                      value: currentVolumn,
-                                      backgroundColor: Colors.white38,
-                                      valueColor: AlwaysStoppedAnimation(
-                                        Theme.of(context).indicatorColor,
+        child: Focus(
+          autofocus: true,
+          child: Obx(() => controller.hasError.value
+              ? ErrorWidget(controller: controller)
+              : MouseRegion(
+                  onHover: (event) => controller.enableController(),
+                  onExit: (event) {
+                    controller.showControllerTimer?.cancel();
+                    controller.showController.toggle();
+                  },
+                  child: Stack(children: [
+                    Container(
+                      color: Colors.transparent,
+                      alignment: Alignment.center,
+                      child: AnimatedOpacity(
+                        opacity: !showVolumn ? 0.8 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Card(
+                          color: Colors.black,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Icon(iconData, color: Colors.white),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 8, right: 4),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: SizedBox(
+                                      width: 100,
+                                      height: 20,
+                                      child: LinearProgressIndicator(
+                                        value: currentVolumn,
+                                        backgroundColor: Colors.white38,
+                                        valueColor: AlwaysStoppedAnimation(
+                                          Theme.of(context).indicatorColor,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  DanmakuViewer(controller: controller),
-                  GestureDetector(
-                      onTap: () {
-                        if (controller.showSettting.value) {
-                          controller.showSettting.toggle();
-                        } else {
-                          controller.isPlaying.value
-                              ? controller.enableController()
-                              : controller.togglePlayPause();
-                        }
-                      },
-                      onDoubleTap: () => controller.isWindowFullscreen.value
-                          ? controller.toggleWindowFullScreen()
-                          : controller.toggleFullScreen(),
-                      child: BrightnessVolumnDargArea(controller: controller,)),
-                  SettingsPanel(
-                    controller: controller,
-                  ),
-                  LockButton(controller: controller),
-                  TopActionBar(
-                    controller: controller,
-                    barHeight: barHeight,
-                  ),
-                  BottomActionBar(
-                    controller: controller,
-                    barHeight: barHeight,
-                  ),
-                ]),
-              )),
+                    DanmakuViewer(controller: controller),
+                    GestureDetector(
+                        onTap: () {
+                          if (controller.showSettting.value) {
+                            controller.showSettting.toggle();
+                          } else {
+                            controller.isPlaying.value
+                                ? controller.enableController()
+                                : controller.togglePlayPause();
+                          }
+                        },
+                        onDoubleTap: () => controller.isWindowFullscreen.value
+                            ? controller.toggleWindowFullScreen()
+                            : controller.toggleFullScreen(),
+                        child: BrightnessVolumnDargArea(
+                          controller: controller,
+                        )),
+                    SettingsPanel(
+                      controller: controller,
+                    ),
+                    LockButton(controller: controller),
+                    TopActionBar(
+                      controller: controller,
+                      barHeight: barHeight,
+                    ),
+                    BottomActionBar(
+                      controller: controller,
+                      barHeight: barHeight,
+                    ),
+                  ]),
+                )),
+        ),
       ),
     );
   }
@@ -434,15 +440,15 @@ class DanmakuViewer extends StatelessWidget {
               opacity: controller.hideDanmaku.value
                   ? 0
                   : controller.danmakuOpacity.value,
-              child: BarrageWall(
-                width: constraint.maxWidth,
-                height: constraint.maxHeight * controller.danmakuArea.value,
-                controller: controller.danmakuController,
-                speed: controller.danmakuSpeed.value.toInt(),
-                maxBulletHeight: controller.danmakuFontSize * 1.5,
-                safeBottomHeight: 50,
-                massiveMode: false, // disabled by default
-                child: Container(),
+              child: DanmakuView(
+                createdController: (DanmakuController e) {
+                  controller.danmakuController = e;
+                },
+                option: DanmakuOption(
+                    fontSize: controller.danmakuFontSize.value,
+                    strokeWidth: controller.danmakuFontBorder.value,
+                    duration: controller.danmakuSpeed.value,
+                    area: constraint.maxHeight * controller.danmakuArea.value),
               ),
             )),
       ),

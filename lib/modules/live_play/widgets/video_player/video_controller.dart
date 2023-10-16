@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barrage/flutter_barrage.dart';
+import 'package:ns_danmaku/ns_danmaku.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
@@ -13,7 +13,6 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:better_player_v3/better_player.dart';
-import 'danmaku_text.dart';
 import 'video_controller_panel.dart';
 
 class VideoController with ChangeNotifier {
@@ -59,7 +58,7 @@ class VideoController with ChangeNotifier {
   final showSettting = false.obs;
   final showLocked = false.obs;
   bool playBackisPlaying = false;
-
+  final danmuKey = GlobalKey();
   double volume = 0.0;
   void enableController() {
     showControllerTimer?.cancel();
@@ -179,7 +178,7 @@ class VideoController with ChangeNotifier {
   }
 
   // Danmaku player control
-  BarrageWallController danmakuController = BarrageWallController();
+  late  DanmakuController  danmakuController;
   final hideDanmaku = false.obs;
   final danmakuArea = 1.0.obs;
   final danmakuSpeed = 8.0.obs;
@@ -199,14 +198,23 @@ class VideoController with ChangeNotifier {
     danmakuSpeed.value = PrefUtil.getDouble('danmakuSpeed') ?? 8;
     danmakuSpeed.listen((data) {
       PrefUtil.setDouble('danmakuSpeed', data);
+      danmakuController.updateOption(danmakuController.option.copyWith(
+        duration: data
+      ));
     });
     danmakuFontSize.value = PrefUtil.getDouble('danmakuFontSize') ?? 16;
     danmakuFontSize.listen((data) {
       PrefUtil.setDouble('danmakuFontSize', data);
+      danmakuController.updateOption(danmakuController.option.copyWith(
+        fontSize: data
+      ));
     });
     danmakuFontBorder.value = PrefUtil.getDouble('danmakuFontBorder') ?? 0.5;
     danmakuFontBorder.listen((data) {
       PrefUtil.setDouble('danmakuFontBorder', data);
+       danmakuController.updateOption(danmakuController.option.copyWith(
+        strokeWidth: data
+      ));
     });
     danmakuOpacity.value = PrefUtil.getDouble('danmakuOpacity') ?? 1.0;
     danmakuOpacity.listen((data) {
@@ -216,14 +224,14 @@ class VideoController with ChangeNotifier {
 
   void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
-    danmakuController.send([
-      Bullet(
-        child: DanmakuText(
-          msg.message,
-          fontSize: danmakuFontSize.value,
-          strokeWidth: danmakuFontBorder.value,
-          color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b),
-        ),
+    danmakuController.addItems([
+      DanmakuItem(msg.message,color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)
+        // child: DanmakuText(
+        //   msg.message,
+        //   fontSize: danmakuFontSize.value,
+        //   strokeWidth: danmakuFontBorder.value,
+        //   color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b),
+        // ),
       ),
     ]);
   }
@@ -235,7 +243,6 @@ class VideoController with ChangeNotifier {
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetScreenBrightness();
     }
-    danmakuController.dispose();
     if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.removeEventsListener(mobileStateListener);
       mobileController?.dispose();
@@ -486,17 +493,19 @@ class DesktopFullscreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          Obx(() => media_kit_video.Video(
-                controller: controller.desktopController,
-                fit: controller.videoFit.value,
-                controls: (state) =>
-                    VideoControllerPanel(controller: controller),
-              ))
-        ],
+    return Material(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          children: [
+            Obx(() => media_kit_video.Video(
+                  controller: controller.desktopController,
+                  fit: controller.videoFit.value,
+                  controls: (state) =>
+                      VideoControllerPanel(controller: controller),
+                ))
+          ],
+        ),
       ),
     );
   }

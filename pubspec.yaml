@@ -50,7 +50,10 @@ dependencies:
   flutter_staggered_grid_view: ^0.7.0
 
   # barrage wall
-  flutter_barrage: 0.5.4
+  ns_danmaku: #弹幕
+    git: 
+        url: https://github.com/xiaoyaocz/flutter_ns_danmaku.git
+        ref: master
   flutter_exit_app: ^1.1.2
 
   # database

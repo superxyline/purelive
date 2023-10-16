@@ -287,14 +287,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_barrage:
-    dependency: "direct main"
-    description:
-      name: flutter_barrage
-      sha256: d47404608dc66d4a08a5224179cfb4405aefe524f915d03dee4f5fab0cca3094
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.5.4"
   flutter_blurhash:
     dependency: transitive
     description:
@@ -671,6 +663,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.16.1"
+  ns_danmaku:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "419a35a776f9784f07999c8f1f75eb26fd9fe90a"
+      url: "https://github.com/xiaoyaocz/flutter_ns_danmaku.git"
+    source: git
+    version: "0.0.5"
   octo_image:
     dependency: transitive
     description:
@@ -863,14 +864,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.2.1"
   realtime_client:
     dependency: transitive
     description:

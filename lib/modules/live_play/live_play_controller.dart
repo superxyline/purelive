@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -50,18 +49,17 @@ class LivePlayController extends GetxController {
         autoPlay: true,
       );
       success.value = true;
+      // start danmaku server
+      liveDanmaku.start(int.parse(
+        room.userId.isEmpty ? room.roomId : room.userId,
+      ));
+      liveDanmaku.onMessage = (msg) {
+        if (msg.type == LiveMessageType.chat) {
+          messages.add(msg);
+          videoController?.sendDanmaku(msg);
+        }
+      };
     }).then((value) => settings.addRoomToHistory(room));
-
-    // start danmaku server
-    liveDanmaku.start(int.parse(
-      room.userId.isEmpty ? room.roomId : room.userId,
-    ));
-    liveDanmaku.onMessage = (msg) {
-      if (msg.type == LiveMessageType.chat) {
-        messages.add(msg);
-        videoController?.sendDanmaku(msg);
-      }
-    };
   }
 
   void setResolution(String name, String url) {
