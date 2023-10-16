@@ -31,7 +31,7 @@ class LivePlayController extends GetxController {
     videoController?.dispose();
     liveDanmaku.stop();
   }
-
+  
   @override
   void onInit() {
     super.onInit();

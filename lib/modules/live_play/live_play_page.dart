@@ -106,8 +106,7 @@ class LivePlayPage extends GetWidget<LivePlayController>  {
           color: Colors.black,
           child: Obx(
             () => controller.success.value
-                ? VideoPlayer(controller: controller.videoController!,
-)
+                ? VideoPlayer(controller: controller.videoController!)
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),
@@ -132,6 +131,8 @@ class LivePlayPage extends GetWidget<LivePlayController>  {
   void showDlnaCastDialog() {
     Get.dialog(LiveDlnaPage(datasource: controller.selectedStreamUrl));
   }
+
+  
 }
 
 class ResolutionsRow extends StatefulWidget {

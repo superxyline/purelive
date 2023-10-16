@@ -96,6 +96,10 @@ class VideoController with ChangeNotifier {
     BoxFit fitMode = BoxFit.contain,
   }) {
     videoFit.value = fitMode;
+    initPagesConfig();
+  }
+
+  initPagesConfig() {
     if (allowScreenKeepOn) WakelockPlus.enable();
     initVideoController();
     initDanmaku();
@@ -214,7 +218,7 @@ class VideoController with ChangeNotifier {
     });
   }
 
-    void sendDanmaku(LiveMessage msg) {
+  void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
     danmakuController.send([
       Bullet(
@@ -236,9 +240,12 @@ class VideoController with ChangeNotifier {
       brightnessController.resetScreenBrightness();
     }
     if (Platform.isAndroid || Platform.isIOS) {
-      mobileController?.removeEventsListener(mobileStateListener);
-      mobileController?.dispose();
-      mobileController = null;
+      bool? isVideoInitialized = mobileController!.isVideoInitialized();
+      if (isVideoInitialized == true) {
+        mobileController?.removeEventsListener(mobileStateListener);
+        mobileController?.dispose();
+        mobileController = null;
+      }
     } else {
       player.dispose();
     }
