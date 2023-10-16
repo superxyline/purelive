@@ -146,8 +146,6 @@ flutter:
     - assets/crypto-js.js
     - assets/icons/icon.png
     - assets/icons/icon_foreground.png
-    - assets/images/wechat.png
-    - assets/images/alipay.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
