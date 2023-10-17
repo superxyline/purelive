@@ -240,13 +240,12 @@ class VideoController with ChangeNotifier {
       brightnessController.resetScreenBrightness();
     }
     if (Platform.isAndroid || Platform.isIOS) {
-      bool? isVideoInitialized = mobileController!.isVideoInitialized();
-      if (isVideoInitialized == true) {
-        mobileController?.removeEventsListener(mobileStateListener);
-        mobileController?.dispose();
-        mobileController = null;
-      }
+      mobileController?.pause();
+      mobileController?.removeEventsListener(mobileStateListener);
+      mobileController?.dispose(forceDispose: true);
+      mobileController = null;
     } else {
+      player.pause();
       player.dispose();
     }
     super.dispose();

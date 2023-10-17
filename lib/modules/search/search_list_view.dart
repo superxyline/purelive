@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -55,7 +56,8 @@ class _OwnerCardState extends State<OwnerCard> {
   SettingsService settings = Get.find<SettingsService>();
 
   void _onTap(BuildContext context) async {
-    AppPages.toLivePlay(widget.room);
+     PrefUtil.setString('currentLiveRoom', jsonEncode(widget.room.toJson()));
+    AppPages.toLivePlay();
   }
 
   late bool isFavorite = settings.isFavorite(widget.room);

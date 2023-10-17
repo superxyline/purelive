@@ -6,11 +6,13 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'widgets/index.dart';
 
-class LivePlayPage extends GetWidget<LivePlayController>  {
+class LivePlayPage extends GetView<LivePlayController>  {
   LivePlayPage({Key? key}) : super(key: key);
 
   final SettingsService settings = Get.find<SettingsService>();
+  
 
+  
   @override
   Widget build(BuildContext context) {
     if (settings.enableScreenKeepOn.value) {

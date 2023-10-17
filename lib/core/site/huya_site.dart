@@ -117,8 +117,8 @@ class HuyaSite implements LiveSite {
 
     String url = 'https://mp.huya.com/cache.php?m=Live'
         '&do=profileRoom&roomid=${room.roomId}';
-    String readUrl = await getRealUrl(room.roomId.toString());
     try {
+          String readUrl = await getRealUrl(room.roomId.toString());
       dynamic response = await _getJson(url);
       if (response['status'] == 200) {
         Map data = response['data']['stream']['flv'];
