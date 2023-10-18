@@ -2,7 +2,7 @@ import 'interface/live_site.dart';
 import 'site/bilibili_site.dart';
 import 'site/douyu_site.dart';
 import 'site/huya_site.dart';
-
+import 'site/douyin_site.dart';
 class Sites {
   static List<Site> supportSites = [
     Site(
@@ -19,6 +19,11 @@ class Sites {
       id: "huya",
       name: "虎牙",
       liveSite: HuyaSite(),
+    ),
+    Site(
+      id: "douyin",
+      name: "抖音",
+      liveSite: DouyinSite(),
     ),
   ];
 

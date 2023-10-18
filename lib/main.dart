@@ -16,12 +16,14 @@ import 'package:pure_live/plugins/window_util.dart';
 import 'package:pure_live/routes/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
-
-void main() async {
+import 'package:windows_single_instance/windows_single_instance.dart';
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   if (Platform.isWindows) {
+    
+    await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
     MediaKit.ensureInitialized();
     await windowManager.ensureInitialized();
     await WindowUtil.init(width: 1280, height: 720);
