@@ -37,7 +37,6 @@ class LivePlayController extends StateController {
   void onInit() {
     super.onInit();
     try {
-      log(PrefUtil.getString('currentLiveRoom') ?? '');
       room = LiveRoom.fromJson(jsonDecode(PrefUtil.getString('currentLiveRoom') ?? ''));
       site = Sites.of(room.platform);
       liveDanmaku = site.liveSite.getDanmaku();
