@@ -68,17 +68,17 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
             ? Icons.volume_down
             : Icons.volume_up;
     return Material(
-       type: MaterialType.transparency,
+      type: MaterialType.transparency,
       child: CallbackShortcuts(
         bindings: {
           const SingleActivator(LogicalKeyboardKey.mediaPlay): () =>
-              controller.desktopController.player.play(),
+              controller.mediaPlayerController.player.play(),
           const SingleActivator(LogicalKeyboardKey.mediaPause): () =>
-              controller.desktopController.player.pause(),
+              controller.mediaPlayerController.player.pause(),
           const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () =>
-              controller.desktopController.player.playOrPause(),
+              controller.mediaPlayerController.player.playOrPause(),
           const SingleActivator(LogicalKeyboardKey.space): () =>
-              controller.desktopController.player.playOrPause(),
+              controller.mediaPlayerController.player.playOrPause(),
           const SingleActivator(LogicalKeyboardKey.keyR): () =>
               controller.refresh(),
           const SingleActivator(LogicalKeyboardKey.arrowUp): () async {
