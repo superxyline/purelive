@@ -38,7 +38,34 @@ class SupaBaseManager {
     });
   }
 
+  Future<void> uploadConfigWithBackGend() async {
+    final isLogin = Get.find<AuthController>().isLogin;
+    if (!isLogin) {
+      return;
+    }
+    final userId = Get.find<AuthController>().userId;
+    final SettingsService service = Get.find<SettingsService>();
+    List<dynamic> data =
+        await client.from(tableName).select().eq(userColumnName, userId);
+    if (data.isNotEmpty) {
+      client
+          .from(tableName)
+          .update({configColumnName: jsonEncode(service.toJson())})
+          .eq(userColumnName, userId)
+          .then((value) => {}, onError: (err) {});
+    } else {
+      client.from(tableName).insert({
+        userColumnName: userId,
+        configColumnName: jsonEncode(service.toJson())
+      }).then((value) => {}, onError: (err) {});
+    }
+  }
+
   Future<void> uploadConfig() async {
+     final isLogin = Get.find<AuthController>().isLogin;
+    if (!isLogin) {
+      return;
+    }
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data =
@@ -64,7 +91,8 @@ class SupaBaseManager {
   Future<void> readConfig() async {
     final userId = Get.find<AuthController>().userId;
     final isLogin = Get.find<AuthController>().isLogin;
-    final FavoriteController favoriteController = Get.find<FavoriteController>();
+    final FavoriteController favoriteController =
+        Get.find<FavoriteController>();
     if (isLogin == true) {
       final SettingsService service = Get.find<SettingsService>();
       List<dynamic> data =
