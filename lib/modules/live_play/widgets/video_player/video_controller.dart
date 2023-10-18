@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:floating/floating.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
@@ -206,6 +207,9 @@ class VideoController with ChangeNotifier {
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetScreenBrightness();
     }
+    if (key.currentState?.isFullscreen() ?? false) {
+      key.currentState?.exitFullscreen();
+    }
     player.pause();
     player.dispose();
     floating.dispose();
@@ -234,6 +238,12 @@ class VideoController with ChangeNotifier {
 
   void togglePlayPause() {
     player.playOrPause();
+  }
+
+  Future<void> exitFullScreen() async {
+    if (key.currentState?.isFullscreen() ?? false) {
+      await key.currentState?.exitFullscreen();
+    }
   }
 
   void toggleFullScreen() {
@@ -299,9 +309,7 @@ class VideoController with ChangeNotifier {
       final canUsePiP = await floating.isPipAvailable;
       if (canUsePiP) {
         Rational ratio = const Rational.landscape();
-        await floating.enable(
-          aspectRatio: ratio
-        );
+        await floating.enable(aspectRatio: ratio);
         //监听事件
         _pipSubscription ??= floating.pipStatus$.listen((event) {
           if (event == PiPStatus.enabled) {

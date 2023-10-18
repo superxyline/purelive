@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:floating/floating.dart';
 import 'package:get/get.dart';
@@ -7,11 +9,16 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'widgets/index.dart';
 
-class LivePlayPage extends GetView<LivePlayController>
+class LivePlayPage extends GetWidget<LivePlayController>
     with WidgetsBindingObserver {
   LivePlayPage({Key? key}) : super(key: key);
 
   final SettingsService settings = Get.find<SettingsService>();
+  Future<bool> onWillPop() async {
+    await controller.videoController?.exitFullScreen();
+    Get.back(result: false);
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,69 +27,53 @@ class LivePlayPage extends GetView<LivePlayController>
     }
 
     return PiPSwitcher(
-      childWhenDisabled: Scaffold(
-        appBar: AppBar(
-          title: Row(children: [
-            CircleAvatar(
-              foregroundImage: controller.room.avatar.isEmpty
-                  ? null
-                  : NetworkImage(controller.room.avatar),
-              radius: 13,
-              backgroundColor: Theme.of(context).disabledColor,
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.room.nick,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-                Text(
-                  '${controller.room.platform.toUpperCase()} / ${controller.room.area}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(fontSize: 8),
-                ),
-              ],
-            ),
-          ]),
-          actions: [
-            IconButton(
-              tooltip: S.of(context).dlan_button_info,
-              onPressed: showDlnaCastDialog,
-              icon: const Icon(CustomIcons.cast),
-            ),
-          ],
-        ),
-        body: LayoutBuilder(builder: (context, constraint) {
-          final width = constraint.maxWidth;
-          return SafeArea(
-            child: width <= 680
-                ? Column(
-                    children: <Widget>[
-                      buildVideoPlayer(),
-                      const ResolutionsRow(),
-                      const Divider(height: 1),
-                      Expanded(
-                        child: DanmakuListView(
-                          key: controller.danmakuViewKey,
-                          room: controller.room,
-                        ),
-                      ),
-                    ],
-                  )
-                : Row(children: <Widget>[
-                    Flexible(
-                      flex: 5,
-                      child: buildVideoPlayer(),
-                    ),
-                    Flexible(
-                      flex: 3,
-                      child: Column(children: [
+      childWhenDisabled: BackButtonListener(
+        onBackButtonPressed: onWillPop,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Row(children: [
+              CircleAvatar(
+                foregroundImage: controller.room.avatar.isEmpty
+                    ? null
+                    : NetworkImage(controller.room.avatar),
+                radius: 13,
+                backgroundColor: Theme.of(context).disabledColor,
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    controller.room.nick,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                  Text(
+                    '${controller.room.platform.toUpperCase()} / ${controller.room.area}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontSize: 8),
+                  ),
+                ],
+              ),
+            ]),
+            actions: [
+              IconButton(
+                tooltip: S.of(context).dlan_button_info,
+                onPressed: showDlnaCastDialog,
+                icon: const Icon(CustomIcons.cast),
+              ),
+            ],
+          ),
+          body: LayoutBuilder(builder: (context, constraint) {
+            final width = constraint.maxWidth;
+            return SafeArea(
+              child: width <= 680
+                  ? Column(
+                      children: <Widget>[
+                        buildVideoPlayer(),
                         const ResolutionsRow(),
                         const Divider(height: 1),
                         Expanded(
@@ -91,12 +82,31 @@ class LivePlayPage extends GetView<LivePlayController>
                             room: controller.room,
                           ),
                         ),
-                      ]),
-                    ),
-                  ]),
-          );
-        }),
-        floatingActionButton: FavoriteFloatingButton(room: controller.room),
+                      ],
+                    )
+                  : Row(children: <Widget>[
+                      Flexible(
+                        flex: 5,
+                        child: buildVideoPlayer(),
+                      ),
+                      Flexible(
+                        flex: 3,
+                        child: Column(children: [
+                          const ResolutionsRow(),
+                          const Divider(height: 1),
+                          Expanded(
+                            child: DanmakuListView(
+                              key: controller.danmakuViewKey,
+                              room: controller.room,
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ]),
+            );
+          }),
+          floatingActionButton: FavoriteFloatingButton(room: controller.room),
+        ),
       ),
       childWhenEnabled: buildPipVideoPlayer(),
       floating: controller.videoController?.floating,
