@@ -1,15 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:floating/floating.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-
+import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'widgets/index.dart';
 
-class LivePlayPage extends GetWidget<LivePlayController>  {
+class LivePlayPage extends GetWidget<LivePlayController>
+    with WidgetsBindingObserver {
   LivePlayPage({Key? key}) : super(key: key);
 
   final SettingsService settings = Get.find<SettingsService>();
+  Future<bool> onWillPop() async {
+    await controller.videoController?.exitFullScreen();
+    Get.back(result: false);
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,83 +24,121 @@ class LivePlayPage extends GetWidget<LivePlayController>  {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(children: [
-          CircleAvatar(
-            foregroundImage: controller.room.avatar.isEmpty
-                ? null
-                : NetworkImage(controller.room.avatar),
-            radius: 13,
-            backgroundColor: Theme.of(context).disabledColor,
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                controller.room.nick,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall,
+    return PiPSwitcher(
+      childWhenDisabled: BackButtonListener(
+        onBackButtonPressed: onWillPop,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Row(children: [
+              CircleAvatar(
+                foregroundImage: controller.room.avatar.isEmpty
+                    ? null
+                    : NetworkImage(controller.room.avatar),
+                radius: 13,
+                backgroundColor: Theme.of(context).disabledColor,
               ),
-              Text(
-                '${controller.room.platform.toUpperCase()} / ${controller.room.area}',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(fontSize: 8),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    controller.room.nick,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                  Text(
+                    '${controller.room.platform.toUpperCase()} / ${controller.room.area}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontSize: 8),
+                  ),
+                ],
+              ),
+            ]),
+            actions: [
+              IconButton(
+                tooltip: S.of(context).dlan_button_info,
+                onPressed: showDlnaCastDialog,
+                icon: const Icon(CustomIcons.cast),
               ),
             ],
           ),
-        ]),
-        actions: [
-          IconButton(
-            tooltip: S.of(context).dlan_button_info,
-            onPressed: showDlnaCastDialog,
-            icon: const Icon(CustomIcons.cast),
-          ),
-        ],
-      ),
-      body: LayoutBuilder(builder: (context, constraint) {
-        final width = constraint.maxWidth;
-        return SafeArea(
-          child: width <= 680
-              ? Column(
-                  children: <Widget>[
-                    buildVideoPlayer(),
-                    const ResolutionsRow(),
-                    const Divider(height: 1),
-                    Expanded(
-                      child: DanmakuListView(
-                        key: controller.danmakuViewKey,
-                        room: controller.room,
-                      ),
-                    ),
-                  ],
-                )
-              : Row(children: <Widget>[
-                  Flexible(
-                    flex: 5,
-                    child: buildVideoPlayer(),
-                  ),
-                  Flexible(
-                    flex: 3,
-                    child: Column(children: [
-                      const ResolutionsRow(),
-                      const Divider(height: 1),
-                      Expanded(
-                        child: DanmakuListView(
-                          key: controller.danmakuViewKey,
-                          room: controller.room,
+          body: LayoutBuilder(builder: (context, constraint) {
+            final width = constraint.maxWidth;
+            return SafeArea(
+              child: width <= 680
+                  ? Column(
+                      children: <Widget>[
+                        buildVideoPlayer(),
+                        const ResolutionsRow(),
+                        const Divider(height: 1),
+                        Expanded(
+                          child: DanmakuListView(
+                            key: controller.danmakuViewKey,
+                            room: controller.room,
+                          ),
                         ),
+                      ],
+                    )
+                  : Row(children: <Widget>[
+                      Flexible(
+                        flex: 5,
+                        child: buildVideoPlayer(),
+                      ),
+                      Flexible(
+                        flex: 3,
+                        child: Column(children: [
+                          const ResolutionsRow(),
+                          const Divider(height: 1),
+                          Expanded(
+                            child: DanmakuListView(
+                              key: controller.danmakuViewKey,
+                              room: controller.room,
+                            ),
+                          ),
+                        ]),
                       ),
                     ]),
+            );
+          }),
+          floatingActionButton: FavoriteFloatingButton(room: controller.room),
+        ),
+      ),
+      childWhenEnabled: buildPipVideoPlayer(),
+      floating: controller.videoController?.floating,
+    );
+  }
+
+  Widget buildPipVideoPlayer() {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Container(
+        color: Colors.black,
+        child: Obx(
+          () => controller.success.value
+              ? media_kit_video.Video(
+                  controller: controller.videoController!.mediaPlayerController,
+                  controls: media_kit_video.NoVideoControls,
+                )
+              : Card(
+                  elevation: 0,
+                  margin: const EdgeInsets.all(0),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero),
+                  clipBehavior: Clip.antiAlias,
+                  color: Get.theme.focusColor,
+                  child: CachedNetworkImage(
+                    imageUrl: controller.room.cover,
+                    fit: BoxFit.fill,
+                    errorWidget: (context, error, stackTrace) => const Center(
+                      child: Icon(Icons.live_tv_rounded, size: 48),
+                    ),
                   ),
-                ]),
-        );
-      }),
-      floatingActionButton: FavoriteFloatingButton(room: controller.room),
+                ),
+        ),
+      ),
     );
   }
 
@@ -106,8 +151,7 @@ class LivePlayPage extends GetWidget<LivePlayController>  {
           color: Colors.black,
           child: Obx(
             () => controller.success.value
-                ? VideoPlayer(controller: controller.videoController!,
-)
+                ? VideoPlayer(controller: controller.videoController!)
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),

@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.2.0
+version: 1.2.2
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -58,14 +58,14 @@ dependencies:
   email_validator: ^2.1.17
   font_awesome_flutter: ^10.5.0
   # video player mobile
-  media_kit: ^1.1.7                              # Primary package.
-  media_kit_video: ^1.1.8                        # For video rendering.
-  media_kit_libs_video: ^1.0.1                   # Native video dependencies.
-  better_player_v3: ^0.0.2
+  media_kit: ^1.1.9                              # Primary package.
+  media_kit_video: ^1.2.2                        # For video rendering.
+  media_kit_libs_video: ^1.0.4                   # Native video dependencies.
+  floating: ^2.0.1
   bordered_text: ^2.0.0
   screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7 
-  window_manager: ^0.3.6
+  window_manager: ^0.3.7
   windows_single_instance: ^1.0.0
   protobuf: ^3.1.0
   fixnum: ^1.1.0
@@ -143,8 +143,6 @@ flutter:
     - assets/crypto-js.js
     - assets/icons/icon.png
     - assets/icons/icon_foreground.png
-    - assets/images/wechat.png
-    - assets/images/alipay.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -177,7 +175,7 @@ msix_config:
   display_name: 纯粹直播
   # publisher_display_name: puretech.com
   # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.11
+  msix_version: 1.0.0.13
   logo_path: assets/icons/icon.png
   # capabilities: internetClient
   certificate_path: assets/keystore/CERTIFICATE.pfx

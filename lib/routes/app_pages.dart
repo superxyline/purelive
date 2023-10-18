@@ -46,8 +46,8 @@ class AppPages {
     Get.toNamed(areaRooms, arguments: area);
   }
 
-  static toLivePlay(LiveRoom room) {
-    Get.toNamed(livePlay, arguments: room);
+  static toLivePlay() {
+    Get.toNamed(livePlay);
   }
 
   static final routes = [
@@ -114,7 +114,8 @@ class AppPages {
     ),
     GetPage(
       name: livePlay,
-      page: LivePlayPage.new,
+      page: () => LivePlayPage(),
+      preventDuplicates: true,
       bindings: [LivePlayBinding()],
     ),
   ];

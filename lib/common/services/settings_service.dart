@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:pure_live/plugins/supabase.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -222,12 +223,14 @@ class SettingsService extends GetxController {
   bool addRoom(LiveRoom room) {
     if (favoriteRooms.contains(room)) return false;
     favoriteRooms.add(room);
+    SupaBaseManager().uploadConfigWithBackGend();
     return true;
   }
 
   bool removeRoom(LiveRoom room) {
     if (!favoriteRooms.contains(room)) return false;
     favoriteRooms.remove(room);
+    SupaBaseManager().uploadConfigWithBackGend();
     return true;
   }
 

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -17,7 +18,8 @@ class RoomCard extends StatelessWidget {
   final bool dense;
 
   void onTap(BuildContext context) async {
-    AppPages.toLivePlay(room);
+    PrefUtil.setString('currentLiveRoom', jsonEncode(room.toJson()));
+    AppPages.toLivePlay();
   }
 
   void onLongPress(BuildContext context) {

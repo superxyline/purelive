@@ -38,10 +38,9 @@ class AreaCard extends StatelessWidget {
                   cacheManager: CustomCacheManager.instance,
                   fit: BoxFit.fill,
                   errorWidget: (context, error, stackTrace) => const Center(
-                    child: Text(
-                      'Cover\nNot Found',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                    child: Icon(
+                      Icons.live_tv_rounded,
+                      size: 38,
                     ),
                   ),
                 ),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -5,12 +7,10 @@ import 'package:pure_live/core/interface/live_danmaku.dart';
 
 import 'widgets/video_player/video_controller.dart';
 
-class LivePlayController extends GetxController {
-  LivePlayController(this.room);
-
-  final LiveRoom room;
-  late final Site site = Sites.of(room.platform);
-  late final LiveDanmaku liveDanmaku = site.liveSite.getDanmaku();
+class LivePlayController extends StateController {
+  late LiveRoom room = LiveRoom.fromJson(jsonDecode(PrefUtil.getString('currentLiveRoom') ?? ''));
+  late Site site;
+  late LiveDanmaku liveDanmaku;
 
   final settings = Get.find<SettingsService>();
 
@@ -36,32 +36,39 @@ class LivePlayController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    site.liveSite.getLiveStream(room).then((value) {
-      liveStream = value;
-      setPreferResolution();
-      videoController = VideoController(
-        playerKey: playerKey,
-        room: room,
-        datasourceType: 'network',
-        datasource: selectedStreamUrl,
-        allowBackgroundPlay: settings.enableBackgroundPlay.value,
-        allowScreenKeepOn: settings.enableScreenKeepOn.value,
-        fullScreenByDefault: settings.enableFullScreenDefault.value,
-        autoPlay: true,
-      );
-      success.value = true;
-    }).then((value) => settings.addRoomToHistory(room));
-
-    // start danmaku server
-    liveDanmaku.start(int.parse(
-      room.userId.isEmpty ? room.roomId : room.userId,
-    ));
-    liveDanmaku.onMessage = (msg) {
-      if (msg.type == LiveMessageType.chat) {
-        messages.add(msg);
-        videoController?.sendDanmaku(msg);
-      }
-    };
+    try {
+      log(PrefUtil.getString('currentLiveRoom') ?? '');
+      room = LiveRoom.fromJson(jsonDecode(PrefUtil.getString('currentLiveRoom') ?? ''));
+      site = Sites.of(room.platform);
+      liveDanmaku = site.liveSite.getDanmaku();
+      site.liveSite.getLiveStream(room).then((value) {
+        liveStream = value;
+        setPreferResolution();
+        videoController = VideoController(
+          playerKey: playerKey,
+          room: room,
+          datasourceType: 'network',
+          datasource: selectedStreamUrl,
+          allowBackgroundPlay: settings.enableBackgroundPlay.value,
+          allowScreenKeepOn: settings.enableScreenKeepOn.value,
+          fullScreenByDefault: settings.enableFullScreenDefault.value,
+          autoPlay: true,
+        );
+        success.value = true;
+        // start danmaku server
+        liveDanmaku.start(int.parse(
+          room.userId.isEmpty ? room.roomId : room.userId,
+        ));
+        liveDanmaku.onMessage = (msg) {
+          if (msg.type == LiveMessageType.chat) {
+            messages.add(msg);
+            videoController?.sendDanmaku(msg);
+          }
+        };
+      }).then((value) => settings.addRoomToHistory(room));
+    } catch (e) {
+      log(e.toString(), name: 'LivePlayError');
+    }
   }
 
   void setResolution(String name, String url) {

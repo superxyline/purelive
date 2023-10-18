@@ -17,14 +17,15 @@ import 'package:pure_live/routes/app_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
+
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
+  MediaKit.ensureInitialized();
   if (Platform.isWindows) {
-    
-    await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
-    MediaKit.ensureInitialized();
+    await WindowsSingleInstance.ensureSingleInstance(
+        args, "pure_live_instance_checker");
     await windowManager.ensureInitialized();
     await WindowUtil.init(width: 1280, height: 720);
   }
@@ -89,8 +90,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
-       shortcuts: {
-         LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
       },
       child: DynamicColorBuilder(
         builder: (lightDynamic, darkDynamic) {
@@ -104,25 +105,25 @@ class _MyAppState extends State<MyApp> with WindowListener {
               lightTheme = MyTheme(colorScheme: lightDynamic).lightThemeData;
               darkTheme = MyTheme(colorScheme: darkDynamic).darkThemeData;
             }
-    
+
             return GetMaterialApp(
               title: '纯粹直播',
-            themeMode:
-                SettingsService.themeModes[settings.themeModeName.value]!,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            locale: SettingsService.languages[settings.languageName.value]!,
-            supportedLocales: S.delegate.supportedLocales,
-            localizationsDelegates: const [
-              S.delegate,
-              RefreshLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            initialRoute: AppPages.initial,
-            defaultTransition: Transition.native,
-            getPages: AppPages.routes,
+              themeMode:
+                  SettingsService.themeModes[settings.themeModeName.value]!,
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              locale: SettingsService.languages[settings.languageName.value]!,
+              supportedLocales: S.delegate.supportedLocales,
+              localizationsDelegates: const [
+                S.delegate,
+                RefreshLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              initialRoute: AppPages.initial,
+              defaultTransition: Transition.native,
+              getPages: AppPages.routes,
             );
           });
         },
