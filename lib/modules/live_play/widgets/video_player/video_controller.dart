@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:floating/floating.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
@@ -25,6 +26,7 @@ class VideoController with ChangeNotifier {
   final bool allowFullScreen;
   final bool fullScreenByDefault;
   final bool autoPlay;
+  bool isVertical = false;
   final videoFit = BoxFit.contain.obs;
   final floating = Floating();
   StreamSubscription<PiPStatus>? _pipSubscription;
@@ -120,11 +122,12 @@ class VideoController with ChangeNotifier {
   void initVideoController() {
     FlutterVolumeController.showSystemUI = false;
     player = Player();
+    bool enableHardwareAcceleration = Platform.isAndroid ? false : true;
     mediaPlayerController = media_kit_video.VideoController(
       player,
-      configuration: const media_kit_video.VideoControllerConfiguration(
-        androidAttachSurfaceAfterVideoParameters: false,
-      ),
+      configuration: media_kit_video.VideoControllerConfiguration(
+          androidAttachSurfaceAfterVideoParameters: false,
+          enableHardwareAcceleration: enableHardwareAcceleration),
     );
     setDataSource(datasource);
     mediaPlayerController.player.stream.playing.listen((bool playing) {
@@ -232,7 +235,6 @@ class VideoController with ChangeNotifier {
 
   void setVideoFit(BoxFit fit) {
     videoFit.value = fit;
-    notifyListeners();
   }
 
   void togglePlayPause() {
@@ -243,6 +245,21 @@ class VideoController with ChangeNotifier {
     if (key.currentState?.isFullscreen() ?? false) {
       await key.currentState?.exitFullscreen();
     }
+  }
+
+  /// 设置横屏
+  Future setLandscapeOrientation() async {
+    isVertical = false;
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  /// 设置竖屏
+  Future setPortraitOrientation() async {
+    isVertical = true;
+    await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
   }
 
   void toggleFullScreen() {

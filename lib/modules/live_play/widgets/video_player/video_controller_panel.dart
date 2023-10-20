@@ -697,6 +697,8 @@ class BottomActionBar extends StatelessWidget {
                 DanmakuButton(controller: controller),
                 if (controller.fullscreenUI)
                   SettingsButton(controller: controller),
+                if (controller.fullscreenUI)
+                  ScreenToggleButton(controller: controller),
                 const Spacer(),
                 if (controller.supportWindowFull &&
                     !controller.isFullscreen.value)
@@ -747,6 +749,32 @@ class RefreshButton extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: const Icon(
           Icons.refresh_rounded,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class ScreenToggleButton extends StatelessWidget {
+  const ScreenToggleButton({Key? key, required this.controller})
+      : super(key: key);
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => controller.isVertical
+          ? controller.setLandscapeOrientation()
+          : controller.setPortraitOrientation(),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(12),
+        child:  Icon(
+          controller.isVertical
+              ? Icons.crop_landscape
+              : Icons.crop_portrait,
           color: Colors.white,
         ),
       ),
@@ -988,8 +1016,10 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
             fillColor: color,
             isSelected: isSelected,
             onPressed: (index) {
-              setState(() => fitIndex = index);
-              widget.controller.setVideoFit(fitmodes.values.toList()[index]);
+              setState(() {
+                fitIndex = index;
+                widget.controller.setVideoFit(fitmodes.values.toList()[index]);
+              });
             },
             children: fitmodes.keys
                 .map<Widget>((e) => Padding(
