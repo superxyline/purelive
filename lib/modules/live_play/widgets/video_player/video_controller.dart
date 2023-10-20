@@ -51,7 +51,7 @@ class VideoController with ChangeNotifier {
       GlobalKey<BrightnessVolumnDargAreaState>();
   // Create a [Player] to control playback.
   late Player player;
-  // Create a [VideoController] to handle video output from [Player].
+  // CeoController] to handle video output from [Player].
   late media_kit_video.VideoController mediaPlayerController;
   LivePlayController livePlayController = Get.find<LivePlayController>();
   // Controller ui status
@@ -130,8 +130,8 @@ class VideoController with ChangeNotifier {
           enableHardwareAcceleration: enableHardwareAcceleration),
     );
     setDataSource(datasource);
-    mediaPlayerController.player.stream.playing.listen((bool playing) {
-      if (playing) {
+    mediaPlayerController.player.stream.buffer.listen((Duration event) {
+      if (event != Duration.zero) {
         isPlaying.value = true;
       } else {
         isPlaying.value = false;

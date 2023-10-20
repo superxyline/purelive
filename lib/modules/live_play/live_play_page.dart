@@ -151,7 +151,10 @@ class LivePlayPage extends GetWidget<LivePlayController>
           color: Colors.black,
           child: Obx(
             () => controller.success.value
-                ? VideoPlayer(controller: controller.videoController!)
+                ? controller.videoController!.isPlaying.value ? VideoPlayer(controller: controller.videoController!) : const Center(child: CircularProgressIndicator(
+                  color: Colors.white,
+                  backgroundColor: Colors.black26,
+                ))
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),
