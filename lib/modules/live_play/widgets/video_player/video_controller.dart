@@ -205,14 +205,14 @@ class VideoController with ChangeNotifier {
     _shutdownTimer?.cancel();
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetScreenBrightness();
+      floating.dispose();
+      _pipSubscription?.cancel();
     }
     if (key.currentState?.isFullscreen() ?? false) {
       key.currentState?.exitFullscreen();
     }
     mediaPlayerController.player.pause();
     mediaPlayerController.player.dispose();
-    floating.dispose();
-    _pipSubscription?.cancel();
     super.dispose();
   }
 
