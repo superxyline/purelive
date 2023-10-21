@@ -59,7 +59,6 @@ class VideoController with ChangeNotifier {
   final showController = true.obs;
   final showSettting = false.obs;
   final showLocked = false.obs;
-  bool playBackisPlaying = false;
   final danmuKey = GlobalKey();
   double volume = 0.0;
   void enableController() {
@@ -128,8 +127,8 @@ class VideoController with ChangeNotifier {
           androidAttachSurfaceAfterVideoParameters: false),
     );
     setDataSource(datasource);
-    mediaPlayerController.player.stream.buffer.listen((Duration event) {
-      if (event != Duration.zero) {
+    mediaPlayerController.player.stream.playing.listen((bool playing) {
+      if (playing) {
         isPlaying.value = true;
       } else {
         isPlaying.value = false;
@@ -210,8 +209,8 @@ class VideoController with ChangeNotifier {
     if (key.currentState?.isFullscreen() ?? false) {
       key.currentState?.exitFullscreen();
     }
-    player.pause();
-    player.dispose();
+    mediaPlayerController.player.pause();
+    mediaPlayerController.player.dispose();
     floating.dispose();
     _pipSubscription?.cancel();
     super.dispose();
@@ -228,7 +227,7 @@ class VideoController with ChangeNotifier {
       hasError.value = true;
       return;
     }
-    player.open(Media(datasource));
+    mediaPlayerController.player.open(Media(datasource));
   }
 
   void setVideoFit(BoxFit fit) {
@@ -237,7 +236,7 @@ class VideoController with ChangeNotifier {
   }
 
   void togglePlayPause() {
-    player.playOrPause();
+    mediaPlayerController.player.playOrPause();
   }
 
   Future<void> exitFullScreen() async {
@@ -261,7 +260,7 @@ class VideoController with ChangeNotifier {
     await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
   }
 
-  void toggleFullScreen()  async{
+  void toggleFullScreen() async {
     // disable locked
     showLocked.value = false;
     // fix danmaku overlap bug
@@ -281,7 +280,7 @@ class VideoController with ChangeNotifier {
       await key.currentState?.exitFullscreen();
     } else {
       await key.currentState?.enterFullscreen();
-      if(room.platform == 'douyin'){
+      if (room.platform == 'douyin') {
         await setPortraitOrientation();
       }
     }

@@ -24,7 +24,6 @@ class DanmakuListViewState extends State<DanmakuListView>
     super.initState();
     controller.messages.listen((p0) {
       _scrollToBottom();
-      setState(() {});
     });
   }
 
@@ -36,11 +35,14 @@ class DanmakuListViewState extends State<DanmakuListView>
 
   void _scrollToBottom() {
     if (_scrollHappen) return;
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.linearToEaseOut,
-    );
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.linearToEaseOut,
+      );
+      setState(() {});
+    }
   }
 
   bool _userScrollAction(UserScrollNotification notification) {
