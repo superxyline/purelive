@@ -5,6 +5,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:http/http.dart' as http;
 import 'package:hashlib/hashlib.dart' as hashlib;
 import 'package:html/parser.dart' show parse;
+import 'package:pure_live/plugins/http_client.dart';
 import '../danmaku/huya_danmaku.dart';
 import '../interface/live_danmaku.dart';
 import '../interface/live_site.dart';
@@ -30,11 +31,13 @@ class HuyaSite implements LiveSite {
     );
     return await jsonDecode(resp.body);
   }
+
   int getUuid() {
     var now = DateTime.now().microsecondsSinceEpoch;
     var rand = math.Random().nextInt(1000);
-    return (now % 10000000000 * 1000  + rand) % 4294967295;
+    return (now % 10000000000 * 1000 + rand) % 4294967295;
   }
+
   static Future<String> getAnonymousUid() async {
     var url = 'https://udblgn.huya.com/web/anonymousLogin';
     Map<String, dynamic> params = {
@@ -51,7 +54,8 @@ class HuyaSite implements LiveSite {
   }
 
   dynamic processAnticode(roomInfo) async {
-    var s = roomInfo["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]["vStreamInfo"]["value"][0];
+    var s = roomInfo["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]["vStreamInfo"]
+        ["value"][0];
     String sFlvAntiCode = s['sFlvAntiCode'];
     String uid = await getAnonymousUid();
     List<String> sFlvAntiCodeArr = sFlvAntiCode.split('&');
@@ -63,23 +67,37 @@ class HuyaSite implements LiveSite {
     }
     q["ver"] = ["1"];
     q["sv"] = ["2110211124"];
-    q["seqid"] = [(int.parse(uid) + DateTime.now().microsecondsSinceEpoch).toString()];
+    q["seqid"] = [
+      (int.parse(uid) + DateTime.now().microsecondsSinceEpoch).toString()
+    ];
     q["uid"] = [uid];
     q["uuid"] = [getUuid().toString()];
-    var ss = hashlib.md5sum(('${q["seqid"]![0]}|${q["ctype"]![0]}|${q["t"]![0]}'));
+    var ss =
+        hashlib.md5sum(('${q["seqid"]![0]}|${q["ctype"]![0]}|${q["t"]![0]}'));
     q["fm"]![0] = utf8
         .decode(base64.decode(q["fm"]![0]))
-        .replaceAll('\$1',s['sStreamName'])
+        .replaceAll('\$1', s['sStreamName'])
         .replaceAll('\$0', q["uid"]![0])
         .replaceAll('\$2', ss)
         .replaceAll("\$3", q["wsTime"]![0]);
     q["wsSecret"]![0] = hashlib.md5sum(q["fm"]![0]);
     q.remove('fm');
     q.removeWhere((key, value) => key == 'txyp');
-    var urlPar = Map.from(q).entries.map((entry) => '${entry.key}=${entry.value[0]}').toList().join('&');
-    String params = s["sFlvUrl"] + '/' + s["sStreamName"] +'.' + s["sFlvUrlSuffix"] + '?' + urlPar;
+    var urlPar = Map.from(q)
+        .entries
+        .map((entry) => '${entry.key}=${entry.value[0]}')
+        .toList()
+        .join('&');
+    String params = s["sFlvUrl"] +
+        '/' +
+        s["sStreamName"] +
+        '.' +
+        s["sFlvUrlSuffix"] +
+        '?' +
+        urlPar;
     return params.replaceAll('http://', 'https://');
   }
+
   Future<dynamic> getRealUrl(String roomId) async {
     var roomUrl = 'https://m.huya.com/$roomId';
     dynamic roomResponse = await http.get(Uri.parse(roomUrl), headers: {
@@ -101,14 +119,13 @@ class HuyaSite implements LiveSite {
     var eLiveStatus = roomInfo["roomInfo"]["eLiveStatus"];
     if (eLiveStatus == 2) {
       return await processAnticode(roomInfo);
-    }else if (eLiveStatus == 3) {
+    } else if (eLiveStatus == 3) {
       // 回放
-         return  'https:${utf8.decode(base64.decode(roomInfo["roomProfile"]["liveLineUrl"]))}';
-    }else {
+      return 'https:${utf8.decode(base64.decode(roomInfo["roomProfile"]["liveLineUrl"]))}';
+    } else {
       // 未开播
       return '';
     }
-
   }
 
   @override
@@ -118,7 +135,7 @@ class HuyaSite implements LiveSite {
     String url = 'https://mp.huya.com/cache.php?m=Live'
         '&do=profileRoom&roomid=${room.roomId}';
     try {
-          String readUrl = await getRealUrl(room.roomId.toString());
+      String readUrl = await getRealUrl(room.roomId.toString());
       dynamic response = await _getJson(url);
       if (response['status'] == 200) {
         Map data = response['data']['stream']['flv'];
@@ -136,8 +153,8 @@ class HuyaSite implements LiveSite {
           links['原画']?.add(readUrl);
           for (var name in rates.keys) {
             links[name] ??= [];
-            links[name]?.add(
-                readUrl.replaceAll('imgplus.flv', 'imgplus${rates[name]!}.flv'));
+            links[name]?.add(readUrl.replaceAll(
+                'imgplus.flv', 'imgplus${rates[name]!}.flv'));
           }
         }
       }
@@ -199,14 +216,22 @@ class HuyaSite implements LiveSite {
         List<dynamic> roomInfoList = response['data']['datas'];
         for (var roomInfo in roomInfoList) {
           LiveRoom room = LiveRoom(roomInfo['profileRoom'].toString());
+          var cover = roomInfo["screenshot"].toString();
+          if (!cover.contains("?")) {
+            cover += "?x-oss-process=style/w338_h190&";
+          }
+          var title = roomInfo["introduction"]?.toString() ?? "";
+          if (title.isEmpty) {
+            title = roomInfo["roomName"]?.toString() ?? "";
+          }
           room.platform = 'huya';
           room.userId = roomInfo['uid']?.toString() ?? '';
           room.nick = roomInfo['nick'] ?? '';
-          room.title = roomInfo['introduction'] ?? '';
-          room.cover = roomInfo['screenshot'] ?? '';
+          room.title = title;
+          room.cover = cover;
           room.avatar = roomInfo['avatar180'] ?? '';
           room.area = roomInfo['gameFullName'] ?? '';
-          room.followers = roomInfo['totalCount'] ?? '';
+          room.watching = roomInfo['totalCount'] ?? '';
           room.liveStatus = LiveStatus.live;
           list.add(room);
         }
@@ -221,8 +246,6 @@ class HuyaSite implements LiveSite {
   @override
   Future<List<List<LiveArea>>> getAreaList() async {
     List<List<LiveArea>> areaList = [];
-    String url =
-        'https://m.huya.com/cache.php?m=Game&do=ajaxGameList&bussType=';
 
     final areas = {
       '1': '网游竞技',
@@ -233,18 +256,25 @@ class HuyaSite implements LiveSite {
     try {
       for (var typeId in areas.keys) {
         String typeName = areas[typeId]!;
-        dynamic response = await _getJson(url + typeId);
+        var response = await HttpClient.instance.getJson(
+          "https://live.cdn.huya.com/liveconfig/game/bussLive",
+          queryParameters: {
+            "bussType": typeId,
+          },
+        );
         List<LiveArea> subAreaList = [];
-        List<dynamic> areaInfoList = response['gameList'];
+        List<dynamic> areaInfoList = response['data'];
+
         for (var areaInfo in areaInfoList) {
+          var gid = (areaInfo["gid"])?.toInt().toString();
           LiveArea area = LiveArea();
           area.platform = 'huya';
           area.areaType = typeId;
           area.typeName = typeName;
-          area.areaId = areaInfo['gid']?.toString() ?? '';
-          area.areaName = areaInfo['gameFullName'] ?? '';
+          area.areaId = gid!;
+          area.areaName = areaInfo['gameFullName'].toString();
           area.areaPic =
-              'https://huyaimg.msstatic.com/cdnimage/game/${area.areaId}-MS.jpg';
+              "https://huyaimg.msstatic.com/cdnimage/game/$gid-MS.jpg";
           subAreaList.add(area);
         }
         areaList.add(subAreaList);

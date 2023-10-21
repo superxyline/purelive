@@ -26,7 +26,7 @@ class VideoController with ChangeNotifier {
   final bool allowFullScreen;
   final bool fullScreenByDefault;
   final bool autoPlay;
-  bool isVertical = false;
+  final isVertical = false.obs;
   final videoFit = BoxFit.contain.obs;
   final floating = Floating();
   StreamSubscription<PiPStatus>? _pipSubscription;
@@ -122,12 +122,10 @@ class VideoController with ChangeNotifier {
   void initVideoController() {
     FlutterVolumeController.showSystemUI = false;
     player = Player();
-    bool enableHardwareAcceleration = Platform.isAndroid ? false : true;
     mediaPlayerController = media_kit_video.VideoController(
       player,
-      configuration: media_kit_video.VideoControllerConfiguration(
-          androidAttachSurfaceAfterVideoParameters: false,
-          enableHardwareAcceleration: enableHardwareAcceleration),
+      configuration: const media_kit_video.VideoControllerConfiguration(
+          androidAttachSurfaceAfterVideoParameters: false),
     );
     setDataSource(datasource);
     mediaPlayerController.player.stream.buffer.listen((Duration event) {
@@ -235,6 +233,7 @@ class VideoController with ChangeNotifier {
 
   void setVideoFit(BoxFit fit) {
     videoFit.value = fit;
+    key.currentState?.update(fit: fit);
   }
 
   void togglePlayPause() {
@@ -249,7 +248,7 @@ class VideoController with ChangeNotifier {
 
   /// 设置横屏
   Future setLandscapeOrientation() async {
-    isVertical = false;
+    isVertical.value = false;
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -258,11 +257,11 @@ class VideoController with ChangeNotifier {
 
   /// 设置竖屏
   Future setPortraitOrientation() async {
-    isVertical = true;
+    isVertical.value = true;
     await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
   }
 
-  void toggleFullScreen() {
+  void toggleFullScreen()  async{
     // disable locked
     showLocked.value = false;
     // fix danmaku overlap bug
@@ -279,9 +278,12 @@ class VideoController with ChangeNotifier {
     });
 
     if (key.currentState?.isFullscreen() ?? false) {
-      key.currentState?.exitFullscreen();
+      await key.currentState?.exitFullscreen();
     } else {
-      key.currentState?.enterFullscreen();
+      await key.currentState?.enterFullscreen();
+      if(room.platform == 'douyin'){
+        await setPortraitOrientation();
+      }
     }
     isFullscreen.toggle();
     refreshView();

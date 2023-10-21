@@ -697,7 +697,7 @@ class BottomActionBar extends StatelessWidget {
                 DanmakuButton(controller: controller),
                 if (controller.fullscreenUI)
                   SettingsButton(controller: controller),
-                if (controller.fullscreenUI)
+                if (controller.fullscreenUI && Platform.isAndroid)
                   ScreenToggleButton(controller: controller),
                 const Spacer(),
                 if (controller.supportWindowFull &&
@@ -764,21 +764,21 @@ class ScreenToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => controller.isVertical
-          ? controller.setLandscapeOrientation()
-          : controller.setPortraitOrientation(),
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(12),
-        child:  Icon(
-          controller.isVertical
-              ? Icons.crop_landscape
-              : Icons.crop_portrait,
-          color: Colors.white,
-        ),
-      ),
-    );
+    return Obx(() => GestureDetector(
+          onTap: () => controller.isVertical.value
+              ? controller.setLandscapeOrientation()
+              : controller.setPortraitOrientation(),
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(12),
+            child: Icon(
+              controller.isVertical.value
+                  ? Icons.crop_landscape
+                  : Icons.crop_portrait,
+              color: Colors.white,
+            ),
+          ),
+        ));
   }
 }
 
