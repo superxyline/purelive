@@ -61,9 +61,9 @@ dependencies:
   media_kit: ^1.1.10+1                           # Primary package.
   media_kit_video: ^1.2.4                        # For video rendering.
   media_kit_libs_video: ^1.0.4                   # Native video dependencies.
-  floating: 
+  better_player:
     git:
-      url: https://github.com/hep-mh/floating.git
+      url: https://github.com/liuchuancong/better_player.git
   bordered_text: ^2.0.0
   screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7 

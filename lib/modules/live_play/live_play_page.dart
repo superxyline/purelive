@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:floating/floating.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
@@ -24,8 +23,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
 
-    return PiPSwitcher(
-      childWhenDisabled: BackButtonListener(
+    return BackButtonListener(
         onBackButtonPressed: onWillPop,
         child: Scaffold(
           appBar: AppBar(
@@ -105,10 +103,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
           }),
           floatingActionButton: FavoriteFloatingButton(room: controller.room),
         ),
-      ),
-      childWhenEnabled: buildPipVideoPlayer(),
-      floating: controller.videoController?.floating,
-    );
+      );
   }
 
   Widget buildPipVideoPlayer() {

@@ -49,6 +49,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.2"
+  better_player:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "5edc1f21e159b7d0d7aa0d67a450444a3c02e1a5"
+      url: "https://github.com/liuchuancong/better_player.git"
+    source: git
+    version: "0.0.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -169,6 +178,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.17.3"
+  cupertino_icons:
+    dependency: transitive
+    description:
+      name: cupertino_icons
+      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.6"
   dart_tars_protocol:
     dependency: "direct main"
     description:
@@ -266,15 +283,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
-  floating:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: c2f144c97ee5f21044112c067279e7db65a9af2f
-      url: "https://github.com/hep-mh/floating.git"
-    source: git
-    version: "2.0.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -375,6 +383,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_widget_from_html_core:
+    dependency: transitive
+    description:
+      name: flutter_widget_from_html_core
+      sha256: d1366d0421011547a339f03c77672575dd018759f43b37b6e3257e34af77e302
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.14.4"
   font_awesome_flutter:
     dependency: "direct main"
     description:
@@ -528,6 +544,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
+  logging:
+    dependency: transitive
+    description:
+      name: logging
+      sha256: "623a88c9594aa774443aa3eb2d41807a48486b5613e67599fb4c41c0ad47c340"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.0"
   matcher:
     dependency: transitive
     description:
@@ -1245,6 +1269,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.4"
+  visibility_detector:
+    dependency: transitive
+    description:
+      name: visibility_detector
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.0+2"
   volume_controller:
     dependency: transitive
     description:
