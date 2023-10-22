@@ -22,8 +22,9 @@ void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
-  MediaKit.ensureInitialized();
+  
   if (Platform.isWindows) {
+    MediaKit.ensureInitialized();
     await WindowsSingleInstance.ensureSingleInstance(
         args, "pure_live_instance_checker");
     await windowManager.ensureInitialized();
