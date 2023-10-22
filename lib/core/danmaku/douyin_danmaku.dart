@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:developer';
 import 'package:pure_live/common/models/index.dart';
 import 'package:pure_live/core/site/douyin_site.dart';
 
@@ -140,7 +139,6 @@ class DouyinDanmaku implements LiveDanmaku {
       //return;
     }
     for (var msg in payloadPackage.messagesList) {
-      log(msg.toString());
       if (msg.method == 'WebcastChatMessage') {
         unPackWebcastChatMessage(msg.payload);
       } else if (msg.method == 'WebcastRoomUserSeqMessage') {

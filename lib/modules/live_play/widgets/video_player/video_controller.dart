@@ -364,17 +364,12 @@ class VideoController with ChangeNotifier {
         isFullscreen.toggle();
         // fix immersion status bar problem
         if (Platform.isAndroid) {
-          if (room.platform == 'douyin') {
-          } else {
-            SystemChrome.setEnabledSystemUIMode(!isFullscreen.value
+          SystemChrome.setEnabledSystemUIMode(!isFullscreen.value
                 ? SystemUiMode.edgeToEdge
                 : SystemUiMode.immersiveSticky);
-          }
         }
       });
     }
-
-    isFullscreen.toggle();
     refreshView();
   }
 

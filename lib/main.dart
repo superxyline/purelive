@@ -20,9 +20,9 @@ import 'package:windows_single_instance/windows_single_instance.dart';
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();
-  MediaKit.ensureInitialized();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   if (Platform.isWindows) {
+    MediaKit.ensureInitialized();
     await WindowsSingleInstance.ensureSingleInstance(
         args, "pure_live_instance_checker");
     await windowManager.ensureInitialized();

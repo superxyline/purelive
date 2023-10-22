@@ -697,8 +697,6 @@ class BottomActionBar extends StatelessWidget {
                 DanmakuButton(controller: controller),
                 if (controller.fullscreenUI)
                   SettingsButton(controller: controller),
-                if (controller.fullscreenUI && Platform.isAndroid)
-                  ScreenToggleButton(controller: controller),
                 const Spacer(),
                 if (controller.supportWindowFull &&
                     !controller.isFullscreen.value)
