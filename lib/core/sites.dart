@@ -1,28 +1,34 @@
+import 'package:pure_live/core/site/bilibili_site.dart';
+
 import 'interface/live_site.dart';
-import 'site/bilibili_site.dart';
 import 'site/douyu_site.dart';
 import 'site/huya_site.dart';
 import 'site/douyin_site.dart';
+
 class Sites {
   static List<Site> supportSites = [
     Site(
       id: "bilibili",
       name: "哔哩",
-      liveSite: BilibiliSite(),
+      logo: "assets/images/bilibili_2.png",
+      liveSite: BiliBiliSite(),
     ),
     Site(
       id: "douyu",
       name: "斗鱼",
+      logo: "assets/images/douyu.png",
       liveSite: DouyuSite(),
     ),
     Site(
       id: "huya",
       name: "虎牙",
+      logo: "assets/images/huya.png",
       liveSite: HuyaSite(),
     ),
     Site(
       id: "douyin",
       name: "抖音",
+      logo: "assets/images/douyin.png",
       liveSite: DouyinSite(),
     ),
   ];
@@ -35,10 +41,12 @@ class Sites {
 class Site {
   final String id;
   final String name;
+  final String logo;
   final LiveSite liveSite;
   Site({
     required this.id,
-    required this.name,
     required this.liveSite,
+    required this.logo,
+    required this.name,
   });
 }

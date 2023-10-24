@@ -1,10 +1,9 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/routes/app_pages.dart';
+import 'package:pure_live/routes/app_navigation.dart';
 
 // ignore: must_be_immutable
 class RoomCard extends StatelessWidget {
@@ -13,26 +12,24 @@ class RoomCard extends StatelessWidget {
     required this.room,
     this.dense = false,
   }) : super(key: key);
-
   final LiveRoom room;
   final bool dense;
 
   void onTap(BuildContext context) async {
-    PrefUtil.setString('currentLiveRoom', jsonEncode(room.toJson()));
-    AppPages.toLivePlay();
+    AppNavigator.toLiveRoomDetail(liveRoom: room);
   }
 
   void onLongPress(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        title: Text(room.title),
+        title: Text(room.title!),
         content: Text(
           S.of(context).room_info_content(
-                room.roomId,
-                room.platform,
-                room.nick,
-                room.title,
-                room.liveStatus.name,
+                room.roomId!,
+                room.platform!,
+                room.nick!,
+                room.title!,
+                room.liveStatus!.name,
               ),
         ),
         actions: [FollowButton(room: room)],
@@ -42,7 +39,9 @@ class RoomCard extends StatelessWidget {
 
   ImageProvider? getRoomAvatar(avatar) {
     try {
-      return CachedNetworkImageProvider(avatar,errorListener: () {log("CachedNetworkImageProvider: Image failed to load!");});
+      return CachedNetworkImageProvider(avatar, errorListener: () {
+        log("CachedNetworkImageProvider: Image failed to load!");
+      });
     } catch (e) {
       return null;
     }
@@ -65,7 +64,7 @@ class RoomCard extends StatelessWidget {
             Stack(
               children: [
                 Hero(
-                  tag: room.roomId,
+                  tag: room.roomId!,
                   child: AspectRatio(
                     aspectRatio: 16 / 9,
                     child: Card(
@@ -84,7 +83,7 @@ class RoomCard extends StatelessWidget {
                               ),
                             )
                           : CachedNetworkImage(
-                              imageUrl: room.cover,
+                              imageUrl: room.cover!,
                               fit: BoxFit.fill,
                               errorWidget: (context, error, stackTrace) =>
                                   Center(
@@ -109,13 +108,13 @@ class RoomCard extends StatelessWidget {
                     ),
                   ),
                 if (room.liveStatus == LiveStatus.live &&
-                    room.watching.isNotEmpty)
+                    room.watching!.isNotEmpty)
                   Positioned(
                     right: dense ? 1 : 4,
                     bottom: dense ? 1 : 4,
                     child: CountChip(
                       icon: Icons.whatshot_rounded,
-                      count: readableCount(room.watching),
+                      count: readableCount(room.watching!),
                       dense: dense,
                     ),
                   ),
@@ -128,14 +127,13 @@ class RoomCard extends StatelessWidget {
                   dense ? const EdgeInsets.only(left: 8, right: 10) : null,
               horizontalTitleGap: dense ? 8 : null,
               leading: CircleAvatar(
-                foregroundImage: room.avatar.isNotEmpty
-                    ? getRoomAvatar(room.avatar)
-                    : null,
+                foregroundImage:
+                    room.avatar!.isNotEmpty ? getRoomAvatar(room.avatar) : null,
                 radius: dense ? 17 : null,
                 backgroundColor: Theme.of(context).disabledColor,
               ),
               title: Text(
-                room.title,
+                room.title!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -144,7 +142,7 @@ class RoomCard extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                room.nick,
+                room.nick!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -155,7 +153,7 @@ class RoomCard extends StatelessWidget {
               trailing: dense
                   ? null
                   : Text(
-                      room.platform.toUpperCase(),
+                      room.platform!.toUpperCase(),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,

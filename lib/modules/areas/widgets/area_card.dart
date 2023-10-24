@@ -1,15 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/routes/app_pages.dart';
+import 'package:pure_live/routes/app_navigation.dart';
 
 class AreaCard extends StatelessWidget {
   const AreaCard({
     Key? key,
-    required this.area,
+    required this.category
   }) : super(key: key);
-
-  final LiveArea area;
-
+  final LiveArea category;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -19,7 +17,7 @@ class AreaCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
-        onTap: () => AppPages.toAreaRooms(area),
+        onTap: () => AppNavigator.toCategoryDetail(site: Sites.of(category.platform!),category: category),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -34,7 +32,7 @@ class AreaCard extends StatelessWidget {
                 color: Colors.white,
                 elevation: 0,
                 child: CachedNetworkImage(
-                  imageUrl: area.areaPic,
+                  imageUrl: category.areaPic!,
                   cacheManager: CustomCacheManager.instance,
                   fit: BoxFit.fill,
                   errorWidget: (context, error, stackTrace) => const Center(
@@ -50,7 +48,7 @@ class AreaCard extends StatelessWidget {
               dense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 10),
               title: Text(
-                area.areaName,
+                category.areaName!,
                 maxLines: 1,
                 overflow: TextOverflow.clip,
                 style: const TextStyle(fontWeight: FontWeight.w500),
@@ -59,14 +57,14 @@ class AreaCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    area.typeName,
+                    category.typeName!,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 10,
                     ),
                   ),
                   Text(
-                    area.platform.toUpperCase(),
+                    category.platform!.toUpperCase(),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 10,

@@ -1,26 +1,27 @@
+
+
+
+
 import 'package:pure_live/common/base/base_controller.dart';
-import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/models/live_area.dart';
+import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/core/sites.dart';
 
-class AreaRoomsController extends BaseListController<LiveRoom> {
-  AreaRoomsController(this.area);
+class AreaRoomsController extends BasePageController<LiveRoom> {
+  final Site site;
+  final LiveArea subCategory;
+  
+  
+  AreaRoomsController({
+    required this.site,
+    required this.subCategory,
+  });
 
-  final LiveArea area;
+  
 
-  @override
+   @override
   Future<List<LiveRoom>> getData(int page, int pageSize) async {
-    return await Sites.of(area.platform)
-        .liveSite
-        .getAreaRooms(area, page: page, size: pageSize);
-  }
-
-  @override
-  void onInit() {
-    super.onInit();
-    scrollController.addListener(() {
-      final pos = scrollController.position;
-      if (pos.maxScrollExtent - pos.pixels < 100) {
-        onLoading();
-      }
-    });
+    var result = await site.liveSite.getCategoryRooms(subCategory, page: page);
+    return result.items;
   }
 }

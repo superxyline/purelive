@@ -24,52 +24,70 @@ class LivePlayPage extends GetWidget<LivePlayController>
     }
 
     return BackButtonListener(
-        onBackButtonPressed: onWillPop,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Row(children: [
-              CircleAvatar(
-                foregroundImage: controller.room.avatar.isEmpty
-                    ? null
-                    : NetworkImage(controller.room.avatar),
-                radius: 13,
-                backgroundColor: Theme.of(context).disabledColor,
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    controller.room.nick,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                  Text(
-                    '${controller.room.platform.toUpperCase()} / ${controller.room.area}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(fontSize: 8),
-                  ),
-                ],
-              ),
-            ]),
-            actions: [
-              IconButton(
-                tooltip: S.of(context).dlan_button_info,
-                onPressed: showDlnaCastDialog,
-                icon: const Icon(CustomIcons.cast),
-              ),
-            ],
-          ),
-          body: LayoutBuilder(builder: (context, constraint) {
-            final width = constraint.maxWidth;
-            return SafeArea(
-              child: width <= 680
-                  ? Column(
-                      children: <Widget>[
-                        buildVideoPlayer(),
+      onBackButtonPressed: onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Row(children: [
+            CircleAvatar(
+              foregroundImage: controller.room.avatar!.isEmpty
+                  ? null
+                  : NetworkImage(controller.room.avatar!),
+              radius: 13,
+              backgroundColor: Theme.of(context).disabledColor,
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  controller.room.nick!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+                Text(
+                  '${controller.room.platform!.toUpperCase()} / ${controller.room.area}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(fontSize: 8),
+                ),
+              ],
+            ),
+          ]),
+          actions: [
+            IconButton(
+              tooltip: S.of(context).dlan_button_info,
+              onPressed: showDlnaCastDialog,
+              icon: const Icon(CustomIcons.cast),
+            ),
+          ],
+        ),
+        body: LayoutBuilder(builder: (context, constraint) {
+          final width = constraint.maxWidth;
+          return SafeArea(
+            child: width <= 680
+                ? Column(
+                    children: <Widget>[
+                      buildVideoPlayer(),
+                      const ResolutionsRow(),
+                      const Divider(height: 1),
+                      Expanded(
+                        child: DanmakuListView(
+                          key: controller.danmakuViewKey,
+                          room: controller.room,
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(children: <Widget>[
+                    Flexible(
+                      flex: 5,
+                      child: buildVideoPlayer(),
+                    ),
+                    Flexible(
+                      flex: 3,
+                      child: Column(children: [
                         const ResolutionsRow(),
                         const Divider(height: 1),
                         Expanded(
@@ -78,32 +96,14 @@ class LivePlayPage extends GetWidget<LivePlayController>
                             room: controller.room,
                           ),
                         ),
-                      ],
-                    )
-                  : Row(children: <Widget>[
-                      Flexible(
-                        flex: 5,
-                        child: buildVideoPlayer(),
-                      ),
-                      Flexible(
-                        flex: 3,
-                        child: Column(children: [
-                          const ResolutionsRow(),
-                          const Divider(height: 1),
-                          Expanded(
-                            child: DanmakuListView(
-                              key: controller.danmakuViewKey,
-                              room: controller.room,
-                            ),
-                          ),
-                        ]),
-                      ),
-                    ]),
-            );
-          }),
-          floatingActionButton: FavoriteFloatingButton(room: controller.room),
-        ),
-      );
+                      ]),
+                    ),
+                  ]),
+          );
+        }),
+        floatingActionButton: FavoriteFloatingButton(room: controller.room),
+      ),
+    );
   }
 
   Widget buildPipVideoPlayer() {
@@ -125,7 +125,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
                   clipBehavior: Clip.antiAlias,
                   color: Get.theme.focusColor,
                   child: CachedNetworkImage(
-                    imageUrl: controller.room.cover,
+                    imageUrl: controller.room.cover!,
                     fit: BoxFit.fill,
                     errorWidget: (context, error, stackTrace) => const Center(
                       child: Icon(Icons.live_tv_rounded, size: 48),
@@ -139,14 +139,14 @@ class LivePlayPage extends GetWidget<LivePlayController>
 
   Widget buildVideoPlayer() {
     return Hero(
-      tag: controller.room.roomId,
+      tag: controller.room.roomId!,
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: Container(
           color: Colors.black,
           child: Obx(
             () => controller.success.value
-                ?  VideoPlayer(controller: controller.videoController!)
+                ? VideoPlayer(controller: controller.videoController!)
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),
@@ -155,7 +155,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
                     clipBehavior: Clip.antiAlias,
                     color: Get.theme.focusColor,
                     child: CachedNetworkImage(
-                      imageUrl: controller.room.cover,
+                      imageUrl: controller.room.cover!,
                       fit: BoxFit.fill,
                       errorWidget: (context, error, stackTrace) => const Center(
                         child: Icon(Icons.live_tv_rounded, size: 48),
@@ -169,7 +169,8 @@ class LivePlayPage extends GetWidget<LivePlayController>
   }
 
   void showDlnaCastDialog() {
-    Get.dialog(LiveDlnaPage(datasource: controller.selectedStreamUrl));
+    Get.dialog(LiveDlnaPage(
+        datasource: controller.playUrls[controller.currentLineIndex.value]));
   }
 }
 
@@ -182,39 +183,22 @@ class ResolutionsRow extends StatefulWidget {
 
 class _ResolutionsRowState extends State<ResolutionsRow> {
   LivePlayController get controller => Get.find();
-
-  late String selectedRate = controller.selectedResolution;
-  late String selectedStreamUrl = controller.selectedStreamUrl;
-
   Widget buildInfoCount() {
     // controller.room watching or followers
-    Widget info = Container();
-    if (controller.room.followers.isNotEmpty) {
-      info = Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.person_rounded, size: 14),
-        const SizedBox(width: 4),
-        Text(
-          readableCount(controller.room.followers),
-          style: Get.textTheme.bodySmall,
-        ),
-      ]);
-    } else if (controller.room.watching.isNotEmpty) {
-      info = Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.whatshot_rounded, size: 14),
-        const SizedBox(width: 4),
-        Text(
-          readableCount(controller.room.watching),
-          style: Get.textTheme.bodySmall,
-        ),
-      ]);
-    }
-    return info;
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      const Icon(Icons.whatshot_rounded, size: 14),
+      const SizedBox(width: 4),
+      Text(
+        readableCount(controller.room.watching!),
+        style: Get.textTheme.bodySmall,
+      ),
+    ]);
   }
 
   List<Widget> buildResultionsList() {
-    return controller.liveStream.keys
+    return controller.qualites
         .map<Widget>((rate) => PopupMenuButton(
-              tooltip: rate,
+              tooltip: rate.quality,
               color: Get.theme.colorScheme.surfaceVariant,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -222,32 +206,30 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               offset: const Offset(0.0, 5.0),
               position: PopupMenuPosition.under,
               icon: Text(
-                rate,
+                rate.quality,
                 style: Get.theme.textTheme.labelSmall?.copyWith(
-                  color: rate == selectedRate
+                  color: rate.quality ==
+                          controller.qualites[controller.currentQuality.value].quality
                       ? Get.theme.colorScheme.primary
                       : null,
                 ),
               ),
-              onSelected: (String url) {
-                controller.setResolution(rate, url);
-                setState(() {
-                  selectedRate = rate;
-                  selectedStreamUrl = url;
-                });
+              onSelected: (String index) {
+                controller.setResolution(rate.quality, index);
               },
               itemBuilder: (context) {
                 final items = <PopupMenuItem<String>>[];
-                final urls = controller.liveStream[rate]!;
+                final urls = controller.playUrls;
                 for (int i = 0; i < urls.length; i++) {
                   items.add(PopupMenuItem<String>(
-                    value: urls[i],
+                    value: i.toString(),
                     child: Text(
                       '线路${i + 1}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: urls[i] == selectedStreamUrl
-                                ? Get.theme.colorScheme.primary
-                                : null,
+                            color:
+                                urls[i] == controller.playUrls[controller.currentLineIndex.value]
+                                    ? Get.theme.colorScheme.primary
+                                    : null,
                           ),
                     ),
                   ));
@@ -308,7 +290,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                 AlertDialog(
                   title: Text(S.of(context).unfollow),
                   content:
-                      Text(S.of(context).unfollow_message(widget.room.nick)),
+                      Text(S.of(context).unfollow_message(widget.room.nick!)),
                   actions: [
                     TextButton(
                       onPressed: () => Get.back(result: false),
@@ -330,7 +312,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
             child: CircleAvatar(
               foregroundImage: (widget.room.avatar == '')
                   ? null
-                  : NetworkImage(widget.room.avatar),
+                  : NetworkImage(widget.room.avatar!),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -345,7 +327,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
             icon: CircleAvatar(
               foregroundImage: (widget.room.avatar == '')
                   ? null
-                  : NetworkImage(widget.room.avatar),
+                  : NetworkImage(widget.room.avatar!),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -357,7 +339,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(
-                  widget.room.nick,
+                  widget.room.nick!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

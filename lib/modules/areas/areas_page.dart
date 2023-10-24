@@ -30,12 +30,7 @@ class AreasPage extends GetView<AreasController> {
         ),
         body: TabBarView(
           controller: controller.tabController,
-          children: Sites.supportSites
-              .map((e) => AreaGridView(
-                    labels: controller.data[e.id]?['labels'] ?? [],
-                    areas: controller.data[e.id]?['areas'] ?? [],
-                  ))
-              .toList(),
+          children: Sites.supportSites.map((e) => AreaGridView(e.id)).toList(),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: FloatingActionButton(

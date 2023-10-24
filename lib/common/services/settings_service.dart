@@ -179,6 +179,7 @@ class SettingsService extends GetxController {
     }
   }
 
+  List<String> get resolutionsList => resolutions;
   void changeShutDownConfig(int minutes, bool isAutoShutDown) {
     autoShutDownTime.value = minutes;
     enableAutoShutDownTime.value = isAutoShutDown;
@@ -192,7 +193,7 @@ class SettingsService extends GetxController {
     PrefUtil.setInt('autoRefreshTime', seconds);
   }
 
-  static const List<String> platforms = ['bilibili', 'douyu', 'huya'];
+  static const List<String> platforms = ['bilibili', 'douyu', 'huya','douyin'];
 
   final preferPlatform =
       (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;

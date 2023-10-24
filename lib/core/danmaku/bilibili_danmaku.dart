@@ -1,14 +1,41 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:brotli/brotli.dart';
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/core/common/convert_helper.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/common/models/index.dart';
 
 import '../common/binary_writer.dart';
-import '../common/websocket_utils.dart';
+
+class BiliBiliDanmakuArgs {
+  final int roomId;
+  final String token;
+  final String buvid;
+  final String serverHost;
+  final int uid;
+  BiliBiliDanmakuArgs({
+    required this.roomId,
+    required this.token,
+    required this.serverHost,
+    required this.buvid,
+    required this.uid,
+  });
+  @override
+  String toString() {
+    return json.encode({
+      "roomId": roomId,
+      "token": token,
+      "serverHost": serverHost,
+      "buvid": buvid,
+      "uid": uid,
+    });
+  }
+}
 
 class BiliBiliDanmaku implements LiveDanmaku {
   @override
@@ -24,9 +51,10 @@ class BiliBiliDanmaku implements LiveDanmaku {
   String serverUrl = "wss://broadcastlv.chat.bilibili.com/sub";
 
   WebScoketUtils? webScoketUtils;
-
+  late BiliBiliDanmakuArgs danmakuArgs;
   @override
   Future start(dynamic args) async {
+    danmakuArgs = args as BiliBiliDanmakuArgs;
     webScoketUtils = WebScoketUtils(
       url: serverUrl,
       heartBeatTime: heartbeatTime,
@@ -35,7 +63,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
       },
       onReady: () {
         onReady?.call();
-        joinRoom(args);
+        joinRoom(danmakuArgs);
       },
       onHeartBeat: () {
         heartbeat();
@@ -50,11 +78,16 @@ class BiliBiliDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-  void joinRoom(args) {
+  void joinRoom(BiliBiliDanmakuArgs args) {
     var joinData = encodeData(
       json.encode({
-        "roomid": args,
         "uid": 0,
+        "roomid": args.roomId,
+        "protover": 3,
+        "buvid": args.buvid,
+        "platform": "web",
+        "type": 2,
+        "key": args.token,
       }),
       7,
     );
@@ -127,6 +160,8 @@ class BiliBiliDanmaku implements LiveDanmaku {
       } else if (operation == 5) {
         if (protocolVersion == 2) {
           body = zlib.decode(body);
+        } else if (protocolVersion == 3) {
+          body = brotli.decode(body);
         }
 
         var text = utf8.decode(body, allowMalformed: true);
@@ -139,7 +174,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
         }
       }
     } catch (e) {
-      log("", error: e);
+      CoreLog.error(e);
     }
   }
 
@@ -150,7 +185,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
       if (cmd.contains("DANMU_MSG")) {
         if (obj["info"] != null && obj["info"].length != 0) {
           var message = obj["info"][1].toString();
-          var color = (obj["info"][0][3] as int?) ?? 0;
+          var color = asT<int?>(obj["info"][0][3]) ?? 0;
           if (obj["info"][2] != null && obj["info"][2].length != 0) {
             var username = obj["info"][2][1].toString();
             var liveMsg = LiveMessage(
@@ -193,7 +228,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
         onMessage?.call(liveMsg);
       }
     } catch (e) {
-      log("", error: e);
+      CoreLog.error(e);
     }
   }
 

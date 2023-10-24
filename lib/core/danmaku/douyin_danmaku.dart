@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:pure_live/common/models/index.dart';
-import 'package:pure_live/core/site/douyin_site.dart';
 
-import '../common/websocket_utils.dart';
-import '../interface/live_danmaku.dart';
+
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/core/common/web_socket_util.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
 
 import 'proto/douyin.pb.dart';
 
@@ -47,8 +47,7 @@ class DouyinDanmaku implements LiveDanmaku {
 
   @override
   Future start(dynamic args) async {
-
-  DouyinDanmakuArgs? danmakuArgs = await DouyinSite().getDouyinDanmakuArgs(args.toString());
+    danmakuArgs = args as DouyinDanmakuArgs;
     var ts = DateTime.now().millisecondsSinceEpoch;
     var uri = Uri.parse(serverUrl).replace(scheme: "wss", queryParameters: {
       "app_name": "douyin_web",
@@ -68,7 +67,7 @@ class DouyinDanmaku implements LiveDanmaku {
       "endpoint": "live_pc",
       "support_wrds": "1",
       "im_path": "/webcast/im/fetch/",
-      "user_unique_id": danmakuArgs?.userId,
+      "user_unique_id": danmakuArgs.userId,
       "device_platform": "web",
       "cookie_enabled": "true",
       "screen_width": "1920",
@@ -81,20 +80,19 @@ class DouyinDanmaku implements LiveDanmaku {
       "browser_online": "true",
       "tz_name": "Asia/Shanghai",
       "identity": "audience",
-      "room_id": danmakuArgs?.roomId,
+      "room_id": danmakuArgs.roomId,
       "heartbeatDuration": "0",
       "signature": "00000000"
     });
     var url = uri.toString();
     var backupUrl = url.replaceAll("webcast3-ws-web-lq", "webcast5-ws-web-lf");
-  
     webScoketUtils = WebScoketUtils(
       url: url,
       backupUrl: backupUrl,
       headers: {
         "User-Agnet":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51",
-        "Cookie": danmakuArgs?.cookie,
+        "Cookie": danmakuArgs.cookie,
       },
       heartBeatTime: heartbeatTime,
       onMessage: (e) {
@@ -117,8 +115,6 @@ class DouyinDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-
-  
   @override
   void heartbeat() {
     var obj = PushFrame();

@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/widgets.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 
 import 'package:get/get.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class BaseController extends GetxController {
   /// 加载中，更新页面
@@ -30,14 +30,13 @@ class BaseController extends GetxController {
   /// * [showPageError] 显示页面错误
   /// * 只在第一页加载错误时showPageError=true，后续页加载错误时使用Toast弹出通知
   void handleError(Object exception, {bool showPageError = false}) {
-    log(exception.toString(), stackTrace: StackTrace.current);
     var msg = exceptionToString(exception);
 
     if (showPageError) {
       pageError.value = true;
       errorMsg.value = msg;
     } else {
-      Get.rawSnackbar(message: exceptionToString(msg));
+      SmartDialog.showToast(exceptionToString(msg));
     }
   }
 
@@ -49,9 +48,9 @@ class BaseController extends GetxController {
   void onLogout() {}
 }
 
-class BaseListController<T> extends BaseController {
+class BasePageController<T> extends BaseController {
   final ScrollController scrollController = ScrollController();
-  final RefreshController refreshController = RefreshController();
+  final EasyRefreshController easyRefreshController = EasyRefreshController();
   int currentPage = 1;
   int count = 0;
   int maxPage = 0;
@@ -59,45 +58,13 @@ class BaseListController<T> extends BaseController {
   var canLoadMore = false.obs;
   var list = <T>[].obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    onRefresh();
-  }
-
-  Future onRefresh() async {
+  Future refreshData() async {
     currentPage = 1;
     list.value = [];
-
-    try {
-      pageError.value = false;
-      pageEmpty.value = false;
-      notLogin.value = false;
-      pageLoadding.value = currentPage == 1;
-
-      var result = await getData(currentPage, pageSize);
-      // 是否可以加载更多
-      if (result.isNotEmpty) {
-        currentPage++;
-        canLoadMore.value = true;
-        pageEmpty.value = false;
-        refreshController.refreshCompleted();
-      } else {
-        pageEmpty.value = true;
-        refreshController.refreshFailed();
-      }
-      // 赋值数据
-      list.value = result;
-    } catch (e) {
-      handleError(e, showPageError: currentPage == 1);
-      refreshController.refreshFailed();
-    } finally {
-      loadding = false;
-      pageLoadding.value = false;
-    }
+    await loadData();
   }
 
-  Future onLoading() async {
+  Future loadData() async {
     try {
       if (loadding) return;
       loadding = true;
@@ -107,24 +74,25 @@ class BaseListController<T> extends BaseController {
       pageLoadding.value = currentPage == 1;
 
       var result = await getData(currentPage, pageSize);
-      // 是否可以加载更多
+      //是否可以加载更多
       if (result.isNotEmpty) {
         currentPage++;
         canLoadMore.value = true;
         pageEmpty.value = false;
-        refreshController.loadComplete();
       } else {
         canLoadMore.value = false;
-        pageEmpty.value = currentPage == 1;
-        refreshController.loadNoData();
+        if (currentPage == 1) {
+          pageEmpty.value = true;
+        }
       }
       // 赋值数据
-      for (var room in result) {
-        list.addIf(!list.contains(room), room);
+      if (currentPage == 1) {
+        list.value = result;
+      } else {
+        list.addAll(result);
       }
     } catch (e) {
       handleError(e, showPageError: currentPage == 1);
-      refreshController.loadFailed();
     } finally {
       loadding = false;
       pageLoadding.value = false;
@@ -143,7 +111,7 @@ class BaseListController<T> extends BaseController {
         curve: Curves.linear,
       );
     } else {
-      refreshController.requestRefresh();
+      easyRefreshController.callRefresh();
     }
   }
 }

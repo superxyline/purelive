@@ -151,6 +151,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                         ),
                       ),
                     ),
+                    DanmakuViewer(controller: controller),
                     GestureDetector(
                         onTap: () {
                           if (controller.showSettting.value) {
@@ -267,7 +268,7 @@ class TopActionBar extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
-                  controller.room.title,
+                  controller.room.title!,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                       color: Colors.white,

@@ -2,16 +2,34 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:typed_data';
 
-import 'package:pure_live/common/models/live_message.dart';
 import 'package:dart_tars_protocol/tars_input_stream.dart';
 import 'package:dart_tars_protocol/tars_output_stream.dart';
 import 'package:dart_tars_protocol/tars_struct.dart';
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/common/web_socket_util.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
 
-import '../common/websocket_utils.dart';
-import '../interface/live_danmaku.dart';
+class HuyaDanmakuArgs {
+  final int ayyuid;
+  final int topSid;
+  final int subSid;
+  HuyaDanmakuArgs({
+    required this.ayyuid,
+    required this.topSid,
+    required this.subSid,
+  });
+  @override
+  String toString() {
+    return json.encode({
+      "ayyuid": ayyuid,
+      "topSid": topSid,
+      "subSid": subSid,
+    });
+  }
+}
 
 class HuyaDanmaku implements LiveDanmaku {
   @override
@@ -29,8 +47,11 @@ class HuyaDanmaku implements LiveDanmaku {
 
   final heartbeatData = base64.decode("ABQdAAwsNgBM");
 
+  late HuyaDanmakuArgs danmakuArgs;
+
   @override
   Future start(dynamic args) async {
+    danmakuArgs = args as HuyaDanmakuArgs;
     webScoketUtils = WebScoketUtils(
       url: serverUrl,
       heartBeatTime: heartbeatTime,
@@ -39,7 +60,7 @@ class HuyaDanmaku implements LiveDanmaku {
       },
       onReady: () {
         onReady?.call();
-        joinRoom(args);
+        joinRoom();
       },
       onHeartBeat: () {
         heartbeat();
@@ -54,20 +75,21 @@ class HuyaDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-  void joinRoom(roomId) {
-    var joinData = getJoinData(roomId);
+  void joinRoom() {
+    var joinData =
+        getJoinData(danmakuArgs.ayyuid, danmakuArgs.topSid, danmakuArgs.topSid);
     webScoketUtils?.sendMessage(joinData);
   }
 
-  List<int> getJoinData(int uid) {
+  List<int> getJoinData(int ayyuid, int tid, int sid) {
     try {
       var oos = TarsOutputStream();
-      oos.write(uid, 0);
+      oos.write(ayyuid, 0);
       oos.write(true, 1);
       oos.write("", 2);
       oos.write("", 3);
-      oos.write(uid, 4);
-      oos.write(uid, 5);
+      oos.write(tid, 4);
+      oos.write(sid, 5);
       oos.write(0, 6);
       oos.write(0, 7);
 
@@ -76,7 +98,7 @@ class HuyaDanmaku implements LiveDanmaku {
       wscmd.write(oos.toUint8List(), 1);
       return wscmd.toUint8List();
     } catch (e) {
-      log("", error: e);
+      CoreLog.error(e);
       return [];
     }
   }
@@ -136,7 +158,7 @@ class HuyaDanmaku implements LiveDanmaku {
         }
       }
     } catch (e) {
-      log("", error: e);
+      CoreLog.error(e);
     }
   }
 }

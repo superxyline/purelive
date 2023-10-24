@@ -1,16 +1,22 @@
-import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/model/live_play_quality.dart';
 
 import 'widgets/video_player/video_controller.dart';
 
 class LivePlayController extends StateController {
-  late LiveRoom room = LiveRoom.fromJson(jsonDecode(PrefUtil.getString('currentLiveRoom') ?? ''));
-  late Site site;
-  late LiveDanmaku liveDanmaku;
+  LivePlayController({
+    required this.room,
+    required this.site,
+  });
+  final String site;
+
+  late final Site currentSite = Sites.of(site);
+  late final LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
 
   final settings = Get.find<SettingsService>();
 
@@ -20,11 +26,23 @@ class LivePlayController extends StateController {
   VideoController? videoController;
   final playerKey = GlobalKey();
   final danmakuViewKey = GlobalKey();
-
+  final LiveRoom room;
+  Rx<LiveRoom?> detail = Rx<LiveRoom?>(null);
   final success = false.obs;
+  var liveStatus = false.obs;
   Map<String, List<String>> liveStream = {};
-  String selectedResolution = '';
-  String selectedStreamUrl = '';
+
+  /// 清晰度数据
+  RxList<LivePlayQuality> qualites = RxList<LivePlayQuality>();
+
+  /// 当前清晰度
+  final currentQuality = 0.obs;
+
+  /// 线路数据
+  RxList<String> playUrls = RxList<String>();
+
+  /// 当前线路
+  final currentLineIndex = 0.obs;
 
   @override
   void onClose() {
@@ -37,78 +55,146 @@ class LivePlayController extends StateController {
   void onInit() {
     super.onInit();
     try {
-      room = LiveRoom.fromJson(jsonDecode(PrefUtil.getString('currentLiveRoom') ?? ''));
-      site = Sites.of(room.platform);
-      liveDanmaku = site.liveSite.getDanmaku();
-      site.liveSite.getLiveStream(room).then((value) {
-        liveStream = value;
-        setPreferResolution();
-        videoController = VideoController(
-          playerKey: playerKey,
-          room: room,
-          datasourceType: 'network',
-          datasource: selectedStreamUrl,
-          allowBackgroundPlay: settings.enableBackgroundPlay.value,
-          allowScreenKeepOn: settings.enableScreenKeepOn.value,
-          fullScreenByDefault: settings.enableFullScreenDefault.value,
-          autoPlay: true,
-        );
-        success.value = true;
+      currentSite.liveSite.getRoomDetail(roomId: room.roomId!).then((value) {
+        detail.value = value;
+        liveStatus.value = detail.value!.status! || detail.value!.isRecord!;
+        if (liveStatus.value) {
+          getPlayQualites();
+        }
+
         // start danmaku server
-        liveDanmaku.start(int.parse(
-          room.userId.isEmpty ? room.roomId : room.userId,
-        ));
-        liveDanmaku.onMessage = (msg) {
-          if (msg.type == LiveMessageType.chat) {
-            messages.add(msg);
-            videoController?.sendDanmaku(msg);
-          }
-        };
-      }).then((value) => settings.addRoomToHistory(room));
+        initDanmau();
+        liveDanmaku.start(detail.value?.danmakuData);
+      }).then((value) => settings.addRoomToHistory(detail.value!));
     } catch (e) {
       log(e.toString(), name: 'LivePlayError');
     }
   }
 
-  void setResolution(String name, String url) {
-    selectedResolution = name;
-    selectedStreamUrl = url;
-    videoController?.setDataSource(selectedStreamUrl);
+  /// 初始化弹幕接收事件
+  void initDanmau() {
+    if (detail.value!.isRecord!) {
+      messages.add(
+        LiveMessage(
+          type: LiveMessageType.chat,
+          userName: "系统消息",
+          message: "当前主播未开播，正在轮播录像",
+          color: LiveMessageColor.white,
+        ),
+      );
+    }
+    messages.add(
+      LiveMessage(
+        type: LiveMessageType.chat,
+        userName: "系统消息",
+        message: "开始连接弹幕服务器",
+        color: LiveMessageColor.white,
+      ),
+    );
+    liveDanmaku.onMessage = (msg) {
+      if (msg.type == LiveMessageType.chat) {
+        messages.add(msg);
+        videoController?.sendDanmaku(msg);
+      }
+    };
+    liveDanmaku.onClose = (msg) {
+      messages.add(
+        LiveMessage(
+          type: LiveMessageType.chat,
+          userName: "系统消息",
+          message: msg,
+          color: LiveMessageColor.white,
+        ),
+      );
+    };
+    liveDanmaku.onReady = () {
+      messages.add(
+        LiveMessage(
+          type: LiveMessageType.chat,
+          userName: "系统消息",
+          message: "弹幕服务器连接正常",
+          color: LiveMessageColor.white,
+        ),
+      );
+    };
+  }
+
+  void setResolution(String quality, String index) {
+    currentQuality.value =
+        qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
+    currentLineIndex.value = int.tryParse(index) ?? 0;
+    videoController?.setDataSource(playUrls[currentLineIndex.value]);
     update();
   }
 
-  void setPreferResolution() {
-    if (liveStream.isEmpty || liveStream.values.first.isEmpty) return;
+  /// 初始化播放器
+  void getPlayQualites() async {
+    qualites.value = [];
+    currentQuality.value = 0;
+    try {
+      var playQualites =
+          await currentSite.liveSite.getPlayQualites(detail: detail.value!);
 
-    for (var key in liveStream.keys) {
-      if (settings.preferResolution.contains(key)) {
-        selectedResolution = key;
-        selectedStreamUrl = liveStream[key]!.first;
+      if (playQualites.isEmpty) {
+        SmartDialog.showToast("无法读取播放清晰度");
         return;
       }
-    }
-    // 原画选择缺陷
-    if (settings.preferResolution.value == '原画') {
-      for (var key in liveStream.keys) {
-        if (key.contains('原画')) {
-          selectedResolution = key;
-          selectedStreamUrl = liveStream[key]!.first;
-          return;
-        }
+      qualites.value = playQualites;
+      int qualityLevel =
+          settings.resolutionsList.indexOf(settings.preferResolution.value);
+      if (qualityLevel == 0) {
+        //最高
+        currentQuality.value = 0;
+      } else if (qualityLevel == settings.resolutionsList.length - 1) {
+        //最低
+        currentQuality.value = playQualites.length - 1;
+      } else {
+        //中间值
+        int middle = (playQualites.length / 2).floor();
+        currentQuality.value = middle;
       }
+
+      getPlayUrl();
+    } catch (e) {
+      SmartDialog.showToast("无法读取播放清晰度");
     }
-    // 蓝光8M/4M选择缺陷
-    if (settings.preferResolution.contains('蓝光')) {
-      for (var key in liveStream.keys) {
-        if (key.contains('蓝光')) {
-          selectedResolution = key;
-          selectedStreamUrl = liveStream[key]!.first;
-          return;
-        }
-      }
+  }
+
+  void getPlayUrl() async {
+    playUrls.value = [];
+    currentLineIndex.value = 0;
+    var playUrl = await currentSite.liveSite.getPlayUrls(
+        detail: detail.value!, quality: qualites[currentQuality.value]);
+    if (playUrl.isEmpty) {
+      SmartDialog.showToast("无法读取播放地址");
+      return;
     }
-    // 偏好选择失败，选择最低清晰度
-    selectedResolution = liveStream.keys.last;
-    selectedStreamUrl = liveStream.values.last.first;
+    playUrls.value = playUrl;
+    currentLineIndex.value = 0;
+
+    setPlayer();
+  }
+
+  void setPlayer() async {
+    Map<String, String> headers = {};
+    if (currentSite.id == 'bilibili') {
+      headers = {
+        "referer": "https://live.bilibili.com",
+        "user-agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188"
+      };
+    }
+    videoController = VideoController(
+      playerKey: playerKey,
+      room: detail.value!,
+      datasourceType: 'network',
+      datasource: playUrls[currentLineIndex.value],
+      allowBackgroundPlay: settings.enableBackgroundPlay.value,
+      allowScreenKeepOn: settings.enableScreenKeepOn.value,
+      fullScreenByDefault: settings.enableFullScreenDefault.value,
+      autoPlay: true,
+      headers: headers,
+    );
+    success.value = true;
   }
 }

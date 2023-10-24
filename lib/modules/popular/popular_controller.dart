@@ -30,8 +30,8 @@ class PopularController extends GetxController
       var controller =
           Get.find<PopularGridController>(tag: Sites.supportSites[index].id);
 
-      if (controller.list.isEmpty && !controller.pageEmpty.value) {
-        controller.onRefresh();
+      if (controller.list.isEmpty) {
+        controller.loadData();
       }
     });
   }
@@ -39,10 +39,10 @@ class PopularController extends GetxController
   @override
   void onInit() {
     for (var site in Sites.supportSites) {
-      Get.put(
-        PopularGridController(site),
-        tag: site.id,
-      );
+      var controller = Get.put(PopularGridController(site), tag: site.id);
+      if (controller.list.isEmpty) {
+        controller.loadData();
+      }
     }
     super.onInit();
   }

@@ -1,8 +1,6 @@
-
-
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:pure_live/common/index.dart';
 
 import 'favorite_controller.dart';
@@ -48,15 +46,16 @@ class FavoritePage extends GetView<FavoriteController> {
 class _RoomOnlineGridView extends GetView<FavoriteController> {
   _RoomOnlineGridView({Key? key}) : super(key: key);
 
-  final refreshController = RefreshController();
+  final refreshController = EasyRefreshController();
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
   Future onRefresh() async {
     bool result = await controller.onRefresh();
     if (result) {
-      refreshController.refreshCompleted();
+      refreshController.finishRefresh(IndicatorResult.success);
+      refreshController.resetFooter();
     } else {
-      refreshController.refreshFailed();
+      refreshController.finishLoad(IndicatorResult.fail);
     }
   }
 
@@ -70,12 +69,10 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
         crossAxisCount =
             width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
       }
-      return Obx(() => SmartRefresher(
-            enablePullDown: true,
-            physics: const BouncingScrollPhysics(),
-            header: const WaterDropHeader(),
+      return Obx(() => EasyRefresh(
             controller: refreshController,
             onRefresh: onRefresh,
+            onLoad: onRefresh,
             child: controller.onlineRooms.isNotEmpty
                 ? MasonryGridView.count(
                     padding: const EdgeInsets.all(5),
@@ -84,8 +81,8 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
                     itemCount: controller.onlineRooms.length,
                     itemBuilder: (context, index) => RoomCard(
                       room: controller.onlineRooms[index],
-                      dense: dense,
-                    ) ,
+                      dense: dense
+                    ),
                   )
                 : EmptyView(
                     icon: Icons.favorite_rounded,
@@ -100,15 +97,16 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
 class _RoomOfflineGridView extends GetView<FavoriteController> {
   _RoomOfflineGridView({Key? key}) : super(key: key);
 
-  final refreshController = RefreshController();
+  final refreshController = EasyRefreshController();
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
   Future onRefresh() async {
     bool result = await controller.onRefresh();
     if (result) {
-      refreshController.refreshCompleted();
+      refreshController.finishRefresh(IndicatorResult.success);
+      refreshController.resetFooter();
     } else {
-      refreshController.refreshFailed();
+      refreshController.finishLoad(IndicatorResult.fail);
     }
   }
 
@@ -123,12 +121,10 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
             width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
       }
 
-      return Obx(() => SmartRefresher(
-            enablePullDown: true,
-            physics: const BouncingScrollPhysics(),
-            header: const WaterDropHeader(),
+      return Obx(() => EasyRefresh(
             controller: refreshController,
             onRefresh: onRefresh,
+            onLoad: onRefresh,
             child: controller.offlineRooms.isNotEmpty
                 ? MasonryGridView.count(
                     padding: const EdgeInsets.all(5),

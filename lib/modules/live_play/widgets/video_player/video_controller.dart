@@ -26,6 +26,7 @@ class VideoController with ChangeNotifier {
   final bool allowFullScreen;
   final bool fullScreenByDefault;
   final bool autoPlay;
+  final dynamic headers;
   final isVertical = false.obs;
   final videoFit = BoxFit.contain.obs;
   ScreenBrightness brightnessController = ScreenBrightness();
@@ -94,6 +95,7 @@ class VideoController with ChangeNotifier {
     this.allowFullScreen = true,
     this.fullScreenByDefault = false,
     this.autoPlay = true,
+    this.headers,
     BoxFit fitMode = BoxFit.contain,
   }) {
     videoFit.value = fitMode;
@@ -275,13 +277,14 @@ class VideoController with ChangeNotifier {
     }
     if (Platform.isWindows || Platform.isLinux) {
       player.pause();
-      player.open(Media(datasource));
+      player.open(Media(datasource, httpHeaders: headers));
       mediaPlayerController.player.open(Media(datasource));
     } else {
       mobileController?.setupDataSource(BetterPlayerDataSource(
         BetterPlayerDataSourceType.network,
         url,
         liveStream: true,
+        headers:headers,
         notificationConfiguration: allowBackgroundPlay
             ? BetterPlayerNotificationConfiguration(
                 showNotification: true,

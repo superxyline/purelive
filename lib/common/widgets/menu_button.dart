@@ -1,18 +1,17 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
-
-import '../../routes/app_pages.dart';
+import 'package:pure_live/routes/route_path.dart';
 
 class MenuButton extends GetView<AuthController> {
   const MenuButton({Key? key}) : super(key: key);
 
   final menuRoutes = const [
-    AppPages.settings,
-    AppPages.about,
-    AppPages.contact,
-    AppPages.history,
-    AppPages.signIn
+    RoutePath.kSettings,
+    RoutePath.kAbout,
+    RoutePath.kContact,
+    RoutePath.kHistory,
+    RoutePath.kSignIn
   ];
 
   @override
@@ -28,9 +27,9 @@ class MenuButton extends GetView<AuthController> {
       onSelected: (int index) {
         if (index == 4) {
           if (controller.isLogin) {
-            Get.toNamed(AppPages.mine);
+            Get.toNamed(RoutePath.kMine);
           } else {
-            Get.toNamed(AppPages.signIn);
+            Get.toNamed(RoutePath.kSignIn);
           }
         } else {
           Get.toNamed(menuRoutes[index]);

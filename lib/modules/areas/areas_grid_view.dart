@@ -1,14 +1,13 @@
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:pure_live/modules/areas/widgets/area_card.dart';
 
 class AreaGridView extends StatefulWidget {
-  const AreaGridView({Key? key, required this.labels, required this.areas})
-      : super(key: key);
-
-  final List<String> labels;
-  final List<List<LiveArea>> areas;
-
+  final String tag;
+  const AreaGridView(this.tag, {Key? key}) : super(key: key);
+  AreasListController get controller => Get.find<AreasListController>(tag: tag);
   @override
   State<AreaGridView> createState() => _AreaGridViewState();
 }
@@ -16,7 +15,7 @@ class AreaGridView extends StatefulWidget {
 class _AreaGridViewState extends State<AreaGridView>
     with SingleTickerProviderStateMixin {
   late TabController tabController =
-      TabController(length: widget.labels.length, vsync: this);
+      TabController(length: widget.controller.list.length, vsync: this);
 
   @override
   Widget build(BuildContext context) {
@@ -26,31 +25,34 @@ class _AreaGridViewState extends State<AreaGridView>
           controller: tabController,
           isScrollable: true,
           indicatorSize: TabBarIndicatorSize.label,
-          tabs: widget.labels.map<Widget>((e) => Tab(text: e)).toList(),
+          tabs: widget.controller.list
+              .map<Widget>((e) => Tab(text: e.name))
+              .toList(),
         ),
         Expanded(
           child: TabBarView(
             controller: tabController,
-            children:
-                widget.areas.map<Widget>((e) => buildAreasView(e)).toList(),
+            children: widget.controller.list
+                .map<Widget>((e) => buildAreasView(e))
+                .toList(),
           ),
         ),
       ],
     );
   }
 
-  Widget buildAreasView(List<LiveArea> area) {
+  Widget buildAreasView(AppLiveCategory  category) {
     return LayoutBuilder(builder: (context, constraint) {
       final width = constraint.maxWidth;
       final crossAxisCount =
           width > 1280 ? 9 : (width > 960 ? 7 : (width > 640 ? 5 : 3));
-      return widget.areas.isNotEmpty
+      return widget.controller.list.isNotEmpty
           ? MasonryGridView.count(
               padding: const EdgeInsets.all(5),
               controller: ScrollController(),
               crossAxisCount: crossAxisCount,
-              itemCount: area.length,
-              itemBuilder: (context, index) => AreaCard(area: area[index]),
+              itemCount: category.children.length,
+              itemBuilder: (context, index) => AreaCard(category: category.children[index]),
             )
           : EmptyView(
               icon: Icons.area_chart_outlined,

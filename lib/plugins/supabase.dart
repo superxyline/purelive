@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
 import 'package:pure_live/modules/favorite/favorite_controller.dart';
-import 'package:pure_live/routes/app_pages.dart';
+import 'package:pure_live/routes/route_path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupaBaseManager {
@@ -34,7 +34,7 @@ class SupaBaseManager {
     final SettingsService service = Get.find<SettingsService>();
     client.auth.signOut().then((value) {
       service.fromJson(service.defaultConfig());
-      Get.offAllNamed(AppPages.initial);
+      Get.offAllNamed(RoutePath.kInitial);
     });
   }
 

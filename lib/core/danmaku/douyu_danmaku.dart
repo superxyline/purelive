@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:typed_data';
 
-import 'package:pure_live/common/models/index.dart';
+
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/common/web_socket_util.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
 
 import '../common/binary_writer.dart';
-import '../common/websocket_utils.dart';
-import '../interface/live_danmaku.dart';
 
 class DouyuDanmaku implements LiveDanmaku {
   @override
@@ -91,7 +92,7 @@ class DouyuDanmaku implements LiveDanmaku {
         onMessage?.call(liveMsg);
       }
     } catch (e) {
-      log("", error: e);
+      CoreLog.error(e);
     }
   }
 
@@ -113,7 +114,7 @@ class DouyuDanmaku implements LiveDanmaku {
       writer.writeInt(0, 1, endian: Endian.little);
       return writer.buffer;
     } catch (e) {
-      log("", error: e);
+      CoreLog.error(e);
       return [];
     }
   }
@@ -134,7 +135,7 @@ class DouyuDanmaku implements LiveDanmaku {
       reader.readByte(endian: Endian.little); //固定为0
       return utf8.decode(bytes);
     } catch (e) {
-      log("", error: e);
+      CoreLog.error(e);
       return null;
     }
   }

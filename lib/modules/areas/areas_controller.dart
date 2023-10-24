@@ -1,32 +1,48 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/areas/areas_list_controller.dart';
 
 class AreasController extends GetxController
     with GetSingleTickerProviderStateMixin {
   late TabController tabController;
-
+  int index = 0;
   AreasController() {
     final preferPlatform = Get.find<SettingsService>().preferPlatform.value;
-    final index = Sites.supportSites.indexWhere((e) => e.id == preferPlatform);
+    final pIndex = Sites.supportSites.indexWhere((e) => e.id == preferPlatform);
     tabController = TabController(
-      initialIndex: index == -1 ? 0 : index,
+      initialIndex: pIndex == -1 ? 0 : pIndex,
       length: Sites.supportSites.length,
       vsync: this,
     );
-  }
+    index = pIndex == -1 ? 0 : pIndex;
+    print(index);
+    print('index');
+    tabController.animation?.addListener(() {
+      var currentIndex = (tabController.animation?.value ?? 0).round();
+      if (index == currentIndex) {
+        return;
+      }
+      index = currentIndex;
+      var controller =
+          Get.find<AreasListController>(tag: Sites.supportSites[index].id);
 
-  Map<String, Map> data = {};
+      if (controller.list.isEmpty) {
+        controller.loadData();
+      }
+    });
+  }
 
   @override
   void onInit() async {
     for (var site in Sites.supportSites) {
-      var areas = await site.liveSite.getAreaList();
-      var lables = areas.map<String>((e) => e.first.typeName).toList();
-      data[site.id] = {
-        'labels': lables,
-        'areas': areas,
-      };
+      Get.put(AreasListController(site), tag: site.id);
+      var controller =
+          Get.find<AreasListController>(tag: site.id);
+      if (controller.list.isEmpty) {
+        controller.loadData();
+      }
     }
+
     super.onInit();
   }
 }

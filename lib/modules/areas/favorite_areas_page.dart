@@ -20,8 +20,7 @@ class FavoriteAreasPage extends GetView<SettingsService> {
                   padding: const EdgeInsets.all(5),
                   crossAxisCount: crossAxisCount,
                   itemCount: controller.favoriteAreas.length,
-                  itemBuilder: (context, index) =>
-                      AreaCard(area: controller.favoriteAreas[index]))
+                  itemBuilder: (context, index) => AreaCard(category: controller.favoriteAreas[index]))
               : EmptyView(
                   icon: Icons.area_chart_outlined,
                   title: S.of(context).empty_areas_title,

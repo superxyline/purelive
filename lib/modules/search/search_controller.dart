@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -27,15 +25,11 @@ class SearchController extends GetxController
       var controller =
           Get.find<SearchListController>(tag: Sites.supportSites[index].id);
 
-      if (controller.list.isEmpty &&
-          !controller.pageEmpty.value &&
-          controller.keyword.isNotEmpty) {
-        controller.onRefresh();
+      if (controller.list.isEmpty && !controller.pageEmpty.value) {
+        controller.scrollToTopOrRefresh();
       }
     });
   }
-
-  StreamSubscription<dynamic>? streamSubscription;
 
   TextEditingController searchController = TextEditingController();
 
@@ -62,12 +56,6 @@ class SearchController extends GetxController
     }
     var controller =
         Get.find<SearchListController>(tag: Sites.supportSites[index].id);
-    controller.onRefresh();
-  }
-
-  @override
-  void onClose() {
-    streamSubscription?.cancel();
-    super.onClose();
+    controller.loadData();
   }
 }

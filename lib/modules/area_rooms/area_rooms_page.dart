@@ -1,10 +1,8 @@
-import 'dart:math';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:easy_refresh/easy_refresh.dart';
+import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
 
 class AreasRoomPage extends StatefulWidget {
@@ -20,56 +18,41 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
   @override
   void initState() {
     super.initState();
-    controller.list.listen((p0) {
-      setState(() {});
-    });
+    controller.loadData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(controller.area.areaName)),
-      body: LayoutBuilder(builder: (context, constraint) {
-        final width = constraint.maxWidth;
-        final crossAxisCount =
-            width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-        return Listener(
-          onPointerSignal: (event) {
-            if (event is PointerScrollEvent &&
-                event.scrollDelta.direction >= 0 &&
-                event.scrollDelta.direction <= pi) {
-              final pos = controller.scrollController.position;
-              if (pos.maxScrollExtent - pos.pixels < 40) {
-                controller.onLoading();
-              }
-            }
-          },
-          child: SmartRefresher(
-            enablePullDown: true,
-            enablePullUp: true,
-            header: const WaterDropHeader(),
-            footer: const ClassicFooter(),
-            controller: controller.refreshController,
-            onRefresh: controller.onRefresh,
-            onLoading: controller.onLoading,
-            child: controller.list.isNotEmpty
-                ? MasonryGridView.count(
-                    padding: const EdgeInsets.all(5),
-                    controller: controller.scrollController,
-                    crossAxisCount: crossAxisCount,
-                    itemCount: controller.list.length,
-                    itemBuilder: (context, index) =>
-                        RoomCard(room: controller.list[index], dense: true),
-                  )
-                : EmptyView(
-                    icon: Icons.live_tv_rounded,
-                    title: S.of(context).empty_areas_room_title,
-                    subtitle: S.of(context).empty_areas_room_subtitle,
-                  ),
-          ),
-        );
-      }),
-      floatingActionButton: FavoriteAreaFloatingButton(area: controller.area),
+    return KeepAliveWrapper(
+      child: Scaffold(
+        appBar: AppBar(title: Text(controller.site.name)),
+        body: LayoutBuilder(builder: (context, constraint) {
+          final width = constraint.maxWidth;
+          final crossAxisCount =
+              width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+          return Obx(() => EasyRefresh(
+                controller: controller.easyRefreshController,
+                onRefresh: controller.refreshData,
+                onLoad: controller.loadData,
+                child: controller.list.isNotEmpty
+                    ? MasonryGridView.count(
+                        padding: const EdgeInsets.all(5),
+                        controller: controller.scrollController,
+                        crossAxisCount: crossAxisCount,
+                        itemCount: controller.list.length,
+                        itemBuilder: (context, index) =>
+                            RoomCard(room: controller.list[index], dense: true),
+                      )
+                    : EmptyView(
+                        icon: Icons.live_tv_rounded,
+                        title: S.of(context).empty_areas_room_title,
+                        subtitle: S.of(context).empty_areas_room_subtitle,
+                      ),
+              ));
+        }),
+        floatingActionButton:
+            FavoriteAreaFloatingButton(area: controller.subCategory),
+      ),
     );
   }
 }
@@ -105,7 +88,7 @@ class _FavoriteAreaFloatingButtonState
                 AlertDialog(
                   title: Text(S.of(context).unfollow),
                   content: Text(
-                      S.of(context).unfollow_message(widget.area.areaName)),
+                      S.of(context).unfollow_message(widget.area.areaName!)),
                   actions: [
                     TextButton(
                       onPressed: () => Get.back(result: false),
@@ -127,7 +110,7 @@ class _FavoriteAreaFloatingButtonState
             child: CircleAvatar(
               foregroundImage: (widget.area.areaPic == '')
                   ? null
-                  : NetworkImage(widget.area.areaPic),
+                  : NetworkImage(widget.area.areaPic!),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -142,7 +125,7 @@ class _FavoriteAreaFloatingButtonState
             icon: CircleAvatar(
               foregroundImage: (widget.area.areaPic == '')
                   ? null
-                  : NetworkImage(widget.area.areaPic),
+                  : NetworkImage(widget.area.areaPic!),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -154,7 +137,7 @@ class _FavoriteAreaFloatingButtonState
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(
-                  widget.area.areaName,
+                  widget.area.areaName!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

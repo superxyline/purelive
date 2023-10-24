@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,15 +7,14 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
-import 'package:pure_live/routes/app_pages.dart';
+import 'package:pure_live/routes/app_navigation.dart';
 
 class SearchListView extends StatelessWidget {
   final String tag;
 
   const SearchListView(this.tag, {Key? key}) : super(key: key);
 
-  SearchListController get controller =>
-      Get.find<SearchListController>(tag: tag);
+  SearchListController get controller => Get.find<SearchListController>(tag: tag);
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +55,7 @@ class _OwnerCardState extends State<OwnerCard> {
   SettingsService settings = Get.find<SettingsService>();
 
   void _onTap(BuildContext context) async {
-     PrefUtil.setString('currentLiveRoom', jsonEncode(widget.room.toJson()));
-    AppPages.toLivePlay();
+    AppNavigator.toLiveRoomDetail(liveRoom: widget.room);
   }
 
   late bool isFavorite = settings.isFavorite(widget.room);
@@ -77,14 +75,14 @@ class _OwnerCardState extends State<OwnerCard> {
       child: ListTile(
         onTap: () => _onTap(context),
         leading: CircleAvatar(
-          foregroundImage: widget.room.avatar.isNotEmpty
+          foregroundImage: widget.room.avatar!.isNotEmpty
               ? getRoomAvatar(widget.room.avatar)
               : null,
           radius: 20,
           backgroundColor: Theme.of(context).disabledColor,
         ),
         title: Text(
-          widget.room.nick,
+          widget.room.nick!,
           maxLines: 1,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),

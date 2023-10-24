@@ -1,22 +1,57 @@
 enum LiveStatus { live, offline, replay, unknown }
 
-enum Platforms { huya, bilibili, douyu,douyin,unknown }
+enum Platforms { huya, bilibili, douyu, douyin, unknown }
 
 class LiveRoom {
-  String roomId;
-  String userId = '';
-  String link = '';
-  String title = '';
-  String nick = '';
-  String avatar = '';
-  String cover = '';
-  String area = '';
-  String watching = '';
-  String followers = '';
-  String platform = 'UNKNOWN';
-  LiveStatus liveStatus = LiveStatus.unknown;
+  String? roomId;
+  String? userId = '';
+  String? link = '';
+  String? title = '';
+  String? nick = '';
+  String? avatar = '';
+  String? cover = '';
+  String? area = '';
+  String? watching = '';
+  String? followers = '';
+  String? platform = 'UNKNOWN';
+/// 介绍
+   String? introduction;
+  /// 公告
+  String? notice;
 
-  LiveRoom(this.roomId);
+  /// 状态
+  bool? status;
+
+  /// 附加信息
+  dynamic data;
+
+  /// 弹幕附加信息
+  dynamic danmakuData;
+
+  /// 是否录播
+  bool? isRecord = false;
+  LiveStatus? liveStatus = LiveStatus.unknown;
+
+  LiveRoom({
+    this.roomId,
+    this.userId,
+    this.link,
+    this.title = '',
+    this.nick = '',
+    this.avatar = '',
+    this.cover = '',
+    this.area,
+    this.watching = '0', 
+    this.followers = '0',
+    this.platform,
+    this.liveStatus,
+    this.data,
+    this.danmakuData,
+    this.isRecord = false,
+    this.status = false,
+    this.notice,
+    this.introduction
+  });
 
   LiveRoom.fromJson(Map<String, dynamic> json)
       : roomId = json['roomId'] ?? '',
@@ -30,7 +65,11 @@ class LiveRoom {
         watching = json['watching'] ?? '',
         followers = json['followers'] ?? '',
         platform = json['platform'] ?? '',
-        liveStatus = LiveStatus.values[json['liveStatus']];
+        liveStatus = LiveStatus.values[json['liveStatus']],
+        status = json['status'] ?? false,
+        notice = json['notice'] ?? '',
+        introduction = json['introduction'] ?? '',
+        isRecord = json['isRecord'] ?? false;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'roomId': roomId,
@@ -43,7 +82,11 @@ class LiveRoom {
         'watching': watching,
         'followers': followers,
         'platform': platform,
-        'liveStatus': liveStatus.index
+        'liveStatus': liveStatus?.index,
+        'isRecord': isRecord,
+        'status':status,
+        'notice': notice,
+        'introduction': introduction
       };
 
   @override
@@ -51,5 +94,5 @@ class LiveRoom {
       platform == other.platform && roomId == other.roomId;
 
   @override
-  int get hashCode => int.parse(roomId);
+  int get hashCode => int.parse(roomId!);
 }

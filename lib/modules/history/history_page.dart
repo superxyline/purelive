@@ -1,12 +1,12 @@
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:pure_live/common/index.dart';
 
 class HistoryPage extends GetView {
   HistoryPage({Key? key}) : super(key: key);
 
-  final refreshController = RefreshController();
+  final refreshController = EasyRefreshController();
 
   Future onRefresh() async {
     bool result = true;
@@ -14,7 +14,9 @@ class HistoryPage extends GetView {
 
     for (final room in settings.historyRooms) {
       try {
-        var newRoom = await Sites.of(room.platform).liveSite.getRoomInfo(room);
+        var newRoom = await Sites.of(room.platform!)
+            .liveSite
+            .getRoomDetail(roomId: room.roomId!);
         settings.updateRoomInHistory(newRoom);
       } catch (e) {
         result = false;
@@ -22,9 +24,10 @@ class HistoryPage extends GetView {
     }
 
     if (result) {
-      refreshController.refreshCompleted();
+      refreshController.finishRefresh(IndicatorResult.success);
+      refreshController.resetFooter();
     } else {
-      refreshController.refreshFailed();
+      refreshController.finishLoad(IndicatorResult.fail);
     }
   }
 
@@ -48,12 +51,10 @@ class HistoryPage extends GetView {
             crossAxisCount =
                 width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
           }
-          return SmartRefresher(
-            enablePullDown: true,
-            physics: const BouncingScrollPhysics(),
-            header: const WaterDropHeader(),
+          return EasyRefresh(
             controller: refreshController,
             onRefresh: onRefresh,
+            onLoad: onRefresh,
             child: rooms.isEmpty
                 ? EmptyView(
                     icon: Icons.history_rounded,
@@ -66,7 +67,7 @@ class HistoryPage extends GetView {
                     crossAxisCount: crossAxisCount,
                     itemCount: rooms.length,
                     itemBuilder: (context, index) =>
-                        RoomCard(room: rooms[index], dense: dense),
+                        RoomCard(room: rooms[index], dense: dense,),
                   ),
           );
         });

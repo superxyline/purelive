@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/areas/areas_controller.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
@@ -14,6 +13,7 @@ import 'package:pure_live/modules/popular/popular_controller.dart';
 import 'package:pure_live/plugins/supabase.dart';
 import 'package:pure_live/plugins/window_util.dart';
 import 'package:pure_live/routes/app_pages.dart';
+import 'package:pure_live/routes/route_path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
@@ -117,12 +117,11 @@ class _MyAppState extends State<MyApp> with WindowListener {
               supportedLocales: S.delegate.supportedLocales,
               localizationsDelegates: const [
                 S.delegate,
-                RefreshLocalizations.delegate,
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              initialRoute: AppPages.initial,
+              initialRoute: RoutePath.kInitial,
               defaultTransition: Transition.native,
               getPages: AppPages.routes,
             );

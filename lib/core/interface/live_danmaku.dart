@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:pure_live/common/models/index.dart';
+import 'package:pure_live/common/models/live_message.dart';
+
 
 class LiveDanmaku {
   Function(LiveMessage msg)? onMessage;

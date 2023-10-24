@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/about/about_page.dart';
 import 'package:pure_live/modules/about/donate_page.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_binding.dart';
@@ -20,100 +19,74 @@ import 'package:pure_live/modules/history/history_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 // auth
 import 'package:pure_live/modules/auth/sign_in_page.dart';
-
+import 'route_path.dart';
 class AppPages {
   AppPages._();
 
-  static const initial = '/home';
-  static const favorite = '/favorite';
-  static const popular = '/popular';
-  static const areas = '/areas';
-
-  static const areaRooms = '/area_rooms';
-  static const livePlay = '/live_play';
-
-  static const search = '/search';
-  static const settings = '/settings';
-  static const contact = '/contact';
-  static const backup = '/backup';
-  static const about = '/about';
-  static const history = '/history';
-  static const donate = '/donate';
-
-  static const signIn = '/sign_in';
-  static const mine = '/mine';
-  static toAreaRooms(LiveArea area) {
-    Get.toNamed(areaRooms, arguments: area);
-  }
-
-  static toLivePlay() {
-    Get.toNamed(livePlay);
-  }
-
   static final routes = [
     GetPage(
-      name: initial,
+      name: RoutePath.kInitial,
       page: HomePage.new,
       participatesInRootNavigator: true,
       preventDuplicates: true,
     ),
     GetPage(
-      name: signIn,
+      name: RoutePath.kSignIn,
       page: SignInPage.new,
     ),
     GetPage(
-      name: mine,
+      name: RoutePath.kMine,
       page: MinePage.new,
     ),
     GetPage(
-      name: favorite,
+      name: RoutePath.kFavorite,
       page: FavoritePage.new,
     ),
     GetPage(
-      name: popular,
+      name: RoutePath.kPopular,
       page: PopularPage.new,
     ),
     GetPage(
-      name: areas,
+      name: RoutePath.kAreas,
       page: AreasPage.new,
     ),
     GetPage(
-      name: settings,
+      name: RoutePath.kSettings,
       page: SettingsPage.new,
       bindings: [SettingsBinding()],
     ),
     GetPage(
-      name: history,
+      name: RoutePath.kHistory,
       page: HistoryPage.new,
     ),
     GetPage(
-      name: search,
+      name: RoutePath.kSearch,
       page: SearchPage.new,
       bindings: [SearchBinding()],
     ),
     GetPage(
-      name: contact,
+      name: RoutePath.kContact,
       page: ContactPage.new,
     ),
     GetPage(
-      name: backup,
+      name: RoutePath.kBackup,
       page: BackupPage.new,
     ),
     GetPage(
-      name: about,
+      name: RoutePath.kAbout,
       page: AboutPage.new,
     ),
     GetPage(
-      name: donate,
+      name: RoutePath.kDonate,
       page: DonatePage.new,
     ),
     GetPage(
-      name: areaRooms,
+      name: RoutePath.kAreaRooms,
       page: AreasRoomPage.new,
       bindings: [AreaRoomsBinding()],
     ),
     GetPage(
-      name: livePlay,
+      name: RoutePath.kLivePlay,
       page: () => LivePlayPage(),
       preventDuplicates: true,
       bindings: [LivePlayBinding()],
