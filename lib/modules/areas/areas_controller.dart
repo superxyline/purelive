@@ -15,8 +15,6 @@ class AreasController extends GetxController
       vsync: this,
     );
     index = pIndex == -1 ? 0 : pIndex;
-    print(index);
-    print('index');
     tabController.animation?.addListener(() {
       var currentIndex = (tabController.animation?.value ?? 0).round();
       if (index == currentIndex) {
