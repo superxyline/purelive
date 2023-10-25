@@ -72,6 +72,11 @@
         <service
             android:name=".BetterPlayerService"
             android:stopWithTask="false" />
+         <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" android:exported="true" >
+            <intent-filter>
+              <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+          </receiver>
     </application>
      <uses-feature android:name="android.software.leanback"
         android:required="false" />

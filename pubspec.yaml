@@ -64,9 +64,7 @@ dependencies:
   media_kit_video: ^1.2.4                        # For video rendering.
   media_kit_libs_video: ^1.0.4                   # Native video dependencies.
   better_player:
-    git: 
-      url: https://github.com/liuchuancong/better_player.git
-      ref: 'master'
+    path: C:/Users/XA-158/projects/flutter/better_player
   bordered_text: ^2.0.0
   screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7 

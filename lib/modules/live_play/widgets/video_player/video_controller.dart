@@ -320,6 +320,7 @@ class VideoController with ChangeNotifier {
   Future<void> exitFullScreen() async {
     if(Platform.isAndroid){
        mobileController?.exitFullScreen();
+       showSettting.value = false;
     }
   }
 
