@@ -218,6 +218,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Danmaku fontsize"),
         "settings_danmaku_opacity":
             MessageLookupByLibrary.simpleMessage("Danmaku opacity"),
+        "settings_danmaku_open":
+            MessageLookupByLibrary.simpleMessage("Danmaku switch"),
         "settings_danmaku_speed":
             MessageLookupByLibrary.simpleMessage("Danmaku speed"),
         "settings_danmaku_title":

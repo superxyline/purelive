@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/settings/danmuset.dart';
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -114,6 +117,10 @@ class SettingsPage extends GetView<SettingsService> {
             subtitle: Text(S.of(context).auto_refresh_time_subtitle),
             trailing: Obx(() => Text('${controller.autoRefreshTime}s')),
             onTap: showAutoRefreshTimeSetDialog,
+          ),
+          ListTile(
+            title: Text(S.of(context).settings_danmaku_title),
+            onTap: showDanmuSetDialog,
           ),
           ListTile(
             title: Text(S.of(context).auto_shutdown_time),
@@ -261,6 +268,35 @@ class SettingsPage extends GetView<SettingsService> {
                     ' ${controller.autoRefreshTime}s'),
               ],
             )),
+      ),
+    );
+  }
+
+  void showDanmuSetDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.of(context).settings_danmaku_title),
+        content: SingleChildScrollView(
+          child: SizedBox(
+            height: 500,
+            width: Platform.isAndroid ?  MediaQuery.of(context).size.width * 0.9 : MediaQuery.of(context).size.width * 0.6,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                VideoFitSetting(
+                  controller: controller,
+                ),
+                DanmakuSetting(
+                  controller: controller,
+                ),
+                 const SizedBox(
+                    height: 20,
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

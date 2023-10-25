@@ -132,6 +132,7 @@
     "videofit_fitheight": "适应高度",
 
     "settings_danmaku_title": "弹幕设置",
+    "settings_danmaku_open": "弹幕开关",
     "settings_danmaku_area": "弹幕区域",
     "settings_danmaku_opacity": "不透明度",
     "settings_danmaku_speed": "弹幕速度",

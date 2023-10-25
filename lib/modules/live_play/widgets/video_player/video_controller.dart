@@ -56,6 +56,7 @@ class VideoController with ChangeNotifier {
       GlobalKey<BrightnessVolumnDargAreaState>();
 
   LivePlayController livePlayController = Get.find<LivePlayController>();
+  final SettingsService settings = Get.find<SettingsService>();
   // Controller ui status
   Timer? showControllerTimer;
   final showController = true.obs;
@@ -71,20 +72,14 @@ class VideoController with ChangeNotifier {
     showController.value = true;
   }
 
-  // Timed shutdown control
-  final shutdownMinute = 0.obs;
-  Timer? _shutdownTimer;
-  void setShutdownTimer(int minutes) {
-    showControllerTimer?.cancel();
-    _shutdownTimer?.cancel();
-    shutdownMinute.value = minutes;
-    if (minutes == 0) return;
-    _shutdownTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      shutdownMinute.value--;
-      if (shutdownMinute.value == 0) exit(0);
-    });
-  }
-
+  // Danmaku player control
+  BarrageWallController danmakuController = BarrageWallController();
+  final hideDanmaku = false.obs;
+  final danmakuArea = 1.0.obs;
+  final danmakuSpeed = 8.0.obs;
+  final danmakuFontSize = 16.0.obs;
+  final danmakuFontBorder = 0.5.obs;
+  final danmakuOpacity = 1.0.obs;
   VideoController({
     required this.playerKey,
     required this.room,
@@ -98,7 +93,13 @@ class VideoController with ChangeNotifier {
     this.headers,
     BoxFit fitMode = BoxFit.contain,
   }) {
-    videoFit.value = fitMode;
+    videoFit.value = settings.videofitArrary[settings.videoFitIndex.value];
+    hideDanmaku.value = settings.hideDanmaku.value;
+    danmakuArea.value = settings.danmakuArea.value;
+    danmakuSpeed.value = settings.danmakuSpeed.value;
+    danmakuFontSize.value = settings.danmakuFontSize.value;
+    danmakuFontBorder.value = settings.danmakuFontBorder.value;
+    danmakuOpacity.value = settings.danmakuOpacity.value;
     initPagesConfig();
   }
 
@@ -189,15 +190,6 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  // Danmaku player control
-  BarrageWallController danmakuController = BarrageWallController();
-  final hideDanmaku = false.obs;
-  final danmakuArea = 1.0.obs;
-  final danmakuSpeed = 8.0.obs;
-  final danmakuFontSize = 16.0.obs;
-  final danmakuFontBorder = 0.5.obs;
-  final danmakuOpacity = 1.0.obs;
-
   void initDanmaku() {
     hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
     hideDanmaku.listen((data) {
@@ -242,7 +234,6 @@ class VideoController with ChangeNotifier {
   @override
   void dispose() {
     if (allowScreenKeepOn) WakelockPlus.disable();
-    _shutdownTimer?.cancel();
     if (Platform.isAndroid || Platform.isIOS) {
       mobileController?.removeEventsListener(mobileStateListener);
       mobileController?.dispose();
@@ -284,7 +275,7 @@ class VideoController with ChangeNotifier {
         BetterPlayerDataSourceType.network,
         url,
         liveStream: true,
-        headers:headers,
+        headers: headers,
         notificationConfiguration: allowBackgroundPlay
             ? BetterPlayerNotificationConfiguration(
                 showNotification: true,
@@ -318,9 +309,9 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> exitFullScreen() async {
-    if(Platform.isAndroid){
-       mobileController?.exitFullScreen();
-       showSettting.value = false;
+    if (Platform.isAndroid) {
+      mobileController?.exitFullScreen();
+      showSettting.value = false;
     }
   }
 
@@ -369,8 +360,8 @@ class VideoController with ChangeNotifier {
         // fix immersion status bar problem
         if (Platform.isAndroid) {
           SystemChrome.setEnabledSystemUIMode(!isFullscreen.value
-                ? SystemUiMode.edgeToEdge
-                : SystemUiMode.immersiveSticky);
+              ? SystemUiMode.edgeToEdge
+              : SystemUiMode.immersiveSticky);
         }
       });
     }

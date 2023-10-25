@@ -1141,6 +1141,16 @@ class S {
     );
   }
 
+  /// `Danmaku switch`
+  String get settings_danmaku_open {
+    return Intl.message(
+      'Danmaku switch',
+      name: 'settings_danmaku_open',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Danmaku opacity`
   String get settings_danmaku_opacity {
     return Intl.message(

@@ -75,6 +75,40 @@ class SettingsService extends GetxController {
       _stopWatchTimer.onStopTimer();
       FlutterExitApp.exitApp();
     });
+
+    videoFitIndex.listen((value) {
+      videoFitIndex.value = value;
+      PrefUtil.setInt('videoFitIndex', value);
+    });
+    hideDanmaku.listen((value) {
+      hideDanmaku.value = value;
+      PrefUtil.setBool('hideDanmaku', value);
+    });
+
+    danmakuArea.listen((value) {
+      danmakuArea.value = value;
+      PrefUtil.setDouble('danmakuArea', value);
+    });
+
+    danmakuSpeed.listen((value) {
+      danmakuSpeed.value = value;
+      PrefUtil.setDouble('danmakuSpeed', value);
+    });
+
+    danmakuFontSize.listen((value) {
+      danmakuFontSize.value = value;
+      PrefUtil.setDouble('danmakuFontSize', value);
+    });
+
+    danmakuFontBorder.listen((value) {
+      danmakuFontBorder.value = value;
+      PrefUtil.setDouble('danmakuFontBorder', value);
+    });
+
+    danmakuOpacity.listen((value) {
+      danmakuOpacity.value = value;
+      PrefUtil.setDouble('danmakuOpacity', value);
+    });
   }
 
   // Theme settings
@@ -160,6 +194,14 @@ class SettingsService extends GetxController {
 
   final enableAutoCheckUpdate =
       (PrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
+  final videoFitIndex = (PrefUtil.getInt('videoFitIndex') ?? 0).obs;
+  final hideDanmaku = (PrefUtil.getBool('hideDanmaku') ?? false).obs;
+  final danmakuArea = (PrefUtil.getDouble('danmakuArea') ?? 1.0).obs;
+  final danmakuSpeed = (PrefUtil.getDouble('danmakuSpeed') ?? 8.0).obs;
+  final danmakuFontSize = (PrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
+  final danmakuFontBorder =
+      (PrefUtil.getDouble('danmakuFontBorder') ?? 0.5).obs;
+  final danmakuOpacity = (PrefUtil.getDouble('danmakuOpacity') ?? 1.0).obs;
 
   final enableFullScreenDefault =
       (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
@@ -168,6 +210,14 @@ class SettingsService extends GetxController {
       (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
 
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
+
+  static const List<BoxFit> videofitList = [
+    BoxFit.contain,
+    BoxFit.fill,
+    BoxFit.cover,
+    BoxFit.fitWidth,
+    BoxFit.fitHeight
+  ];
 
   final preferResolution =
       (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
@@ -180,6 +230,9 @@ class SettingsService extends GetxController {
   }
 
   List<String> get resolutionsList => resolutions;
+
+  List<BoxFit> get videofitArrary => videofitList;
+
   void changeShutDownConfig(int minutes, bool isAutoShutDown) {
     autoShutDownTime.value = minutes;
     enableAutoShutDownTime.value = isAutoShutDown;
@@ -193,7 +246,7 @@ class SettingsService extends GetxController {
     PrefUtil.setInt('autoRefreshTime', seconds);
   }
 
-  static const List<String> platforms = ['bilibili', 'douyu', 'huya','douyin'];
+  static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin'];
 
   final preferPlatform =
       (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
@@ -312,8 +365,6 @@ class SettingsService extends GetxController {
     favoriteAreas.value = (json['favoriteAreas'] as List)
         .map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e)))
         .toList();
-
-    
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
     themeColorName.value = json['themeColor'] ?? "Crimson";
@@ -328,6 +379,14 @@ class SettingsService extends GetxController {
     languageName.value = json['languageName'] ?? "简体中文";
     preferResolution.value = json['preferResolution'] ?? resolutions[0];
     preferPlatform.value = json['preferPlatform'] ?? platforms[0];
+    videoFitIndex.value = json['videoFitIndex'] ?? 0;
+    hideDanmaku.value = json['hideDanmaku'] ?? false;
+    danmakuArea.value = json['danmakuArea'] ?? 1.0;
+    danmakuSpeed.value = json['danmakuSpeed'] ?? 8.0;
+    danmakuFontSize.value = json['danmakuFontSize'] ?? 16.0;
+    danmakuFontBorder.value = json['danmakuFontBorder'] ?? 0.5;
+    danmakuOpacity.value = json['danmakuOpacity'] ?? 1.0;
+
     changeThemeMode(themeModeName.value);
     changeThemeColor(themeColorName.value);
     changeLanguage(languageName.value);
@@ -359,6 +418,15 @@ class SettingsService extends GetxController {
     json['preferResolution'] = preferResolution.value;
     json['preferPlatform'] = preferPlatform.value;
     json['languageName'] = languageName.value;
+
+    json['videoFitIndex'] = videoFitIndex.value;
+    json['hideDanmaku'] = hideDanmaku.value;
+    json['danmakuArea'] = danmakuArea.value;
+    json['danmakuSpeed'] = danmakuSpeed.value;
+    json['danmakuFontSize'] = danmakuFontSize.value;
+    json['danmakuFontBorder'] = danmakuFontBorder.value;
+    json['danmakuOpacity'] = danmakuOpacity.value;
+
     return json;
   }
 
@@ -379,7 +447,13 @@ class SettingsService extends GetxController {
       "enableAutoCheckUpdate": false,
       "enableFullScreenDefault": false,
       "preferResolution": "原画",
-      "preferPlatform": "bilibili"
+      "preferPlatform": "bilibili",
+      "hideDanmaku": false,
+      "danmakuArea": 1.0,
+      "danmakuSpeed": 8.0,
+      "danmakuFontSize": 16.0,
+      "danmakuFontBorder": 0.5,
+      "danmakuOpacity": 1.0,
     };
     return json;
   }

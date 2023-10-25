@@ -907,7 +907,6 @@ class SettingsPanel extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  ShutdownTimerSetting(controller: controller),
                   VideoFitSetting(controller: controller),
                   DanmakuSetting(controller: controller),
                 ],
@@ -915,51 +914,6 @@ class SettingsPanel extends StatelessWidget {
             ),
           ),
         ));
-  }
-}
-
-class ShutdownTimerSetting extends StatelessWidget {
-  const ShutdownTimerSetting({
-    Key? key,
-    required this.controller,
-  }) : super(key: key);
-
-  final VideoController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Text(
-            S.of(context).settings_timedclose_title,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Colors.white),
-          ),
-        ),
-        Obx(() => ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              title: Slider(
-                min: 0,
-                max: 120,
-                value: controller.shutdownMinute.value.toDouble(),
-                onChanged: (value) =>
-                    controller.setShutdownTimer(value.toInt()),
-              ),
-              trailing: Text(
-                S.of(context).timedclose_time(
-                    controller.shutdownMinute.value.toInt().toString()),
-                style: const TextStyle(color: Colors.white),
-              ),
-            )),
-      ],
-    );
   }
 }
 
@@ -1148,24 +1102,6 @@ class DanmakuSetting extends StatelessWidget {
                 style: digit,
               ),
             ),
-            // ListTile(
-            //   dense: true,
-            //   contentPadding: EdgeInsets.zero,
-            //   leading:
-            //       Text(S.of(context).settings_danmaku_amount, style: label),
-            //   title: Slider(
-            //     divisions: 90,
-            //     min: 10,
-            //     max: 100,
-            //     value: controller.danmakuAmount.value.toDouble(),
-            //     onChanged: (val) =>
-            //         controller.danmakuAmount.value = val.toInt(),
-            //   ),
-            //   trailing: Text(
-            //     controller.danmakuAmount.value.toString(),
-            //     style: digit,
-            //   ),
-            // ),
           ],
         ));
   }

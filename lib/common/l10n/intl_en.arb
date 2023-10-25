@@ -134,6 +134,8 @@
     "settings_danmaku_title": "Danmaku Setting",
 
     "settings_danmaku_area": "Danmaku area",
+    "settings_danmaku_open": "Danmaku switch",
+    
     "settings_danmaku_opacity": "Danmaku opacity",
     "settings_danmaku_speed": "Danmaku speed",
     "settings_danmaku_fontsize": "Danmaku fontsize",

@@ -183,6 +183,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("弹幕字号"),
         "settings_danmaku_opacity":
             MessageLookupByLibrary.simpleMessage("不透明度"),
+        "settings_danmaku_open": MessageLookupByLibrary.simpleMessage("弹幕开关"),
         "settings_danmaku_speed": MessageLookupByLibrary.simpleMessage("弹幕速度"),
         "settings_danmaku_title": MessageLookupByLibrary.simpleMessage("弹幕设置"),
         "settings_timedclose_title":
