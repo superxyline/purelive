@@ -107,7 +107,7 @@ class DouyinSite implements LiveSite {
             areaType: category.id,
             areaPic: "",
             areaName: category.name,
-             platform: 'douyin',
+            platform: 'douyin',
           ));
       categories.add(category);
     }
@@ -145,7 +145,8 @@ class DouyinSite implements LiveSite {
         cover: item["room"]["cover"]["url_list"][0].toString(),
         nick: item["room"]["owner"]["nickname"].toString(),
         platform: 'douyin',
-        watching: item["room"]["room_view_stats"]["display_value"].toString(),
+        watching:
+            item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
       );
       items.add(roomItem);
     }
@@ -178,7 +179,8 @@ class DouyinSite implements LiveSite {
         cover: item["room"]["cover"]["url_list"][0].toString(),
         nick: item["room"]["owner"]["nickname"].toString(),
         platform: 'douyin',
-        watching: item["room"]["room_view_stats"]["display_value"].toString(),
+        watching:
+            item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
         liveStatus: LiveStatus.live,
       );
       items.add(roomItem);
@@ -226,7 +228,7 @@ class DouyinSite implements LiveSite {
       cover: roomStatus ? roomInfo["cover"]["url_list"][0].toString() : "",
       nick: userInfo["nickname"].toString(),
       avatar: userInfo["avatar_thumb"]["url_list"][0].toString(),
-      watching: roomInfo["room_view_stats"]["display_value"].toString(),
+      watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
       link: "https://live.douyin.com/$webRid",
       status: roomStatus,

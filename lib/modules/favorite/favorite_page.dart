@@ -46,7 +46,10 @@ class FavoritePage extends GetView<FavoriteController> {
 class _RoomOnlineGridView extends GetView<FavoriteController> {
   _RoomOnlineGridView({Key? key}) : super(key: key);
 
-  final refreshController = EasyRefreshController();
+  final refreshController = EasyRefreshController(
+    controlFinishRefresh: true,
+    controlFinishLoad: true,
+  );
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
   Future onRefresh() async {
@@ -55,7 +58,7 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();
     } else {
-      refreshController.finishLoad(IndicatorResult.fail);
+      refreshController.finishRefresh(IndicatorResult.fail);
     }
   }
 
@@ -72,7 +75,9 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
       return Obx(() => EasyRefresh(
             controller: refreshController,
             onRefresh: onRefresh,
-            onLoad: onRefresh,
+            onLoad: () {
+              refreshController.finishLoad(IndicatorResult.noMore);
+            },
             child: controller.onlineRooms.isNotEmpty
                 ? MasonryGridView.count(
                     padding: const EdgeInsets.all(5),
@@ -80,9 +85,7 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
                     crossAxisCount: crossAxisCount,
                     itemCount: controller.onlineRooms.length,
                     itemBuilder: (context, index) => RoomCard(
-                      room: controller.onlineRooms[index],
-                      dense: dense
-                    ),
+                        room: controller.onlineRooms[index], dense: dense),
                   )
                 : EmptyView(
                     icon: Icons.favorite_rounded,
@@ -124,7 +127,9 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
       return Obx(() => EasyRefresh(
             controller: refreshController,
             onRefresh: onRefresh,
-            onLoad: onRefresh,
+            onLoad: () {
+              refreshController.finishLoad(IndicatorResult.noMore);
+            },
             child: controller.offlineRooms.isNotEmpty
                 ? MasonryGridView.count(
                     padding: const EdgeInsets.all(5),

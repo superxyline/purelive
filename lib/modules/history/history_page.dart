@@ -6,7 +6,10 @@ import 'package:pure_live/common/index.dart';
 class HistoryPage extends GetView {
   HistoryPage({Key? key}) : super(key: key);
 
-  final refreshController = EasyRefreshController();
+  final refreshController = EasyRefreshController(
+    controlFinishRefresh: true,
+    controlFinishLoad: true,
+  );
 
   Future onRefresh() async {
     bool result = true;
@@ -22,12 +25,11 @@ class HistoryPage extends GetView {
         result = false;
       }
     }
-
     if (result) {
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();
     } else {
-      refreshController.finishLoad(IndicatorResult.fail);
+      refreshController.finishRefresh(IndicatorResult.fail);
     }
   }
 
@@ -54,7 +56,9 @@ class HistoryPage extends GetView {
           return EasyRefresh(
             controller: refreshController,
             onRefresh: onRefresh,
-            onLoad: onRefresh,
+            onLoad: () {
+              refreshController.finishLoad(IndicatorResult.noMore);
+            },
             child: rooms.isEmpty
                 ? EmptyView(
                     icon: Icons.history_rounded,
@@ -66,8 +70,10 @@ class HistoryPage extends GetView {
                     controller: ScrollController(),
                     crossAxisCount: crossAxisCount,
                     itemCount: rooms.length,
-                    itemBuilder: (context, index) =>
-                        RoomCard(room: rooms[index], dense: dense,),
+                    itemBuilder: (context, index) => RoomCard(
+                      room: rooms[index],
+                      dense: dense,
+                    ),
                   ),
           );
         });
