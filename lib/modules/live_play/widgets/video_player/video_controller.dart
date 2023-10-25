@@ -164,7 +164,11 @@ class VideoController with ChangeNotifier {
     } else {
       throw UnimplementedError('Unsupported Platform');
     }
-
+    debounce(hasError, (callback) {
+      if (hasError.value) {
+        livePlayController.changePlayLine();
+      }
+    },time: const Duration(seconds: 1));
     // fix auto fullscreen
     if (fullScreenByDefault && datasource.isNotEmpty) {
       Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
@@ -265,6 +269,8 @@ class VideoController with ChangeNotifier {
     if (datasource.isEmpty) {
       hasError.value = true;
       return;
+    } else {
+      hasError.value = false;
     }
     if (Platform.isWindows || Platform.isLinux) {
       player.pause();

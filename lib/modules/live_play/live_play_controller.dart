@@ -49,9 +49,9 @@ class LivePlayController extends StateController {
     int nowExitTime = DateTime.now().millisecondsSinceEpoch;
     if (nowExitTime - lastExitTime > 1000) {
       lastExitTime = nowExitTime;
-      SmartDialog.showToast("再次点击退出");
+      SmartDialog.showToast("双击退出");
       return await Future.value(false);
-    } 
+    }
     return await Future.value(true);
   }
 
@@ -134,7 +134,7 @@ class LivePlayController extends StateController {
     currentQuality.value =
         qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
-    videoController?.setDataSource(playUrls[currentLineIndex.value]);
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value]);
     update();
   }
 
@@ -171,6 +171,16 @@ class LivePlayController extends StateController {
     }
   }
 
+  void changePlayLine() {
+    if(currentLineIndex.value == playUrls.length -1){
+      liveStatus.value = false;
+      success.value = false;
+      return;
+    }
+    currentLineIndex.value++;
+    setResolution(qualites.map((e) => e.quality).toList()[currentQuality.value],currentLineIndex.value.toString());
+  }
+
   void getPlayUrl() async {
     playUrls.value = [];
     currentLineIndex.value = 0;
@@ -199,7 +209,7 @@ class LivePlayController extends StateController {
       playerKey: playerKey,
       room: detail.value!,
       datasourceType: 'network',
-      datasource: playUrls[currentLineIndex.value],
+      datasource: playUrls.value[currentLineIndex.value],
       allowBackgroundPlay: settings.enableBackgroundPlay.value,
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
       fullScreenByDefault: settings.enableFullScreenDefault.value,
