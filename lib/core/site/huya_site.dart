@@ -5,7 +5,6 @@ import 'package:crypto/crypto.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/core/common/convert_helper.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -53,9 +52,9 @@ class HuyaSite implements LiveSite {
 
     List<LiveArea> subs = [];
     for (var item in result["data"]) {
-      var gid = (asT<double?>(item["gid"])?.toInt() ?? 0).toString();
+       var gid = (item["gid"])?.toInt().toString();
       var subCategory = LiveArea(
-          areaId: gid,
+          areaId: gid!,
           areaName: item["gameFullName"].toString(),
           areaType: liveCategory.id,
           platform: 'huya',

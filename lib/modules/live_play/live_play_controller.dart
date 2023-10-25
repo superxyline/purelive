@@ -44,6 +44,17 @@ class LivePlayController extends StateController {
   /// 当前线路
   final currentLineIndex = 0.obs;
 
+  int lastExitTime = 0;
+  Future<bool> onBackPressed() async {
+    int nowExitTime = DateTime.now().millisecondsSinceEpoch;
+    if (nowExitTime - lastExitTime > 1000) {
+      lastExitTime = nowExitTime;
+      SmartDialog.showToast("再次点击退出");
+      return await Future.value(false);
+    } 
+    return await Future.value(true);
+  }
+
   @override
   void onClose() {
     super.onClose();

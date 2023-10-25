@@ -13,7 +13,10 @@ class LivePlayPage extends GetWidget<LivePlayController>
   final SettingsService settings = Get.find<SettingsService>();
   Future<bool> onWillPop() async {
     await controller.videoController?.exitFullScreen();
-    Get.back(result: false);
+    var exit = await controller.onBackPressed();
+    if(exit){
+      Get.back();
+    }
     return true;
   }
 
@@ -209,7 +212,8 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
                 rate.quality,
                 style: Get.theme.textTheme.labelSmall?.copyWith(
                   color: rate.quality ==
-                          controller.qualites[controller.currentQuality.value].quality
+                          controller
+                              .qualites[controller.currentQuality.value].quality
                       ? Get.theme.colorScheme.primary
                       : null,
                 ),
@@ -226,10 +230,11 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
                     child: Text(
                       '线路${i + 1}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color:
-                                urls[i] == controller.playUrls[controller.currentLineIndex.value]
-                                    ? Get.theme.colorScheme.primary
-                                    : null,
+                            color: urls[i] ==
+                                    controller.playUrls[
+                                        controller.currentLineIndex.value]
+                                ? Get.theme.colorScheme.primary
+                                : null,
                           ),
                     ),
                   ));

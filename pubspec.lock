@@ -53,11 +53,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "5edc1f21e159b7d0d7aa0d67a450444a3c02e1a5"
+      ref: master
+      resolved-ref: "54fdd9db5e0add55f562ff72a8c05a3e8b5d13dc"
       url: "https://github.com/liuchuancong/better_player.git"
     source: git
-    version: "0.0.2"
+    version: "0.0.3"
   boolean_selector:
     dependency: transitive
     description:
