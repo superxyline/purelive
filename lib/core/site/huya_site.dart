@@ -97,6 +97,7 @@ class HuyaSite implements LiveSite {
         nick: item["nick"].toString(),
         watching: item["totalCount"].toString(),
         avatar: item["avatar180"],
+        area: item["gameFullName"].toString(),
         liveStatus: LiveStatus.live,
         status: true,
         platform: 'huya',
@@ -192,11 +193,11 @@ class HuyaSite implements LiveSite {
       if (title.isEmpty) {
         title = item["roomName"]?.toString() ?? "";
       }
-
       var roomItem = LiveRoom(
         roomId: item["profileRoom"].toString(),
         title: title,
         cover: cover,
+        area: item["gameFullName"].toString(),
         nick: item["nick"].toString(),
         avatar: item["avatar180"],
         watching: item["totalCount"].toString(),
@@ -268,6 +269,7 @@ class HuyaSite implements LiveSite {
         cover: jsonObj["roomInfo"]["tLiveInfo"]["sScreenshot"].toString(),
         watching: jsonObj["roomInfo"]["tLiveInfo"]["lTotalCount"].toString(),
         roomId: roomId,
+        area: jsonObj["roomInfo"]?["tLiveInfo"]?["sGameFullName"].toString() ?? '',
         title: title,
         nick: jsonObj["roomInfo"]["tProfileInfo"]["sNick"].toString(),
         avatar: jsonObj["roomInfo"]["tProfileInfo"]["sAvatar180"].toString(),

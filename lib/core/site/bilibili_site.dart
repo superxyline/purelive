@@ -81,6 +81,7 @@ class BiliBiliSite implements LiveSite {
           avatar: item["face"].toString(),
           watching: item["online"].toString(),
           liveStatus: LiveStatus.live,
+          area: item["area_name"].toString(),
           status: true,
           platform: 'bilibili');
       items.add(roomItem);
@@ -183,6 +184,7 @@ class BiliBiliSite implements LiveSite {
         roomId: item["roomid"].toString(),
         title: item["title"].toString(),
         cover: "${item["cover"]}@400w.jpg",
+        area:  item["area_name"].toString(),
         nick: item["uname"].toString(),
         avatar: item["face"].toString(),
         watching: item["online"].toString(),
@@ -220,6 +222,7 @@ class BiliBiliSite implements LiveSite {
       nick: result["data"]["anchor_info"]["base_info"]["uname"].toString(),
       avatar: "${result["data"]["anchor_info"]["base_info"]["face"]}@100w.jpg",
       watching: result["data"]["room_info"]["online"].toString(),
+      area:  result["data"]['room_info']?['area_name'] ?? '',
       status: (asT<int?>(result["data"]["room_info"]["live_status"]) ?? 0) == 1,
       liveStatus:
           (asT<int?>(result["data"]["room_info"]["live_status"]) ?? 0) == 1

@@ -88,6 +88,7 @@ class DouyuSite implements LiveSite {
         roomId: item['rid'].toString(),
         title: item['rn'].toString(),
         nick: item['nn'].toString(),
+        area: item['c2name'].toString(),
         liveStatus: LiveStatus.live,
         avatar: item['av'].toString().isNotEmpty
             ? 'https://apic.douyucdn.cn/upload/${item['av']}_middle.jpg'
@@ -177,6 +178,7 @@ class DouyuSite implements LiveSite {
         roomId: item['rid'].toString(),
         title: item['rn'].toString(),
         nick: item['nn'].toString(),
+        area: item['c2name'].toString(),
         avatar: item['av'].toString().isNotEmpty
             ? 'https://apic.douyucdn.cn/upload/${item['av']}_middle.jpg'
             : '',
@@ -225,6 +227,7 @@ class DouyuSite implements LiveSite {
       nick: roomInfo["owner_name"].toString(),
       avatar: roomInfo["owner_avatar"].toString(),
       introduction: roomInfo["show_details"].toString(),
+      area: roomInfo["cate_name"]?.toString() ?? '',
       notice: "",
       liveStatus: roomInfo["show_status"] == 1 && roomInfo["videoLoop"] != 1
           ? LiveStatus.live

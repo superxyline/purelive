@@ -136,7 +136,6 @@ class DouyinSite implements LiveSite {
     );
     var hasMore = (result["data"]["data"] as List).length >= 15;
     var items = <LiveRoom>[];
-
     for (var item in result["data"]["data"]) {
       var roomItem = LiveRoom(
         roomId: item["web_rid"],
@@ -147,6 +146,7 @@ class DouyinSite implements LiveSite {
         avatar: item["room"]["owner"]["avatar_thumb"]["url_list"][0].toString(),
         status: true,
         platform: 'douyin',
+        area: item['tag_name'].toString(),
         watching:
             item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
       );
@@ -174,6 +174,7 @@ class DouyinSite implements LiveSite {
 
     var hasMore = (result["data"]["data"] as List).length >= 15;
     var items = <LiveRoom>[];
+
     for (var item in result["data"]["data"]) {
       var roomItem = LiveRoom(
         roomId: item["web_rid"],
@@ -181,6 +182,7 @@ class DouyinSite implements LiveSite {
         cover: item["room"]["cover"]["url_list"][0].toString(),
         nick: item["room"]["owner"]["nickname"].toString(),
         platform: 'douyin',
+        area: item["tag_name"].toString(),
         avatar: item["room"]["owner"]["avatar_thumb"]["url_list"][0].toString(),
         watching:
             item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
@@ -224,6 +226,7 @@ class DouyinSite implements LiveSite {
     );
     var roomInfo = result["data"]["data"][0];
     var userInfo = result["data"]["user"];
+    var partition = result["data"]['partition_road_map'];
     var roomStatus = (asT<int?>(roomInfo["status"]) ?? 0) == 2;
     return LiveRoom(
       roomId: roomId,
@@ -234,6 +237,7 @@ class DouyinSite implements LiveSite {
       watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
       link: "https://live.douyin.com/$webRid",
+      area: partition?['partition']?['title'].toString() ?? '',
       status: roomStatus,
       platform: 'douyin',
       introduction: roomInfo["title"].toString(),
