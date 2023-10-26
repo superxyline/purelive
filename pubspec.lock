@@ -52,9 +52,11 @@ packages:
   better_player:
     dependency: "direct main"
     description:
-      path: "C:\\Users\\XA-158\\projects\\flutter\\better_player"
-      relative: false
-    source: path
+      path: "."
+      ref: master
+      resolved-ref: "41be5c7104b76a6f226c9e6fa931c0cb367e7938"
+      url: "https://github.com/liuchuancong/better_player.git"
+    source: git
     version: "0.0.3"
   boolean_selector:
     dependency: transitive
@@ -237,10 +239,10 @@ packages:
     dependency: "direct main"
     description:
       name: dynamic_color
-      sha256: de4798a7069121aee12d5895315680258415de9b00e717723a1bd73d58f0126d
+      sha256: "8b8bd1d798bd393e11eddeaa8ae95b12ff028bf7d5998fc5d003488cd5f4ce2f"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.6.6"
+    version: "1.6.8"
   easy_refresh:
     dependency: "direct main"
     description:

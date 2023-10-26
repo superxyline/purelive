@@ -125,6 +125,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "enable_screen_keep_on": MessageLookupByLibrary.simpleMessage("屏幕常亮"),
         "enable_screen_keep_on_subtitle":
             MessageLookupByLibrary.simpleMessage("当处于直播播放页，屏幕保持常亮"),
+        "exit_app": MessageLookupByLibrary.simpleMessage("确定退出吗?"),
+        "exit_no": MessageLookupByLibrary.simpleMessage("取消"),
+        "exit_yes": MessageLookupByLibrary.simpleMessage("确定"),
         "experiment": MessageLookupByLibrary.simpleMessage("实验"),
         "favorite_areas": MessageLookupByLibrary.simpleMessage("关注分区"),
         "favorites_title": MessageLookupByLibrary.simpleMessage("关注"),

@@ -79,21 +79,48 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+  Future<bool> _onBackPressed() async {
+    bool confirmExit = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.of(context).exit_app),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text(S.of(context).exit_yes),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // 取消退出
+            },
+            child: Text(S.of(context).exit_no),
+          ),
+        ],
+      ),
+    );
+    return confirmExit;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return LayoutBuilder(
-      builder: (context, constraint) => constraint.maxWidth <= 680
-          ? HomeMobileView(
-              body: bodys[_selectedIndex],
-              index: _selectedIndex,
-              onDestinationSelected: onDestinationSelected,
-            )
-          : HomeTabletView(
-              body: bodys[_selectedIndex],
-              index: _selectedIndex,
-              onDestinationSelected: onDestinationSelected,
-            ),
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: LayoutBuilder(
+        builder: (context, constraint) => constraint.maxWidth <= 680
+            ? HomeMobileView(
+                body: bodys[_selectedIndex],
+                index: _selectedIndex,
+                onDestinationSelected: onDestinationSelected,
+              )
+            : HomeTabletView(
+                body: bodys[_selectedIndex],
+                index: _selectedIndex,
+                onDestinationSelected: onDestinationSelected,
+              ),
+      ),
     );
   }
 

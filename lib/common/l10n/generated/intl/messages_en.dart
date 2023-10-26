@@ -145,6 +145,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Keep Screen On"),
         "enable_screen_keep_on_subtitle": MessageLookupByLibrary.simpleMessage(
             "When in live play, keep screen on"),
+        "exit_app":
+            MessageLookupByLibrary.simpleMessage("Are you sure want to exit?"),
+        "exit_no": MessageLookupByLibrary.simpleMessage("No"),
+        "exit_yes": MessageLookupByLibrary.simpleMessage("Yes"),
         "experiment": MessageLookupByLibrary.simpleMessage("Experiment"),
         "favorite_areas":
             MessageLookupByLibrary.simpleMessage("Favorite Areas"),

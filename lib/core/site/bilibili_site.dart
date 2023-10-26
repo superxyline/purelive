@@ -78,7 +78,10 @@ class BiliBiliSite implements LiveSite {
           title: item["title"].toString(),
           cover: "${item["cover"]}@400w.jpg",
           nick: item["uname"].toString(),
+          avatar:  item["face"].toString(),
           watching: item["online"].toString(),
+           liveStatus: LiveStatus.live,
+        status: true,
           platform: 'bilibili');
       items.add(roomItem);
     }
@@ -131,6 +134,7 @@ class BiliBiliSite implements LiveSite {
         "qn": quality.data,
       },
     );
+
     var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
     for (var streamItem in streamList) {
       var formatList = streamItem["format"];
@@ -139,6 +143,7 @@ class BiliBiliSite implements LiveSite {
         for (var codecItem in codecList) {
           var urlList = codecItem["url_info"];
           var baseUrl = codecItem["base_url"].toString();
+         
           for (var urlItem in urlList) {
             urls.add(
               "${urlItem["host"]}$baseUrl${urlItem["extra"]}",
@@ -178,6 +183,7 @@ class BiliBiliSite implements LiveSite {
         title: item["title"].toString(),
         cover: "${item["cover"]}@400w.jpg",
         nick: item["uname"].toString(),
+        avatar:  item["face"].toString(),
         watching: item["online"].toString(),
         liveStatus: LiveStatus.live,
         platform: 'bilibili',
@@ -207,7 +213,7 @@ class BiliBiliSite implements LiveSite {
         .map<String>((e) => e["host"].toString())
         .toList();
     return LiveRoom(
-      roomId: result["data"]["room_info"]["room_id"].toString(),
+      roomId: roomId,
       title: result["data"]["room_info"]["title"].toString(),
       cover: result["data"]["room_info"]["cover"].toString(),
       nick: result["data"]["anchor_info"]["base_info"]["uname"].toString(),

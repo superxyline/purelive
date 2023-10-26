@@ -183,5 +183,9 @@
     "supabase_reset_password": "重置邮箱密码",
 
     "supabase_back_sign_in": "返回登录",
-    "supabase_update_password": "更新密码"
+    "supabase_update_password": "更新密码",
+
+    "exit_app": "确定退出吗?",
+    "exit_yes": "确定",
+    "exit_no": "取消"
 }

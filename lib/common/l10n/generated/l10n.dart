@@ -1560,6 +1560,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Are you sure want to exit?`
+  String get exit_app {
+    return Intl.message(
+      'Are you sure want to exit?',
+      name: 'exit_app',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yes`
+  String get exit_yes {
+    return Intl.message(
+      'Yes',
+      name: 'exit_yes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No`
+  String get exit_no {
+    return Intl.message(
+      'No',
+      name: 'exit_no',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
