@@ -84,6 +84,8 @@ class _HomePageState extends State<HomePage>
       context: context,
       builder: (context) => AlertDialog(
         title: Text(S.of(context).exit_app),
+        contentPadding: const EdgeInsets.all(2),
+        actionsPadding: const EdgeInsets.all(10),
         actions: <Widget>[
           TextButton(
             onPressed: () {
