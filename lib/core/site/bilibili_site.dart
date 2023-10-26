@@ -78,10 +78,10 @@ class BiliBiliSite implements LiveSite {
           title: item["title"].toString(),
           cover: "${item["cover"]}@400w.jpg",
           nick: item["uname"].toString(),
-          avatar:  item["face"].toString(),
+          avatar: item["face"].toString(),
           watching: item["online"].toString(),
-           liveStatus: LiveStatus.live,
-        status: true,
+          liveStatus: LiveStatus.live,
+          status: true,
           platform: 'bilibili');
       items.add(roomItem);
     }
@@ -127,10 +127,11 @@ class BiliBiliSite implements LiveSite {
       "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo",
       queryParameters: {
         "room_id": detail.roomId,
-        "protocol": "0,1",
-        "format": "0,2",
-        "codec": "0",
-        "platform": "web",
+        'protocol': '0,1',
+        'format': '0,1,2',
+        'codec': '0,1',
+        'platform': 'h5',
+        'ptype': 8,
         "qn": quality.data,
       },
     );
@@ -143,7 +144,7 @@ class BiliBiliSite implements LiveSite {
         for (var codecItem in codecList) {
           var urlList = codecItem["url_info"];
           var baseUrl = codecItem["base_url"].toString();
-         
+
           for (var urlItem in urlList) {
             urls.add(
               "${urlItem["host"]}$baseUrl${urlItem["extra"]}",
@@ -183,7 +184,7 @@ class BiliBiliSite implements LiveSite {
         title: item["title"].toString(),
         cover: "${item["cover"]}@400w.jpg",
         nick: item["uname"].toString(),
-        avatar:  item["face"].toString(),
+        avatar: item["face"].toString(),
         watching: item["online"].toString(),
         liveStatus: LiveStatus.live,
         platform: 'bilibili',
