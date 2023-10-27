@@ -57,9 +57,9 @@ class LivePlayController extends StateController {
 
   @override
   void onClose() {
-    super.onClose();
     videoController?.dispose();
     liveDanmaku.stop();
+    super.onClose();
   }
 
   @override
@@ -172,13 +172,14 @@ class LivePlayController extends StateController {
   }
 
   void changePlayLine() {
-    if(currentLineIndex.value == playUrls.length -1){
+    if (currentLineIndex.value == playUrls.length - 1) {
       liveStatus.value = false;
       success.value = false;
       return;
     }
     currentLineIndex.value++;
-    setResolution(qualites.map((e) => e.quality).toList()[currentQuality.value],currentLineIndex.value.toString());
+    setResolution(qualites.map((e) => e.quality).toList()[currentQuality.value],
+        currentLineIndex.value.toString());
   }
 
   void getPlayUrl() async {

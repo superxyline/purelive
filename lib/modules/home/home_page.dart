@@ -9,6 +9,8 @@ import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/about/widgets/version_dialog.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
+import 'package:pure_live/plugins/supabase.dart';
+import 'package:window_manager/window_manager.dart';
 import '../search/search_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,7 +21,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, WindowListener {
   @override
   void initState() {
     super.initState();
@@ -34,12 +36,32 @@ class _HomePageState extends State<HomePage>
                 Theme.of(context).navigationBarTheme.backgroundColor,
           ));
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        } else {
+          windowManager.addListener(this);
         }
       },
     );
     addToOverlay();
   }
 
+  @override
+  void dispose() {
+    if (Platform.isWindows) {
+      windowManager.removeListener(this);
+    }
+    super.dispose();
+  }
+
+  @override
+  void onWindowFocus() {
+    setState(() {});
+  }
+
+  @override
+  void onWindowClose() {
+    SupaBaseManager().uploadConfigWithBackGend();
+    super.onWindowClose();
+  }
   int _selectedIndex = 0;
   final List<Widget> bodys = const [
     FavoritePage(),
@@ -80,6 +102,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<bool> _onBackPressed() async {
+    SupaBaseManager().uploadConfigWithBackGend();
     bool confirmExit = await showDialog(
       context: context,
       builder: (context) => AlertDialog(

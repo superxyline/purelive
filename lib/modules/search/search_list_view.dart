@@ -94,7 +94,7 @@ class _OwnerCardState extends State<OwnerCard> {
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
-          "${widget.room.platform} - ${widget.room.area}",
+          widget.room.platform == "douyin" ? "${widget.room.platform?.toUpperCase()}" : "${widget.room.platform?.toUpperCase()} - ${widget.room.area}",
           maxLines: 1,
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),

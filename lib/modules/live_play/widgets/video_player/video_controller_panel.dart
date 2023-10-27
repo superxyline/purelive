@@ -695,9 +695,9 @@ class BottomActionBar extends StatelessWidget {
                 PlayPauseButton(controller: controller),
                 RefreshButton(controller: controller),
                 DanmakuButton(controller: controller),
-                if (controller.fullscreenUI)
+                if (controller.isFullscreen.value)
                   SettingsButton(controller: controller),
-                if (controller.supportPip && controller.fullscreenUI)
+                if (controller.supportPip && controller.isFullscreen.value)
                   ScreenToggleButton(controller: controller),
                 const Spacer(),
                 if (controller.supportWindowFull &&
