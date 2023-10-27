@@ -203,6 +203,7 @@ class HuyaSite implements LiveSite {
         watching: item["totalCount"].toString(),
         platform: 'huya',
         liveStatus: LiveStatus.live,
+        status: true
       );
       items.add(roomItem);
     }
@@ -325,12 +326,15 @@ class HuyaSite implements LiveSite {
       if (title.isEmpty) {
         title = item["game_roomName"]?.toString() ?? "";
       }
-
       var roomItem = LiveRoom(
         roomId: item["room_id"].toString(),
         title: title,
         cover: cover,
         nick: item["game_nick"].toString(),
+        area: item["gameName"].toString(),
+        status: true,
+        liveStatus: LiveStatus.live,
+        avatar: item["game_imgUrl"].toString(),
         watching: item["game_total_count"].toString(),
         platform: 'huya',
       );

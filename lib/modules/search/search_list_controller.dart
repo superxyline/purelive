@@ -31,12 +31,11 @@ class SearchListController extends BasePageController {
       return result.items;
     }
     var result = await site.liveSite.searchRooms(keyword, page: page);
-
     return result.items;
   }
 
   void clear() {
-    pageEmpty.value = false;
-    list.clear();
+    currentPage = 1;
+    list.value = [];
   }
 }

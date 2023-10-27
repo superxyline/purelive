@@ -264,10 +264,18 @@ class DouyuSite implements LiveSite {
     }
     var items = <LiveRoom>[];
     for (var item in result["data"]["relateShow"]) {
+       var liveStatus =
+          (int.tryParse(item["isLive"].toString()) ?? 0) == 1;
+      var roomType =
+          (int.tryParse(item["roomType"].toString()) ?? 0);
       var roomItem = LiveRoom(
         roomId: item["rid"].toString(),
         title: item["roomName"].toString(),
         cover: item["roomSrc"].toString(),
+        area:  item["cateName"].toString(),
+        avatar: item["avatar"].toString(),
+        liveStatus: liveStatus && roomType == 0 ? LiveStatus.live : LiveStatus.offline,
+        status: liveStatus && roomType == 0,
         nick: item["nickName"].toString(),
         platform: 'douyu',
         watching: item["hot"].toString(),

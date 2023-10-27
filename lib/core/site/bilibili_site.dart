@@ -184,7 +184,7 @@ class BiliBiliSite implements LiveSite {
         roomId: item["roomid"].toString(),
         title: item["title"].toString(),
         cover: "${item["cover"]}@400w.jpg",
-        area:  item["area_name"].toString(),
+        area: item["area_name"].toString(),
         nick: item["uname"].toString(),
         avatar: item["face"].toString(),
         watching: item["online"].toString(),
@@ -222,7 +222,7 @@ class BiliBiliSite implements LiveSite {
       nick: result["data"]["anchor_info"]["base_info"]["uname"].toString(),
       avatar: "${result["data"]["anchor_info"]["base_info"]["face"]}@100w.jpg",
       watching: result["data"]["room_info"]["online"].toString(),
-      area:  result["data"]['room_info']?['area_name'] ?? '',
+      area: result["data"]['room_info']?['area_name'] ?? '',
       status: (asT<int?>(result["data"]["room_info"]["live_status"]) ?? 0) == 1,
       liveStatus:
           (asT<int?>(result["data"]["room_info"]["live_status"]) ?? 0) == 1
@@ -273,7 +273,11 @@ class BiliBiliSite implements LiveSite {
           cover: "https:${item["cover"]}@400w.jpg",
           nick: item["uname"].toString(),
           watching: item["online"].toString(),
-          platform: 'bilibili');
+          liveStatus: (asT<int?>(item["live_status"]) ?? 0) == 1 ? LiveStatus.live : LiveStatus.offline,
+          area: item["cate_name"].toString(),
+          status: (asT<int?>(item["live_status"]) ?? 0) == 1,
+          avatar: "https:${item["uface"]}@400w.jpg",
+          platform: 'bilibili',);
       items.add(roomItem);
     }
     return LiveSearchRoomResult(hasMore: items.length >= 40, items: items);

@@ -370,13 +370,18 @@ class DouyinSite implements LiveSite {
     var items = <LiveRoom>[];
     for (var item in result["data"] ?? []) {
       var itemData = json.decode(item["lives"]["rawdata"].toString());
+      var roomStatus = (asT<int?>(itemData["status"]) ?? 0) == 2;
       var roomItem = LiveRoom(
         roomId: itemData["owner"]["web_rid"].toString(),
         title: itemData["title"].toString(),
         cover: itemData["cover"]["url_list"][0].toString(),
         nick: itemData["owner"]["nickname"].toString(),
         platform: 'douyin',
-        watching: itemData["stats"]["total_user"].toString(),
+        avatar: itemData["owner"]["avatar_thumb"]["url_list"][0].toString(),
+        liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+        area: '',
+        status: roomStatus,
+        watching: itemData["stats"]["total_user_str"].toString(),
       );
       items.add(roomItem);
     }

@@ -14,8 +14,10 @@ class LiveRoom {
   String? watching = '';
   String? followers = '';
   String? platform = 'UNKNOWN';
-/// 介绍
-   String? introduction;
+
+  /// 介绍
+  String? introduction;
+
   /// 公告
   String? notice;
 
@@ -32,26 +34,25 @@ class LiveRoom {
   bool? isRecord = false;
   LiveStatus? liveStatus = LiveStatus.unknown;
 
-  LiveRoom({
-    this.roomId,
-    this.userId,
-    this.link,
-    this.title = '',
-    this.nick = '',
-    this.avatar = '',
-    this.cover = '',
-    this.area,
-    this.watching = '0', 
-    this.followers = '0',
-    this.platform,
-    this.liveStatus,
-    this.data,
-    this.danmakuData,
-    this.isRecord = false,
-    this.status = false,
-    this.notice,
-    this.introduction
-  });
+  LiveRoom(
+      {this.roomId,
+      this.userId,
+      this.link,
+      this.title = '',
+      this.nick = '',
+      this.avatar = '',
+      this.cover = '',
+      this.area,
+      this.watching = '0',
+      this.followers = '0',
+      this.platform,
+      this.liveStatus,
+      this.data,
+      this.danmakuData,
+      this.isRecord = false,
+      this.status = false,
+      this.notice,
+      this.introduction});
 
   LiveRoom.fromJson(Map<String, dynamic> json)
       : roomId = json['roomId'] ?? '',
@@ -65,7 +66,7 @@ class LiveRoom {
         watching = json['watching'] ?? '',
         followers = json['followers'] ?? '',
         platform = json['platform'] ?? '',
-        liveStatus = LiveStatus.values[json['liveStatus']],
+        liveStatus = LiveStatus.values[json['liveStatus'] ?? 1],
         status = json['status'] ?? false,
         notice = json['notice'] ?? '',
         introduction = json['introduction'] ?? '',
@@ -84,7 +85,7 @@ class LiveRoom {
         'platform': platform,
         'liveStatus': liveStatus?.index,
         'isRecord': isRecord,
-        'status':status,
+        'status': status,
         'notice': notice,
         'introduction': introduction
       };
