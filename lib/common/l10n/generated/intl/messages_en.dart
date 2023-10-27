@@ -87,6 +87,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "dlan_device_not_found":
             MessageLookupByLibrary.simpleMessage("DLNA device not found"),
         "dlan_title": MessageLookupByLibrary.simpleMessage("DLNA"),
+        "double_click_to_exit":
+            MessageLookupByLibrary.simpleMessage("Double click to exit"),
         "email": MessageLookupByLibrary.simpleMessage("Email"),
         "empty_areas_room_subtitle":
             MessageLookupByLibrary.simpleMessage("Pull down to refresh data"),

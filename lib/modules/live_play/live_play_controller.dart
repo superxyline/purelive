@@ -46,10 +46,14 @@ class LivePlayController extends StateController {
 
   int lastExitTime = 0;
   Future<bool> onBackPressed() async {
+     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
+    if(!doubleExit){
+      return Future.value(true);
+    }
     int nowExitTime = DateTime.now().millisecondsSinceEpoch;
     if (nowExitTime - lastExitTime > 1000) {
       lastExitTime = nowExitTime;
-      SmartDialog.showToast("双击退出");
+      SmartDialog.showToast(S.current.double_click_to_exit);
       return await Future.value(false);
     }
     return await Future.value(true);

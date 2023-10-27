@@ -122,6 +122,12 @@ class SettingsPage extends GetView<SettingsService> {
             title: Text(S.of(context).settings_danmaku_title),
             onTap: showDanmuSetDialog,
           ),
+          Obx(() => SwitchListTile(
+                title: Text(S.of(context).double_click_to_exit),
+                value: controller.doubleExit.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.doubleExit.value = value,
+              )),
           ListTile(
             title: Text(S.of(context).auto_shutdown_time),
             subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
@@ -280,7 +286,9 @@ class SettingsPage extends GetView<SettingsService> {
         content: SingleChildScrollView(
           child: SizedBox(
             height: 500,
-            width: Platform.isAndroid ?  MediaQuery.of(context).size.width * 0.9 : MediaQuery.of(context).size.width * 0.6,
+            width: Platform.isAndroid
+                ? MediaQuery.of(context).size.width * 0.9
+                : MediaQuery.of(context).size.width * 0.6,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -290,9 +298,9 @@ class SettingsPage extends GetView<SettingsService> {
                 DanmakuSetting(
                   controller: controller,
                 ),
-                 const SizedBox(
-                    height: 20,
-                  ),
+                const SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),

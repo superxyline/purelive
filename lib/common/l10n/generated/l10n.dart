@@ -1590,6 +1590,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Double click to exit`
+  String get double_click_to_exit {
+    return Intl.message(
+      'Double click to exit',
+      name: 'double_click_to_exit',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

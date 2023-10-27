@@ -62,6 +62,7 @@ class _HomePageState extends State<HomePage>
     SupaBaseManager().uploadConfigWithBackGend();
     super.onWindowClose();
   }
+
   int _selectedIndex = 0;
   final List<Widget> bodys = const [
     FavoritePage(),
@@ -103,6 +104,10 @@ class _HomePageState extends State<HomePage>
 
   Future<bool> _onBackPressed() async {
     SupaBaseManager().uploadConfigWithBackGend();
+    bool doubleExit = Get.find<SettingsService>().doubleExit.value;
+    if(!doubleExit){
+      return true;
+    }
     bool confirmExit = await showDialog(
       context: context,
       builder: (context) => AlertDialog(

@@ -189,5 +189,6 @@
     
     "exit_app": "Are you sure want to exit?",
     "exit_yes": "Yes",
-    "exit_no": "No"
+    "exit_no": "No",
+    "double_click_to_exit": "Double click to exit"
 }
