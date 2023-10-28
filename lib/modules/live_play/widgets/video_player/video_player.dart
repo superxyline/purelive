@@ -75,12 +75,25 @@ class _VideoPlayerState extends State<VideoPlayer> {
   Widget build(BuildContext context) {
     bool isDesktop = Platform.isWindows;
     if (isDesktop) {
-      return Obx(() => media_kit_video.Video(
+      return Obx(() => widget.controller.mediaPlayerControllerInitialized.value ?  media_kit_video.Video(
             key: widget.controller.key,
             controller: widget.controller.mediaPlayerController,
             fit: widget.controller.videoFit.value,
             controls: (state) => _buildVideoPanel(),
-          ));
+          ): Card(
+        elevation: 0,
+        margin: const EdgeInsets.all(0),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        clipBehavior: Clip.antiAlias,
+        color: Get.theme.focusColor,
+        child: CachedNetworkImage(
+          imageUrl: widget.controller.room.cover!,
+          fit: BoxFit.fill,
+          errorWidget: (context, error, stackTrace) => const Center(
+            child: Icon(Icons.live_tv_rounded, size: 48),
+          ),
+        ),
+      ));
     } else {
       if (widget.controller.videoPlayerIndex == 0) {
         return Stack(

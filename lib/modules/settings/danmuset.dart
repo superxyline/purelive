@@ -39,11 +39,11 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
                   widget.controller.hideDanmaku.value = !value,
             )),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
+          padding: const EdgeInsets.symmetric(vertical: 5),
           child: Text(S.of(context).settings_videofit_title),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 5),
           child: ToggleButtons(
             borderRadius: BorderRadius.circular(10),
             selectedColor: Colors.white,
@@ -55,10 +55,11 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
             },
             children: fitmodes.keys
                 .map<Widget>((e) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.all(5.0),
                       child: Text(e,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700
                           )),
                     ))
                 .toList(),

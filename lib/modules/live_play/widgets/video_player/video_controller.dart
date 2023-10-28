@@ -33,6 +33,8 @@ class VideoController with ChangeNotifier {
   final Map<String, String> headers;
   final isVertical = false.obs;
   final videoFit = BoxFit.contain.obs;
+
+  final mediaPlayerControllerInitialized = false.obs;
   ScreenBrightness brightnessController = ScreenBrightness();
   BetterPlayerController? mobileController;
   double initBrightness = 0.0;
@@ -155,6 +157,7 @@ class VideoController with ChangeNotifier {
         hasError.value = true;
         isPlaying.value = false;
       });
+      mediaPlayerControllerInitialized.value = true;
     } else if (Platform.isAndroid || Platform.isIOS) {
       if (videoPlayerIndex == 0) {
         mobileController = BetterPlayerController(

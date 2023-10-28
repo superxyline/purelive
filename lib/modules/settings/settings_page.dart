@@ -122,30 +122,41 @@ class SettingsPage extends GetView<SettingsService> {
             title: Text(S.of(context).settings_danmaku_title),
             onTap: showDanmuSetDialog,
           ),
-          Obx(() => SwitchListTile(
-                title: Text(S.of(context).double_click_to_exit),
-                value: controller.doubleExit.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.doubleExit.value = value,
-              )),
-          ListTile(
-            title: Text(S.of(context).change_player),
-            subtitle: Text(S.of(context).change_player_subtitle),
-            trailing: Obx(() => Text( ['ExoPlayer', 'IjkPlayer','AliPlayer'][controller.videoPlayerIndex.value])),
-            onTap: showVideoSetDialog,
-          ),
-          Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_codec),
-                value: controller.enableCodec.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableCodec.value = value,
-              )),
-          ListTile(
-            title: Text(S.of(context).auto_shutdown_time),
-            subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
-            trailing: Obx(() => Text('${controller.autoShutDownTime} minute')),
-            onTap: showAutoShutDownTimeSetDialog,
-          ),
+          if (Platform.isAndroid)
+            Obx(() => SwitchListTile(
+                  title: Text(S.of(context).double_click_to_exit),
+                  value: controller.doubleExit.value,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (bool value) =>
+                      controller.doubleExit.value = value,
+                )),
+          if (Platform.isAndroid)
+            ListTile(
+              title: Text(S.of(context).change_player),
+              subtitle: Text(S.of(context).change_player_subtitle),
+              trailing: Obx(() => Text([
+                    'ExoPlayer',
+                    'IjkPlayer',
+                    'AliPlayer'
+                  ][controller.videoPlayerIndex.value])),
+              onTap: showVideoSetDialog,
+            ),
+          if (Platform.isAndroid)
+            Obx(() => SwitchListTile(
+                  title: Text(S.of(context).enable_codec),
+                  value: controller.enableCodec.value,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (bool value) =>
+                      controller.enableCodec.value = value,
+                )),
+          if (Platform.isAndroid)
+            ListTile(
+              title: Text(S.of(context).auto_shutdown_time),
+              subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
+              trailing:
+                  Obx(() => Text('${controller.autoShutDownTime} minute')),
+              onTap: showAutoShutDownTimeSetDialog,
+            ),
         ],
       ),
     );
@@ -221,7 +232,7 @@ class SettingsPage extends GetView<SettingsService> {
   }
 
   void showVideoSetDialog() {
-    List<String> playerList = ['ExoPlayer', 'IjkPlayer','AliPlayer'];
+    List<String> playerList = ['ExoPlayer', 'IjkPlayer', 'AliPlayer'];
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -323,7 +334,7 @@ class SettingsPage extends GetView<SettingsService> {
           child: SizedBox(
             height: 500,
             width: Platform.isAndroid
-                ? MediaQuery.of(context).size.width * 0.9
+                ? MediaQuery.of(context).size.width
                 : MediaQuery.of(context).size.width * 0.6,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
