@@ -59,6 +59,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "change_language": MessageLookupByLibrary.simpleMessage("切换语言"),
         "change_language_subtitle":
             MessageLookupByLibrary.simpleMessage("切换软件的显示语言"),
+        "change_player": MessageLookupByLibrary.simpleMessage("切换播放器"),
+        "change_player_subtitle":
+            MessageLookupByLibrary.simpleMessage("切换直播间播放器"),
         "change_theme_color": MessageLookupByLibrary.simpleMessage("主题颜色"),
         "change_theme_color_subtitle":
             MessageLookupByLibrary.simpleMessage("切换软件的主题颜色"),
@@ -112,6 +115,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "enable_background_play": MessageLookupByLibrary.simpleMessage("后台播放"),
         "enable_background_play_subtitle":
             MessageLookupByLibrary.simpleMessage("当暂时切出APP时，允许后台播放"),
+        "enable_codec": MessageLookupByLibrary.simpleMessage("开启硬解码"),
         "enable_dense_favorites_mode":
             MessageLookupByLibrary.simpleMessage("紧凑模式"),
         "enable_dense_favorites_mode_subtitle":

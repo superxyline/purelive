@@ -1600,6 +1600,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Change videoPlayer`
+  String get change_player {
+    return Intl.message(
+      'Change videoPlayer',
+      name: 'change_player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change videoPlayer of liveroom`
+  String get change_player_subtitle {
+    return Intl.message(
+      'Change videoPlayer of liveroom',
+      name: 'change_player_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `enable hardcodec`
+  String get enable_codec {
+    return Intl.message(
+      'enable hardcodec',
+      name: 'enable_codec',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

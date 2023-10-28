@@ -46,8 +46,8 @@ class LivePlayController extends StateController {
 
   int lastExitTime = 0;
   Future<bool> onBackPressed() async {
-     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
-    if(!doubleExit){
+    bool doubleExit = Get.find<SettingsService>().doubleExit.value;
+    if (!doubleExit) {
       return Future.value(true);
     }
     int nowExitTime = DateTime.now().millisecondsSinceEpoch;
@@ -77,7 +77,6 @@ class LivePlayController extends StateController {
         if (liveStatus.value) {
           getPlayQualites();
         }
-
         // start danmaku server
         initDanmau();
         liveDanmaku.start(detail.value?.danmakuData);
@@ -139,7 +138,7 @@ class LivePlayController extends StateController {
     currentQuality.value =
         qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
-    videoController?.setDataSource(playUrls.value[currentLineIndex.value]);
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value],refresh: true);
     update();
   }
 

@@ -220,92 +220,92 @@ class HuyaSite implements LiveSite {
       "user-agent":
           "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/91.0.4472.69",
     });
-    var text = RegExp(r"window\.HNF_GLOBAL_INIT.=.\{(.*?)\}.</script>",
-            multiLine: false)
-        .firstMatch(resultText)
-        ?.group(1);
+    try {
+      var text = RegExp(r"window\.HNF_GLOBAL_INIT.=.\{(.*?)\}.</script>",
+              multiLine: false)
+          .firstMatch(resultText)
+          ?.group(1);
+      var jsonObj = json.decode("{$text}");
+      var title =
+          jsonObj["roomInfo"]["tLiveInfo"]["sIntroduction"]?.toString() ?? "";
+      if (title.isEmpty) {
+        title = jsonObj["roomInfo"]["tLiveInfo"]["sRoomName"]?.toString() ?? "";
+      }
+      var huyaLines = <HuyaLineModel>[];
+      var huyaBiterates = <HuyaBitRateModel>[];
+      //读取可用线路
+      var lines = jsonObj["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]
+          ["vStreamInfo"]["value"];
+      for (var item in lines) {
+        if ((item["sFlvUrl"]?.toString() ?? "").isNotEmpty) {
+          huyaLines.add(HuyaLineModel(
+            line: item["sFlvUrl"].toString(),
+            lineType: HuyaLineType.flv,
+            flvAntiCode: item["sFlvAntiCode"].toString(),
+            hlsAntiCode: item["sHlsAntiCode"].toString(),
+            streamName: item["sStreamName"].toString(),
+          ));
+        }
+      }
 
-    bool isViolation = text?.contains('exceptionType') ?? false;
-    if (isViolation) {
+      //清晰度
+      var biterates = jsonObj["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]
+          ["vBitRateInfo"]["value"];
+      for (var item in biterates) {
+        var name = item["sDisplayName"].toString();
+        if (name.contains("HDR")) {
+          continue;
+        }
+        huyaBiterates.add(HuyaBitRateModel(
+          bitRate: item["iBitRate"],
+          name: name,
+        ));
+      }
+
+      var topSid = int.tryParse(
+          RegExp(r'lChannelId":([0-9]+)').firstMatch(resultText)?.group(1) ??
+              "0");
+      var subSid = int.tryParse(
+          RegExp(r'lSubChannelId":([0-9]+)').firstMatch(resultText)?.group(1) ??
+              "0");
+      var uid = await getAnonymousUid();
+      return LiveRoom(
+          cover: jsonObj["roomInfo"]["tLiveInfo"]["sScreenshot"].toString(),
+          watching: jsonObj["roomInfo"]["tLiveInfo"]["lTotalCount"].toString(),
+          roomId: roomId,
+          area:
+              jsonObj["roomInfo"]?["tLiveInfo"]?["sGameFullName"].toString() ??
+                  '',
+          title: title,
+          nick: jsonObj["roomInfo"]["tProfileInfo"]["sNick"].toString(),
+          avatar: jsonObj["roomInfo"]["tProfileInfo"]["sAvatar180"].toString(),
+          introduction:
+              jsonObj["roomInfo"]["tLiveInfo"]["sIntroduction"].toString(),
+          notice: jsonObj["welcomeText"].toString(),
+          status: jsonObj["roomInfo"]["eLiveStatus"] == 2,
+          liveStatus: jsonObj["roomInfo"]["eLiveStatus"] == 2
+              ? LiveStatus.live
+              : LiveStatus.offline,
+          platform: 'huya',
+          data: HuyaUrlDataModel(
+            url:
+                "https:${utf8.decode(base64.decode(jsonObj["roomProfile"]["liveLineUrl"].toString()))}",
+            lines: huyaLines,
+            bitRates: huyaBiterates,
+            uid: uid,
+          ),
+          danmakuData: HuyaDanmakuArgs(
+            ayyuid: jsonObj["roomInfo"]["tLiveInfo"]["lYyid"] ?? 0,
+            topSid: topSid ?? 0,
+            subSid: subSid ?? 0,
+          ),
+          link: "https://www.huya.com/$roomId");
+    } catch (e) {
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;
       return liveRoom;
     }
-    var jsonObj = json.decode("{$text}");
-    var title =
-        jsonObj["roomInfo"]["tLiveInfo"]["sIntroduction"]?.toString() ?? "";
-    if (title.isEmpty) {
-      title = jsonObj["roomInfo"]["tLiveInfo"]["sRoomName"]?.toString() ?? "";
-    }
-    var huyaLines = <HuyaLineModel>[];
-    var huyaBiterates = <HuyaBitRateModel>[];
-    //读取可用线路
-    var lines = jsonObj["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]
-        ["vStreamInfo"]["value"];
-    for (var item in lines) {
-      if ((item["sFlvUrl"]?.toString() ?? "").isNotEmpty) {
-        huyaLines.add(HuyaLineModel(
-          line: item["sFlvUrl"].toString(),
-          lineType: HuyaLineType.flv,
-          flvAntiCode: item["sFlvAntiCode"].toString(),
-          hlsAntiCode: item["sHlsAntiCode"].toString(),
-          streamName: item["sStreamName"].toString(),
-        ));
-      }
-    }
-
-    //清晰度
-    var biterates = jsonObj["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]
-        ["vBitRateInfo"]["value"];
-    for (var item in biterates) {
-      var name = item["sDisplayName"].toString();
-      if (name.contains("HDR")) {
-        continue;
-      }
-      huyaBiterates.add(HuyaBitRateModel(
-        bitRate: item["iBitRate"],
-        name: name,
-      ));
-    }
-
-    var topSid = int.tryParse(
-        RegExp(r'lChannelId":([0-9]+)').firstMatch(resultText)?.group(1) ??
-            "0");
-    var subSid = int.tryParse(
-        RegExp(r'lSubChannelId":([0-9]+)').firstMatch(resultText)?.group(1) ??
-            "0");
-    var uid = await getAnonymousUid();
-    return LiveRoom(
-        cover: jsonObj["roomInfo"]["tLiveInfo"]["sScreenshot"].toString(),
-        watching: jsonObj["roomInfo"]["tLiveInfo"]["lTotalCount"].toString(),
-        roomId: roomId,
-        area: jsonObj["roomInfo"]?["tLiveInfo"]?["sGameFullName"].toString() ??
-            '',
-        title: title,
-        nick: jsonObj["roomInfo"]["tProfileInfo"]["sNick"].toString(),
-        avatar: jsonObj["roomInfo"]["tProfileInfo"]["sAvatar180"].toString(),
-        introduction:
-            jsonObj["roomInfo"]["tLiveInfo"]["sIntroduction"].toString(),
-        notice: jsonObj["welcomeText"].toString(),
-        status: jsonObj["roomInfo"]["eLiveStatus"] == 2,
-        liveStatus: jsonObj["roomInfo"]["eLiveStatus"] == 2
-            ? LiveStatus.live
-            : LiveStatus.offline,
-        platform: 'huya',
-        data: HuyaUrlDataModel(
-          url:
-              "https:${utf8.decode(base64.decode(jsonObj["roomProfile"]["liveLineUrl"].toString()))}",
-          lines: huyaLines,
-          bitRates: huyaBiterates,
-          uid: uid,
-        ),
-        danmakuData: HuyaDanmakuArgs(
-          ayyuid: jsonObj["roomInfo"]["tLiveInfo"]["lYyid"] ?? 0,
-          topSid: topSid ?? 0,
-          subSid: subSid ?? 0,
-        ),
-        link: "https://www.huya.com/$roomId");
   }
 
   @override

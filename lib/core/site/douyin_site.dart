@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:get/get.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/convert_helper.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
@@ -25,7 +27,7 @@ class DouyinSite implements LiveSite {
 
   @override
   LiveDanmaku getDanmaku() => DouyinDanmaku();
-
+  final SettingsService settings = Get.find<SettingsService>();
   Map<String, dynamic> headers = {
     "Authority": "live.douyin.com",
     "Referer": "https://live.douyin.com",
@@ -195,61 +197,70 @@ class DouyinSite implements LiveSite {
 
   @override
   Future<LiveRoom> getRoomDetail({required String roomId}) async {
-    var detail = await getRoomWebDetail(roomId);
-    var requestHeader = await getRequestHeaders();
-    var webRid = roomId;
-    var realRoomId =
-        detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
-    var userUniqueId = detail["userStore"]["odin"]["user_unique_id"].toString();
-    var result = await HttpClient.instance.getJson(
-      "https://live.douyin.com/webcast/room/web/enter/",
-      queryParameters: {
-        "aid": 6383,
-        "app_name": "douyin_web",
-        "live_id": 1,
-        "device_platform": "web",
-        "enter_from": "web_live",
-        "web_rid": webRid,
-        "room_id_str": realRoomId,
-        "enter_source": "",
-        "Room-Enter-User-Login-Ab": 0,
-        "is_need_double_stream": false,
-        "cookie_enabled": true,
-        "screen_width": 1980,
-        "screen_height": 1080,
-        "browser_language": "zh-CN",
-        "browser_platform": "Win32",
-        "browser_name": "Edge",
-        "browser_version": "114.0.1823.51"
-      },
-      header: requestHeader,
-    );
-    var roomInfo = result["data"]["data"][0];
-    var userInfo = result["data"]["user"];
-    var partition = result["data"]['partition_road_map'];
-    var roomStatus = (asT<int?>(roomInfo["status"]) ?? 0) == 2;
-    return LiveRoom(
-      roomId: roomId,
-      title: roomInfo["title"].toString(),
-      cover: roomStatus ? roomInfo["cover"]["url_list"][0].toString() : "",
-      nick: userInfo["nickname"].toString(),
-      avatar: userInfo["avatar_thumb"]["url_list"][0].toString(),
-      watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
-      liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
-      link: "https://live.douyin.com/$webRid",
-      area: partition?['partition']?['title'].toString() ?? '',
-      status: roomStatus,
-      platform: 'douyin',
-      introduction: roomInfo["title"].toString(),
-      notice: "",
-      danmakuData: DouyinDanmakuArgs(
-        webRid: webRid,
-        roomId: realRoomId,
-        userId: userUniqueId,
-        cookie: headers["cookie"],
-      ),
-      data: roomInfo["stream_url"],
-    );
+    try {
+      var detail = await getRoomWebDetail(roomId);
+      var requestHeader = await getRequestHeaders();
+      var webRid = roomId;
+      var realRoomId =
+          detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
+      var userUniqueId =
+          detail["userStore"]["odin"]["user_unique_id"].toString();
+      var result = await HttpClient.instance.getJson(
+        "https://live.douyin.com/webcast/room/web/enter/",
+        queryParameters: {
+          "aid": 6383,
+          "app_name": "douyin_web",
+          "live_id": 1,
+          "device_platform": "web",
+          "enter_from": "web_live",
+          "web_rid": webRid,
+          "room_id_str": realRoomId,
+          "enter_source": "",
+          "Room-Enter-User-Login-Ab": 0,
+          "is_need_double_stream": false,
+          "cookie_enabled": true,
+          "screen_width": 1980,
+          "screen_height": 1080,
+          "browser_language": "zh-CN",
+          "browser_platform": "Win32",
+          "browser_name": "Edge",
+          "browser_version": "114.0.1823.51"
+        },
+        header: requestHeader,
+      );
+      var roomInfo = result["data"]["data"][0];
+      var userInfo = result["data"]["user"];
+      var partition = result["data"]['partition_road_map'];
+      var roomStatus = (asT<int?>(roomInfo["status"]) ?? 0) == 2;
+      return LiveRoom(
+        roomId: roomId,
+        title: roomInfo["title"].toString(),
+        cover: roomStatus ? roomInfo["cover"]["url_list"][0].toString() : "",
+        nick: userInfo["nickname"].toString(),
+        avatar: userInfo["avatar_thumb"]["url_list"][0].toString(),
+        watching:
+            roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
+        liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+        link: "https://live.douyin.com/$webRid",
+        area: partition?['partition']?['title'].toString() ?? '',
+        status: roomStatus,
+        platform: 'douyin',
+        introduction: roomInfo["title"].toString(),
+        notice: "",
+        danmakuData: DouyinDanmakuArgs(
+          webRid: webRid,
+          roomId: realRoomId,
+          userId: userUniqueId,
+          cookie: headers["cookie"],
+        ),
+        data: roomInfo["stream_url"],
+      );
+    } catch (e) {
+      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
+      liveRoom.liveStatus = LiveStatus.offline;
+      liveRoom.status = false;
+      return liveRoom;
+    }
   }
 
   Future<Map> getRoomWebDetail(String webRid) async {

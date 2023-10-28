@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'widgets/index.dart';
 
 class LivePlayPage extends GetWidget<LivePlayController>
@@ -14,7 +13,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
   Future<bool> onWillPop() async {
     await controller.videoController?.exitFullScreen();
     var exit = await controller.onBackPressed();
-    if(exit){
+    if (exit) {
       Get.back();
     }
     return true;
@@ -49,7 +48,9 @@ class LivePlayPage extends GetWidget<LivePlayController>
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 Text(
-                 controller.room.platform! == "douyin" ? "${controller.room.platform!.toUpperCase()}}" :  "${controller.room.platform!.toUpperCase()} / ${controller.room.area}",
+                  controller.room.platform! == "douyin"
+                      ? "${controller.room.platform!.toUpperCase()}}"
+                      : "${controller.room.platform!.toUpperCase()} / ${controller.room.area}",
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
@@ -109,37 +110,6 @@ class LivePlayPage extends GetWidget<LivePlayController>
     );
   }
 
-  Widget buildPipVideoPlayer() {
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Container(
-        color: Colors.black,
-        child: Obx(
-          () => controller.success.value
-              ? media_kit_video.Video(
-                  controller: controller.videoController!.mediaPlayerController,
-                  controls: media_kit_video.NoVideoControls,
-                )
-              : Card(
-                  elevation: 0,
-                  margin: const EdgeInsets.all(0),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero),
-                  clipBehavior: Clip.antiAlias,
-                  color: Get.theme.focusColor,
-                  child: CachedNetworkImage(
-                    imageUrl: controller.room.cover!,
-                    fit: BoxFit.fill,
-                    errorWidget: (context, error, stackTrace) => const Center(
-                      child: Icon(Icons.live_tv_rounded, size: 48),
-                    ),
-                  ),
-                ),
-        ),
-      ),
-    );
-  }
-
   Widget buildVideoPlayer() {
     return Hero(
       tag: controller.room.roomId!,
@@ -149,7 +119,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
           color: Colors.black,
           child: Obx(
             () => controller.success.value
-                ? VideoPlayer(controller: controller.videoController!)
+                ?  VideoPlayer(controller: controller.videoController!)
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),

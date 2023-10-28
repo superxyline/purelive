@@ -129,6 +129,18 @@ class SettingsPage extends GetView<SettingsService> {
                 onChanged: (bool value) => controller.doubleExit.value = value,
               )),
           ListTile(
+            title: Text(S.of(context).change_player),
+            subtitle: Text(S.of(context).change_player_subtitle),
+            trailing: Obx(() => Text( ['ExoPlayer', 'IjkPlayer','AliPlayer'][controller.videoPlayerIndex.value])),
+            onTap: showVideoSetDialog,
+          ),
+          Obx(() => SwitchListTile(
+                title: Text(S.of(context).enable_codec),
+                value: controller.enableCodec.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.enableCodec.value = value,
+              )),
+          ListTile(
             title: Text(S.of(context).auto_shutdown_time),
             subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
             trailing: Obx(() => Text('${controller.autoShutDownTime} minute')),
@@ -199,6 +211,30 @@ class SettingsPage extends GetView<SettingsService> {
               title: Text(name),
               onChanged: (value) {
                 controller.changeLanguage(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  void showVideoSetDialog() {
+    List<String> playerList = ['ExoPlayer', 'IjkPlayer','AliPlayer'];
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(S.of(context).change_player),
+          children: playerList.map<Widget>((name) {
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: playerList[controller.videoPlayerIndex.value],
+              value: name,
+              title: Text(name),
+              onChanged: (value) {
+                controller.changePlayer(playerList.indexOf(name));
                 Navigator.of(context).pop();
               },
             );

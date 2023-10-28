@@ -4,11 +4,11 @@ import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barrage/flutter_barrage.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
+import 'package:pure_live/plugins/barrage.dart';
 
 class VideoControllerPanel extends StatefulWidget {
   final VideoController controller;
@@ -281,7 +281,7 @@ class TopActionBar extends StatelessWidget {
               const DatetimeInfo(),
               BatteryInfo(controller: controller),
             ],
-            if (!controller.fullscreenUI && controller.supportPip)
+            if (!controller.fullscreenUI && controller.supportPip && controller.videoPlayerIndex == 0)
               PIPButton(controller: controller),
           ]),
         ),
@@ -433,27 +433,19 @@ class DanmakuViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraint) => SizedBox(
-        width: constraint.maxWidth,
-        height: constraint.maxHeight,
-        child: Obx(() => Opacity(
-              opacity: controller.hideDanmaku.value
-                  ? 0
-                  : controller.danmakuOpacity.value,
-              child: BarrageWall(
-                width: constraint.maxWidth,
-                height: constraint.maxHeight * controller.danmakuArea.value,
-                controller: controller.danmakuController,
-                speed: controller.danmakuSpeed.value.toInt(),
-                maxBulletHeight: controller.danmakuFontSize * 1.5,
-                safeBottomHeight: 50,
-                massiveMode: false, // disabled by default
-                child: Container(),
-              ),
-            )),
-      ),
-    );
+    return Obx(() => Opacity(
+          opacity: controller.hideDanmaku.value
+              ? 0
+              : controller.danmakuOpacity.value,
+          child: BarrageWall(
+            controller: controller.danmakuController,
+            speed: controller.danmakuSpeed.value.toInt(),
+            maxBulletHeight: controller.danmakuFontSize * 1.5,
+            safeBottomHeight: 50,
+            massiveMode: false, // disabled by default
+            child: Container(),
+          ),
+        ));
   }
 }
 

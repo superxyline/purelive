@@ -291,6 +291,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
+  fijkplayer:
+    dependency: "direct main"
+    description:
+      name: fijkplayer
+      sha256: e6098034e696ce448f5f289fb5b3fa363df5e606bdb418d52944c1dcb8e14cba
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.11.0"
   file:
     dependency: "direct main"
     description:
@@ -320,14 +328,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_barrage:
+  flutter_aliplayer:
     dependency: "direct main"
     description:
-      name: flutter_barrage
-      sha256: d47404608dc66d4a08a5224179cfb4405aefe524f915d03dee4f5fab0cca3094
+      name: flutter_aliplayer
+      sha256: e099110ad3c6153f1d2a7d41f5d94da5560eb8373f4dfafaa5c695137d75646d
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.5.4"
+    version: "5.5.6"
   flutter_blurhash:
     dependency: transitive
     description:
@@ -921,7 +929,7 @@ packages:
     source: hosted
     version: "2.1.4"
   quiver:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: quiver
       sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47

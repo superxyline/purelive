@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -22,7 +23,6 @@ class FavoriteController extends GetxController
     settings.favoriteRooms.listen((rooms) => syncRooms());
 
     // 定时自动刷新
-    onRefresh();
     Timer.periodic(
       Duration(seconds: settings.autoRefreshTime.value),
       (timer) => onRefresh(),
@@ -35,14 +35,15 @@ class FavoriteController extends GetxController
   void syncRooms() {
     onlineRooms.clear();
     offlineRooms.clear();
-    onlineRooms.addAll(settings.favoriteRooms
-        .where((room) => room.status == true));
+    onlineRooms
+        .addAll(settings.favoriteRooms.where((room) => room.liveStatus == LiveStatus.live));
 
-    offlineRooms.addAll(settings.favoriteRooms
-        .where((room) => room.status != true));
+    offlineRooms
+        .addAll(settings.favoriteRooms.where((room) => room.liveStatus != LiveStatus.live));
   }
 
   Future<bool> onRefresh() async {
+    bool hasError = false;
     for (final room in settings.favoriteRooms) {
       try {
         var newRoom = await Sites.of(room.platform!)
@@ -50,10 +51,14 @@ class FavoriteController extends GetxController
             .getRoomDetail(roomId: room.roomId!);
         settings.updateRoom(newRoom);
       } catch (e) {
-        return false;
+        if (!hasError) {
+          hasError = true;
+        }
+        log(room.platform.toString(), name: 'FavoriteRoomsonRefresh');
+        log(e.toString(), name: 'FavoriteRoomsonRefresh');
       }
     }
     syncRooms();
-    return true;
+    return hasError;
   }
 }

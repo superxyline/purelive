@@ -1,6 +1,8 @@
+import 'package:get/get.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/convert_helper.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/bilibili_danmaku.dart';
@@ -22,7 +24,7 @@ class BiliBiliSite implements LiveSite {
 
   @override
   LiveDanmaku getDanmaku() => BiliBiliDanmaku();
-
+  final SettingsService settings = Get.find<SettingsService>();
   @override
   Future<List<LiveCategory>> getCategores() async {
     List<LiveCategory> categories = [];
@@ -198,50 +200,60 @@ class BiliBiliSite implements LiveSite {
 
   @override
   Future<LiveRoom> getRoomDetail({required String roomId}) async {
-    var result = await HttpClient.instance.getJson(
-      "https://api.live.bilibili.com/xlive/web-room/v1/index/getH5InfoByRoom",
-      queryParameters: {
-        "room_id": roomId,
-      },
-    );
+    try {
+      var result = await HttpClient.instance.getJson(
+        "https://api.live.bilibili.com/xlive/web-room/v1/index/getH5InfoByRoom",
+        queryParameters: {
+          "room_id": roomId,
+        },
+      );
 
-    var roomDanmakuResult = await HttpClient.instance.getJson(
-      "https://api.live.bilibili.com/xlive/web-room/v1/index/getDanmuInfo",
-      queryParameters: {
-        "id": roomId,
-      },
-    );
-    var buvid = await getBuvid();
-    List<String> serverHosts = (roomDanmakuResult["data"]["host_list"] as List)
-        .map<String>((e) => e["host"].toString())
-        .toList();
-    return LiveRoom(
-      roomId: roomId,
-      title: result["data"]["room_info"]["title"].toString(),
-      cover: result["data"]["room_info"]["cover"].toString(),
-      nick: result["data"]["anchor_info"]["base_info"]["uname"].toString(),
-      avatar: "${result["data"]["anchor_info"]["base_info"]["face"]}@100w.jpg",
-      watching: result["data"]["room_info"]["online"].toString(),
-      area: result["data"]['room_info']?['area_name'] ?? '',
-      status: (asT<int?>(result["data"]["room_info"]["live_status"]) ?? 0) == 1,
-      liveStatus:
-          (asT<int?>(result["data"]["room_info"]["live_status"]) ?? 0) == 1
-              ? LiveStatus.live
-              : LiveStatus.offline,
-      link: "https://live.bilibili.com/$roomId",
-      introduction: result["data"]["room_info"]["description"].toString(),
-      notice: "",
-      platform: 'bilibili',
-      danmakuData: BiliBiliDanmakuArgs(
-        roomId: asT<int?>(result["data"]["room_info"]["room_id"]) ?? 0,
-        uid: asT<int?>(result["data"]["room_info"]["uid"]) ?? 0,
-        token: roomDanmakuResult["data"]["token"].toString(),
-        serverHost: serverHosts.isNotEmpty
-            ? serverHosts.first
-            : "broadcastlv.chat.bilibili.com",
-        buvid: buvid,
-      ),
-    );
+      var roomDanmakuResult = await HttpClient.instance.getJson(
+        "https://api.live.bilibili.com/xlive/web-room/v1/index/getDanmuInfo",
+        queryParameters: {
+          "id": roomId,
+        },
+      );
+      var buvid = await getBuvid();
+      List<String> serverHosts =
+          (roomDanmakuResult["data"]["host_list"] as List)
+              .map<String>((e) => e["host"].toString())
+              .toList();
+      return LiveRoom(
+        roomId: roomId,
+        title: result["data"]["room_info"]["title"].toString(),
+        cover: result["data"]["room_info"]["cover"].toString(),
+        nick: result["data"]["anchor_info"]["base_info"]["uname"].toString(),
+        avatar:
+            "${result["data"]["anchor_info"]["base_info"]["face"]}@100w.jpg",
+        watching: result["data"]["room_info"]["online"].toString(),
+        area: result["data"]['room_info']?['area_name'] ?? '',
+        status:
+            (asT<int?>(result["data"]["room_info"]["live_status"]) ?? 0) == 1,
+        liveStatus:
+            (asT<int?>(result["data"]["room_info"]["live_status"]) ?? 0) == 1
+                ? LiveStatus.live
+                : LiveStatus.offline,
+        link: "https://live.bilibili.com/$roomId",
+        introduction: result["data"]["room_info"]["description"].toString(),
+        notice: "",
+        platform: 'bilibili',
+        danmakuData: BiliBiliDanmakuArgs(
+          roomId: asT<int?>(result["data"]["room_info"]["room_id"]) ?? 0,
+          uid: asT<int?>(result["data"]["room_info"]["uid"]) ?? 0,
+          token: roomDanmakuResult["data"]["token"].toString(),
+          serverHost: serverHosts.isNotEmpty
+              ? serverHosts.first
+              : "broadcastlv.chat.bilibili.com",
+          buvid: buvid,
+        ),
+      );
+    } catch (e) {
+      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
+      liveRoom.liveStatus = LiveStatus.offline;
+      liveRoom.status = false;
+      return liveRoom;
+    }
   }
 
   @override
@@ -268,16 +280,19 @@ class BiliBiliSite implements LiveSite {
       //移除title中的<em></em>标签
       title = title.replaceAll(RegExp(r"<.*?em.*?>"), "");
       var roomItem = LiveRoom(
-          roomId: item["roomid"].toString(),
-          title: title,
-          cover: "https:${item["cover"]}@400w.jpg",
-          nick: item["uname"].toString(),
-          watching: item["online"].toString(),
-          liveStatus: (asT<int?>(item["live_status"]) ?? 0) == 1 ? LiveStatus.live : LiveStatus.offline,
-          area: item["cate_name"].toString(),
-          status: (asT<int?>(item["live_status"]) ?? 0) == 1,
-          avatar: "https:${item["uface"]}@400w.jpg",
-          platform: 'bilibili',);
+        roomId: item["roomid"].toString(),
+        title: title,
+        cover: "https:${item["cover"]}@400w.jpg",
+        nick: item["uname"].toString(),
+        watching: item["online"].toString(),
+        liveStatus: (asT<int?>(item["live_status"]) ?? 0) == 1
+            ? LiveStatus.live
+            : LiveStatus.offline,
+        area: item["cate_name"].toString(),
+        status: (asT<int?>(item["live_status"]) ?? 0) == 1,
+        avatar: "https:${item["uface"]}@400w.jpg",
+        platform: 'bilibili',
+      );
       items.add(roomItem);
     }
     return LiveSearchRoomResult(hasMore: items.length >= 40, items: items);

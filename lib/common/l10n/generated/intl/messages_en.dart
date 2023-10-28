@@ -63,6 +63,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "change_language": MessageLookupByLibrary.simpleMessage("Language"),
         "change_language_subtitle": MessageLookupByLibrary.simpleMessage(
             "Change the display language of the app"),
+        "change_player":
+            MessageLookupByLibrary.simpleMessage("Change videoPlayer"),
+        "change_player_subtitle": MessageLookupByLibrary.simpleMessage(
+            "Change videoPlayer of liveroom"),
         "change_theme_color":
             MessageLookupByLibrary.simpleMessage("Theme Color"),
         "change_theme_color_subtitle": MessageLookupByLibrary.simpleMessage(
@@ -129,6 +133,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Play Background"),
         "enable_background_play_subtitle": MessageLookupByLibrary.simpleMessage(
             "When leave app, allow video play background"),
+        "enable_codec":
+            MessageLookupByLibrary.simpleMessage("enable hardcodec"),
         "enable_dense_favorites_mode":
             MessageLookupByLibrary.simpleMessage("Dense Mode"),
         "enable_dense_favorites_mode_subtitle":

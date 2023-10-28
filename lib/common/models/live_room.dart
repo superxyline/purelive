@@ -32,7 +32,8 @@ class LiveRoom {
 
   /// 是否录播
   bool? isRecord = false;
-  LiveStatus? liveStatus = LiveStatus.unknown;
+  // 直播状态
+  LiveStatus? liveStatus = LiveStatus.offline;
 
   LiveRoom(
       {this.roomId,
@@ -83,7 +84,7 @@ class LiveRoom {
         'watching': watching,
         'followers': followers,
         'platform': platform,
-        'liveStatus': liveStatus?.index,
+        'liveStatus': liveStatus?.index ?? 1,
         'isRecord': isRecord,
         'status': status,
         'notice': notice,

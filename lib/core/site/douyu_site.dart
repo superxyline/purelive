@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:get/get.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/douyu_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -25,7 +27,7 @@ class DouyuSite implements LiveSite {
 
   @override
   LiveDanmaku getDanmaku() => DouyuDanmaku();
-
+  final SettingsService settings = Get.find<SettingsService>();
   @override
   Future<List<LiveCategory>> getCategores() async {
     List<LiveCategory> categories = [
@@ -194,51 +196,58 @@ class DouyuSite implements LiveSite {
 
   @override
   Future<LiveRoom> getRoomDetail({required String roomId}) async {
-    var result = await HttpClient.instance.getJson(
-        "https://www.douyu.com/betard/$roomId",
-        queryParameters: {},
-        header: {
-          'referer': 'https://www.douyu.com/$roomId',
-          'user-agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43',
-        });
-    Map roomInfo;
-    if (result is String) {
-      roomInfo = json.decode(result)["room"];
-    } else {
-      roomInfo = result["room"];
+    try {
+      var result = await HttpClient.instance.getJson(
+          "https://www.douyu.com/betard/$roomId",
+          queryParameters: {},
+          header: {
+            'referer': 'https://www.douyu.com/$roomId',
+            'user-agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43',
+          });
+      Map roomInfo;
+      if (result is String) {
+        roomInfo = json.decode(result)["room"];
+      } else {
+        roomInfo = result["room"];
+      }
+
+      var jsEncResult = await HttpClient.instance.getText(
+          "https://www.douyu.com/swf_api/homeH5Enc?rids=$roomId",
+          queryParameters: {},
+          header: {
+            'referer': 'https://www.douyu.com/$roomId',
+            'user-agent':
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"
+          });
+      var crptext = json.decode(jsEncResult)["data"]["room$roomId"].toString();
+
+      return LiveRoom(
+        cover: roomInfo["room_pic"].toString(),
+        watching: roomInfo["room_biz_all"]["hot"].toString(),
+        roomId: roomId,
+        title: roomInfo["room_name"].toString(),
+        nick: roomInfo["owner_name"].toString(),
+        avatar: roomInfo["owner_avatar"].toString(),
+        introduction: roomInfo["show_details"].toString(),
+        area: roomInfo["cate_name"]?.toString() ?? '',
+        notice: "",
+        liveStatus: roomInfo["show_status"] == 1
+            ? LiveStatus.live
+            : LiveStatus.offline,
+        status: roomInfo["show_status"] == 1,
+        danmakuData: roomInfo["room_id"].toString(),
+        data: await getPlayArgs(crptext, roomInfo["room_id"].toString()),
+        platform: 'douyu',
+        link: "https://www.douyu.com/$roomId",
+        isRecord: roomInfo["videoLoop"] == 1,
+      );
+    } catch (e) {
+      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
+      liveRoom.liveStatus = LiveStatus.offline;
+      liveRoom.status = false;
+      return liveRoom;
     }
-
-    var jsEncResult = await HttpClient.instance.getText(
-        "https://www.douyu.com/swf_api/homeH5Enc?rids=$roomId",
-        queryParameters: {},
-        header: {
-          'referer': 'https://www.douyu.com/$roomId',
-          'user-agent':
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"
-        });
-    var crptext = json.decode(jsEncResult)["data"]["room$roomId"].toString();
-
-    return LiveRoom(
-      cover: roomInfo["room_pic"].toString(),
-      watching: roomInfo["room_biz_all"]["hot"].toString(),
-      roomId: roomId,
-      title: roomInfo["room_name"].toString(),
-      nick: roomInfo["owner_name"].toString(),
-      avatar: roomInfo["owner_avatar"].toString(),
-      introduction: roomInfo["show_details"].toString(),
-      area: roomInfo["cate_name"]?.toString() ?? '',
-      notice: "",
-      liveStatus: roomInfo["show_status"] == 1 && roomInfo["videoLoop"] != 1
-          ? LiveStatus.live
-          : LiveStatus.offline,
-      status: roomInfo["show_status"] == 1 && roomInfo["videoLoop"] != 1,
-      danmakuData: roomInfo["room_id"].toString(),
-      data: await getPlayArgs(crptext, roomInfo["room_id"].toString()),
-      platform: 'douyu',
-      link: "https://www.douyu.com/$roomId",
-      isRecord: roomInfo["videoLoop"] == 1,
-    );
   }
 
   @override
@@ -264,17 +273,16 @@ class DouyuSite implements LiveSite {
     }
     var items = <LiveRoom>[];
     for (var item in result["data"]["relateShow"]) {
-       var liveStatus =
-          (int.tryParse(item["isLive"].toString()) ?? 0) == 1;
-      var roomType =
-          (int.tryParse(item["roomType"].toString()) ?? 0);
+      var liveStatus = (int.tryParse(item["isLive"].toString()) ?? 0) == 1;
+      var roomType = (int.tryParse(item["roomType"].toString()) ?? 0);
       var roomItem = LiveRoom(
         roomId: item["rid"].toString(),
         title: item["roomName"].toString(),
         cover: item["roomSrc"].toString(),
-        area:  item["cateName"].toString(),
+        area: item["cateName"].toString(),
         avatar: item["avatar"].toString(),
-        liveStatus: liveStatus && roomType == 0 ? LiveStatus.live : LiveStatus.offline,
+        liveStatus:
+            liveStatus && roomType == 0 ? LiveStatus.live : LiveStatus.offline,
         status: liveStatus && roomType == 0,
         nick: item["nickName"].toString(),
         platform: 'douyu',

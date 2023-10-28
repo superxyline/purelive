@@ -114,6 +114,16 @@ class SettingsService extends GetxController {
       doubleExit.value = value;
       PrefUtil.setBool('doubleExit', value);
     });
+
+    enableCodec.listen((value) {
+      enableCodec.value = value;
+      PrefUtil.setBool('enableCodec', value);
+    });
+
+    videoPlayerIndex.listen((value) {
+      videoPlayerIndex.value = value;
+      PrefUtil.setInt('videoPlayerIndex', value);
+    });
   }
 
   // Theme settings
@@ -179,6 +189,11 @@ class SettingsService extends GetxController {
     PrefUtil.setString('language', value);
     Get.updateLocale(language);
   }
+   void changePlayer(int value) {
+    videoPlayerIndex.value  = value;
+    PrefUtil.setInt('videoPlayerIndex', value);
+  }
+    
 
   final enableDynamicTheme =
       (PrefUtil.getBool('enableDynamicTheme') ?? false).obs;
@@ -206,10 +221,13 @@ class SettingsService extends GetxController {
   final danmakuFontSize = (PrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
   final danmakuFontBorder =
       (PrefUtil.getDouble('danmakuFontBorder') ?? 0.5).obs;
+
   final danmakuOpacity = (PrefUtil.getDouble('danmakuOpacity') ?? 1.0).obs;
 
   final enableFullScreenDefault =
       (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
+  final videoPlayerIndex = (PrefUtil.getInt('videoPlayerIndex') ?? 1).obs;
+  final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
 
   final enableAutoShutDownTime =
       (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
@@ -408,6 +426,8 @@ class SettingsService extends GetxController {
     danmakuFontBorder.value = json['danmakuFontBorder'] ?? 0.5;
     danmakuOpacity.value = json['danmakuOpacity'] ?? 1.0;
     doubleExit.value = json['doubleExit'] ?? true;
+    videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
+    enableCodec.value = json['enableCodec'] ?? true;
     changeThemeMode(themeModeName.value);
     changeThemeColor(themeColorName.value);
     changeLanguage(languageName.value);
@@ -448,6 +468,8 @@ class SettingsService extends GetxController {
     json['danmakuFontBorder'] = danmakuFontBorder.value;
     json['danmakuOpacity'] = danmakuOpacity.value;
     json['doubleExit'] = doubleExit.value;
+    json['videoPlayerIndex'] = videoPlayerIndex.value;
+    json['enableCodec'] = enableCodec.value;
     return json;
   }
 
@@ -475,7 +497,9 @@ class SettingsService extends GetxController {
       "danmakuFontSize": 16.0,
       "danmakuFontBorder": 0.5,
       "danmakuOpacity": 1.0,
-      'doubleExit': true
+      'doubleExit': true,
+      "videoPlayerIndex": 0,
+      'enableCodec': true
     };
     return json;
   }

@@ -190,5 +190,8 @@
     "exit_app": "Are you sure want to exit?",
     "exit_yes": "Yes",
     "exit_no": "No",
-    "double_click_to_exit": "Double click to exit"
+    "double_click_to_exit": "Double click to exit",
+    "change_player": "Change videoPlayer",
+    "change_player_subtitle": "Change videoPlayer of liveroom",
+    "enable_codec": "enable hardcodec"
 }

@@ -188,5 +188,8 @@
     "exit_app": "确定退出吗?",
     "exit_yes": "确定",
     "exit_no": "取消",
-    "double_click_to_exit": "双击退出"
+    "double_click_to_exit": "双击退出",
+    "change_player": "切换播放器",
+    "change_player_subtitle": "切换直播间播放器",
+    "enable_codec": "开启硬解码"
 }

@@ -6,3 +6,11 @@
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
 -keep class de.prosiebensat1digital.** { *; }
+-keep class com.aliyun.**{*;}
+-keep class com.duanqu.**{*;}
+-keep class com.qu.**{*;}
+-keep class com.alibaba.**{*;}
+-keep class component.alivc.**{*;}
+-keep class com.alivc.**{*;}
+-keep class org.webrtc.**{*;}
+-keep class org.ugsv.**{*;}

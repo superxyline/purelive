@@ -104,12 +104,8 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
   Future onRefresh() async {
-    bool result = await controller.onRefresh();
-    if (result) {
-      refreshController.finishRefresh(IndicatorResult.success);
-    } else {
-      refreshController.finishLoad(IndicatorResult.fail);
-    }
+    await controller.onRefresh();
+    refreshController.finishRefresh(IndicatorResult.success);
   }
 
   @override
