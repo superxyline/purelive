@@ -122,15 +122,14 @@ class VideoController with ChangeNotifier {
     }
   }
 
-  void initVideoController() {
+  void initVideoController() async {
     FlutterVolumeController.showSystemUI = false;
     if (Platform.isWindows || Platform.isLinux) {
       player = Player();
-      mediaPlayerController = media_kit_video.VideoController(
-        player,
-        configuration: const media_kit_video.VideoControllerConfiguration(
-            androidAttachSurfaceAfterVideoParameters: false),
-      );
+      if (player.platform is NativePlayer) {
+        await (player.platform as dynamic).setProperty('cache', 'no');
+      }
+      mediaPlayerController = media_kit_video.VideoController(player);
       setDataSource(datasource);
       mediaPlayerController.player.stream.playing.listen((bool playing) {
         if (playing) {
@@ -168,7 +167,7 @@ class VideoController with ChangeNotifier {
       if (hasError.value) {
         livePlayController.changePlayLine();
       }
-    },time: const Duration(seconds: 1));
+    }, time: const Duration(seconds: 1));
     // fix auto fullscreen
     if (fullScreenByDefault && datasource.isNotEmpty) {
       Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
