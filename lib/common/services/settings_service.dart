@@ -226,7 +226,7 @@ class SettingsService extends GetxController {
 
   final enableFullScreenDefault =
       (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
-  final videoPlayerIndex = (PrefUtil.getInt('videoPlayerIndex') ?? 1).obs;
+  final videoPlayerIndex = (PrefUtil.getInt('videoPlayerIndex') ?? 0).obs;
   final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
 
   final enableAutoShutDownTime =
