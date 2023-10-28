@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:get/get.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -42,6 +44,7 @@ class HuyaSite implements LiveSite {
     return categories;
   }
 
+  final SettingsService settings = Get.find<SettingsService>();
   Future<List<LiveArea>> getSubCategores(LiveCategory liveCategory) async {
     var result = await HttpClient.instance.getJson(
       "https://live.cdn.huya.com/liveconfig/game/bussLive",
@@ -52,7 +55,7 @@ class HuyaSite implements LiveSite {
 
     List<LiveArea> subs = [];
     for (var item in result["data"]) {
-       var gid = (item["gid"])?.toInt().toString();
+      var gid = (item["gid"])?.toInt().toString();
       var subCategory = LiveArea(
           areaId: gid!,
           areaName: item["gameFullName"].toString(),
@@ -194,17 +197,16 @@ class HuyaSite implements LiveSite {
         title = item["roomName"]?.toString() ?? "";
       }
       var roomItem = LiveRoom(
-        roomId: item["profileRoom"].toString(),
-        title: title,
-        cover: cover,
-        area: item["gameFullName"].toString(),
-        nick: item["nick"].toString(),
-        avatar: item["avatar180"],
-        watching: item["totalCount"].toString(),
-        platform: 'huya',
-        liveStatus: LiveStatus.live,
-        status: true
-      );
+          roomId: item["profileRoom"].toString(),
+          title: title,
+          cover: cover,
+          area: item["gameFullName"].toString(),
+          nick: item["nick"].toString(),
+          avatar: item["avatar180"],
+          watching: item["totalCount"].toString(),
+          platform: 'huya',
+          liveStatus: LiveStatus.live,
+          status: true);
       items.add(roomItem);
     }
     var hasMore = result["data"]["page"] < result["data"]["totalPage"];
@@ -222,6 +224,14 @@ class HuyaSite implements LiveSite {
             multiLine: false)
         .firstMatch(resultText)
         ?.group(1);
+
+    bool isViolation = text?.contains('exceptionType') ?? false;
+    if (isViolation) {
+      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
+      liveRoom.liveStatus = LiveStatus.offline;
+      liveRoom.status = false;
+      return liveRoom;
+    }
     var jsonObj = json.decode("{$text}");
     var title =
         jsonObj["roomInfo"]["tLiveInfo"]["sIntroduction"]?.toString() ?? "";
@@ -270,7 +280,8 @@ class HuyaSite implements LiveSite {
         cover: jsonObj["roomInfo"]["tLiveInfo"]["sScreenshot"].toString(),
         watching: jsonObj["roomInfo"]["tLiveInfo"]["lTotalCount"].toString(),
         roomId: roomId,
-        area: jsonObj["roomInfo"]?["tLiveInfo"]?["sGameFullName"].toString() ?? '',
+        area: jsonObj["roomInfo"]?["tLiveInfo"]?["sGameFullName"].toString() ??
+            '',
         title: title,
         nick: jsonObj["roomInfo"]["tProfileInfo"]["sNick"].toString(),
         avatar: jsonObj["roomInfo"]["tProfileInfo"]["sAvatar180"].toString(),

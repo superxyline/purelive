@@ -114,7 +114,6 @@ class SettingsService extends GetxController {
       doubleExit.value = value;
       PrefUtil.setBool('doubleExit', value);
     });
-    
   }
 
   // Theme settings
@@ -277,39 +276,49 @@ class SettingsService extends GetxController {
       .obs;
 
   bool isFavorite(LiveRoom room) {
-    return favoriteRooms.contains(room);
+    return favoriteRooms.any((element) => element.roomId == room.roomId);
+  }
+
+  LiveRoom getLiveRoomByRoomId(roomId) {
+    return favoriteRooms.firstWhere((element) => element.roomId == roomId);
   }
 
   bool addRoom(LiveRoom room) {
-    if (favoriteRooms.any((element) =>  element.roomId == room.roomId)) return false;
+    if (favoriteRooms.any((element) => element.roomId == room.roomId)) {
+      return false;
+    }
     favoriteRooms.add(room);
     SupaBaseManager().uploadConfigWithBackGend();
     return true;
   }
 
   bool removeRoom(LiveRoom room) {
-    if (!favoriteRooms.any((element) =>  element.roomId == room.roomId)) return false;
+    if (!favoriteRooms.any((element) => element.roomId == room.roomId)) {
+      return false;
+    }
     favoriteRooms.remove(room);
     SupaBaseManager().uploadConfigWithBackGend();
     return true;
   }
 
   bool updateRoom(LiveRoom room) {
-    int idx = favoriteRooms.indexWhere((element) => element.roomId == room.roomId);
+    int idx =
+        favoriteRooms.indexWhere((element) => element.roomId == room.roomId);
     if (idx == -1) return false;
     favoriteRooms[idx] = room;
     return true;
   }
 
   bool updateRoomInHistory(LiveRoom room) {
-    int idx = historyRooms.indexWhere((element) => element.roomId == room.roomId);
+    int idx =
+        historyRooms.indexWhere((element) => element.roomId == room.roomId);
     if (idx == -1) return false;
     historyRooms[idx] = room;
     return true;
   }
 
   void addRoomToHistory(LiveRoom room) {
-    if (historyRooms.any((element) =>  element.roomId == room.roomId)) {
+    if (historyRooms.any((element) => element.roomId == room.roomId)) {
       historyRooms.remove(room);
     }
     //默认只记录20条，够用了
@@ -330,13 +339,19 @@ class SettingsService extends GetxController {
   }
 
   bool addArea(LiveArea area) {
-    if (favoriteAreas.any((element) =>  element.areaId == area.areaId && element.platform == area.platform)) return false;
+    if (favoriteAreas.any((element) =>
+        element.areaId == area.areaId && element.platform == area.platform)) {
+      return false;
+    }
     favoriteAreas.add(area);
     return true;
   }
 
   bool removeArea(LiveArea area) {
-    if (!favoriteAreas.any((element) =>  element.areaId == area.areaId && element.platform == area.platform)) return false;
+    if (!favoriteAreas.any((element) =>
+        element.areaId == area.areaId && element.platform == area.platform)) {
+      return false;
+    }
     favoriteAreas.remove(area);
     return true;
   }
@@ -460,7 +475,7 @@ class SettingsService extends GetxController {
       "danmakuFontSize": 16.0,
       "danmakuFontBorder": 0.5,
       "danmakuOpacity": 1.0,
-      'doubleExit':true
+      'doubleExit': true
     };
     return json;
   }
