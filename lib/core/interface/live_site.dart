@@ -56,6 +56,7 @@ class LiveSite {
       watching: '0',
       roomId: '',
       status: false,
+      liveStatus: LiveStatus.offline,
       title: '',
       link: '',
       avatar: '',

@@ -1,7 +1,7 @@
-
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:get/get.dart';
@@ -14,7 +14,8 @@ class SearchListView extends StatelessWidget {
 
   const SearchListView(this.tag, {Key? key}) : super(key: key);
 
-  SearchListController get controller => Get.find<SearchListController>(tag: tag);
+  SearchListController get controller =>
+      Get.find<SearchListController>(tag: tag);
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +23,27 @@ class SearchListView extends StatelessWidget {
       final width = constraint.maxWidth;
       final crossAxisCount =
           width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      return Obx(() => controller.list.isNotEmpty
-          ? MasonryGridView.count(
-              padding: const EdgeInsets.all(8),
-              physics: const BouncingScrollPhysics(),
-              controller: controller.scrollController,
-              crossAxisCount: crossAxisCount,
-              itemCount: controller.list.length,
-              itemBuilder: (context, index) {
-                final room = controller.list[index];
-                return OwnerCard(room: room);
-              })
-          : EmptyView(
-              icon: Icons.live_tv_rounded,
-              title: S.of(context).empty_search_title,
-              subtitle: S.of(context).empty_search_subtitle,
-            ));
+      return Obx(() => EasyRefresh(
+            controller: controller.easyRefreshController,
+            onRefresh: controller.refreshData,
+            onLoad: controller.loadData,
+            child: controller.list.isNotEmpty
+                ? MasonryGridView.count(
+                    padding: const EdgeInsets.all(8),
+                    physics: const BouncingScrollPhysics(),
+                    controller: controller.scrollController,
+                    crossAxisCount: crossAxisCount,
+                    itemCount: controller.list.length,
+                    itemBuilder: (context, index) {
+                      final room = controller.list[index];
+                      return OwnerCard(room: room);
+                    })
+                : EmptyView(
+                    icon: Icons.live_tv_rounded,
+                    title: S.of(context).empty_search_title,
+                    subtitle: S.of(context).empty_search_subtitle,
+                  ),
+          ));
     });
   }
 }
@@ -62,12 +68,13 @@ class _OwnerCardState extends State<OwnerCard> {
 
   ImageProvider? getRoomAvatar(avatar) {
     try {
-      return CachedNetworkImageProvider(avatar,errorListener: () {log("CachedNetworkImageProvider: Image failed to load!");});
+      return CachedNetworkImageProvider(avatar, errorListener: () {
+        log("CachedNetworkImageProvider: Image failed to load!");
+      });
     } catch (e) {
       return null;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +94,7 @@ class _OwnerCardState extends State<OwnerCard> {
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
-          "${widget.room.platform} - ${widget.room.area}",
+          widget.room.platform == "douyin" ? "${widget.room.platform?.toUpperCase()}" : "${widget.room.platform?.toUpperCase()} - ${widget.room.area}",
           maxLines: 1,
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),

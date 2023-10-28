@@ -20,13 +20,11 @@ class SearchController extends GetxController
       if (index == currentIndex) {
         return;
       }
-
       index = currentIndex;
       var controller =
           Get.find<SearchListController>(tag: Sites.supportSites[index].id);
-
       if (controller.list.isEmpty && !controller.pageEmpty.value) {
-        controller.scrollToTopOrRefresh();
+        controller.refreshData();
       }
     });
   }
@@ -36,10 +34,7 @@ class SearchController extends GetxController
   @override
   void onInit() {
     for (var site in Sites.supportSites) {
-      Get.put(
-        SearchListController(site),
-        tag: site.id,
-      );
+      Get.put(SearchListController(site),tag: site.id);
     }
 
     super.onInit();
@@ -54,8 +49,7 @@ class SearchController extends GetxController
       controller.clear();
       controller.keyword = searchController.text;
     }
-    var controller =
-        Get.find<SearchListController>(tag: Sites.supportSites[index].id);
+    var controller = Get.find<SearchListController>(tag: Sites.supportSites[index].id);
     controller.loadData();
   }
 }

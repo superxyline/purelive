@@ -77,7 +77,6 @@ class DouyinSite implements LiveSite {
         .replaceAll('\\"', '"')
         .replaceAll(r"\\", r"\")
         .replaceAll(']\\n', ""));
-
     for (var item in renderDataJson["categoryData"]) {
       List<LiveArea> subs = [];
       var id = '${item["partition"]["id_str"]},${item["partition"]["type"]}';
@@ -85,7 +84,7 @@ class DouyinSite implements LiveSite {
         var subCategory = LiveArea(
           areaId:
               '${subItem["partition"]["id_str"]},${subItem["partition"]["type"]}',
-          typeName: asT<String?>(subItem["partition"]["title"]) ?? "",
+          typeName: item["partition"]["title"] ?? '',
           areaType: id,
           areaName: subItem["partition"]["title"] ?? '',
           areaPic: "",
@@ -135,7 +134,6 @@ class DouyinSite implements LiveSite {
       },
       header: await getRequestHeaders(),
     );
-
     var hasMore = (result["data"]["data"] as List).length >= 15;
     var items = <LiveRoom>[];
     for (var item in result["data"]["data"]) {
@@ -144,7 +142,11 @@ class DouyinSite implements LiveSite {
         title: item["room"]["title"].toString(),
         cover: item["room"]["cover"]["url_list"][0].toString(),
         nick: item["room"]["owner"]["nickname"].toString(),
+        liveStatus: LiveStatus.live,
+        avatar: item["room"]["owner"]["avatar_thumb"]["url_list"][0].toString(),
+        status: true,
         platform: 'douyin',
+        area: item['tag_name'].toString(),
         watching:
             item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
       );
@@ -172,6 +174,7 @@ class DouyinSite implements LiveSite {
 
     var hasMore = (result["data"]["data"] as List).length >= 15;
     var items = <LiveRoom>[];
+
     for (var item in result["data"]["data"]) {
       var roomItem = LiveRoom(
         roomId: item["web_rid"],
@@ -179,6 +182,8 @@ class DouyinSite implements LiveSite {
         cover: item["room"]["cover"]["url_list"][0].toString(),
         nick: item["room"]["owner"]["nickname"].toString(),
         platform: 'douyin',
+        area: item["tag_name"].toString(),
+        avatar: item["room"]["owner"]["avatar_thumb"]["url_list"][0].toString(),
         watching:
             item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
         liveStatus: LiveStatus.live,
@@ -221,6 +226,7 @@ class DouyinSite implements LiveSite {
     );
     var roomInfo = result["data"]["data"][0];
     var userInfo = result["data"]["user"];
+    var partition = result["data"]['partition_road_map'];
     var roomStatus = (asT<int?>(roomInfo["status"]) ?? 0) == 2;
     return LiveRoom(
       roomId: roomId,
@@ -231,6 +237,7 @@ class DouyinSite implements LiveSite {
       watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
       link: "https://live.douyin.com/$webRid",
+      area: partition?['partition']?['title'].toString() ?? '',
       status: roomStatus,
       platform: 'douyin',
       introduction: roomInfo["title"].toString(),
@@ -363,13 +370,18 @@ class DouyinSite implements LiveSite {
     var items = <LiveRoom>[];
     for (var item in result["data"] ?? []) {
       var itemData = json.decode(item["lives"]["rawdata"].toString());
+      var roomStatus = (asT<int?>(itemData["status"]) ?? 0) == 2;
       var roomItem = LiveRoom(
         roomId: itemData["owner"]["web_rid"].toString(),
         title: itemData["title"].toString(),
         cover: itemData["cover"]["url_list"][0].toString(),
         nick: itemData["owner"]["nickname"].toString(),
         platform: 'douyin',
-        watching: itemData["stats"]["total_user"].toString(),
+        avatar: itemData["owner"]["avatar_thumb"]["url_list"][0].toString(),
+        liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+        area: '',
+        status: roomStatus,
+        watching: itemData["stats"]["total_user_str"].toString(),
       );
       items.add(roomItem);
     }

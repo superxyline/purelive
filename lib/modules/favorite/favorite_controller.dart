@@ -29,23 +29,25 @@ class FavoriteController extends GetxController
     );
   }
 
-  final  onlineRooms = [].obs;
+  final onlineRooms = [].obs;
   final offlineRooms = [].obs;
 
   void syncRooms() {
     onlineRooms.clear();
+    offlineRooms.clear();
     onlineRooms.addAll(settings.favoriteRooms
         .where((room) => room.status == true));
 
-    offlineRooms.clear();
     offlineRooms.addAll(settings.favoriteRooms
-        .where((room) => room.status == false));
+        .where((room) => room.status != true));
   }
 
   Future<bool> onRefresh() async {
     for (final room in settings.favoriteRooms) {
       try {
-        var newRoom = await Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!);
+        var newRoom = await Sites.of(room.platform!)
+            .liveSite
+            .getRoomDetail(roomId: room.roomId!);
         settings.updateRoom(newRoom);
       } catch (e) {
         return false;

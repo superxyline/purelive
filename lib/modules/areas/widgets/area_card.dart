@@ -54,7 +54,7 @@ class AreaCard extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
               subtitle: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
                     category.typeName!,
@@ -62,14 +62,7 @@ class AreaCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       fontSize: 10,
                     ),
-                  ),
-                  Text(
-                    category.platform!.toUpperCase(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                    ),
-                  ),
+                  )
                 ],
               ),
             )

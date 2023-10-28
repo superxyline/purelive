@@ -49,7 +49,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 Text(
-                  '${controller.room.platform!.toUpperCase()} / ${controller.room.area}',
+                 controller.room.platform! == "douyin" ? "${controller.room.platform!.toUpperCase()}}" :  "${controller.room.platform!.toUpperCase()} / ${controller.room.area}",
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall

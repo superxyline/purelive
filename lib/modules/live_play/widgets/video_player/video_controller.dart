@@ -138,6 +138,10 @@ class VideoController with ChangeNotifier {
           isPlaying.value = false;
         }
       });
+      mediaPlayerController.player.stream.error.listen((event) {
+        hasError.value = true;
+        isPlaying.value = false;
+       });
     } else if (Platform.isAndroid || Platform.isIOS) {
       mobileController = BetterPlayerController(
         BetterPlayerConfiguration(

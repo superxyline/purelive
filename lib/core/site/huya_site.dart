@@ -90,13 +90,16 @@ class HuyaSite implements LiveSite {
       if (title.isEmpty) {
         title = item["roomName"]?.toString() ?? "";
       }
-
       var roomItem = LiveRoom(
         roomId: item["profileRoom"].toString(),
         title: title,
         cover: cover,
         nick: item["nick"].toString(),
         watching: item["totalCount"].toString(),
+        avatar: item["avatar180"],
+        area: item["gameFullName"].toString(),
+        liveStatus: LiveStatus.live,
+        status: true,
         platform: 'huya',
       );
       items.add(roomItem);
@@ -190,15 +193,17 @@ class HuyaSite implements LiveSite {
       if (title.isEmpty) {
         title = item["roomName"]?.toString() ?? "";
       }
-
       var roomItem = LiveRoom(
         roomId: item["profileRoom"].toString(),
         title: title,
         cover: cover,
+        area: item["gameFullName"].toString(),
         nick: item["nick"].toString(),
+        avatar: item["avatar180"],
         watching: item["totalCount"].toString(),
         platform: 'huya',
         liveStatus: LiveStatus.live,
+        status: true
       );
       items.add(roomItem);
     }
@@ -264,7 +269,8 @@ class HuyaSite implements LiveSite {
     return LiveRoom(
         cover: jsonObj["roomInfo"]["tLiveInfo"]["sScreenshot"].toString(),
         watching: jsonObj["roomInfo"]["tLiveInfo"]["lTotalCount"].toString(),
-        roomId: jsonObj["roomInfo"]["tLiveInfo"]["lProfileRoom"].toString(),
+        roomId: roomId,
+        area: jsonObj["roomInfo"]?["tLiveInfo"]?["sGameFullName"].toString() ?? '',
         title: title,
         nick: jsonObj["roomInfo"]["tProfileInfo"]["sNick"].toString(),
         avatar: jsonObj["roomInfo"]["tProfileInfo"]["sAvatar180"].toString(),
@@ -320,12 +326,15 @@ class HuyaSite implements LiveSite {
       if (title.isEmpty) {
         title = item["game_roomName"]?.toString() ?? "";
       }
-
       var roomItem = LiveRoom(
         roomId: item["room_id"].toString(),
         title: title,
         cover: cover,
         nick: item["game_nick"].toString(),
+        area: item["gameName"].toString(),
+        status: true,
+        liveStatus: LiveStatus.live,
+        avatar: item["game_imgUrl"].toString(),
         watching: item["game_total_count"].toString(),
         platform: 'huya',
       );

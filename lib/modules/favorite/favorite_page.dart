@@ -107,7 +107,6 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
     bool result = await controller.onRefresh();
     if (result) {
       refreshController.finishRefresh(IndicatorResult.success);
-      refreshController.resetFooter();
     } else {
       refreshController.finishLoad(IndicatorResult.fail);
     }

@@ -9,6 +9,8 @@ import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/about/widgets/version_dialog.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
+import 'package:pure_live/plugins/supabase.dart';
+import 'package:window_manager/window_manager.dart';
 import '../search/search_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,7 +21,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, WindowListener {
   @override
   void initState() {
     super.initState();
@@ -34,10 +36,31 @@ class _HomePageState extends State<HomePage>
                 Theme.of(context).navigationBarTheme.backgroundColor,
           ));
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        } else {
+          windowManager.addListener(this);
         }
       },
     );
     addToOverlay();
+  }
+
+  @override
+  void dispose() {
+    if (Platform.isWindows) {
+      windowManager.removeListener(this);
+    }
+    super.dispose();
+  }
+
+  @override
+  void onWindowFocus() {
+    setState(() {});
+  }
+
+  @override
+  void onWindowClose() {
+    SupaBaseManager().uploadConfigWithBackGend();
+    super.onWindowClose();
   }
 
   int _selectedIndex = 0;
@@ -79,21 +102,55 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+  Future<bool> _onBackPressed() async {
+    SupaBaseManager().uploadConfigWithBackGend();
+    bool doubleExit = Get.find<SettingsService>().doubleExit.value;
+    if(!doubleExit){
+      return true;
+    }
+    bool confirmExit = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.of(context).exit_app),
+        contentPadding: const EdgeInsets.all(2),
+        actionsPadding: const EdgeInsets.all(10),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text(S.of(context).exit_yes),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // 取消退出
+            },
+            child: Text(S.of(context).exit_no),
+          ),
+        ],
+      ),
+    );
+    return confirmExit;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return LayoutBuilder(
-      builder: (context, constraint) => constraint.maxWidth <= 680
-          ? HomeMobileView(
-              body: bodys[_selectedIndex],
-              index: _selectedIndex,
-              onDestinationSelected: onDestinationSelected,
-            )
-          : HomeTabletView(
-              body: bodys[_selectedIndex],
-              index: _selectedIndex,
-              onDestinationSelected: onDestinationSelected,
-            ),
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: LayoutBuilder(
+        builder: (context, constraint) => constraint.maxWidth <= 680
+            ? HomeMobileView(
+                body: bodys[_selectedIndex],
+                index: _selectedIndex,
+                onDestinationSelected: onDestinationSelected,
+              )
+            : HomeTabletView(
+                body: bodys[_selectedIndex],
+                index: _selectedIndex,
+                onDestinationSelected: onDestinationSelected,
+              ),
+      ),
     );
   }
 

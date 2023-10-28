@@ -109,6 +109,12 @@ class SettingsService extends GetxController {
       danmakuOpacity.value = value;
       PrefUtil.setDouble('danmakuOpacity', value);
     });
+
+    doubleExit.listen((value) {
+      doubleExit.value = value;
+      PrefUtil.setBool('doubleExit', value);
+    });
+    
   }
 
   // Theme settings
@@ -208,7 +214,7 @@ class SettingsService extends GetxController {
 
   final enableAutoShutDownTime =
       (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
-
+  final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
 
   static const List<BoxFit> videofitList = [
@@ -275,35 +281,35 @@ class SettingsService extends GetxController {
   }
 
   bool addRoom(LiveRoom room) {
-    if (favoriteRooms.contains(room)) return false;
+    if (favoriteRooms.any((element) =>  element.roomId == room.roomId)) return false;
     favoriteRooms.add(room);
     SupaBaseManager().uploadConfigWithBackGend();
     return true;
   }
 
   bool removeRoom(LiveRoom room) {
-    if (!favoriteRooms.contains(room)) return false;
+    if (!favoriteRooms.any((element) =>  element.roomId == room.roomId)) return false;
     favoriteRooms.remove(room);
     SupaBaseManager().uploadConfigWithBackGend();
     return true;
   }
 
   bool updateRoom(LiveRoom room) {
-    int idx = favoriteRooms.indexOf(room);
+    int idx = favoriteRooms.indexWhere((element) => element.roomId == room.roomId);
     if (idx == -1) return false;
     favoriteRooms[idx] = room;
     return true;
   }
 
   bool updateRoomInHistory(LiveRoom room) {
-    int idx = historyRooms.indexOf(room);
+    int idx = historyRooms.indexWhere((element) => element.roomId == room.roomId);
     if (idx == -1) return false;
     historyRooms[idx] = room;
     return true;
   }
 
   void addRoomToHistory(LiveRoom room) {
-    if (historyRooms.contains(room)) {
+    if (historyRooms.any((element) =>  element.roomId == room.roomId)) {
       historyRooms.remove(room);
     }
     //默认只记录20条，够用了
@@ -324,13 +330,13 @@ class SettingsService extends GetxController {
   }
 
   bool addArea(LiveArea area) {
-    if (favoriteAreas.contains(area)) return false;
+    if (favoriteAreas.any((element) =>  element.areaId == area.areaId && element.platform == area.platform)) return false;
     favoriteAreas.add(area);
     return true;
   }
 
   bool removeArea(LiveArea area) {
-    if (!favoriteAreas.contains(area)) return false;
+    if (!favoriteAreas.any((element) =>  element.areaId == area.areaId && element.platform == area.platform)) return false;
     favoriteAreas.remove(area);
     return true;
   }
@@ -386,7 +392,7 @@ class SettingsService extends GetxController {
     danmakuFontSize.value = json['danmakuFontSize'] ?? 16.0;
     danmakuFontBorder.value = json['danmakuFontBorder'] ?? 0.5;
     danmakuOpacity.value = json['danmakuOpacity'] ?? 1.0;
-
+    doubleExit.value = json['doubleExit'] ?? true;
     changeThemeMode(themeModeName.value);
     changeThemeColor(themeColorName.value);
     changeLanguage(languageName.value);
@@ -426,7 +432,7 @@ class SettingsService extends GetxController {
     json['danmakuFontSize'] = danmakuFontSize.value;
     json['danmakuFontBorder'] = danmakuFontBorder.value;
     json['danmakuOpacity'] = danmakuOpacity.value;
-
+    json['doubleExit'] = doubleExit.value;
     return json;
   }
 
@@ -454,6 +460,7 @@ class SettingsService extends GetxController {
       "danmakuFontSize": 16.0,
       "danmakuFontBorder": 0.5,
       "danmakuOpacity": 1.0,
+      'doubleExit':true
     };
     return json;
   }

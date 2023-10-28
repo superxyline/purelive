@@ -88,6 +88,12 @@ class DouyuSite implements LiveSite {
         roomId: item['rid'].toString(),
         title: item['rn'].toString(),
         nick: item['nn'].toString(),
+        area: item['c2name'].toString(),
+        liveStatus: LiveStatus.live,
+        avatar: item['av'].toString().isNotEmpty
+            ? 'https://apic.douyucdn.cn/upload/${item['av']}_middle.jpg'
+            : '',
+        status: true,
         platform: 'douyu',
       );
       items.add(roomItem);
@@ -172,7 +178,12 @@ class DouyuSite implements LiveSite {
         roomId: item['rid'].toString(),
         title: item['rn'].toString(),
         nick: item['nn'].toString(),
+        area: item['c2name'].toString(),
+        avatar: item['av'].toString().isNotEmpty
+            ? 'https://apic.douyucdn.cn/upload/${item['av']}_middle.jpg'
+            : '',
         platform: 'douyu',
+        status: true,
         liveStatus: LiveStatus.live,
       );
       items.add(roomItem);
@@ -211,11 +222,12 @@ class DouyuSite implements LiveSite {
     return LiveRoom(
       cover: roomInfo["room_pic"].toString(),
       watching: roomInfo["room_biz_all"]["hot"].toString(),
-      roomId: roomInfo["room_id"].toString(),
+      roomId: roomId,
       title: roomInfo["room_name"].toString(),
       nick: roomInfo["owner_name"].toString(),
       avatar: roomInfo["owner_avatar"].toString(),
       introduction: roomInfo["show_details"].toString(),
+      area: roomInfo["cate_name"]?.toString() ?? '',
       notice: "",
       liveStatus: roomInfo["show_status"] == 1 && roomInfo["videoLoop"] != 1
           ? LiveStatus.live
@@ -252,10 +264,18 @@ class DouyuSite implements LiveSite {
     }
     var items = <LiveRoom>[];
     for (var item in result["data"]["relateShow"]) {
+       var liveStatus =
+          (int.tryParse(item["isLive"].toString()) ?? 0) == 1;
+      var roomType =
+          (int.tryParse(item["roomType"].toString()) ?? 0);
       var roomItem = LiveRoom(
         roomId: item["rid"].toString(),
         title: item["roomName"].toString(),
         cover: item["roomSrc"].toString(),
+        area:  item["cateName"].toString(),
+        avatar: item["avatar"].toString(),
+        liveStatus: liveStatus && roomType == 0 ? LiveStatus.live : LiveStatus.offline,
+        status: liveStatus && roomType == 0,
         nick: item["nickName"].toString(),
         platform: 'douyu',
         watching: item["hot"].toString(),

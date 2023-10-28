@@ -87,6 +87,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "dlan_device_not_found":
             MessageLookupByLibrary.simpleMessage("DLNA device not found"),
         "dlan_title": MessageLookupByLibrary.simpleMessage("DLNA"),
+        "double_click_to_exit":
+            MessageLookupByLibrary.simpleMessage("Double click to exit"),
         "email": MessageLookupByLibrary.simpleMessage("Email"),
         "empty_areas_room_subtitle":
             MessageLookupByLibrary.simpleMessage("Pull down to refresh data"),
@@ -145,6 +147,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Keep Screen On"),
         "enable_screen_keep_on_subtitle": MessageLookupByLibrary.simpleMessage(
             "When in live play, keep screen on"),
+        "exit_app":
+            MessageLookupByLibrary.simpleMessage("Are you sure want to exit?"),
+        "exit_no": MessageLookupByLibrary.simpleMessage("No"),
+        "exit_yes": MessageLookupByLibrary.simpleMessage("Yes"),
         "experiment": MessageLookupByLibrary.simpleMessage("Experiment"),
         "favorite_areas":
             MessageLookupByLibrary.simpleMessage("Favorite Areas"),

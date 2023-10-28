@@ -185,7 +185,10 @@
     "supabase_reset_password": "Send password reset email",
 
     "supabase_back_sign_in": "Back to sign in",
-    "supabase_update_password": "Update Password"
+    "supabase_update_password": "Update Password",
     
-    
+    "exit_app": "Are you sure want to exit?",
+    "exit_yes": "Yes",
+    "exit_no": "No",
+    "double_click_to_exit": "Double click to exit"
 }

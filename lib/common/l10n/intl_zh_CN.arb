@@ -55,12 +55,12 @@
 
     "backup_recover": "备份与恢复",
     "backup_recover_subtitle": "创建备份与恢复",
-    "create_backup" : "创建备份",
-    "create_backup_subtitle" : "可用于恢复当前数据",
-    "recover_backup" : "恢复备份",
-    "recover_backup_subtitle" : "从备份文件中恢复",
-    "auto_backup" : "自动备份",
-    "backup_directory" : "备份目录",
+    "create_backup": "创建备份",
+    "create_backup_subtitle": "可用于恢复当前数据",
+    "recover_backup": "恢复备份",
+    "recover_backup_subtitle": "从备份文件中恢复",
+    "auto_backup": "自动备份",
+    "backup_directory": "备份目录",
     "create_backup_success": "创建备份成功",
     "create_backup_failed": "创建备份失败",
     "select_recover_file": "选择备份文件",
@@ -111,7 +111,7 @@
     "issue_feedback": "问题反馈",
     "develop_progress": "开发进度",
     "project_page": "项目主页",
-    "project_alert" : "项目声明",
+    "project_alert": "项目声明",
     "contact": "联系",
     "qq_group": "QQ群",
     "qq_group_num": "群号: {number}",
@@ -139,7 +139,7 @@
     "settings_danmaku_fontsize": "弹幕字号",
     "settings_danmaku_fontBorder": "描边宽度",
     "settings_danmaku_amount": "弹幕数量",
-    
+
     "follow": "关注",
     "unfollow": "取消关注",
     "unfollow_message": "确定要取消关注{name}吗？",
@@ -171,7 +171,7 @@
     "supabase_mine_profiles": "上传用户配置文件",
     "supabase_mine_streams": "关注直播间以及主题等",
     "supabase_log_out": "退出登录",
-    
+
     "supabase_enter_email": "请输入邮箱地址",
     "supabase_enter_valid_email": "请输入有效的邮箱地址",
     "supabase_enter_valid_password": "请输入至少6个字符的密码",
@@ -183,5 +183,10 @@
     "supabase_reset_password": "重置邮箱密码",
 
     "supabase_back_sign_in": "返回登录",
-    "supabase_update_password": "更新密码"
+    "supabase_update_password": "更新密码",
+
+    "exit_app": "确定退出吗?",
+    "exit_yes": "确定",
+    "exit_no": "取消",
+    "double_click_to_exit": "双击退出"
 }
