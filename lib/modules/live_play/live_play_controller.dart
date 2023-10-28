@@ -54,6 +54,7 @@ class LivePlayController extends StateController {
     if (nowExitTime - lastExitTime > 1000) {
       lastExitTime = nowExitTime;
       SmartDialog.showToast(S.current.double_click_to_exit);
+      videoController?.isFullscreen.value = false;
       return await Future.value(false);
     }
     return await Future.value(true);
