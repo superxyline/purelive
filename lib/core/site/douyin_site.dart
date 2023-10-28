@@ -184,7 +184,7 @@ class DouyinSite implements LiveSite {
         cover: item["room"]["cover"]["url_list"][0].toString(),
         nick: item["room"]["owner"]["nickname"].toString(),
         platform: 'douyin',
-        area: item["tag_name"].toString(),
+        area: item["tag_name"] ?? '热门推荐',
         avatar: item["room"]["owner"]["avatar_thumb"]["url_list"][0].toString(),
         watching:
             item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',

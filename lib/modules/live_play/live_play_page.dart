@@ -5,6 +5,7 @@ import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'widgets/index.dart';
 
+
 class LivePlayPage extends GetWidget<LivePlayController>
     with WidgetsBindingObserver {
   LivePlayPage({Key? key}) : super(key: key);
@@ -24,12 +25,11 @@ class LivePlayPage extends GetWidget<LivePlayController>
     if (settings.enableScreenKeepOn.value) {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
-
     return BackButtonListener(
       onBackButtonPressed: onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Row(children: [
+          title:  Row(children: [
             CircleAvatar(
               foregroundImage: controller.room.avatar!.isEmpty
                   ? null
@@ -48,8 +48,8 @@ class LivePlayPage extends GetWidget<LivePlayController>
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 Text(
-                  controller.room.platform! == "douyin"
-                      ? "${controller.room.platform!.toUpperCase()}}"
+                  controller.room.area!.isEmpty
+                      ? controller.room.platform!.toUpperCase()
                       : "${controller.room.platform!.toUpperCase()} / ${controller.room.area}",
                   style: Theme.of(context)
                       .textTheme
@@ -67,7 +67,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
             ),
           ],
         ),
-        body: LayoutBuilder(builder: (context, constraint) {
+        body:  LayoutBuilder(builder: (context, constraint) {
           final width = constraint.maxWidth;
           return SafeArea(
             child: width <= 680
