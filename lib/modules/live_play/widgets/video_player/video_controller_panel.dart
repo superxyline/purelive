@@ -281,7 +281,9 @@ class TopActionBar extends StatelessWidget {
               const DatetimeInfo(),
               BatteryInfo(controller: controller),
             ],
-            if (!controller.fullscreenUI && controller.supportPip && controller.videoPlayerIndex == 0)
+            if (!controller.fullscreenUI &&
+                controller.supportPip &&
+                controller.videoPlayerIndex == 0)
               PIPButton(controller: controller),
           ]),
         ),
@@ -437,14 +439,18 @@ class DanmakuViewer extends StatelessWidget {
           opacity: controller.hideDanmaku.value
               ? 0
               : controller.danmakuOpacity.value,
-          child: BarrageWall(
-            controller: controller.danmakuController,
-            speed: controller.danmakuSpeed.value.toInt(),
-            maxBulletHeight: controller.danmakuFontSize * 1.5,
-            safeBottomHeight: 50,
-            massiveMode: false, // disabled by default
-            child: Container(),
-          ),
+          child: controller.danmakuArea.value == 0.0
+              ? Container()
+              : BarrageWall(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height *
+                      controller.danmakuArea.value,
+                  controller: controller.danmakuController,
+                  speed: controller.danmakuSpeed.value.toInt(),
+                  maxBulletHeight: controller.danmakuFontSize * 1.5,
+                  massiveMode: false, // disabled by default
+                  child: Container(),
+                ),
         ));
   }
 }

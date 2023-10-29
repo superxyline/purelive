@@ -137,7 +137,8 @@ class SettingsPage extends GetView<SettingsService> {
               trailing: Obx(() => Text([
                     'ExoPlayer',
                     'IjkPlayer',
-                    'AliPlayer'
+                    'AliPlayer',
+                    'MpvPlayer'
                   ][controller.videoPlayerIndex.value])),
               onTap: showVideoSetDialog,
             ),
@@ -232,7 +233,7 @@ class SettingsPage extends GetView<SettingsService> {
   }
 
   void showVideoSetDialog() {
-    List<String> playerList = ['ExoPlayer', 'IjkPlayer', 'AliPlayer'];
+    List<String> playerList = ['ExoPlayer', 'IjkPlayer', 'AliPlayer', 'MpvPlayer'];
     showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -24,6 +24,7 @@ class LivePlayController extends StateController {
 
   // 控制唯一子组件
   VideoController? videoController;
+  
   final playerKey = GlobalKey();
   final danmakuViewKey = GlobalKey();
   final LiveRoom room;

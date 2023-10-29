@@ -12,6 +12,7 @@ import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/danmaku_text.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/player_full.dart';
 import 'package:pure_live/plugins/barrage.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
@@ -39,14 +40,23 @@ class VideoController with ChangeNotifier {
   BetterPlayerController? mobileController;
   double initBrightness = 0.0;
   final hasError = false.obs;
+
   final isPlaying = false.obs;
+
   final isBuffering = false.obs;
+
   final isPipMode = false.obs;
+
   final isFullscreen = false.obs;
+
   final isWindowFullscreen = false.obs;
+
   bool get supportPip => Platform.isAndroid;
+
   bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
+
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
+
   final refreshCompleted = true.obs;
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
@@ -63,14 +73,24 @@ class VideoController with ChangeNotifier {
   final playerRefresh = false.obs;
 
   late FlutterAliplayer fAliplayer;
+
   GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
       GlobalKey<BrightnessVolumnDargAreaState>();
 
   LivePlayController livePlayController = Get.find<LivePlayController>();
+
   final SettingsService settings = Get.find<SettingsService>();
+
   int videoPlayerIndex = 1;
+
   bool enableCodec = true;
+
   // Controller ui status
+  ///State of navigator on widget created
+  late NavigatorState navigatorState;
+
+  ///Flag which determines if widget has initialized
+  final initialized = false.obs;
   Timer? showControllerTimer;
   final showController = true.obs;
   final showSettting = false.obs;
@@ -186,6 +206,25 @@ class VideoController with ChangeNotifier {
         setDataSource(datasource);
       } else if (videoPlayerIndex == 2) {
         setDataSource(datasource);
+      } else if (videoPlayerIndex == 3) {
+        player = Player();
+        mediaPlayerController = media_kit_video.VideoController(player,
+            configuration: media_kit_video.VideoControllerConfiguration(
+                androidAttachSurfaceAfterVideoParameters: false,
+                enableHardwareAcceleration: enableCodec));
+        setDataSource(datasource);
+        mediaPlayerController.player.stream.playing.listen((bool playing) {
+          if (playing) {
+            isPlaying.value = true;
+          } else {
+            isPlaying.value = false;
+          }
+        });
+        mediaPlayerController.player.stream.error.listen((event) {
+          hasError.value = true;
+          isPlaying.value = false;
+        });
+        mediaPlayerControllerInitialized.value = true;
       }
     } else {
       throw UnimplementedError('Unsupported Platform');
@@ -281,6 +320,12 @@ class VideoController with ChangeNotifier {
         fijkPlayer.release();
       } else if (videoPlayerIndex == 2) {
         fAliplayer.destroy();
+      } else if (videoPlayerIndex == 3) {
+        if (key.currentState?.isFullscreen() ?? false) {
+          key.currentState?.exitFullscreen();
+        }
+        mediaPlayerController.player.pause();
+        player.dispose();
       }
       brightnessController.resetScreenBrightness();
     } else {
@@ -305,6 +350,8 @@ class VideoController with ChangeNotifier {
         setFijkPlayerDataSource(refresh: true);
       } else if (videoPlayerIndex == 2) {
         setAliplayPlayerDataSource(refresh: true);
+      } else if (videoPlayerIndex == 3) {
+        setDataSource(datasource);
       }
     }
   }
@@ -350,6 +397,10 @@ class VideoController with ChangeNotifier {
         setFijkPlayerDataSource(refresh: refresh);
       } else if (videoPlayerIndex == 2) {
         setAliplayPlayerDataSource(refresh: refresh);
+      } else if (videoPlayerIndex == 3) {
+        player.pause();
+        player.open(Media(datasource, httpHeaders: headers));
+        mediaPlayerController.player.open(Media(datasource));
       }
     }
     notifyListeners();
@@ -382,6 +433,10 @@ class VideoController with ChangeNotifier {
       hasError.value = true;
     });
     playerRefresh.value = false;
+    var config = AVPConfig();
+    config.referer = headers['referer'] ?? '';
+    config.userAgent = headers['user-agent'] ?? '';
+    fAliplayer.setPlayConfig(config);
     await fAliplayer.setUrl(datasource);
     fAliplayer.setAutoPlay(true);
     await fAliplayer.prepare();
@@ -431,7 +486,7 @@ class VideoController with ChangeNotifier {
         mobileController?.setOverriddenFit(videoFit.value);
         mobileController?.retryDataSource();
       } else if (videoPlayerIndex == 1) {
-        // fijkPlayer.s
+        // 
       } else if (videoPlayerIndex == 2) {
         if (fit == BoxFit.contain) {
           fAliplayer.setScalingMode(FlutterAvpdef.AVP_SCALINGMODE_SCALETOFILL);
@@ -442,6 +497,8 @@ class VideoController with ChangeNotifier {
           fAliplayer
               .setScalingMode(FlutterAvpdef.AVP_SCALINGMODE_SCALEASPECTFIT);
         }
+      } else if (videoPlayerIndex == 3) {
+        key.currentState?.update(fit: fit);
       }
     }
     notifyListeners();
@@ -465,16 +522,26 @@ class VideoController with ChangeNotifier {
         } else {
           fAliplayer.play();
         }
+      } else if (videoPlayerIndex == 3) {
+        mediaPlayerController.player.playOrPause();
       }
     }
   }
 
   Future<void> exitFullScreen() async {
     if (Platform.isAndroid) {
+      isFullscreen.value = false;
       if (videoPlayerIndex == 0) {
         mobileController?.exitFullScreen();
       } else if (videoPlayerIndex == 1) {
         fijkPlayer.exitFullScreen();
+      } else if (videoPlayerIndex == 2) {
+        isFullscreen.value = false;
+      } else if (videoPlayerIndex == 3) {
+        if (key.currentState?.isFullscreen() ?? false) {
+          key.currentState?.exitFullscreen();
+        }
+        isFullscreen.value = false;
       }
       showSettting.value = false;
     }
@@ -539,33 +606,19 @@ class VideoController with ChangeNotifier {
           }
         });
       } else if (videoPlayerIndex == 1) {
-        if (fijkPlayer.value.fullScreen) {
+        isFullscreen.toggle();
+        if (isFullscreen.value) {
           fijkPlayer.exitFullScreen();
-          Navigator.pop(Get.context!);
         } else {
           fijkPlayer.enterFullScreen();
-          Navigator.push(
-            Get.context!,
-            MaterialPageRoute(
-              builder: (context) => FijkFullscreen(
-                controller: this,
-              ),
-            ),
-          );
         }
-        isFullscreen.toggle();
       } else if (videoPlayerIndex == 2) {
-        if (isFullscreen.value) {
-          Navigator.pop(Get.context!);
+        isFullscreen.toggle();
+      } else if (videoPlayerIndex == 3) {
+        if (key.currentState?.isFullscreen() ?? false) {
+          key.currentState?.exitFullscreen();
         } else {
-          Navigator.push(
-            Get.context!,
-            MaterialPageRoute(
-              builder: (context) => AliPlayerFullscreen(
-                controller: this,
-              ),
-            ),
-          );
+          key.currentState?.enterFullscreen();
         }
         isFullscreen.toggle();
       }
@@ -729,10 +782,12 @@ class _MobileFullscreenState extends State<MobileFullscreen>
 }
 
 class FijkFullscreen extends StatefulWidget {
-  const FijkFullscreen({Key? key, required this.controller}) : super(key: key);
+  const FijkFullscreen(
+      {Key? key, required this.controller, required this.controllerProvider})
+      : super(key: key);
 
   final VideoController controller;
-
+  final PlayerFullProvider controllerProvider;
   @override
   State<FijkFullscreen> createState() => _FijkFullscreenState();
 }
@@ -762,57 +817,36 @@ class _FijkFullscreenState extends State<FijkFullscreen>
     }
   }
 
-  FijkFit getFijkFit(BoxFit boxFit) {
-    FijkFit fijkFit = FijkFit.contain;
-    if (boxFit == BoxFit.contain) {
-      fijkFit = FijkFit.contain;
-    } else if (boxFit == BoxFit.cover) {
-      fijkFit = FijkFit.cover;
-    } else if (boxFit == BoxFit.fill) {
-      fijkFit = FijkFit.fill;
-    } else if (boxFit == BoxFit.fitHeight) {
-      fijkFit = FijkFit.fitHeight;
-    } else if (boxFit == BoxFit.fitWidth) {
-      fijkFit = FijkFit.fitWidth;
-    }
-    return fijkFit;
-  }
-
-  Widget _buildIjkPanel(FijkPlayer fijkPlayer, FijkData fijkData,
-      BuildContext context, Size viewSize, Rect texturePos) {
-    return VideoControllerPanel(controller: widget.controller);
-  }
-
   @override
   dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    widget.controller.setPortraitOrientation();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isFullScreen = widget.controller.fijkPlayer.value.fullScreen;
-    if (isFullScreen) {
-      widget.controller.setLandscapeOrientation();
-    }
     return Scaffold(
-      body: Obx(() => FijkView(
-            player: widget.controller.fijkPlayer,
-            color: Colors.black,
-            fit: getFijkFit(widget.controller.videoFit.value),
-            cover: getRoomCover(widget.controller.room.cover),
-            fs: false,
-            panelBuilder: _buildIjkPanel,
-          )),
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        alignment: Alignment.center,
+        color: Colors.black,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            widget.controllerProvider,
+            VideoControllerPanel(controller: widget.controller),
+          ],
+        ),
+      ),
     );
   }
 }
 
 class AliPlayerFullscreen extends StatefulWidget {
-  const AliPlayerFullscreen({Key? key, required this.controller})
+  const AliPlayerFullscreen(
+      {Key? key, required this.controller, required this.controllerProvider})
       : super(key: key);
-
+  final PlayerFullProvider controllerProvider;
   final VideoController controller;
 
   @override
@@ -825,10 +859,6 @@ class _AliPlayerFullscreenState extends State<AliPlayerFullscreen>
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
-    bool isFullScreen = widget.controller.isFullscreen.value;
-    if (isFullScreen) {
-      widget.controller.setLandscapeOrientation();
-    }
   }
 
   @override
@@ -843,23 +873,24 @@ class _AliPlayerFullscreenState extends State<AliPlayerFullscreen>
   @override
   dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    widget.controller.setPortraitOrientation();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        AliPlayerView(
-            onCreated: widget.controller.onViewPlayerCreated,
-            x: 0.0,
-            y: 0.0,
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height),
-        VideoControllerPanel(controller: widget.controller)
-      ],
-    ));
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        alignment: Alignment.center,
+        color: Colors.black,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            widget.controllerProvider,
+            VideoControllerPanel(controller: widget.controller),
+          ],
+        ),
+      ),
+    );
   }
 }

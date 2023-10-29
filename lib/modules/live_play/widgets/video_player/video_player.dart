@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'dart:math';
-
 import 'package:better_player/better_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter_aliplayer/flutter_aliplayer.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/player_full.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
@@ -35,16 +34,16 @@ class _VideoPlayerState extends State<VideoPlayer> {
     super.initState();
   }
 
-  Widget _buildIjkPanel(FijkPlayer fijkPlayer, FijkData fijkData,
-      BuildContext context, Size viewSize, Rect texturePos) {
-    Rect rect = widget.controller.fijkPlayer.value.fullScreen
-        ? Rect.fromLTWH(0, 0, viewSize.width, viewSize.height)
-        : Rect.fromLTRB(
-            max(0.0, texturePos.left),
-            max(0.0, texturePos.top),
-            min(viewSize.width, texturePos.right),
-            min(viewSize.height, texturePos.bottom));
-    return Positioned.fromRect(rect: rect, child: _buildVideoPanel());
+  @override
+  void didChangeDependencies() {
+    if (!widget.controller.initialized.value) {
+      final navigator = Navigator.of(context);
+      setState(() {
+        widget.controller.navigatorState = navigator;
+      });
+      widget.controller.initialized.value = true;
+    }
+    super.didChangeDependencies();
   }
 
   ImageProvider? getRoomCover(cover) {
@@ -112,13 +111,30 @@ class _VideoPlayerState extends State<VideoPlayer> {
       if (widget.controller.videoPlayerIndex == 1) {
         return Obx(
           () => !widget.controller.playerRefresh.value
-              ? FijkView(
-                  player: widget.controller.fijkPlayer,
-                  color: Colors.black,
-                  fit: getFijkFit(widget.controller.videoFit.value),
-                  cover: getRoomCover(widget.controller.room.cover),
-                  fs: false,
-                  panelBuilder: _buildIjkPanel)
+              ? Stack(
+                  children: [
+                    PlayerFull(
+                      controller: widget.controller,
+                      routePageBuilder:
+                          (context, animation, second, controllerProvider) =>
+                              AnimatedBuilder(
+                        animation: animation,
+                        builder: (context, child) => FijkFullscreen(
+                          controller: widget.controller,
+                          controllerProvider: controllerProvider,
+                        ),
+                      ),
+                      playerView: FijkView(
+                        player: widget.controller.fijkPlayer,
+                        color: Colors.black,
+                        fit: getFijkFit(widget.controller.videoFit.value),
+                        cover: getRoomCover(widget.controller.room.cover),
+                        fs: false,
+                      ),
+                    ),
+                    _buildVideoPanel()
+                  ],
+                )
               : Card(
                   elevation: 0,
                   margin: const EdgeInsets.all(0),
@@ -139,14 +155,27 @@ class _VideoPlayerState extends State<VideoPlayer> {
       if (widget.controller.videoPlayerIndex == 2) {
         return Obx(
           () => !widget.controller.playerRefresh.value
-              ?  Stack(
+              ? Stack(
                   children: [
-                    AliPlayerView(
+                    PlayerFull(
+                      controller: widget.controller,
+                      routePageBuilder:
+                          (context, animation, second, controllerProvider) =>
+                              AnimatedBuilder(
+                        animation: animation,
+                        builder: (context, child) => AliPlayerFullscreen(
+                          controller: widget.controller,
+                          controllerProvider: controllerProvider,
+                        ),
+                      ),
+                      playerView: AliPlayerView(
                         onCreated: widget.controller.onViewPlayerCreated,
                         x: 0.0,
                         y: 0.0,
                         width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height),
+                        height: MediaQuery.of(context).size.height,
+                      ),
+                    ),
                     _buildVideoPanel(),
                   ],
                 )
@@ -166,6 +195,31 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   ),
                 ),
         );
+      }
+      if (widget.controller.videoPlayerIndex == 3) {
+        return Obx(
+            () => widget.controller.mediaPlayerControllerInitialized.value
+                ? media_kit_video.Video(
+                    key: widget.controller.key,
+                    controller: widget.controller.mediaPlayerController,
+                    fit: widget.controller.videoFit.value,
+                    controls: (state) => _buildVideoPanel(),
+                  )
+                : Card(
+                    elevation: 0,
+                    margin: const EdgeInsets.all(0),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero),
+                    clipBehavior: Clip.antiAlias,
+                    color: Get.theme.focusColor,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.controller.room.cover!,
+                      fit: BoxFit.fill,
+                      errorWidget: (context, error, stackTrace) => const Center(
+                        child: Icon(Icons.live_tv_rounded, size: 48),
+                      ),
+                    ),
+                  ));
       }
       return Card(
         elevation: 0,

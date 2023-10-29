@@ -44,8 +44,8 @@ void main(List<String> args) async {
         messageText: '上次加载时间 %T',
         processedText: '加载成功',
       );
+  MediaKit.ensureInitialized();
   if (Platform.isWindows) {
-    MediaKit.ensureInitialized();
     await WindowsSingleInstance.ensureSingleInstance(
         args, "pure_live_instance_checker");
     await windowManager.ensureInitialized();
