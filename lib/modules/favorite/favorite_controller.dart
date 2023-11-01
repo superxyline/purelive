@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -54,8 +53,6 @@ class FavoriteController extends GetxController
         if (!hasError) {
           hasError = true;
         }
-        log(room.platform.toString(), name: 'FavoriteRoomsonRefresh');
-        log(e.toString(), name: 'FavoriteRoomsonRefresh');
       }
     }
     syncRooms();

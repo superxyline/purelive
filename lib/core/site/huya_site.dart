@@ -118,6 +118,7 @@ class HuyaSite implements LiveSite {
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
     List<LivePlayQuality> qualities = <LivePlayQuality>[];
     var urlData = detail.data as HuyaUrlDataModel;
+
     if (urlData.bitRates.isEmpty) {
       urlData.bitRates = [
         HuyaBitRateModel(
@@ -127,15 +128,6 @@ class HuyaSite implements LiveSite {
         HuyaBitRateModel(name: "高清", bitRate: 2000),
       ];
     }
-    // if (urlData.lines.isEmpty) {
-    //   urlData.lines = [
-    //     HuyaLineModel(line: "tx.flv.huya.com", lineType: HuyaLineType.flv,),
-    //     HuyaLineModel(line: "bd.flv.huya.com", lineType: HuyaLineType.flv),
-    //     HuyaLineModel(line: "al.flv.huya.com", lineType: HuyaLineType.flv),
-    //     HuyaLineModel(line: "hw.flv.huya.com", lineType: HuyaLineType.flv),
-    //   ];
-    // }
-    //var url = getRealUrl(urlData.url);
 
     for (var item in urlData.bitRates) {
       var urls = <String>[];
@@ -143,7 +135,6 @@ class HuyaSite implements LiveSite {
         var src = line.line;
         src += "/${line.streamName}";
         if (line.lineType == HuyaLineType.flv) {
-          //src = src.replaceAll(".m3u8", ".flv");
           src += ".flv";
         }
         if (line.lineType == HuyaLineType.hls) {
@@ -289,10 +280,10 @@ class HuyaSite implements LiveSite {
               : LiveStatus.offline,
           platform: 'huya',
           data: HuyaUrlDataModel(
-             url:
-              "https:${utf8.decode(base64.decode(jsonObj["roomProfile"]["liveLineUrl"].toString()))}",
-          lines: huyaLines,
-          bitRates: huyaBiterates,
+            url:
+                "https:${utf8.decode(base64.decode(jsonObj["roomProfile"]["liveLineUrl"].toString()))}",
+            lines: huyaLines,
+            bitRates: huyaBiterates,
             uid: getUid(t: 13, e: 10),
           ),
           danmakuData: HuyaDanmakuArgs(
@@ -392,7 +383,7 @@ class HuyaSite implements LiveSite {
   Future<bool> getLiveStatus({required String roomId}) async {
     var resultText = await HttpClient.instance
         .getText("https://m.huya.com/$roomId", queryParameters: {}, header: {
-     "user-agent": kUserAgent,
+      "user-agent": kUserAgent,
     });
     var text = RegExp(r"window\.HNF_GLOBAL_INIT.=.\{(.*?)\}.</script>",
             multiLine: false)
@@ -426,6 +417,7 @@ class HuyaSite implements LiveSite {
     var result = (currentTime % 10000000000 * 1000 + randomValue) % 4294967295;
     return result.toString();
   }
+
   String getUid({int? t, int? e}) {
     var n = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         .split("");
@@ -494,29 +486,30 @@ class HuyaSite implements LiveSite {
         (DateTime.now().millisecondsSinceEpoch + int.parse(uid)).toString();
 
     final fm = utf8.decode(base64.decode(Uri.decodeComponent(query['fm']!)));
+
     final wsSecretPrefix = fm.split('_').first;
     final wsSecretHash = md5
         .convert(utf8.encode('$seqId|${query["ctype"]}|${query["t"]}'))
         .toString();
+
     final wsSecret = md5
         .convert(utf8.encode(
             '${wsSecretPrefix}_${uid}_${streamname}_${wsSecretHash}_$wsTime'))
         .toString();
-
     return Uri(queryParameters: {
       "wsSecret": wsSecret,
       "wsTime": wsTime,
       "seqid": seqId,
-      "ctype": query["ctype"]!,
+      "ctype": query["ctype"] ?? '',
       "ver": "1",
-      "fs": query["fs"]!,
-      "sphdcdn": query["sphdcdn"]!,
-      "sphdDC": query["sphdDC"]!,
-      "sphd": query["sphd"]!,
-      "exsphd": query["exsphd"]!,
+      "fs": query["fs"] ?? '',
+      "sphdcdn": query["sphdcdn"] ?? '',
+      "sphdDC": query["sphdDC"] ?? '',
+      "sphd": query["sphd"] ?? '',
+      "exsphd": query["exsphd"] ?? '',
       "uid": uid,
       "uuid": getUUid(),
-      "t": query["t"]!,
+      "t": query["t"] ?? '',
       "sv": "2110211124"
     }).query;
   }

@@ -28,7 +28,7 @@ class LivePlayController extends StateController {
   final playerKey = GlobalKey();
   final danmakuViewKey = GlobalKey();
   final LiveRoom room;
-  Rx<LiveRoom?> detail = Rx<LiveRoom?>(null);
+  Rx<LiveRoom?> detail = Rx<LiveRoom?>(LiveRoom());
   final success = false.obs;
   var liveStatus = false.obs;
   Map<String, List<String>> liveStream = {};
@@ -150,7 +150,7 @@ class LivePlayController extends StateController {
     try {
       var playQualites =
           await currentSite.liveSite.getPlayQualites(detail: detail.value!);
-
+       
       if (playQualites.isEmpty) {
         SmartDialog.showToast("无法读取播放清晰度");
         return;
