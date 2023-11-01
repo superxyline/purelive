@@ -11,7 +11,8 @@ class MenuButton extends GetView<AuthController> {
     RoutePath.kAbout,
     RoutePath.kContact,
     RoutePath.kHistory,
-    RoutePath.kSignIn
+    RoutePath.kSignIn,
+    RoutePath.kSettingsAccount,
   ];
 
   @override
@@ -42,6 +43,14 @@ class MenuButton extends GetView<AuthController> {
           child: MenuListTile(
             leading: const Icon(Icons.account_circle),
             text: controller.isLogin ? S.of(context).supabase_mine : S.of(context).supabase_sign_in,
+          ),
+        ),
+        const PopupMenuItem(
+          value: 5,
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: MenuListTile(
+            leading: Icon(Icons.library_books_rounded),
+            text: '账户管理',
           ),
         ),
         PopupMenuItem(

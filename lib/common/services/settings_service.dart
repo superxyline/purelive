@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:pure_live/common/services/bilibili_account_service.dart';
 import 'package:pure_live/plugins/supabase.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:get/get.dart';
@@ -12,7 +13,6 @@ class SettingsService extends GetxController {
       PrefUtil.setBool('enableDynamicTheme', value);
       update(['myapp']);
     });
-
     enableDenseFavorites.listen((value) {
       PrefUtil.setBool('enableDenseFavorites', value);
     });
@@ -124,6 +124,10 @@ class SettingsService extends GetxController {
       videoPlayerIndex.value = value;
       PrefUtil.setInt('videoPlayerIndex', value);
     });
+
+    bilibiliCookie.listen((value) {
+      PrefUtil.setString('bilibiliCookie', value);
+    });
   }
 
   // Theme settings
@@ -189,11 +193,11 @@ class SettingsService extends GetxController {
     PrefUtil.setString('language', value);
     Get.updateLocale(language);
   }
-   void changePlayer(int value) {
-    videoPlayerIndex.value  = value;
+
+  void changePlayer(int value) {
+    videoPlayerIndex.value = value;
     PrefUtil.setInt('videoPlayerIndex', value);
   }
-    
 
   final enableDynamicTheme =
       (PrefUtil.getBool('enableDynamicTheme') ?? false).obs;
@@ -234,6 +238,9 @@ class SettingsService extends GetxController {
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
 
+  // cookie
+
+  final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
   static const List<BoxFit> videofitList = [
     BoxFit.contain,
     BoxFit.fill,
@@ -397,6 +404,15 @@ class SettingsService extends GetxController {
     return true;
   }
 
+  setBilibiliCookit(cookie) {
+    final BiliBiliAccountService biliAccountService =
+        Get.find<BiliBiliAccountService>();
+    if (biliAccountService.cookie.isEmpty || biliAccountService.uid == 0) {
+      biliAccountService.resetCookie(cookie);
+      biliAccountService.loadUserInfo();
+    }
+  }
+
   void fromJson(Map<String, dynamic> json) {
     favoriteRooms.value = (json['favoriteRooms'] as List)
         .map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e)))
@@ -428,7 +444,9 @@ class SettingsService extends GetxController {
     doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
     enableCodec.value = json['enableCodec'] ?? true;
+    bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     changeThemeMode(themeModeName.value);
+    setBilibiliCookit(bilibiliCookie.value);
     changeThemeColor(themeColorName.value);
     changeLanguage(languageName.value);
     changePreferResolution(preferResolution.value);
@@ -470,6 +488,7 @@ class SettingsService extends GetxController {
     json['doubleExit'] = doubleExit.value;
     json['videoPlayerIndex'] = videoPlayerIndex.value;
     json['enableCodec'] = enableCodec.value;
+    json['bilibiliCookie'] = bilibiliCookie.value;
     return json;
   }
 
@@ -499,7 +518,8 @@ class SettingsService extends GetxController {
       "danmakuOpacity": 1.0,
       'doubleExit': true,
       "videoPlayerIndex": 0,
-      'enableCodec': true
+      'enableCodec': true,
+      'bilibiliCookie': ''
     };
     return json;
   }

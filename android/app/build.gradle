@@ -30,8 +30,8 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion 33 //flutter.compileSdkVersion
-    ndkVersion "25.1.8937393" //flutter.ndkVersion
+    compileSdkVersion 34 //flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -65,6 +65,8 @@ android {
             keyPassword keystoreProperties['keyPassword']
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
+            v1SigningEnabled true
+            v2SigningEnabled true
         }
     }
     buildTypes {

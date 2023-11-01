@@ -14,3 +14,4 @@
 -keep class com.alivc.**{*;}
 -keep class org.webrtc.**{*;}
 -keep class org.ugsv.**{*;}
+-keep class org.videolan.libvlc.** { *; }

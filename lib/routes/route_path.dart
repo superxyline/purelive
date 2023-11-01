@@ -45,4 +45,12 @@ class RoutePath {
 
   /// 登陆
   static const kSignIn = "/sign_in";
+
+  /// kBiliBiliQRLogin
+  static const kSettingsAccount = "/settings_account";
+  
+  static const kBiliBiliQRLogin = "/bilibili_qr_login";
+
+  static const kBiliBiliWebLogin = "/bilibili_web_login";
+  
 }

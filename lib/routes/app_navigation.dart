@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/utils.dart';
 
 import 'route_path.dart';
 
@@ -14,9 +17,24 @@ class AppNavigator {
   }
 
   /// 跳转至直播间
-  static void toLiveRoomDetail({required LiveRoom liveRoom}) {
+  static Future<void> toLiveRoomDetail({required LiveRoom liveRoom}) async {
     Get.toNamed(RoutePath.kLivePlay, arguments: liveRoom, parameters: {
       "site": liveRoom.platform!,
     });
+  }
+
+  /// 跳转至哔哩哔哩登录
+  static Future toBiliBiliLogin() async {
+    var contents = ['短信登陆','二维码登陆'];
+    if (Platform.isAndroid || Platform.isIOS) {
+      var result = await Utils.showOptionDialog(contents, '',title: '请选择登陆方式');
+      if (result == '短信登陆') {
+        await Get.toNamed(RoutePath.kBiliBiliWebLogin);
+      } else if (result == '二维码登陆'){
+        await Get.toNamed(RoutePath.kBiliBiliQRLogin);
+      }
+    } else {
+      await Get.toNamed(RoutePath.kBiliBiliQRLogin);
+    }
   }
 }

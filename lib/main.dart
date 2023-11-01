@@ -20,6 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
 
+import 'common/services/bilibili_account_service.dart';
+
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();
@@ -65,6 +67,7 @@ void initService() {
   Get.put(FavoriteController());
   Get.put(PopularController());
   Get.put(AreasController());
+  Get.put(BiliBiliAccountService());
 }
 
 class MyApp extends StatefulWidget {

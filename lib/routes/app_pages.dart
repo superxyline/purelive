@@ -1,6 +1,11 @@
 import 'package:get/get.dart';
 import 'package:pure_live/modules/about/about_page.dart';
 import 'package:pure_live/modules/about/donate_page.dart';
+import 'package:pure_live/modules/account/account_bing.dart';
+import 'package:pure_live/modules/account/account_page.dart';
+import 'package:pure_live/modules/account/bilibili/bilibili_bings.dart';
+import 'package:pure_live/modules/account/bilibili/qr_login_page.dart';
+import 'package:pure_live/modules/account/bilibili/web_login_page.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_binding.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
@@ -20,6 +25,7 @@ import 'package:pure_live/modules/backup/backup_page.dart';
 // auth
 import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'route_path.dart';
+
 class AppPages {
   AppPages._();
 
@@ -90,6 +96,28 @@ class AppPages {
       page: () => LivePlayPage(),
       preventDuplicates: true,
       bindings: [LivePlayBinding()],
+    ),
+    //账号设置
+    GetPage(
+      name: RoutePath.kSettingsAccount,
+      page: () => const AccountPage(),
+      bindings: [AccountBinding()],
+    ),
+    //哔哩哔哩Web登录
+    GetPage(
+      name: RoutePath.kBiliBiliWebLogin,
+      page: () => const BiliBiliWebLoginPage(),
+      bindings: [
+        BilibiliWebLoginBinding(),
+      ],
+    ),
+    //哔哩哔哩二维码登录
+    GetPage(
+      name: RoutePath.kBiliBiliQRLogin,
+      page: () => const BiliBiliQRLoginPage(),
+      bindings: [
+        BilibiliQrLoginBinding(),
+      ],
     ),
   ];
 }
