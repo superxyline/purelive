@@ -105,7 +105,6 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
   late BarrageWallController _controller;
   final Map<AnimationController, Widget> _widgets = {};
   final Random _random = Random();
-  int _processed = 0;
   double? _width;
   double? _height;
   double? _lastHeight; // 上一次计算通道个数的的高度记录
@@ -117,7 +116,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
   int? _channelMask;
   final Map<dynamic, BulletPos> _lastBullets = {};
   final List<int> _speedCorrectionForChannels = [];
-
+  // 获取屏幕的绘画的实际高
   int _calcSafeHeight(double height) => height.isInfinite
       ? context.size!.height.toInt()
       : (height - (_controller.safeBottomHeight ?? widget.safeBottomHeight))
@@ -166,6 +165,12 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
         _usedChannel &= _channelMask! ^ 1 << channel;
       }
     }
+  }
+
+  CustomPaint drawBubbles({required CustomPainter bubbles}) {
+    return CustomPaint(
+      painter: bubbles,
+    );
   }
 
   void _handleBullets(
@@ -276,6 +281,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
           (_totalChannels != null && _lastHeight != _height)) {
         _lastHeight = _height;
         _maxBulletHeight = widget.maxBulletHeight;
+        // 整除
         _totalChannels = _calcSafeHeight(_height!) ~/ _maxBulletHeight!;
         _channelMask = (2 << _totalChannels!) - 1;
 
@@ -293,7 +299,6 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
         bullets: _controller.value.waitingList,
         width: _width!,
       );
-      _processed += _controller.value.waitingList.length;
       setState(() {});
     }
   }
@@ -337,14 +342,6 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
     return LayoutBuilder(builder: (_, snapshot) {
       _width = widget.width ?? snapshot.maxWidth;
       _height = widget.height ?? snapshot.maxHeight;
-
-      if (widget.debug) {
-        debugPrint("BarrageWallValue: ${_controller.value} "
-            "TimelineNotifier: ${_controller.timelineNotifier?.value} "
-            "Timeline: ${_controller.timeline} "
-            "Bullets: ${_widgets.length} "
-            "Processed: $_processed UsedChannels: ${_usedChannel.toRadixString(2)} LastBullets[0]: ${_lastBullets[0]}");
-      }
       return Stack(fit: StackFit.expand, children: <Widget>[
         widget.debug
             ? Container(
