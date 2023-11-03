@@ -1,10 +1,12 @@
+import 'dart:developer';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
-import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 
 class SearchListView extends StatelessWidget {
@@ -64,18 +66,28 @@ class _OwnerCardState extends State<OwnerCard> {
 
   late bool isFavorite = settings.isFavorite(widget.room);
 
+  ImageProvider? getRoomAvatar(avatar) {
+    try {
+      return CachedNetworkImageProvider(avatar, errorListener: (err) {
+        log("CachedNetworkImageProvider: Image failed to load!");
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
         onTap: () => _onTap(context),
-        leading:
-          CacheNetWorkUtils.getCacheImage(widget.room.avatar!,errorWidget: const Center(
-                                child: Icon(
-                                  Icons.live_tv_rounded,
-                                  size: 20,
-                                ),
-                              ),radius: 20),
+        leading: CircleAvatar(
+          foregroundImage: widget.room.avatar!.isNotEmpty
+              ? getRoomAvatar(widget.room.avatar)
+              : null,
+          radius: 20,
+          backgroundColor: Theme.of(context).disabledColor,
+        ),
         title: Text(
           widget.room.nick!,
           maxLines: 1,

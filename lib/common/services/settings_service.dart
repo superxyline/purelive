@@ -334,6 +334,10 @@ class SettingsService extends GetxController {
     return true;
   }
 
+  updateRooms(List<LiveRoom> rooms) {
+    favoriteRooms.value = rooms;
+  }
+
   bool updateRoomInHistory(LiveRoom room) {
     int idx =
         historyRooms.indexWhere((element) => element.roomId == room.roomId);
