@@ -76,7 +76,7 @@ class RoomCard extends StatelessWidget {
                                   Icons.live_tv_rounded,
                                   size: dense ? 38 : 62,
                                 ),
-                              ))
+                              ),full: true)
                     ),
                   ),
                 ),
