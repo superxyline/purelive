@@ -54,7 +54,7 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
 
   Future onRefresh() async {
     bool result = await controller.onRefresh();
-    if (result) {
+    if (!result) {
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();
     } else {
