@@ -83,6 +83,7 @@ class RoomCard extends StatelessWidget {
                             )
                           : CachedNetworkImage(
                               imageUrl: room.cover!,
+                              cacheManager: CustomCacheManager.instance,
                               fit: BoxFit.fill,
                               errorWidget: (context, error, stackTrace) =>
                                   Center(

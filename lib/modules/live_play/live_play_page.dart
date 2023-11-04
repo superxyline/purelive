@@ -129,6 +129,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
                     color: Get.theme.focusColor,
                     child: CachedNetworkImage(
                       imageUrl: controller.room.cover!,
+                      cacheManager: CustomCacheManager.instance,
                       fit: BoxFit.fill,
                       errorWidget: (context, error, stackTrace) => const Center(
                         child: Icon(Icons.live_tv_rounded, size: 48),

@@ -26,26 +26,6 @@ void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
-  EasyRefresh.defaultHeaderBuilder = () => const ClassicHeader(
-        armedText: '松开加载',
-        dragText: '上拉刷新',
-        readyText: '加载中...',
-        processingText: '正在刷新...',
-        noMoreText: '没有更多数据了',
-        failedText: '加载失败',
-        messageText: '上次加载时间 %T',
-        processedText: '加载成功',
-      );
-  EasyRefresh.defaultFooterBuilder = () => const ClassicFooter(
-        armedText: '松开加载',
-        dragText: '下拉刷新',
-        readyText: '加载中...',
-        processingText: '正在刷新...',
-        noMoreText: '没有更多数据了',
-        failedText: '加载失败',
-        messageText: '上次加载时间 %T',
-        processedText: '加载成功',
-      );
   MediaKit.ensureInitialized();
   if (Platform.isWindows) {
     await WindowsSingleInstance.ensureSingleInstance(
@@ -57,7 +37,7 @@ void main(List<String> args) async {
   await SupaBaseManager.getInstance().initial();
   // 初始化服务
   initService();
-
+  initRefresh();
   runApp(const MyApp());
 }
 
@@ -156,4 +136,27 @@ class _MyAppState extends State<MyApp> with WindowListener {
       ),
     );
   }
+}
+
+initRefresh() {
+  EasyRefresh.defaultHeaderBuilder = () => const ClassicHeader(
+        armedText: '松开加载',
+        dragText: '上拉刷新',
+        readyText: '加载中...',
+        processingText: '正在刷新...',
+        noMoreText: '没有更多数据了',
+        failedText: '加载失败',
+        messageText: '上次加载时间 %T',
+        processedText: '加载成功',
+      );
+  EasyRefresh.defaultFooterBuilder = () => const ClassicFooter(
+        armedText: '松开加载',
+        dragText: '下拉刷新',
+        readyText: '加载中...',
+        processingText: '正在刷新...',
+        noMoreText: '没有更多数据了',
+        failedText: '加载失败',
+        messageText: '上次加载时间 %T',
+        processedText: '加载成功',
+      );
 }

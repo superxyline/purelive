@@ -89,6 +89,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
               clipBehavior: Clip.antiAlias,
               color: Get.theme.focusColor,
               child: CachedNetworkImage(
+                cacheManager: CustomCacheManager.instance,
                 imageUrl: widget.controller.room.cover!,
                 fit: BoxFit.fill,
                 errorWidget: (context, error, stackTrace) => const Center(
@@ -143,6 +144,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   clipBehavior: Clip.antiAlias,
                   color: Get.theme.focusColor,
                   child: CachedNetworkImage(
+                    cacheManager: CustomCacheManager.instance,
                     imageUrl: widget.controller.room.cover!,
                     fit: BoxFit.fill,
                     errorWidget: (context, error, stackTrace) => const Center(
@@ -187,6 +189,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   clipBehavior: Clip.antiAlias,
                   color: Get.theme.focusColor,
                   child: CachedNetworkImage(
+                    cacheManager: CustomCacheManager.instance,
                     imageUrl: widget.controller.room.cover!,
                     fit: BoxFit.fill,
                     errorWidget: (context, error, stackTrace) => const Center(
@@ -213,6 +216,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     clipBehavior: Clip.antiAlias,
                     color: Get.theme.focusColor,
                     child: CachedNetworkImage(
+                      cacheManager: CustomCacheManager.instance,
                       imageUrl: widget.controller.room.cover!,
                       fit: BoxFit.fill,
                       errorWidget: (context, error, stackTrace) => const Center(
