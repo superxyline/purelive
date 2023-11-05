@@ -12,7 +12,6 @@ class LivePlayPage extends GetWidget<LivePlayController>
 
   final SettingsService settings = Get.find<SettingsService>();
   Future<bool> onWillPop() async {
-    await controller.videoController?.exitFullScreen();
     var exit = await controller.onBackPressed();
     if (exit) {
       Get.back();

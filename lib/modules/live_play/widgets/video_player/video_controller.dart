@@ -465,7 +465,7 @@ class VideoController with ChangeNotifier {
     }
   }
 
-  Future<void> exitFullScreen() async {
+   exitFullScreen()  {
     if (Platform.isAndroid) {
       isFullscreen.value = false;
       if (videoPlayerIndex == 0) {

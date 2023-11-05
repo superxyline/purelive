@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -151,48 +150,21 @@ class MobileFullscreen extends StatefulWidget {
   State<MobileFullscreen> createState() => _MobileFullscreenState();
 }
 
-class _MobileFullscreenState extends State<MobileFullscreen>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (Platform.isAndroid || Platform.isIOS) {
-        widget.controller.refresh();
-      }
-    }
-  }
-
-  @override
-  dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
+class _MobileFullscreenState extends State<MobileFullscreen> {
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: WillPopScope(
-        onWillPop: () {
-          widget.controller.toggleFullScreen();
-          return Future(() => true);
-        },
-        child: Container(
+      body: Container(
+        alignment: Alignment.center,
+        color: Colors.black,
+        child: Stack(
           alignment: Alignment.center,
-          color: Colors.black,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              widget.controllerProvider,
-              VideoControllerPanel(controller: widget.controller),
-            ],
-          ),
+          children: [
+            widget.controllerProvider,
+            VideoControllerPanel(controller: widget.controller),
+          ],
         ),
       ),
     );
