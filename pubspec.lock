@@ -312,14 +312,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_aliplayer:
-    dependency: "direct main"
-    description:
-      name: flutter_aliplayer
-      sha256: e099110ad3c6153f1d2a7d41f5d94da5560eb8373f4dfafaa5c695137d75646d
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "5.5.6"
   flutter_cache_manager:
     dependency: "direct main"
     description:

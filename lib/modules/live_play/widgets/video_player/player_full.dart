@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import 'video_controller.dart';
+import 'video_controller_panel.dart';
 
 class PlayerFull extends StatefulWidget {
   const PlayerFull(
@@ -26,14 +28,12 @@ class PlayerFull extends StatefulWidget {
 class _PlayerFullState extends State<PlayerFull> with WidgetsBindingObserver {
   ///Flag which determines if widget has initialized
   bool _initialized = false;
-  GlobalKey key = GlobalKey();
   @override
   void initState() {
     super.initState();
     widget.controller.isFullscreen.listen(onControllerEvent);
     widget.controller.videoFit.listen((p0) {
       if (mounted) {
-        key = GlobalKey();
         setState(() {});
       }
     });
@@ -134,3 +134,67 @@ typedef PlayerFullRoutePageBuilder = Widget Function(
     Animation<double> animation,
     Animation<double> secondaryAnimation,
     PlayerFullProvider controllerProvider);
+
+
+
+class MobileFullscreen extends StatefulWidget {
+  const MobileFullscreen({
+    Key? key,
+    required this.controller,
+    required this.controllerProvider,
+  }) : super(key: key);
+
+  final VideoController controller;
+  final Widget controllerProvider;
+
+  @override
+  State<MobileFullscreen> createState() => _MobileFullscreenState();
+}
+
+class _MobileFullscreenState extends State<MobileFullscreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (Platform.isAndroid || Platform.isIOS) {
+        widget.controller.refresh();
+      }
+    }
+  }
+
+  @override
+  dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: WillPopScope(
+        onWillPop: () {
+          widget.controller.toggleFullScreen();
+          return Future(() => true);
+        },
+        child: Container(
+          alignment: Alignment.center,
+          color: Colors.black,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              widget.controllerProvider,
+              VideoControllerPanel(controller: widget.controller),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
