@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.3.2
+version: 1.3.3
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -181,7 +181,7 @@ msix_config:
   display_name: 纯粹直播
   # publisher_display_name: puretech.com
   # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.23
+  msix_version: 1.0.0.24
   logo_path: assets/icons/icon.png
   # capabilities: internetClient
   certificate_path: assets/keystore/CERTIFICATE.pfx
