@@ -134,11 +134,7 @@ class SettingsPage extends GetView<SettingsService> {
             ListTile(
               title: Text(S.of(context).change_player),
               subtitle: Text(S.of(context).change_player_subtitle),
-              trailing: Obx(() => Text([
-                    'ExoPlayer',
-                    'IjkPlayer',
-                    'MpvPlayer'
-                  ][controller.videoPlayerIndex.value])),
+              trailing: Obx(() => Text(controller.playerlist[controller.videoPlayerIndex.value])),
               onTap: showVideoSetDialog,
             ),
           if (Platform.isAndroid)
@@ -232,7 +228,7 @@ class SettingsPage extends GetView<SettingsService> {
   }
 
   void showVideoSetDialog() {
-    List<String> playerList = ['ExoPlayer', 'IjkPlayer', 'MpvPlayer'];
+    List<String> playerList = controller.playerlist;
     showDialog(
       context: context,
       builder: (BuildContext context) {

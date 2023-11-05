@@ -278,9 +278,12 @@ class SettingsService extends GetxController {
 
   static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin'];
 
+
+  static const List<String> players = ['ExoPlayer', 'IjkPlayer', 'MpvPlayer'];
   final preferPlatform =
       (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
 
+  List<String> get playerlist => players;
   void changePreferPlatform(String name) {
     if (platforms.indexWhere((e) => e == name) != -1) {
       preferPlatform.value = name;
@@ -446,7 +449,7 @@ class SettingsService extends GetxController {
     danmakuFontBorder.value = json['danmakuFontBorder'] ?? 0.5;
     danmakuOpacity.value = json['danmakuOpacity'] ?? 1.0;
     doubleExit.value = json['doubleExit'] ?? true;
-    videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
+    videoPlayerIndex.value = json['videoPlayerIndex'] > players.length - 1 ? players.length - 1 : 0;
     enableCodec.value = json['enableCodec'] ?? true;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     changeThemeMode(themeModeName.value);
