@@ -9,7 +9,7 @@ class AreasListController extends BasePageController<AppLiveCategory> {
 
   @override
   Future<List<AppLiveCategory>> getData(int page, int pageSize) async {
-    var result = await site.liveSite.getCategores();
+    var result = await site.liveSite.getCategores(page, pageSize);
 
     return result.map((e) => AppLiveCategory.fromLiveCategory(e)).toList();
   }

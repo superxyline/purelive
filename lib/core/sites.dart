@@ -1,4 +1,5 @@
 import 'package:pure_live/core/site/bilibili_site.dart';
+import 'package:pure_live/core/site/kuaishou_site.dart';
 
 import 'interface/live_site.dart';
 import 'site/douyu_site.dart';
@@ -30,6 +31,12 @@ class Sites {
       name: "抖音",
       logo: "assets/images/douyin.png",
       liveSite: DouyinSite(),
+    ),
+    Site(
+      id: "kuaishou",
+      name: "快手",
+      logo: "assets/images/kuaishou.png",
+      liveSite: KuaishowSite(),
     ),
   ];
 

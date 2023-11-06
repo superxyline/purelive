@@ -29,7 +29,7 @@ class DouyuSite implements LiveSite {
   LiveDanmaku getDanmaku() => DouyuDanmaku();
   final SettingsService settings = Get.find<SettingsService>();
   @override
-  Future<List<LiveCategory>> getCategores() async {
+  Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
     List<LiveCategory> categories = [
       LiveCategory(id: "PCgame", name: "网游竞技", children: []),
       LiveCategory(id: "djry", name: "单机热游", children: []),

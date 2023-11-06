@@ -20,7 +20,7 @@ class LiveSite {
   LiveDanmaku getDanmaku() => LiveDanmaku();
 
   /// 读取网站的分类
-  Future<List<LiveCategory>> getCategores() {
+  Future<List<LiveCategory>> getCategores(int page, int pageSize) {
     return Future.value(<LiveCategory>[]);
   }
 

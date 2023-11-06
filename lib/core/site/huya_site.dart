@@ -29,7 +29,7 @@ class HuyaSite implements LiveSite {
   LiveDanmaku getDanmaku() => HuyaDanmaku();
 
   @override
-  Future<List<LiveCategory>> getCategores() async {
+  Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
     List<LiveCategory> categories = [
       LiveCategory(id: "1", name: "网游", children: []),
       LiveCategory(id: "2", name: "单机", children: []),

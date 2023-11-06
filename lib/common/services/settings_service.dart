@@ -449,7 +449,7 @@ class SettingsService extends GetxController {
     danmakuFontBorder.value = json['danmakuFontBorder'] ?? 0.5;
     danmakuOpacity.value = json['danmakuOpacity'] ?? 1.0;
     doubleExit.value = json['doubleExit'] ?? true;
-    videoPlayerIndex.value = json['videoPlayerIndex'] > players.length - 1 ? players.length - 1 : 0;
+    videoPlayerIndex.value = json['videoPlayerIndex'];
     enableCodec.value = json['enableCodec'] ?? true;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     changeThemeMode(themeModeName.value);

@@ -27,7 +27,7 @@ class BiliBiliSite implements LiveSite {
   LiveDanmaku getDanmaku() => BiliBiliDanmaku();
   final SettingsService settings = Get.find<SettingsService>();
   @override
-  Future<List<LiveCategory>> getCategores() async {
+  Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
     List<LiveCategory> categories = [];
     var result = await HttpClient.instance.getJson(
       "https://api.live.bilibili.com/room/v1/Area/getList",
