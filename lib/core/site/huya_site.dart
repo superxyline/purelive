@@ -319,6 +319,30 @@ class HuyaSite implements LiveSite {
     );
     var result = json.decode(resultText);
     var items = <LiveRoom>[];
+    for (var item in result["response"]["0"]["docs"]) {
+      var cover = item["game_screenshot"].toString();
+      if (!cover.contains("?")) {
+        cover += "?x-oss-process=style/w338_h190&";
+      }
+
+      var title = item["game_introduction"]?.toString() ?? "";
+      if (title.isEmpty) {
+        title = item["game_roomName"]?.toString() ?? "";
+      }
+      var roomItem = LiveRoom(
+        roomId: item["room_id"].toString(),
+        title: title,
+        cover: cover,
+        nick: item["game_nick"].toString(),
+        area: item["gameName"].toString(),
+        status: true,
+        liveStatus: LiveStatus.live,
+        avatar: item["game_imgUrl"].toString(),
+        watching: item["game_total_count"].toString(),
+        platform: 'huya',
+      );
+      items.add(roomItem);
+    }
     for (var item in result["response"]["3"]["docs"]) {
       var cover = item["game_screenshot"].toString();
       if (!cover.contains("?")) {
