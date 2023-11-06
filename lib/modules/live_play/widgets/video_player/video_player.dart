@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:better_player/better_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fijkplayer/fijkplayer.dart';
-import 'package:flutter_aliplayer/flutter_aliplayer.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/player_full.dart';
@@ -89,6 +88,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
               clipBehavior: Clip.antiAlias,
               color: Get.theme.focusColor,
               child: CachedNetworkImage(
+                cacheManager: CustomCacheManager.instance,
                 imageUrl: widget.controller.room.cover!,
                 fit: BoxFit.fill,
                 errorWidget: (context, error, stackTrace) => const Center(
@@ -119,7 +119,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           (context, animation, second, controllerProvider) =>
                               AnimatedBuilder(
                         animation: animation,
-                        builder: (context, child) => FijkFullscreen(
+                        builder: (context, child) => MobileFullscreen(
                           controller: widget.controller,
                           controllerProvider: controllerProvider,
                         ),
@@ -127,6 +127,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                       playerView: FijkView(
                         player: widget.controller.fijkPlayer,
                         color: Colors.black,
+                        width: double.infinity,
                         fit: getFijkFit(widget.controller.videoFit.value),
                         cover: getRoomCover(widget.controller.room.cover),
                         fs: false,
@@ -143,6 +144,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   clipBehavior: Clip.antiAlias,
                   color: Get.theme.focusColor,
                   child: CachedNetworkImage(
+                    cacheManager: CustomCacheManager.instance,
                     imageUrl: widget.controller.room.cover!,
                     fit: BoxFit.fill,
                     errorWidget: (context, error, stackTrace) => const Center(
@@ -153,50 +155,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
         );
       }
       if (widget.controller.videoPlayerIndex == 2) {
-        return Obx(
-          () => !widget.controller.playerRefresh.value
-              ? Stack(
-                  children: [
-                    PlayerFull(
-                      controller: widget.controller,
-                      routePageBuilder:
-                          (context, animation, second, controllerProvider) =>
-                              AnimatedBuilder(
-                        animation: animation,
-                        builder: (context, child) => AliPlayerFullscreen(
-                          controller: widget.controller,
-                          controllerProvider: controllerProvider,
-                        ),
-                      ),
-                      playerView: AliPlayerView(
-                        onCreated: widget.controller.onViewPlayerCreated,
-                        x: 0.0,
-                        y: 0.0,
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                      ),
-                    ),
-                    _buildVideoPanel(),
-                  ],
-                )
-              : Card(
-                  elevation: 0,
-                  margin: const EdgeInsets.all(0),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero),
-                  clipBehavior: Clip.antiAlias,
-                  color: Get.theme.focusColor,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.controller.room.cover!,
-                    fit: BoxFit.fill,
-                    errorWidget: (context, error, stackTrace) => const Center(
-                      child: Icon(Icons.live_tv_rounded, size: 48),
-                    ),
-                  ),
-                ),
-        );
-      }
-      if (widget.controller.videoPlayerIndex == 3) {
         return Obx(
             () => widget.controller.mediaPlayerControllerInitialized.value
                 ? media_kit_video.Video(
@@ -213,6 +171,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     clipBehavior: Clip.antiAlias,
                     color: Get.theme.focusColor,
                     child: CachedNetworkImage(
+                      cacheManager: CustomCacheManager.instance,
                       imageUrl: widget.controller.room.cover!,
                       fit: BoxFit.fill,
                       errorWidget: (context, error, stackTrace) => const Center(

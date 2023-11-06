@@ -2,10 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_aliplayer/flutter_aliplayer.dart';
-import 'package:flutter_aliplayer/flutter_aliplayer_factory.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
@@ -72,7 +69,6 @@ class VideoController with ChangeNotifier {
 
   final playerRefresh = false.obs;
 
-  late FlutterAliplayer fAliplayer;
 
   GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
       GlobalKey<BrightnessVolumnDargAreaState>();
@@ -205,8 +201,6 @@ class VideoController with ChangeNotifier {
       } else if (videoPlayerIndex == 1) {
         setDataSource(datasource);
       } else if (videoPlayerIndex == 2) {
-        setDataSource(datasource);
-      } else if (videoPlayerIndex == 3) {
         player = Player();
         mediaPlayerController = media_kit_video.VideoController(player,
             configuration: media_kit_video.VideoControllerConfiguration(
@@ -319,8 +313,6 @@ class VideoController with ChangeNotifier {
         fijkPlayer.removeListener(_playerValueChanged);
         fijkPlayer.release();
       } else if (videoPlayerIndex == 2) {
-        fAliplayer.destroy();
-      } else if (videoPlayerIndex == 3) {
         if (key.currentState?.isFullscreen() ?? false) {
           key.currentState?.exitFullscreen();
         }
@@ -349,8 +341,6 @@ class VideoController with ChangeNotifier {
       } else if (videoPlayerIndex == 1) {
         setFijkPlayerDataSource(refresh: true);
       } else if (videoPlayerIndex == 2) {
-        setAliplayPlayerDataSource(refresh: true);
-      } else if (videoPlayerIndex == 3) {
         setDataSource(datasource);
       }
     }
@@ -396,8 +386,6 @@ class VideoController with ChangeNotifier {
       } else if (videoPlayerIndex == 1) {
         setFijkPlayerDataSource(refresh: refresh);
       } else if (videoPlayerIndex == 2) {
-        setAliplayPlayerDataSource(refresh: refresh);
-      } else if (videoPlayerIndex == 3) {
         player.pause();
         player.open(Media(datasource, httpHeaders: headers));
         mediaPlayerController.player.open(Media(datasource));
@@ -406,41 +394,7 @@ class VideoController with ChangeNotifier {
     notifyListeners();
   }
 
-  onViewPlayerCreated(viewId) {
-    fAliplayer.setPlayerView(viewId);
-  }
 
-  setAliplayPlayerDataSource({bool refresh = false}) async {
-    if (refresh) {
-      playerRefresh.value = refresh;
-      await fAliplayer.destroy();
-    }
-    fAliplayer = FlutterAliPlayerFactory.createAliPlayer();
-    fAliplayer.register();
-    await fAliplayer.setPreferPlayerName('纯粹直播');
-    await fAliplayer.setEnableHardwareDecoder(enableCodec);
-    fAliplayer.setOnStateChanged((newState, playerId) {
-      if (newState == 3) {
-        isPlaying.value = true;
-      } else {
-        isPlaying.value = false;
-      }
-      if (newState == 7) {
-        hasError.value = true;
-      }
-    });
-    fAliplayer.setOnError((errorCode, errorExtra, errorMsg, playerId) {
-      hasError.value = true;
-    });
-    playerRefresh.value = false;
-    var config = AVPConfig();
-    config.referer = headers['referer'] ?? '';
-    config.userAgent = headers['user-agent'] ?? '';
-    fAliplayer.setPlayConfig(config);
-    await fAliplayer.setUrl(datasource);
-    fAliplayer.setAutoPlay(true);
-    await fAliplayer.prepare();
-  }
 
   setFijkPlayerDataSource({bool refresh = false}) async {
     if (refresh) {
@@ -463,8 +417,7 @@ class VideoController with ChangeNotifier {
     headers.forEach((key, value) {
       headersArr.add('$key:$value');
     });
-    fijkPlayer.setOption(
-        FijkOption.formatCategory, "headers", headersArr.join('\r\n'));
+    fijkPlayer.setOption(FijkOption.formatCategory, "headers", headersArr.join('\r\n'));
     fijkPlayer.setOption(FijkOption.hostCategory, "request-screen-on", 1);
     fijkPlayer.setOption(FijkOption.hostCategory, "request-audio-focus", 1);
     fijkPlayer.setOption(FijkOption.playerCategory, "mediacodec-all-videos", 1);
@@ -488,16 +441,6 @@ class VideoController with ChangeNotifier {
       } else if (videoPlayerIndex == 1) {
         // 
       } else if (videoPlayerIndex == 2) {
-        if (fit == BoxFit.contain) {
-          fAliplayer.setScalingMode(FlutterAvpdef.AVP_SCALINGMODE_SCALETOFILL);
-        } else if (fit == BoxFit.cover || fit == BoxFit.fill) {
-          fAliplayer
-              .setScalingMode(FlutterAvpdef.AVP_SCALINGMODE_SCALEASPECTFILL);
-        } else if (fit == BoxFit.fitHeight || fit == BoxFit.fitWidth) {
-          fAliplayer
-              .setScalingMode(FlutterAvpdef.AVP_SCALINGMODE_SCALEASPECTFIT);
-        }
-      } else if (videoPlayerIndex == 3) {
         key.currentState?.update(fit: fit);
       }
     }
@@ -517,18 +460,12 @@ class VideoController with ChangeNotifier {
           fijkPlayer.start();
         }
       } else if (videoPlayerIndex == 2) {
-        if (isPlaying.value) {
-          fAliplayer.pause();
-        } else {
-          fAliplayer.play();
-        }
-      } else if (videoPlayerIndex == 3) {
         mediaPlayerController.player.playOrPause();
       }
     }
   }
 
-  Future<void> exitFullScreen() async {
+   exitFullScreen()  {
     if (Platform.isAndroid) {
       isFullscreen.value = false;
       if (videoPlayerIndex == 0) {
@@ -536,12 +473,9 @@ class VideoController with ChangeNotifier {
       } else if (videoPlayerIndex == 1) {
         fijkPlayer.exitFullScreen();
       } else if (videoPlayerIndex == 2) {
-        isFullscreen.value = false;
-      } else if (videoPlayerIndex == 3) {
         if (key.currentState?.isFullscreen() ?? false) {
           key.currentState?.exitFullscreen();
         }
-        isFullscreen.value = false;
       }
       showSettting.value = false;
     }
@@ -613,8 +547,6 @@ class VideoController with ChangeNotifier {
           fijkPlayer.enterFullScreen();
         }
       } else if (videoPlayerIndex == 2) {
-        isFullscreen.toggle();
-      } else if (videoPlayerIndex == 3) {
         if (key.currentState?.isFullscreen() ?? false) {
           key.currentState?.exitFullscreen();
         } else {
@@ -719,178 +651,3 @@ class DesktopFullscreen extends StatelessWidget {
 }
 
 // use fullscreen with controller provider
-class MobileFullscreen extends StatefulWidget {
-  const MobileFullscreen({
-    Key? key,
-    required this.controller,
-    required this.controllerProvider,
-  }) : super(key: key);
-
-  final VideoController controller;
-  final BetterPlayerControllerProvider controllerProvider;
-
-  @override
-  State<MobileFullscreen> createState() => _MobileFullscreenState();
-}
-
-class _MobileFullscreenState extends State<MobileFullscreen>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (Platform.isAndroid || Platform.isIOS) {
-        widget.controller.refresh();
-      }
-    }
-  }
-
-  @override
-  dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: WillPopScope(
-        onWillPop: () {
-          widget.controller.toggleFullScreen();
-          return Future(() => true);
-        },
-        child: Container(
-          alignment: Alignment.center,
-          color: Colors.black,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              widget.controllerProvider,
-              VideoControllerPanel(controller: widget.controller),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class FijkFullscreen extends StatefulWidget {
-  const FijkFullscreen(
-      {Key? key, required this.controller, required this.controllerProvider})
-      : super(key: key);
-
-  final VideoController controller;
-  final PlayerFullProvider controllerProvider;
-  @override
-  State<FijkFullscreen> createState() => _FijkFullscreenState();
-}
-
-class _FijkFullscreenState extends State<FijkFullscreen>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (Platform.isAndroid || Platform.isIOS) {
-        widget.controller.refresh();
-      }
-    }
-  }
-
-  ImageProvider? getRoomCover(cover) {
-    try {
-      return CachedNetworkImageProvider(cover);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  @override
-  dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        alignment: Alignment.center,
-        color: Colors.black,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            widget.controllerProvider,
-            VideoControllerPanel(controller: widget.controller),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class AliPlayerFullscreen extends StatefulWidget {
-  const AliPlayerFullscreen(
-      {Key? key, required this.controller, required this.controllerProvider})
-      : super(key: key);
-  final PlayerFullProvider controllerProvider;
-  final VideoController controller;
-
-  @override
-  State<AliPlayerFullscreen> createState() => _AliPlayerFullscreenState();
-}
-
-class _AliPlayerFullscreenState extends State<AliPlayerFullscreen>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (Platform.isAndroid || Platform.isIOS) {
-        widget.controller.refresh();
-      }
-    }
-  }
-
-  @override
-  dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        alignment: Alignment.center,
-        color: Colors.black,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            widget.controllerProvider,
-            VideoControllerPanel(controller: widget.controller),
-          ],
-        ),
-      ),
-    );
-  }
-}

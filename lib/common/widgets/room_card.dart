@@ -1,6 +1,8 @@
+import 'dart:developer';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 
 // ignore: must_be_immutable
@@ -34,7 +36,15 @@ class RoomCard extends StatelessWidget {
       ),
     );
   }
-
+  ImageProvider? getRoomAvatar(avatar) {
+    try {
+      return CachedNetworkImageProvider(avatar, errorListener: (err) {
+        log("CachedNetworkImageProvider: Image failed to load!");
+      });
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,12 +81,18 @@ class RoomCard extends StatelessWidget {
                                 size: dense ? 36 : 60,
                               ),
                             )
-                          :CacheNetWorkUtils.getCacheImage(room.cover!,errorWidget: Center(
+                          : CachedNetworkImage(
+                              imageUrl: room.cover!,
+                              cacheManager: CustomCacheManager.instance,
+                              fit: BoxFit.fill,
+                              errorWidget: (context, error, stackTrace) =>
+                                  Center(
                                 child: Icon(
                                   Icons.live_tv_rounded,
                                   size: dense ? 38 : 62,
                                 ),
-                              ),full: true)
+                              ),
+                            ),
                     ),
                   ),
                 ),
@@ -110,13 +126,13 @@ class RoomCard extends StatelessWidget {
               contentPadding:
                   dense ? const EdgeInsets.only(left: 8, right: 10) : null,
               horizontalTitleGap: dense ? 8 : null,
-              leading:
-              CacheNetWorkUtils.getCacheImage(room.avatar!,errorWidget: Center(
-                                child: Icon(
-                                  Icons.live_tv_rounded,
-                                  size: dense ? 17 : 0.0,
-                                ),
-                              ),radius: dense ? 17 : 0.0),
+
+              leading: CircleAvatar(
+                foregroundImage:
+                    room.avatar!.isNotEmpty ? getRoomAvatar(room.avatar) : null,
+                radius: dense ? 17 : null,
+                backgroundColor: Theme.of(context).disabledColor,
+              ),
               title: Text(
                 room.title!,
                 maxLines: 1,

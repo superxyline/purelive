@@ -24,7 +24,7 @@ class LivePlayController extends StateController {
 
   // 控制唯一子组件
   VideoController? videoController;
-  
+
   final playerKey = GlobalKey();
   final danmakuViewKey = GlobalKey();
   final LiveRoom room;
@@ -47,6 +47,10 @@ class LivePlayController extends StateController {
 
   int lastExitTime = 0;
   Future<bool> onBackPressed() async {
+    if (videoController!.isFullscreen.value) {
+      videoController?.exitFullScreen();
+      return await Future.value(false);
+    }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
     if (!doubleExit) {
       return Future.value(true);
@@ -139,7 +143,8 @@ class LivePlayController extends StateController {
     currentQuality.value =
         qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
-    videoController?.setDataSource(playUrls.value[currentLineIndex.value],refresh: true);
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value],
+        refresh: true);
     update();
   }
 
@@ -150,7 +155,7 @@ class LivePlayController extends StateController {
     try {
       var playQualites =
           await currentSite.liveSite.getPlayQualites(detail: detail.value!);
-       
+
       if (playQualites.isEmpty) {
         SmartDialog.showToast("无法读取播放清晰度");
         return;

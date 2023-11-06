@@ -4,8 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get_rx/get_rx.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/plugins/barrage.dart';
@@ -693,6 +692,7 @@ class BottomActionBar extends StatelessWidget {
                 PlayPauseButton(controller: controller),
                 RefreshButton(controller: controller),
                 DanmakuButton(controller: controller),
+                FavoriteButton(controller: controller),
                 if (controller.isFullscreen.value)
                   SettingsButton(controller: controller),
                 if (controller.supportPip && controller.isFullscreen.value)
@@ -874,6 +874,47 @@ class ExpandButton extends StatelessWidget {
               color: Colors.white,
               size: 26,
             )),
+      ),
+    );
+  }
+}
+
+class FavoriteButton extends StatefulWidget {
+  const FavoriteButton({
+    Key? key,
+    required this.controller,
+  }) : super(key: key);
+
+  final VideoController controller;
+
+  @override
+  State<FavoriteButton> createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<FavoriteButton> {
+  final settings = Get.find<SettingsService>();
+
+  late bool isFavorite = settings.isFavorite(widget.controller.room);
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (isFavorite) {
+          settings.removeRoom(widget.controller.room);
+        } else {
+          settings.addRoom(widget.controller.room);
+        }
+        setState(() => isFavorite = !isFavorite);
+      },
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(12),
+        child: Icon(
+              !isFavorite
+                  ? Icons.favorite_outline_outlined
+                  : Icons.favorite_rounded,
+              color: Colors.white,
+            ),
       ),
     );
   }

@@ -12,7 +12,6 @@ class LivePlayPage extends GetWidget<LivePlayController>
 
   final SettingsService settings = Get.find<SettingsService>();
   Future<bool> onWillPop() async {
-    await controller.videoController?.exitFullScreen();
     var exit = await controller.onBackPressed();
     if (exit) {
       Get.back();
@@ -129,6 +128,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
                     color: Get.theme.focusColor,
                     child: CachedNetworkImage(
                       imageUrl: controller.room.cover!,
+                      cacheManager: CustomCacheManager.instance,
                       fit: BoxFit.fill,
                       errorWidget: (context, error, stackTrace) => const Center(
                         child: Icon(Icons.live_tv_rounded, size: 48),
