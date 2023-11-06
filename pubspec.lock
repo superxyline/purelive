@@ -54,10 +54,10 @@ packages:
     description:
       path: "."
       ref: media3
-      resolved-ref: "76467af8eba7dbe70fe978e4c14f54cada311ec1"
+      resolved-ref: "9edb50e9ab805d5d61f9e1342792297da99d7fbf"
       url: "https://github.com/liuchuancong/better_player.git"
     source: git
-    version: "0.0.1"
+    version: "0.0.2"
   boolean_selector:
     dependency: transitive
     description:
