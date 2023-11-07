@@ -1,4 +1,5 @@
 import 'package:pure_live/core/site/bilibili_site.dart';
+import 'package:pure_live/core/site/iptv_site.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
 
 import 'interface/live_site.dart';
@@ -37,6 +38,12 @@ class Sites {
       name: "快手",
       logo: "assets/images/kuaishou.png",
       liveSite: KuaishowSite(),
+    ),
+    Site(
+      id: "iptv",
+      name: "网络直播",
+      logo: "assets/images/kuaishou.png",
+      liveSite: IptvSite(),
     ),
   ];
 

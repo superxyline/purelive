@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.3.3
+version: 1.3.4
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -120,6 +120,11 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.1
 
+
+flutter_assets:
+  assets_path: assets/iptv/
+  output_path: lib/core/iptv
+  filename: assets_iptv.dart
 # flutter pub run flutter_launcher_icons
 flutter_icons:
   android: "ic_launcher"
@@ -152,6 +157,9 @@ flutter:
     - assets/crypto-js.js
     - assets/images/
     - assets/icons/
+    - assets/iptv/categories.json
+    - assets/iptv/category/
+    - assets/iptv/recomand/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see
@@ -173,6 +181,7 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
 # flutter localization settings
+
 flutter_intl:
   enabled: true
   arb_dir: lib/common/l10n
@@ -183,7 +192,7 @@ msix_config:
   display_name: 纯粹直播
   # publisher_display_name: puretech.com
   # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.24
+  msix_version: 1.0.0.25
   logo_path: assets/icons/icon.png
   # capabilities: internetClient
   certificate_path: assets/keystore/CERTIFICATE.pfx

@@ -9,7 +9,7 @@ import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/core/danmaku/huya_danmaku.dart';
+import 'package:pure_live/core/danmaku/empty_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/model/live_category.dart';
@@ -29,7 +29,7 @@ class KuaishowSite implements LiveSite {
   Map<String, String> cookieObj = {};
 
   @override
-  LiveDanmaku getDanmaku() => HuyaDanmaku();
+  LiveDanmaku getDanmaku() => EmptyDanmaku();
 
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
