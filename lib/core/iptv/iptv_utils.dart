@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:developer';
 import 'package:flutter/services.dart' show rootBundle;
 
 class IptvUtils {
@@ -8,9 +8,13 @@ class IptvUtils {
   static const String recomand = 'recomand';
 
   static Future<List<IptvCategory>> readCategory() async {
-    String jsonData = await loadJsonFromAssets('assets/iptv/categories.json');
-    List json = jsonDecode(jsonData);
-    return json.map((e) => IptvCategory.fromJson(e)).toList();
+    try {
+      String jsonData = await loadJsonFromAssets('assets/iptv/categories.json');
+      List json = jsonDecode(jsonData);
+      return json.map((e) => IptvCategory.fromJson(e)).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   static Future<String> loadJsonFromAssets(String assetsPath) async {
@@ -19,36 +23,40 @@ class IptvUtils {
 
   static Future<List<IptvCategoryItem>> readCategoryItems(filePath) async {
     String prefix = 'assets/iptv/category/';
-    // String jsonData = await loadJsonFromAssets(prefix + filePath);
-    // print(jsonData.split(',').length);
-    final file = File(prefix + filePath); // 替换成你的文件路径
-    List<String> lines = await file.readAsLines();
     RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
     List<IptvCategoryItem> list = [];
-    for (var i = 0; i < lines.length; i++) {
-      List<String> linesObj = lines[i].split(',');
-      if (linesObj.length > 1 && exp.hasMatch(linesObj[1])) {
-        list.add(IptvCategoryItem(
-            id: i.toString(), name: linesObj[0], liveUrl: linesObj[1]));
+    try {
+      await loadJsonFromAssets(prefix + filePath).then((value) {
+      for (String i in const LineSplitter().convert(value)) {
+        List<String> linesObj = i.split(',');
+        if (linesObj.length > 1 && exp.hasMatch(linesObj[1])) {
+          list.add(IptvCategoryItem(
+              id: i.toString(), name: linesObj[0], liveUrl: linesObj[1]));
+        }
       }
+    });
+    } catch (e) {
+      log(e.toString());
     }
     return list;
   }
 
   static Future<List<IptvCategoryItem>> readRecommandsItems() async {
     String path = 'assets/iptv/recomand/index.txt';
-    // String jsonData = await loadJsonFromAssets(prefix + filePath);
-    // print(jsonData.split(',').length);
-    final file = File(path); // 替换成你的文件路径
-    List<String> lines = await file.readAsLines();
     RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
     List<IptvCategoryItem> list = [];
-    for (var i = 0; i < lines.length; i++) {
-      List<String> linesObj = lines[i].split(',');
-      if (linesObj.length > 1 && exp.hasMatch(linesObj[1])) {
-        list.add(IptvCategoryItem(
-            id: i.toString(), name: linesObj[0], liveUrl: linesObj[1]));
+    try {
+      await loadJsonFromAssets(path).then((value) {
+      for (String i in const LineSplitter().convert(value)) {
+        List<String> linesObj = i.split(',');
+        if (linesObj.length > 1 && exp.hasMatch(linesObj[1])) {
+          list.add(IptvCategoryItem(
+              id: i.toString(), name: linesObj[0], liveUrl: linesObj[1]));
+        }
       }
+    });
+    } catch (e) {
+      log(e.toString());
     }
     return list;
   }

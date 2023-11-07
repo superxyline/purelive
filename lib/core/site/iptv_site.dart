@@ -15,13 +15,13 @@ class IptvSite implements LiveSite {
   String id = 'iptv';
 
   @override
-  String name = "网络直播";
+  String name = "网络电视";
 
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
     List<IptvCategory> categories = await IptvUtils.readCategory();
     List<LiveCategory> categoryTypes = [];
-    for (var item in categories) {
+    for (IptvCategory item in categories) {
       var subCategory = await getSubCategores(item);
       LiveCategory liveCategory = LiveCategory(
           id: item.id,
@@ -34,8 +34,7 @@ class IptvSite implements LiveSite {
 
   Future<List<LiveArea>> getSubCategores(IptvCategory liveCategory) async {
     List<LiveArea> subs = [];
-    List<IptvCategoryItem> lists =
-        await IptvUtils.readCategoryItems(liveCategory.path);
+    List<IptvCategoryItem> lists = await IptvUtils.readCategoryItems(liveCategory.path);
     for (var item in lists) {
       subs.add(LiveArea(
         areaPic: '',

@@ -41,7 +41,7 @@ class Sites {
     ),
     Site(
       id: "iptv",
-      name: "网络直播",
+      name: "网络电视",
       logo: "assets/images/kuaishou.png",
       liveSite: IptvSite(),
     ),
