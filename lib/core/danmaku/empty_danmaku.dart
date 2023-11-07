@@ -32,7 +32,6 @@ class EmptyDanmaku implements LiveDanmaku {
       },
       onReady: () {
         onReady?.call();
-        joinRoom();
       },
       onHeartBeat: () {
         heartbeat();

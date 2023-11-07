@@ -38,12 +38,13 @@ class IptvSite implements LiveSite {
         await IptvUtils.readCategoryItems(liveCategory.path);
     for (var item in lists) {
       subs.add(LiveArea(
-        areaPic: 'https://i-1.lanrentuku.com/2020/11/18/c7069c3c-e9ca-46a1-9f29-10ef22bf109a.png',
+        areaPic: '',
         areaId: item.liveUrl,
         typeName: liveCategory.path.replaceAll(r'.txt', ''),
         areaType: liveCategory.id,
         platform: 'iptv',
         areaName: item.name,
+        
       ));
     }
 
@@ -57,10 +58,10 @@ class IptvSite implements LiveSite {
     var roomItem = LiveRoom(
       roomId: category.areaId,
       title: category.typeName,
-      cover: 'https://i-1.lanrentuku.com/2020/11/18/c7069c3c-e9ca-46a1-9f29-10ef22bf109a.png',
+      cover: '',
       nick: category.areaName,
       watching: '',
-      avatar: '',
+      avatar: 'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
       area: '',
       liveStatus: LiveStatus.live,
       status: true,
@@ -102,7 +103,7 @@ class IptvSite implements LiveSite {
     var items = <LiveRoom>[];
     for (var item in lists) {
     var room =  LiveRoom(
-        cover: 'https://i-1.lanrentuku.com/2020/11/18/c7069c3c-e9ca-46a1-9f29-10ef22bf109a.png',
+        cover: '',
         watching: '',
         roomId: item.liveUrl,
         area: '热门电视',
@@ -127,7 +128,7 @@ class IptvSite implements LiveSite {
     var data = [];
     data.add(roomId);
     return LiveRoom(
-      cover: 'https://i-1.lanrentuku.com/2020/11/18/c7069c3c-e9ca-46a1-9f29-10ef22bf109a.png',
+      cover: '',
       watching: '',
       roomId: roomId,
       area: '',

@@ -83,8 +83,13 @@ class LivePlayController extends StateController {
           getPlayQualites();
         }
         // start danmaku server
-        // initDanmau();
-        // liveDanmaku.start(detail.value?.danmakuData);
+        List<String> except = ['kuaishou', 'iptv'];
+        if (except
+                .indexWhere((element) => element == detail.value?.platform!) ==
+            -1) {
+          initDanmau();
+          liveDanmaku.start(detail.value?.danmakuData);
+        }
       }).then((value) => settings.addRoomToHistory(detail.value!));
     } catch (e) {
       log(e.toString(), name: 'LivePlayError');
