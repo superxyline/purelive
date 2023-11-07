@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:pure_live/core/iptv/src/m3u_item.dart';
+import 'package:pure_live/core/iptv/src/m3u_list.dart';
 
 class IptvUtils {
   static const String directoryPath = '/assets/iptv/';
@@ -23,18 +25,13 @@ class IptvUtils {
 
   static Future<List<IptvCategoryItem>> readCategoryItems(filePath) async {
     String prefix = 'assets/iptv/category/';
-    RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
     List<IptvCategoryItem> list = [];
     try {
-      await loadJsonFromAssets(prefix + filePath).then((value) {
-      for (String i in const LineSplitter().convert(value)) {
-        List<String> linesObj = i.split(',');
-        if (linesObj.length > 1 && exp.hasMatch(linesObj[1])) {
-          list.add(IptvCategoryItem(
-              id: i.toString(), name: linesObj[0], liveUrl: linesObj[1]));
-        }
+       final m3uList = await M3uList.loadFromFile(prefix + filePath);
+      for (M3uItem item in m3uList.items) {
+        list.add(IptvCategoryItem(
+            id: 'id${item.link}', name: item.title, liveUrl: item.link));
       }
-    });
     } catch (e) {
       log(e.toString());
     }
@@ -42,19 +39,14 @@ class IptvUtils {
   }
 
   static Future<List<IptvCategoryItem>> readRecommandsItems() async {
-    String path = 'assets/iptv/recomand/index.txt';
-    RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+    String path = 'assets/iptv/recomand/11.m3u';
     List<IptvCategoryItem> list = [];
     try {
-      await loadJsonFromAssets(path).then((value) {
-      for (String i in const LineSplitter().convert(value)) {
-        List<String> linesObj = i.split(',');
-        if (linesObj.length > 1 && exp.hasMatch(linesObj[1])) {
-          list.add(IptvCategoryItem(
-              id: i.toString(), name: linesObj[0], liveUrl: linesObj[1]));
-        }
+      final m3uList = await M3uList.loadFromFile(path);
+      for (M3uItem item in m3uList.items) {
+        list.add(IptvCategoryItem(
+            id: 'id${item.link}', name: item.title, liveUrl: item.link));
       }
-    });
     } catch (e) {
       log(e.toString());
     }

@@ -25,7 +25,7 @@ class IptvSite implements LiveSite {
       var subCategory = await getSubCategores(item);
       LiveCategory liveCategory = LiveCategory(
           id: item.id,
-          name: item.path.replaceAll(r'.txt', ''),
+          name: item.name,
           children: subCategory);
       categoryTypes.add(liveCategory);
     }

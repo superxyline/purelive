@@ -418,6 +418,22 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_vlc_player:
+    dependency: "direct main"
+    description:
+      name: flutter_vlc_player
+      sha256: "3e4094a0f2c9d8d7017dd3d8c270694286672fada162185499339feefbf7b870"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.4.0"
+  flutter_vlc_player_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_vlc_player_platform_interface
+      sha256: b161dde841368d330be82c5ee6f40b29dadc4227167bf2770d949f576ae2d9b1
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.3"
   flutter_volume_controller:
     dependency: "direct main"
     description:
@@ -435,10 +451,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_widget_from_html_core
-      sha256: d1366d0421011547a339f03c77672575dd018759f43b37b6e3257e34af77e302
+      sha256: dd585321db498911414a9b08659b8aa965f8f0375b39856429220fbcacdf59bd
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.14.4"
+    version: "0.14.6"
   font_awesome_flutter:
     dependency: "direct main"
     description:

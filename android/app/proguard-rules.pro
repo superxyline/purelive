@@ -15,3 +15,4 @@
 -keep class org.webrtc.**{*;}
 -keep class org.ugsv.**{*;}
 -keep class org.videolan.libvlc.** { *; }
+-keep class org.videolan.libvlc.** { *; }
