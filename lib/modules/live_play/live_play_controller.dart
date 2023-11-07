@@ -155,7 +155,6 @@ class LivePlayController extends StateController {
     try {
       var playQualites =
           await currentSite.liveSite.getPlayQualites(detail: detail.value!);
-    print(playQualites);
       if (playQualites.isEmpty) {
         SmartDialog.showToast("无法读取播放清晰度");
         return;
@@ -177,7 +176,6 @@ class LivePlayController extends StateController {
 
       getPlayUrl();
     } catch (e) {
-      print(e);
       SmartDialog.showToast("无法读取播放清晰度");
     }
   }

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:math' as math;
-import 'dart:developer';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get/get.dart';
@@ -10,12 +8,10 @@ import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
-import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/interface/live_site.dart';
-import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
@@ -295,15 +291,17 @@ class KuaishowSite implements LiveSite {
     }
   }
 
-  getWebsocketUrl(liveStreamId) async {
+  getWebsocketUrl(liveRoomId) async {
+    var variables = {'liveStreamId': liveRoomId};
+    var query =
+        r'query WebSocketInfoQuery($liveStreamId: String) {\n  webSocketInfo(liveStreamId: $liveStreamId) {\n    token\n    webSocketUrls\n    __typename\n  }\n}\n';
     var res = await HttpClient.instance.postJson(
         'https://live.kuaishou.com/live_graphql',
         header: headers,
         data: {
           "operationName": 'WebSocketInfoQuery',
-          "variables": {liveStreamId: liveStreamId},
-          "query":
-              'query WebSocketInfoQuery($liveStreamId: String) {\n  webSocketInfo(liveStreamId: $liveStreamId) {\n    token\n    webSocketUrls\n    __typename\n  }\n}\n'
+          "variables": variables,
+          "query": query
         });
     return res;
   }
@@ -328,9 +326,8 @@ class KuaishowSite implements LiveSite {
       var liveStream = jsonObj["liveroom"]["playList"][0]["liveStream"];
       var author = jsonObj["liveroom"]["playList"][0]["author"];
       var gameInfo = jsonObj["liveroom"]["playList"][0]["gameInfo"];
-      var liveStreamId = liveStream["id"];
-      var res = await getWebsocketUrl(liveStreamId);
-      print(liveStreamId);
+      // var liveStreamId = liveStream["id"];
+      // var res = await getWebsocketUrl(liveStreamId);
       return LiveRoom(
         cover: liveStream["coverUrl"],
         watching: gameInfo["watchingCount"].toString(),
