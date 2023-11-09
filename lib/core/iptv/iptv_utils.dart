@@ -14,7 +14,7 @@ class IptvUtils {
   static Future<List<IptvCategory>> readCategory() async {
     try {
       var dir = await getApplicationDocumentsDirectory();
-      final categories = File('${dir.path}/categories.json');
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
       String jsonData = await categories.readAsString();
       List jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr =
