@@ -33,9 +33,15 @@ class VideoController with ChangeNotifier {
   final videoFit = BoxFit.contain.obs;
 
   final mediaPlayerControllerInitialized = false.obs;
+
   ScreenBrightness brightnessController = ScreenBrightness();
+
   BetterPlayerController? mobileController;
+
+  bool isTryToHls = false;
+
   double initBrightness = 0.0;
+
   final hasError = false.obs;
 
   final isPlaying = false.obs;
@@ -68,7 +74,6 @@ class VideoController with ChangeNotifier {
   late FijkPlayer fijkPlayer;
 
   final playerRefresh = false.obs;
-
 
   GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
       GlobalKey<BrightnessVolumnDargAreaState>();
@@ -241,10 +246,23 @@ class VideoController with ChangeNotifier {
     isPlaying.value = playing;
   }
 
-  dynamic mobileStateListener(dynamic state) {
+  tryToHlsPlay() {
+    isTryToHls = true;
+    mobileController?.setResolution(datasource,videoFormat: BetterPlayerVideoFormat.hls);
+  }
+
+  dynamic mobileStateListener(BetterPlayerEvent state) {
     if (mobileController?.videoPlayerController != null) {
-      hasError.value =
-          mobileController?.videoPlayerController?.value.hasError ?? true;
+      if (state.betterPlayerEventType == BetterPlayerEventType.exception) {
+        if (mobileController!.videoPlayerController!.value.errorDescription!
+                .contains('Source error') &&
+            !isTryToHls) {
+          tryToHlsPlay();
+        } else {
+          hasError.value =
+              mobileController?.videoPlayerController?.value.hasError ?? true;
+        }
+      }
       isPlaying.value = mobileController?.isPlaying() ?? false;
       isBuffering.value = mobileController?.isBuffering() ?? false;
       isPipMode.value =
@@ -361,28 +379,26 @@ class VideoController with ChangeNotifier {
       mediaPlayerController.player.open(Media(datasource));
     } else {
       if (videoPlayerIndex == 0) {
-        mobileController?.setupDataSource(BetterPlayerDataSource(
-          BetterPlayerDataSourceType.network,
-          url,
-          liveStream: true,
-          headers: headers,
-          bufferingConfiguration: const BetterPlayerBufferingConfiguration(
-            minBufferMs: 30000 * 1000,
-            maxBufferMs: 45000 * 1000,
-            bufferForPlaybackMs: 1500,
-            bufferForPlaybackAfterRebufferMs: 5000,
-          ),
-          notificationConfiguration: allowBackgroundPlay
-              ? BetterPlayerNotificationConfiguration(
-                  showNotification: true,
-                  title: room.title,
-                  imageUrl: room.avatar,
-                  author: room.nick,
-                  activityName: "MainActivity",
-                  packageName: 'com.mystyle.purelive')
-              : null,
-        ));
-        mobileController?.pause();
+        if (refresh) {
+          mobileController?.setResolution(url);
+        } else {
+          mobileController?.setupDataSource(BetterPlayerDataSource(
+            BetterPlayerDataSourceType.network,
+            url,
+            liveStream: true,
+            headers: headers,
+            notificationConfiguration: allowBackgroundPlay
+                ? BetterPlayerNotificationConfiguration(
+                    showNotification: true,
+                    title: room.title,
+                    imageUrl: room.avatar,
+                    author: room.nick,
+                    activityName: "MainActivity",
+                    packageName: 'com.mystyle.purelive')
+                : null,
+          ));
+          mobileController?.pause();
+        }
       } else if (videoPlayerIndex == 1) {
         setFijkPlayerDataSource(refresh: refresh);
       } else if (videoPlayerIndex == 2) {
@@ -393,8 +409,6 @@ class VideoController with ChangeNotifier {
     }
     notifyListeners();
   }
-
-
 
   setFijkPlayerDataSource({bool refresh = false}) async {
     if (refresh) {
@@ -417,7 +431,8 @@ class VideoController with ChangeNotifier {
     headers.forEach((key, value) {
       headersArr.add('$key:$value');
     });
-    fijkPlayer.setOption(FijkOption.formatCategory, "headers", headersArr.join('\r\n'));
+    fijkPlayer.setOption(
+        FijkOption.formatCategory, "headers", headersArr.join('\r\n'));
     fijkPlayer.setOption(FijkOption.hostCategory, "request-screen-on", 1);
     fijkPlayer.setOption(FijkOption.hostCategory, "request-audio-focus", 1);
     fijkPlayer.setOption(FijkOption.playerCategory, "mediacodec-all-videos", 1);
@@ -439,7 +454,7 @@ class VideoController with ChangeNotifier {
         mobileController?.setOverriddenFit(videoFit.value);
         mobileController?.retryDataSource();
       } else if (videoPlayerIndex == 1) {
-        // 
+        //
       } else if (videoPlayerIndex == 2) {
         key.currentState?.update(fit: fit);
       }
@@ -465,7 +480,7 @@ class VideoController with ChangeNotifier {
     }
   }
 
-   exitFullScreen()  {
+  exitFullScreen() {
     if (Platform.isAndroid) {
       isFullscreen.value = false;
       if (videoPlayerIndex == 0) {

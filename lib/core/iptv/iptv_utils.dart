@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
 import 'package:pure_live/core/iptv/src/m3u_item.dart';
 import 'package:pure_live/core/iptv/src/m3u_list.dart';
 
@@ -11,9 +13,13 @@ class IptvUtils {
 
   static Future<List<IptvCategory>> readCategory() async {
     try {
-      String jsonData = await loadJsonFromAssets('assets/iptv/categories.json');
-      List json = jsonDecode(jsonData);
-      return json.map((e) => IptvCategory.fromJson(e)).toList();
+      var dir = await getApplicationDocumentsDirectory();
+      final categories = File('${dir.path}/categories.json');
+      String jsonData = await categories.readAsString();
+      List jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
+      List<IptvCategory> categoriesArr =
+          jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
+      return categoriesArr;
     } catch (e) {
       return [];
     }
@@ -23,14 +29,12 @@ class IptvUtils {
     return await rootBundle.loadString(assetsPath);
   }
 
-  static Future<List<IptvCategoryItem>> readCategoryItems(filePath) async {
-    String prefix = 'assets/iptv/category/';
-    List<IptvCategoryItem> list = [];
+  static Future<List<M3uItem>> readCategoryItems(filePath) async {
+    List<M3uItem> list = [];
     try {
-       final m3uList = await M3uList.loadFromFile(prefix + filePath);
+      final m3uList = await M3uList.loadFromFile(filePath);
       for (M3uItem item in m3uList.items) {
-        list.add(IptvCategoryItem(
-            id: 'id${item.link}', name: item.title, liveUrl: item.link));
+        list.add(item);
       }
     } catch (e) {
       log(e.toString());
@@ -38,28 +42,31 @@ class IptvUtils {
     return list;
   }
 
-  static Future<List<IptvCategoryItem>> readRecommandsItems() async {
+  static Future<List<M3uItem>> readRecommandsItems() async {
     String path = 'assets/iptv/recomand/11.m3u';
-    List<IptvCategoryItem> list = [];
+    List<M3uItem> list = [];
     try {
-      final m3uList = await M3uList.loadFromFile(path);
+      final m3uList = await M3uList.loadFromAssets(path);
       for (M3uItem item in m3uList.items) {
-        list.add(IptvCategoryItem(
-            id: 'id${item.link}', name: item.title, liveUrl: item.link));
+        list.add(item);
       }
     } catch (e) {
       log(e.toString());
     }
     return list;
+  }
+
+  static Future<bool> recover(File file) async {
+    return true;
   }
 }
 
 class IptvCategory {
-  final String id;
-  final String name;
-  final String path;
+  String? id;
+  String? name;
+  String? path;
 
-  IptvCategory({required this.id, required this.name, required this.path});
+  IptvCategory({this.id, this.name, this.path});
 
   factory IptvCategory.fromJson(Map<String, dynamic> json) {
     return IptvCategory(
@@ -68,6 +75,12 @@ class IptvCategory {
       path: json['path'],
     );
   }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'name': name,
+        'id': id,
+        'path': path,
+      };
 }
 
 class IptvCategoryItem {

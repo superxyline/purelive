@@ -59,10 +59,6 @@ android {
         multiDexEnabled true
     }
 
-    packagingOptions{
-        pickFirst 'lib/**/libc++_shared.so'
-    }
-
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']

@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pure_live/core/iptv/src/m3u_header.dart';
 import 'package:pure_live/core/iptv/src/m3u_item.dart';
@@ -41,10 +42,17 @@ class M3uList {
     return await rootBundle.loadString(assetsPath);
   }
 
-  static Future<M3uList> loadFromFile(String path,
+  static Future<M3uList> loadFromAssets(String path,
       {M3uLoadOptions? options}) async {
     String jsonData = await loadJsonFromAssets(path);
     return load(jsonData, options: options);
+  }
+
+  static Future<M3uList> loadFromFile(String path,
+      {M3uLoadOptions? options}) async {
+    final file = File(path);
+    final source = await file.readAsString();
+    return load(source, options: options);
   }
 
   void _load(String source, M3uLoadOptions options) {
@@ -106,7 +114,6 @@ class M3uList {
           attributes != null ? attributes[_loadOptions.groupTitleField] : null;
       groupTitle ??= _lastGroupTitle;
       _lastGroupTitle = groupTitle;
-
       _lastItem = M3uItem(
           duration: int.parse(matches[0]),
           title: matches.length > 2 ? matches[2] : matches[1],

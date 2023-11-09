@@ -391,6 +391,8 @@ class SettingsService extends GetxController {
   // Backup & recover storage
   final backupDirectory = (PrefUtil.getString('backupDirectory') ?? '').obs;
 
+  final m3uDirectory = (PrefUtil.getString('m3uDirectory') ?? 'm3uDirectory').obs;
+
   bool backup(File file) {
     try {
       final json = toJson();

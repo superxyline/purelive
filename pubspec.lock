@@ -52,12 +52,10 @@ packages:
   better_player:
     dependency: "direct main"
     description:
-      path: "."
-      ref: media3
-      resolved-ref: ac6d87592a40108e2fa447021bea7ebf13760ffb
-      url: "https://github.com/liuchuancong/better_player.git"
-    source: git
-    version: "0.0.2"
+      path: "C:/Users/liuchuancong/StudioProjects/better_player"
+      relative: false
+    source: path
+    version: "0.0.3"
   boolean_selector:
     dependency: transitive
     description:
@@ -418,22 +416,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_vlc_player:
-    dependency: "direct main"
-    description:
-      name: flutter_vlc_player
-      sha256: "3e4094a0f2c9d8d7017dd3d8c270694286672fada162185499339feefbf7b870"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "7.4.0"
-  flutter_vlc_player_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_vlc_player_platform_interface
-      sha256: b161dde841368d330be82c5ee6f40b29dadc4227167bf2770d949f576ae2d9b1
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.3"
   flutter_volume_controller:
     dependency: "direct main"
     description:
