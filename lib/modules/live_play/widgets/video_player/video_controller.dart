@@ -175,8 +175,10 @@ class VideoController with ChangeNotifier {
         }
       });
       mediaPlayerController.player.stream.error.listen((event) {
-        hasError.value = true;
-        isPlaying.value = false;
+        if (event.toString().contains('Failed to open')) {
+          hasError.value = true;
+          isPlaying.value = false;
+        }
       });
       mediaPlayerControllerInitialized.value = true;
     } else if (Platform.isAndroid || Platform.isIOS) {
@@ -220,9 +222,11 @@ class VideoController with ChangeNotifier {
           }
         });
         mediaPlayerController.player.stream.error.listen((event) {
+        if (event.toString().contains('Failed to open')) {
           hasError.value = true;
           isPlaying.value = false;
-        });
+        }
+      });
         mediaPlayerControllerInitialized.value = true;
       }
     } else {
@@ -248,7 +252,8 @@ class VideoController with ChangeNotifier {
 
   tryToHlsPlay() {
     isTryToHls = true;
-    mobileController?.setResolution(datasource,videoFormat: BetterPlayerVideoFormat.hls);
+    mobileController?.setResolution(datasource,
+        videoFormat: BetterPlayerVideoFormat.hls);
   }
 
   dynamic mobileStateListener(BetterPlayerEvent state) {
@@ -376,7 +381,6 @@ class VideoController with ChangeNotifier {
     if (Platform.isWindows || Platform.isLinux) {
       player.pause();
       player.open(Media(datasource, httpHeaders: headers));
-      mediaPlayerController.player.open(Media(datasource));
     } else {
       if (videoPlayerIndex == 0) {
         if (refresh) {
@@ -404,7 +408,6 @@ class VideoController with ChangeNotifier {
       } else if (videoPlayerIndex == 2) {
         player.pause();
         player.open(Media(datasource, httpHeaders: headers));
-        mediaPlayerController.player.open(Media(datasource));
       }
     }
     notifyListeners();

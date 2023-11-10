@@ -119,9 +119,6 @@ class _BackupPageState extends State<BackupPage> {
                       contentPadding: EdgeInsets.all(12),
                       hintText: '下载地址',
                     ),
-                    // style: TextStyle(
-                    //     height: 1.0,
-                    //     color: Get.isDarkMode ? Colors.white : Colors.black),
                     autofocus: true,
                   ),
                   spacer(12.0),
@@ -133,9 +130,6 @@ class _BackupPageState extends State<BackupPage> {
                       contentPadding: EdgeInsets.all(12),
                       hintText: '文件名',
                     ),
-                    // style: TextStyle(
-                    //     height: 1.0,
-                    //     color: Get.isDarkMode ? Colors.white : Colors.black),
                     autofocus: false,
                   ),
                 ],
@@ -198,8 +192,7 @@ class _BackupPageState extends State<BackupPage> {
         SnackBarUtil.error('文件下载失败请重试');
       }
       List jsonArr = [];
-      final categories =
-          File('${dir.path}${Platform.pathSeparator}categories.json');
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
       if (!categories.existsSync()) {
         categories.createSync();
       }
@@ -207,7 +200,6 @@ class _BackupPageState extends State<BackupPage> {
       jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr =
           jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-
       bool isNotExit =
           categoriesArr.indexWhere((element) => element.id == url) == -1;
       if (isNotExit) {
@@ -224,7 +216,6 @@ class _BackupPageState extends State<BackupPage> {
           jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
       SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
     } catch (e) {
-      print(e);
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
     }
     Get.back();
@@ -252,12 +243,9 @@ class _BackupPageState extends State<BackupPage> {
     try {
       final file = File(result.files.single.path!);
       var dir = await getApplicationDocumentsDirectory();
-      final m3ufile =
-          File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
+      final m3ufile = File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
       List jsonArr = [];
-
-      final categories =
-          File('${dir.path}${Platform.pathSeparator}categories.json');
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
       if (!categories.existsSync()) {
         categories.createSync();
       }
@@ -265,9 +253,7 @@ class _BackupPageState extends State<BackupPage> {
       jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr =
           jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-
-      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) ==
-          -1) {
+      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) ==-1) {
         categoriesArr.add(IptvCategory(
             id: getUUid(),
             name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''),
@@ -329,6 +315,7 @@ class _BackupPageState extends State<BackupPage> {
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
     }
   }
+
 
   void selectBackupDirectory() async {
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();

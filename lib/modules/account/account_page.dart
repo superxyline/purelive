@@ -10,7 +10,7 @@ class AccountPage extends GetView<AccountController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("账号管理"),
+        title: const Text("三方认证"),
       ),
       body: ListView(
         children: [

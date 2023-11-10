@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:pure_live/core/iptv/src/m3u_item.dart';
@@ -14,7 +15,8 @@ class IptvUtils {
   static Future<List<IptvCategory>> readCategory() async {
     try {
       var dir = await getApplicationDocumentsDirectory();
-      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
+      final categories =
+          File('${dir.path}${Platform.pathSeparator}categories.json');
       String jsonData = await categories.readAsString();
       List jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr =
@@ -22,6 +24,22 @@ class IptvUtils {
       return categoriesArr;
     } catch (e) {
       return [];
+    }
+  }
+
+ static Future loadNetworkM3u8() async {
+    Dio dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 10),
+      //响应时间为3秒
+      receiveTimeout: const Duration(seconds: 10),
+    ));
+    try {
+      var dir = await getApplicationDocumentsDirectory();
+      final m3ufile = File("${dir.path}${Platform.pathSeparator}global.m3u");
+      await dio.download(
+          'https://live.fanmingming.com/tv/m3u/global.m3u', m3ufile.path);
+    } catch (e) {
+      log(e.toString());
     }
   }
 
@@ -43,10 +61,12 @@ class IptvUtils {
   }
 
   static Future<List<M3uItem>> readRecommandsItems() async {
-    String path = 'assets/iptv/recomand/11.m3u';
+    await loadNetworkM3u8();
     List<M3uItem> list = [];
     try {
-      final m3uList = await M3uList.loadFromAssets(path);
+       var dir = await getApplicationDocumentsDirectory();
+      final m3ufile = File("${dir.path}${Platform.pathSeparator}global.m3u");
+      final m3uList = await M3uList.loadFromFile(m3ufile.path);
       for (M3uItem item in m3uList.items) {
         list.add(item);
       }

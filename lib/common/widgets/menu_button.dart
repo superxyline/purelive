@@ -49,8 +49,8 @@ class MenuButton extends GetView<AuthController> {
           value: 5,
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: Icon(Icons.library_books_rounded),
-            text: '账户管理',
+            leading: Icon(Icons.assignment_ind_sharp),
+            text: '三方认证',
           ),
         ),
         PopupMenuItem(
