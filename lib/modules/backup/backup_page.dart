@@ -119,9 +119,6 @@ class _BackupPageState extends State<BackupPage> {
                       contentPadding: EdgeInsets.all(12),
                       hintText: '下载地址',
                     ),
-                    // style: TextStyle(
-                    //     height: 1.0,
-                    //     color: Get.isDarkMode ? Colors.white : Colors.black),
                     autofocus: true,
                   ),
                   spacer(12.0),
@@ -133,9 +130,6 @@ class _BackupPageState extends State<BackupPage> {
                       contentPadding: EdgeInsets.all(12),
                       hintText: '文件名',
                     ),
-                    // style: TextStyle(
-                    //     height: 1.0,
-                    //     color: Get.isDarkMode ? Colors.white : Colors.black),
                     autofocus: false,
                   ),
                 ],

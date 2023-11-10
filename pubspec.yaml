@@ -63,10 +63,9 @@ dependencies:
   media_kit_video: ^1.2.4                        # For video rendering.
   media_kit_libs_video: ^1.0.4                   # Native video dependencies.
   better_player:
-    # git: 
-    #   url: https://github.com/liuchuancong/better_player.git
-    #   ref: 'media3'
-    path: "C:/Users/liuchuancong/StudioProjects/better_player"
+    git: 
+      url: https://github.com/liuchuancong/better_player.git
+      ref: 'media3'
   fijkplayer: ^0.11.0
   bordered_text: ^2.0.0
   screen_brightness: ^0.2.2+1
@@ -158,7 +157,6 @@ flutter:
     - assets/crypto-js.js
     - assets/images/
     - assets/icons/
-    - assets/iptv/category/
     - assets/iptv/recomand/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
