@@ -120,11 +120,6 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.1
 
-
-flutter_assets:
-  assets_path: assets/iptv/
-  output_path: lib/core/iptv
-  filename: assets_iptv.dart
 # flutter pub run flutter_launcher_icons
 flutter_icons:
   android: "ic_launcher"
@@ -157,7 +152,6 @@ flutter:
     - assets/crypto-js.js
     - assets/images/
     - assets/icons/
-    - assets/iptv/recomand/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see
