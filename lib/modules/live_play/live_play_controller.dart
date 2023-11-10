@@ -148,8 +148,8 @@ class LivePlayController extends StateController {
     currentQuality.value =
         qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
-    videoController?.setDataSource(playUrls.value[currentLineIndex.value],
-        refresh: true);
+    videoController?.isTryToHls = false;
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value],refresh: true);
     update();
   }
 

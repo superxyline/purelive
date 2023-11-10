@@ -435,10 +435,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_widget_from_html_core
-      sha256: d1366d0421011547a339f03c77672575dd018759f43b37b6e3257e34af77e302
+      sha256: dd585321db498911414a9b08659b8aa965f8f0375b39856429220fbcacdf59bd
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.14.4"
+    version: "0.14.6"
   font_awesome_flutter:
     dependency: "direct main"
     description:

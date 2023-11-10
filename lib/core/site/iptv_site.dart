@@ -10,6 +10,8 @@ import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
+import '../iptv/m3u_parser_nullsafe.dart';
+
 class IptvSite implements LiveSite {
   @override
   String id = 'iptv';
@@ -24,8 +26,8 @@ class IptvSite implements LiveSite {
     for (IptvCategory item in categories) {
       var subCategory = await getSubCategores(item);
       LiveCategory liveCategory = LiveCategory(
-          id: item.id,
-          name: item.path.replaceAll(r'.txt', ''),
+          id: item.id!,
+          name: item.name!,
           children: subCategory);
       categoryTypes.add(liveCategory);
     }
@@ -34,16 +36,15 @@ class IptvSite implements LiveSite {
 
   Future<List<LiveArea>> getSubCategores(IptvCategory liveCategory) async {
     List<LiveArea> subs = [];
-    List<IptvCategoryItem> lists = await IptvUtils.readCategoryItems(liveCategory.path);
+    List<M3uItem> lists = await IptvUtils.readCategoryItems(liveCategory.path);
     for (var item in lists) {
       subs.add(LiveArea(
         areaPic: '',
-        areaId: item.liveUrl,
-        typeName: liveCategory.path.replaceAll(r'.txt', ''),
+        areaId: item.link,
+        typeName: liveCategory.name,
         areaType: liveCategory.id,
         platform: 'iptv',
-        areaName: item.name,
-        
+        areaName: item.title,
       ));
     }
 
@@ -98,15 +99,17 @@ class IptvSite implements LiveSite {
 
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
-    List<IptvCategoryItem> lists = await IptvUtils.readRecommandsItems();
+    List<M3uItem> lists = await IptvUtils.readRecommandsItems();
+
+    // tvg-id: CCTV1, tvg-name: CCTV1, tvg-logo: https://live.fanmingming.com/tv/CCTV1.png, group-title: 央视
     var items = <LiveRoom>[];
     for (var item in lists) {
     var room =  LiveRoom(
-        cover: '',
+        cover: item.attributes['tvg-logo'],
         watching: '',
-        roomId: item.liveUrl,
-        area: '热门电视',
-        title: item.name,
+        roomId: item.link,
+        area: item.attributes['group-title'],
+        title: item.title,
         nick: '网络电视',
         avatar: 'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
         introduction: '',
@@ -114,8 +117,8 @@ class IptvSite implements LiveSite {
         status: true,
         liveStatus: LiveStatus.live,
         platform: 'iptv',
-        link: item.liveUrl,
-        data: item.liveUrl,
+        link: item.link,
+        data: item.link,
       );
       items.add(room);
     }
