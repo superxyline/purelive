@@ -105,10 +105,10 @@ class IptvSite implements LiveSite {
     var items = <LiveRoom>[];
     for (var item in lists) {
     var room =  LiveRoom(
-        cover: item.attributes['tvg-logo'],
+        cover: item.attributes['tvg-logo'] ?? '',
         watching: '',
         roomId: item.link,
-        area: item.attributes['group-title'],
+        area: item.attributes['group-title'] ?? '',
         title: item.title,
         nick: '网络电视',
         avatar: 'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
