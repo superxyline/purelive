@@ -185,26 +185,26 @@ class _BackupPageState extends State<BackupPage> {
       receiveTimeout: const Duration(seconds: 10),
     ));
     var dir = await getApplicationDocumentsDirectory();
-    final m3ufile = File("${dir.path}/$fileName.m3u");
+    final m3ufile = File("${dir.path}${Platform.pathSeparator}$fileName.m3u");
     try {
       await dio.download(url, m3ufile.path);
       List jsonArr = [];
-      final categories = File('${dir.path}/categories.json');
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
+      if (!categories.existsSync()) {
+        categories.createSync();
+      }
       String jsonData = await categories.readAsString();
       jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr =
           jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-
-      if (!categories.existsSync()) {
-        categories.createSync();
-      }
-      bool isNotExit = categoriesArr.indexWhere((element) => element.id == url) == -1 ;
+      bool isNotExit =
+          categoriesArr.indexWhere((element) => element.id == url) == -1;
       if (isNotExit) {
         categoriesArr.add(IptvCategory(
             id: url,
             name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''),
             path: m3ufile.path));
-      }else{
+      } else {
         var index = categoriesArr.indexWhere((element) => element.id == url);
         categoriesArr[index].name = fileName;
       }
@@ -219,7 +219,7 @@ class _BackupPageState extends State<BackupPage> {
   }
 
   String getName(String fullName) {
-    return fullName.split('/').last;
+    return fullName.split(Platform.pathSeparator).last;
   }
 
   String getUUid() {
@@ -240,17 +240,16 @@ class _BackupPageState extends State<BackupPage> {
     try {
       final file = File(result.files.single.path!);
       var dir = await getApplicationDocumentsDirectory();
-      final m3ufile = File('${dir.path}/${getName(file.path)}');
+      final m3ufile = File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
       List jsonArr = [];
       final categories = File('${dir.path}/categories.json');
+      if (!categories.existsSync()) {
+        categories.createSync();
+      }
       String jsonData = await categories.readAsString();
       jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr =
           jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-
-      if (!categories.existsSync()) {
-        categories.createSync();
-      }
       if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) ==
           -1) {
         categoriesArr.add(IptvCategory(
@@ -314,6 +313,7 @@ class _BackupPageState extends State<BackupPage> {
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
     }
   }
+
 
   void selectBackupDirectory() async {
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
