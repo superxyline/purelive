@@ -58,7 +58,10 @@ class WechatItem extends StatelessWidget {
         Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(12),
-          child: Container(),
+          child: Image.asset(
+            'assets/images/wechat.png',
+            fit: BoxFit.contain,
+          ),
         ),
       ],
     );
