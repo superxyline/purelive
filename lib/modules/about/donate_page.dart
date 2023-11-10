@@ -4,7 +4,7 @@ import 'package:pure_live/common/index.dart';
 class DonatePage extends StatelessWidget {
   const DonatePage({Key? key}) : super(key: key);
 
-  final widgets = const [AlipayItem(), WechatItem()];
+  final widgets = const [WechatItem()];
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class DonatePage extends StatelessWidget {
         body: MasonryGridView.count(
           physics: const BouncingScrollPhysics(),
           crossAxisCount: crossAxisCount,
-          itemCount: 2,
+          itemCount: 1,
           itemBuilder: (BuildContext context, int index) => widgets[index],
         ),
       );
@@ -24,27 +24,6 @@ class DonatePage extends StatelessWidget {
   }
 }
 
-class AlipayItem extends StatelessWidget {
-  const AlipayItem({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const SectionTitle(title: 'Alipay'),
-        Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(12),
-          child: Image.asset(
-            'assets/images/alipay.jpg',
-            fit: BoxFit.contain,
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class WechatItem extends StatelessWidget {
   const WechatItem({Key? key}) : super(key: key);
