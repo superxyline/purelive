@@ -20,7 +20,7 @@ class VideoPlayer extends StatefulWidget {
   State<VideoPlayer> createState() => _VideoPlayerState();
 }
 
-class _VideoPlayerState extends State<VideoPlayer> {
+class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
   bool hasRender = false;
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
@@ -31,6 +31,20 @@ class _VideoPlayerState extends State<VideoPlayer> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      if (widget.controller.videoPlayerIndex == 0 &&
+          widget.controller.allowBackgroundPlay) {
+        widget.controller.debounceListen(() {
+          widget.controller.mobileController?.startPlay();
+        }, 100);
+      }
+    }
   }
 
   @override
@@ -103,7 +117,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
             BetterPlayer(
               key: widget.controller.playerKey,
               controller: widget.controller.mobileController!,
-              
             ),
             _buildVideoPanel(),
           ],
@@ -162,7 +175,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     key: widget.controller.key,
                     controller: widget.controller.mediaPlayerController,
                     fit: widget.controller.videoFit.value,
-                    controls: widget.controller.room.platform == 'iptv' ? media_kit_video.MaterialVideoControls : (state) => _buildVideoPanel(),
+                    controls: widget.controller.room.platform == 'iptv'
+                        ? media_kit_video.MaterialVideoControls
+                        : (state) => _buildVideoPanel(),
                   )
                 : Card(
                     elevation: 0,
@@ -200,6 +215,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);  
     super.dispose();
   }
 }

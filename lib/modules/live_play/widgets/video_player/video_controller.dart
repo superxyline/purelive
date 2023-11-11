@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
@@ -98,6 +99,8 @@ class VideoController with ChangeNotifier {
   final showLocked = false.obs;
   final danmuKey = GlobalKey();
   double volume = 0.0;
+
+  Timer? _debounceTimer;
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
@@ -222,11 +225,11 @@ class VideoController with ChangeNotifier {
           }
         });
         mediaPlayerController.player.stream.error.listen((event) {
-        if (event.toString().contains('Failed to open')) {
-          hasError.value = true;
-          isPlaying.value = false;
-        }
-      });
+          if (event.toString().contains('Failed to open')) {
+            hasError.value = true;
+            isPlaying.value = false;
+          }
+        });
         mediaPlayerControllerInitialized.value = true;
       }
     } else {
@@ -252,21 +255,40 @@ class VideoController with ChangeNotifier {
 
   tryToHlsPlay() {
     isTryToHls = true;
+    mobileController?.pause();
     mobileController?.setResolution(datasource,
         videoFormat: BetterPlayerVideoFormat.hls);
+        mobileController?.play();
+  }
+
+  void debounceListen(Function? func, [int delay = 1000]) {
+    if (_debounceTimer != null) {
+      _debounceTimer?.cancel();
+    }
+    _debounceTimer = Timer(Duration(milliseconds: delay), () {
+     try {
+        func?.call();
+     } catch (e) {
+       log('${mobileController!.videoPlayerController!.value.errorDescription}');
+     }
+    
+      _debounceTimer = null;
+    });
   }
 
   dynamic mobileStateListener(BetterPlayerEvent state) {
     if (mobileController?.videoPlayerController != null) {
       if (state.betterPlayerEventType == BetterPlayerEventType.exception) {
-        if (mobileController!.videoPlayerController!.value.errorDescription!
-                .contains('Source error') &&
-            !isTryToHls) {
-          tryToHlsPlay();
-        } else {
-          hasError.value =
-              mobileController?.videoPlayerController?.value.hasError ?? true;
-        }
+        debounceListen(() {
+          if(mobileController!.videoPlayerController!.value.errorDescription != null){
+             if (mobileController!.videoPlayerController!.value.errorDescription! .contains('Source error') && room.platform == 'iptv' && !isTryToHls) {
+              tryToHlsPlay();
+            }else{
+              hasError.value =
+                mobileController?.videoPlayerController?.value.hasError ?? true;
+            }
+          }
+        }, 1000);
       }
       isPlaying.value = mobileController?.isPlaying() ?? false;
       isBuffering.value = mobileController?.isBuffering() ?? false;
@@ -398,7 +420,8 @@ class VideoController with ChangeNotifier {
                     imageUrl: room.avatar,
                     author: room.nick,
                     activityName: "MainActivity",
-                    packageName: 'com.mystyle.purelive')
+                    packageName: 'com.mystyle.purelive'
+                    )
                 : null,
           ));
           mobileController?.pause();

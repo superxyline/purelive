@@ -6,8 +6,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'widgets/index.dart';
 
 
-class LivePlayPage extends GetWidget<LivePlayController>
-    with WidgetsBindingObserver {
+class LivePlayPage extends GetWidget<LivePlayController>{
   LivePlayPage({Key? key}) : super(key: key);
 
   final SettingsService settings = Get.find<SettingsService>();
@@ -18,6 +17,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
     }
     return true;
   }
+  
 
   @override
   Widget build(BuildContext context) {
