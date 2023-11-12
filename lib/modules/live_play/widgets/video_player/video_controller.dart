@@ -258,7 +258,7 @@ class VideoController with ChangeNotifier {
     mobileController?.pause();
     mobileController?.setResolution(datasource,
         videoFormat: BetterPlayerVideoFormat.hls);
-        mobileController?.play();
+    mobileController?.play();
   }
 
   void debounceListen(Function? func, [int delay = 1000]) {
@@ -266,12 +266,12 @@ class VideoController with ChangeNotifier {
       _debounceTimer?.cancel();
     }
     _debounceTimer = Timer(Duration(milliseconds: delay), () {
-     try {
+      try {
         func?.call();
-     } catch (e) {
-       log('${mobileController!.videoPlayerController!.value.errorDescription}');
-     }
-    
+      } catch (e) {
+        log('${mobileController!.videoPlayerController!.value.errorDescription}');
+      }
+
       _debounceTimer = null;
     });
   }
@@ -280,12 +280,17 @@ class VideoController with ChangeNotifier {
     if (mobileController?.videoPlayerController != null) {
       if (state.betterPlayerEventType == BetterPlayerEventType.exception) {
         debounceListen(() {
-          if(mobileController!.videoPlayerController!.value.errorDescription != null){
-             if (mobileController!.videoPlayerController!.value.errorDescription! .contains('Source error') && room.platform == 'iptv' && !isTryToHls) {
+          if (mobileController!.videoPlayerController!.value.errorDescription !=
+              null) {
+            if (mobileController!.videoPlayerController!.value.errorDescription!
+                    .contains('Source error') &&
+                room.platform == 'iptv' &&
+                !isTryToHls) {
               tryToHlsPlay();
-            }else{
+            } else {
               hasError.value =
-                mobileController?.videoPlayerController?.value.hasError ?? true;
+                  mobileController?.videoPlayerController?.value.hasError ??
+                      true;
             }
           }
         }, 1000);
@@ -334,6 +339,7 @@ class VideoController with ChangeNotifier {
 
   void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
+
     danmakuController.send([
       Bullet(
         child: DanmakuText(
@@ -420,8 +426,7 @@ class VideoController with ChangeNotifier {
                     imageUrl: room.avatar,
                     author: room.nick,
                     activityName: "MainActivity",
-                    packageName: 'com.mystyle.purelive'
-                    )
+                    packageName: 'com.mystyle.purelive')
                 : null,
           ));
           mobileController?.pause();

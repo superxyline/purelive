@@ -24,6 +24,8 @@ import 'package:pure_live/modules/history/history_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 // auth
 import 'package:pure_live/modules/auth/sign_in_page.dart';
+import 'package:pure_live/modules/shield/danmu_shield_binding.dart';
+import 'package:pure_live/modules/shield/danmu_shield_page.dart';
 import 'route_path.dart';
 
 class AppPages {
@@ -117,6 +119,13 @@ class AppPages {
       page: () => const BiliBiliQRLoginPage(),
       bindings: [
         BilibiliQrLoginBinding(),
+      ],
+    ),
+    GetPage(
+      name: RoutePath.kSettingsDanmuShield,
+      page: () => const DanmuShieldPage(),
+       bindings: [
+        DanmuShieldBinding(),
       ],
     ),
   ];

@@ -118,8 +118,11 @@ class LivePlayController extends StateController {
     );
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
-        messages.add(msg);
-        videoController?.sendDanmaku(msg);
+        if (settings.shieldList
+            .every((element) => !msg.message.contains(element))) {
+          messages.add(msg);
+          videoController?.sendDanmaku(msg);
+        }
       }
     };
     liveDanmaku.onClose = (msg) {
@@ -151,7 +154,8 @@ class LivePlayController extends StateController {
     videoController?.isTryToHls = false;
     videoController?.isPlaying.value = false;
     videoController?.hasError.value = false;
-    videoController?.setDataSource(playUrls.value[currentLineIndex.value],refresh: true);
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value],
+        refresh: true);
     update();
   }
 

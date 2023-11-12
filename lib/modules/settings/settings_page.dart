@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/settings/danmuset.dart';
+import 'package:pure_live/routes/route_path.dart';
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -121,6 +122,11 @@ class SettingsPage extends GetView<SettingsService> {
           ListTile(
             title: Text(S.of(context).settings_danmaku_title),
             onTap: showDanmuSetDialog,
+          ),
+          ListTile(
+            title: const Text("弹幕过滤"),
+            subtitle: const Text("自定义关键词过滤弹幕"),
+            onTap: ()=> Get.toNamed(RoutePath.kSettingsDanmuShield),
           ),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
