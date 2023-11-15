@@ -1,0 +1,19 @@
+name: Flutter_Android
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build_android:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v2
+    - name: Install Flutter
+      uses: britannio/action-install-flutter@v1.1
+    - name: Flutter Runner
+      uses: jddeep/Flutter-Runner@1.2.0
+          
+          
