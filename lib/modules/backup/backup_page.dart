@@ -192,7 +192,8 @@ class _BackupPageState extends State<BackupPage> {
         SnackBarUtil.error('文件下载失败请重试');
       }
       List jsonArr = [];
-      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
+      final categories =
+          File('${dir.path}${Platform.pathSeparator}categories.json');
       if (!categories.existsSync()) {
         categories.createSync();
       }
@@ -243,7 +244,8 @@ class _BackupPageState extends State<BackupPage> {
     try {
       final file = File(result.files.single.path!);
       var dir = await getApplicationDocumentsDirectory();
-      final m3ufile = File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
+      final m3ufile =
+          File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
       List jsonArr = [];
       final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
       if (!categories.existsSync()) {
@@ -315,7 +317,6 @@ class _BackupPageState extends State<BackupPage> {
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
     }
   }
-
 
   void selectBackupDirectory() async {
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();

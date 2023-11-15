@@ -56,7 +56,7 @@ class FkUserAgent {
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15"
   ];
 
- static String getRandomUA() {
+  static String getRandomUA() {
     int randomInt = Random().nextInt(browsers.length - 1);
     return browsers[randomInt];
   }

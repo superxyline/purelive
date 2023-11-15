@@ -1,7 +1,5 @@
-
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
-
 
 class LiveSearchRoomResult {
   final bool hasMore;

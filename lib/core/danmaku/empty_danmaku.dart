@@ -6,7 +6,6 @@ import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 
-
 class EmptyDanmaku implements LiveDanmaku {
   @override
   int heartbeatTime = 60 * 1000;
@@ -20,16 +19,12 @@ class EmptyDanmaku implements LiveDanmaku {
 
   WebScoketUtils? webScoketUtils;
 
-
-
   @override
   Future start(dynamic args) async {
     webScoketUtils = WebScoketUtils(
       url: '',
       heartBeatTime: heartbeatTime,
-      onMessage: (e) {
-
-      },
+      onMessage: (e) {},
       onReady: () {
         onReady?.call();
       },
@@ -46,13 +41,10 @@ class EmptyDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-  void joinRoom() {
-  }
+  void joinRoom() {}
 
   @override
-  void heartbeat() {
-    
-  }
+  void heartbeat() {}
 
   @override
   Future stop() async {

@@ -36,6 +36,7 @@ class RoomCard extends StatelessWidget {
       ),
     );
   }
+
   ImageProvider? getRoomAvatar(avatar) {
     try {
       return CachedNetworkImageProvider(avatar, errorListener: (err) {
@@ -126,7 +127,6 @@ class RoomCard extends StatelessWidget {
               contentPadding:
                   dense ? const EdgeInsets.only(left: 8, right: 10) : null,
               horizontalTitleGap: dense ? 8 : null,
-
               leading: CircleAvatar(
                 foregroundImage:
                     room.avatar!.isNotEmpty ? getRoomAvatar(room.avatar) : null,

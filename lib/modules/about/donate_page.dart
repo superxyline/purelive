@@ -24,7 +24,6 @@ class DonatePage extends StatelessWidget {
   }
 }
 
-
 class WechatItem extends StatelessWidget {
   const WechatItem({Key? key}) : super(key: key);
 

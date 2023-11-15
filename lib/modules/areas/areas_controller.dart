@@ -34,8 +34,7 @@ class AreasController extends GetxController
   void onInit() async {
     for (var site in Sites.supportSites) {
       Get.put(AreasListController(site), tag: site.id);
-      var controller =
-          Get.find<AreasListController>(tag: site.id);
+      var controller = Get.find<AreasListController>(tag: site.id);
       if (controller.list.isEmpty) {
         controller.loadData();
       }

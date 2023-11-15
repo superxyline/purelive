@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'widgets/index.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'widgets/index.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
 class LivePlayPage extends GetWidget<LivePlayController>{
   LivePlayPage({Key? key}) : super(key: key);
@@ -28,7 +27,7 @@ class LivePlayPage extends GetWidget<LivePlayController>{
       onBackButtonPressed: onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title:  Row(children: [
+          title: Row(children: [
             CircleAvatar(
               foregroundImage: controller.room.avatar!.isEmpty
                   ? null
@@ -66,7 +65,7 @@ class LivePlayPage extends GetWidget<LivePlayController>{
             ),
           ],
         ),
-        body:  LayoutBuilder(builder: (context, constraint) {
+        body: LayoutBuilder(builder: (context, constraint) {
           final width = constraint.maxWidth;
           return SafeArea(
             child: width <= 680
@@ -118,7 +117,7 @@ class LivePlayPage extends GetWidget<LivePlayController>{
           color: Colors.black,
           child: Obx(
             () => controller.success.value
-                ?  VideoPlayer(controller: controller.videoController!)
+                ? VideoPlayer(controller: controller.videoController!)
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),

@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage>
   Future<bool> _onBackPressed() async {
     SupaBaseManager().uploadConfigWithBackGend();
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
-    if(!doubleExit){
+    if (!doubleExit) {
       return true;
     }
     bool confirmExit = await showDialog(

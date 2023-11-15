@@ -232,9 +232,8 @@ class DouyuSite implements LiveSite {
         introduction: roomInfo["show_details"].toString(),
         area: roomInfo["cate_name"]?.toString() ?? '',
         notice: "",
-        liveStatus: roomInfo["show_status"] == 1
-            ? LiveStatus.live
-            : LiveStatus.offline,
+        liveStatus:
+            roomInfo["show_status"] == 1 ? LiveStatus.live : LiveStatus.offline,
         status: roomInfo["show_status"] == 1,
         danmakuData: roomInfo["room_id"].toString(),
         data: await getPlayArgs(crptext, roomInfo["room_id"].toString()),

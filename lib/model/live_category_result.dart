@@ -1,7 +1,3 @@
-
-
-
-
 import 'package:pure_live/common/models/live_room.dart';
 
 class LiveCategoryResult {

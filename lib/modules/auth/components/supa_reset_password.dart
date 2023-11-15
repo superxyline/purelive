@@ -1,4 +1,3 @@
-
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:pure_live/common/index.dart';
@@ -59,7 +58,7 @@ class _SupaResetPasswordState extends State<SupaResetPassword> {
           ),
           spacer(16),
           ElevatedButton(
-            child:  Text(
+            child: Text(
               S.of(context).supabase_update_password,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),

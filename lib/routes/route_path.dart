@@ -1,4 +1,3 @@
-
 /// 路由路径
 class RoutePath {
   /// 首页
@@ -52,9 +51,8 @@ class RoutePath {
   
   /// kBiliBiliQRLogin
   static const kSettingsAccount = "/settings_account";
-  
+
   static const kBiliBiliQRLogin = "/bilibili_qr_login";
 
   static const kBiliBiliWebLogin = "/bilibili_web_login";
-  
 }

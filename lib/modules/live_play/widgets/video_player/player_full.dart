@@ -134,8 +134,6 @@ typedef PlayerFullRoutePageBuilder = Widget Function(
     Animation<double> secondaryAnimation,
     PlayerFullProvider controllerProvider);
 
-
-
 class MobileFullscreen extends StatefulWidget {
   const MobileFullscreen({
     Key? key,
@@ -151,7 +149,6 @@ class MobileFullscreen extends StatefulWidget {
 }
 
 class _MobileFullscreenState extends State<MobileFullscreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

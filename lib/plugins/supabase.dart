@@ -62,7 +62,7 @@ class SupaBaseManager {
   }
 
   Future<void> uploadConfig() async {
-     final isLogin = Get.find<AuthController>().isLogin;
+    final isLogin = Get.find<AuthController>().isLogin;
     if (!isLogin) {
       return;
     }

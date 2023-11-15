@@ -1,4 +1,3 @@
-
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:get/get.dart';
@@ -36,10 +35,8 @@ class _PopularGridViewState extends State<PopularGridView> {
                       controller: controller.scrollController,
                       crossAxisCount: crossAxisCount,
                       itemCount: controller.list.length,
-                      itemBuilder: (context, index) => RoomCard(
-                        room: controller.list[index],
-                        dense: true
-                      ),
+                      itemBuilder: (context, index) =>
+                          RoomCard(room: controller.list[index], dense: true),
                     )
                   : EmptyView(
                       icon: Icons.live_tv_rounded,

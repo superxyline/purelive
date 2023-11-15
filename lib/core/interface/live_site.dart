@@ -52,17 +52,16 @@ class LiveSite {
   /// 读取房间详情
   Future<LiveRoom> getRoomDetail({required String roomId}) {
     return Future.value(LiveRoom(
-      cover: '',
-      watching: '0',
-      roomId: '',
-      status: false,
-      liveStatus: LiveStatus.offline,
-      title: '',
-      link: '',
-      avatar: '',
-      nick: '',
-      isRecord:false
-    ));
+        cover: '',
+        watching: '0',
+        roomId: '',
+        status: false,
+        liveStatus: LiveStatus.offline,
+        title: '',
+        link: '',
+        avatar: '',
+        nick: '',
+        isRecord: false));
   }
 
   /// 读取房间清晰度
