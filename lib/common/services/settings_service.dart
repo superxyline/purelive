@@ -1,11 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:pure_live/common/services/bilibili_account_service.dart';
-import 'package:pure_live/plugins/supabase.dart';
-import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/supabase.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
   SettingsService() {
@@ -57,17 +57,14 @@ class SettingsService extends GetxController {
     });
 
     favoriteRooms.listen((rooms) {
-      PrefUtil.setStringList('favoriteRooms',
-          favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+      PrefUtil.setStringList('favoriteRooms', favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
     favoriteAreas.listen((rooms) {
-      PrefUtil.setStringList('favoriteAreas',
-          favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList());
+      PrefUtil.setStringList('favoriteAreas', favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
 
     historyRooms.listen((rooms) {
-      PrefUtil.setStringList('historyRooms',
-          historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+      PrefUtil.setStringList('historyRooms', historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
 
     backupDirectory.listen((String value) {
@@ -135,6 +132,11 @@ class SettingsService extends GetxController {
     bilibiliCookie.listen((value) {
       PrefUtil.setString('bilibiliCookie', value);
     });
+
+    mergeDanmu.listen((value) {
+      mergeDanmu.value = value;
+      PrefUtil.setBool('mergeDanmu', value);
+    });
   }
 
   // Theme settings
@@ -175,8 +177,7 @@ class SettingsService extends GetxController {
   };
   final themeColorName = (PrefUtil.getString('themeColor') ?? "Blue").obs;
 
-  final StopWatchTimer _stopWatchTimer =
-      StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
 
   get themeColor => SettingsService.themeColors[themeColorName.value]!;
 
@@ -206,42 +207,38 @@ class SettingsService extends GetxController {
     PrefUtil.setInt('videoPlayerIndex', value);
   }
 
-  final enableDynamicTheme =
-      (PrefUtil.getBool('enableDynamicTheme') ?? false).obs;
+  final enableDynamicTheme = (PrefUtil.getBool('enableDynamicTheme') ?? false).obs;
 
   // Custom settings
   final autoRefreshTime = (PrefUtil.getInt('autoRefreshTime') ?? 60).obs;
 
   final autoShutDownTime = (PrefUtil.getInt('autoShutDownTime') ?? 120).obs;
 
-  final enableDenseFavorites =
-      (PrefUtil.getBool('enableDenseFavorites') ?? false).obs;
+  final enableDenseFavorites = (PrefUtil.getBool('enableDenseFavorites') ?? false).obs;
 
-  final enableBackgroundPlay =
-      (PrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
+  final enableBackgroundPlay = (PrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
 
-  final enableScreenKeepOn =
-      (PrefUtil.getBool('enableScreenKeepOn') ?? false).obs;
+  final enableScreenKeepOn = (PrefUtil.getBool('enableScreenKeepOn') ?? false).obs;
 
-  final enableAutoCheckUpdate =
-      (PrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
+  final enableAutoCheckUpdate = (PrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
   final videoFitIndex = (PrefUtil.getInt('videoFitIndex') ?? 0).obs;
   final hideDanmaku = (PrefUtil.getBool('hideDanmaku') ?? false).obs;
   final danmakuArea = (PrefUtil.getDouble('danmakuArea') ?? 1.0).obs;
   final danmakuSpeed = (PrefUtil.getDouble('danmakuSpeed') ?? 8.0).obs;
   final danmakuFontSize = (PrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
-  final danmakuFontBorder =
-      (PrefUtil.getDouble('danmakuFontBorder') ?? 0.5).obs;
+  final danmakuFontBorder = (PrefUtil.getDouble('danmakuFontBorder') ?? 0.5).obs;
 
   final danmakuOpacity = (PrefUtil.getDouble('danmakuOpacity') ?? 1.0).obs;
 
-  final enableFullScreenDefault =
-      (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
+  final enableFullScreenDefault = (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
+
   final videoPlayerIndex = (PrefUtil.getInt('videoPlayerIndex') ?? 0).obs;
+
   final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
 
-  final enableAutoShutDownTime =
-      (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
+  final mergeDanmu = (PrefUtil.getBool('mergeDanmu') ?? true).obs;
+
+  final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
 
@@ -256,8 +253,7 @@ class SettingsService extends GetxController {
     BoxFit.fitHeight
   ];
 
-  final preferResolution =
-      (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
+  final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
 
   void changePreferResolution(String name) {
     if (resolutions.indexWhere((e) => e == name) != -1) {
@@ -286,8 +282,7 @@ class SettingsService extends GetxController {
   static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin'];
 
   static const List<String> players = ['ExoPlayer', 'IjkPlayer', 'MpvPlayer'];
-  final preferPlatform =
-      (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
+  final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
 
   List<String> get playerlist => players;
   void changePreferPlatform(String name) {
@@ -301,15 +296,11 @@ class SettingsService extends GetxController {
   final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
 
   // Favorite rooms storage
-  final favoriteRooms = ((PrefUtil.getStringList('favoriteRooms') ?? [])
-          .map((e) => LiveRoom.fromJson(jsonDecode(e)))
-          .toList())
-      .obs;
+  final favoriteRooms =
+      ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
 
-  final historyRooms = ((PrefUtil.getStringList('historyRooms') ?? [])
-          .map((e) => LiveRoom.fromJson(jsonDecode(e)))
-          .toList())
-      .obs;
+  final historyRooms =
+      ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
 
   bool isFavorite(LiveRoom room) {
     return favoriteRooms.any((element) => element.roomId == room.roomId);
@@ -348,8 +339,7 @@ class SettingsService extends GetxController {
   }
 
   bool updateRoom(LiveRoom room) {
-    int idx =
-        favoriteRooms.indexWhere((element) => element.roomId == room.roomId);
+    int idx = favoriteRooms.indexWhere((element) => element.roomId == room.roomId);
     if (idx == -1) return false;
     favoriteRooms[idx] = room;
     return true;
@@ -360,8 +350,7 @@ class SettingsService extends GetxController {
   }
 
   bool updateRoomInHistory(LiveRoom room) {
-    int idx =
-        historyRooms.indexWhere((element) => element.roomId == room.roomId);
+    int idx = historyRooms.indexWhere((element) => element.roomId == room.roomId);
     if (idx == -1) return false;
     historyRooms[idx] = room;
     return true;
@@ -379,18 +368,15 @@ class SettingsService extends GetxController {
   }
 
   // Favorite areas storage
-  final favoriteAreas = ((PrefUtil.getStringList('favoriteAreas') ?? [])
-          .map((e) => LiveArea.fromJson(jsonDecode(e)))
-          .toList())
-      .obs;
+  final favoriteAreas =
+      ((PrefUtil.getStringList('favoriteAreas') ?? []).map((e) => LiveArea.fromJson(jsonDecode(e))).toList()).obs;
 
   bool isFavoriteArea(LiveArea area) {
     return favoriteAreas.contains(area);
   }
 
   bool addArea(LiveArea area) {
-    if (favoriteAreas.any((element) =>
-        element.areaId == area.areaId && element.platform == area.platform)) {
+    if (favoriteAreas.any((element) => element.areaId == area.areaId && element.platform == area.platform)) {
       return false;
     }
     favoriteAreas.add(area);
@@ -398,8 +384,7 @@ class SettingsService extends GetxController {
   }
 
   bool removeArea(LiveArea area) {
-    if (!favoriteAreas.any((element) =>
-        element.areaId == area.areaId && element.platform == area.platform)) {
+    if (!favoriteAreas.any((element) => element.areaId == area.areaId && element.platform == area.platform)) {
       return false;
     }
     favoriteAreas.remove(area);
@@ -409,8 +394,7 @@ class SettingsService extends GetxController {
   // Backup & recover storage
   final backupDirectory = (PrefUtil.getString('backupDirectory') ?? '').obs;
 
-  final m3uDirectory =
-      (PrefUtil.getString('m3uDirectory') ?? 'm3uDirectory').obs;
+  final m3uDirectory = (PrefUtil.getString('m3uDirectory') ?? 'm3uDirectory').obs;
 
   bool backup(File file) {
     try {
@@ -433,8 +417,7 @@ class SettingsService extends GetxController {
   }
 
   setBilibiliCookit(cookie) {
-    final BiliBiliAccountService biliAccountService =
-        Get.find<BiliBiliAccountService>();
+    final BiliBiliAccountService biliAccountService = Get.find<BiliBiliAccountService>();
     if (biliAccountService.cookie.isEmpty || biliAccountService.uid == 0) {
       biliAccountService.resetCookie(cookie);
       biliAccountService.loadUserInfo();
@@ -442,12 +425,10 @@ class SettingsService extends GetxController {
   }
 
   void fromJson(Map<String, dynamic> json) {
-    favoriteRooms.value = (json['favoriteRooms'] as List)
-        .map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e)))
-        .toList();
-    favoriteAreas.value = (json['favoriteAreas'] as List)
-        .map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e)))
-        .toList();
+    favoriteRooms.value =
+        (json['favoriteRooms'] as List).map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e))).toList();
+    favoriteAreas.value =
+        (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList();
     shieldList.value = (json['shieldList'] as List).map((e) => e.toString()).toList();
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
@@ -473,6 +454,8 @@ class SettingsService extends GetxController {
     doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'];
     enableCodec.value = json['enableCodec'] ?? true;
+    mergeDanmu.value = json['mergeDanmu'] ?? true;
+
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     changeThemeMode(themeModeName.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -486,10 +469,8 @@ class SettingsService extends GetxController {
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['favoriteRooms'] =
-        favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList();
-    json['favoriteAreas'] =
-        favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList();
+    json['favoriteRooms'] = favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList();
+    json['favoriteAreas'] = favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['themeMode'] = themeModeName.value;
     json['themeColor'] = themeColorName.value;
 
@@ -518,7 +499,9 @@ class SettingsService extends GetxController {
     json['videoPlayerIndex'] = videoPlayerIndex.value;
     json['enableCodec'] = enableCodec.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
-    json['shieldList'] = shieldList.map<String>((e) =>e.toString()).toList();
+    json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
+    json['mergeDanmu'] = mergeDanmu.value;
+
     return json;
   }
 
@@ -550,7 +533,8 @@ class SettingsService extends GetxController {
       "videoPlayerIndex": 0,
       'enableCodec': true,
       'bilibiliCookie': '',
-      'shieldList': []
+      'shieldList': [],
+      'mergeDanmu': true
     };
     return json;
   }

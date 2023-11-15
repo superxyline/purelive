@@ -35,8 +35,15 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               contentPadding: EdgeInsets.zero,
               value: !widget.controller.hideDanmaku.value,
               activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (bool value) =>
-                  widget.controller.hideDanmaku.value = !value,
+              onChanged: (bool value) => widget.controller.hideDanmaku.value = !value,
+            )),
+        Obx(() => SwitchListTile(
+              title: const Text('弹幕合并'),
+              contentPadding: EdgeInsets.zero,
+              subtitle: const Text('相似度大于75%的弹幕会被合并'),
+              value: widget.controller.mergeDanmu.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => widget.controller.mergeDanmu.value = value,
             )),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
@@ -56,11 +63,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
             children: fitmodes.keys
                 .map<Widget>((e) => Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: Text(e,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700
-                          )),
+                      child: Text(e, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
                     ))
                 .toList(),
           ),
@@ -110,8 +113,7 @@ class DanmakuSetting extends StatelessWidget {
                 value: controller.danmakuOpacity.value,
                 onChanged: (val) => controller.danmakuOpacity.value = val,
               ),
-              trailing:
-                  Text('${(controller.danmakuOpacity.value * 100).toInt()}%'),
+              trailing: Text('${(controller.danmakuOpacity.value * 100).toInt()}%'),
             )),
         Obx(() => ListTile(
               dense: true,
