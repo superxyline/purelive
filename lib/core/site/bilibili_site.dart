@@ -160,18 +160,22 @@ class BiliBiliSite implements LiveSite {
     );
 
     var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
+
     for (var streamItem in streamList) {
       var formatList = streamItem["format"];
       for (var formatItem in formatList) {
+        var formatName = formatItem["format_name"];
         var codecList = formatItem["codec"];
-        for (var codecItem in codecList) {
-          var urlList = codecItem["url_info"];
-          var baseUrl = codecItem["base_url"].toString();
+        if (formatName != 'flv') {
+          for (var codecItem in codecList) {
+            var urlList = codecItem["url_info"];
+            var baseUrl = codecItem["base_url"].toString();
 
-          for (var urlItem in urlList) {
-            urls.add(
-              "${urlItem["host"]}$baseUrl${urlItem["extra"]}",
-            );
+            for (var urlItem in urlList) {
+              urls.add(
+                "${urlItem["host"]}$baseUrl${urlItem["extra"]}",
+              );
+            }
           }
         }
       }

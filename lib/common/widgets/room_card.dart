@@ -97,7 +97,7 @@ class RoomCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (room.liveStatus == LiveStatus.replay)
+                if (room.isRecord == true)
                   Positioned(
                     right: dense ? 1 : 4,
                     top: dense ? 1 : 4,
@@ -108,7 +108,7 @@ class RoomCard extends StatelessWidget {
                       color: Theme.of(context).colorScheme.errorContainer,
                     ),
                   ),
-                if (room.liveStatus == LiveStatus.live &&
+                if (room.isRecord == false && room.liveStatus == LiveStatus.live &&
                     room.watching!.isNotEmpty)
                   Positioned(
                     right: dense ? 1 : 4,

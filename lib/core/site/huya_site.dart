@@ -128,7 +128,6 @@ class HuyaSite implements LiveSite {
         HuyaBitRateModel(name: "高清", bitRate: 2000),
       ];
     }
-
     for (var item in urlData.bitRates) {
       var urls = <String>[];
       for (var line in urlData.lines) {
@@ -229,6 +228,7 @@ class HuyaSite implements LiveSite {
       //读取可用线路
       var lines = jsonObj["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]
           ["vStreamInfo"]["value"];
+
       for (var item in lines) {
         if ((item["sFlvUrl"]?.toString() ?? "").isNotEmpty) {
           huyaLines.add(HuyaLineModel(
@@ -249,10 +249,15 @@ class HuyaSite implements LiveSite {
         if (name.contains("HDR")) {
           continue;
         }
-        huyaBiterates.add(HuyaBitRateModel(
-          bitRate: item["iBitRate"],
-          name: name,
-        ));
+        if (huyaBiterates
+            .map((e) => e.name)
+            .toList()
+            .every((element) => element != name)) {
+          huyaBiterates.add(HuyaBitRateModel(
+            bitRate: item["iBitRate"],
+            name: name,
+          ));
+        }
       }
 
       var topSid = int.tryParse(

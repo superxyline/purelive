@@ -5,8 +5,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
-class LivePlayPage extends GetWidget<LivePlayController>
-    with WidgetsBindingObserver {
+class LivePlayPage extends GetWidget<LivePlayController>{
   LivePlayPage({Key? key}) : super(key: key);
 
   final SettingsService settings = Get.find<SettingsService>();
@@ -17,6 +16,7 @@ class LivePlayPage extends GetWidget<LivePlayController>
     }
     return true;
   }
+  
 
   @override
   Widget build(BuildContext context) {

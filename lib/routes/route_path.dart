@@ -45,6 +45,10 @@ class RoutePath {
   /// 登陆
   static const kSignIn = "/sign_in";
 
+  /// 弹幕过滤
+ 
+  static const kSettingsDanmuShield = "/shield";
+  
   /// kBiliBiliQRLogin
   static const kSettingsAccount = "/settings_account";
 

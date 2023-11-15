@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:date_format/date_format.dart' hide S;
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -179,7 +179,7 @@ class _BackupPageState extends State<BackupPage> {
   }
 
   recoverNetworkM3u8Backup(String url, String fileName) async {
-    Dio dio = Dio(BaseOptions(
+    var dioInstance = dio.Dio(dio.BaseOptions(
       connectTimeout: const Duration(seconds: 10),
       //响应时间为3秒
       receiveTimeout: const Duration(seconds: 10),
@@ -187,7 +187,10 @@ class _BackupPageState extends State<BackupPage> {
     var dir = await getApplicationDocumentsDirectory();
     final m3ufile = File("${dir.path}${Platform.pathSeparator}$fileName.m3u");
     try {
-      await dio.download(url, m3ufile.path);
+      dio.Response response = await dioInstance.download(url, m3ufile.path);
+      if (response.statusCode != 200 && response.statusCode != 304) {
+        SnackBarUtil.error('文件下载失败请重试');
+      }
       List jsonArr = [];
       final categories =
           File('${dir.path}${Platform.pathSeparator}categories.json');
@@ -244,7 +247,7 @@ class _BackupPageState extends State<BackupPage> {
       final m3ufile =
           File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
       List jsonArr = [];
-      final categories = File('${dir.path}/categories.json');
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
       if (!categories.existsSync()) {
         categories.createSync();
       }
@@ -252,8 +255,7 @@ class _BackupPageState extends State<BackupPage> {
       jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr =
           jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) ==
-          -1) {
+      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) ==-1) {
         categoriesArr.add(IptvCategory(
             id: getUUid(),
             name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''),

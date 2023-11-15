@@ -52,6 +52,10 @@ class SettingsService extends GetxController {
       PrefUtil.setBool('enableFullScreenDefault', value);
     });
 
+    shieldList.listen((value) {
+      PrefUtil.setStringList('shieldList', value);
+    });
+
     favoriteRooms.listen((rooms) {
       PrefUtil.setStringList('favoriteRooms',
           favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
@@ -121,6 +125,9 @@ class SettingsService extends GetxController {
     });
 
     videoPlayerIndex.listen((value) {
+      if (value == 3) {
+        value = 2;
+      }
       videoPlayerIndex.value = value;
       PrefUtil.setInt('videoPlayerIndex', value);
     });
@@ -291,6 +298,8 @@ class SettingsService extends GetxController {
     }
   }
 
+  final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
+
   // Favorite rooms storage
   final favoriteRooms = ((PrefUtil.getStringList('favoriteRooms') ?? [])
           .map((e) => LiveRoom.fromJson(jsonDecode(e)))
@@ -317,6 +326,16 @@ class SettingsService extends GetxController {
     favoriteRooms.add(room);
     SupaBaseManager().uploadConfigWithBackGend();
     return true;
+  }
+
+  void addShieldList(String value) {
+    shieldList.add(value);
+    SupaBaseManager().uploadConfigWithBackGend();
+  }
+
+  void removeShieldList(int value) {
+    shieldList.removeAt(value);
+    SupaBaseManager().uploadConfigWithBackGend();
   }
 
   bool removeRoom(LiveRoom room) {
@@ -429,6 +448,7 @@ class SettingsService extends GetxController {
     favoriteAreas.value = (json['favoriteAreas'] as List)
         .map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e)))
         .toList();
+    shieldList.value = (json['shieldList'] as List).map((e) => e.toString()).toList();
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
     themeColorName.value = json['themeColor'] ?? "Crimson";
@@ -498,6 +518,7 @@ class SettingsService extends GetxController {
     json['videoPlayerIndex'] = videoPlayerIndex.value;
     json['enableCodec'] = enableCodec.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
+    json['shieldList'] = shieldList.map<String>((e) =>e.toString()).toList();
     return json;
   }
 
@@ -528,7 +549,8 @@ class SettingsService extends GetxController {
       'doubleExit': true,
       "videoPlayerIndex": 0,
       'enableCodec': true,
-      'bilibiliCookie': ''
+      'bilibiliCookie': '',
+      'shieldList': []
     };
     return json;
   }

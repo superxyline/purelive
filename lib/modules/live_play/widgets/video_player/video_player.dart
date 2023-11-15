@@ -20,7 +20,7 @@ class VideoPlayer extends StatefulWidget {
   State<VideoPlayer> createState() => _VideoPlayerState();
 }
 
-class _VideoPlayerState extends State<VideoPlayer> {
+class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
   bool hasRender = false;
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
@@ -31,6 +31,20 @@ class _VideoPlayerState extends State<VideoPlayer> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      if (widget.controller.videoPlayerIndex == 0 &&
+          widget.controller.allowBackgroundPlay) {
+        widget.controller.debounceListen(() {
+          widget.controller.mobileController?.startPlay();
+        }, 100);
+      }
+    }
   }
 
   @override
@@ -201,6 +215,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);  
     super.dispose();
   }
 }
