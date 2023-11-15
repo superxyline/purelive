@@ -40,7 +40,7 @@ class _AboutPageState extends State<AboutPage> {
             onTap: showLicenseDialog,
           ),
           SectionTitle(title: S.of(context).project),
-           ListTile(
+          ListTile(
             title: Text(S.of(context).support_donate),
             onTap: () => Get.toNamed(RoutePath.kDonate),
           ),

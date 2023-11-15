@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 

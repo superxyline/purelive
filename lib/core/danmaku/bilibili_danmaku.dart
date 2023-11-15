@@ -60,7 +60,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
     danmakuArgs = args as BiliBiliDanmakuArgs;
     webScoketUtils = WebScoketUtils(
       url: "wss://${args.serverHost}/sub",
-       headers: args.cookie.isEmpty
+      headers: args.cookie.isEmpty
           ? null
           : {
               "cookie": args.cookie,

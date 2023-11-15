@@ -138,6 +138,7 @@ class Utils {
   static void hideRightDialog() {
     SmartDialog.dismiss(status: SmartStatus.allCustom);
   }
+
   /// 文本编辑的弹窗
   /// - `content` 编辑框默认的内容
   /// - `title` 弹窗标题
@@ -154,7 +155,7 @@ class Utils {
       AlertDialog(
         title: Text(title),
         content: Padding(
-          padding:const EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.only(top: 12),
           child: TextField(
             controller: textEditingController,
             decoration: InputDecoration(
@@ -212,5 +213,4 @@ class Utils {
     );
     return result;
   }
-
 }

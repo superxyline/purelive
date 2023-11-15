@@ -41,7 +41,7 @@ class _AreaGridViewState extends State<AreaGridView>
     );
   }
 
-  Widget buildAreasView(AppLiveCategory  category) {
+  Widget buildAreasView(AppLiveCategory category) {
     return LayoutBuilder(builder: (context, constraint) {
       final width = constraint.maxWidth;
       final crossAxisCount =
@@ -52,7 +52,8 @@ class _AreaGridViewState extends State<AreaGridView>
               controller: ScrollController(),
               crossAxisCount: crossAxisCount,
               itemCount: category.children.length,
-              itemBuilder: (context, index) => AreaCard(category: category.children[index]),
+              itemBuilder: (context, index) =>
+                  AreaCard(category: category.children[index]),
             )
           : EmptyView(
               icon: Icons.area_chart_outlined,

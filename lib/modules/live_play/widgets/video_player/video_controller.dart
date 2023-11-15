@@ -222,11 +222,11 @@ class VideoController with ChangeNotifier {
           }
         });
         mediaPlayerController.player.stream.error.listen((event) {
-        if (event.toString().contains('Failed to open')) {
-          hasError.value = true;
-          isPlaying.value = false;
-        }
-      });
+          if (event.toString().contains('Failed to open')) {
+            hasError.value = true;
+            isPlaying.value = false;
+          }
+        });
         mediaPlayerControllerInitialized.value = true;
       }
     } else {

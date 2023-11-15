@@ -134,7 +134,8 @@ class SettingsPage extends GetView<SettingsService> {
             ListTile(
               title: Text(S.of(context).change_player),
               subtitle: Text(S.of(context).change_player_subtitle),
-              trailing: Obx(() => Text(controller.playerlist[controller.videoPlayerIndex.value])),
+              trailing: Obx(() => Text(
+                  controller.playerlist[controller.videoPlayerIndex.value])),
               onTap: showVideoSetDialog,
             ),
           if (Platform.isAndroid)

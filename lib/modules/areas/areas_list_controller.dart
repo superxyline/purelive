@@ -15,7 +15,6 @@ class AreasListController extends BasePageController<AppLiveCategory> {
   }
 }
 
-
 class AppLiveCategory extends LiveCategory {
   var showAll = false.obs;
   AppLiveCategory({

@@ -25,12 +25,12 @@ class AppNavigator {
 
   /// 跳转至哔哩哔哩登录
   static Future toBiliBiliLogin() async {
-    var contents = ['短信登陆','二维码登陆'];
+    var contents = ['短信登陆', '二维码登陆'];
     if (Platform.isAndroid || Platform.isIOS) {
-      var result = await Utils.showOptionDialog(contents, '',title: '请选择登陆方式');
+      var result = await Utils.showOptionDialog(contents, '', title: '请选择登陆方式');
       if (result == '短信登陆') {
         await Get.toNamed(RoutePath.kBiliBiliWebLogin);
-      } else if (result == '二维码登陆'){
+      } else if (result == '二维码登陆') {
         await Get.toNamed(RoutePath.kBiliBiliQRLogin);
       }
     } else {

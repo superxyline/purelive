@@ -278,7 +278,6 @@ class SettingsService extends GetxController {
 
   static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin'];
 
-
   static const List<String> players = ['ExoPlayer', 'IjkPlayer', 'MpvPlayer'];
   final preferPlatform =
       (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
@@ -391,7 +390,8 @@ class SettingsService extends GetxController {
   // Backup & recover storage
   final backupDirectory = (PrefUtil.getString('backupDirectory') ?? '').obs;
 
-  final m3uDirectory = (PrefUtil.getString('m3uDirectory') ?? 'm3uDirectory').obs;
+  final m3uDirectory =
+      (PrefUtil.getString('m3uDirectory') ?? 'm3uDirectory').obs;
 
   bool backup(File file) {
     try {

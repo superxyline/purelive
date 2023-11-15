@@ -4,8 +4,10 @@ import 'package:email_validator/email_validator.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 // It's handy to then extract the Supabase client in a variable for later uses
 final supabase = Supabase.instance.client;
+
 /// Information about the metadata to pass to the signup form
 ///
 /// You can use this object to create additional fields that will be passed to the metadata of the user upon signup.
@@ -155,7 +157,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                 }
                 return null;
               },
-              decoration:  InputDecoration(
+              decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.lock),
                 label: Text(S.of(context).supabase_enter_password),
               ),
@@ -187,7 +189,9 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                         strokeWidth: 1.5,
                       ),
                     )
-                  : Text(_isSigningIn ? S.of(context).supabase_sign_in : S.of(context).supabase_sign_up),
+                  : Text(_isSigningIn
+                      ? S.of(context).supabase_sign_in
+                      : S.of(context).supabase_sign_up),
               onPressed: () async {
                 if (!_formKey.currentState!.validate()) {
                   return;
@@ -223,7 +227,8 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   }
                 } catch (error) {
                   if (widget.onError == null) {
-                    context.showErrorSnackBar(S.of(context).supabase_unexpected_err(error));
+                    context.showErrorSnackBar(
+                        S.of(context).supabase_unexpected_err(error));
                   } else {
                     widget.onError?.call(error);
                   }
@@ -280,7 +285,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   widget.onError?.call(error);
                 }
               },
-              child:  Text(S.of(context).supabase_reset_password), 
+              child: Text(S.of(context).supabase_reset_password),
             ),
             spacer(16),
             TextButton(
@@ -289,7 +294,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   _forgotPassword = false;
                 });
               },
-              child: Text(S.of(context).supabase_back_sign_in), 
+              child: Text(S.of(context).supabase_back_sign_in),
             ),
           ],
           spacer(16),

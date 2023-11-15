@@ -36,7 +36,8 @@ class BarrageWall extends StatefulWidget {
   final bool debug;
   final bool selfCreatedController;
 
-  BarrageWall({super.key, 
+  BarrageWall({
+    super.key,
     List<Bullet>? bullets,
     BarrageWallController? controller,
     ValueNotifier<BarrageValue>? timelineNotifier,

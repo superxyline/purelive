@@ -25,10 +25,8 @@ class IptvSite implements LiveSite {
     List<LiveCategory> categoryTypes = [];
     for (IptvCategory item in categories) {
       var subCategory = await getSubCategores(item);
-      LiveCategory liveCategory = LiveCategory(
-          id: item.id!,
-          name: item.name!,
-          children: subCategory);
+      LiveCategory liveCategory =
+          LiveCategory(id: item.id!, name: item.name!, children: subCategory);
       categoryTypes.add(liveCategory);
     }
     return categoryTypes;
@@ -61,7 +59,8 @@ class IptvSite implements LiveSite {
       cover: '',
       nick: category.areaName,
       watching: '',
-      avatar: 'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
+      avatar:
+          'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
       area: '',
       liveStatus: LiveStatus.live,
       status: true,
@@ -104,14 +103,15 @@ class IptvSite implements LiveSite {
     // tvg-id: CCTV1, tvg-name: CCTV1, tvg-logo: https://live.fanmingming.com/tv/CCTV1.png, group-title: 央视
     var items = <LiveRoom>[];
     for (var item in lists) {
-    var room =  LiveRoom(
+      var room = LiveRoom(
         cover: item.attributes['tvg-logo'] ?? '',
         watching: '',
         roomId: item.link,
         area: item.attributes['group-title'] ?? '',
         title: item.title,
         nick: '网络电视',
-        avatar: 'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
+        avatar:
+            'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
         introduction: '',
         notice: '',
         status: true,
@@ -136,7 +136,8 @@ class IptvSite implements LiveSite {
       area: '',
       title: '网络电视',
       nick: 'm3u订阅',
-      avatar: 'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
+      avatar:
+          'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
       introduction: '',
       notice: '',
       status: true,

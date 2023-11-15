@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -7,6 +6,7 @@ import 'package:pure_live/plugins/supabase.dart';
 import 'package:pure_live/routes/route_path.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
 
@@ -21,7 +21,7 @@ class _SignInPageState extends State<SignInPage> {
       appBar: AppBar(
         title: Text(S.of(context).supabase_sign_in),
       ),
-       body: SingleChildScrollView(
+      body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Padding(
           padding: const EdgeInsets.all(24.0),

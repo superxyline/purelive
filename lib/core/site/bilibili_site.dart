@@ -277,9 +277,9 @@ class BiliBiliSite implements LiveSite {
           roomId: asT<int?>(result["data"]["room_info"]["room_id"]) ?? 0,
           uid: userId,
           token: roomDanmakuResult["data"]["token"].toString(),
-           serverHost: serverHosts.isNotEmpty
-            ? serverHosts.first
-            : "broadcastlv.chat.bilibili.com",
+          serverHost: serverHosts.isNotEmpty
+              ? serverHosts.first
+              : "broadcastlv.chat.bilibili.com",
           buvid: buvid,
           cookie: cookie,
         ),

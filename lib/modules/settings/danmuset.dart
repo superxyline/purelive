@@ -58,9 +58,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
                       padding: const EdgeInsets.all(5.0),
                       child: Text(e,
                           style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700
-                          )),
+                              fontSize: 11, fontWeight: FontWeight.w700)),
                     ))
                 .toList(),
           ),

@@ -18,7 +18,8 @@ class EmptyView extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+        constraints:
+            BoxConstraints(minHeight: MediaQuery.of(context).size.height),
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,

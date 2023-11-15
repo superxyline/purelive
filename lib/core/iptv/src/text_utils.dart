@@ -1,5 +1,3 @@
-
-
 import 'package:pure_live/core/iptv/src/text_utils_string_extension.dart';
 
 Map<String, String> getKeyValueList(String input, List<String> separator) {
@@ -10,7 +8,7 @@ Map<String, String> getKeyValueList(String input, List<String> separator) {
   }
 
   input = input.trim();
-  if(input.startsWith(',')) {
+  if (input.startsWith(',')) {
     input = input.substring(1);
   }
 

@@ -1,5 +1,3 @@
-
-
 import 'package:get/get.dart';
 import 'package:pure_live/plugins/supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

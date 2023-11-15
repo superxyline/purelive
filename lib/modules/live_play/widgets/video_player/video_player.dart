@@ -103,7 +103,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
             BetterPlayer(
               key: widget.controller.playerKey,
               controller: widget.controller.mobileController!,
-              
             ),
             _buildVideoPanel(),
           ],
@@ -162,7 +161,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     key: widget.controller.key,
                     controller: widget.controller.mediaPlayerController,
                     fit: widget.controller.videoFit.value,
-                    controls: widget.controller.room.platform == 'iptv' ? media_kit_video.MaterialVideoControls : (state) => _buildVideoPanel(),
+                    controls: widget.controller.room.platform == 'iptv'
+                        ? media_kit_video.MaterialVideoControls
+                        : (state) => _buildVideoPanel(),
                   )
                 : Card(
                     elevation: 0,

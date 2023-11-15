@@ -910,11 +910,11 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: Icon(
-              !isFavorite
-                  ? Icons.favorite_outline_outlined
-                  : Icons.favorite_rounded,
-              color: Colors.white,
-            ),
+          !isFavorite
+              ? Icons.favorite_outline_outlined
+              : Icons.favorite_rounded,
+          color: Colors.white,
+        ),
       ),
     );
   }

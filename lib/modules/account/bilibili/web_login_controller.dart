@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/base/base_controller.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 import 'package:pure_live/routes/route_path.dart';
+
 class BiliBiliWebLoginController extends BaseController {
   InAppWebViewController? webViewController;
   final CookieManager cookieManager = CookieManager.instance();
