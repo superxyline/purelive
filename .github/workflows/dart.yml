@@ -56,13 +56,13 @@ jobs:
       - name: Build APK
         run: |
           flutter build apk
-      - name: Build MSIX
-        uses: Levi-Lesches/Flutter-MSIX@v0.1
-        with:
-          base64-certificate: ${{ secrets.CERTIFICATE }}
-          msix-path: build/windows/runner/Release/pure_live.msix
-          release-name: pure_live
-          generate-release-notes: false
+      # - name: Build MSIX
+      #   uses: Levi-Lesches/Flutter-MSIX@v0.1
+      #   with:
+      #     base64-certificate: ${{ secrets.CERTIFICATE }}
+      #     msix-path: build/windows/runner/Release/pure_live.msix
+      #     release-name: pure_live
+      #     generate-release-notes: false
       #上传APK至Artifacts
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v3
