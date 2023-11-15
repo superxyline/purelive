@@ -448,7 +448,8 @@ class SettingsService extends GetxController {
     favoriteAreas.value = (json['favoriteAreas'] as List)
         .map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e)))
         .toList();
-    shieldList.value = (json['shieldList'] as List).map((e) => e.toString()).toList();
+    shieldList.value =
+        (json['shieldList'] as List).map((e) => e.toString()).toList();
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
     themeColorName.value = json['themeColor'] ?? "Crimson";
@@ -518,7 +519,7 @@ class SettingsService extends GetxController {
     json['videoPlayerIndex'] = videoPlayerIndex.value;
     json['enableCodec'] = enableCodec.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
-    json['shieldList'] = shieldList.map<String>((e) =>e.toString()).toList();
+    json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
     return json;
   }
 

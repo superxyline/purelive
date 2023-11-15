@@ -1,13 +1,12 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-
+import 'dart:async';
+import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/plugins/barrage.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
 class VideoControllerPanel extends StatefulWidget {
   final VideoController controller;

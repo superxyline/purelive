@@ -8,7 +8,6 @@ import 'package:pure_live/core/iptv/src/m3u_header.dart';
 import 'package:pure_live/core/iptv/src/text_utils.dart';
 import 'package:pure_live/core/iptv/src/text_utils_string_extension.dart';
 
-
 class M3uList {
   M3uList._internal();
 
@@ -25,7 +24,10 @@ class M3uList {
   UnmodifiableListView<M3uItem> get items => UnmodifiableListView(_items);
 
   UnmodifiableListView<String> get groupTitles {
-    _groupTitles ??= _items.where((a) => a.groupTitle.isNotEmpty).map((a) => a.groupTitle).toSet();
+    _groupTitles ??= _items
+        .where((a) => a.groupTitle.isNotEmpty)
+        .map((a) => a.groupTitle)
+        .toSet();
     return UnmodifiableListView(_groupTitles!);
   }
 
@@ -39,12 +41,14 @@ class M3uList {
     return await rootBundle.loadString(assetsPath);
   }
 
-  static Future<M3uList> loadFromAssets(String path, {M3uLoadOptions? options}) async {
+  static Future<M3uList> loadFromAssets(String path,
+      {M3uLoadOptions? options}) async {
     String jsonData = await loadJsonFromAssets(path);
     return load(jsonData, options: options);
   }
 
-  static Future<M3uList> loadFromFile(String path, {M3uLoadOptions? options}) async {
+  static Future<M3uList> loadFromFile(String path,
+      {M3uLoadOptions? options}) async {
     final file = File(path);
     final source = await file.readAsString();
     return load(source, options: options);
@@ -73,7 +77,8 @@ class M3uList {
   final _headerPrefix = '#EXTM3U';
   final _itemPrefix = '#EXTINF:';
 
-  final _itemRegex = RegExp(r'^(-?\d+)|([\s,].+=[^,]+)|((?<=[,\d])[^,]+$)', caseSensitive: false);
+  final _itemRegex = RegExp(r'^(-?\d+)|([\s,].+=[^,]+)|((?<=[,\d])[^,]+$)',
+      caseSensitive: false);
 
   void _parseHeader(String line) {
     if (!line.startsWith(_headerPrefix)) {
@@ -97,12 +102,15 @@ class M3uList {
     }
 
     line = line.substring(_itemPrefix.length);
-    final matches = _itemRegex.allMatches(line).map((a) => a[0]!.trim()).toList();
+    final matches =
+        _itemRegex.allMatches(line).map((a) => a[0]!.trim()).toList();
 
     if (matches.length > 1) {
-      final attributes = matches.length > 2 ? getKeyValueList(matches[1], [' ']) : null;
+      final attributes =
+          matches.length > 2 ? getKeyValueList(matches[1], [' ']) : null;
 
-      var groupTitle = attributes != null ? attributes[_loadOptions.groupTitleField] : null;
+      var groupTitle =
+          attributes != null ? attributes[_loadOptions.groupTitleField] : null;
       groupTitle ??= _lastGroupTitle;
       _lastGroupTitle = groupTitle;
       _lastItem = M3uItem(
@@ -111,7 +119,10 @@ class M3uList {
           groupTitle: groupTitle,
           attributes: attributes);
     } else {
-      _lastItem = M3uItem(duration: -1, title: _loadOptions.wrongItemTitle, groupTitle: _lastGroupTitle);
+      _lastItem = M3uItem(
+          duration: -1,
+          title: _loadOptions.wrongItemTitle,
+          groupTitle: _lastGroupTitle);
     }
   }
 }

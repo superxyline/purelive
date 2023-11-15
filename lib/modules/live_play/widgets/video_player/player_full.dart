@@ -1,11 +1,9 @@
 import 'dart:async';
-
+import 'video_controller.dart';
+import 'video_controller_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-
-import 'video_controller.dart';
-import 'video_controller_panel.dart';
 
 class PlayerFull extends StatefulWidget {
   const PlayerFull(

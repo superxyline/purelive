@@ -16,7 +16,7 @@ class DanmuShieldPage extends GetView<DanmuShieldController> {
         padding: const EdgeInsets.all(12.0),
         children: [
           TextField(
-            keyboardType:TextInputType.text,
+            keyboardType: TextInputType.text,
             controller: controller.textEditingController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.all(12.0),

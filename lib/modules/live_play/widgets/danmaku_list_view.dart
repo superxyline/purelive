@@ -1,5 +1,5 @@
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:flutter/rendering.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 

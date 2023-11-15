@@ -28,7 +28,8 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
         appBar: AppBar(title: Text(controller.site.name)),
         body: LayoutBuilder(builder: (context, constraint) {
           final width = constraint.maxWidth;
-          final crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+          final crossAxisCount =
+              width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
           return Obx(() => EasyRefresh(
                 controller: controller.easyRefreshController,
                 onRefresh: controller.refreshData,
@@ -39,7 +40,8 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
                         controller: controller.scrollController,
                         crossAxisCount: crossAxisCount,
                         itemCount: controller.list.length,
-                        itemBuilder: (context, index) => RoomCard(room: controller.list[index], dense: true),
+                        itemBuilder: (context, index) =>
+                            RoomCard(room: controller.list[index], dense: true),
                       )
                     : EmptyView(
                         icon: Icons.live_tv_rounded,
@@ -48,7 +50,8 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
                       ),
               ));
         }),
-        floatingActionButton: FavoriteAreaFloatingButton(area: controller.subCategory),
+        floatingActionButton:
+            FavoriteAreaFloatingButton(area: controller.subCategory),
       ),
     );
   }
@@ -63,10 +66,12 @@ class FavoriteAreaFloatingButton extends StatefulWidget {
   final LiveArea area;
 
   @override
-  State<FavoriteAreaFloatingButton> createState() => _FavoriteAreaFloatingButtonState();
+  State<FavoriteAreaFloatingButton> createState() =>
+      _FavoriteAreaFloatingButtonState();
 }
 
-class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton> {
+class _FavoriteAreaFloatingButtonState
+    extends State<FavoriteAreaFloatingButton> {
   final settings = Get.find<SettingsService>();
 
   late bool isFavorite = settings.isFavoriteArea(widget.area);
@@ -82,7 +87,8 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
               Get.dialog(
                 AlertDialog(
                   title: Text(S.of(context).unfollow),
-                  content: Text(S.of(context).unfollow_message(widget.area.areaName!)),
+                  content: Text(
+                      S.of(context).unfollow_message(widget.area.areaName!)),
                   actions: [
                     TextButton(
                       onPressed: () => Get.back(result: false),
@@ -102,7 +108,9 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
               });
             },
             child: CircleAvatar(
-              foregroundImage: (widget.area.areaPic == '') ? null : NetworkImage(widget.area.areaPic!),
+              foregroundImage: (widget.area.areaPic == '')
+                  ? null
+                  : NetworkImage(widget.area.areaPic!),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -115,7 +123,9 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
               settings.addArea(widget.area);
             },
             icon: CircleAvatar(
-              foregroundImage: (widget.area.areaPic == '') ? null : NetworkImage(widget.area.areaPic!),
+              foregroundImage: (widget.area.areaPic == '')
+                  ? null
+                  : NetworkImage(widget.area.areaPic!),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),

@@ -124,7 +124,7 @@ class AppPages {
     GetPage(
       name: RoutePath.kSettingsDanmuShield,
       page: () => const DanmuShieldPage(),
-       bindings: [
+      bindings: [
         DanmuShieldBinding(),
       ],
     ),

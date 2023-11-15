@@ -247,7 +247,8 @@ class _BackupPageState extends State<BackupPage> {
       final m3ufile =
           File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
       List jsonArr = [];
-      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
+      final categories =
+          File('${dir.path}${Platform.pathSeparator}categories.json');
       if (!categories.existsSync()) {
         categories.createSync();
       }
@@ -255,7 +256,8 @@ class _BackupPageState extends State<BackupPage> {
       jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr =
           jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) ==-1) {
+      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) ==
+          -1) {
         categoriesArr.add(IptvCategory(
             id: getUUid(),
             name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''),

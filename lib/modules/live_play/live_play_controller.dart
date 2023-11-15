@@ -7,8 +7,6 @@ import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-
-
 class LivePlayController extends StateController {
   LivePlayController({
     required this.room,
@@ -85,7 +83,9 @@ class LivePlayController extends StateController {
         }
         // start danmaku server
         List<String> except = ['kuaishou', 'iptv'];
-        if (except.indexWhere((element) => element == detail.value?.platform!) == -1) {
+        if (except
+                .indexWhere((element) => element == detail.value?.platform!) ==
+            -1) {
           initDanmau();
           liveDanmaku.start(detail.value?.danmakuData);
         }
@@ -117,7 +117,8 @@ class LivePlayController extends StateController {
     );
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
-        if (settings.shieldList.every((element) => !msg.message.contains(element))) {
+        if (settings.shieldList
+            .every((element) => !msg.message.contains(element))) {
           if (!DanmuMerge().isRepeat(msg.message)) {
             DanmuMerge().add(msg.message);
             messages.add(msg);
@@ -149,12 +150,14 @@ class LivePlayController extends StateController {
   }
 
   void setResolution(String quality, String index) {
-    currentQuality.value = qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
+    currentQuality.value =
+        qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
     videoController?.isTryToHls = false;
     videoController?.isPlaying.value = false;
     videoController?.hasError.value = false;
-    videoController?.setDataSource(playUrls.value[currentLineIndex.value], refresh: true);
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value],
+        refresh: true);
     update();
   }
 
@@ -163,13 +166,15 @@ class LivePlayController extends StateController {
     qualites.value = [];
     currentQuality.value = 0;
     try {
-      var playQualites = await currentSite.liveSite.getPlayQualites(detail: detail.value!);
+      var playQualites =
+          await currentSite.liveSite.getPlayQualites(detail: detail.value!);
       if (playQualites.isEmpty) {
         SmartDialog.showToast("无法读取播放清晰度");
         return;
       }
       qualites.value = playQualites;
-      int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
+      int qualityLevel =
+          settings.resolutionsList.indexOf(settings.preferResolution.value);
       if (qualityLevel == 0) {
         //最高
         currentQuality.value = 0;
@@ -195,14 +200,15 @@ class LivePlayController extends StateController {
       return;
     }
     currentLineIndex.value++;
-    setResolution(qualites.map((e) => e.quality).toList()[currentQuality.value], currentLineIndex.value.toString());
+    setResolution(qualites.map((e) => e.quality).toList()[currentQuality.value],
+        currentLineIndex.value.toString());
   }
 
   void getPlayUrl() async {
     playUrls.value = [];
     currentLineIndex.value = 0;
-    var playUrl =
-        await currentSite.liveSite.getPlayUrls(detail: detail.value!, quality: qualites[currentQuality.value]);
+    var playUrl = await currentSite.liveSite.getPlayUrls(
+        detail: detail.value!, quality: qualites[currentQuality.value]);
     if (playUrl.isEmpty) {
       SmartDialog.showToast("无法读取播放地址");
       return;

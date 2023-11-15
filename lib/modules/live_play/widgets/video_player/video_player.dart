@@ -1,13 +1,13 @@
 import 'dart:io';
+import 'package:get/get.dart';
+import 'package:fijkplayer/fijkplayer.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:better_player/better_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fijkplayer/fijkplayer.dart';
-import 'package:get/get.dart';
-import 'package:pure_live/common/index.dart';
+import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:pure_live/modules/live_play/widgets/video_player/player_full.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
-import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 
 class VideoPlayer extends StatefulWidget {
   final VideoController controller;
@@ -215,7 +215,7 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);  
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }
