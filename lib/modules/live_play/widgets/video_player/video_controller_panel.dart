@@ -69,16 +69,12 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
       type: MaterialType.transparency,
       child: CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.mediaPlay): () =>
-              controller.mediaPlayerController.player.play(),
-          const SingleActivator(LogicalKeyboardKey.mediaPause): () =>
-              controller.mediaPlayerController.player.pause(),
+          const SingleActivator(LogicalKeyboardKey.mediaPlay): () => controller.mediaPlayerController.player.play(),
+          const SingleActivator(LogicalKeyboardKey.mediaPause): () => controller.mediaPlayerController.player.pause(),
           const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () =>
               controller.mediaPlayerController.player.playOrPause(),
-          const SingleActivator(LogicalKeyboardKey.space): () =>
-              controller.mediaPlayerController.player.playOrPause(),
-          const SingleActivator(LogicalKeyboardKey.keyR): () =>
-              controller.refresh(),
+          const SingleActivator(LogicalKeyboardKey.space): () => controller.mediaPlayerController.player.playOrPause(),
+          const SingleActivator(LogicalKeyboardKey.keyR): () => controller.refresh(),
           const SingleActivator(LogicalKeyboardKey.arrowUp): () async {
             double? volume = 1.0;
             volume = await controller.volumn();
@@ -97,8 +93,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
             controller.setVolumn(volume);
             updateVolumn(volume);
           },
-          const SingleActivator(LogicalKeyboardKey.escape): () =>
-              controller.toggleFullScreen(),
+          const SingleActivator(LogicalKeyboardKey.escape): () => controller.toggleFullScreen(),
         },
         child: Focus(
           autofocus: true,
@@ -126,8 +121,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                               children: <Widget>[
                                 Icon(iconData, color: Colors.white),
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 8, right: 4),
+                                  padding: const EdgeInsets.only(left: 8, right: 4),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: SizedBox(
@@ -155,9 +149,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                           if (controller.showSettting.value) {
                             controller.showSettting.toggle();
                           } else {
-                            controller.isPlaying.value
-                                ? controller.enableController()
-                                : controller.togglePlayPause();
+                            controller.isPlaying.value ? controller.enableController() : controller.togglePlayPause();
                           }
                         },
                         onDoubleTap: () => controller.isWindowFullscreen.value
@@ -268,10 +260,7 @@ class TopActionBar extends StatelessWidget {
                 child: Text(
                   controller.room.title!,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      decoration: TextDecoration.none),
+                  style: const TextStyle(color: Colors.white, fontSize: 16, decoration: TextDecoration.none),
                 ),
               ),
             ),
@@ -279,9 +268,7 @@ class TopActionBar extends StatelessWidget {
               const DatetimeInfo(),
               BatteryInfo(controller: controller),
             ],
-            if (!controller.fullscreenUI &&
-                controller.supportPip &&
-                controller.videoPlayerIndex == 0)
+            if (!controller.fullscreenUI && controller.supportPip && controller.videoPlayerIndex == 0)
               PIPButton(controller: controller),
           ]),
         ),
@@ -328,8 +315,7 @@ class _DatetimeInfoState extends State<DatetimeInfo> {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
       child: Text(
         '$hour:$minute',
-        style: const TextStyle(
-            color: Colors.white, fontSize: 14, decoration: TextDecoration.none),
+        style: const TextStyle(color: Colors.white, fontSize: 14, decoration: TextDecoration.none),
       ),
     );
   }
@@ -366,10 +352,7 @@ class _BatteryInfoState extends State<BatteryInfo> {
         child: Center(
           child: Obx(() => Text(
                 '${widget.controller.batteryLevel.value}',
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 9,
-                    decoration: TextDecoration.none),
+                style: const TextStyle(color: Colors.white, fontSize: 9, decoration: TextDecoration.none),
               )),
         ),
       ),
@@ -385,9 +368,8 @@ class BackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => controller.isWindowFullscreen.value
-          ? controller.toggleWindowFullScreen()
-          : controller.toggleFullScreen(),
+      onTap: () =>
+          controller.isWindowFullscreen.value ? controller.toggleWindowFullScreen() : controller.toggleFullScreen(),
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
@@ -434,15 +416,12 @@ class DanmakuViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() => Opacity(
-          opacity: controller.hideDanmaku.value
-              ? 0
-              : controller.danmakuOpacity.value,
+          opacity: controller.hideDanmaku.value ? 0 : controller.danmakuOpacity.value,
           child: controller.danmakuArea.value == 0.0
               ? Container()
               : BarrageWall(
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height *
-                      controller.danmakuArea.value,
+                  height: MediaQuery.of(context).size.height * controller.danmakuArea.value,
                   controller: controller.danmakuController,
                   speed: controller.danmakuSpeed.value.toInt(),
                   maxBulletHeight: controller.danmakuFontSize * 1.5,
@@ -462,8 +441,7 @@ class BrightnessVolumnDargArea extends StatefulWidget {
   final VideoController controller;
 
   @override
-  State<BrightnessVolumnDargArea> createState() =>
-      BrightnessVolumnDargAreaState();
+  State<BrightnessVolumnDargArea> createState() => BrightnessVolumnDargAreaState();
 }
 
 class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
@@ -525,9 +503,8 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
     }
     _cancelAndRestartHideBVTimer();
 
-    double dragRange = (delta.direction < 0 || delta.direction > pi)
-        ? _updateDargVarVal + 0.01
-        : _updateDargVarVal - 0.01;
+    double dragRange =
+        (delta.direction < 0 || delta.direction > pi) ? _updateDargVarVal + 0.01 : _updateDargVarVal - 0.01;
     // 是否溢出
     dragRange = min(dragRange, 1.0);
     dragRange = max(dragRange, 0.0);
@@ -564,8 +541,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
         }
       },
       child: GestureDetector(
-        onVerticalDragUpdate: (details) =>
-            _onVerticalDragUpdate(details.localPosition, details.delta),
+        onVerticalDragUpdate: (details) => _onVerticalDragUpdate(details.localPosition, details.delta),
         child: Container(
           color: Colors.transparent,
           alignment: Alignment.center,
@@ -632,9 +608,7 @@ class LockButton extends StatelessWidget {
                 child: IconButton(
                   onPressed: () => controller.showLocked.toggle(),
                   icon: Icon(
-                    controller.showLocked.value
-                        ? Icons.lock_rounded
-                        : Icons.lock_open_rounded,
+                    controller.showLocked.value ? Icons.lock_rounded : Icons.lock_open_rounded,
                     size: 28,
                   ),
                   color: Colors.white,
@@ -692,16 +666,12 @@ class BottomActionBar extends StatelessWidget {
                 RefreshButton(controller: controller),
                 DanmakuButton(controller: controller),
                 FavoriteButton(controller: controller),
-                if (controller.isFullscreen.value)
-                  SettingsButton(controller: controller),
-                if (controller.supportPip && controller.isFullscreen.value)
-                  ScreenToggleButton(controller: controller),
+                if (controller.isFullscreen.value) SettingsButton(controller: controller),
+                if (controller.supportPip && controller.isFullscreen.value) ScreenToggleButton(controller: controller),
                 const Spacer(),
-                if (controller.supportWindowFull &&
-                    !controller.isFullscreen.value)
+                if (controller.supportWindowFull && !controller.isFullscreen.value)
                   ExpandWindowButton(controller: controller),
-                if (!controller.isWindowFullscreen.value)
-                  ExpandButton(controller: controller),
+                if (!controller.isWindowFullscreen.value) ExpandButton(controller: controller),
               ],
             ),
           ),
@@ -722,9 +692,7 @@ class PlayPauseButton extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.all(12),
             child: Icon(
-              controller.isPlaying.value
-                  ? Icons.pause_rounded
-                  : Icons.play_arrow_rounded,
+              controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
               color: Colors.white,
             ),
           )),
@@ -754,24 +722,20 @@ class RefreshButton extends StatelessWidget {
 }
 
 class ScreenToggleButton extends StatelessWidget {
-  const ScreenToggleButton({Key? key, required this.controller})
-      : super(key: key);
+  const ScreenToggleButton({Key? key, required this.controller}) : super(key: key);
 
   final VideoController controller;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() => GestureDetector(
-          onTap: () => controller.isVertical.value
-              ? controller.setLandscapeOrientation()
-              : controller.setPortraitOrientation(),
+          onTap: () =>
+              controller.isVertical.value ? controller.setLandscapeOrientation() : controller.setPortraitOrientation(),
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(12),
             child: Icon(
-              controller.isVertical.value
-                  ? Icons.crop_landscape
-                  : Icons.crop_portrait,
+              controller.isVertical.value ? Icons.crop_landscape : Icons.crop_portrait,
               color: Colors.white,
             ),
           ),
@@ -795,9 +759,7 @@ class DanmakuButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: Obx(() => Icon(
-              controller.hideDanmaku.value
-                  ? CustomIcons.danmaku_close
-                  : CustomIcons.danmaku_open,
+              controller.hideDanmaku.value ? CustomIcons.danmaku_close : CustomIcons.danmaku_open,
               color: Colors.white,
             )),
       ),
@@ -827,8 +789,7 @@ class SettingsButton extends StatelessWidget {
 }
 
 class ExpandWindowButton extends StatelessWidget {
-  const ExpandWindowButton({Key? key, required this.controller})
-      : super(key: key);
+  const ExpandWindowButton({Key? key, required this.controller}) : super(key: key);
 
   final VideoController controller;
 
@@ -842,9 +803,7 @@ class ExpandWindowButton extends StatelessWidget {
         child: RotatedBox(
           quarterTurns: 1,
           child: Obx(() => Icon(
-                controller.isWindowFullscreen.value
-                    ? Icons.unfold_less_rounded
-                    : Icons.unfold_more_rounded,
+                controller.isWindowFullscreen.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
                 color: Colors.white,
                 size: 26,
               )),
@@ -867,9 +826,7 @@ class ExpandButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: Obx(() => Icon(
-              controller.isFullscreen.value
-                  ? Icons.fullscreen_exit_rounded
-                  : Icons.fullscreen_rounded,
+              controller.isFullscreen.value ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
               color: Colors.white,
               size: 26,
             )),
@@ -909,9 +866,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: Icon(
-          !isFavorite
-              ? Icons.favorite_outline_outlined
-              : Icons.favorite_rounded,
+          !isFavorite ? Icons.favorite_outline_outlined : Icons.favorite_rounded,
           color: Colors.white,
         ),
       ),
@@ -975,9 +930,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
     S.of(context).videofit_fitwidth: BoxFit.fitWidth,
     S.of(context).videofit_fitheight: BoxFit.fitHeight,
   };
-  late int fitIndex = fitmodes.values
-      .toList()
-      .indexWhere((e) => e == widget.controller.videoFit.value);
+  late int fitIndex = fitmodes.values.toList().indexWhere((e) => e == widget.controller.videoFit.value);
 
   @override
   Widget build(BuildContext context) {
@@ -992,10 +945,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text(
             S.of(context).settings_videofit_title,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Colors.white),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
           ),
         ),
         Padding(
@@ -1051,10 +1001,17 @@ class DanmakuSetting extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
                 S.of(context).settings_danmaku_title,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Colors.white),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
+              ),
+            ),
+            Obx(
+              () => SwitchListTile(
+                title: const Text('弹幕合并', style: label),
+                contentPadding: EdgeInsets.zero,
+                subtitle: const Text('相似度大于75%的弹幕会被合并', style: label),
+                value: controller.mergeDanmu.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.mergeDanmu.value = value,
               ),
             ),
             ListTile(
@@ -1076,8 +1033,7 @@ class DanmakuSetting extends StatelessWidget {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading:
-                  Text(S.of(context).settings_danmaku_opacity, style: label),
+              leading: Text(S.of(context).settings_danmaku_opacity, style: label),
               title: Slider(
                 divisions: 10,
                 min: 0.0,
@@ -1109,8 +1065,7 @@ class DanmakuSetting extends StatelessWidget {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading:
-                  Text(S.of(context).settings_danmaku_fontsize, style: label),
+              leading: Text(S.of(context).settings_danmaku_fontsize, style: label),
               title: Slider(
                 divisions: 20,
                 min: 10.0,
@@ -1126,8 +1081,7 @@ class DanmakuSetting extends StatelessWidget {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading:
-                  Text(S.of(context).settings_danmaku_fontBorder, style: label),
+              leading: Text(S.of(context).settings_danmaku_fontBorder, style: label),
               title: Slider(
                 divisions: 25,
                 min: 0.0,

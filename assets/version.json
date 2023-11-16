@@ -1,0 +1,7 @@
+{
+  "version": "1.4.0",
+  "version_num": 10400,
+  "version_desc": "-Fix:删除bilibili FLV格式直播流-此类型直播流无效 \n-Add: 添加弹幕过滤，可在弹幕设置同步配置 \n-Add: 轮播会显示在正在直播：添加录播标志.",
+  "prerelease":false,
+  "download_url": "https://github.com/liuchuancong/pure_live/releases"
+}

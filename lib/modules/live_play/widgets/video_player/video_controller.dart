@@ -63,8 +63,7 @@ class VideoController with ChangeNotifier {
   final refreshCompleted = true.obs;
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
-  late final GlobalKey<media_kit_video.VideoState> key =
-      GlobalKey<media_kit_video.VideoState>();
+  late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
 
   // Create a [Player] to control playback.
   late Player player;
@@ -75,8 +74,7 @@ class VideoController with ChangeNotifier {
 
   final playerRefresh = false.obs;
 
-  GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
-      GlobalKey<BrightnessVolumnDargAreaState>();
+  GlobalKey<BrightnessVolumnDargAreaState> brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
 
   LivePlayController livePlayController = Get.find<LivePlayController>();
 
@@ -116,6 +114,7 @@ class VideoController with ChangeNotifier {
   final danmakuFontSize = 16.0.obs;
   final danmakuFontBorder = 0.5.obs;
   final danmakuOpacity = 1.0.obs;
+  final mergeDanmu = true.obs;
   VideoController({
     required this.playerKey,
     required this.room,
@@ -136,6 +135,7 @@ class VideoController with ChangeNotifier {
     danmakuFontSize.value = settings.danmakuFontSize.value;
     danmakuFontBorder.value = settings.danmakuFontBorder.value;
     danmakuOpacity.value = settings.danmakuOpacity.value;
+    mergeDanmu.value = settings.mergeDanmu.value;
     initPagesConfig();
   }
 
@@ -193,9 +193,7 @@ class VideoController with ChangeNotifier {
             autoDetectFullscreenDeviceOrientation: true,
             autoDetectFullscreenAspectRatio: true,
             errorBuilder: (context, errorMessage) => Container(),
-            routePageBuilder:
-                (context, animation, second, controllerProvider) =>
-                    AnimatedBuilder(
+            routePageBuilder: (context, animation, second, controllerProvider) => AnimatedBuilder(
               animation: animation,
               builder: (context, child) => MobileFullscreen(
                 controller: this,
@@ -213,8 +211,7 @@ class VideoController with ChangeNotifier {
         player = Player();
         mediaPlayerController = media_kit_video.VideoController(player,
             configuration: media_kit_video.VideoControllerConfiguration(
-                androidAttachSurfaceAfterVideoParameters: false,
-                enableHardwareAcceleration: enableCodec));
+                androidAttachSurfaceAfterVideoParameters: false, enableHardwareAcceleration: enableCodec));
         setDataSource(datasource);
         mediaPlayerController.player.stream.playing.listen((bool playing) {
           if (playing) {
@@ -255,8 +252,7 @@ class VideoController with ChangeNotifier {
   tryToHlsPlay() {
     isTryToHls = true;
     mobileController?.pause();
-    mobileController?.setResolution(datasource,
-        videoFormat: BetterPlayerVideoFormat.hls);
+    mobileController?.setResolution(datasource, videoFormat: BetterPlayerVideoFormat.hls);
     mobileController?.play();
   }
 
@@ -279,25 +275,20 @@ class VideoController with ChangeNotifier {
     if (mobileController?.videoPlayerController != null) {
       if (state.betterPlayerEventType == BetterPlayerEventType.exception) {
         debounceListen(() {
-          if (mobileController!.videoPlayerController!.value.errorDescription !=
-              null) {
-            if (mobileController!.videoPlayerController!.value.errorDescription!
-                    .contains('Source error') &&
+          if (mobileController!.videoPlayerController!.value.errorDescription != null) {
+            if (mobileController!.videoPlayerController!.value.errorDescription!.contains('Source error') &&
                 room.platform == 'iptv' &&
                 !isTryToHls) {
               tryToHlsPlay();
             } else {
-              hasError.value =
-                  mobileController?.videoPlayerController?.value.hasError ??
-                      true;
+              hasError.value = mobileController?.videoPlayerController?.value.hasError ?? true;
             }
           }
         }, 1000);
       }
       isPlaying.value = mobileController?.isPlaying() ?? false;
       isBuffering.value = mobileController?.isBuffering() ?? false;
-      isPipMode.value =
-          mobileController?.videoPlayerController?.value.isPip ?? false;
+      isPipMode.value = mobileController?.videoPlayerController?.value.isPip ?? false;
     }
   }
 
@@ -461,17 +452,14 @@ class VideoController with ChangeNotifier {
     headers.forEach((key, value) {
       headersArr.add('$key:$value');
     });
-    fijkPlayer.setOption(
-        FijkOption.formatCategory, "headers", headersArr.join('\r\n'));
+    fijkPlayer.setOption(FijkOption.formatCategory, "headers", headersArr.join('\r\n'));
     fijkPlayer.setOption(FijkOption.hostCategory, "request-screen-on", 1);
     fijkPlayer.setOption(FijkOption.hostCategory, "request-audio-focus", 1);
     fijkPlayer.setOption(FijkOption.playerCategory, "mediacodec-all-videos", 1);
     if (enableCodec) {
       fijkPlayer.setOption(FijkOption.codecCategory, "mediacodec", 1);
-      fijkPlayer.setOption(
-          FijkOption.codecCategory, "mediacodec-auto-rotate", 1);
-      fijkPlayer.setOption(
-          FijkOption.codecCategory, "mediacodec-handle-resolution-change", 1);
+      fijkPlayer.setOption(FijkOption.codecCategory, "mediacodec-auto-rotate", 1);
+      fijkPlayer.setOption(FijkOption.codecCategory, "mediacodec-handle-resolution-change", 1);
     }
   }
 
@@ -530,9 +518,7 @@ class VideoController with ChangeNotifier {
   Future setLandscapeOrientation() async {
     isVertical.value = false;
     if (Platform.isAndroid) {
-      SystemChrome.setEnabledSystemUIMode(!isFullscreen.value
-          ? SystemUiMode.edgeToEdge
-          : SystemUiMode.immersiveSticky);
+      SystemChrome.setEnabledSystemUIMode(!isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky);
     }
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -543,9 +529,7 @@ class VideoController with ChangeNotifier {
   /// 设置竖屏
   Future setPortraitOrientation() async {
     isVertical.value = true;
-    SystemChrome.setEnabledSystemUIMode(!isFullscreen.value
-        ? SystemUiMode.edgeToEdge
-        : SystemUiMode.immersiveSticky);
+    SystemChrome.setEnabledSystemUIMode(!isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky);
     await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
   }
 
@@ -579,9 +563,8 @@ class VideoController with ChangeNotifier {
           isFullscreen.toggle();
           // fix immersion status bar problem
           if (Platform.isAndroid) {
-            SystemChrome.setEnabledSystemUIMode(!isFullscreen.value
-                ? SystemUiMode.edgeToEdge
-                : SystemUiMode.immersiveSticky);
+            SystemChrome.setEnabledSystemUIMode(
+                !isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky);
           }
         });
       } else if (videoPlayerIndex == 1) {
@@ -670,8 +653,7 @@ class VideoController with ChangeNotifier {
 // use fullscreen with controller provider
 
 class DesktopFullscreen extends StatelessWidget {
-  const DesktopFullscreen({Key? key, required this.controller})
-      : super(key: key);
+  const DesktopFullscreen({Key? key, required this.controller}) : super(key: key);
 
   final VideoController controller;
 
@@ -685,8 +667,7 @@ class DesktopFullscreen extends StatelessWidget {
             Obx(() => media_kit_video.Video(
                   controller: controller.mediaPlayerController,
                   fit: controller.videoFit.value,
-                  controls: (state) =>
-                      VideoControllerPanel(controller: controller),
+                  controls: (state) => VideoControllerPanel(controller: controller),
                 ))
           ],
         ),

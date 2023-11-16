@@ -1,10 +1,9 @@
 import 'dart:io';
-
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/backup/backup_page.dart';
-import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/routes/route_path.dart';
+import 'package:pure_live/modules/settings/danmuset.dart';
+import 'package:pure_live/modules/backup/backup_page.dart';
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -57,25 +56,21 @@ class SettingsPage extends GetView<SettingsService> {
                 subtitle: Text(S.of(context).enable_background_play_subtitle),
                 value: controller.enableBackgroundPlay.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableBackgroundPlay.value = value,
+                onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_screen_keep_on),
                 subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
                 value: controller.enableScreenKeepOn.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableScreenKeepOn.value = value,
+                onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_fullscreen_default),
-                subtitle:
-                    Text(S.of(context).enable_fullscreen_default_subtitle),
+                subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
                 value: controller.enableFullScreenDefault.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableFullScreenDefault.value = value,
+                onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
               )),
           ListTile(
             title: Text(S.of(context).prefer_resolution),
@@ -88,25 +83,21 @@ class SettingsPage extends GetView<SettingsService> {
                 subtitle: Text(S.of(context).enable_dynamic_color_subtitle),
                 value: controller.enableDynamicTheme.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableDynamicTheme.value = value,
+                onChanged: (bool value) => controller.enableDynamicTheme.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_dense_favorites_mode),
-                subtitle:
-                    Text(S.of(context).enable_dense_favorites_mode_subtitle),
+                subtitle: Text(S.of(context).enable_dense_favorites_mode_subtitle),
                 value: controller.enableDenseFavorites.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableDenseFavorites.value = value,
+                onChanged: (bool value) => controller.enableDenseFavorites.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_auto_check_update),
                 subtitle: Text(S.of(context).enable_auto_check_update_subtitle),
                 value: controller.enableAutoCheckUpdate.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableAutoCheckUpdate.value = value,
+                onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
               )),
           ListTile(
             title: Text(S.of(context).prefer_platform),
@@ -133,8 +124,7 @@ class SettingsPage extends GetView<SettingsService> {
                   title: Text(S.of(context).double_click_to_exit),
                   value: controller.doubleExit.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) =>
-                      controller.doubleExit.value = value,
+                  onChanged: (bool value) => controller.doubleExit.value = value,
                 )),
           if (Platform.isAndroid)
             ListTile(
@@ -149,15 +139,13 @@ class SettingsPage extends GetView<SettingsService> {
                   title: Text(S.of(context).enable_codec),
                   value: controller.enableCodec.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) =>
-                      controller.enableCodec.value = value,
+                  onChanged: (bool value) => controller.enableCodec.value = value,
                 )),
           if (Platform.isAndroid)
             ListTile(
               title: Text(S.of(context).auto_shutdown_time),
               subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
-              trailing:
-                  Obx(() => Text('${controller.autoShutDownTime} minute')),
+              trailing: Obx(() => Text('${controller.autoShutDownTime} minute')),
               onTap: showAutoShutDownTimeSetDialog,
             ),
         ],
@@ -317,8 +305,7 @@ class SettingsPage extends GetView<SettingsService> {
                   max: 120,
                   label: S.of(context).auto_refresh_time,
                   value: controller.autoRefreshTime.toDouble(),
-                  onChanged: (value) =>
-                      controller.autoRefreshTime.value = value.toInt(),
+                  onChanged: (value) => controller.autoRefreshTime.value = value.toInt(),
                 ),
                 Text('${S.of(context).auto_refresh_time}:'
                     ' ${controller.autoRefreshTime}s'),
@@ -333,12 +320,9 @@ class SettingsPage extends GetView<SettingsService> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(S.of(context).settings_danmaku_title),
-        content: SingleChildScrollView(
-          child: SizedBox(
-            height: 500,
-            width: Platform.isAndroid
-                ? MediaQuery.of(context).size.width
-                : MediaQuery.of(context).size.width * 0.6,
+        content: SizedBox(
+          width: Platform.isAndroid ? MediaQuery.of(context).size.width : MediaQuery.of(context).size.width * 0.6,
+          child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -371,8 +355,7 @@ class SettingsPage extends GetView<SettingsService> {
                   title: Text(S.of(context).auto_shutdown_time_subtitle),
                   value: controller.enableAutoShutDownTime.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) =>
-                      controller.enableAutoShutDownTime.value = value,
+                  onChanged: (bool value) => controller.enableAutoShutDownTime.value = value,
                 ),
                 Slider(
                   min: 1,
