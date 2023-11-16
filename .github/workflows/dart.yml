@@ -51,12 +51,16 @@ jobs:
       - name: Build APK
         run: |
           flutter build apk
-      - name: Build MSIX
-        uses: Levi-Lesches/Flutter-MSIX@v0.1
+      - name: Download MSIX CERTIFICATE
+        id: windows_certificate
+        uses: timheuer/base64-to-file@v1.2.4
         with:
-          base64-certificate: ${{ secrets.CERTIFICATE }}
-          msix-path: assets/keystore/CERTIFICATE.pfx
-          release-name: pure_live
+            fileName: CERTIFICATE.pfx
+            fileDir: assets/keystore
+            encodedString: ${{ secrets.CERTIFICATE }}
+      - name: Build MSIX
+        run: |
+          dart run msix:create
       #上传APK至Artifacts
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v3
