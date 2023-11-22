@@ -85,7 +85,7 @@
 因为作者忙于工作,通常只会在周末处理相关事情
 ## 代码参考
 
-* dart_simple_live[dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live)
+* dart_simple_live [dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live)
 * pure_live [pure_live](https://github.com/Jackiu1997/pure_live)
   
 ## 开发者
