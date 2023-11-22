@@ -63,11 +63,6 @@
 
 ## 相关说明
 
-### 软件性质
-
-因为作者忙于工作,通常只会在周末处理相关事情
-
-
 ### 关于播放器
 
 本软件Android内置了exoplayer,ijkplayer,mpvplayer,只有exoplayer支持后台播放，如果exoplayer闪退，请在设置中关闭后台播放以及更换播放器重试。
@@ -85,7 +80,9 @@
 > 如有许可协议使用不当请发 Issue 或者 Pull Request
 >
 > If any of the licenses are not being used correctly, please submit a new issue.
+### 软件更新
 
+因为作者忙于工作,通常只会在周末处理相关事情
 ## 代码参考
 
 * dart_simple_live[dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live)
