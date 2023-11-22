@@ -86,7 +86,6 @@
 ## 开发者
 
 * 主开发者: [liuchuancong](https://github.com/liuchuancong)
-* 开发者: [Jackiu1997](https://github.com/Jackiu1997)
 
 ## 捐助
 
