@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/modules/account/bilibili/web_login_controller.dart';
 
 class BiliBiliWebLoginPage extends GetView<BiliBiliWebLoginController> {
-  const BiliBiliWebLoginPage({Key? key}) : super(key: key);
+  const BiliBiliWebLoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {

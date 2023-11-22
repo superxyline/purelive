@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AreaCard extends StatelessWidget {
-  const AreaCard({Key? key, required this.category}) : super(key: key);
+  const AreaCard({super.key, required this.category});
   final LiveArea category;
   @override
   Widget build(BuildContext context) {
@@ -14,8 +14,7 @@ class AreaCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
-        onTap: () => AppNavigator.toCategoryDetail(
-            site: Sites.of(category.platform!), category: category),
+        onTap: () => AppNavigator.toCategoryDetail(site: Sites.of(category.platform!), category: category),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

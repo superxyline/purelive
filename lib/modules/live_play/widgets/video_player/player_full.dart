@@ -6,12 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class PlayerFull extends StatefulWidget {
-  const PlayerFull(
-      {Key? key,
-      required this.controller,
-      required this.routePageBuilder,
-      required this.playerView})
-      : super(key: key);
+  const PlayerFull({super.key, required this.controller, required this.routePageBuilder, required this.playerView});
 
   final VideoController controller;
 
@@ -63,8 +58,7 @@ class _PlayerFullState extends State<PlayerFull> with WidgetsBindingObserver {
 
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-    await SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
 
     // ignore: use_build_context_synchronously
     await Navigator.of(context, rootNavigator: true).push(route);
@@ -86,13 +80,11 @@ class _PlayerFullState extends State<PlayerFull> with WidgetsBindingObserver {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    final controllerProvider = PlayerFullProvider(
-        controller: widget.controller, child: _buildPlayer());
+    final controllerProvider = PlayerFullProvider(controller: widget.controller, child: _buildPlayer());
 
     final routePageBuilder = widget.routePageBuilder;
 
-    return routePageBuilder(
-        context, animation, secondaryAnimation, controllerProvider);
+    return routePageBuilder(context, animation, secondaryAnimation, controllerProvider);
   }
 
   Widget _buildPlayer() {
@@ -106,38 +98,33 @@ class _PlayerFullState extends State<PlayerFull> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    VisibilityDetectorController.instance
-        .forget(Key("${widget.controller.hashCode}_key"));
+    VisibilityDetectorController.instance.forget(Key("${widget.controller.hashCode}_key"));
     super.dispose();
   }
 }
 
 class PlayerFullProvider extends InheritedWidget {
   const PlayerFullProvider({
-    Key? key,
+    super.key,
     required this.controller,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   final VideoController controller;
 
   @override
-  bool updateShouldNotify(PlayerFullProvider oldWidget) =>
-      controller != oldWidget.controller;
+  bool updateShouldNotify(PlayerFullProvider oldWidget) => controller != oldWidget.controller;
 }
 
-typedef PlayerFullRoutePageBuilder = Widget Function(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    PlayerFullProvider controllerProvider);
+typedef PlayerFullRoutePageBuilder = Widget Function(BuildContext context, Animation<double> animation,
+    Animation<double> secondaryAnimation, PlayerFullProvider controllerProvider);
 
 class MobileFullscreen extends StatefulWidget {
   const MobileFullscreen({
-    Key? key,
+    super.key,
     required this.controller,
     required this.controllerProvider,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
   final Widget controllerProvider;

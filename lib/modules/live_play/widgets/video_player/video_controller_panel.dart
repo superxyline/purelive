@@ -12,9 +12,9 @@ class VideoControllerPanel extends StatefulWidget {
   final VideoController controller;
 
   const VideoControllerPanel({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _VideoControllerPanelState();
@@ -180,9 +180,9 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
 
 class ErrorWidget extends StatelessWidget {
   const ErrorWidget({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
 
@@ -219,10 +219,10 @@ class ErrorWidget extends StatelessWidget {
 // Top action bar widgets
 class TopActionBar extends StatelessWidget {
   const TopActionBar({
-    Key? key,
+    super.key,
     required this.controller,
     required this.barHeight,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
   final double barHeight;
@@ -278,7 +278,7 @@ class TopActionBar extends StatelessWidget {
 }
 
 class DatetimeInfo extends StatefulWidget {
-  const DatetimeInfo({Key? key}) : super(key: key);
+  const DatetimeInfo({super.key});
 
   @override
   State<DatetimeInfo> createState() => _DatetimeInfoState();
@@ -322,7 +322,7 @@ class _DatetimeInfoState extends State<DatetimeInfo> {
 }
 
 class BatteryInfo extends StatefulWidget {
-  const BatteryInfo({Key? key, required this.controller}) : super(key: key);
+  const BatteryInfo({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -361,7 +361,7 @@ class _BatteryInfoState extends State<BatteryInfo> {
 }
 
 class BackButton extends StatelessWidget {
-  const BackButton({Key? key, required this.controller}) : super(key: key);
+  const BackButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -383,7 +383,7 @@ class BackButton extends StatelessWidget {
 }
 
 class PIPButton extends StatelessWidget {
-  const PIPButton({Key? key, required this.controller}) : super(key: key);
+  const PIPButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -407,9 +407,9 @@ class PIPButton extends StatelessWidget {
 // Center widgets
 class DanmakuViewer extends StatelessWidget {
   const DanmakuViewer({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
 
@@ -434,9 +434,9 @@ class DanmakuViewer extends StatelessWidget {
 
 class BrightnessVolumnDargArea extends StatefulWidget {
   const BrightnessVolumnDargArea({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
 
@@ -585,7 +585,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
 }
 
 class LockButton extends StatelessWidget {
-  const LockButton({Key? key, required this.controller}) : super(key: key);
+  const LockButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -628,10 +628,10 @@ class LockButton extends StatelessWidget {
 // Bottom action bar widgets
 class BottomActionBar extends StatelessWidget {
   const BottomActionBar({
-    Key? key,
+    super.key,
     required this.controller,
     required this.barHeight,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
   final double barHeight;
@@ -680,7 +680,7 @@ class BottomActionBar extends StatelessWidget {
 }
 
 class PlayPauseButton extends StatelessWidget {
-  const PlayPauseButton({Key? key, required this.controller}) : super(key: key);
+  const PlayPauseButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -701,7 +701,7 @@ class PlayPauseButton extends StatelessWidget {
 }
 
 class RefreshButton extends StatelessWidget {
-  const RefreshButton({Key? key, required this.controller}) : super(key: key);
+  const RefreshButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -722,7 +722,7 @@ class RefreshButton extends StatelessWidget {
 }
 
 class ScreenToggleButton extends StatelessWidget {
-  const ScreenToggleButton({Key? key, required this.controller}) : super(key: key);
+  const ScreenToggleButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -745,9 +745,9 @@ class ScreenToggleButton extends StatelessWidget {
 
 class DanmakuButton extends StatelessWidget {
   const DanmakuButton({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
 
@@ -768,7 +768,7 @@ class DanmakuButton extends StatelessWidget {
 }
 
 class SettingsButton extends StatelessWidget {
-  const SettingsButton({Key? key, required this.controller}) : super(key: key);
+  const SettingsButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -789,7 +789,7 @@ class SettingsButton extends StatelessWidget {
 }
 
 class ExpandWindowButton extends StatelessWidget {
-  const ExpandWindowButton({Key? key, required this.controller}) : super(key: key);
+  const ExpandWindowButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -814,7 +814,7 @@ class ExpandWindowButton extends StatelessWidget {
 }
 
 class ExpandButton extends StatelessWidget {
-  const ExpandButton({Key? key, required this.controller}) : super(key: key);
+  const ExpandButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -837,9 +837,9 @@ class ExpandButton extends StatelessWidget {
 
 class FavoriteButton extends StatefulWidget {
   const FavoriteButton({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
 
@@ -877,9 +877,9 @@ class _FavoriteButtonState extends State<FavoriteButton> {
 // Settings panel widgets
 class SettingsPanel extends StatelessWidget {
   const SettingsPanel({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
 
@@ -912,9 +912,9 @@ class SettingsPanel extends StatelessWidget {
 
 class VideoFitSetting extends StatefulWidget {
   const VideoFitSetting({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
 
@@ -982,9 +982,9 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
 
 class DanmakuSetting extends StatelessWidget {
   const DanmakuSetting({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final VideoController controller;
 
@@ -1004,14 +1004,21 @@ class DanmakuSetting extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
               ),
             ),
-            Obx(
-              () => SwitchListTile(
-                title: const Text('弹幕合并', style: label),
-                contentPadding: EdgeInsets.zero,
-                subtitle: const Text('相似度大于75%的弹幕会被合并', style: label),
-                value: controller.mergeDanmu.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.mergeDanmu.value = value,
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: const Text('弹幕合并', style: label),
+              subtitle: Text('相似度:${controller.mergeDanmuRating.value * 100}%的弹幕会被合并', style: label),
+              title: Slider(
+                divisions: 10,
+                min: 0.0,
+                max: 1.0,
+                value: controller.mergeDanmuRating.value,
+                onChanged: (val) => controller.mergeDanmuRating.value = val,
+              ),
+              trailing: Text(
+                '${(controller.mergeDanmuRating.value * 100).toInt()}%',
+                style: digit,
               ),
             ),
             ListTile(

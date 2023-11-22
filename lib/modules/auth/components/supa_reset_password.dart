@@ -1,8 +1,8 @@
+import 'package:pure_live/common/index.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:pure_live/modules/auth/utils/constants.dart';
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/auth/utils/constants.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// UI component to create password reset form
 class SupaResetPassword extends StatefulWidget {
@@ -16,11 +16,11 @@ class SupaResetPassword extends StatefulWidget {
   final void Function(Object error)? onError;
 
   const SupaResetPassword({
-    Key? key,
+    super.key,
     this.accessToken,
     required this.onSuccess,
     this.onError,
-  }) : super(key: key);
+  });
 
   @override
   State<SupaResetPassword> createState() => _SupaResetPasswordState();
@@ -81,8 +81,7 @@ class _SupaResetPasswordState extends State<SupaResetPassword> {
                 }
               } catch (error) {
                 if (widget.onError == null) {
-                  context.showErrorSnackBar(
-                      S.of(context).supabase_unexpected_err(error));
+                  context.showErrorSnackBar(S.of(context).supabase_unexpected_err(error));
                 } else {
                   widget.onError?.call(error);
                 }

@@ -3,9 +3,9 @@ import 'package:pure_live/common/index.dart';
 
 class VideoFitSetting extends StatefulWidget {
   const VideoFitSetting({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final SettingsService controller;
 
@@ -37,13 +37,19 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => widget.controller.hideDanmaku.value = !value,
             )),
-        Obx(() => SwitchListTile(
-              title: const Text('弹幕合并'),
+        Obx(() => ListTile(
+              dense: true,
               contentPadding: EdgeInsets.zero,
-              subtitle: const Text('相似度大于75%的弹幕会被合并'),
-              value: widget.controller.mergeDanmu.value,
-              activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (bool value) => widget.controller.mergeDanmu.value = value,
+              leading: const Text('弹幕合并'),
+              subtitle: Text('相似度大于${widget.controller.mergeDanmuRating.value * 100}%的弹幕会被合并'),
+              title: Slider(
+                divisions: 10,
+                min: 0.0,
+                max: 1.0,
+                value: widget.controller.mergeDanmuRating.value,
+                onChanged: (val) => widget.controller.mergeDanmuRating.value = val,
+              ),
+              trailing: Text('${(widget.controller.mergeDanmuRating.value * 100).toInt()}%'),
             )),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
@@ -75,9 +81,9 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
 
 class DanmakuSetting extends StatelessWidget {
   const DanmakuSetting({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final SettingsService controller;
 

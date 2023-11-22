@@ -2,7 +2,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pure_live/common/index.dart';
 
 class DonatePage extends StatelessWidget {
-  const DonatePage({Key? key}) : super(key: key);
+  const DonatePage({super.key});
 
   final widgets = const [WechatItem()];
 
@@ -25,7 +25,7 @@ class DonatePage extends StatelessWidget {
 }
 
 class WechatItem extends StatelessWidget {
-  const WechatItem({Key? key}) : super(key: key);
+  const WechatItem({super.key});
 
   @override
   Widget build(BuildContext context) {

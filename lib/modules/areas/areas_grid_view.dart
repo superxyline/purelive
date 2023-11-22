@@ -6,7 +6,7 @@ import 'package:pure_live/modules/areas/widgets/area_card.dart';
 
 class AreaGridView extends StatefulWidget {
   final String tag;
-  const AreaGridView(this.tag, {Key? key}) : super(key: key);
+  const AreaGridView(this.tag, {super.key});
   AreasListController get controller => Get.find<AreasListController>(tag: tag);
   @override
   State<AreaGridView> createState() => _AreaGridViewState();

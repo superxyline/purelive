@@ -7,7 +7,7 @@ import 'package:pure_live/modules/popular/popular_controller.dart';
 import 'popular_grid_view.dart';
 
 class PopularPage extends GetView<PopularController> {
-  const PopularPage({Key? key}) : super(key: key);
+  const PopularPage({super.key});
 
   @override
   Widget build(BuildContext context) {

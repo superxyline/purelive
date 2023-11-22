@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:pure_live/modules/shield/danmu_shield_controller.dart';
 
 class DanmuShieldPage extends GetView<DanmuShieldController> {
-  const DanmuShieldPage({Key? key}) : super(key: key);
+  const DanmuShieldPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +20,7 @@ class DanmuShieldPage extends GetView<DanmuShieldController> {
             controller: controller.textEditingController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.all(12.0),
-              border: OutlineInputBorder(
-                  borderSide: BorderSide(color: controller.themeColor)),
+              border: OutlineInputBorder(borderSide: BorderSide(color: controller.themeColor)),
               hintText: "请输入关键词",
               suffixIcon: TextButton.icon(
                 onPressed: controller.add,
@@ -48,22 +47,17 @@ class DanmuShieldPage extends GetView<DanmuShieldController> {
               children: controller.settingsController.shieldList
                   .map(
                     (item) => InkWell(
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(5.0)),
+                      borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                       onTap: () {
-                        var index = controller.settingsController.shieldList
-                            .indexWhere((element) => element == item);
+                        var index = controller.settingsController.shieldList.indexWhere((element) => element == item);
                         controller.remove(index);
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          border:
-                              Border.all(color: Theme.of(context).primaryColor),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5.0)),
+                          border: Border.all(color: Theme.of(context).primaryColor),
+                          borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                         ),
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, left: 8, right: 8),
+                        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 8, right: 8),
                         child: Text(
                           item,
                           style: Get.textTheme.bodyMedium,

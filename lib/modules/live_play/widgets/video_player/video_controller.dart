@@ -114,7 +114,7 @@ class VideoController with ChangeNotifier {
   final danmakuFontSize = 16.0.obs;
   final danmakuFontBorder = 0.5.obs;
   final danmakuOpacity = 1.0.obs;
-  final mergeDanmu = true.obs;
+  final mergeDanmuRating = 0.0.obs;
   VideoController({
     required this.playerKey,
     required this.room,
@@ -135,7 +135,7 @@ class VideoController with ChangeNotifier {
     danmakuFontSize.value = settings.danmakuFontSize.value;
     danmakuFontBorder.value = settings.danmakuFontBorder.value;
     danmakuOpacity.value = settings.danmakuOpacity.value;
-    mergeDanmu.value = settings.mergeDanmu.value;
+    mergeDanmuRating.value = settings.mergeDanmuRating.value;
     initPagesConfig();
   }
 
@@ -159,7 +159,7 @@ class VideoController with ChangeNotifier {
   }
 
   void initVideoController() async {
-    FlutterVolumeController.showSystemUI = false;
+    FlutterVolumeController.updateShowSystemUI(false);
     videoPlayerIndex = settings.videoPlayerIndex.value;
     enableCodec = settings.enableCodec.value;
     if (Platform.isWindows || Platform.isLinux) {
@@ -653,7 +653,7 @@ class VideoController with ChangeNotifier {
 // use fullscreen with controller provider
 
 class DesktopFullscreen extends StatelessWidget {
-  const DesktopFullscreen({Key? key, required this.controller}) : super(key: key);
+  const DesktopFullscreen({super.key, required this.controller});
 
   final VideoController controller;
 

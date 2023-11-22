@@ -6,7 +6,7 @@ import 'areas_grid_view.dart';
 import 'favorite_areas_page.dart';
 
 class AreasPage extends GetView<AreasController> {
-  const AreasPage({Key? key}) : super(key: key);
+  const AreasPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -12,7 +12,7 @@ import 'package:pure_live/routes/app_navigation.dart';
 class SearchListView extends StatelessWidget {
   final String tag;
 
-  const SearchListView(this.tag, {Key? key}) : super(key: key);
+  const SearchListView(this.tag, {super.key});
 
   SearchListController get controller =>
       Get.find<SearchListController>(tag: tag);
@@ -49,7 +49,7 @@ class SearchListView extends StatelessWidget {
 }
 
 class OwnerCard extends StatefulWidget {
-  const OwnerCard({Key? key, required this.room}) : super(key: key);
+  const OwnerCard({super.key, required this.room});
 
   final LiveRoom room;
 

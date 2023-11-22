@@ -1,26 +1,24 @@
 import 'dart:io';
-
-import 'package:dynamic_color/dynamic_color.dart';
-import 'package:easy_refresh/easy_refresh.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/areas/areas_controller.dart';
-import 'package:pure_live/modules/auth/auth_controller.dart';
-import 'package:pure_live/modules/favorite/favorite_controller.dart';
-import 'package:pure_live/modules/popular/popular_controller.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:pure_live/plugins/supabase.dart';
-import 'package:pure_live/plugins/window_util.dart';
 import 'package:pure_live/routes/app_pages.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:pure_live/routes/route_path.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pure_live/plugins/window_util.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:windows_single_instance/windows_single_instance.dart';
-
 import 'common/services/bilibili_account_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pure_live/modules/auth/auth_controller.dart';
+import 'package:pure_live/modules/areas/areas_controller.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:pure_live/modules/popular/popular_controller.dart';
+import 'package:pure_live/modules/favorite/favorite_controller.dart';
+import 'package:windows_single_instance/windows_single_instance.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,8 +26,7 @@ void main(List<String> args) async {
   PrefUtil.prefs = await SharedPreferences.getInstance();
   MediaKit.ensureInitialized();
   if (Platform.isWindows) {
-    await WindowsSingleInstance.ensureSingleInstance(
-        args, "pure_live_instance_checker");
+    await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
     await windowManager.ensureInitialized();
     await WindowUtil.init(width: 1280, height: 720);
   }
@@ -51,7 +48,7 @@ void initService() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -101,8 +98,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
       child: DynamicColorBuilder(
         builder: (lightDynamic, darkDynamic) {
           return Obx(() {
-            var themeColor =
-                SettingsService.themeColors[settings.themeColorName]!;
+            var themeColor = SettingsService.themeColors[settings.themeColorName.value]!;
             // 主题颜色设定/Monet取色
             var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
             var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
@@ -113,8 +109,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
 
             return GetMaterialApp(
               title: '纯粹直播',
-              themeMode:
-                  SettingsService.themeModes[settings.themeModeName.value]!,
+              themeMode: SettingsService.themeModes[settings.themeModeName.value]!,
               theme: lightTheme,
               darkTheme: darkTheme,
               locale: SettingsService.languages[settings.languageName.value]!,

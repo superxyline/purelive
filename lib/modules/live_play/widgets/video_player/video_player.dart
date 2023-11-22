@@ -12,9 +12,9 @@ import 'package:pure_live/modules/live_play/widgets/video_player/video_controlle
 class VideoPlayer extends StatefulWidget {
   final VideoController controller;
   const VideoPlayer({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<VideoPlayer> createState() => _VideoPlayerState();

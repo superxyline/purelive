@@ -133,9 +133,9 @@ class SettingsService extends GetxController {
       PrefUtil.setString('bilibiliCookie', value);
     });
 
-    mergeDanmu.listen((value) {
-      mergeDanmu.value = value;
-      PrefUtil.setBool('mergeDanmu', value);
+    mergeDanmuRating.listen((value) {
+      mergeDanmuRating.value = value;
+      PrefUtil.setDouble('mergeDanmuRating', value);
     });
   }
 
@@ -236,7 +236,7 @@ class SettingsService extends GetxController {
 
   final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
 
-  final mergeDanmu = (PrefUtil.getBool('mergeDanmu') ?? true).obs;
+  final mergeDanmuRating = (PrefUtil.getDouble('mergeDanmuRating') ?? 0.0).obs;
 
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
@@ -454,8 +454,7 @@ class SettingsService extends GetxController {
     doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'];
     enableCodec.value = json['enableCodec'] ?? true;
-    mergeDanmu.value = json['mergeDanmu'] ?? true;
-
+    mergeDanmuRating.value = json['mergeDanmuRating'] ?? 0.0;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     changeThemeMode(themeModeName.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -500,7 +499,7 @@ class SettingsService extends GetxController {
     json['enableCodec'] = enableCodec.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
-    json['mergeDanmu'] = mergeDanmu.value;
+    json['mergeDanmuRating'] = mergeDanmuRating.value;
 
     return json;
   }
@@ -534,7 +533,7 @@ class SettingsService extends GetxController {
       'enableCodec': true,
       'bilibiliCookie': '',
       'shieldList': [],
-      'mergeDanmu': true
+      'mergeDanmuRating': 0.0,
     };
     return json;
   }

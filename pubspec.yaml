@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.4.0
+version: 1.4.1
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -63,9 +63,10 @@ dependencies:
   media_kit_video: ^1.2.4                        # For video rendering.
   media_kit_libs_video: ^1.0.4                   # Native video dependencies.
   better_player:
-    git: 
-      url: https://github.com/liuchuancong/better_player.git
-      ref: 'media3'
+    # git: 
+    #   url: https://github.com/liuchuancong/better_player.git
+    #   ref: 'media3'
+    path: 'C:/Users/liuchuancong/StudioProjects/better_player'
   fijkplayer: ^0.11.0
   bordered_text: ^2.0.0
   screen_brightness: ^0.2.2+1
@@ -118,7 +119,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
 
 # flutter pub run flutter_launcher_icons
 flutter_icons:
@@ -184,7 +185,7 @@ msix_config:
   display_name: 纯粹直播
   # publisher_display_name: puretech.com
   # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.31
+  msix_version: 1.0.0.32
   logo_path: assets/icons/icon.png
   # capabilities: internetClient
   certificate_path: assets/keystore/CERTIFICATE.pfx

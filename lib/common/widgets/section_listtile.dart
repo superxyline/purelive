@@ -1,16 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class CupertinoSwitchListTile extends StatelessWidget {
   const CupertinoSwitchListTile({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
     this.leading,
     this.title,
     this.subtitle,
     this.activeColor,
-  }) : super(key: key);
+  });
 
   final Widget? leading;
   final Widget? title;
@@ -42,8 +42,8 @@ class SectionTitle extends StatelessWidget {
 
   const SectionTitle({
     required this.title,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

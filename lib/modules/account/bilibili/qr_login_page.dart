@@ -4,7 +4,7 @@ import 'package:pure_live/modules/account/bilibili/qr_login_controller.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class BiliBiliQRLoginPage extends GetView<BiliBiliQRLoginController> {
-  const BiliBiliQRLoginPage({Key? key}) : super(key: key);
+  const BiliBiliQRLoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {

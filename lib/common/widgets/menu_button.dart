@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/auth/auth_controller.dart';
 import 'package:pure_live/routes/route_path.dart';
+import 'package:pure_live/modules/auth/auth_controller.dart';
 
 class MenuButton extends GetView<AuthController> {
-  const MenuButton({Key? key}) : super(key: key);
+  const MenuButton({super.key});
 
   final menuRoutes = const [
     RoutePath.kSettings,
@@ -42,9 +42,7 @@ class MenuButton extends GetView<AuthController> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.account_circle),
-            text: controller.isLogin
-                ? S.of(context).supabase_mine
-                : S.of(context).supabase_sign_in,
+            text: controller.isLogin ? S.of(context).supabase_mine : S.of(context).supabase_sign_in,
           ),
         ),
         const PopupMenuItem(
@@ -98,11 +96,11 @@ class MenuListTile extends StatelessWidget {
   final Widget? trailing;
 
   const MenuListTile({
-    Key? key,
+    super.key,
     required this.leading,
     required this.text,
     this.trailing,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

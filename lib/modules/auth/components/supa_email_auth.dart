@@ -81,14 +81,14 @@ class SupaEmailAuth extends StatefulWidget {
 
   /// {@macro supa_email_auth}
   const SupaEmailAuth({
-    Key? key,
+    super.key,
     this.redirectTo,
     required this.onSignInComplete,
     required this.onSignUpComplete,
     this.onPasswordResetEmailSent,
     this.onError,
     this.metadataFields,
-  }) : super(key: key);
+  });
 
   @override
   State<SupaEmailAuth> createState() => _SupaEmailAuthState();

@@ -1,10 +1,10 @@
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HistoryPage extends GetView {
-  HistoryPage({Key? key}) : super(key: key);
+  HistoryPage({super.key});
 
   final refreshController = EasyRefreshController(
     controlFinishRefresh: true,
@@ -17,9 +17,7 @@ class HistoryPage extends GetView {
 
     for (final room in settings.historyRooms) {
       try {
-        var newRoom = await Sites.of(room.platform!)
-            .liveSite
-            .getRoomDetail(roomId: room.roomId!);
+        var newRoom = await Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!);
         settings.updateRoomInHistory(newRoom);
       } catch (e) {
         result = false;
@@ -47,11 +45,9 @@ class HistoryPage extends GetView {
         final rooms = settings.historyRooms.reversed.toList();
         return LayoutBuilder(builder: (context, constraint) {
           final width = constraint.maxWidth;
-          int crossAxisCount =
-              width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+          int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
           if (dense) {
-            crossAxisCount =
-                width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+            crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
           }
           return EasyRefresh(
             controller: refreshController,

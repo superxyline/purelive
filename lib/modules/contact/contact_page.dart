@@ -3,7 +3,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactPage extends StatefulWidget {
-  const ContactPage({Key? key}) : super(key: key);
+  const ContactPage({super.key});
 
   @override
   State<ContactPage> createState() => _ContactPageState();
@@ -11,8 +11,7 @@ class ContactPage extends StatefulWidget {
 
 class _ContactPageState extends State<ContactPage> {
   void clipboard(String text) {
-    Clipboard.setData(ClipboardData(text: text))
-        .then((value) => SnackBarUtil.success('已复制到剪贴板'));
+    Clipboard.setData(ClipboardData(text: text)).then((value) => SnackBarUtil.success('已复制到剪贴板'));
   }
 
   @override

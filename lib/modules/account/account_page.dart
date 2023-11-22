@@ -4,7 +4,7 @@ import 'package:pure_live/common/services/bilibili_account_service.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
 
 class AccountPage extends GetView<AccountController> {
-  const AccountPage({Key? key}) : super(key: key);
+  const AccountPage({super.key});
 
   @override
   Widget build(BuildContext context) {

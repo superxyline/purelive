@@ -6,14 +6,13 @@ import 'package:pure_live/modules/live_play/live_play_controller.dart';
 class DanmakuListView extends StatefulWidget {
   final LiveRoom room;
 
-  const DanmakuListView({Key? key, required this.room}) : super(key: key);
+  const DanmakuListView({super.key, required this.room});
 
   @override
   State<DanmakuListView> createState() => DanmakuListViewState();
 }
 
-class DanmakuListViewState extends State<DanmakuListView>
-    with AutomaticKeepAliveClientMixin<DanmakuListView> {
+class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliveClientMixin<DanmakuListView> {
   final ScrollController _scrollController = ScrollController();
   bool _scrollHappen = false;
 
@@ -74,13 +73,9 @@ class DanmakuListViewState extends State<DanmakuListView>
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onBackground
-                        .withOpacity(0.04),
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.04),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text.rich(

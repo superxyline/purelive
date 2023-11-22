@@ -8,11 +8,11 @@ class HomeTabletView extends StatelessWidget {
   final void Function(int) onDestinationSelected;
 
   const HomeTabletView({
-    Key? key,
+    super.key,
     required this.body,
     required this.index,
     required this.onDestinationSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

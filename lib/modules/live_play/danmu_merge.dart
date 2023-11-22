@@ -1,3 +1,6 @@
+import 'package:get/get.dart';
+import 'package:pure_live/common/services/settings_service.dart';
+
 class DanmuMerge {
   DanmuMerge._internal();
   //单例模式，只创建一次实例
@@ -20,17 +23,15 @@ class DanmuMerge {
 
   refreshList() {
     var dateTime = DateTime.now();
-    _msgList = _msgList
-        .where(
-            (element) => dateTime.difference(element.dateTime).inSeconds <= 20)
-        .toList();
+    _msgList = _msgList.where((element) => dateTime.difference(element.dateTime).inSeconds <= 20).toList();
   }
 
   bool isRepeat(String msg) {
-    double repeatFlag = 0.75;
+    final settings = Get.find<SettingsService>();
+    double repeatFlag = settings.mergeDanmuRating.value;
     for (var i = 0; i < _msgList.length; i++) {
       var rating = compareTwoStrings(_msgList[i].msg, msg);
-      if (rating >= repeatFlag) {
+      if (rating >= (1.0 - repeatFlag)) {
         return true;
       }
     }
@@ -47,10 +48,8 @@ class DanmuMerge {
       return 0;
     }
 
-    first =
-        first.replaceAll(RegExp(r'\s+\b|\b\s'), ''); // remove all whitespace
-    second =
-        second.replaceAll(RegExp(r'\s+\b|\b\s'), ''); // remove all whitespace
+    first = first.replaceAll(RegExp(r'\s+\b|\b\s'), ''); // remove all whitespace
+    second = second.replaceAll(RegExp(r'\s+\b|\b\s'), ''); // remove all whitespace
 
     // if both are empty strings
     if (first.isEmpty && second.isEmpty) {
@@ -76,16 +75,14 @@ class DanmuMerge {
     final firstBigrams = <String, int>{};
     for (var i = 0; i < first.length - 1; i++) {
       final bigram = first.substring(i, i + 2);
-      final count =
-          firstBigrams.containsKey(bigram) ? firstBigrams[bigram]! + 1 : 1;
+      final count = firstBigrams.containsKey(bigram) ? firstBigrams[bigram]! + 1 : 1;
       firstBigrams[bigram] = count;
     }
 
     var intersectionSize = 0;
     for (var i = 0; i < second.length - 1; i++) {
       final bigram = second.substring(i, i + 2);
-      final count =
-          firstBigrams.containsKey(bigram) ? firstBigrams[bigram]! : 0;
+      final count = firstBigrams.containsKey(bigram) ? firstBigrams[bigram]! : 0;
 
       if (count > 0) {
         firstBigrams[bigram] = count - 1;

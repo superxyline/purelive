@@ -8,7 +8,7 @@ import 'package:pure_live/modules/popular/popular_grid_controller.dart';
 class PopularGridView extends StatefulWidget {
   final String tag;
 
-  const PopularGridView(this.tag, {Key? key}) : super(key: key);
+  const PopularGridView(this.tag, {super.key});
 
   @override
   State<PopularGridView> createState() => _PopularGridViewState();

@@ -3,8 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 class NoNewVersionDialog extends StatelessWidget {
   const NoNewVersionDialog({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class NoNewVersionDialog extends StatelessWidget {
 }
 
 class NewVersionDialog extends StatelessWidget {
-  const NewVersionDialog({Key? key, this.entry}) : super(key: key);
+  const NewVersionDialog({super.key, this.entry});
 
   final OverlayEntry? entry;
 

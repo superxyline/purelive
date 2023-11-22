@@ -1,17 +1,17 @@
 import 'dart:developer';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 // ignore: must_be_immutable
 class RoomCard extends StatelessWidget {
   const RoomCard({
-    Key? key,
+    super.key,
     required this.room,
     this.dense = false,
-  }) : super(key: key);
+  });
   final LiveRoom room;
   final bool dense;
 
@@ -86,8 +86,7 @@ class RoomCard extends StatelessWidget {
                               imageUrl: room.cover!,
                               cacheManager: CustomCacheManager.instance,
                               fit: BoxFit.fill,
-                              errorWidget: (context, error, stackTrace) =>
-                                  Center(
+                              errorWidget: (context, error, stackTrace) => Center(
                                 child: Icon(
                                   Icons.live_tv_rounded,
                                   size: dense ? 38 : 62,
@@ -108,9 +107,7 @@ class RoomCard extends StatelessWidget {
                       color: Theme.of(context).colorScheme.errorContainer,
                     ),
                   ),
-                if (room.isRecord == false &&
-                    room.liveStatus == LiveStatus.live &&
-                    room.watching!.isNotEmpty)
+                if (room.isRecord == false && room.liveStatus == LiveStatus.live && room.watching!.isNotEmpty)
                   Positioned(
                     right: dense ? 1 : 4,
                     bottom: dense ? 1 : 4,
@@ -125,12 +122,10 @@ class RoomCard extends StatelessWidget {
             ListTile(
               dense: dense,
               minLeadingWidth: dense ? 34 : null,
-              contentPadding:
-                  dense ? const EdgeInsets.only(left: 8, right: 10) : null,
+              contentPadding: dense ? const EdgeInsets.only(left: 8, right: 10) : null,
               horizontalTitleGap: dense ? 8 : null,
               leading: CircleAvatar(
-                foregroundImage:
-                    room.avatar!.isNotEmpty ? getRoomAvatar(room.avatar) : null,
+                foregroundImage: room.avatar!.isNotEmpty ? getRoomAvatar(room.avatar) : null,
                 radius: dense ? 17 : null,
                 backgroundColor: Theme.of(context).disabledColor,
               ),
@@ -171,9 +166,9 @@ class RoomCard extends StatelessWidget {
 
 class FollowButton extends StatefulWidget {
   const FollowButton({
-    Key? key,
+    super.key,
     required this.room,
-  }) : super(key: key);
+  });
 
   final LiveRoom room;
 
@@ -205,12 +200,12 @@ class _FollowButtonState extends State<FollowButton> {
 
 class CountChip extends StatelessWidget {
   const CountChip({
-    Key? key,
+    super.key,
     required this.icon,
     required this.count,
     this.dense = false,
     this.color = Colors.black,
-  }) : super(key: key);
+  });
 
   final IconData icon;
   final String count;

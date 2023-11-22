@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 class EmptyView extends StatelessWidget {
   const EmptyView({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
-  }) : super(key: key);
+  });
 
   final IconData icon;
   final String title;
@@ -18,8 +18,7 @@ class EmptyView extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: ConstrainedBox(
-        constraints:
-            BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+        constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -30,18 +29,8 @@ class EmptyView extends StatelessWidget {
               const SizedBox(height: 24),
               Text.rich(
                 TextSpan(children: [
-                  TextSpan(
-                      text: "$title\n",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(color: color)),
-                  TextSpan(
-                      text: "\n$subtitle",
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(color: color)),
+                  TextSpan(text: "$title\n", style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: color)),
+                  TextSpan(text: "\n$subtitle", style: Theme.of(context).textTheme.titleSmall?.copyWith(color: color)),
                 ]),
                 textAlign: TextAlign.center,
               ),

@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'widgets/version_dialog.dart';
 
 class AboutPage extends StatefulWidget {
-  const AboutPage({Key? key}) : super(key: key);
+  const AboutPage({super.key});
 
   @override
   State<AboutPage> createState() => _AboutPageState();

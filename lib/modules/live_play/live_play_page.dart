@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
 class LivePlayPage extends GetWidget<LivePlayController> {
-  LivePlayPage({Key? key}) : super(key: key);
+  LivePlayPage({super.key});
 
   final SettingsService settings = Get.find<SettingsService>();
   Future<bool> onWillPop() async {
@@ -28,9 +28,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
         appBar: AppBar(
           title: Row(children: [
             CircleAvatar(
-              foregroundImage: controller.room.avatar!.isEmpty
-                  ? null
-                  : NetworkImage(controller.room.avatar!),
+              foregroundImage: controller.room.avatar!.isEmpty ? null : NetworkImage(controller.room.avatar!),
               radius: 13,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -48,10 +46,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                   controller.room.area!.isEmpty
                       ? controller.room.platform!.toUpperCase()
                       : "${controller.room.platform!.toUpperCase()} / ${controller.room.area}",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(fontSize: 8),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
                 ),
               ],
             ),
@@ -120,8 +115,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                 : Card(
                     elevation: 0,
                     margin: const EdgeInsets.all(0),
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero),
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                     clipBehavior: Clip.antiAlias,
                     color: Get.theme.focusColor,
                     child: CachedNetworkImage(
@@ -140,13 +134,12 @@ class LivePlayPage extends GetWidget<LivePlayController> {
   }
 
   void showDlnaCastDialog() {
-    Get.dialog(LiveDlnaPage(
-        datasource: controller.playUrls[controller.currentLineIndex.value]));
+    Get.dialog(LiveDlnaPage(datasource: controller.playUrls[controller.currentLineIndex.value]));
   }
 }
 
 class ResolutionsRow extends StatefulWidget {
-  const ResolutionsRow({Key? key}) : super(key: key);
+  const ResolutionsRow({super.key});
 
   @override
   State<ResolutionsRow> createState() => _ResolutionsRowState();
@@ -179,9 +172,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               icon: Text(
                 rate.quality,
                 style: Get.theme.textTheme.labelSmall?.copyWith(
-                  color: rate.quality ==
-                          controller
-                              .qualites[controller.currentQuality.value].quality
+                  color: rate.quality == controller.qualites[controller.currentQuality.value].quality
                       ? Get.theme.colorScheme.primary
                       : null,
                 ),
@@ -198,9 +189,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
                     child: Text(
                       '线路${i + 1}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: urls[i] ==
-                                    controller.playUrls[
-                                        controller.currentLineIndex.value]
+                            color: urls[i] == controller.playUrls[controller.currentLineIndex.value]
                                 ? Get.theme.colorScheme.primary
                                 : null,
                           ),
@@ -236,9 +225,9 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
 
 class FavoriteFloatingButton extends StatefulWidget {
   const FavoriteFloatingButton({
-    Key? key,
+    super.key,
     required this.room,
-  }) : super(key: key);
+  });
 
   final LiveRoom room;
 
@@ -262,8 +251,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               Get.dialog(
                 AlertDialog(
                   title: Text(S.of(context).unfollow),
-                  content:
-                      Text(S.of(context).unfollow_message(widget.room.nick!)),
+                  content: Text(S.of(context).unfollow_message(widget.room.nick!)),
                   actions: [
                     TextButton(
                       onPressed: () => Get.back(result: false),
@@ -283,9 +271,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               });
             },
             child: CircleAvatar(
-              foregroundImage: (widget.room.avatar == '')
-                  ? null
-                  : NetworkImage(widget.room.avatar!),
+              foregroundImage: (widget.room.avatar == '') ? null : NetworkImage(widget.room.avatar!),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -298,9 +284,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               settings.addRoom(widget.room);
             },
             icon: CircleAvatar(
-              foregroundImage: (widget.room.avatar == '')
-                  ? null
-                  : NetworkImage(widget.room.avatar!),
+              foregroundImage: (widget.room.avatar == '') ? null : NetworkImage(widget.room.avatar!),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),

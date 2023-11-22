@@ -14,7 +14,7 @@ import 'package:pure_live/core/iptv/iptv_utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 
 class BackupPage extends StatefulWidget {
-  const BackupPage({Key? key}) : super(key: key);
+  const BackupPage({super.key});
 
   @override
   State<BackupPage> createState() => _BackupPageState();

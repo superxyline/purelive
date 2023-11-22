@@ -6,7 +6,7 @@ import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class AreasRoomPage extends StatefulWidget {
-  const AreasRoomPage({Key? key}) : super(key: key);
+  const AreasRoomPage({super.key});
 
   @override
   State<AreasRoomPage> createState() => _AreasRoomPageState();
@@ -59,9 +59,9 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
 
 class FavoriteAreaFloatingButton extends StatefulWidget {
   const FavoriteAreaFloatingButton({
-    Key? key,
+    super.key,
     required this.area,
-  }) : super(key: key);
+  });
 
   final LiveArea area;
 

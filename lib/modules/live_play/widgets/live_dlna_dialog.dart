@@ -1,12 +1,12 @@
 import 'dart:async';
-
 import 'package:dlna_dart/dlna.dart';
 import 'package:pure_live/common/index.dart';
+
 
 class LiveDlnaPage extends StatefulWidget {
   final String datasource;
 
-  const LiveDlnaPage({Key? key, required this.datasource}) : super(key: key);
+  const LiveDlnaPage({super.key, required this.datasource});
 
   @override
   State<LiveDlnaPage> createState() => _LiveDlnaPageState();

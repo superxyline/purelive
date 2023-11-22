@@ -3,7 +3,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/route_path.dart';
 
 class SearchButton extends StatelessWidget {
-  const SearchButton({Key? key}) : super(key: key);
+  const SearchButton({super.key});
 
   @override
   Widget build(BuildContext context) {

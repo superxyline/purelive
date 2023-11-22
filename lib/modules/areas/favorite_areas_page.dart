@@ -4,7 +4,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/areas/widgets/area_card.dart';
 
 class FavoriteAreasPage extends GetView<SettingsService> {
-  const FavoriteAreasPage({Key? key}) : super(key: key);
+  const FavoriteAreasPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -7,7 +7,7 @@ import 'package:pure_live/modules/search/search_controller.dart' as pure_live;
 import 'search_list_view.dart';
 
 class SearchPage extends GetView<pure_live.SearchController> {
-  const SearchPage({Key? key}) : super(key: key);
+  const SearchPage({super.key});
 
   @override
   Widget build(BuildContext context) {

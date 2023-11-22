@@ -14,12 +14,11 @@ class DanmakuText extends StatelessWidget {
     this.color = Colors.white,
     this.fontSize = 16,
     this.strokeWidth = 2.0,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   Color get borderColor {
-    var brightness =
-        ((color.red * 299) + (color.green * 587) + (color.blue * 114)) / 1000;
+    var brightness = ((color.red * 299) + (color.green * 587) + (color.blue * 114)) / 1000;
     return brightness > 70 ? Colors.black54 : Colors.white54;
   }
 
