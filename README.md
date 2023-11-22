@@ -1,6 +1,6 @@
 # 纯粹直播
 
-本仓库仅为维护bug处理以及新功能开发，不为原作者，点此链接访问[原仓库](https://github.com/Jackiu1997/pure_live "pure_live")https://github.com/liuchuancong/pure_live/blob/master/README.md
+本仓库仅为维护bug处理以及新功能开发，不为原作者，点此链接访问[原仓库](https://github.com/Jackiu1997/pure_live "pure_live")
 添加Q群交流：73592135
 ## 功能
 
