@@ -49,3 +49,4 @@ key.properties
 **/*.jks
 
 /assets/keystore/
+pubspec.lock
