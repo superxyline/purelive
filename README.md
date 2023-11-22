@@ -11,7 +11,7 @@
 <p align="center">
 	<img alt="Using GPL-v3" src="https://img.shields.io/github/license/liuchuancong/pure_live">
 	<img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/liuchuancong/pure_live">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/liuchuancong/pure_live">
+    <img alt="GitHub Star" src="https://img.shields.io/github/stars/liuchuancong/pure_live">
     <h4 align="center">本软件仅供学习交流使用  请勿用于其他用途<br /><br />下载后请在 24 小时内删除
 </h4>
 </p>
