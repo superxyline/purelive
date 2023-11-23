@@ -72,7 +72,13 @@ dependencies:
   screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7 
   window_manager: ^0.3.7
+  url_protocol:
+    git:
+      url: https://github.com/LucasXu0/flutter_url_protocol.git
+      commit: 77a8420
+  win32_registry: ^1.1.2
   windows_single_instance: ^1.0.0
+  app_links: ^3.4.5
   protobuf: ^3.1.0
   fixnum: ^1.1.0
   dio: ^5.3.3

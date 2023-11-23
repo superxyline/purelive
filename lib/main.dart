@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:app_links/app_links.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:pure_live/plugins/supabase.dart';
@@ -10,6 +12,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:pure_live/routes/route_path.dart';
 import 'package:pure_live/plugins/window_util.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:win32_registry/win32_registry.dart';
 import 'common/services/bilibili_account_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
@@ -20,12 +23,36 @@ import 'package:pure_live/modules/popular/popular_controller.dart';
 import 'package:pure_live/modules/favorite/favorite_controller.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
 
+const kWindowsScheme = 'purelive://signin';
+
+Future<void> register(String scheme) async {
+  String appPath = Platform.resolvedExecutable;
+
+  String protocolRegKey = 'Software\\Classes\\$scheme';
+  RegistryValue protocolRegValue = const RegistryValue(
+    'URL Protocol',
+    RegistryValueType.string,
+    '',
+  );
+  String protocolCmdRegKey = 'shell\\open\\command';
+  RegistryValue protocolCmdRegValue = RegistryValue(
+    '',
+    RegistryValueType.string,
+    '"$appPath" "%1"',
+  );
+
+  final regKey = Registry.currentUser.createKey(protocolRegKey);
+  regKey.createValue(protocolRegValue);
+  regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
+}
+
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   MediaKit.ensureInitialized();
   if (Platform.isWindows) {
+    register(kWindowsScheme);
     await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
     await windowManager.ensureInitialized();
     await WindowUtil.init(width: 1280, height: 720);
@@ -56,6 +83,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WindowListener {
   final settings = Get.find<SettingsService>();
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
   @override
   void initState() {
     super.initState();
@@ -66,7 +95,33 @@ class _MyAppState extends State<MyApp> with WindowListener {
   @override
   void dispose() {
     windowManager.removeListener(this);
+    _linkSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> initDeepLinks() async {
+    _appLinks = AppLinks();
+
+    // Check initial link if app was in cold state (terminated)
+    final appLink = await _appLinks.getInitialAppLink();
+    if (appLink != null) {
+      openAppLink(appLink);
+    }
+
+    // Handle link when app is in warm state (front or background)
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      print(uri);
+      openAppLink(uri);
+    });
+  }
+
+  void openAppLink(Uri uri) {
+    final AuthController authController = Get.find<AuthController>();
+    authController.shouldGoReset = true;
+    Timer(const Duration(seconds: 2), () {
+      authController.shouldGoReset = false;
+      Get.offAndToNamed(RoutePath.kUpdatePassword);
+    });
   }
 
   @override
@@ -83,6 +138,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
   void _init() async {
     if (Platform.isWindows) {
       // Add this line to override the default close handler
+      initDeepLinks();
       await WindowUtil.setTitle();
       await WindowUtil.setWindowsPort();
       setState(() {});

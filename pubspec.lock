@@ -2,7 +2,7 @@
 # See https://dart.dev/tools/pub/glossary#lockfile
 packages:
   app_links:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: app_links
       sha256: eb83c2b15b78a66db04e95132678e910fcdb8dc3a9b0aed0c138f50b2bef0dae
@@ -1341,6 +1341,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.1.0"
+  url_protocol:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "77a84201ed8ca50082f4248f3a373d053b1c0462"
+      url: "https://github.com/LucasXu0/flutter_url_protocol.git"
+    source: git
+    version: "1.0.0"
   uuid:
     dependency: transitive
     description:
@@ -1445,6 +1454,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.1.0"
+  win32_registry:
+    dependency: "direct main"
+    description:
+      name: win32_registry
+      sha256: "41fd8a189940d8696b1b810efb9abcf60827b6cbfab90b0c43e8439e3a39d85a"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.2"
   window_manager:
     dependency: "direct main"
     description:
