@@ -82,7 +82,7 @@ class LivePlayController extends StateController {
           getPlayQualites();
         }
         // start danmaku server
-        List<String> except = ['kuaishou', 'iptv'];
+        List<String> except = ['kuaishou', 'iptv', 'cc'];
         if (except.indexWhere((element) => element == detail.value?.platform!) == -1) {
           initDanmau();
           liveDanmaku.start(detail.value?.danmakuData);
@@ -199,6 +199,7 @@ class LivePlayController extends StateController {
   void getPlayUrl() async {
     playUrls.value = [];
     currentLineIndex.value = 0;
+
     var playUrl =
         await currentSite.liveSite.getPlayUrls(detail: detail.value!, quality: qualites[currentQuality.value]);
     if (playUrl.isEmpty) {

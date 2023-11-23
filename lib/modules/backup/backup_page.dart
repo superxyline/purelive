@@ -1,17 +1,17 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-
-import 'package:date_format/date_format.dart' hide S;
-import 'package:dio/dio.dart' as dio;
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:pure_live/common/index.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:date_format/date_format.dart' hide S;
 import 'package:pure_live/core/iptv/iptv_utils.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+
 
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
@@ -33,7 +33,7 @@ class _BackupPageState extends State<BackupPage> {
         children: [
           SectionTitle(title: S.of(context).backup_recover),
           ListTile(
-            title: const Text('网络电视'),
+            title: const Text('网络'),
             subtitle: const Text('导入M3u直播源'),
             onTap: () => showImportSetDialog(),
           ),
@@ -93,8 +93,7 @@ class _BackupPageState extends State<BackupPage> {
   bool isUrl(String value) {
     final urlRegExp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
-    List<String?> urlMatches =
-        urlRegExp.allMatches(value).map((m) => m.group(0)).toList();
+    List<String?> urlMatches = urlRegExp.allMatches(value).map((m) => m.group(0)).toList();
     return urlMatches.isNotEmpty;
   }
 
@@ -156,8 +155,7 @@ class _BackupPageState extends State<BackupPage> {
                   SmartDialog.showToast('请输入文件名');
                   return;
                 }
-                recoverNetworkM3u8Backup(
-                    urlEditingController.text, textEditingController.text);
+                recoverNetworkM3u8Backup(urlEditingController.text, textEditingController.text);
               },
               child: const Text("确定"),
             ),
@@ -192,29 +190,23 @@ class _BackupPageState extends State<BackupPage> {
         SnackBarUtil.error('文件下载失败请重试');
       }
       List jsonArr = [];
-      final categories =
-          File('${dir.path}${Platform.pathSeparator}categories.json');
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
       if (!categories.existsSync()) {
         categories.createSync();
       }
       String jsonData = await categories.readAsString();
       jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
-      List<IptvCategory> categoriesArr =
-          jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-      bool isNotExit =
-          categoriesArr.indexWhere((element) => element.id == url) == -1;
+      List<IptvCategory> categoriesArr = jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
+      bool isNotExit = categoriesArr.indexWhere((element) => element.id == url) == -1;
       if (isNotExit) {
-        categoriesArr.add(IptvCategory(
-            id: url,
-            name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''),
-            path: m3ufile.path));
+        categoriesArr.add(
+            IptvCategory(id: url, name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''), path: m3ufile.path));
       } else {
         var index = categoriesArr.indexWhere((element) => element.id == url);
         categoriesArr[index].name = fileName;
       }
 
-      categories.writeAsStringSync(
-          jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
+      categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
       SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
     } catch (e) {
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
@@ -244,28 +236,21 @@ class _BackupPageState extends State<BackupPage> {
     try {
       final file = File(result.files.single.path!);
       var dir = await getApplicationDocumentsDirectory();
-      final m3ufile =
-          File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
+      final m3ufile = File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
       List jsonArr = [];
-      final categories =
-          File('${dir.path}${Platform.pathSeparator}categories.json');
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
       if (!categories.existsSync()) {
         categories.createSync();
       }
       String jsonData = await categories.readAsString();
       jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
-      List<IptvCategory> categoriesArr =
-          jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) ==
-          -1) {
+      List<IptvCategory> categoriesArr = jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
+      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) == -1) {
         categoriesArr.add(IptvCategory(
-            id: getUUid(),
-            name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''),
-            path: m3ufile.path));
+            id: getUUid(), name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''), path: m3ufile.path));
       }
 
-      categories.writeAsStringSync(
-          jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
+      categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
       file.copySync(m3ufile.path);
       SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
     } catch (e) {

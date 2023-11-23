@@ -279,7 +279,7 @@ class SettingsService extends GetxController {
     PrefUtil.setInt('autoRefreshTime', seconds);
   }
 
-  static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin'];
+  static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishow', 'cc', '网络'];
 
   static const List<String> players = ['ExoPlayer', 'IjkPlayer', 'MpvPlayer'];
   final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;

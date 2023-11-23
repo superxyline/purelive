@@ -1,11 +1,11 @@
-import 'package:pure_live/core/site/bilibili_site.dart';
-import 'package:pure_live/core/site/iptv_site.dart';
-import 'package:pure_live/core/site/kuaishou_site.dart';
-
-import 'interface/live_site.dart';
-import 'site/douyu_site.dart';
 import 'site/huya_site.dart';
+import 'site/douyu_site.dart';
 import 'site/douyin_site.dart';
+import 'interface/live_site.dart';
+import 'package:pure_live/core/site/cc_site.dart';
+import 'package:pure_live/core/site/iptv_site.dart';
+import 'package:pure_live/core/site/bilibili_site.dart';
+import 'package:pure_live/core/site/kuaishou_site.dart';
 
 class Sites {
   static List<Site> supportSites = [
@@ -40,8 +40,14 @@ class Sites {
       liveSite: KuaishowSite(),
     ),
     Site(
+      id: "cc",
+      name: "网易CC",
+      logo: "assets/images/kuaishou.png",
+      liveSite: CCSite(),
+    ),
+    Site(
       id: "iptv",
-      name: "网络电视",
+      name: "网络",
       logo: "assets/images/kuaishou.png",
       liveSite: IptvSite(),
     ),

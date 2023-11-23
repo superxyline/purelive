@@ -1,6 +1,6 @@
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class Utils {
   static Future<bool> showAlertDialog(
@@ -11,7 +11,7 @@ class Utils {
     bool selectable = false,
     List<Widget>? actions,
   }) async {
-    var result = await Get.dialog(
+    var result = await Get.dialog<bool>(
       AlertDialog(
         title: Text(title),
         content: Container(
@@ -27,11 +27,11 @@ class Utils {
         ),
         actions: [
           TextButton(
-            onPressed: (() => Get.back(result: false)),
+            onPressed: (() => Navigator.of(Get.context!).pop(false)),
             child: Text(cancel.isEmpty ? "取消" : cancel),
           ),
           TextButton(
-            onPressed: (() => Get.back(result: true)),
+            onPressed: (() => Navigator.of(Get.context!).pop(true)),
             child: Text(confirm.isEmpty ? "确定" : confirm),
           ),
           ...?actions,
@@ -145,12 +145,8 @@ class Utils {
   /// - `confirm` 确认按钮内容
   /// - `cancel` 取消按钮内容
   static Future<String?> showEditTextDialog(String content,
-      {String title = '',
-      String? hintText,
-      String confirm = '',
-      String cancel = ''}) async {
-    final TextEditingController textEditingController =
-        TextEditingController(text: content);
+      {String title = '', String? hintText, String confirm = '', String cancel = ''}) async {
+    final TextEditingController textEditingController = TextEditingController(text: content);
     var result = await Get.dialog(
       AlertDialog(
         title: Text(title),
@@ -204,7 +200,7 @@ class Utils {
                 value: e,
                 groupValue: value,
                 onChanged: (e) {
-                  Get.back(result: e);
+                  Navigator.of(Get.context!).pop(e);
                 },
               ),
             )

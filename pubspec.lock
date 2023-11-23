@@ -52,11 +52,9 @@ packages:
   better_player:
     dependency: "direct main"
     description:
-      path: "."
-      ref: media3
-      resolved-ref: b3a55c5196a6994fa14733544852262a95338729
-      url: "https://github.com/liuchuancong/better_player.git"
-    source: git
+      path: "C:/Users/liuchuancong/StudioProjects/better_player"
+      relative: false
+    source: path
     version: "0.0.5"
   boolean_selector:
     dependency: transitive

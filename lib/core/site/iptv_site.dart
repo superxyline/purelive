@@ -1,23 +1,23 @@
-import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_message.dart';
-import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/core/danmaku/empty_danmaku.dart';
-import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/core/interface/live_site.dart';
-import 'package:pure_live/core/iptv/iptv_utils.dart';
-import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/model/live_category_result.dart';
-import 'package:pure_live/model/live_play_quality.dart';
-import 'package:pure_live/model/live_search_result.dart';
-
 import '../iptv/m3u_parser_nullsafe.dart';
+import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/core/iptv/iptv_utils.dart';
+import 'package:pure_live/common/models/live_area.dart';
+import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/core/interface/live_site.dart';
+import 'package:pure_live/model/live_search_result.dart';
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/core/danmaku/empty_danmaku.dart';
+import 'package:pure_live/model/live_category_result.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
+
 
 class IptvSite implements LiveSite {
   @override
   String id = 'iptv';
 
   @override
-  String name = "网络电视";
+  String name = "网络";
 
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
@@ -25,8 +25,7 @@ class IptvSite implements LiveSite {
     List<LiveCategory> categoryTypes = [];
     for (IptvCategory item in categories) {
       var subCategory = await getSubCategores(item);
-      LiveCategory liveCategory =
-          LiveCategory(id: item.id!, name: item.name!, children: subCategory);
+      LiveCategory liveCategory = LiveCategory(id: item.id!, name: item.name!, children: subCategory);
       categoryTypes.add(liveCategory);
     }
     return categoryTypes;
@@ -50,8 +49,7 @@ class IptvSite implements LiveSite {
   }
 
   @override
-  Future<LiveCategoryResult> getCategoryRooms(LiveArea category,
-      {int page = 1}) {
+  Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) {
     var items = <LiveRoom>[];
     var roomItem = LiveRoom(
       roomId: category.areaId,
@@ -91,8 +89,7 @@ class IptvSite implements LiveSite {
   }
 
   @override
-  Future<List<String>> getPlayUrls(
-      {required LiveRoom detail, required LivePlayQuality quality}) async {
+  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
     return quality.data as List<String>;
   }
 
@@ -109,7 +106,7 @@ class IptvSite implements LiveSite {
         roomId: item.link,
         area: item.attributes['group-title'] ?? '',
         title: item.title,
-        nick: '网络电视',
+        nick: '网络',
         avatar:
             'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
         introduction: '',
@@ -134,7 +131,7 @@ class IptvSite implements LiveSite {
       watching: '',
       roomId: roomId,
       area: '',
-      title: '网络电视',
+      title: '网络',
       nick: 'm3u订阅',
       avatar:
           'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
@@ -149,21 +146,18 @@ class IptvSite implements LiveSite {
   }
 
   @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage(
-      {required String roomId}) {
+  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
     //尚不支持
     return Future.value([]);
   }
 
   @override
-  Future<LiveSearchAnchorResult> searchAnchors(String keyword,
-      {int page = 1}) async {
+  Future<LiveSearchAnchorResult> searchAnchors(String keyword, {int page = 1}) async {
     return LiveSearchAnchorResult(hasMore: false, items: []);
   }
 
   @override
-  Future<LiveSearchRoomResult> searchRooms(String keyword,
-      {int page = 1}) async {
+  Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
     return LiveSearchRoomResult(hasMore: false, items: []);
   }
 }

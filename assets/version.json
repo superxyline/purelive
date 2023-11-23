@@ -1,7 +1,7 @@
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "version_num": 10401,
-  "version_desc": "-Update:升级exoplayer \n-Fix: 添加弹幕过滤百分比，可在弹幕设置同步配置 \n-Remove: 弹幕合并由用户控制.",
+  "version_desc": "-Update:添加网易cc直播 \n-Fix: 修复bilibili弹窗 \n-Remove: TV关键字.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
