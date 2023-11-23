@@ -12,7 +12,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
 
@@ -182,7 +181,7 @@ class _BackupPageState extends State<BackupPage> {
       //响应时间为3秒
       receiveTimeout: const Duration(seconds: 10),
     ));
-    var dir = await getApplicationDocumentsDirectory();
+    var dir = await getApplicationCacheDirectory();
     final m3ufile = File("${dir.path}${Platform.pathSeparator}$fileName.m3u");
     try {
       dio.Response response = await dioInstance.download(url, m3ufile.path);
@@ -235,7 +234,7 @@ class _BackupPageState extends State<BackupPage> {
 
     try {
       final file = File(result.files.single.path!);
-      var dir = await getApplicationDocumentsDirectory();
+      var dir = await getApplicationCacheDirectory();
       final m3ufile = File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
       List jsonArr = [];
       final categories = File('${dir.path}${Platform.pathSeparator}categories.json');

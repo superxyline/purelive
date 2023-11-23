@@ -14,13 +14,11 @@ class IptvUtils {
 
   static Future<List<IptvCategory>> readCategory() async {
     try {
-      var dir = await getApplicationDocumentsDirectory();
-      final categories =
-          File('${dir.path}${Platform.pathSeparator}categories.json');
+      var dir = await getApplicationCacheDirectory();
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
       String jsonData = await categories.readAsString();
       List jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
-      List<IptvCategory> categoriesArr =
-          jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
+      List<IptvCategory> categoriesArr = jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
       return categoriesArr;
     } catch (e) {
       return [];
@@ -34,10 +32,9 @@ class IptvUtils {
       receiveTimeout: const Duration(seconds: 10),
     ));
     try {
-      var dir = await getApplicationDocumentsDirectory();
+      var dir = await getApplicationCacheDirectory();
       final m3ufile = File("${dir.path}${Platform.pathSeparator}global.m3u");
-      await dio.download(
-          'https://live.fanmingming.com/tv/m3u/global.m3u', m3ufile.path);
+      await dio.download('https://live.fanmingming.com/tv/m3u/global.m3u', m3ufile.path);
     } catch (e) {
       log(e.toString());
     }
@@ -64,7 +61,7 @@ class IptvUtils {
     await loadNetworkM3u8();
     List<M3uItem> list = [];
     try {
-      var dir = await getApplicationDocumentsDirectory();
+      var dir = await getApplicationCacheDirectory();
       final m3ufile = File("${dir.path}${Platform.pathSeparator}global.m3u");
       final m3uList = await M3uList.loadFromFile(m3ufile.path);
       for (M3uItem item in m3uList.items) {
@@ -108,8 +105,7 @@ class IptvCategoryItem {
   final String name;
   final String liveUrl;
 
-  IptvCategoryItem(
-      {required this.id, required this.name, required this.liveUrl});
+  IptvCategoryItem({required this.id, required this.name, required this.liveUrl});
 
   factory IptvCategoryItem.fromJson(Map<String, dynamic> json) {
     return IptvCategoryItem(

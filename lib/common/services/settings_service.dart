@@ -207,6 +207,7 @@ class SettingsService extends GetxController {
 
   void changeThemeColor(String color) {
     themeColorName.value = color;
+
     PrefUtil.setString('themeColor', color);
   }
 

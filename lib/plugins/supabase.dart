@@ -1,11 +1,10 @@
 import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/auth/auth_controller.dart';
-import 'package:pure_live/modules/favorite/favorite_controller.dart';
 import 'package:pure_live/routes/route_path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:pure_live/modules/auth/auth_controller.dart';
+import 'package:pure_live/modules/favorite/favorite_controller.dart';
 
 class SupaBaseManager {
   final String supabaseUrl = 'https://izqkszjbjoumibcoldzk.supabase.co';
@@ -45,8 +44,7 @@ class SupaBaseManager {
     }
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
-    List<dynamic> data =
-        await client.from(tableName).select().eq(userColumnName, userId);
+    List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
     if (data.isNotEmpty) {
       client
           .from(tableName)
@@ -54,10 +52,9 @@ class SupaBaseManager {
           .eq(userColumnName, userId)
           .then((value) => {}, onError: (err) {});
     } else {
-      client.from(tableName).insert({
-        userColumnName: userId,
-        configColumnName: jsonEncode(service.toJson())
-      }).then((value) => {}, onError: (err) {});
+      client.from(tableName).insert({userColumnName: userId, configColumnName: jsonEncode(service.toJson())}).then(
+          (value) => {},
+          onError: (err) {});
     }
   }
 
@@ -68,8 +65,7 @@ class SupaBaseManager {
     }
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
-    List<dynamic> data =
-        await client.from(tableName).select().eq(userColumnName, userId);
+    List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
     if (data.isNotEmpty) {
       client
           .from(tableName)
@@ -79,10 +75,8 @@ class SupaBaseManager {
             Get.rawSnackbar(message: '上传失败');
           });
     } else {
-      client.from(tableName).insert({
-        userColumnName: userId,
-        configColumnName: jsonEncode(service.toJson())
-      }).then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
+      client.from(tableName).insert({userColumnName: userId, configColumnName: jsonEncode(service.toJson())}).then(
+          (value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
         Get.rawSnackbar(message: '上传失败');
       });
     }
@@ -91,12 +85,10 @@ class SupaBaseManager {
   Future<void> readConfig() async {
     final userId = Get.find<AuthController>().userId;
     final isLogin = Get.find<AuthController>().isLogin;
-    final FavoriteController favoriteController =
-        Get.find<FavoriteController>();
+    final FavoriteController favoriteController = Get.find<FavoriteController>();
     if (isLogin == true) {
       final SettingsService service = Get.find<SettingsService>();
-      List<dynamic> data =
-          await client.from(tableName).select().eq(userColumnName, userId);
+      List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
       if (data.isNotEmpty) {
         String json = data[0][configColumnName];
         service.fromJson(jsonDecode(json));

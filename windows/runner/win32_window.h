@@ -92,6 +92,10 @@ class Win32Window {
 
   bool quit_on_close_ = false;
 
+    // Dispatches link if any.
+  // This method enables our app to be with a single instance too.
+  // This is optional but mandatory if you want to catch further links in same app.
+  bool SendAppLinkToInstance(const std::wstring& title);
   // window handle for top level window.
   HWND window_handle_ = nullptr;
 

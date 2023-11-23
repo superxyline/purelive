@@ -1,9 +1,8 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:email_validator/email_validator.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/auth/utils/constants.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:pure_live/modules/auth/utils/constants.dart';
+// ignore_for_file: use_build_context_synchronously
 
 // It's handy to then extract the Supabase client in a variable for later uses
 final supabase = Supabase.instance.client;
@@ -110,8 +109,8 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
   @override
   void initState() {
     super.initState();
-    _metadataControllers = Map.fromEntries((widget.metadataFields ?? []).map(
-        (metadataField) => MapEntry(metadataField, TextEditingController())));
+    _metadataControllers = Map.fromEntries(
+        (widget.metadataFields ?? []).map((metadataField) => MapEntry(metadataField, TextEditingController())));
   }
 
   @override
@@ -135,9 +134,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.email],
             validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  !EmailValidator.validate(_emailController.text)) {
+              if (value == null || value.isEmpty || !EmailValidator.validate(_emailController.text)) {
                 return S.of(context).supabase_enter_valid_email;
               }
               return null;
@@ -189,9 +186,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                         strokeWidth: 1.5,
                       ),
                     )
-                  : Text(_isSigningIn
-                      ? S.of(context).supabase_sign_in
-                      : S.of(context).supabase_sign_up),
+                  : Text(_isSigningIn ? S.of(context).supabase_sign_in : S.of(context).supabase_sign_up),
               onPressed: () async {
                 if (!_formKey.currentState!.validate()) {
                   return;
@@ -214,8 +209,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                       data: widget.metadataFields == null
                           ? null
                           : _metadataControllers.map<String, dynamic>(
-                              (metaDataField, controller) =>
-                                  MapEntry(metaDataField.key, controller.text)),
+                              (metaDataField, controller) => MapEntry(metaDataField.key, controller.text)),
                     );
                     widget.onSignUpComplete.call(response);
                   }
@@ -227,8 +221,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   }
                 } catch (error) {
                   if (widget.onError == null) {
-                    context.showErrorSnackBar(
-                        S.of(context).supabase_unexpected_err(error));
+                    context.showErrorSnackBar(S.of(context).supabase_unexpected_err(error));
                   } else {
                     widget.onError?.call(error);
                   }
@@ -259,9 +252,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   _isSigningIn = !_isSigningIn;
                 });
               },
-              child: Text(_isSigningIn
-                  ? S.of(context).supabase_no_account
-                  : S.of(context).supabase_has_account),
+              child: Text(_isSigningIn ? S.of(context).supabase_no_account : S.of(context).supabase_has_account),
             ),
           ],
           if (_isSigningIn && _forgotPassword) ...[
@@ -294,7 +285,10 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                   _forgotPassword = false;
                 });
               },
-              child: Text(S.of(context).supabase_back_sign_in),
+              child: Text(
+                S.of(context).supabase_back_sign_in,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
           spacer(16),

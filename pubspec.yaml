@@ -55,7 +55,7 @@ dependencies:
   flutter_exit_app: ^1.1.2
   visibility_detector: ^0.4.0+2
   # database
-  supabase_flutter: ^1.10.24
+  supabase_flutter: ^1.10.25
   email_validator: ^2.1.17
   font_awesome_flutter: ^10.6.0
   # video player mobile

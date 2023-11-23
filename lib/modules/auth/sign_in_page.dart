@@ -1,11 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/auth/components/supa_email_auth.dart';
 import 'package:pure_live/plugins/supabase.dart';
 import 'package:pure_live/routes/route_path.dart';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:pure_live/modules/auth/auth_controller.dart';
+import 'package:pure_live/modules/auth/components/supa_email_auth.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -29,6 +29,12 @@ class _SignInPageState extends State<SignInPage> {
             children: [
               SupaEmailAuth(
                 redirectTo: kIsWeb ? null : 'purelive://signin',
+                onPasswordResetEmailSent: () {
+                  final AuthController authController = Get.find<AuthController>();
+                  authController.shouldGoReset = true;
+                  // Get.toNamed(RoutePath.kUpdatePassword);
+                  Get.rawSnackbar(message: '请打开邮箱重置密码');
+                },
                 onSignInComplete: (AuthResponse response) {
                   SupaBaseManager().readConfig();
                   Get.rawSnackbar(message: S.of(context).supabase_sign_success);

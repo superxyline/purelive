@@ -45,6 +45,9 @@ class RoutePath {
   /// 登陆
   static const kSignIn = "/sign_in";
 
+  /// 登陆
+  static const kUpdatePassword = "/update_password";
+
   /// 弹幕过滤
 
   static const kSettingsDanmuShield = "/shield";
