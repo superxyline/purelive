@@ -57,7 +57,7 @@ class CCSite implements LiveSite {
       var gid = item["gametype"].toString();
       var subCategory = LiveArea(
         areaId: gid,
-        areaName: item["name"].toString(),
+        areaName: item["name"] ?? '',
         areaType: liveCategory.id,
         platform: 'cc',
         areaPic: item["cover"],
