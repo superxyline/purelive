@@ -12,11 +12,14 @@ class SettingsService extends GetxController {
     enableDynamicTheme.listen((bool value) {
       PrefUtil.setBool('enableDynamicTheme', value);
       update(['myapp']);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
     enableDenseFavorites.listen((value) {
       PrefUtil.setBool('enableDenseFavorites', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
     autoRefreshTime.listen((value) {
+      SupaBaseManager().uploadConfigWithBackGend();
       PrefUtil.setInt('autoRefreshTime', value);
     });
     debounce(autoShutDownTime, (callback) {
@@ -28,12 +31,15 @@ class SettingsService extends GetxController {
       } else {
         _stopWatchTimer.onStopTimer();
       }
+      SupaBaseManager().uploadConfigWithBackGend();
     }, time: 1.seconds);
     enableBackgroundPlay.listen((value) {
       PrefUtil.setBool('enableBackgroundPlay', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
     enableScreenKeepOn.listen((value) {
       PrefUtil.setBool('enableScreenKeepOn', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
     debounce(enableAutoShutDownTime, (callback) {
       PrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
@@ -44,32 +50,40 @@ class SettingsService extends GetxController {
       } else {
         _stopWatchTimer.onStopTimer();
       }
+      SupaBaseManager().uploadConfigWithBackGend();
     }, time: 1.seconds);
     enableAutoCheckUpdate.listen((value) {
       PrefUtil.setBool('enableAutoCheckUpdate', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
     enableFullScreenDefault.listen((value) {
       PrefUtil.setBool('enableFullScreenDefault', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     shieldList.listen((value) {
       PrefUtil.setStringList('shieldList', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     favoriteRooms.listen((rooms) {
       PrefUtil.setStringList('favoriteRooms', favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+      SupaBaseManager().uploadConfigWithBackGend();
     });
     favoriteAreas.listen((rooms) {
       PrefUtil.setStringList('favoriteAreas', favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList());
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     historyRooms.listen((rooms) {
       PrefUtil.setStringList('historyRooms', historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     backupDirectory.listen((String value) {
       backupDirectory.value = value;
       PrefUtil.setString('backupDirectory', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
     onInitShutDown();
     _stopWatchTimer.fetchEnded.listen((value) {
@@ -80,61 +94,69 @@ class SettingsService extends GetxController {
     videoFitIndex.listen((value) {
       videoFitIndex.value = value;
       PrefUtil.setInt('videoFitIndex', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
     hideDanmaku.listen((value) {
       hideDanmaku.value = value;
       PrefUtil.setBool('hideDanmaku', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuArea.listen((value) {
       danmakuArea.value = value;
       PrefUtil.setDouble('danmakuArea', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuSpeed.listen((value) {
       danmakuSpeed.value = value;
       PrefUtil.setDouble('danmakuSpeed', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuFontSize.listen((value) {
       danmakuFontSize.value = value;
       PrefUtil.setDouble('danmakuFontSize', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuFontBorder.listen((value) {
       danmakuFontBorder.value = value;
       PrefUtil.setDouble('danmakuFontBorder', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuOpacity.listen((value) {
       danmakuOpacity.value = value;
       PrefUtil.setDouble('danmakuOpacity', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     doubleExit.listen((value) {
       doubleExit.value = value;
       PrefUtil.setBool('doubleExit', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     enableCodec.listen((value) {
       enableCodec.value = value;
       PrefUtil.setBool('enableCodec', value);
+      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     videoPlayerIndex.listen((value) {
-      if (value == 3) {
-        value = 2;
-      }
-      videoPlayerIndex.value = value;
+      SupaBaseManager().uploadConfigWithBackGend();
       PrefUtil.setInt('videoPlayerIndex', value);
     });
 
     bilibiliCookie.listen((value) {
+      SupaBaseManager().uploadConfigWithBackGend();
       PrefUtil.setString('bilibiliCookie', value);
     });
 
     mergeDanmuRating.listen((value) {
       mergeDanmuRating.value = value;
+      SupaBaseManager().uploadConfigWithBackGend();
       PrefUtil.setDouble('mergeDanmuRating', value);
     });
   }
