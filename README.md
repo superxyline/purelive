@@ -97,7 +97,7 @@
 
 ## 捐助
 
-<img alt="wechat" width="150" src="https://github.com/liuchuancong/pure_live/blob/master/assets/images/wechat.png">
+<img alt="wechat" width="250" src="https://github.com/liuchuancong/pure_live/blob/master/assets/images/wechat.png">
 
 
 感谢您的支持!
