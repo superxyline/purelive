@@ -25,6 +25,7 @@ class AuthController extends GetxController {
       }
       if (event == AuthChangeEvent.passwordRecovery && shouldGoReset) {
         Timer(const Duration(seconds: 2), () {
+          shouldGoReset = false;
           Get.offAndToNamed(RoutePath.kUpdatePassword);
         });
       }
