@@ -1,7 +1,7 @@
 {
   "version": "1.4.2",
   "version_num": 10401,
-  "version_desc": "-Update:添加网易cc直播 \n-Fix: 修复bilibili弹窗. \n-Fix: 分区类别下名称更改为区域名 \n-Remove: TV关键字.",
+  "version_desc": "-Update:添加网易cc直播\n-Fix: 网络M38源可直接播放无需进入直播间. \n-Fix: 修复bilibili弹窗. \n-Fix: 分区类别下名称更改为区域名 \n-Remove: TV关键字.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

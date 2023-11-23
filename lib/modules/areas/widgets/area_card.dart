@@ -14,7 +14,26 @@ class AreaCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
-        onTap: () => AppNavigator.toCategoryDetail(site: Sites.of(category.platform!), category: category),
+        onTap: () {
+          if (category.platform != 'iptv') {
+            AppNavigator.toCategoryDetail(site: Sites.of(category.platform!), category: category);
+          } else {
+            var roomItem = LiveRoom(
+              roomId: category.areaId,
+              title: category.typeName,
+              cover: '',
+              nick: category.areaName,
+              watching: '',
+              avatar:
+                  'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
+              area: '',
+              liveStatus: LiveStatus.live,
+              status: true,
+              platform: 'iptv',
+            );
+            AppNavigator.toLiveRoomDetail(liveRoom: roomItem);
+          }
+        },
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
