@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:pure_live/plugins/supabase.dart';
+import 'package:pure_live/plugins/archethic.dart';
 import 'package:pure_live/routes/route_path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,6 +20,7 @@ class AuthController extends GetxController {
         isLogin = true;
         userId = data.session!.user.id;
         SupaBaseManager().readConfig();
+        ArchethicUtils().init(superPass: userId);
       } else {
         isLogin = false;
         userId = '';

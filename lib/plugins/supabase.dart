@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/archethic.dart';
 import 'package:pure_live/routes/route_path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
@@ -17,6 +18,7 @@ class SupaBaseManager {
   final String tableName = 'follows';
   final String userColumnName = 'user_id';
   final String configColumnName = 'settings';
+  final String isEncrypt = 'is_encrypt';
   SupabaseClient get client => Supabase.instance.client;
   //单例模式，只创建一次实例
   static SupaBaseManager getInstance() {
@@ -43,10 +45,11 @@ class SupaBaseManager {
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
+    var encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()));
     if (data.isNotEmpty) {
       client
           .from(tableName)
-          .update({configColumnName: jsonEncode(service.toJson())})
+          .update({configColumnName: encryptData, isEncrypt: true})
           .eq(userColumnName, userId)
           .then((value) => {}, onError: (err) {});
     } else {
@@ -64,10 +67,11 @@ class SupaBaseManager {
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
+    var encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()));
     if (data.isNotEmpty) {
       client
           .from(tableName)
-          .update({configColumnName: jsonEncode(service.toJson())})
+          .update({configColumnName: encryptData, isEncrypt: true})
           .eq(userColumnName, userId)
           .then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
             Get.rawSnackbar(message: '上传失败');
@@ -89,7 +93,12 @@ class SupaBaseManager {
       List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
       if (data.isNotEmpty) {
         String json = data[0][configColumnName];
-        service.fromJson(jsonDecode(json));
+        bool isAlreadyEncrypt = data[0][isEncrypt];
+        if (isAlreadyEncrypt) {
+          service.fromJson(jsonDecode(ArchethicUtils().decrypti(json)));
+        } else {
+          service.fromJson(jsonDecode(json));
+        }
         favoriteController.onRefresh();
       }
     }

@@ -483,8 +483,8 @@ class SettingsService extends GetxController {
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['favoriteRooms'] = favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList();
-    json['favoriteAreas'] = favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList();
+    json['favoriteRooms'] = favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).take(200).toList();
+    json['favoriteAreas'] = favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).take(200).toList();
     json['themeMode'] = themeModeName.value;
 
     json['autoRefreshTime'] = autoRefreshTime.value;
@@ -512,7 +512,7 @@ class SettingsService extends GetxController {
     json['videoPlayerIndex'] = videoPlayerIndex.value;
     json['enableCodec'] = enableCodec.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
-    json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
+    json['shieldList'] = shieldList.map<String>((e) => e.toString()).take(1000).toList();
     json['mergeDanmuRating'] = mergeDanmuRating.value;
     json['themeColorSwitch'] = themeColorSwitch.value;
     return json;

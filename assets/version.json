@@ -1,7 +1,7 @@
 {
-  "version": "1.4.2",
-  "version_num": 10401,
-  "version_desc": "-Update:添加网易cc直播\n -Update:所有的设置可自动同步 \n-Fix: 网络M38源可直接播放无需进入直播间. \n-Fix: 修复bilibili登录弹窗. \n-Fix: 分区类别下名称更改为区域名 \n-Remove: TV关键字.",
+  "version": "1.4.3",
+  "version_num": 10403,
+  "version_desc": "-Intro:用户信息现在已加密，限制关注直播间200个,关键字1000以下 \n-Fix:修复密码重置功能(仅Android可用) \n -Fix:修复主题切换以及添加更多切换选项.\n -Fix:修复M38源清除(手机端清除缓存,C:/Users/用户名/AppData/Local/com.example/pure_live).",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
