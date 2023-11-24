@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/supabase.dart';
 import 'package:pure_live/routes/route_path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
@@ -36,7 +35,6 @@ class _SignInPageState extends State<SignInPage> {
                   Get.rawSnackbar(message: '请打开邮箱重置密码');
                 },
                 onSignInComplete: (AuthResponse response) {
-                  SupaBaseManager().readConfig();
                   Get.rawSnackbar(message: S.of(context).supabase_sign_success);
                   Get.offAllNamed(RoutePath.kInitial);
                 },

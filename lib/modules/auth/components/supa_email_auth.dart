@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:pure_live/common/index.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
+
 // ignore_for_file: use_build_context_synchronously
 
 // It's handy to then extract the Supabase client in a variable for later uses
@@ -234,7 +236,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
               },
             ),
             spacer(16),
-            if (_isSigningIn) ...[
+            if (_isSigningIn && Platform.isAndroid) ...[
               TextButton(
                 onPressed: () {
                   setState(() {
@@ -255,7 +257,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
               child: Text(_isSigningIn ? S.of(context).supabase_no_account : S.of(context).supabase_has_account),
             ),
           ],
-          if (_isSigningIn && _forgotPassword) ...[
+          if (_isSigningIn && _forgotPassword && Platform.isAndroid) ...[
             spacer(16),
             ElevatedButton(
               onPressed: () async {

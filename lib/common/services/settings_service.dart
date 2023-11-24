@@ -5,6 +5,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/supabase.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
@@ -12,14 +13,15 @@ class SettingsService extends GetxController {
     enableDynamicTheme.listen((bool value) {
       PrefUtil.setBool('enableDynamicTheme', value);
       update(['myapp']);
-      SupaBaseManager().uploadConfigWithBackGend();
+    });
+    themeColorSwitch.listen((value) {
+      themeColorSwitch.value = value;
+      PrefUtil.setString('themeColorSwitch', value);
     });
     enableDenseFavorites.listen((value) {
       PrefUtil.setBool('enableDenseFavorites', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
     autoRefreshTime.listen((value) {
-      SupaBaseManager().uploadConfigWithBackGend();
       PrefUtil.setInt('autoRefreshTime', value);
     });
     debounce(autoShutDownTime, (callback) {
@@ -31,15 +33,12 @@ class SettingsService extends GetxController {
       } else {
         _stopWatchTimer.onStopTimer();
       }
-      SupaBaseManager().uploadConfigWithBackGend();
     }, time: 1.seconds);
     enableBackgroundPlay.listen((value) {
       PrefUtil.setBool('enableBackgroundPlay', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
     enableScreenKeepOn.listen((value) {
       PrefUtil.setBool('enableScreenKeepOn', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
     debounce(enableAutoShutDownTime, (callback) {
       PrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
@@ -50,40 +49,32 @@ class SettingsService extends GetxController {
       } else {
         _stopWatchTimer.onStopTimer();
       }
-      SupaBaseManager().uploadConfigWithBackGend();
     }, time: 1.seconds);
     enableAutoCheckUpdate.listen((value) {
       PrefUtil.setBool('enableAutoCheckUpdate', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
     enableFullScreenDefault.listen((value) {
       PrefUtil.setBool('enableFullScreenDefault', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     shieldList.listen((value) {
       PrefUtil.setStringList('shieldList', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     favoriteRooms.listen((rooms) {
       PrefUtil.setStringList('favoriteRooms', favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
-      SupaBaseManager().uploadConfigWithBackGend();
     });
     favoriteAreas.listen((rooms) {
       PrefUtil.setStringList('favoriteAreas', favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList());
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     historyRooms.listen((rooms) {
       PrefUtil.setStringList('historyRooms', historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     backupDirectory.listen((String value) {
       backupDirectory.value = value;
       PrefUtil.setString('backupDirectory', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
     onInitShutDown();
     _stopWatchTimer.fetchEnded.listen((value) {
@@ -94,69 +85,62 @@ class SettingsService extends GetxController {
     videoFitIndex.listen((value) {
       videoFitIndex.value = value;
       PrefUtil.setInt('videoFitIndex', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
     hideDanmaku.listen((value) {
       hideDanmaku.value = value;
       PrefUtil.setBool('hideDanmaku', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuArea.listen((value) {
       danmakuArea.value = value;
       PrefUtil.setDouble('danmakuArea', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuSpeed.listen((value) {
       danmakuSpeed.value = value;
       PrefUtil.setDouble('danmakuSpeed', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuFontSize.listen((value) {
       danmakuFontSize.value = value;
       PrefUtil.setDouble('danmakuFontSize', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuFontBorder.listen((value) {
       danmakuFontBorder.value = value;
       PrefUtil.setDouble('danmakuFontBorder', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     danmakuOpacity.listen((value) {
       danmakuOpacity.value = value;
       PrefUtil.setDouble('danmakuOpacity', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     doubleExit.listen((value) {
       doubleExit.value = value;
       PrefUtil.setBool('doubleExit', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     enableCodec.listen((value) {
       enableCodec.value = value;
       PrefUtil.setBool('enableCodec', value);
-      SupaBaseManager().uploadConfigWithBackGend();
     });
 
     videoPlayerIndex.listen((value) {
-      SupaBaseManager().uploadConfigWithBackGend();
+      if (value == 3) {
+        value = 2;
+      }
+      videoPlayerIndex.value = value;
       PrefUtil.setInt('videoPlayerIndex', value);
     });
 
     bilibiliCookie.listen((value) {
-      SupaBaseManager().uploadConfigWithBackGend();
+      bilibiliCookie.value = value;
       PrefUtil.setString('bilibiliCookie', value);
     });
 
     mergeDanmuRating.listen((value) {
       mergeDanmuRating.value = value;
-      SupaBaseManager().uploadConfigWithBackGend();
       PrefUtil.setDouble('mergeDanmuRating', value);
     });
   }
@@ -177,6 +161,14 @@ class SettingsService extends GetxController {
     Get.changeThemeMode(themeMode);
   }
 
+  void changeThemeColorSwitch(String hexColor) {
+    var themeColor = HexColor(hexColor);
+    var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
+    var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
+    Get.changeTheme(lightTheme);
+    Get.changeTheme(darkTheme);
+  }
+
   void onInitShutDown() {
     if (enableAutoShutDownTime.isTrue) {
       _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
@@ -195,21 +187,21 @@ class SettingsService extends GetxController {
     "Blue": Colors.blue,
     "Indigo": Colors.indigo,
     "Violet": Colors.deepPurple,
+    "Primary": const Color(0xFF6200EE),
     "Orchid": const Color.fromARGB(255, 218, 112, 214),
+    "Variant": const Color(0xFF3700B3),
+    "Secondary": const Color(0xFF03DAC6),
   };
-  final themeColorName = (PrefUtil.getString('themeColor') ?? "Blue").obs;
+
+  // Make a custom ColorSwatch to name map from the above custom colors.
+  final Map<ColorSwatch<Object>, String> colorsNameMap =
+      themeColors.map((key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key));
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
 
-  get themeColor => SettingsService.themeColors[themeColorName.value]!;
+  final themeColorSwitch = (PrefUtil.getString('themeColorSwitch') ?? Colors.blue.hex).obs;
 
   StopWatchTimer get stopWatchTimer => _stopWatchTimer;
-
-  void changeThemeColor(String color) {
-    themeColorName.value = color;
-
-    PrefUtil.setString('themeColor', color);
-  }
 
   static Map<String, Locale> languages = {
     "English": const Locale.fromSubtags(languageCode: 'en'),
@@ -455,7 +447,6 @@ class SettingsService extends GetxController {
     shieldList.value = (json['shieldList'] as List).map((e) => e.toString()).toList();
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
-    themeColorName.value = json['themeColor'] ?? "Crimson";
     themeModeName.value = json['themeMode'] ?? "System";
     enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
@@ -479,9 +470,10 @@ class SettingsService extends GetxController {
     enableCodec.value = json['enableCodec'] ?? true;
     mergeDanmuRating.value = json['mergeDanmuRating'] ?? 0.0;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
+    themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     changeThemeMode(themeModeName.value);
+    changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
-    changeThemeColor(themeColorName.value);
     changeLanguage(languageName.value);
     changePreferResolution(preferResolution.value);
     changePreferPlatform(preferPlatform.value);
@@ -494,7 +486,6 @@ class SettingsService extends GetxController {
     json['favoriteRooms'] = favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['favoriteAreas'] = favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['themeMode'] = themeModeName.value;
-    json['themeColor'] = themeColorName.value;
 
     json['autoRefreshTime'] = autoRefreshTime.value;
     json['autoShutDownTime'] = autoShutDownTime.value;
@@ -523,7 +514,7 @@ class SettingsService extends GetxController {
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
     json['mergeDanmuRating'] = mergeDanmuRating.value;
-
+    json['themeColorSwitch'] = themeColorSwitch.value;
     return json;
   }
 

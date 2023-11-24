@@ -30,9 +30,7 @@ class SupaBaseManager {
   }
 
   signOut() {
-    final SettingsService service = Get.find<SettingsService>();
     client.auth.signOut().then((value) {
-      service.fromJson(service.defaultConfig());
       Get.offAllNamed(RoutePath.kInitial);
     });
   }

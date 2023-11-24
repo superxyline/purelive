@@ -52,6 +52,7 @@ dependencies:
   flutter_smart_dialog: ^4.9.5 #各种弹窗 Toast/Dialog/Popup
   # barrage wall
   quiver: ^3.2.1
+  flex_color_picker: ^3.3.0
   flutter_exit_app: ^1.1.2
   visibility_detector: ^0.4.0+2
   # database
@@ -70,7 +71,8 @@ dependencies:
   fijkplayer: ^0.11.0
   bordered_text: ^2.0.0
   screen_brightness: ^0.2.2+1
-  flutter_volume_controller: ^1.2.7 
+  flutter_volume_controller: ^1.2.7
+  flutter_color: ^2.1.0 
   window_manager: ^0.3.7
   url_protocol:
     git:

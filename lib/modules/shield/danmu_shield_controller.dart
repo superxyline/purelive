@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/base/base_controller.dart';
-import 'package:pure_live/common/services/settings_service.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class DanmuShieldController extends BaseController {
   final TextEditingController textEditingController = TextEditingController();
@@ -17,7 +16,7 @@ class DanmuShieldController extends BaseController {
     textEditingController.text = "";
   }
 
-  get themeColor => settingsController.themeColor;
+  Color get themeColor => HexColor(settingsController.themeColorSwitch.value);
   void remove(int itemIndex) {
     settingsController.removeShieldList(itemIndex);
   }

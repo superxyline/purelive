@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/route_path.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 
@@ -13,7 +14,6 @@ class SettingsPage extends GetView<SettingsService> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: screenWidth > 640 ? 0 : null,
@@ -33,7 +33,14 @@ class SettingsPage extends GetView<SettingsService> {
             leading: const Icon(Icons.color_lens, size: 32),
             title: Text(S.of(context).change_theme_color),
             subtitle: Text(S.of(context).change_theme_color_subtitle),
-            onTap: showThemeColorSelectorDialog,
+            trailing: ColorIndicator(
+              width: 44,
+              height: 44,
+              borderRadius: 4,
+              color: HexColor(controller.themeColorSwitch.value),
+              onSelectFocus: false,
+            ),
+            onTap: colorPickerDialog,
           ),
           ListTile(
             leading: const Icon(Icons.translate_rounded, size: 32),
@@ -130,8 +137,7 @@ class SettingsPage extends GetView<SettingsService> {
             ListTile(
               title: Text(S.of(context).change_player),
               subtitle: Text(S.of(context).change_player_subtitle),
-              trailing: Obx(() => Text(
-                  controller.playerlist[controller.videoPlayerIndex.value])),
+              trailing: Obx(() => Text(controller.playerlist[controller.videoPlayerIndex.value])),
               onTap: showVideoSetDialog,
             ),
           if (Platform.isAndroid)
@@ -175,27 +181,60 @@ class SettingsPage extends GetView<SettingsService> {
         });
   }
 
-  void showThemeColorSelectorDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text(S.of(context).change_theme_color),
-          children: SettingsService.themeColors.keys.map<Widget>((name) {
-            final color = SettingsService.themeColors[name];
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
-              groupValue: controller.themeColorName.value,
-              value: name,
-              title: Text(name, style: TextStyle(color: color)),
-              onChanged: (value) {
-                controller.changeThemeColor(value!);
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
-        );
+  Future<bool> colorPickerDialog() async {
+    return ColorPicker(
+      color: HexColor(controller.themeColorSwitch.value),
+      onColorChanged: (Color color) {
+        controller.themeColorSwitch.value = color.hex;
+        var themeColor = color;
+        var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
+        var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
+        Get.changeTheme(lightTheme);
+        Get.changeTheme(darkTheme);
       },
+      width: 40,
+      height: 40,
+      borderRadius: 4,
+      spacing: 5,
+      runSpacing: 5,
+      wheelDiameter: 155,
+      heading: Text(
+        '主题颜色',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      subheading: Text(
+        '选择透明度',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      wheelSubheading: Text(
+        '主题颜色及透明度',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      showMaterialName: false,
+      showColorName: false,
+      showColorCode: true,
+      copyPasteBehavior: const ColorPickerCopyPasteBehavior(
+        longPressMenu: true,
+      ),
+      materialNameTextStyle: Theme.of(context).textTheme.bodySmall,
+      colorNameTextStyle: Theme.of(context).textTheme.bodySmall,
+      colorCodeTextStyle: Theme.of(context).textTheme.bodyMedium,
+      colorCodePrefixStyle: Theme.of(context).textTheme.bodySmall,
+      selectedPickerTypeColor: Theme.of(context).colorScheme.primary,
+      customColorSwatchesAndNames: controller.colorsNameMap,
+      pickersEnabled: const <ColorPickerType, bool>{
+        ColorPickerType.both: false,
+        ColorPickerType.primary: true,
+        ColorPickerType.accent: true,
+        ColorPickerType.bw: false,
+        ColorPickerType.custom: true,
+        ColorPickerType.wheel: true,
+      },
+      // customColorSwatchesAndNames: colorsNameMap,
+    ).showPickerDialog(
+      context,
+      actionsPadding: const EdgeInsets.all(16),
+      constraints: const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
     );
   }
 

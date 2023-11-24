@@ -11,8 +11,8 @@ import 'package:pure_live/routes/app_pages.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:pure_live/routes/route_path.dart';
 import 'package:pure_live/plugins/window_util.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:win32_registry/win32_registry.dart';
+import 'package:window_manager/window_manager.dart';
 import 'common/services/bilibili_account_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
@@ -24,27 +24,6 @@ import 'package:pure_live/modules/favorite/favorite_controller.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
 
 const kWindowsScheme = 'purelive://signin';
-
-Future<void> register(String scheme) async {
-  String appPath = Platform.resolvedExecutable;
-
-  String protocolRegKey = 'Software\\Classes\\$scheme';
-  RegistryValue protocolRegValue = const RegistryValue(
-    'URL Protocol',
-    RegistryValueType.string,
-    '',
-  );
-  String protocolCmdRegKey = 'shell\\open\\command';
-  RegistryValue protocolCmdRegValue = RegistryValue(
-    '',
-    RegistryValueType.string,
-    '"$appPath" "%1"',
-  );
-
-  final regKey = Registry.currentUser.createKey(protocolRegKey);
-  regKey.createValue(protocolRegValue);
-  regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
-}
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -110,18 +89,19 @@ class _MyAppState extends State<MyApp> with WindowListener {
 
     // Handle link when app is in warm state (front or background)
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      print(uri);
       openAppLink(uri);
     });
   }
 
   void openAppLink(Uri uri) {
     final AuthController authController = Get.find<AuthController>();
-    authController.shouldGoReset = true;
-    Timer(const Duration(seconds: 2), () {
-      authController.shouldGoReset = false;
-      Get.offAndToNamed(RoutePath.kUpdatePassword);
-    });
+    if (Platform.isWindows) {
+      authController.shouldGoReset = true;
+      Timer(const Duration(seconds: 2), () {
+        authController.shouldGoReset = false;
+        Get.offAndToNamed(RoutePath.kUpdatePassword);
+      });
+    }
   }
 
   @override
@@ -154,15 +134,13 @@ class _MyAppState extends State<MyApp> with WindowListener {
       child: DynamicColorBuilder(
         builder: (lightDynamic, darkDynamic) {
           return Obx(() {
-            var themeColor = SettingsService.themeColors[settings.themeColorName.value]!;
-            // 主题颜色设定/Monet取色
+            var themeColor = HexColor(settings.themeColorSwitch.value);
             var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
             var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
             if (settings.enableDynamicTheme.value) {
               lightTheme = MyTheme(colorScheme: lightDynamic).lightThemeData;
               darkTheme = MyTheme(colorScheme: darkDynamic).darkThemeData;
             }
-
             return GetMaterialApp(
               title: '纯粹直播',
               themeMode: SettingsService.themeModes[settings.themeModeName.value]!,
@@ -210,4 +188,25 @@ initRefresh() {
         messageText: '上次加载时间 %T',
         processedText: '加载成功',
       );
+}
+
+Future<void> register(String scheme) async {
+  String appPath = Platform.resolvedExecutable;
+
+  String protocolRegKey = 'Software\\Classes\\$scheme';
+  RegistryValue protocolRegValue = const RegistryValue(
+    'URL Protocol',
+    RegistryValueType.string,
+    '',
+  );
+  String protocolCmdRegKey = 'shell\\open\\command';
+  RegistryValue protocolCmdRegValue = RegistryValue(
+    '',
+    RegistryValueType.string,
+    '"$appPath" "%1"',
+  );
+
+  final regKey = Registry.currentUser.createKey(protocolRegKey);
+  regKey.createValue(protocolRegValue);
+  regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
 }
