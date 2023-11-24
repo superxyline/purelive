@@ -77,7 +77,7 @@
 您可点击设置-备份与还原-导入M3u源。[直播源转换](https://guihet.com/tvlistconvert.html)
 暂不支持其他目录保存
 * Android端在缓存内清除缓存即可删除
-* Windows 在公共目录 Documents或文档 下`categories.json`内修改以及删除同目录下导入的源
+* Windows 在目录`C:/Users/用户名/AppData/Local/com.example/pure_live`下`categories.json`内修改以及删除导入的源以及定义
 ### 意见
 [ExoPlayer](https://github.com/liuchuancong/better_player/tree/media3)由本人维护,点击进行PR以及建议。
 > 如有许可协议使用不当请发 Issue 或者 Pull Request
