@@ -8,7 +8,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:pure_live/plugins/supabase.dart';
 import 'package:pure_live/routes/app_pages.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:pure_live/routes/route_path.dart';
 import 'package:pure_live/plugins/window_util.dart';
@@ -37,7 +36,6 @@ void main(List<String> args) async {
     await windowManager.ensureInitialized();
     await WindowUtil.init(width: 1280, height: 720);
   }
-  getApplicationCacheDirectory().then((value) => print(value));
   // 先初始化supdatabase
   await SupaBaseManager.getInstance().initial();
   // 初始化服务
