@@ -1,28 +1,23 @@
 import 'dart:developer';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:easy_refresh/easy_refresh.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/search/search_list_controller.dart';
 import 'package:pure_live/routes/app_navigation.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:pure_live/modules/search/search_list_controller.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class SearchListView extends StatelessWidget {
   final String tag;
 
   const SearchListView(this.tag, {super.key});
 
-  SearchListController get controller =>
-      Get.find<SearchListController>(tag: tag);
+  SearchListController get controller => Get.find<SearchListController>(tag: tag);
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
       final width = constraint.maxWidth;
-      final crossAxisCount =
-          width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+      final crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
       return Obx(() => EasyRefresh(
             controller: controller.easyRefreshController,
             onRefresh: controller.refreshData,
@@ -82,9 +77,7 @@ class _OwnerCardState extends State<OwnerCard> {
       child: ListTile(
         onTap: () => _onTap(context),
         leading: CircleAvatar(
-          foregroundImage: widget.room.avatar!.isNotEmpty
-              ? getRoomAvatar(widget.room.avatar)
-              : null,
+          foregroundImage: widget.room.avatar!.isNotEmpty ? getRoomAvatar(widget.room.avatar) : null,
           radius: 20,
           backgroundColor: Theme.of(context).disabledColor,
         ),
@@ -109,10 +102,7 @@ class _OwnerCardState extends State<OwnerCard> {
               settings.removeRoom(widget.room);
             }
           },
-          style: isFavorite
-              ? null
-              : FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.surface),
+          style: isFavorite ? null : FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
           child: Text(
             isFavorite ? S.of(context).unfollow : S.of(context).follow,
           ),

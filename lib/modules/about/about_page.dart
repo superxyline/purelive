@@ -1,9 +1,7 @@
 import 'package:get/get.dart';
-import 'package:pure_live/common/index.dart';
-import 'package:pure_live/routes/route_path.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import 'widgets/version_dialog.dart';
+import 'package:pure_live/common/index.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -69,9 +67,7 @@ class _AboutPageState extends State<AboutPage> {
   void showCheckUpdateDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => VersionUtil.hasNewVersion()
-          ? const NewVersionDialog()
-          : const NoNewVersionDialog(),
+      builder: (context) => VersionUtil.hasNewVersion() ? const NewVersionDialog() : const NoNewVersionDialog(),
     );
   }
 

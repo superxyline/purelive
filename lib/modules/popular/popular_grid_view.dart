@@ -1,9 +1,7 @@
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
 import 'package:get/get.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/popular/popular_grid_controller.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class PopularGridView extends StatefulWidget {
   final String tag;
@@ -15,16 +13,14 @@ class PopularGridView extends StatefulWidget {
 }
 
 class _PopularGridViewState extends State<PopularGridView> {
-  PopularGridController get controller =>
-      Get.find<PopularGridController>(tag: widget.tag);
+  PopularGridController get controller => Get.find<PopularGridController>(tag: widget.tag);
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraint) {
         final width = constraint.maxWidth;
-        final crossAxisCount =
-            width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+        final crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
         return Obx(() => EasyRefresh(
               controller: controller.easyRefreshController,
               onRefresh: controller.refreshData,
@@ -35,8 +31,7 @@ class _PopularGridViewState extends State<PopularGridView> {
                       controller: controller.scrollController,
                       crossAxisCount: crossAxisCount,
                       itemCount: controller.list.length,
-                      itemBuilder: (context, index) =>
-                          RoomCard(room: controller.list[index], dense: true),
+                      itemBuilder: (context, index) => RoomCard(room: controller.list[index], dense: true),
                     )
                   : EmptyView(
                       icon: Icons.live_tv_rounded,

@@ -3,10 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/archethic.dart';
-import 'package:pure_live/routes/route_path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:pure_live/modules/auth/auth_controller.dart';
-import 'package:pure_live/modules/favorite/favorite_controller.dart';
 
 class SupaBaseManager {
   final String supabaseUrl = 'https://izqkszjbjoumibcoldzk.supabase.co';
@@ -106,7 +103,6 @@ class SupaBaseManager {
       });
       if (data.isNotEmpty) {
         Get.rawSnackbar(message: '下载成功');
-        print(data);
         String jsonString = data[0][configColumnName];
         bool isAlreadyEncrypt = data[0][isEncrypt];
         bool isHasLzs = data[0][isLzs];

@@ -1,5 +1,4 @@
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/supabase.dart';
 
 class MinePage extends StatefulWidget {
   const MinePage({super.key});

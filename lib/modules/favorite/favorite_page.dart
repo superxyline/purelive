@@ -1,7 +1,5 @@
 import 'package:get/get.dart';
-import 'favorite_controller.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class FavoritePage extends GetView<FavoriteController> {

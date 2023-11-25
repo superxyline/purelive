@@ -1,27 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:app_links/app_links.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:easy_refresh/easy_refresh.dart';
-import 'package:pure_live/plugins/supabase.dart';
-import 'package:pure_live/routes/app_pages.dart';
-import 'package:dynamic_color/dynamic_color.dart';
-import 'package:pure_live/routes/route_path.dart';
-import 'package:pure_live/plugins/window_util.dart';
-import 'package:win32_registry/win32_registry.dart';
-import 'package:window_manager/window_manager.dart';
-import 'common/services/bilibili_account_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pure_live/modules/auth/auth_controller.dart';
-import 'package:pure_live/modules/areas/areas_controller.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:pure_live/modules/popular/popular_controller.dart';
-import 'package:pure_live/modules/favorite/favorite_controller.dart';
-import 'package:windows_single_instance/windows_single_instance.dart';
+import 'package:pure_live/plugins/global.dart';
+import 'package:pure_live/plugins/file_recover_utils.dart';
+import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 const kWindowsScheme = 'purelive://signin';
 
@@ -69,6 +54,35 @@ class _MyAppState extends State<MyApp> with WindowListener {
     super.initState();
     windowManager.addListener(this);
     _init();
+    initShareM3uState();
+  }
+
+  String getName(String fullName) {
+    return fullName.split(Platform.pathSeparator).last;
+  }
+
+  bool isDataSourceM3u(String url) => url.contains('.m3u');
+  String getUUid() {
+    var currentTime = DateTime.now().millisecondsSinceEpoch;
+    var randomValue = Random().nextInt(4294967295);
+    var result = (currentTime % 10000000000 * 1000 + randomValue) % 4294967295;
+    return result.toString();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initShareM3uState() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.manageExternalStorage.request();
+      if (status.isGranted) {
+        final handler = ShareHandler.instance;
+        await handler.getInitialSharedMedia();
+        handler.sharedMediaStream.listen((SharedMedia media) async {
+          if (isDataSourceM3u(media.content!)) {
+            FileRecoverUtils().recoverM3u8BackupByShare(media);
+          }
+        });
+      }
+    }
   }
 
   @override
@@ -165,48 +179,4 @@ class _MyAppState extends State<MyApp> with WindowListener {
       ),
     );
   }
-}
-
-initRefresh() {
-  EasyRefresh.defaultHeaderBuilder = () => const ClassicHeader(
-        armedText: '松开加载',
-        dragText: '上拉刷新',
-        readyText: '加载中...',
-        processingText: '正在刷新...',
-        noMoreText: '没有更多数据了',
-        failedText: '加载失败',
-        messageText: '上次加载时间 %T',
-        processedText: '加载成功',
-      );
-  EasyRefresh.defaultFooterBuilder = () => const ClassicFooter(
-        armedText: '松开加载',
-        dragText: '下拉刷新',
-        readyText: '加载中...',
-        processingText: '正在刷新...',
-        noMoreText: '没有更多数据了',
-        failedText: '加载失败',
-        messageText: '上次加载时间 %T',
-        processedText: '加载成功',
-      );
-}
-
-Future<void> register(String scheme) async {
-  String appPath = Platform.resolvedExecutable;
-
-  String protocolRegKey = 'Software\\Classes\\$scheme';
-  RegistryValue protocolRegValue = const RegistryValue(
-    'URL Protocol',
-    RegistryValueType.string,
-    '',
-  );
-  String protocolCmdRegKey = 'shell\\open\\command';
-  RegistryValue protocolCmdRegValue = RegistryValue(
-    '',
-    RegistryValueType.string,
-    '"$appPath" "%1"',
-  );
-
-  final regKey = Registry.currentUser.createKey(protocolRegKey);
-  regKey.createValue(protocolRegValue);
-  regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
 }

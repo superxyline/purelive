@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/base/base_controller.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class DanmuShieldController extends BaseController {
   final TextEditingController textEditingController = TextEditingController();

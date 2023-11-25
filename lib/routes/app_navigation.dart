@@ -1,10 +1,7 @@
 import 'dart:io';
-import 'route_path.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/utils.dart';
-
-
 
 /// APP页面跳转封装
 /// * 需要参数的页面都应使用此类

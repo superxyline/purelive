@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/routes/route_path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pure_live/modules/auth/components/supa_reset_password.dart';
 

@@ -5,7 +5,6 @@ import 'widgets/video_player/video_controller.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class LivePlayController extends StateController {
   LivePlayController({

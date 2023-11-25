@@ -1,7 +1,7 @@
 {
-  "version": "1.4.3",
-  "version_num": 10403,
-  "version_desc": "-Intro:用户信息现在已加密，限制关注直播间200个,关键字1000以下 \n-Fix:修复密码重置功能(仅Android可用) \n -Fix:修复主题切换以及添加更多切换选项.\n -Fix:修复M38源清除(手机端清除缓存,C:/Users/用户名/AppData/Local/com.example/pure_live).",
+  "version": "1.4.4",
+  "version_num": 10404,
+  "version_desc": "-Fix:用户数据可保存在本地\n-Intro:因用户越来越多，取消自动上传，在我的里面手动上传\n-Fix:修复Android直播间手势返回\n-Fix:列表滚动底部自动加载无需手动加载\n-Fix:修复主题切换以及添加更多切换选项",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

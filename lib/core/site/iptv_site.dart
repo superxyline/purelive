@@ -11,7 +11,6 @@ import 'package:pure_live/core/danmaku/empty_danmaku.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 
-
 class IptvSite implements LiveSite {
   @override
   String id = 'iptv';
@@ -26,7 +25,9 @@ class IptvSite implements LiveSite {
     for (IptvCategory item in categories) {
       var subCategory = await getSubCategores(item);
       LiveCategory liveCategory = LiveCategory(id: item.id!, name: item.name!, children: subCategory);
-      categoryTypes.add(liveCategory);
+      if (liveCategory.name != 'hot') {
+        categoryTypes.add(liveCategory);
+      }
     }
     return categoryTypes;
   }

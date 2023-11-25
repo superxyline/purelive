@@ -1,9 +1,7 @@
 import 'package:get/get.dart';
-import 'package:pure_live/common/index.dart';
-
-import 'areas_controller.dart';
 import 'areas_grid_view.dart';
 import 'favorite_areas_page.dart';
+import 'package:pure_live/common/index.dart';
 
 class AreasPage extends GetView<AreasController> {
   const AreasPage({super.key});
@@ -21,8 +19,7 @@ class AreasPage extends GetView<AreasController> {
           title: TabBar(
             controller: controller.tabController,
             isScrollable: true,
-            labelStyle:
-                const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
             tabs: Sites.supportSites.map((e) => Tab(text: e.name)).toList(),

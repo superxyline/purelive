@@ -1,16 +1,7 @@
-import 'dart:io';
-import 'dart:math';
-import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:dio/dio.dart' as dio;
 import 'package:pure_live/common/index.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:date_format/date_format.dart' hide S;
-import 'package:pure_live/core/iptv/iptv_utils.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
@@ -39,30 +30,36 @@ class _BackupPageState extends State<BackupPage> {
           ListTile(
             title: Text(S.of(context).create_backup),
             subtitle: Text(S.of(context).create_backup_subtitle),
-            onTap: () => createBackup(),
+            onTap: () async {
+              final selectedDirectory = await FileRecoverUtils().createBackup(backupDirectory);
+              if (selectedDirectory != null) {
+                setState(() {
+                  backupDirectory = selectedDirectory;
+                });
+              }
+            },
           ),
           ListTile(
             title: Text(S.of(context).recover_backup),
             subtitle: Text(S.of(context).recover_backup_subtitle),
-            onTap: () => recoverBackup(),
+            onTap: () => FileRecoverUtils().recoverBackup(),
           ),
           SectionTitle(title: S.of(context).auto_backup),
           ListTile(
             title: Text(S.of(context).backup_directory),
             subtitle: Text(backupDirectory),
-            onTap: () => selectBackupDirectory(),
+            onTap: () async {
+              final selectedDirectory = await FileRecoverUtils().selectBackupDirectory(backupDirectory);
+              if (selectedDirectory != null) {
+                setState(() {
+                  backupDirectory = selectedDirectory;
+                });
+              }
+            },
           ),
         ],
       ),
     );
-  }
-
-  Future<bool> requestStoragePermission() async {
-    if (await Permission.manageExternalStorage.isDenied) {
-      final status = Permission.manageExternalStorage.request();
-      return status.isGranted;
-    }
-    return true;
   }
 
   void showImportSetDialog() {
@@ -86,14 +83,6 @@ class _BackupPageState extends State<BackupPage> {
         );
       },
     );
-  }
-
-  ///验证URL
-  bool isUrl(String value) {
-    final urlRegExp = RegExp(
-        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
-    List<String?> urlMatches = urlRegExp.allMatches(value).map((m) => m.group(0)).toList();
-    return urlMatches.isNotEmpty;
   }
 
   Future<String?> showEditTextDialog() async {
@@ -140,12 +129,12 @@ class _BackupPageState extends State<BackupPage> {
               child: const Text("取消"),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (urlEditingController.text.isEmpty) {
                   SmartDialog.showToast('请输入下载链接');
                   return;
                 }
-                bool validate = isUrl(urlEditingController.text);
+                bool validate = FileRecoverUtils.isUrl(urlEditingController.text);
                 if (!validate) {
                   SmartDialog.showToast('请输入正确的下载链接');
                   return;
@@ -154,7 +143,9 @@ class _BackupPageState extends State<BackupPage> {
                   SmartDialog.showToast('请输入文件名');
                   return;
                 }
-                recoverNetworkM3u8Backup(urlEditingController.text, textEditingController.text);
+                await FileRecoverUtils()
+                    .recoverNetworkM3u8Backup(urlEditingController.text, textEditingController.text);
+                Get.back();
               },
               child: const Text("确定"),
             ),
@@ -166,149 +157,11 @@ class _BackupPageState extends State<BackupPage> {
 
   importFile(String value) {
     if (value == '本地导入') {
-      recoverM3u8Backup();
+      FileRecoverUtils().recoverM3u8Backup();
       Navigator.of(context).pop();
     } else {
       Navigator.of(context).pop(false);
       showEditTextDialog();
-      // recoverNetworkM3u8Backup();
     }
-  }
-
-  recoverNetworkM3u8Backup(String url, String fileName) async {
-    var dioInstance = dio.Dio(dio.BaseOptions(
-      connectTimeout: const Duration(seconds: 10),
-      //响应时间为3秒
-      receiveTimeout: const Duration(seconds: 10),
-    ));
-    var dir = await getApplicationCacheDirectory();
-    final m3ufile = File("${dir.path}${Platform.pathSeparator}$fileName.m3u");
-    try {
-      dio.Response response = await dioInstance.download(url, m3ufile.path);
-      if (response.statusCode != 200 && response.statusCode != 304) {
-        SnackBarUtil.error('文件下载失败请重试');
-      }
-      List jsonArr = [];
-      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
-      if (!categories.existsSync()) {
-        categories.createSync();
-      }
-      String jsonData = await categories.readAsString();
-      jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
-      List<IptvCategory> categoriesArr = jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-      bool isNotExit = categoriesArr.indexWhere((element) => element.id == url) == -1;
-      if (isNotExit) {
-        categoriesArr.add(
-            IptvCategory(id: url, name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''), path: m3ufile.path));
-      } else {
-        var index = categoriesArr.indexWhere((element) => element.id == url);
-        categoriesArr[index].name = fileName;
-      }
-
-      categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
-      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
-    } catch (e) {
-      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
-    }
-    Get.back();
-  }
-
-  String getName(String fullName) {
-    return fullName.split(Platform.pathSeparator).last;
-  }
-
-  String getUUid() {
-    var currentTime = DateTime.now().millisecondsSinceEpoch;
-    var randomValue = Random().nextInt(4294967295);
-    var result = (currentTime % 10000000000 * 1000 + randomValue) % 4294967295;
-    return result.toString();
-  }
-
-  void recoverM3u8Backup() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: S.of(context).select_recover_file,
-      type: FileType.custom,
-      allowedExtensions: ['m3u'],
-    );
-    if (result == null || result.files.single.path == null) return;
-
-    try {
-      final file = File(result.files.single.path!);
-      var dir = await getApplicationCacheDirectory();
-      final m3ufile = File('${dir.path}${Platform.pathSeparator}${getName(file.path)}');
-      List jsonArr = [];
-      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
-      if (!categories.existsSync()) {
-        categories.createSync();
-      }
-      String jsonData = await categories.readAsString();
-      jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
-      List<IptvCategory> categoriesArr = jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
-      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) == -1) {
-        categoriesArr.add(IptvCategory(
-            id: getUUid(), name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''), path: m3ufile.path));
-      }
-
-      categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
-      file.copySync(m3ufile.path);
-      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
-    } catch (e) {
-      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
-    }
-  }
-
-  void createBackup() async {
-    if (Platform.isAndroid || Platform.isIOS) {
-      final granted = await requestStoragePermission();
-      if (!granted) {
-        SnackBarUtil.error('请先授予读写文件权限');
-        return;
-      }
-    }
-
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
-      initialDirectory: backupDirectory.isEmpty ? '/' : backupDirectory,
-    );
-    if (selectedDirectory == null) return;
-
-    final dateStr = formatDate(
-      DateTime.now(),
-      [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss],
-    );
-    final file = File('$selectedDirectory/purelive_$dateStr.txt');
-    if (settings.backup(file)) {
-      SnackBarUtil.success(S.of(Get.context!).create_backup_success);
-      // 首次同步备份目录
-      if (settings.backupDirectory.isEmpty) {
-        settings.backupDirectory.value = selectedDirectory;
-        setState(() => backupDirectory = selectedDirectory);
-      }
-    } else {
-      SnackBarUtil.error(S.of(Get.context!).create_backup_failed);
-    }
-  }
-
-  void recoverBackup() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: S.of(context).select_recover_file,
-      type: FileType.custom,
-      allowedExtensions: ['txt'],
-    );
-    if (result == null || result.files.single.path == null) return;
-
-    final file = File(result.files.single.path!);
-    if (settings.recover(file)) {
-      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
-    } else {
-      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
-    }
-  }
-
-  void selectBackupDirectory() async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-    if (selectedDirectory == null) return;
-
-    settings.backupDirectory.value = selectedDirectory;
-    setState(() => backupDirectory = selectedDirectory);
   }
 }
