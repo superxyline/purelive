@@ -10,8 +10,12 @@ class LivePlayPage extends GetWidget<LivePlayController> {
 
   final SettingsService settings = Get.find<SettingsService>();
   Future<bool> onWillPop() async {
-    var exit = await controller.onBackPressed();
-    if (exit) {
+    try {
+      var exit = await controller.onBackPressed();
+      if (exit) {
+        Get.back();
+      }
+    } catch (e) {
       Get.back();
     }
     return true;

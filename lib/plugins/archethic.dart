@@ -16,17 +16,14 @@ class ArchethicUtils {
   }
 
   // 加密
-  Future<String?> encrypt(String data, bool isHasEncrypt, bool isLzs) async {
-    if (isHasEncrypt) {
-      return await LZString.compress(CryptoSimple.decrypt(encrypted: data));
-    }
-    return await LZString.compress(data);
+  String? encrypt(String data, bool isHasEncrypt, bool isLzs) {
+    return LZString.compressSync(data)!;
   }
 
   // 解密
-  Future<String?> decrypti(String data, bool isHasEncrypt, bool isLzs) async {
+  String? decrypti(String data, bool isHasEncrypt, bool isLzs) {
     if (isLzs) {
-      return await LZString.decompress(data);
+      return LZString.decompressSync(data)!;
     } else {
       if (isHasEncrypt) {
         return CryptoSimple.decrypt(encrypted: data);

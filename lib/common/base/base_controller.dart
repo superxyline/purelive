@@ -1,9 +1,7 @@
 import 'dart:async';
-
+import 'package:get/get.dart';
 import 'package:flutter/widgets.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-
-import 'package:get/get.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class BaseController extends GetxController {
@@ -57,6 +55,19 @@ class BasePageController<T> extends BaseController {
   int pageSize = 30;
   var canLoadMore = false.obs;
   var list = <T>[].obs;
+
+  @override
+  void onInit() {
+    scrollController.addListener(() {
+      if (scrollController.position.atEdge) {
+        bool isTop = scrollController.position.pixels == 0;
+        if (!isTop) {
+          loadData();
+        }
+      }
+    });
+    super.onInit();
+  }
 
   Future refreshData() async {
     currentPage = 1;

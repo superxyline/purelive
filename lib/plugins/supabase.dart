@@ -74,7 +74,7 @@ class SupaBaseManager {
     List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
     final isHasEncrypt = await isDataEncrypt();
     final isHasLzs = await isDataLzs();
-    final encryptData = await ArchethicUtils().encrypt(jsonEncode(service.toJson()), isHasEncrypt, isHasLzs);
+    final encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()), isHasEncrypt, isHasLzs);
     if (data.isNotEmpty) {
       client
           .from(tableName)
@@ -105,7 +105,7 @@ class SupaBaseManager {
         bool isAlreadyEncrypt = data[0][isEncrypt];
         bool isHasLzs = data[0][isLzs];
         if (isAlreadyEncrypt) {
-          final jsonData = await ArchethicUtils().decrypti(jsonString, isAlreadyEncrypt, isHasLzs);
+          final jsonData = ArchethicUtils().decrypti(jsonString, isAlreadyEncrypt, isHasLzs);
           Map<String, dynamic> back = jsonDecode(jsonData!);
           service.fromJson(back);
         } else {
