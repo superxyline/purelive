@@ -53,7 +53,7 @@ class SupaBaseManager {
           .eq(userColumnName, userId)
           .then((value) => {}, onError: (err) {});
     } else {
-      client.from(tableName).insert({userColumnName: userId, configColumnName: jsonEncode(service.toJson())}).then(
+      client.from(tableName).insert({userColumnName: userId, configColumnName: encryptData, isEncrypt: true}).then(
           (value) => {},
           onError: (err) {});
     }
@@ -67,7 +67,7 @@ class SupaBaseManager {
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
-    var encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()));
+    String encryptData = await ArchethicUtils().encrypt(jsonEncode(service.toJson()));
     if (data.isNotEmpty) {
       client
           .from(tableName)
@@ -77,7 +77,7 @@ class SupaBaseManager {
             Get.rawSnackbar(message: '上传失败');
           });
     } else {
-      client.from(tableName).insert({userColumnName: userId, configColumnName: jsonEncode(service.toJson())}).then(
+      client.from(tableName).insert({userColumnName: userId, configColumnName: encryptData, isEncrypt: true}).then(
           (value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
         Get.rawSnackbar(message: '上传失败');
       });
@@ -92,12 +92,14 @@ class SupaBaseManager {
       final SettingsService service = Get.find<SettingsService>();
       List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
       if (data.isNotEmpty) {
-        String json = data[0][configColumnName];
+        String jsonString = data[0][configColumnName];
+
         bool isAlreadyEncrypt = data[0][isEncrypt];
         if (isAlreadyEncrypt) {
-          service.fromJson(jsonDecode(ArchethicUtils().decrypti(json)));
+          Map<String, dynamic> back = jsonDecode(ArchethicUtils().decrypti(jsonString));
+          service.fromJson(back);
         } else {
-          service.fromJson(jsonDecode(json));
+          service.fromJson(jsonDecode(jsonString));
         }
         favoriteController.onRefresh();
       }

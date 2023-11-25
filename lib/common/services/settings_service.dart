@@ -440,11 +440,13 @@ class SettingsService extends GetxController {
   }
 
   void fromJson(Map<String, dynamic> json) {
-    favoriteRooms.value =
-        (json['favoriteRooms'] as List).map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e))).toList();
-    favoriteAreas.value =
-        (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList();
-    shieldList.value = (json['shieldList'] as List).map((e) => e.toString()).toList();
+    favoriteRooms.value = json['favoriteRooms'] != null
+        ? (json['favoriteRooms'] as List).map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e))).toList()
+        : [];
+    favoriteAreas.value = json['favoriteAreas'] != null
+        ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList()
+        : [];
+    shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
     themeModeName.value = json['themeMode'] ?? "System";
@@ -460,15 +462,16 @@ class SettingsService extends GetxController {
     preferPlatform.value = json['preferPlatform'] ?? platforms[0];
     videoFitIndex.value = json['videoFitIndex'] ?? 0;
     hideDanmaku.value = json['hideDanmaku'] ?? false;
-    danmakuArea.value = json['danmakuArea'] ?? 1.0;
-    danmakuSpeed.value = json['danmakuSpeed'] ?? 8.0;
-    danmakuFontSize.value = json['danmakuFontSize'] ?? 16.0;
-    danmakuFontBorder.value = json['danmakuFontBorder'] ?? 0.5;
-    danmakuOpacity.value = json['danmakuOpacity'] ?? 1.0;
+    danmakuArea.value = json['danmakuArea'] != null ? double.parse(json['danmakuArea'].toString()) : 1.0;
+    danmakuSpeed.value = json['danmakuSpeed'] != null ? double.parse(json['danmakuSpeed'].toString()) : 8.0;
+    danmakuFontSize.value = json['danmakuFontSize'] != null ? double.parse(json['danmakuFontSize'].toString()) : 16.0;
+    danmakuFontBorder.value =
+        json['danmakuFontBorder'] != null ? double.parse(json['danmakuFontBorder'].toString()) : 0.5;
+    danmakuOpacity.value = json['danmakuOpacity'] != null ? double.parse(json['danmakuOpacity'].toString()) : 1.0;
     doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'];
     enableCodec.value = json['enableCodec'] ?? true;
-    mergeDanmuRating.value = json['mergeDanmuRating'] ?? 0.0;
+    mergeDanmuRating.value = json['mergeDanmuRating'] != null ? double.parse(json['mergeDanmuRating'].toString()) : 0.0;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     changeThemeMode(themeModeName.value);
