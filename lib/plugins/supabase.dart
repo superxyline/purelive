@@ -19,6 +19,7 @@ class SupaBaseManager {
   final String userColumnName = 'user_id';
   final String configColumnName = 'settings';
   final String isEncrypt = 'is_encrypt';
+  final String isLzs = 'is_lzs';
   SupabaseClient get client => Supabase.instance.client;
   //单例模式，只创建一次实例
   static SupaBaseManager getInstance() {
@@ -45,17 +46,21 @@ class SupaBaseManager {
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
-    var encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()));
+    final isHasEncrypt = data.isNotEmpty ? data[0][isEncrypt] : false;
+    final isHasLzs = data.isNotEmpty ? data[0][isLzs] : false;
+    var encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()), isHasEncrypt, isHasLzs);
     if (data.isNotEmpty) {
       client
           .from(tableName)
-          .update({configColumnName: encryptData, isEncrypt: true})
+          .update({configColumnName: encryptData, isEncrypt: true, isLzs: true})
           .eq(userColumnName, userId)
           .then((value) => {}, onError: (err) {});
     } else {
-      client.from(tableName).insert({userColumnName: userId, configColumnName: jsonEncode(service.toJson())}).then(
-          (value) => {},
-          onError: (err) {});
+      client
+          .from(tableName)
+          .insert({userColumnName: userId, configColumnName: encryptData, isEncrypt: true, isLzs: true}).then(
+              (value) => {},
+              onError: (err) {});
     }
   }
 
@@ -67,18 +72,22 @@ class SupaBaseManager {
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
     List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
-    var encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()));
+    final isHasEncrypt = await isDataEncrypt();
+    final isHasLzs = await isDataLzs();
+    final encryptData = await ArchethicUtils().encrypt(jsonEncode(service.toJson()), isHasEncrypt, isHasLzs);
     if (data.isNotEmpty) {
       client
           .from(tableName)
-          .update({configColumnName: encryptData, isEncrypt: true})
+          .update({configColumnName: encryptData, isEncrypt: true, isLzs: true})
           .eq(userColumnName, userId)
           .then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
             Get.rawSnackbar(message: '上传失败');
           });
     } else {
-      client.from(tableName).insert({userColumnName: userId, configColumnName: jsonEncode(service.toJson())}).then(
-          (value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
+      client
+          .from(tableName)
+          .insert({userColumnName: userId, configColumnName: encryptData, isEncrypt: true, isLzs: true}).then(
+              (value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
         Get.rawSnackbar(message: '上传失败');
       });
     }
@@ -92,15 +101,42 @@ class SupaBaseManager {
       final SettingsService service = Get.find<SettingsService>();
       List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
       if (data.isNotEmpty) {
-        String json = data[0][configColumnName];
+        String jsonString = data[0][configColumnName];
         bool isAlreadyEncrypt = data[0][isEncrypt];
+        bool isHasLzs = data[0][isLzs];
         if (isAlreadyEncrypt) {
-          service.fromJson(jsonDecode(ArchethicUtils().decrypti(json)));
+          final jsonData = await ArchethicUtils().decrypti(jsonString, isAlreadyEncrypt, isHasLzs);
+          Map<String, dynamic> back = jsonDecode(jsonData!);
+          service.fromJson(back);
         } else {
-          service.fromJson(jsonDecode(json));
+          service.fromJson(jsonDecode(jsonString));
         }
         favoriteController.onRefresh();
       }
     }
+  }
+
+  Future<bool> isDataEncrypt() async {
+    final userId = Get.find<AuthController>().userId;
+    final isLogin = Get.find<AuthController>().isLogin;
+    if (isLogin == true) {
+      List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
+      if (data.isNotEmpty) {
+        return data[0][isEncrypt];
+      }
+    }
+    return false;
+  }
+
+  Future<bool> isDataLzs() async {
+    final userId = Get.find<AuthController>().userId;
+    final isLogin = Get.find<AuthController>().isLogin;
+    if (isLogin == true) {
+      List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
+      if (data.isNotEmpty) {
+        return data[0][isLzs];
+      }
+    }
+    return false;
   }
 }
