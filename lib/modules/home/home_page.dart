@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../search/search_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/supabase.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
@@ -11,7 +10,6 @@ import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/about/widgets/version_dialog.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -55,12 +53,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     setState(() {});
   }
 
-  @override
-  void onWindowClose() {
-    SupaBaseManager().uploadConfigWithBackGend();
-    super.onWindowClose();
-  }
-
   int _selectedIndex = 0;
   final List<Widget> bodys = const [
     FavoritePage(),
@@ -98,7 +90,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   }
 
   Future<bool> _onBackPressed() async {
-    SupaBaseManager().uploadConfigWithBackGend();
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
     if (!doubleExit) {
       return true;

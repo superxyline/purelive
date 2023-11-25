@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/supabase.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
@@ -330,18 +329,15 @@ class SettingsService extends GetxController {
       return false;
     }
     favoriteRooms.add(room);
-    SupaBaseManager().uploadConfigWithBackGend();
     return true;
   }
 
   void addShieldList(String value) {
     shieldList.add(value);
-    SupaBaseManager().uploadConfigWithBackGend();
   }
 
   void removeShieldList(int value) {
     shieldList.removeAt(value);
-    SupaBaseManager().uploadConfigWithBackGend();
   }
 
   bool removeRoom(LiveRoom room) {
@@ -349,7 +345,6 @@ class SettingsService extends GetxController {
       return false;
     }
     favoriteRooms.remove(room);
-    SupaBaseManager().uploadConfigWithBackGend();
     return true;
   }
 

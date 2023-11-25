@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -99,8 +100,13 @@ class SupaBaseManager {
     final FavoriteController favoriteController = Get.find<FavoriteController>();
     if (isLogin == true) {
       final SettingsService service = Get.find<SettingsService>();
-      List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
+      List<dynamic> data =
+          await client.from(tableName).select().eq(userColumnName, userId).then((value) => value, onError: (err) {
+        Get.rawSnackbar(message: '下载失败');
+      });
       if (data.isNotEmpty) {
+        Get.rawSnackbar(message: '下载成功');
+        print(data);
         String jsonString = data[0][configColumnName];
         bool isAlreadyEncrypt = data[0][isEncrypt];
         bool isHasLzs = data[0][isLzs];

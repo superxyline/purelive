@@ -20,7 +20,6 @@ class AuthController extends GetxController {
         isLogin = true;
         userId = data.session!.user.id;
         ArchethicUtils().init(superPass: userId);
-        SupaBaseManager().readConfig();
       } else {
         isLogin = false;
         userId = '';
