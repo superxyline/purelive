@@ -85,7 +85,7 @@
 > If any of the licenses are not being used correctly, please submit a new issue.
 ### 软件更新
 
-因为作者忙于工作,通常只会在周末处理相关事情
+因为作者忙于工作,通常只会在周末处理相关事情,目前没有mac电脑无法使用Xcode打包，有合作者可与我联系。
 ## 代码参考
 
 * dart_simple_live [dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live)
