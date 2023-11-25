@@ -1,7 +1,7 @@
 {
   "version": "1.4.4",
   "version_num": 10404,
-  "version_desc": "-Fix:用户数据可保存在本地\n-Fix:手机用户QQ直接可以引入m3u源,导入m38源名称为hot.m3u即可自定义热门\n-Intro:因用户越来越多，取消自动上传，在我的里面手动上传,但后续操作可以永远保留在本地\n-Fix:修复Android直播间手势返回\n-Fix:列表滚动底部自动加载无需手动加载",
+  "version_desc": "-Fix:用户数据可保存在本地\n-Fix:手机用户QQ直接可以引入m3u源,导入m3u源名称为hot.m3u即可自定义热门\n-Intro:因用户越来越多，取消自动上传，在我的里面手动上传,但后续操作可以永远保留在本地\n-Fix:修复Android直播间手势返回\n-Fix:列表滚动底部自动加载无需手动加载",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
