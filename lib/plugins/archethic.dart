@@ -1,3 +1,4 @@
+import 'package:pure_live/plugins/lzstring.dart';
 import 'package:crypto_simple/crypto_simple.dart';
 
 class ArchethicUtils {
@@ -15,12 +16,22 @@ class ArchethicUtils {
   }
 
   // 加密
-  encrypt(String data) {
-    return CryptoSimple.encrypt(inputString: data);
+  Future<String?> encrypt(String data, bool isHasEncrypt, bool isLzs) async {
+    if (isHasEncrypt) {
+      return await LZString.compress(CryptoSimple.decrypt(encrypted: data));
+    }
+    return await LZString.compress(data);
   }
 
   // 解密
-  decrypti(String data) {
-    return CryptoSimple.decrypt(encrypted: data);
+  Future<String?> decrypti(String data, bool isHasEncrypt, bool isLzs) async {
+    if (isLzs) {
+      return await LZString.decompress(data);
+    } else {
+      if (isHasEncrypt) {
+        return CryptoSimple.decrypt(encrypted: data);
+      }
+      return data;
+    }
   }
 }
