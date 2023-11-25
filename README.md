@@ -23,7 +23,7 @@
 ## 功能
 
 - [X] 使用[supabase](https://supabase.com/) 完成登录注册功能,邮箱为真实邮箱，会发送验证链接（密码仅自己可见，加密由supabase官方提供）  
-- [X] 已实现**Android**/**TV**/**Window**（TV bug较多，光标比较难用，建议使用鼠标。）  
+- [X] 已实现**Android**/**TV**/**Windows**（TV bug较多，光标比较难用，建议使用鼠标。）  
 - [X] 已实现倒计时关闭应用
 - [X] **Android** 端多种播放器随意切换
 - [X] **M3u8** 自定义导入网络/本地直播源,观看自定义内容
@@ -77,7 +77,7 @@
 您可点击设置-备份与还原-导入M3u源。[直播源转换](https://guihet.com/tvlistconvert.html)
 暂不支持其他目录保存
 * Android端在缓存内清除缓存即可删除
-* Windows 在公共目录 Documents或文档 下`categories.json`内修改以及删除同目录下导入的源
+* Windows 在目录`C:/Users/用户名/AppData/Local/com.example/pure_live`下`categories.json`内修改以及删除导入的源以及定义
 ### 意见
 [ExoPlayer](https://github.com/liuchuancong/better_player/tree/media3)由本人维护,点击进行PR以及建议。
 > 如有许可协议使用不当请发 Issue 或者 Pull Request
@@ -85,7 +85,7 @@
 > If any of the licenses are not being used correctly, please submit a new issue.
 ### 软件更新
 
-因为作者忙于工作,通常只会在周末处理相关事情
+因为作者忙于工作,通常只会在周末处理相关事情,目前没有mac电脑无法使用Xcode打包，有合作者可与我联系。
 ## 代码参考
 
 * dart_simple_live [dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live)
