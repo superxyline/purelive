@@ -125,6 +125,11 @@ class SettingsPage extends GetView<SettingsService> {
             subtitle: const Text("自定义关键词过滤弹幕"),
             onTap: () => Get.toNamed(RoutePath.kSettingsDanmuShield),
           ),
+          ListTile(
+            title: const Text("平台设置"),
+            subtitle: const Text("自定义观看喜爱的平台"),
+            onTap: () => Get.toNamed(RoutePath.kSettingsHotAreas),
+          ),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
                   title: Text(S.of(context).double_click_to_exit),

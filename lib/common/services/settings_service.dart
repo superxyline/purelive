@@ -57,9 +57,13 @@ class SettingsService extends GetxController {
     });
 
     shieldList.listen((value) {
+      shieldList.value = value;
       PrefUtil.setStringList('shieldList', value);
     });
-
+    hotAreasList.listen((value) {
+      hotAreasList.value = value;
+      PrefUtil.setStringList('hotAreasList', value);
+    });
     favoriteRooms.listen((rooms) {
       PrefUtil.setStringList('favoriteRooms', favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
@@ -309,6 +313,8 @@ class SettingsService extends GetxController {
 
   final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
 
+  final hotAreasList = ((PrefUtil.getStringList('hotAreasList') ?? Sites.supportSites.map((e) => e.id)).toList()).obs;
+
   // Favorite rooms storage
   final favoriteRooms =
       ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
@@ -442,6 +448,8 @@ class SettingsService extends GetxController {
         ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList()
         : [];
     shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
+    hotAreasList.value =
+        json['hotAreasList'] != null ? (json['hotAreasList'] as List).map((e) => e.toString()).toList() : [];
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
     themeModeName.value = json['themeMode'] ?? "System";
@@ -511,6 +519,8 @@ class SettingsService extends GetxController {
     json['enableCodec'] = enableCodec.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).take(1000).toList();
+    json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).take(1000).toList();
+
     json['mergeDanmuRating'] = mergeDanmuRating.value;
     json['themeColorSwitch'] = themeColorSwitch.value;
     return json;
@@ -546,6 +556,7 @@ class SettingsService extends GetxController {
       'bilibiliCookie': '',
       'shieldList': [],
       'mergeDanmuRating': 0.0,
+      "hotAreasList": []
     };
     return json;
   }

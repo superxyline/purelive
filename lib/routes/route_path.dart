@@ -52,6 +52,8 @@ class RoutePath {
 
   static const kSettingsDanmuShield = "/shield";
 
+  static const kSettingsHotAreas = "/hot_areas";
+
   /// kBiliBiliQRLogin
   static const kSettingsAccount = "/settings_account";
 

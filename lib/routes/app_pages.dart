@@ -16,10 +16,12 @@ import 'package:pure_live/modules/history/history_page.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
+import 'package:pure_live/modules/hot_areas/hot_areas_page.dart';
 import 'package:pure_live/modules/live_play/live_play_page.dart';
 import 'package:pure_live/modules/shield/danmu_shield_page.dart';
 import 'package:pure_live/modules/settings/settings_binding.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_page.dart';
+import 'package:pure_live/modules/hot_areas/hot_areas_binding.dart';
 import 'package:pure_live/modules/live_play/live_play_binding.dart';
 import 'package:pure_live/modules/shield/danmu_shield_binding.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_binding.dart';
@@ -27,6 +29,7 @@ import 'package:pure_live/modules/account/bilibili/qr_login_page.dart';
 import 'package:pure_live/modules/account/bilibili/bilibili_bings.dart';
 import 'package:pure_live/modules/account/bilibili/web_login_page.dart';
 import 'package:pure_live/modules/auth/components/update_password.dart';
+
 // auth
 
 class AppPages {
@@ -131,6 +134,13 @@ class AppPages {
       page: () => const DanmuShieldPage(),
       bindings: [
         DanmuShieldBinding(),
+      ],
+    ),
+    GetPage(
+      name: RoutePath.kSettingsHotAreas,
+      page: () => const HotAreasPage(),
+      bindings: [
+        HotAreasBinding(),
       ],
     ),
   ];

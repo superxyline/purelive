@@ -1,23 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/archethic.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:pure_live/common/utils/supabase_policy.dart';
 
 class SupaBaseManager {
-  final String supabaseUrl = 'https://izqkszjbjoumibcoldzk.supabase.co';
-  final String supabaseKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6cWtzempiam91bWliY29sZHprIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTE3MjU0MzgsImV4cCI6MjAwNzMwMTQzOH0.9tOWVb3hLzdRpGazU9A84nCns9p2DhvimSJenhNPfWU';
+  String supabaseUrl = '';
+  String supabaseKey = '';
   static late SupaBaseManager _instance;
-
+  static late SupabasePolicy supabasePolicy;
   SupaBaseManager._internal();
   late Supabase supabase;
-  final String tableName = 'follows';
-  final String userColumnName = 'user_id';
-  final String configColumnName = 'settings';
-  final String isEncrypt = 'is_encrypt';
-  final String isLzs = 'is_lzs';
   SupabaseClient get client => Supabase.instance.client;
   //单例模式，只创建一次实例
   static SupaBaseManager getInstance() {
@@ -27,7 +24,9 @@ class SupaBaseManager {
 
   SupaBaseManager();
   Future initial() async {
-    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+    var mapString = await rootBundle.loadString("assets/keystore/supabase.json");
+    supabasePolicy = SupabasePolicy.fromJson(json.decode(mapString)); // 获取配置信息
+    await Supabase.initialize(url: supabasePolicy.supabaseUrl, anonKey: supabasePolicy.supabaseKey);
   }
 
   signOut() {
@@ -36,109 +35,63 @@ class SupaBaseManager {
     });
   }
 
-  Future<void> uploadConfigWithBackGend() async {
-    final isLogin = Get.find<AuthController>().isLogin;
-    if (!isLogin) {
-      return;
-    }
-    final userId = Get.find<AuthController>().userId;
-    final SettingsService service = Get.find<SettingsService>();
-    List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
-    final isHasEncrypt = data.isNotEmpty ? data[0][isEncrypt] : false;
-    final isHasLzs = data.isNotEmpty ? data[0][isLzs] : false;
-    var encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()), isHasEncrypt, isHasLzs);
-    if (data.isNotEmpty) {
-      client
-          .from(tableName)
-          .update({configColumnName: encryptData, isEncrypt: true, isLzs: true})
-          .eq(userColumnName, userId)
-          .then((value) => {}, onError: (err) {});
-    } else {
-      client
-          .from(tableName)
-          .insert({userColumnName: userId, configColumnName: encryptData, isEncrypt: true, isLzs: true}).then(
-              (value) => {},
-              onError: (err) {});
-    }
-  }
-
   Future<void> uploadConfig() async {
-    final isLogin = Get.find<AuthController>().isLogin;
-    if (!isLogin) {
+    final AuthController authController = Get.find<AuthController>();
+    if (!authController.isLogin) {
       return;
     }
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
-    List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
-    final isHasEncrypt = await isDataEncrypt();
-    final isHasLzs = await isDataLzs();
-    final encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()), isHasEncrypt, isHasLzs);
+    List<dynamic> data = await client.from(supabasePolicy.tableName).select().eq(supabasePolicy.uid, userId);
+    final encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()));
+    DateTime currentTime = DateTime.now();
+    String formattedTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentTime);
     if (data.isNotEmpty) {
       client
-          .from(tableName)
-          .update({configColumnName: encryptData, isEncrypt: true, isLzs: true})
-          .eq(userColumnName, userId)
+          .from(supabasePolicy.tableName)
+          .update({
+            supabasePolicy.config: encryptData,
+            supabasePolicy.email: authController.user.email,
+            supabasePolicy.updateAt: formattedTime,
+            supabasePolicy.version: VersionUtil.version,
+          })
+          .eq(supabasePolicy.uid, userId)
           .then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
-            Get.rawSnackbar(message: '上传失败');
+            Get.rawSnackbar(message: '上传失败,请稍后重试');
           });
     } else {
-      client
-          .from(tableName)
-          .insert({userColumnName: userId, configColumnName: encryptData, isEncrypt: true, isLzs: true}).then(
-              (value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
-        Get.rawSnackbar(message: '上传失败');
+      client.from(supabasePolicy.tableName).insert({
+        supabasePolicy.uid: authController.user.id,
+        supabasePolicy.config: encryptData,
+        supabasePolicy.email: authController.user.email,
+        supabasePolicy.updateAt: formattedTime,
+        supabasePolicy.version: VersionUtil.version,
+      }).then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
+        Get.rawSnackbar(message: '上传失败,请稍后重试');
       });
     }
   }
 
   Future<void> readConfig() async {
-    final userId = Get.find<AuthController>().userId;
-    final isLogin = Get.find<AuthController>().isLogin;
+    final AuthController authController = Get.find<AuthController>();
     final FavoriteController favoriteController = Get.find<FavoriteController>();
-    if (isLogin == true) {
+    if (authController.isLogin) {
       final SettingsService service = Get.find<SettingsService>();
-      List<dynamic> data =
-          await client.from(tableName).select().eq(userColumnName, userId).then((value) => value, onError: (err) {
-        Get.rawSnackbar(message: '下载失败');
+      List<dynamic> data = await client
+          .from(supabasePolicy.tableName)
+          .select()
+          .eq(supabasePolicy.uid, authController.user.id)
+          .then((value) => value, onError: (err) {
+        Get.rawSnackbar(message: '下载失败,请稍后重试');
       });
       if (data.isNotEmpty) {
         Get.rawSnackbar(message: '下载成功');
-        String jsonString = data[0][configColumnName];
-        bool isAlreadyEncrypt = data[0][isEncrypt];
-        bool isHasLzs = data[0][isLzs];
-        if (isAlreadyEncrypt) {
-          final jsonData = ArchethicUtils().decrypti(jsonString, isAlreadyEncrypt, isHasLzs);
-          Map<String, dynamic> back = jsonDecode(jsonData!);
-          service.fromJson(back);
-        } else {
-          service.fromJson(jsonDecode(jsonString));
-        }
+        String jsonString = data[0][supabasePolicy.config];
+        final jsonData = ArchethicUtils().decrypti(jsonString);
+        Map<String, dynamic> back = jsonDecode(jsonData!);
+        service.fromJson(back);
         favoriteController.onRefresh();
       }
     }
-  }
-
-  Future<bool> isDataEncrypt() async {
-    final userId = Get.find<AuthController>().userId;
-    final isLogin = Get.find<AuthController>().isLogin;
-    if (isLogin == true) {
-      List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
-      if (data.isNotEmpty) {
-        return data[0][isEncrypt];
-      }
-    }
-    return false;
-  }
-
-  Future<bool> isDataLzs() async {
-    final userId = Get.find<AuthController>().userId;
-    final isLogin = Get.find<AuthController>().isLogin;
-    if (isLogin == true) {
-      List<dynamic> data = await client.from(tableName).select().eq(userColumnName, userId);
-      if (data.isNotEmpty) {
-        return data[0][isLzs];
-      }
-    }
-    return false;
   }
 }
