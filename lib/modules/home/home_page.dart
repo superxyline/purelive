@@ -110,7 +110,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     if (Get.currentRoute != RoutePath.kInitial) {
       return false;
     }
-
+    bool doubleExit = Get.find<SettingsService>().doubleExit.value;
+    if (!doubleExit) {
+      return false;
+    }
     var result = await Get.dialog<bool>(
       AlertDialog(
         title: Text(S.of(context).exit_app),
