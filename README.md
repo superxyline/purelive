@@ -22,19 +22,12 @@
 
 ## 功能
 
-- [X] 使用[supabase](https://supabase.com/) 完成登录注册功能,邮箱为真实邮箱，会发送验证链接（密码仅自己可见，加密由supabase官方提供）  
+- [X] 使用[supabase](https://supabase.com/) 完成登录注册功能,邮箱为真实邮箱  ***不再公开使用，服务器被炸***
 - [X] 已实现**Android**/**TV**/**Windows**（TV bug较多，光标比较难用，建议使用鼠标。）  
 - [X] 已实现倒计时关闭应用
 - [X] **Android** 端多种播放器随意切换
 - [X] **M3u8** 自定义导入网络/本地直播源,观看自定义内容
 - [X] 弹幕过滤，弹幕合并
-
-## 反馈 & 交流
-
-用户交流 QQ 群: <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=-V1cVzigTfJ3V0meG2gOOFJy9FQsSuHu&authKey=Tsu8%2Fys0QC5AqlHGl%2FhoqMKg88Rd%2BJxXHUsUCzKhELals9MOq52vjIy8qnGg2I5o&noverify=0&group_code=73592135">73592135</a> 
-> 建议首选 QQ 群组, 下列方式仅为紧急情况使用
-
-邮箱: 17792321552@163.com
 
 ## 下载
 
