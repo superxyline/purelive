@@ -22,7 +22,7 @@
 
 ## 功能
 
-- [X] 使用[supabase](https://supabase.com/) 完成登录注册功能,邮箱为真实邮箱，会发送验证链接（密码仅自己可见，加密由supabase官方提供）  
+- [X] 使用[supabase](https://supabase.com/) 完成登录注册功能,邮箱为真实邮箱  ***不再公开使用，服务器被炸***
 - [X] 已实现**Android**/**TV**/**Windows**（TV bug较多，光标比较难用，建议使用鼠标。）  
 - [X] 已实现倒计时关闭应用
 - [X] **Android** 端多种播放器随意切换
