@@ -25,7 +25,7 @@ class SupaBaseManager {
   SupaBaseManager();
   Future initial() async {
     var mapString = await rootBundle.loadString("assets/keystore/supabase.json");
-    supabasePolicy = SupabasePolicy.fromJson(json.decode(mapString)); // 获取配置信息
+    supabasePolicy = SupabasePolicy.fromJson(jsonDecode(mapString)); // 获取配置信息
     await Supabase.initialize(
       url: supabasePolicy.supabaseUrl,
       anonKey: supabasePolicy.supabaseKey,
@@ -38,9 +38,9 @@ class SupaBaseManager {
     });
   }
 
-  Future<bool> canUploadConfig() async {
+  bool canUploadConfig() {
     final userId = Get.find<AuthController>().userId;
-    if (userId == supabasePolicy.owner) {
+    if (supabasePolicy.owner.contains(userId)) {
       return true;
     }
     Get.rawSnackbar(message: '未开放,请与管理员联系');
@@ -52,7 +52,7 @@ class SupaBaseManager {
     if (!authController.isLogin) {
       return;
     }
-    if (!await canUploadConfig()) {
+    if (!canUploadConfig()) {
       return;
     }
     final userId = Get.find<AuthController>().userId;
@@ -90,7 +90,7 @@ class SupaBaseManager {
     final AuthController authController = Get.find<AuthController>();
     final FavoriteController favoriteController = Get.find<FavoriteController>();
     if (authController.isLogin) {
-      if (!await canUploadConfig()) {
+      if (!canUploadConfig()) {
         return;
       }
 

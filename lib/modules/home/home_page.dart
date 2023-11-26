@@ -107,36 +107,28 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   }
 
   Future<bool> _onBackPressed() async {
-    bool doubleExit = Get.find<SettingsService>().doubleExit.value;
-    if (!doubleExit) {
-      return true;
-    }
     if (Get.currentRoute != RoutePath.kInitial) {
       return false;
     }
-    bool confirmExit = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+
+    var result = await Get.dialog<bool>(
+      AlertDialog(
         title: Text(S.of(context).exit_app),
         contentPadding: const EdgeInsets.all(2),
         actionsPadding: const EdgeInsets.all(10),
         actions: <Widget>[
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
+            onPressed: () => Get.back(result: false),
             child: Text(S.of(context).exit_yes),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // 取消退出
-            },
+            onPressed: () => Get.back(result: true),
             child: Text(S.of(context).exit_no),
           ),
         ],
       ),
     );
-    return confirmExit;
+    return result ?? false;
   }
 
   @override
