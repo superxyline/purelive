@@ -39,6 +39,7 @@
             android:hardwareAccelerated="true"
             android:resizeableActivity="true"
             android:supportsPictureInPicture="true"
+            android:enableOnBackInvokedCallback="true"
             android:windowSoftInputMode="adjustResize"
             >
             <!-- Specifies an Android theme to apply to this Activity as soon as

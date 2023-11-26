@@ -43,6 +43,7 @@ class MetaDataField {
   });
 }
 
+// ignore: doc_directive_missing_closing_tag
 /// {@template supa_email_auth}
 /// UI component to create email and password signup/ signin form
 ///

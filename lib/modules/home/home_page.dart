@@ -102,13 +102,13 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
         actions: <Widget>[
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(true);
+              Navigator.of(context).pop(false);
             },
             child: Text(S.of(context).exit_yes),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(false); // 取消退出
+              Navigator.of(context).pop(true); // 取消退出
             },
             child: Text(S.of(context).exit_no),
           ),
@@ -121,8 +121,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return WillPopScope(
-      onWillPop: _onBackPressed,
+    return BackButtonListener(
+      onBackButtonPressed: _onBackPressed,
       child: LayoutBuilder(
         builder: (context, constraint) => constraint.maxWidth <= 680
             ? HomeMobileView(

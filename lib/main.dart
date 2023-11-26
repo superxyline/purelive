@@ -72,16 +72,13 @@ class _MyAppState extends State<MyApp> with WindowListener {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initShareM3uState() async {
     if (Platform.isAndroid) {
-      final status = await Permission.manageExternalStorage.request();
-      if (status.isGranted) {
-        final handler = ShareHandler.instance;
-        await handler.getInitialSharedMedia();
-        handler.sharedMediaStream.listen((SharedMedia media) async {
-          if (isDataSourceM3u(media.content!)) {
-            FileRecoverUtils().recoverM3u8BackupByShare(media);
-          }
-        });
-      }
+      final handler = ShareHandler.instance;
+      await handler.getInitialSharedMedia();
+      handler.sharedMediaStream.listen((SharedMedia media) async {
+        if (isDataSourceM3u(media.content!)) {
+          FileRecoverUtils().recoverM3u8BackupByShare(media);
+        }
+      });
     }
   }
 
