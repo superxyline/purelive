@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'popular_grid_view.dart';
+import 'package:flutter/material.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/common/widgets/index.dart';
 import 'package:pure_live/modules/popular/popular_controller.dart';
-
-import 'popular_grid_view.dart';
 
 class PopularPage extends GetView<PopularController> {
   const PopularPage({super.key});
@@ -22,17 +21,15 @@ class PopularPage extends GetView<PopularController> {
           title: TabBar(
             controller: controller.tabController,
             isScrollable: true,
-            labelStyle:
-                const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
-            tabs: Sites.supportSites.map((e) => Tab(text: e.name)).toList(),
+            tabs: Sites().availableSites().map((e) => Tab(text: e.name)).toList(),
           ),
         ),
         body: TabBarView(
           controller: controller.tabController,
-          children:
-              Sites.supportSites.map((e) => PopularGridView(e.id)).toList(),
+          children: Sites().availableSites().map((e) => PopularGridView(e.id)).toList(),
         ),
       );
     });

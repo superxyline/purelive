@@ -70,7 +70,7 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
             controller: refreshController,
             onRefresh: onRefresh,
             onLoad: () {
-              refreshController.finishLoad(IndicatorResult.noMore);
+              refreshController.finishLoad(IndicatorResult.success);
             },
             child: controller.onlineRooms.isNotEmpty
                 ? MasonryGridView.count(

@@ -22,6 +22,7 @@ class HotAreasController extends BaseController {
     HotAreasModel origin = sites[index];
     sites.removeAt(index);
     sites.insert(index, HotAreasModel(id: origin.id, name: origin.name, show: !origin.show));
+    Get.rawSnackbar(message: '重启后生效');
     settingsController.hotAreasList.value = sites.where((p0) => p0.show).map((e) => e.id.toString()).toList();
   }
 }

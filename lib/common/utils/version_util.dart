@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class VersionUtil {
-  static const String version = '1.4.4';
+  static const String version = '1.4.5';
   static const String projectUrl = 'https://github.com/liuchuancong/pure_live';
   static const String releaseUrl = 'https://api.github.com/repos/liuchuancong/pure_live/releases';
   static const String issuesUrl = 'https://github.com/liuchuancong/pure_live/issues';

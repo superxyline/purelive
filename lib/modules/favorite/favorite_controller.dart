@@ -3,8 +3,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 
-class FavoriteController extends GetxController
-    with GetSingleTickerProviderStateMixin {
+class FavoriteController extends GetxController with GetSingleTickerProviderStateMixin {
   final SettingsService settings = Get.find<SettingsService>();
   late TabController tabController;
   FavoriteController() {
@@ -19,10 +18,11 @@ class FavoriteController extends GetxController
 
     // 监听settings rooms变化
     settings.favoriteRooms.listen((rooms) => syncRooms());
-
+    onRefresh();
     // 定时自动刷新
+
     Timer.periodic(
-      Duration(seconds: settings.autoRefreshTime.value),
+      Duration(minutes: settings.autoRefreshTime.value),
       (timer) => onRefresh(),
     );
   }
@@ -33,22 +33,20 @@ class FavoriteController extends GetxController
   void syncRooms() {
     onlineRooms.clear();
     offlineRooms.clear();
-    onlineRooms.addAll(settings.favoriteRooms
-        .where((room) => room.liveStatus == LiveStatus.live));
+    onlineRooms.addAll(settings.favoriteRooms.where((room) => room.liveStatus == LiveStatus.live));
 
-    offlineRooms.addAll(settings.favoriteRooms
-        .where((room) => room.liveStatus != LiveStatus.live));
+    offlineRooms.addAll(settings.favoriteRooms.where((room) => room.liveStatus != LiveStatus.live));
   }
 
   Future<bool> onRefresh() async {
+    if (settings.autoRefreshTime.value == 0) {
+      return true;
+    }
     bool hasError = false;
     List<Future<LiveRoom>> futures = [];
     for (final room in settings.favoriteRooms.value) {
-      futures.add(Sites.of(room.platform!)
-          .liveSite
-          .getRoomDetail(roomId: room.roomId!));
+      futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!));
     }
-
     try {
       final rooms = await Future.wait(futures);
       for (var room in rooms) {

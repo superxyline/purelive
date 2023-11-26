@@ -10,6 +10,8 @@ class SupabasePolicy {
   final String version;
   final String createdAt;
   final String tableName;
+  final String checkTable;
+  final String owner;
   SupabasePolicy({
     required this.supabaseUrl,
     required this.supabaseKey,
@@ -22,20 +24,29 @@ class SupabasePolicy {
     required this.version,
     required this.createdAt,
     required this.tableName,
+    required this.checkTable,
+    required this.owner,
   });
 
   factory SupabasePolicy.fromJson(Map<dynamic, dynamic> json) {
     return SupabasePolicy(
-        supabaseUrl: json['supabaseUrl'],
-        supabaseKey: json['supabaseKey'],
-        id: json['id'],
-        userId: json['user_id'],
-        uid: json['uid'],
-        config: json['config'],
-        email: json['email'],
-        updateAt: json['update_at'],
-        version: json['version'],
-        createdAt: json['created_at'],
-        tableName: json['table_name']);
+      supabaseUrl: json['supabaseUrl'],
+      supabaseKey: json['supabaseKey'],
+      id: json['id'],
+      userId: json['user_id'],
+      uid: json['uid'],
+      config: json['config'],
+      email: json['email'],
+      updateAt: json['update_at'],
+      version: json['version'],
+      createdAt: json['created_at'],
+      tableName: json['table_name'],
+      checkTable: json['check_table'],
+      owner: json['owner'],
+    );
+  }
+  @override
+  String toString() {
+    return '$supabaseUrl---$supabaseKey---$id---$userId---$uid---$config---$email---$updateAt---$version---$createdAt---$tableName---$checkTable----$owner';
   }
 }

@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'search_list_view.dart';
+import 'package:flutter/material.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/modules/search/search_controller.dart' as pure_live;
-
-import 'search_list_view.dart';
 
 class SearchPage extends GetView<pure_live.SearchController> {
   const SearchPage({super.key});
@@ -37,14 +36,14 @@ class SearchPage extends GetView<pure_live.SearchController> {
         bottom: TabBar(
           controller: controller.tabController,
           padding: EdgeInsets.zero,
-          tabs: Sites.supportSites.map((e) => Tab(text: e.name)).toList(),
+          tabs: Sites().availableSites().map((e) => Tab(text: e.name)).toList(),
           isScrollable: false,
           indicatorSize: TabBarIndicatorSize.label,
         ),
       ),
       body: TabBarView(
         controller: controller.tabController,
-        children: Sites.supportSites.map((e) => SearchListView(e.id)).toList(),
+        children: Sites().availableSites().map((e) => SearchListView(e.id)).toList(),
       ),
     );
   }

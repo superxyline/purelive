@@ -2,16 +2,15 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
 
-class AreasController extends GetxController
-    with GetSingleTickerProviderStateMixin {
+class AreasController extends GetxController with GetSingleTickerProviderStateMixin {
   late TabController tabController;
   int index = 0;
   AreasController() {
     final preferPlatform = Get.find<SettingsService>().preferPlatform.value;
-    final pIndex = Sites.supportSites.indexWhere((e) => e.id == preferPlatform);
+    final pIndex = Sites().availableSites().indexWhere((e) => e.id == preferPlatform);
     tabController = TabController(
       initialIndex: pIndex == -1 ? 0 : pIndex,
-      length: Sites.supportSites.length,
+      length: Sites().availableSites().length,
       vsync: this,
     );
     index = pIndex == -1 ? 0 : pIndex;
@@ -21,8 +20,7 @@ class AreasController extends GetxController
         return;
       }
       index = currentIndex;
-      var controller =
-          Get.find<AreasListController>(tag: Sites.supportSites[index].id);
+      var controller = Get.find<AreasListController>(tag: Sites().availableSites()[index].id);
 
       if (controller.list.isEmpty) {
         controller.loadData();
@@ -32,7 +30,7 @@ class AreasController extends GetxController
 
   @override
   void onInit() async {
-    for (var site in Sites.supportSites) {
+    for (var site in Sites().availableSites()) {
       Get.put(AreasListController(site), tag: site.id);
       var controller = Get.find<AreasListController>(tag: site.id);
       if (controller.list.isEmpty) {

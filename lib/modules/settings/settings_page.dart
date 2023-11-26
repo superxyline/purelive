@@ -113,7 +113,7 @@ class SettingsPage extends GetView<SettingsService> {
           ListTile(
             title: Text(S.of(context).auto_refresh_time),
             subtitle: Text(S.of(context).auto_refresh_time_subtitle),
-            trailing: Obx(() => Text('${controller.autoRefreshTime}s')),
+            trailing: Obx(() => Text('${controller.autoRefreshTime}分钟')),
             onTap: showAutoRefreshTimeSetDialog,
           ),
           ListTile(
@@ -344,14 +344,14 @@ class SettingsPage extends GetView<SettingsService> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Slider(
-                  min: 10,
+                  min: 0,
                   max: 120,
                   label: S.of(context).auto_refresh_time,
                   value: controller.autoRefreshTime.toDouble(),
                   onChanged: (value) => controller.autoRefreshTime.value = value.toInt(),
                 ),
                 Text('${S.of(context).auto_refresh_time}:'
-                    ' ${controller.autoRefreshTime}s'),
+                    ' ${controller.autoRefreshTime}分钟'),
               ],
             )),
       ),

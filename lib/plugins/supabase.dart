@@ -26,7 +26,10 @@ class SupaBaseManager {
   Future initial() async {
     var mapString = await rootBundle.loadString("assets/keystore/supabase.json");
     supabasePolicy = SupabasePolicy.fromJson(json.decode(mapString)); // 获取配置信息
-    await Supabase.initialize(url: supabasePolicy.supabaseUrl, anonKey: supabasePolicy.supabaseKey);
+    await Supabase.initialize(
+      url: supabasePolicy.supabaseUrl,
+      anonKey: supabasePolicy.supabaseKey,
+    );
   }
 
   signOut() {
@@ -35,14 +38,26 @@ class SupaBaseManager {
     });
   }
 
+  Future<bool> canUploadConfig() async {
+    final userId = Get.find<AuthController>().userId;
+    if (userId == supabasePolicy.owner) {
+      return true;
+    }
+    Get.rawSnackbar(message: '未开放,请与管理员联系');
+    return false;
+  }
+
   Future<void> uploadConfig() async {
     final AuthController authController = Get.find<AuthController>();
     if (!authController.isLogin) {
       return;
     }
+    if (!await canUploadConfig()) {
+      return;
+    }
     final userId = Get.find<AuthController>().userId;
     final SettingsService service = Get.find<SettingsService>();
-    List<dynamic> data = await client.from(supabasePolicy.tableName).select().eq(supabasePolicy.uid, userId);
+    List<dynamic> data = await client.from(supabasePolicy.tableName).select().eq(supabasePolicy.userId, userId);
     final encryptData = ArchethicUtils().encrypt(jsonEncode(service.toJson()));
     DateTime currentTime = DateTime.now();
     String formattedTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentTime);
@@ -55,13 +70,12 @@ class SupaBaseManager {
             supabasePolicy.updateAt: formattedTime,
             supabasePolicy.version: VersionUtil.version,
           })
-          .eq(supabasePolicy.uid, userId)
+          .eq(supabasePolicy.userId, userId)
           .then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
             Get.rawSnackbar(message: '上传失败,请稍后重试');
           });
     } else {
       client.from(supabasePolicy.tableName).insert({
-        supabasePolicy.uid: authController.user.id,
         supabasePolicy.config: encryptData,
         supabasePolicy.email: authController.user.email,
         supabasePolicy.updateAt: formattedTime,
@@ -76,11 +90,15 @@ class SupaBaseManager {
     final AuthController authController = Get.find<AuthController>();
     final FavoriteController favoriteController = Get.find<FavoriteController>();
     if (authController.isLogin) {
+      if (!await canUploadConfig()) {
+        return;
+      }
+
       final SettingsService service = Get.find<SettingsService>();
       List<dynamic> data = await client
           .from(supabasePolicy.tableName)
           .select()
-          .eq(supabasePolicy.uid, authController.user.id)
+          .eq(supabasePolicy.userId, authController.user.id)
           .then((value) => value, onError: (err) {
         Get.rawSnackbar(message: '下载失败,请稍后重试');
       });
@@ -88,9 +106,11 @@ class SupaBaseManager {
         Get.rawSnackbar(message: '下载成功');
         String jsonString = data[0][supabasePolicy.config];
         final jsonData = ArchethicUtils().decrypti(jsonString);
-        Map<String, dynamic> back = jsonDecode(jsonData!);
+        Map<String, dynamic> back = jsonDecode(jsonData);
         service.fromJson(back);
         favoriteController.onRefresh();
+      } else {
+        Get.rawSnackbar(message: '无数据');
       }
     }
   }

@@ -228,7 +228,7 @@ class SettingsService extends GetxController {
   final enableDynamicTheme = (PrefUtil.getBool('enableDynamicTheme') ?? false).obs;
 
   // Custom settings
-  final autoRefreshTime = (PrefUtil.getInt('autoRefreshTime') ?? 60).obs;
+  final autoRefreshTime = (PrefUtil.getInt('autoRefreshTime') ?? 3).obs;
 
   final autoShutDownTime = (PrefUtil.getInt('autoShutDownTime') ?? 120).obs;
 
@@ -292,9 +292,9 @@ class SettingsService extends GetxController {
     onInitShutDown();
   }
 
-  void changeAutoRefreshConfig(int seconds) {
-    autoRefreshTime.value = seconds;
-    PrefUtil.setInt('autoRefreshTime', seconds);
+  void changeAutoRefreshConfig(int minutes) {
+    autoRefreshTime.value = minutes;
+    PrefUtil.setInt('autoRefreshTime', minutes);
   }
 
   static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishow', 'cc', '网络'];
@@ -311,9 +311,11 @@ class SettingsService extends GetxController {
     }
   }
 
+  static const List<String> supportSites = ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou', 'cc', 'iptv'];
+
   final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
 
-  final hotAreasList = ((PrefUtil.getStringList('hotAreasList') ?? Sites.supportSites.map((e) => e.id)).toList()).obs;
+  final hotAreasList = ((PrefUtil.getStringList('hotAreasList') ?? supportSites)).obs;
 
   // Favorite rooms storage
   final favoriteRooms =
@@ -451,7 +453,7 @@ class SettingsService extends GetxController {
     hotAreasList.value =
         json['hotAreasList'] != null ? (json['hotAreasList'] as List).map((e) => e.toString()).toList() : [];
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
-    autoRefreshTime.value = json['autoRefreshTime'] ?? 60;
+    autoRefreshTime.value = json['autoRefreshTime'] ?? 3;
     themeModeName.value = json['themeMode'] ?? "System";
     enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
@@ -534,7 +536,7 @@ class SettingsService extends GetxController {
       "themeColor": "Chrome",
       "enableDynamicTheme": false,
       "autoShutDownTime": 120,
-      "autoRefreshTime": 60,
+      "autoRefreshTime": 3,
       "languageName": languageName.value,
       "enableAutoShutDownTime": false,
       "enableDenseFavorites": false,

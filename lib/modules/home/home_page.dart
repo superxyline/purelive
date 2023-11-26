@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:get/get.dart';
 import '../search/search_page.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin, WindowListener {
+  Timer? _debounceTimer;
   @override
   void initState() {
     super.initState();
@@ -59,8 +61,24 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     AreasPage(),
     SearchPage(),
   ];
+  void debounceListen(Function? func, [int delay = 1000]) {
+    if (_debounceTimer != null) {
+      _debounceTimer?.cancel();
+    }
+    _debounceTimer = Timer(Duration(milliseconds: delay), () {
+      func?.call();
+
+      _debounceTimer = null;
+    });
+  }
 
   void onDestinationSelected(int index) {
+    if (index == 0) {
+      debounceListen(() {
+        final FavoriteController favoriteController = Get.find<FavoriteController>();
+        favoriteController.onRefresh();
+      }, 2000);
+    }
     setState(() => _selectedIndex = index);
   }
 
@@ -92,6 +110,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
     if (!doubleExit) {
       return true;
+    }
+    if (Get.currentRoute != RoutePath.kInitial) {
+      return false;
     }
     bool confirmExit = await showDialog(
       context: context,
