@@ -29,7 +29,6 @@ jobs:
         uses: perdoo/pull-request-update-body-action@v1.0.1
         with:
           ghToken: ${{ secrets.TOKEN }}
-          override: "${{ fromJson(steps.version.outputs.content).version_desc }}"
           body: ${{ fromJson(steps.version.outputs.content).version_desc }}
           
       #完成
