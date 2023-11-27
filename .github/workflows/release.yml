@@ -26,9 +26,9 @@ jobs:
         run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
       #上传至Release
       - name: Upload Release
-        uses: perdoo/pull-request-update-body-action@v1.0.1
+        uses: julien-deramond/update-issue-body@v1.1.0
         with:
-          ghToken: ${{ secrets.TOKEN }}
+          token: ${{ secrets.TOKEN }}
           body: ${{ fromJson(steps.version.outputs.content).version_desc }}
           
       #完成
