@@ -2,8 +2,8 @@ name: app-build-action
 #推送Tag时触发
 on:
   push:
-    branches:
-      - master 
+    tags:
+      - "*"
 jobs:
   build-mac-ios-android:
     runs-on: macos-latest
@@ -26,11 +26,21 @@ jobs:
         run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
       #上传至Release
       - name: Upload Release
-        uses: julien-deramond/update-issue-body@v1.1.0
+        uses: juliangruber/read-file-action@v1
         with:
+          path: assets/version.json
+      - name: Echo version
+        run: echo "${{ fromJson(steps.version.outputs.content).version }}"
+      - name: Echo version content
+        run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
+      - name: Upload Release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: false
+          name: "${{ fromJson(steps.version.outputs.content).version }}"
+          body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
+          prerelease: ${{ fromJson(steps.version.outputs.content).prerelease }}
           token: ${{ secrets.TOKEN }}
-          body: ${{ fromJson(steps.version.outputs.content).version_desc }}
-          issue-number: 62
-          
       #完成
       - run: echo "🍏 This job's status is ${{ job.status }}."
