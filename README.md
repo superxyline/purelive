@@ -22,7 +22,7 @@
 
 ## 功能
 
-- [X] 使用[supabase](https://supabase.com/) 完成登录注册功能,邮箱为真实邮箱  ***不再公开使用，服务器被炸***
+- [X] 使用[supabase](https://supabase.com/) 完成登录注册功能,邮箱为真实邮箱  ***白名单使用*** 您可自己fork项目去supabase控制台生成远程服务，具体不在追溯，只提供表字段。
 - [X] 已实现**Android**/**TV**/**Windows**（TV bug较多，光标比较难用，建议使用鼠标。）  
 - [X] 已实现倒计时关闭应用
 - [X] **Android** 端多种播放器随意切换
@@ -83,7 +83,9 @@
 
 * dart_simple_live [dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live)
 * pure_live [pure_live](https://github.com/Jackiu1997/pure_live)
-  
+## supabase表结构
+![image](https://github.com/liuchuancong/pure_live/assets/36957912/4e4fefb8-20bb-4a1f-a224-f581de3d95ec)
+
 ## 开发者
 
 * 主开发者: [liuchuancong](https://github.com/liuchuancong)
