@@ -30,7 +30,7 @@ jobs:
         with:
           token: ${{ secrets.TOKEN }}
           body: ${{ fromJson(steps.version.outputs.content).version_desc }}
-          issue-numbe: 62,59,58
+          issue-number: 62,59,58
           
       #完成
       - run: echo "🍏 This job's status is ${{ job.status }}."
