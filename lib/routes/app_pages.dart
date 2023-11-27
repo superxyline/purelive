@@ -13,6 +13,7 @@ import 'package:pure_live/modules/account/account_page.dart';
 import 'package:pure_live/modules/contact/contact_page.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/history/history_page.dart';
+import 'package:pure_live/modules/auth/user_manage_page.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
@@ -143,5 +144,6 @@ class AppPages {
         HotAreasBinding(),
       ],
     ),
+    GetPage(name: RoutePath.kUserManage, page: () => const UserManager()),
   ];
 }

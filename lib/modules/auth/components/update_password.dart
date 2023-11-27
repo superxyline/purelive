@@ -23,7 +23,7 @@ class UpdatePassword extends StatelessWidget {
               accessToken: Supabase.instance.client.auth.currentSession!.accessToken,
               onSuccess: (response) {
                 Supabase.instance.client.auth.refreshSession();
-                Get.rawSnackbar(message: S.of(context).supabase_sign_success);
+                SmartDialog.showToast(S.of(context).supabase_sign_success);
                 Get.offAllNamed(RoutePath.kInitial);
               },
             ),

@@ -11,7 +11,7 @@ class SupabasePolicy {
   final String createdAt;
   final String tableName;
   final String checkTable;
-  final List<String> owner;
+  final String owner;
   SupabasePolicy({
     required this.supabaseUrl,
     required this.supabaseKey,
@@ -42,7 +42,7 @@ class SupabasePolicy {
       createdAt: json['created_at'],
       tableName: json['table_name'],
       checkTable: json['check_table'],
-      owner: (json['owner'] as List<dynamic>).map((e) => e.toString()).toList(),
+      owner: json['owner'],
     );
   }
 }

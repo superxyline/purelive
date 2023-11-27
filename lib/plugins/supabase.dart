@@ -38,12 +38,13 @@ class SupaBaseManager {
     });
   }
 
-  bool canUploadConfig() {
-    final userId = Get.find<AuthController>().userId;
-    if (supabasePolicy.owner.contains(userId)) {
+  Future<bool> canUploadConfig() async {
+    final user = Get.find<AuthController>().user;
+    List<dynamic> data = await client.from(supabasePolicy.checkTable).select().eq(supabasePolicy.email, user.email);
+    if (data.isNotEmpty) {
       return true;
     }
-    Get.rawSnackbar(message: '未开放,请与管理员联系');
+    SmartDialog.showToast('未开放,请与管理员联系');
     return false;
   }
 
@@ -52,7 +53,8 @@ class SupaBaseManager {
     if (!authController.isLogin) {
       return;
     }
-    if (!canUploadConfig()) {
+    var canUpload = await canUploadConfig();
+    if (!canUpload) {
       return;
     }
     final userId = Get.find<AuthController>().userId;
@@ -71,17 +73,18 @@ class SupaBaseManager {
             supabasePolicy.version: VersionUtil.version,
           })
           .eq(supabasePolicy.userId, userId)
-          .then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
-            Get.rawSnackbar(message: '上传失败,请稍后重试');
-          });
+          .then((value) => SmartDialog.showToast('上传成功'), onError: (err) {
+            SmartDialog.showToast('上传失败,请稍后重试');
+          })
+          .catchError((err) => {SmartDialog.showToast('上传失败,请稍后重试')});
     } else {
       client.from(supabasePolicy.tableName).insert({
         supabasePolicy.config: encryptData,
         supabasePolicy.email: authController.user.email,
         supabasePolicy.updateAt: formattedTime,
         supabasePolicy.version: VersionUtil.version,
-      }).then((value) => Get.rawSnackbar(message: '上传成功'), onError: (err) {
-        Get.rawSnackbar(message: '上传失败,请稍后重试');
+      }).then((value) => SmartDialog.showToast('上传成功'), onError: (err) {
+        SmartDialog.showToast('上传失败,请稍后重试');
       });
     }
   }
@@ -90,7 +93,7 @@ class SupaBaseManager {
     final AuthController authController = Get.find<AuthController>();
     final FavoriteController favoriteController = Get.find<FavoriteController>();
     if (authController.isLogin) {
-      if (!canUploadConfig()) {
+      if (!await canUploadConfig()) {
         return;
       }
 
@@ -100,17 +103,17 @@ class SupaBaseManager {
           .select()
           .eq(supabasePolicy.userId, authController.user.id)
           .then((value) => value, onError: (err) {
-        Get.rawSnackbar(message: '下载失败,请稍后重试');
+        SmartDialog.showToast('下载失败,请稍后重试');
       });
       if (data.isNotEmpty) {
-        Get.rawSnackbar(message: '下载成功');
+        SmartDialog.showToast('下载成功');
         String jsonString = data[0][supabasePolicy.config];
         final jsonData = ArchethicUtils().decrypti(jsonString);
         Map<String, dynamic> back = jsonDecode(jsonData);
         service.fromJson(back);
         favoriteController.onRefresh();
       } else {
-        Get.rawSnackbar(message: '无数据');
+        SmartDialog.showToast('无数据');
       }
     }
   }

@@ -1,9 +1,9 @@
 name: app-build-action
 #推送Tag时触发
 on:
- push:
-  tags:
-   - "*"
+  push:
+    branches:
+      - master 
 jobs:
   build-windows-msix-android:
     runs-on: macos-latest

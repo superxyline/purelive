@@ -29,15 +29,14 @@ class _SignInPageState extends State<SignInPage> {
                 onPasswordResetEmailSent: () {
                   final AuthController authController = Get.find<AuthController>();
                   authController.shouldGoReset = true;
-                  // Get.toNamed(RoutePath.kUpdatePassword);
-                  Get.rawSnackbar(message: '请打开邮箱重置密码');
+                  SmartDialog.showToast('请打开邮箱重置密码', animationTime: const Duration(seconds: 2));
                 },
                 onSignInComplete: (AuthResponse response) {
-                  Get.rawSnackbar(message: S.of(context).supabase_sign_success);
+                  SmartDialog.showToast(S.of(context).supabase_sign_success);
                   Get.offAllNamed(RoutePath.kInitial);
                 },
                 onSignUpComplete: (AuthResponse response) {
-                  Get.rawSnackbar(message: S.of(context).supabase_sign_confirm);
+                  SmartDialog.showToast(S.of(context).supabase_sign_confirm);
                 },
               ),
             ],

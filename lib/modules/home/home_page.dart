@@ -108,11 +108,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
 
   Future<bool> _onBackPressed() async {
     if (Get.currentRoute != RoutePath.kInitial) {
-      return false;
+      return true;
     }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
     if (!doubleExit) {
-      return false;
+      return true;
     }
     var result = await Get.dialog<bool>(
       AlertDialog(
@@ -121,11 +121,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
         actionsPadding: const EdgeInsets.all(10),
         actions: <Widget>[
           TextButton(
-            onPressed: () => Get.back(result: false),
+            onPressed: () => Get.back(result: true),
             child: Text(S.of(context).exit_yes),
           ),
           TextButton(
-            onPressed: () => Get.back(result: true),
+            onPressed: () => Get.back(result: false),
             child: Text(S.of(context).exit_no),
           ),
         ],
@@ -137,8 +137,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BackButtonListener(
-      onBackButtonPressed: _onBackPressed,
+    return WillPopScope(
+      onWillPop: _onBackPressed,
       child: LayoutBuilder(
         builder: (context, constraint) => constraint.maxWidth <= 680
             ? HomeMobileView(

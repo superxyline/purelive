@@ -45,6 +45,10 @@ class LivePlayController extends StateController {
 
   int lastExitTime = 0;
   Future<bool> onBackPressed() async {
+    if (videoController!.showSettting.value) {
+      videoController?.showSettting.toggle();
+      return await Future.value(false);
+    }
     if (videoController!.isFullscreen.value) {
       videoController?.exitFullScreen();
       return await Future.value(false);

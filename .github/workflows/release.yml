@@ -2,8 +2,8 @@ name: app-build-action
 #推送Tag时触发
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - master 
 jobs:
   build-mac-ios-android:
     runs-on: macos-latest
@@ -24,5 +24,15 @@ jobs:
         run: echo "${{ fromJson(steps.version.outputs.content).version }}"
       - name: Echo version content
         run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
+      #上传至Release
+      - name: Upload Release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          name: "${{ fromJson(steps.version.outputs.content).version }}"
+          body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
+          prerelease: ${{ fromJson(steps.version.outputs.content).prerelease }}
+          token: ${{ secrets.TOKEN }}
       #完成
       - run: echo "🍏 This job's status is ${{ job.status }}."

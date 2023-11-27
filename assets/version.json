@@ -1,7 +1,7 @@
 {
-  "version": "1.4.5",
-  "version_num": 10405,
-  "version_desc": "-delete:网络同步受限，可联系本人开通\n-Fix:自动刷新为分钟，0代表关闭\n-可以在设置中选择平台显示,重启生效\n-Fix:点击关注则可刷新\n-Fix:其他bug",
+  "version": "1.4.6",
+  "version_num": 10406,
+  "version_desc": "-Fix:双击返回与单机返回.\n-Fix:全屏下点击弹幕设置手势会关闭设置.\n-Fix:权限管理：同步功能迁移，不对外公共开放",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

@@ -46,6 +46,9 @@ class RoutePath {
   static const kSignIn = "/sign_in";
 
   /// 登陆
+  static const kUserManage = "/user_manage";
+
+  /// 登陆
   static const kUpdatePassword = "/update_password";
 
   /// 弹幕过滤

@@ -20,6 +20,7 @@ class AuthController extends GetxController {
         isLogin = true;
         userId = data.session!.user.id;
         user = session!.user;
+        SupaBaseManager().client.headers[SupaBaseManager.supabasePolicy.email] = user.email!;
       } else {
         isLogin = false;
         userId = '';
