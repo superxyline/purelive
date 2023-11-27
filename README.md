@@ -84,6 +84,8 @@
 * dart_simple_live [dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live)
 * pure_live [pure_live](https://github.com/Jackiu1997/pure_live)
 ## supabase表结构
+由于是开源项目，目前很多配置文件暴露在外，导致大量机器循环调用，消耗内存以及流量，警告： 在创建项目时请结合 [https://zuplo.com/](https://zuplo.com/)使用，权限表添加允许创建的账户修改数据库。
+配置在assets文件中打包的时候依然可以通过逆向解压可以查看该配置，最好写成dart代码引入，上传时忽略。
 ![image](https://github.com/liuchuancong/pure_live/assets/36957912/4e4fefb8-20bb-4a1f-a224-f581de3d95ec)
 
 ## 开发者
