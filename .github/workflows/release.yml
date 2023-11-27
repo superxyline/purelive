@@ -26,13 +26,11 @@ jobs:
         run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
       #上传至Release
       - name: Upload Release
-        uses: ncipollo/release-action@v1
+        uses: perdoo/pull-request-update-body-action@v1.0.1
         with:
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          name: "${{ fromJson(steps.version.outputs.content).version }}"
-          body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
-          prerelease: ${{ fromJson(steps.version.outputs.content).prerelease }}
-          token: ${{ secrets.TOKEN }}
+          ghToken: ${{ secrets.TOKEN }}
+          override: "${{ fromJson(steps.version.outputs.content).version_desc }}"
+          body: ${{ fromJson(steps.version.outputs.content).version_desc }}
+          
       #完成
       - run: echo "🍏 This job's status is ${{ job.status }}."
