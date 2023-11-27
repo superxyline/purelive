@@ -31,7 +31,7 @@
 
 ## 下载
 
-请使用 蓝奏云 或 GitHub 通道进行下载
+请使用 蓝奏云 进行下载
 
 下载地址 [纯粹直播](https://wwvr.lanzouw.com/b01f6rqab)
 
