@@ -2,8 +2,10 @@ import os
 import shutil
 import time
 source_dir_name = 'E:/project/pure_live_release/'
-target_apk_dir_name = 'E:/project/pure_live/build/windows/runner/Release/'
-target_win_app_name = 'E:/project/pure_live/build/app/outputs/flutter-apk/'
+# target_apk_dir_name = 'E:/project/pure_live/build/windows/runner/Release/'
+# target_win_app_name = 'E:/project/pure_live/build/app/outputs/flutter-apk/'
+target_apk_dir_name = 'D:/flutter/pure_live/build/windows/runner/Release/'
+target_win_app_name = 'D:/flutter/pure_live/build/app/outputs/flutter-apk/'
 files = []
 apkDirArr = ['all', 'v7a', 'v8a', 'x86']
 allowedFileArr = ['apk', 'msix']

@@ -49,7 +49,7 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
   Future onRefresh() async {
-    bool result = await controller.onRefresh();
+    bool result = await controller.onRefresh(isHandMove: true);
     if (!result) {
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();

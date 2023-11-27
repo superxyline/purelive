@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     if (index == 0) {
       debounceListen(() {
         final FavoriteController favoriteController = Get.find<FavoriteController>();
-        favoriteController.onRefresh();
+        favoriteController.onRefresh(isHandMove: true);
       }, 2000);
     }
     setState(() => _selectedIndex = index);
@@ -108,11 +108,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
 
   Future<bool> _onBackPressed() async {
     if (Get.currentRoute != RoutePath.kInitial) {
-      return true;
+      return false;
     }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
     if (!doubleExit) {
-      return true;
+      return false;
     }
     var result = await Get.dialog<bool>(
       AlertDialog(
@@ -121,11 +121,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
         actionsPadding: const EdgeInsets.all(10),
         actions: <Widget>[
           TextButton(
-            onPressed: () => Get.back(result: true),
+            onPressed: () => Get.back(result: false),
             child: Text(S.of(context).exit_yes),
           ),
           TextButton(
-            onPressed: () => Get.back(result: false),
+            onPressed: () => Get.back(result: true),
             child: Text(S.of(context).exit_no),
           ),
         ],
@@ -137,8 +137,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return WillPopScope(
-      onWillPop: _onBackPressed,
+    return BackButtonListener(
+      onBackButtonPressed: _onBackPressed,
       child: LayoutBuilder(
         builder: (context, constraint) => constraint.maxWidth <= 680
             ? HomeMobileView(

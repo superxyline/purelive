@@ -38,9 +38,12 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     offlineRooms.addAll(settings.favoriteRooms.where((room) => room.liveStatus != LiveStatus.live));
   }
 
-  Future<bool> onRefresh() async {
-    if (settings.autoRefreshTime.value == 0) {
-      return true;
+  Future<bool> onRefresh({bool isHandMove = false}) async {
+    if (settings.autoRefreshTime.value == 0 && isHandMove == false) {
+      return false;
+    }
+    if (isHandMove) {
+      SmartDialog.showToast('刷新成功');
     }
     bool hasError = false;
     List<Future<LiveRoom>> futures = [];
@@ -53,7 +56,11 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
         settings.updateRoom(room);
       }
       syncRooms();
+      if (isHandMove) {
+        SmartDialog.showToast('刷新成功');
+      }
     } catch (e) {
+      hasError = true;
       log(e.toString(), name: 'syncRooms');
     }
     return hasError;
