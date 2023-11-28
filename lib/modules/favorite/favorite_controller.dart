@@ -6,6 +6,7 @@ import 'package:pure_live/common/index.dart';
 class FavoriteController extends GetxController with GetSingleTickerProviderStateMixin {
   final SettingsService settings = Get.find<SettingsService>();
   late TabController tabController;
+  bool isFirstLoad = true;
   FavoriteController() {
     tabController = TabController(length: 2, vsync: this);
   }
@@ -39,11 +40,9 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
   }
 
   Future<bool> onRefresh({bool isHandMove = false}) async {
-    if (settings.autoRefreshTime.value == 0 && isHandMove == false) {
+    // 自动刷新时间为0关闭。不是手动刷新并且不是第一次刷新
+    if (settings.autoRefreshTime.value == 0 && isHandMove == false && !isFirstLoad) {
       return false;
-    }
-    if (isHandMove) {
-      SmartDialog.showToast('刷新成功');
     }
     bool hasError = false;
     List<Future<LiveRoom>> futures = [];
@@ -63,6 +62,7 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
       hasError = true;
       log(e.toString(), name: 'syncRooms');
     }
+    isFirstLoad = false;
     return hasError;
   }
 }

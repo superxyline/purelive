@@ -50,10 +50,10 @@ class _UserManagerState extends State<UserManager> {
     SupaBaseManager().client.from(SupaBaseManager.supabasePolicy.checkTable).insert({
       SupaBaseManager.supabasePolicy.email: textEditingController.text.trim(),
     }).then((value) {
-      SmartDialog.showToast('上传成功');
+      SmartDialog.showToast('添加成功');
       users.add(textEditingController.text.trim());
     }, onError: (err) {
-      SmartDialog.showToast('上传失败,请稍后重试');
+      SmartDialog.showToast('添加失败,请稍后重试');
     });
   }
 
