@@ -98,7 +98,6 @@ dependencies:
   permission_handler: ^11.0.1
   shared_preferences: ^2.2.2
   flutter_cache_manager: ^3.3.1
-  speech_to_text: ^6.4.1
   # utils
   get: ^5.0.0-release-candidate-5
   intl: ^0.18.0

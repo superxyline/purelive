@@ -38,8 +38,7 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
-      if (widget.controller.videoPlayerIndex == 0 &&
-          widget.controller.allowBackgroundPlay) {
+      if (widget.controller.videoPlayerIndex == 0 && widget.controller.allowBackgroundPlay) {
         widget.controller.debounceListen(() {
           widget.controller.mobileController?.startPlay();
         }, 100);
@@ -97,8 +96,7 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
           : Card(
               elevation: 0,
               margin: const EdgeInsets.all(0),
-              shape:
-                  const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
               clipBehavior: Clip.antiAlias,
               color: Get.theme.focusColor,
               child: CachedNetworkImage(
@@ -129,9 +127,7 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
                   children: [
                     PlayerFull(
                       controller: widget.controller,
-                      routePageBuilder:
-                          (context, animation, second, controllerProvider) =>
-                              AnimatedBuilder(
+                      routePageBuilder: (context, animation, second, controllerProvider) => AnimatedBuilder(
                         animation: animation,
                         builder: (context, child) => MobileFullscreen(
                           controller: widget.controller,
@@ -153,8 +149,7 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
               : Card(
                   elevation: 0,
                   margin: const EdgeInsets.all(0),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   clipBehavior: Clip.antiAlias,
                   color: Get.theme.focusColor,
                   child: CachedNetworkImage(
@@ -169,32 +164,30 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
         );
       }
       if (widget.controller.videoPlayerIndex == 2) {
-        return Obx(
-            () => widget.controller.mediaPlayerControllerInitialized.value
-                ? media_kit_video.Video(
-                    key: widget.controller.key,
-                    controller: widget.controller.mediaPlayerController,
-                    fit: widget.controller.videoFit.value,
-                    controls: widget.controller.room.platform == 'iptv'
-                        ? media_kit_video.MaterialVideoControls
-                        : (state) => _buildVideoPanel(),
-                  )
-                : Card(
-                    elevation: 0,
-                    margin: const EdgeInsets.all(0),
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero),
-                    clipBehavior: Clip.antiAlias,
-                    color: Get.theme.focusColor,
-                    child: CachedNetworkImage(
-                      cacheManager: CustomCacheManager.instance,
-                      imageUrl: widget.controller.room.cover!,
-                      fit: BoxFit.fill,
-                      errorWidget: (context, error, stackTrace) => const Center(
-                        child: Icon(Icons.live_tv_rounded, size: 48),
-                      ),
-                    ),
-                  ));
+        return Obx(() => widget.controller.mediaPlayerControllerInitialized.value
+            ? media_kit_video.Video(
+                key: widget.controller.key,
+                controller: widget.controller.mediaPlayerController,
+                fit: widget.controller.videoFit.value,
+                controls: widget.controller.room.platform == 'iptv'
+                    ? media_kit_video.MaterialVideoControls
+                    : (state) => _buildVideoPanel(),
+              )
+            : Card(
+                elevation: 0,
+                margin: const EdgeInsets.all(0),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                clipBehavior: Clip.antiAlias,
+                color: Get.theme.focusColor,
+                child: CachedNetworkImage(
+                  cacheManager: CustomCacheManager.instance,
+                  imageUrl: widget.controller.room.cover!,
+                  fit: BoxFit.fill,
+                  errorWidget: (context, error, stackTrace) => const Center(
+                    child: Icon(Icons.live_tv_rounded, size: 48),
+                  ),
+                ),
+              ));
       }
       return Card(
         elevation: 0,

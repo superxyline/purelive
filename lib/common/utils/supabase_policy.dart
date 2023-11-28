@@ -12,6 +12,7 @@ class SupabasePolicy {
   final String tableName;
   final String checkTable;
   final String owner;
+  final String appid;
   SupabasePolicy({
     required this.supabaseUrl,
     required this.supabaseKey,
@@ -26,6 +27,7 @@ class SupabasePolicy {
     required this.tableName,
     required this.checkTable,
     required this.owner,
+    required this.appid,
   });
 
   factory SupabasePolicy.fromJson(Map<dynamic, dynamic> json) {
@@ -43,6 +45,7 @@ class SupabasePolicy {
       tableName: json['table_name'],
       checkTable: json['check_table'],
       owner: json['owner'],
+      appid: json['appid'],
     );
   }
 }

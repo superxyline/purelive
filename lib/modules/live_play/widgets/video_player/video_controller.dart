@@ -342,7 +342,7 @@ class VideoController with ChangeNotifier {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     if (allowScreenKeepOn) WakelockPlus.disable();
     if (Platform.isAndroid || Platform.isIOS) {
       if (videoPlayerIndex == 0) {
