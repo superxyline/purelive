@@ -62,6 +62,7 @@
 
 本软件Android内置了*ExoPlayer*,*Ijkplayer*,*Mpvplayer*,只有*ExoPlayer*支持后台播放，如果*ExoPlayer*闪退，请在设置中关闭后台播放以及更换播放器重试。
 
+字幕：手机端您可打开手机自带的字幕工具观看字幕，windows: 任务栏搜索*Live captions*使用微软官方工具查看字幕
 ### Cookie
 
 由于第三方限制，观看b站高清直播需要登陆，您可点击三方认证即可获取cookie,本软件只是代理获取拿到**cookie**,不会获取用户的任何信息，用户信息仍由第三方管理
