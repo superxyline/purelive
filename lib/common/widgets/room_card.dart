@@ -4,7 +4,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-
 // ignore: must_be_immutable
 class RoomCard extends StatelessWidget {
   const RoomCard({
@@ -98,19 +97,19 @@ class RoomCard extends StatelessWidget {
                 ),
                 if (room.isRecord == true)
                   Positioned(
-                    right: dense ? 1 : 4,
-                    top: dense ? 1 : 4,
+                    right: dense ? 0 : 2,
+                    top: dense ? 0 : 2,
                     child: CountChip(
                       icon: Icons.videocam_rounded,
                       count: S.of(context).replay,
                       dense: dense,
-                      color: Theme.of(context).colorScheme.errorContainer,
+                      color: Theme.of(context).colorScheme.error,
                     ),
                   ),
-                if (room.isRecord == false && room.liveStatus == LiveStatus.live && room.watching!.isNotEmpty)
+                if (room.isRecord == false && room.liveStatus == LiveStatus.live)
                   Positioned(
-                    right: dense ? 1 : 4,
-                    bottom: dense ? 1 : 4,
+                    right: dense ? 0 : 2,
+                    bottom: dense ? 0 : 2,
                     child: CountChip(
                       icon: Icons.whatshot_rounded,
                       count: readableCount(room.watching!),
@@ -216,25 +215,25 @@ class CountChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: const StadiumBorder(),
-      color: color.withOpacity(0.5),
+      color: color.withOpacity(0.8),
       shadowColor: Colors.transparent,
       elevation: 0,
       child: Padding(
         padding: EdgeInsets.all(dense ? 4 : 6),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
               color: Colors.white.withOpacity(0.8),
-              size: dense ? 13 : 16,
+              size: dense ? 18 : 20,
             ),
-            const SizedBox(width: 4),
             Text(
               count,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white.withOpacity(0.8),
-                    fontSize: dense ? 9 : 11,
+                    fontSize: dense ? 15 : 18,
                   ),
             ),
           ],

@@ -1,6 +1,6 @@
 {
-  "version": "1.4.6",
-  "version_num": 10406,
+  "version": "1.4.7",
+  "version_num": 10407,
   "version_desc": "-Fix:双击返回与单机返回.\n-Fix:全屏下点击弹幕设置手势会关闭设置.\n-Fix:权限管理：同步功能迁移，不对外公共开放",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"

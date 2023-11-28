@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:pure_live/plugins/supabase.dart';
-import 'package:pure_live/routes/route_path.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthController extends GetxController {
@@ -13,14 +12,19 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    supabaseClient.auth.onAuthStateChange.listen((data) {
+    supabaseClient.auth.onAuthStateChange.listen((data) async {
       final AuthChangeEvent event = data.event;
       final Session? session = data.session;
       if (session?.user != null) {
         isLogin = true;
         userId = data.session!.user.id;
         user = session!.user;
-        SupaBaseManager().client.headers[SupaBaseManager.supabasePolicy.email] = user.email!;
+        final SettingsService service = Get.find<SettingsService>();
+        await SupaBaseManager().loadUploadConfig();
+        bool wantLoad = service.favoriteRooms.isEmpty;
+        if (wantLoad) {
+          SupaBaseManager().readConfig();
+        }
       } else {
         isLogin = false;
         userId = '';

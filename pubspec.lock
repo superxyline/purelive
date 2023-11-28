@@ -743,6 +743,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.4"
+  move_to_desktop:
+    dependency: "direct main"
+    description:
+      name: move_to_desktop
+      sha256: "12de3dbcb4886fe9b90d977165ea52276064164d2562a6091edba81986184536"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.0.2"
   msix:
     dependency: "direct dev"
     description:

@@ -13,6 +13,7 @@ class SupaBaseManager {
   String supabaseKey = '';
   static late SupaBaseManager _instance;
   static late SupabasePolicy supabasePolicy;
+  static bool canUploadConfig = false;
   SupaBaseManager._internal();
   late Supabase supabase;
   SupabaseClient get client => Supabase.instance.client;
@@ -39,13 +40,14 @@ class SupaBaseManager {
     });
   }
 
-  Future<bool> canUploadConfig() async {
+  Future<bool> loadUploadConfig() async {
     final user = Get.find<AuthController>().user;
     List<dynamic> data = await client.from(supabasePolicy.checkTable).select().eq(supabasePolicy.email, user.email);
     if (data.isNotEmpty) {
+      canUploadConfig = true;
       return true;
     }
-    SmartDialog.showToast('未开放,请与管理员联系');
+    canUploadConfig = false;
     return false;
   }
 
@@ -54,8 +56,8 @@ class SupaBaseManager {
     if (!authController.isLogin) {
       return;
     }
-    var canUpload = await canUploadConfig();
-    if (!canUpload) {
+    if (!canUploadConfig) {
+      SmartDialog.showToast('未开放,请与管理员联系');
       return;
     }
     final userId = Get.find<AuthController>().userId;
@@ -94,7 +96,8 @@ class SupaBaseManager {
     final AuthController authController = Get.find<AuthController>();
     final FavoriteController favoriteController = Get.find<FavoriteController>();
     if (authController.isLogin) {
-      if (!await canUploadConfig()) {
+      if (!canUploadConfig) {
+        SmartDialog.showToast('未开放,请与管理员联系');
         return;
       }
 

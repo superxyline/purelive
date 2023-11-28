@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../search/search_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:move_to_desktop/move_to_desktop.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
@@ -72,13 +73,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     });
   }
 
+  handMoveRefresh() {
+    final FavoriteController favoriteController = Get.find<FavoriteController>();
+    favoriteController.onRefresh();
+  }
+
   void onDestinationSelected(int index) {
-    if (index == 0) {
-      debounceListen(() {
-        final FavoriteController favoriteController = Get.find<FavoriteController>();
-        favoriteController.onRefresh(isHandMove: true);
-      }, 2000);
-    }
     setState(() => _selectedIndex = index);
   }
 
@@ -106,21 +106,34 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     }
   }
 
+  Future<bool> onBackButtonPressed() async {
+    if (Get.currentRoute != RoutePath.kInitial) {
+      return Future.value(false);
+    }
+    final moveToDesktopPlugin = MoveToDesktop();
+    await moveToDesktopPlugin.moveToDesktop();
+    return Future.value(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return LayoutBuilder(
-      builder: (context, constraint) => constraint.maxWidth <= 680
-          ? HomeMobileView(
-              body: bodys[_selectedIndex],
-              index: _selectedIndex,
-              onDestinationSelected: onDestinationSelected,
-            )
-          : HomeTabletView(
-              body: bodys[_selectedIndex],
-              index: _selectedIndex,
-              onDestinationSelected: onDestinationSelected,
-            ),
+    return BackButtonListener(
+      onBackButtonPressed: onBackButtonPressed,
+      child: LayoutBuilder(
+        builder: (context, constraint) => constraint.maxWidth <= 680
+            ? HomeMobileView(
+                body: bodys[_selectedIndex],
+                index: _selectedIndex,
+                onDestinationSelected: onDestinationSelected,
+                onFavoriteDoubleTap: handMoveRefresh,
+              )
+            : HomeTabletView(
+                body: bodys[_selectedIndex],
+                index: _selectedIndex,
+                onDestinationSelected: onDestinationSelected,
+              ),
+      ),
     );
   }
 

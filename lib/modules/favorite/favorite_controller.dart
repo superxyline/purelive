@@ -39,13 +39,17 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     offlineRooms.addAll(settings.favoriteRooms.where((room) => room.liveStatus != LiveStatus.live));
   }
 
-  Future<bool> onRefresh({bool isHandMove = false}) async {
+  Future<bool> onRefresh() async {
     // 自动刷新时间为0关闭。不是手动刷新并且不是第一次刷新
-    if (settings.autoRefreshTime.value == 0 && isHandMove == false && !isFirstLoad) {
+    if (settings.autoRefreshTime.value == 0 && !isFirstLoad) {
       return false;
+    }
+    if (isFirstLoad) {
+      await const Duration(seconds: 1).delay();
     }
     bool hasError = false;
     List<Future<LiveRoom>> futures = [];
+    if (settings.favoriteRooms.value.isEmpty) return false;
     for (final room in settings.favoriteRooms.value) {
       futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!));
     }
@@ -55,14 +59,14 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
         settings.updateRoom(room);
       }
       syncRooms();
-      if (isHandMove) {
-        SmartDialog.showToast('刷新成功');
-      }
+      SmartDialog.showToast('刷新成功');
     } catch (e) {
       hasError = true;
       log(e.toString(), name: 'syncRooms');
     }
-    isFirstLoad = false;
+    if (settings.favoriteRooms.value.isEmpty) {
+      isFirstLoad = false;
+    }
     return hasError;
   }
 }
