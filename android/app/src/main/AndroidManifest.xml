@@ -14,12 +14,26 @@
     <!--
       Internet access permissions.
       -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <queries>
+      <intent>
+          <action android:name="android.speech.RecognitionService" />
+      </intent>
+    </queries>
     <!--
       Media access permissions.
       Android 13 or higher.
       https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions
       -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <application
