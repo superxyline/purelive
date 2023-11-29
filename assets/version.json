@@ -1,7 +1,7 @@
 {
   "version": "1.4.8",
   "version_num": 10408,
-  "version_desc": "-Fix:修复自动刷新关闭",
+  "version_desc": "-Fix:修复自动刷新关闭\n-Add:添加历史更新记录",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
