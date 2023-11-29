@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:pure_live/common/base/base_controller.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/common/base/base_controller.dart';
 
 class AreasListController extends BasePageController<AppLiveCategory> {
   final Site site;
@@ -33,5 +34,12 @@ class AppLiveCategory extends LiveCategory {
       id: item.id,
       name: item.name,
     );
+  }
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['id'] = id;
+    json['name'] = id;
+    json['children'] = children.map((LiveArea e) => jsonEncode(e.toJson())).toList();
+    return json;
   }
 }

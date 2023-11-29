@@ -62,9 +62,11 @@ class IptvUtils {
     try {
       var dir = await getApplicationCacheDirectory();
       final m3ufile = File("${dir.path}${Platform.pathSeparator}hot.m3u");
-      final m3uList = await M3uList.loadFromFile(m3ufile.path);
-      for (M3uItem item in m3uList.items) {
-        list.add(item);
+      if (m3ufile.existsSync()) {
+        final m3uList = await M3uList.loadFromFile(m3ufile.path);
+        for (M3uItem item in m3uList.items) {
+          list.add(item);
+        }
       }
     } catch (e) {
       log(e.toString());

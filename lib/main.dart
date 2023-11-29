@@ -27,7 +27,6 @@ void main(List<String> args) async {
   // 初始化服务
   initService();
   initRefresh();
-  // LocalHttpServer().startServer();
   runApp(const MyApp());
 }
 
@@ -57,6 +56,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
     windowManager.addListener(this);
     _init();
     initShareM3uState();
+    LocalHttpServer().startServer();
   }
 
   String getName(String fullName) {

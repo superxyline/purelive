@@ -6,6 +6,7 @@ import 'package:pure_live/common/index.dart';
 class FavoriteController extends GetxController with GetSingleTickerProviderStateMixin {
   final SettingsService settings = Get.find<SettingsService>();
   late TabController tabController;
+  final tabBottomIndex = 0.obs;
   bool isFirstLoad = true;
   FavoriteController() {
     tabController = TabController(length: 2, vsync: this);
@@ -16,7 +17,6 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     super.onInit();
     // 初始化关注页
     syncRooms();
-
     // 监听settings rooms变化
     settings.favoriteRooms.listen((rooms) => syncRooms());
     onRefresh();
