@@ -34,6 +34,11 @@ class _AboutPageState extends State<AboutPage> {
             subtitle: const Text(VersionUtil.version),
           ),
           ListTile(
+            title: const Text('历史记录'),
+            subtitle: const Text('历史版本更新记录'),
+            onTap: () => Get.toNamed(RoutePath.kVersionHistory),
+          ),
+          ListTile(
             title: Text(S.of(context).license),
             onTap: showLicenseDialog,
           ),

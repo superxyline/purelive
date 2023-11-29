@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class VersionUtil {
-  static const String version = '1.4.7';
+  static const String version = '1.4.8';
   static const String projectUrl = 'https://github.com/liuchuancong/pure_live';
   static const String releaseUrl = 'https://api.github.com/repos/liuchuancong/pure_live/releases';
   static const String issuesUrl = 'https://github.com/liuchuancong/pure_live/issues';
@@ -17,11 +17,12 @@ class VersionUtil {
 
   static String latestVersion = version;
   static String latestUpdateLog = '';
-
+  static List allReleased = [];
   static Future<void> checkUpdate() async {
     try {
       var response = await http.get(Uri.parse(releaseUrl));
-      var latest = (await jsonDecode(response.body))[0];
+      allReleased = await jsonDecode(response.body);
+      var latest = allReleased[0];
       latestVersion = latest['tag_name'].replaceAll('v', '');
       latestUpdateLog = latest['body'];
     } catch (e) {
