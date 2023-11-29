@@ -64,9 +64,7 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
       hasError = true;
       log(e.toString(), name: 'syncRooms');
     }
-    if (settings.favoriteRooms.value.isEmpty) {
       isFirstLoad = false;
-    }
     return hasError;
   }
 }
