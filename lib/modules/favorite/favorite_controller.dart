@@ -21,11 +21,12 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     settings.favoriteRooms.listen((rooms) => syncRooms());
     onRefresh();
     // 定时自动刷新
-
-    Timer.periodic(
-      Duration(minutes: settings.autoRefreshTime.value),
-      (timer) => onRefresh(),
-    );
+    if (settings.autoRefreshTime.value != 0) {
+      Timer.periodic(
+        Duration(minutes: settings.autoRefreshTime.value),
+        (timer) => onRefresh(),
+      );
+    }
   }
 
   final onlineRooms = [].obs;
@@ -41,9 +42,6 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
 
   Future<bool> onRefresh() async {
     // 自动刷新时间为0关闭。不是手动刷新并且不是第一次刷新
-    if (settings.autoRefreshTime.value == 0 && !isFirstLoad) {
-      return false;
-    }
     if (isFirstLoad) {
       await const Duration(seconds: 1).delay();
     }
@@ -64,7 +62,7 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
       hasError = true;
       log(e.toString(), name: 'syncRooms');
     }
-      isFirstLoad = false;
+    isFirstLoad = false;
     return hasError;
   }
 }
