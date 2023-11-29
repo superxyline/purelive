@@ -235,6 +235,46 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.7.10"
+  dia:
+    dependency: "direct main"
+    description:
+      name: dia
+      sha256: "66d795097c51a8fbff01b7e06ba1c864fce6445d12d56b84f447ad2411be094c"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.5"
+  dia_body:
+    dependency: "direct main"
+    description:
+      name: dia_body
+      sha256: da294574ee2365a086a734833826c136652819a25c82ebb53240eb6052716c95
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.3"
+  dia_cors:
+    dependency: "direct main"
+    description:
+      name: dia_cors
+      sha256: b69e2151ca315bdeaee4eb8df6da97818915c674ab2db8a4ff362c7758c6b8c9
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.2"
+  dia_router:
+    dependency: "direct main"
+    description:
+      name: dia_router
+      sha256: a28a0c1962af170cf65b0af1134b7c377c01aa00dfadbfbd03e9d2a403be7410
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.7"
+  dia_static:
+    dependency: "direct main"
+    description:
+      name: dia_static
+      sha256: eeeefbbff5ae63cc5d79fe3f2af870c0bc1104503edb37350dd5333f567663f7
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.2"
   dio:
     dependency: "direct main"
     description:
@@ -863,6 +903,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.1"
+  path_to_regexp:
+    dependency: transitive
+    description:
+      name: path_to_regexp
+      sha256: "169d78fbd55e61ea8873bcca545979f559d22238f66facdd7ef30870c7f53327"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.0"
   permission_handler:
     dependency: "direct main"
     description:

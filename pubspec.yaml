@@ -114,8 +114,12 @@ dependencies:
   html_unescape: ^2.0.0
   flutter_inappwebview: ^6.0.0-beta.25 
   qr_flutter: ^4.1.0 
-
-
+  # 给web端通信
+  dia: ^0.1.4
+  dia_body: ^0.1.3
+  dia_router: ^0.1.7
+  dia_cors: ^0.1.2
+  dia_static: ^0.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

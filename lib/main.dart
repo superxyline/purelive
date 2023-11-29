@@ -27,7 +27,7 @@ void main(List<String> args) async {
   // 初始化服务
   initService();
   initRefresh();
-  LocalHttpServer().startServer();
+  // LocalHttpServer().startServer();
   runApp(const MyApp());
 }
 
