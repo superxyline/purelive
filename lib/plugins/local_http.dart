@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'package:get/get.dart';
 import 'package:dia/dia.dart';
+import 'package:path/path.dart' as p;
 import 'package:dia_cors/dia_cors.dart';
 import 'package:dia_body/dia_body.dart';
 import 'package:dia_static/dia_static.dart';
@@ -24,7 +25,9 @@ class LocalHttpServer {
   static int port = 25685;
   void startServer() async {
     final app = App((req) => ContextRequest(req));
-    app.use(serve('./lib/pure_live_web', prefix: '/pure_live', index: 'index.html'));
+    final directory = await getExternalStorageDirectory();
+
+    app.use(serve(p.join(directory!.path, 'pure_live_web'), prefix: '/pure_live', index: 'index.html'));
     app.use(body());
     app.use(cors());
 
