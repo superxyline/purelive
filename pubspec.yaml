@@ -109,6 +109,7 @@ dependencies:
   crypto: ^3.0.3
   brotli: ^0.6.0
   move_to_desktop: ^0.0.2
+  device_info_plus: ^9.1.1
   dart_tars_protocol:
     git: https://github.com/xiaoyaocz/dart_tars_protocol.git
   html_unescape: ^2.0.0

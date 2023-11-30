@@ -1,7 +1,7 @@
-import 'package:pure_live/common/base/base_controller.dart';
+import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/core/sites.dart';
+import 'package:pure_live/common/base/base_controller.dart';
 
 class AreaRoomsController extends BasePageController<LiveRoom> {
   final Site site;

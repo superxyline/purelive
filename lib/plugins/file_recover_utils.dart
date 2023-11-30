@@ -136,6 +136,32 @@ class FileRecoverUtils {
     return selectedDirectory;
   }
 
+  Future<bool> recoverM3u8BackupByWeb(String fileString, String fileName) async {
+    try {
+      var dir = await getApplicationCacheDirectory();
+      final m3ufile = File('${dir.path}${Platform.pathSeparator}$fileName');
+      m3ufile.writeAsStringSync(fileString);
+      List jsonArr = [];
+      final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
+      if (!categories.existsSync()) {
+        categories.createSync();
+      }
+      String jsonData = await categories.readAsString();
+      jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
+      List<IptvCategory> categoriesArr = jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
+      if (categoriesArr.indexWhere((element) => element.path == m3ufile.path) == -1) {
+        categoriesArr.add(IptvCategory(
+            id: getUUid(), name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''), path: m3ufile.path));
+      }
+      categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
+      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+      return true;
+    } catch (e) {
+      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+      return false;
+    }
+  }
+
   Future<bool> recoverM3u8Backup() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: S.of(Get.context!).select_recover_file,
