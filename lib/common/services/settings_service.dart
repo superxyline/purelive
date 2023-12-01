@@ -328,7 +328,10 @@ class SettingsService extends GetxController {
     return favoriteRooms.any((element) => element.roomId == room.roomId);
   }
 
-  LiveRoom getLiveRoomByRoomId(roomId) {
+  LiveRoom getLiveRoomByRoomId(roomId, {String platform = ''}) {
+    if (platform.isNotEmpty) {
+      return favoriteRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform);
+    }
     return favoriteRooms.firstWhere((element) => element.roomId == roomId);
   }
 
@@ -474,7 +477,7 @@ class SettingsService extends GetxController {
         json['danmakuFontBorder'] != null ? double.parse(json['danmakuFontBorder'].toString()) : 0.5;
     danmakuOpacity.value = json['danmakuOpacity'] != null ? double.parse(json['danmakuOpacity'].toString()) : 1.0;
     doubleExit.value = json['doubleExit'] ?? true;
-    videoPlayerIndex.value = json['videoPlayerIndex'];
+    videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
     enableCodec.value = json['enableCodec'] ?? true;
     mergeDanmuRating.value = json['mergeDanmuRating'] != null ? double.parse(json['mergeDanmuRating'].toString()) : 0.0;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
@@ -491,8 +494,8 @@ class SettingsService extends GetxController {
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['favoriteRooms'] = favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).take(200).toList();
-    json['favoriteAreas'] = favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).take(200).toList();
+    json['favoriteRooms'] = favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList();
+    json['favoriteAreas'] = favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['themeMode'] = themeModeName.value;
 
     json['autoRefreshTime'] = autoRefreshTime.value;
@@ -520,8 +523,8 @@ class SettingsService extends GetxController {
     json['videoPlayerIndex'] = videoPlayerIndex.value;
     json['enableCodec'] = enableCodec.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
-    json['shieldList'] = shieldList.map<String>((e) => e.toString()).take(1000).toList();
-    json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).take(1000).toList();
+    json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
+    json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
 
     json['mergeDanmuRating'] = mergeDanmuRating.value;
     json['themeColorSwitch'] = themeColorSwitch.value;

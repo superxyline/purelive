@@ -21,6 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin, WindowListener {
   Timer? _debounceTimer;
+  final FavoriteController favoriteController = Get.find<FavoriteController>();
   @override
   void initState() {
     super.initState();
@@ -40,6 +41,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
       },
     );
     addToOverlay();
+    favoriteController.tabBottomIndex.addListener(() {
+      setState(() => _selectedIndex = favoriteController.tabBottomIndex.value);
+    });
   }
 
   @override
@@ -74,12 +78,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   }
 
   handMoveRefresh() {
-    final FavoriteController favoriteController = Get.find<FavoriteController>();
     favoriteController.onRefresh();
   }
 
   void onDestinationSelected(int index) {
     setState(() => _selectedIndex = index);
+    favoriteController.tabBottomIndex.value = index;
   }
 
   Future<void> addToOverlay() async {

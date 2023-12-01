@@ -114,6 +114,14 @@ class BasePageController<T> extends BaseController {
     return [];
   }
 
+  void scrollToBottom() {
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.linear,
+    );
+  }
+
   void scrollToTopOrRefresh() {
     if (scrollController.offset > 0) {
       scrollController.animateTo(
