@@ -20,7 +20,7 @@ const RESOURCES = {"assets/AssetManifest.bin": "d214bad5f450e86ddb4ea687bceb90db
 "assets/assets/images/wechat.png": "e50047bed5bbbc39069e8209a844ad49",
 "assets/FontManifest.json": "92a138d56bffe0a85d9d30b02072e735",
 "assets/fonts/MaterialIcons-Regular.otf": "e7069dfd19b331be16bed984668fe080",
-"assets/NOTICES": "c977e74026648da9be145af315303bfa",
+"assets/NOTICES": "5fe2d4eb98c8e1073065086a3da95332",
 "assets/packages/flex_color_picker/assets/opacity.png": "49c4f3bcb1b25364bb4c255edcaaf5b2",
 "assets/packages/flutter_js/assets/js/fetch.js": "277e0c5ec36810cbe57371a4b7e26be0",
 "assets/packages/font_awesome_flutter/lib/fonts/fa-brands-400.ttf": "f25e8e701660fb45e2a81ff3f43c6d5c",
@@ -40,10 +40,10 @@ const RESOURCES = {"assets/AssetManifest.bin": "d214bad5f450e86ddb4ea687bceb90db
 "icons/Icon-512.png": "8e2193f518f295fd84b7ca1a8df7fefc",
 "icons/Icon-maskable-192.png": "9e2afb40a3d4886b452884044b7dc3c0",
 "icons/Icon-maskable-512.png": "8e2193f518f295fd84b7ca1a8df7fefc",
-"index.html": "713056248eb47583c4e60070207eaa37",
-"/": "713056248eb47583c4e60070207eaa37",
-"main.dart.js": "b3d77db07661e868acc8b50ed2833c71",
-"manifest.json": "c6681b34862c3c835b40f588f43e8d1b",
+"index.html": "1526599bab46a530a5ec8003830de026",
+"/": "1526599bab46a530a5ec8003830de026",
+"main.dart.js": "6f0bca55f9bba15107b420c2f320ddf3",
+"manifest.json": "a2e7064b4f6b6a4526543a704cdf5120",
 "version.json": "4b6b38dfe4ccd512e5c7446f2891144f"};
 // The application shell files that are downloaded before a service worker can
 // start.
