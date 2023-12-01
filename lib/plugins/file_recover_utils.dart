@@ -30,6 +30,13 @@ class FileRecoverUtils {
     return urlMatches.isNotEmpty;
   }
 
+  ///验证URL
+  static bool isPort(String value) {
+    final portRegExp = RegExp(r"\d+");
+    List<String?> portMatches = portRegExp.allMatches(value).map((m) => m.group(0)).toList();
+    return portMatches.isNotEmpty;
+  }
+
   Future<bool> recoverNetworkM3u8Backup(String url, String fileName) async {
     var dioInstance = dio.Dio(dio.BaseOptions(
       connectTimeout: const Duration(seconds: 10),

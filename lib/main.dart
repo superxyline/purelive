@@ -5,8 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/global.dart';
-import 'package:pure_live/plugins/local_http.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:pure_live/plugins/screen_device.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
@@ -57,15 +56,6 @@ class _MyAppState extends State<MyApp> with WindowListener {
     windowManager.addListener(this);
     _init();
     initShareM3uState();
-    getDeviceInfo();
-    LocalHttpServer().startServer();
-  }
-
-  getDeviceInfo() async {
-    final deviceInfoPlugin = DeviceInfoPlugin();
-    final deviceInfo = await deviceInfoPlugin.deviceInfo;
-    final allInfo = deviceInfo.data;
-    // print(allInfo);
   }
 
   String getName(String fullName) {

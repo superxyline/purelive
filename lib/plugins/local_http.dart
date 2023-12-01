@@ -8,26 +8,46 @@ import 'package:dia_cors/dia_cors.dart';
 import 'package:dia_body/dia_body.dart';
 import 'package:dia_static/dia_static.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:flutter_restart/flutter_restart.dart';
 import 'package:pure_live/routes/app_navigation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:dia_router/dia_router.dart' as dia_router;
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
+import 'package:pure_live/modules/search/search_list_controller.dart';
 import 'package:pure_live/modules/popular/popular_grid_controller.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
+import 'package:pure_live/modules/search/search_controller.dart' as pure_live;
 
 class ContextRequest extends Context with dia_router.Routing, ParsedBody {
   ContextRequest(super.request);
 }
 
+final app = App((req) => ContextRequest(req));
+
 class LocalHttpServer {
   final SettingsService settings = Get.find<SettingsService>();
-  static int port = 25685;
-  void startServer() async {
-    final app = App((req) => ContextRequest(req));
-    final directory = await getExternalStorageDirectory();
+  Future<void> readAssetsFiles() async {
+    final assets = await rootBundle.loadString('AssetManifest.json');
+    var assetList = jsonDecode(assets) as Map<String, dynamic>;
+    assetList.removeWhere((key, value) => !key.startsWith('assets/pure_live_web'));
+    final directory = await getApplicationCacheDirectory();
+    for (final assetPath in assetList.keys) {
+      final assetData = await rootBundle.load(assetPath);
+      final file = File('${directory.path}/$assetPath');
+      await file.create(recursive: true);
+      await file.writeAsBytes(assetData.buffer.asUint8List());
+    }
+  }
 
-    app.use(serve(p.join(directory!.path, 'pure_live_web'), prefix: '/pure_live', index: 'index.html'));
+  void startServer(String port) async {
+    await readAssetsFiles();
+
+    final directory = await getApplicationCacheDirectory();
+
+    app.use(serve(p.join(directory.path, 'assets${Platform.pathSeparator}pure_live_web'),
+        prefix: '/pure_live', index: 'index.html'));
     app.use(body());
     app.use(cors());
 
@@ -78,7 +98,22 @@ class LocalHttpServer {
         ctx.body = jsonEncode({'data': false});
       }
     });
-
+    router.post('/enterSearch', (ctx, next) async {
+      try {
+        ctx.body = jsonEncode({'data': true});
+        Get.toNamed(RoutePath.kSearch);
+      } catch (e) {
+        ctx.body = jsonEncode({'data': false});
+      }
+    });
+    router.post('/doSearch', (ctx, next) async {
+      try {
+        ctx.body = jsonEncode({'data': true});
+        Get.toNamed(RoutePath.kSearch);
+      } catch (e) {
+        ctx.body = jsonEncode({'data': false});
+      }
+    });
     router.post('/playRoom', (ctx, next) async {
       try {
         final liveRoom = jsonDecode(ctx.query['liveRoom']!);
@@ -120,7 +155,7 @@ class LocalHttpServer {
         ctx.body = jsonEncode({'data': false});
       }
     });
-    router.post('/toggleHomeTab', (ctx, next) async {
+    router.post('/toggleTabevent', (ctx, next) async {
       try {
         int index = int.parse(ctx.query['index']!);
         String tag = ctx.query['tag']!;
@@ -144,7 +179,10 @@ class LocalHttpServer {
             AreasListController controller = Get.find<AreasListController>(tag: tag);
             controller.tabIndex.value = index;
             break;
-
+          case 'doSearch':
+            pure_live.SearchController controller = Get.find<pure_live.SearchController>();
+            controller.tabController.animateTo(index);
+            break;
           default:
         }
 
@@ -153,19 +191,36 @@ class LocalHttpServer {
         ctx.body = jsonEncode({'data': false});
       }
     });
-    router.post('/getTabData', (ctx, next) async {
+
+    router.post('/toggleWebServer', (ctx, next) async {
+      bool webPortEnable = ctx.query['webPortEnable']! as bool;
+      String webPort = ctx.query['webPort']!;
+      settings.webPort.value = webPort;
+      settings.webPortEnable.value = webPortEnable;
+      ctx.body = jsonEncode({'data': true});
+    });
+
+    router.post('/restartApp', (ctx, next) async {
+      if (Platform.isAndroid) {
+        FlutterRestart.restartApp();
+        ctx.body = jsonEncode({'data': true});
+      } else {
+        ctx.body = jsonEncode({'data': false});
+      }
+    });
+    router.post('/getGridData', (ctx, next) async {
       String data = '';
       try {
         String tag = ctx.query['tag']!;
         int page = int.parse(ctx.query['page']!);
         int pageSize = int.parse(ctx.query['pageSize']!);
+        String keywords = ctx.query['keywords']!;
         switch (ctx.query['type']!) {
           case 'hotTab':
             var controller = Get.find<PopularGridController>(tag: tag);
             var sizeData = await controller.getData(page, pageSize);
             controller.list.addAll(sizeData);
             controller.scrollToBottom();
-
             data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
             break;
           case 'areaTab':
@@ -177,6 +232,14 @@ class LocalHttpServer {
             var sizeData = await areaRoomController.getData(page, pageSize);
             areaRoomController.list.addAll(sizeData);
             areaRoomController.scrollToBottom();
+            data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+            break;
+          case 'doSearch':
+            SearchListController searchListController = Get.find<SearchListController>(tag: tag);
+            searchListController.keyword.value = keywords;
+            var sizeData = await searchListController.getData(page, pageSize);
+            searchListController.list.addAll(sizeData as List<LiveRoom>);
+            searchListController.scrollToBottom();
             data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
             break;
           default:
@@ -222,12 +285,18 @@ class LocalHttpServer {
             SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
           }
         } else {
-          await next();
+          next();
         }
       } else {
-        await next();
+        next();
       }
     });
-    app.listen(io.InternetAddress.anyIPv4.address, port);
+    app.listen(io.InternetAddress.anyIPv4.address, int.parse(port));
+    SnackBarUtil.success('Web服务打开成功,请用浏览器打开您的ip地址+:$port/pure_live/');
+  }
+
+  closeServer() {
+    app.close();
+    SnackBarUtil.success('Web服务关闭成功');
   }
 }

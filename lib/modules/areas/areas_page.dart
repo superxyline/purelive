@@ -19,6 +19,7 @@ class AreasPage extends GetView<AreasController> {
           title: TabBar(
             controller: controller.tabController,
             isScrollable: true,
+            tabAlignment: TabAlignment.center,
             labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,

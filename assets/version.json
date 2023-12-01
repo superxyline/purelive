@@ -1,7 +1,7 @@
 {
-  "version": "1.4.8",
-  "version_num": 10408,
-  "version_desc": "-Fix:修复自动刷新关闭\n-Add:添加历史更新记录",
+  "version": "1.4.9",
+  "version_num": 10409,
+  "version_desc": "-Fix:添加web页面控制设备（App,TV,windwos）,打开局域网ip添加端口号+/pure_live/打开页面，注意：/pure_live/必须一样。如果数据没有同步请刷新使用，读取的是设备的内存数据不是新数据,默认打开，设置中可永久关闭.\n-FIx:修复主页返回按钮事件",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

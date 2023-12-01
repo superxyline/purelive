@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.4.8
+version: 1.4.9
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -108,6 +108,8 @@ dependencies:
   logger: ^2.0.2+1
   crypto: ^3.0.3
   brotli: ^0.6.0
+  flutter_restart: 
+    path: D:/flutter/flutterRestartPluginWip
   move_to_desktop: ^0.0.2
   device_info_plus: ^9.1.1
   dart_tars_protocol:
@@ -170,6 +172,18 @@ flutter:
     - assets/icons/
     - assets/keystore/
     - assets/pure_live_web/
+    - assets/pure_live_web/assets/
+    - assets/pure_live_web/assets/assets/icons/
+    - assets/pure_live_web/assets/assets/images/
+    - assets/pure_live_web/assets/fonts/
+    - assets/pure_live_web/assets/packages/flex_color_picker/assets/
+    - assets/pure_live_web/assets/packages/flutter_js/assets/js/
+    - assets/pure_live_web/assets/packages/font_awesome_flutter/lib/fonts/
+    - assets/pure_live_web/assets/shaders/
+    - assets/pure_live_web/canvaskit/
+    - assets/pure_live_web/canvaskit/chromium/
+    - assets/pure_live_web/icons/
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see
@@ -202,7 +216,7 @@ msix_config:
   display_name: 纯粹直播
   # publisher_display_name: puretech.com
   # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.39
+  msix_version: 1.0.0.40
   logo_path: assets/icons/icon.png
   # capabilities: internetClient
   certificate_path: assets/keystore/CERTIFICATE.pfx

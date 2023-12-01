@@ -39,7 +39,8 @@
         android:banner="@drawable/banner"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:requestLegacyExternalStorage="true" 
+        android:requestLegacyExternalStorage="true"
+        android:enableOnBackInvokedCallback="true" 
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

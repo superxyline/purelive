@@ -22,6 +22,9 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
       if (controller.list.isEmpty && !controller.pageEmpty.value) {
         controller.refreshData();
       }
+      controller.keyword.addListener(() {
+        searchController.text = controller.keyword.value;
+      });
     });
   }
 
@@ -43,7 +46,7 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
     for (var site in Sites().availableSites()) {
       var controller = Get.find<SearchListController>(tag: site.id);
       controller.clear();
-      controller.keyword = searchController.text;
+      controller.keyword.value = searchController.text;
     }
     var controller = Get.find<SearchListController>(tag: Sites().availableSites()[index].id);
     controller.loadData();

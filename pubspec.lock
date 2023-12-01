@@ -525,6 +525,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.17"
+  flutter_restart:
+    dependency: "direct main"
+    description:
+      path: "D:/flutter/flutterRestartPluginWip"
+      relative: false
+    source: path
+    version: "0.0.4"
   flutter_smart_dialog:
     dependency: "direct main"
     description:

@@ -110,20 +110,19 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     }
   }
 
-  Future<bool> onBackButtonPressed() async {
-    if (Get.currentRoute != RoutePath.kInitial) {
-      return Future.value(false);
+  void onBackButtonPressed(bool canPop) async {
+    if (canPop) {
+      final moveToDesktopPlugin = MoveToDesktop();
+      await moveToDesktopPlugin.moveToDesktop();
     }
-    final moveToDesktopPlugin = MoveToDesktop();
-    await moveToDesktopPlugin.moveToDesktop();
-    return Future.value(true);
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BackButtonListener(
-      onBackButtonPressed: onBackButtonPressed,
+    return PopScope(
+      canPop: Get.currentRoute == RoutePath.kInitial,
+      onPopInvoked: onBackButtonPressed,
       child: LayoutBuilder(
         builder: (context, constraint) => constraint.maxWidth <= 680
             ? HomeMobileView(
