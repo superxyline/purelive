@@ -136,7 +136,7 @@ class SettingsService extends GetxController {
 
     webPortEnable.listen((value) {
       changeWebListen(webPort.value, value);
-      PrefUtil.setBool('webPortEnable ', value);
+      PrefUtil.setBool('webPortEnable', value);
     });
   }
 

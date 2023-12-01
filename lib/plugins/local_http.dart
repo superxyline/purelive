@@ -12,6 +12,7 @@ import 'package:flutter_restart/flutter_restart.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:dia_router/dia_router.dart' as dia_router;
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
@@ -43,6 +44,11 @@ class LocalHttpServer {
 
   void startServer(String port) async {
     try {
+      final connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult != ConnectivityResult.wifi) {
+        SmartDialog.showToast('请连接wifi后使用', displayTime: const Duration(seconds: 2));
+        return;
+      }
       await readAssetsFiles();
       final directory = await getApplicationCacheDirectory();
 
@@ -303,8 +309,11 @@ class LocalHttpServer {
     }
   }
 
-  closeServer() {
+  closeServer() async {
     app.close();
-    SnackBarUtil.success('Web服务关闭成功');
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.wifi) {
+      SnackBarUtil.success('Web服务关闭成功');
+    }
   }
 }
