@@ -29,6 +29,7 @@ class ContextRequest extends Context with dia_router.Routing, ParsedBody {
 final app = App((req) => ContextRequest(req));
 
 class LocalHttpServer {
+  static bool webPortEnableStatus = false;
   final SettingsService settings = Get.find<SettingsService>();
   Future<void> readAssetsFiles() async {
     final assets = await rootBundle.loadString('AssetManifest.json');
@@ -46,9 +47,11 @@ class LocalHttpServer {
   void startServer(String port) async {
     try {
       final connectivityResult = await (Connectivity().checkConnectivity());
-      print(connectivityResult);
       if (connectivityResult == ConnectivityResult.mobile) {
         SmartDialog.showToast('请在局域网下使用', displayTime: const Duration(seconds: 2));
+        return;
+      }
+      if (webPortEnableStatus) {
         return;
       }
       await readAssetsFiles();
@@ -71,6 +74,13 @@ class LocalHttpServer {
         ctx.body = jsonEncode(settings.favoriteRooms.map((e) => jsonEncode(e.toJson())).toList());
       });
 
+      router.post('/closeWebServer', (ctx, next) async {
+        var webPort = ctx.query['webPort']!;
+        settings.webPort.value = webPort;
+        settings.webPortEnable.value = false;
+        ctx.body = jsonEncode({'data': true});
+      });
+
       router.post('/getHistoryData', (ctx, next) async {
         ctx.body = jsonEncode(settings.historyRooms.map((e) => jsonEncode(e.toJson())).toList());
       });
@@ -82,13 +92,15 @@ class LocalHttpServer {
       });
       router.post('/exitRoom', (ctx, next) async {
         try {
-          String type = ctx.query['type']!;
           ctx.body = jsonEncode({'data': true});
-          if (type == 'favoriteRooms') {
-            Get.offAndToNamed(RoutePath.kInitial)!;
-          } else if (type == 'areasRooms') {
-            Get.offAndToNamed(RoutePath.kAreas)!;
-          } else {
+          var currentRoute = Get.previousRoute;
+          if (currentRoute == '/areas') {
+            Get.offAndToNamed(RoutePath.kInitial);
+          } else if (currentRoute == RoutePath.kAreaRooms) {
+            Get.back();
+          } else if (currentRoute == '/home') {
+            Get.back();
+          } else if (currentRoute == RoutePath.kLivePlay) {
             final LivePlayController livePlayController = Get.find<LivePlayController>();
             if (livePlayController.videoController != null && livePlayController.videoController!.isFullscreen.value) {
               if (livePlayController.videoController!.isFullscreen.value) {
@@ -102,10 +114,48 @@ class LocalHttpServer {
           ctx.body = jsonEncode({'data': false});
         }
       });
+      router.post('/fullscreenRoom', (ctx, next) async {
+        try {
+          final LivePlayController livePlayController = Get.find<LivePlayController>();
+          if (livePlayController.videoController != null) {
+            livePlayController.videoController!.toggleFullScreen();
+          }
+          ctx.body = jsonEncode({'data': true});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/favoriteRoom', (ctx, next) async {
+        try {
+          final LivePlayController livePlayController = Get.find<LivePlayController>();
+          if (livePlayController.videoController != null) {
+            final liveRoom = livePlayController.detail.value;
+            if (settings.isFavorite(liveRoom!)) {
+              settings.removeRoom(liveRoom);
+              ctx.body = jsonEncode({
+                'data': '取消关注成功',
+              });
+            } else {
+              settings.addRoom(liveRoom);
+              ctx.body = jsonEncode({
+                'data': '关注成功',
+              });
+            }
+          } else {
+            ctx.body = jsonEncode({
+              'data': '请进入直播间重试',
+            });
+          }
+        } catch (e) {
+          ctx.body = jsonEncode({'data': '操作失败'});
+        }
+      });
       router.post('/enterRoom', (ctx, next) async {
         try {
           final liveRoom = jsonDecode(ctx.query['liveRoom']!);
-          ctx.body = jsonEncode({'data': true});
+          ctx.body = jsonEncode({
+            'data': true,
+          });
           AppNavigator.toLiveRoomDetail(liveRoom: LiveRoom.fromJson(liveRoom));
         } catch (e) {
           ctx.body = jsonEncode({'data': false});
@@ -237,8 +287,14 @@ class LocalHttpServer {
               var controller = Get.find<PopularGridController>(tag: tag);
               var sizeData = await controller.getData(page, pageSize);
               controller.list.addAll(sizeData);
-              controller.scrollToBottom();
-              data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+
+              if (page == 1) {
+                data = jsonEncode(controller.list.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              } else {
+                controller.scrollToBottom();
+                data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              }
+
               break;
             case 'areaTab':
               var controller = Get.find<AreasListController>(tag: tag);
@@ -248,16 +304,30 @@ class LocalHttpServer {
               AreaRoomsController areaRoomController = Get.find<AreaRoomsController>();
               var sizeData = await areaRoomController.getData(page, pageSize);
               areaRoomController.list.addAll(sizeData);
-              areaRoomController.scrollToBottom();
-              data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+
+              if (page == 1) {
+                data = jsonEncode(
+                    areaRoomController.list.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              } else {
+                areaRoomController.scrollToBottom();
+                data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              }
               break;
             case 'doSearch':
               SearchListController searchListController = Get.find<SearchListController>(tag: tag);
               searchListController.keyword.value = keywords;
               var sizeData = await searchListController.getData(page, pageSize);
               searchListController.list.addAll(sizeData as List<LiveRoom>);
-              searchListController.scrollToBottom();
+
               data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              if (page == 1) {
+                data = jsonEncode((searchListController.list.value as List<LiveRoom>)
+                    .map((LiveRoom element) => jsonEncode(element.toJson()))
+                    .toList());
+              } else {
+                searchListController.scrollToBottom();
+                data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              }
               break;
             default:
           }
@@ -271,9 +341,9 @@ class LocalHttpServer {
           String tag = ctx.query['tag']!;
           String area = ctx.query['area']!;
           var site = Sites.of(tag);
+          ctx.body = jsonEncode({'data': true});
           var areaRoom = LiveArea.fromJson(jsonDecode(area));
           AppNavigator.toCategoryDetail(site: site, category: areaRoom);
-          ctx.body = jsonEncode({'data': true});
         } catch (e) {
           ctx.body = jsonEncode({'data': false});
         }
@@ -309,6 +379,7 @@ class LocalHttpServer {
         }
       });
       app.listen(io.InternetAddress.anyIPv4.address, int.parse(port));
+      webPortEnableStatus = true;
       SnackBarUtil.success('Web服务打开成功,请用浏览器打开您的ip地址+:$port/pure_live/');
     } catch (e) {
       settings.webPortEnable.value = false;
@@ -321,6 +392,7 @@ class LocalHttpServer {
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult != ConnectivityResult.mobile) {
       SnackBarUtil.success('Web服务关闭成功');
+      webPortEnableStatus = false;
     }
   }
 }
