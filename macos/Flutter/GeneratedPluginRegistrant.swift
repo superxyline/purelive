@@ -8,7 +8,7 @@ import Foundation
 import app_links
 import battery_plus
 import dynamic_color
-import flutter_inappwebview
+import flutter_inappwebview_macos
 import flutter_js
 import flutter_volume_controller
 import media_kit_libs_macos_video
