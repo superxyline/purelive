@@ -28,6 +28,7 @@ final app = App((req) => ContextRequest(req));
 
 class LocalHttpServer {
   final SettingsService settings = Get.find<SettingsService>();
+  static bool webPortEnableStatus = false;
   Future<void> readAssetsFiles() async {
     final assets = await rootBundle.loadString('AssetManifest.json');
     var assetList = jsonDecode(assets) as Map<String, dynamic>;
@@ -43,6 +44,9 @@ class LocalHttpServer {
 
   void startServer(String port) async {
     try {
+      if (webPortEnableStatus) {
+        return;
+      }
       await readAssetsFiles();
       final directory = await getApplicationCacheDirectory();
 
@@ -295,9 +299,11 @@ class LocalHttpServer {
           next();
         }
       });
+      webPortEnableStatus = true;
       app.listen(io.InternetAddress.anyIPv4.address, int.parse(port));
       SnackBarUtil.success('Web服务打开成功,请用浏览器打开您的ip地址+:$port/pure_live/');
     } catch (e) {
+      webPortEnableStatus = true;
       settings.webPortEnable.value = false;
       SnackBarUtil.success('Web服务打开失败，请手动打开');
     }
@@ -305,6 +311,7 @@ class LocalHttpServer {
 
   closeServer() {
     app.close();
+    settings.webPortEnable.value = false;
     SnackBarUtil.success('Web服务关闭成功');
   }
 }
