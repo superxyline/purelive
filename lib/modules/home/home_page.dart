@@ -44,6 +44,14 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     favoriteController.tabBottomIndex.addListener(() {
       setState(() => _selectedIndex = favoriteController.tabBottomIndex.value);
     });
+    openWebServer();
+  }
+
+  openWebServer() {
+    final SettingsService settingsService = Get.find<SettingsService>();
+    if (settingsService.webPortEnable.value) {
+      settingsService.changeWebListen(settingsService.webPort.value, settingsService.webPortEnable.value);
+    }
   }
 
   @override

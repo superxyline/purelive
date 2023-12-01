@@ -42,257 +42,265 @@ class LocalHttpServer {
   }
 
   void startServer(String port) async {
-    await readAssetsFiles();
+    try {
+      await readAssetsFiles();
+      final directory = await getApplicationCacheDirectory();
 
-    final directory = await getApplicationCacheDirectory();
+      app.use(serve(p.join(directory.path, 'assets${Platform.pathSeparator}pure_live_web'),
+          prefix: '/pure_live', index: 'index.html'));
+      app.use(body());
+      app.use(cors());
 
-    app.use(serve(p.join(directory.path, 'assets${Platform.pathSeparator}pure_live_web'),
-        prefix: '/pure_live', index: 'index.html'));
-    app.use(body());
-    app.use(cors());
+      final router = dia_router.Router('/api');
+      router.get('/path/:id', (ctx, next) async {
+        ctx.body = 'params=${ctx.params} query=${ctx.query}';
+      });
+      router.get('/getSettings', (ctx, next) async {
+        ctx.body = jsonEncode(settings.toJson());
+      });
 
-    final router = dia_router.Router('/api');
-    router.get('/path/:id', (ctx, next) async {
-      ctx.body = 'params=${ctx.params} query=${ctx.query}';
-    });
-    router.get('/getSettings', (ctx, next) async {
-      ctx.body = jsonEncode(settings.toJson());
-    });
+      router.get('/getFavoriteRooms', (ctx, next) async {
+        ctx.body = jsonEncode(settings.favoriteRooms.map((e) => jsonEncode(e.toJson())).toList());
+      });
 
-    router.get('/getFavoriteRooms', (ctx, next) async {
-      ctx.body = jsonEncode(settings.favoriteRooms.map((e) => jsonEncode(e.toJson())).toList());
-    });
+      router.post('/getHistoryData', (ctx, next) async {
+        ctx.body = jsonEncode(settings.historyRooms.map((e) => jsonEncode(e.toJson())).toList());
+      });
 
-    router.post('/getHistoryData', (ctx, next) async {
-      ctx.body = jsonEncode(settings.historyRooms.map((e) => jsonEncode(e.toJson())).toList());
-    });
-
-    router.post('/postFavoriteRooms', (ctx, next) async {
-      final FavoriteController controller = Get.find<FavoriteController>();
-      final result = await controller.onRefresh();
-      ctx.body = jsonEncode({'data': !result});
-    });
-    router.post('/exitRoom', (ctx, next) async {
-      try {
-        String type = ctx.query['type']!;
-        ctx.body = jsonEncode({'data': true});
-        if (type == 'favoriteRooms') {
-          Get.offAndToNamed(RoutePath.kInitial)!;
-        } else if (type == 'areasRooms') {
-          Get.offAndToNamed(RoutePath.kAreas)!;
-        } else {
-          if (Get.currentRoute != RoutePath.kInitial) {
-            Get.back();
-          }
-        }
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/enterRoom', (ctx, next) async {
-      try {
-        final liveRoom = jsonDecode(ctx.query['liveRoom']!);
-        ctx.body = jsonEncode({'data': true});
-        AppNavigator.toLiveRoomDetail(liveRoom: LiveRoom.fromJson(liveRoom));
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/enterSearch', (ctx, next) async {
-      try {
-        ctx.body = jsonEncode({'data': true});
-        Get.toNamed(RoutePath.kSearch);
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/doSearch', (ctx, next) async {
-      try {
-        ctx.body = jsonEncode({'data': true});
-        Get.toNamed(RoutePath.kSearch);
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/playRoom', (ctx, next) async {
-      try {
-        final liveRoom = jsonDecode(ctx.query['liveRoom']!);
-        final realLiveRoom = settings.getLiveRoomByRoomId(liveRoom['roomId'], platform: liveRoom['platform']);
-        Get.offAndToNamed(RoutePath.kInitial)!;
-        AppNavigator.toLiveRoomDetail(liveRoom: realLiveRoom);
-        ctx.body = jsonEncode({'data': true});
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-
-    router.post('/getLibilibiLoginStatus', (ctx, next) async {
-      final BiliBiliAccountService accountService = Get.find<BiliBiliAccountService>();
-      ctx.body = jsonEncode({'data': accountService.logined.value, 'name': accountService.name.value});
-    });
-
-    router.post('/toBiliBiliLogin', (ctx, next) async {
-      try {
-        Get.toNamed(RoutePath.kBiliBiliQRLogin);
-        ctx.body = jsonEncode({'data': true});
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/exitBilibili', (ctx, next) async {
-      try {
-        BiliBiliAccountService.instance.logout();
-        ctx.body = jsonEncode({'data': true});
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/uploadSettingsConfig', (ctx, next) async {
-      try {
-        settings.fromJson(json.decode(ctx.query['setting']!));
-        ctx.body = jsonEncode({'data': true});
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/toggleTabevent', (ctx, next) async {
-      try {
-        int index = int.parse(ctx.query['index']!);
-        String tag = ctx.query['tag']!;
-        FavoriteController favoriteController = Get.find<FavoriteController>();
-        switch (ctx.query['type']!) {
-          case 'online':
-            favoriteController.tabController.animateTo(index);
-            break;
-          case 'bottomTab':
-            favoriteController.tabBottomIndex.value = index;
-            break;
-          case 'hotTab':
-            PopularController popularController = Get.find<PopularController>();
-            popularController.tabController.animateTo(index);
-            break;
-          case 'areaTab':
-            AreasController areasController = Get.find<AreasController>();
-            areasController.tabController.animateTo(index);
-            break;
-          case 'areaSubTab':
-            AreasListController controller = Get.find<AreasListController>(tag: tag);
-            controller.tabIndex.value = index;
-            break;
-          case 'doSearch':
-            pure_live.SearchController controller = Get.find<pure_live.SearchController>();
-            controller.tabController.animateTo(index);
-            break;
-          default:
-        }
-
-        ctx.body = jsonEncode({'data': true});
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-
-    router.post('/toggleWebServer', (ctx, next) async {
-      bool webPortEnable = ctx.query['webPortEnable']! as bool;
-      String webPort = ctx.query['webPort']!;
-      settings.webPort.value = webPort;
-      settings.webPortEnable.value = webPortEnable;
-      ctx.body = jsonEncode({'data': true});
-    });
-
-    router.post('/restartApp', (ctx, next) async {
-      if (Platform.isAndroid) {
-        FlutterRestart.restartApp();
-        ctx.body = jsonEncode({'data': true});
-      } else {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/getGridData', (ctx, next) async {
-      String data = '';
-      try {
-        String tag = ctx.query['tag']!;
-        int page = int.parse(ctx.query['page']!);
-        int pageSize = int.parse(ctx.query['pageSize']!);
-        String keywords = ctx.query['keywords']!;
-        switch (ctx.query['type']!) {
-          case 'hotTab':
-            var controller = Get.find<PopularGridController>(tag: tag);
-            var sizeData = await controller.getData(page, pageSize);
-            controller.list.addAll(sizeData);
-            controller.scrollToBottom();
-            data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
-            break;
-          case 'areaTab':
-            var controller = Get.find<AreasListController>(tag: tag);
-            data = jsonEncode(controller.list.value);
-            break;
-          case 'areaRoomsTab':
-            AreaRoomsController areaRoomController = Get.find<AreaRoomsController>();
-            var sizeData = await areaRoomController.getData(page, pageSize);
-            areaRoomController.list.addAll(sizeData);
-            areaRoomController.scrollToBottom();
-            data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
-            break;
-          case 'doSearch':
-            SearchListController searchListController = Get.find<SearchListController>(tag: tag);
-            searchListController.keyword.value = keywords;
-            var sizeData = await searchListController.getData(page, pageSize);
-            searchListController.list.addAll(sizeData as List<LiveRoom>);
-            searchListController.scrollToBottom();
-            data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
-            break;
-          default:
-        }
-        ctx.body = jsonEncode({'data': data});
-      } catch (e) {
-        ctx.body = jsonEncode({'data': data});
-      }
-    });
-    router.post('/toAreaDetail', (ctx, next) async {
-      try {
-        String tag = ctx.query['tag']!;
-        String area = ctx.query['area']!;
-        var site = Sites.of(tag);
-        var areaRoom = LiveArea.fromJson(jsonDecode(area));
-        AppNavigator.toCategoryDetail(site: site, category: areaRoom);
-        ctx.body = jsonEncode({'data': true});
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-    router.post('/uploadFile', (ctx, next) async {
-      try {
-        ctx.body = jsonEncode({'data': true});
-      } catch (e) {
-        ctx.body = jsonEncode({'data': false});
-      }
-    });
-
-    app.use(router.middleware);
-    app.use((ctx, next) async {
-      if (ctx.query['type'] != null) {
-        String? type = ctx.query['type'];
-        if (type == 'uploadM3u8File') {
-          FileRecoverUtils().recoverM3u8BackupByWeb(ctx.parsed['file'], ctx.parsed['name']);
-        } else if (type == 'uploadRecoverFile') {
-          var dir = await getApplicationCacheDirectory();
-          final file = File('${dir.path}${Platform.pathSeparator}${ctx.parsed['name']}');
-          file.writeAsStringSync(ctx.parsed['file']);
-          if (settings.recover(file)) {
-            SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+      router.post('/postFavoriteRooms', (ctx, next) async {
+        final FavoriteController controller = Get.find<FavoriteController>();
+        final result = await controller.onRefresh();
+        ctx.body = jsonEncode({'data': !result});
+      });
+      router.post('/exitRoom', (ctx, next) async {
+        try {
+          String type = ctx.query['type']!;
+          ctx.body = jsonEncode({'data': true});
+          if (type == 'favoriteRooms') {
+            Get.offAndToNamed(RoutePath.kInitial)!;
+          } else if (type == 'areasRooms') {
+            Get.offAndToNamed(RoutePath.kAreas)!;
           } else {
-            SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+            if (Get.currentRoute != RoutePath.kInitial) {
+              Get.back();
+            }
+          }
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/enterRoom', (ctx, next) async {
+        try {
+          final liveRoom = jsonDecode(ctx.query['liveRoom']!);
+          ctx.body = jsonEncode({'data': true});
+          AppNavigator.toLiveRoomDetail(liveRoom: LiveRoom.fromJson(liveRoom));
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/enterSearch', (ctx, next) async {
+        try {
+          ctx.body = jsonEncode({'data': true});
+          Get.toNamed(RoutePath.kSearch);
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/doSearch', (ctx, next) async {
+        try {
+          ctx.body = jsonEncode({'data': true});
+          Get.toNamed(RoutePath.kSearch);
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/playRoom', (ctx, next) async {
+        try {
+          final liveRoom = jsonDecode(ctx.query['liveRoom']!);
+          final realLiveRoom = settings.getLiveRoomByRoomId(liveRoom['roomId'], platform: liveRoom['platform']);
+          Get.offAndToNamed(RoutePath.kInitial)!;
+          AppNavigator.toLiveRoomDetail(liveRoom: realLiveRoom);
+          ctx.body = jsonEncode({'data': true});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+
+      router.post('/getLibilibiLoginStatus', (ctx, next) async {
+        final BiliBiliAccountService accountService = Get.find<BiliBiliAccountService>();
+        ctx.body = jsonEncode({'data': accountService.logined.value, 'name': accountService.name.value});
+      });
+
+      router.post('/toBiliBiliLogin', (ctx, next) async {
+        try {
+          Get.toNamed(RoutePath.kBiliBiliQRLogin);
+          ctx.body = jsonEncode({'data': true});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/exitBilibili', (ctx, next) async {
+        try {
+          BiliBiliAccountService.instance.logout();
+          ctx.body = jsonEncode({'data': true});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/uploadSettingsConfig', (ctx, next) async {
+        try {
+          settings.fromJson(json.decode(ctx.query['setting']!));
+          ctx.body = jsonEncode({'data': true});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/toggleTabevent', (ctx, next) async {
+        try {
+          int index = int.parse(ctx.query['index']!);
+          String tag = ctx.query['tag']!;
+          FavoriteController favoriteController = Get.find<FavoriteController>();
+          switch (ctx.query['type']!) {
+            case 'online':
+              favoriteController.tabController.animateTo(index);
+              break;
+            case 'bottomTab':
+              favoriteController.tabBottomIndex.value = index;
+              break;
+            case 'hotTab':
+              PopularController popularController = Get.find<PopularController>();
+              popularController.tabController.animateTo(index);
+              break;
+            case 'areaTab':
+              AreasController areasController = Get.find<AreasController>();
+              areasController.tabController.animateTo(index);
+              break;
+            case 'areaSubTab':
+              AreasListController controller = Get.find<AreasListController>(tag: tag);
+              controller.tabIndex.value = index;
+              break;
+            case 'doSearch':
+              pure_live.SearchController controller = Get.find<pure_live.SearchController>();
+              controller.tabController.animateTo(index);
+              break;
+            default:
+          }
+
+          ctx.body = jsonEncode({'data': true});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+
+      router.post('/toggleWebServer', (ctx, next) async {
+        bool webPortEnable = ctx.query['webPortEnable']!.toBoolean();
+        String webPort = ctx.query['webPort']!;
+        if (settings.webPortEnable.value != webPortEnable) {
+          settings.webPortEnable.value = webPortEnable;
+        }
+        if (settings.webPort.value != webPort) {
+          settings.webPort.value = webPort;
+        }
+        ctx.body = jsonEncode({'data': true});
+      });
+
+      router.post('/restartApp', (ctx, next) async {
+        if (Platform.isAndroid) {
+          FlutterRestart.restartApp();
+          ctx.body = jsonEncode({'data': true});
+        } else {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/getGridData', (ctx, next) async {
+        String data = '';
+        try {
+          String tag = ctx.query['tag']!;
+          int page = int.parse(ctx.query['page']!);
+          int pageSize = int.parse(ctx.query['pageSize']!);
+          String keywords = ctx.query['keywords']!;
+          switch (ctx.query['type']!) {
+            case 'hotTab':
+              var controller = Get.find<PopularGridController>(tag: tag);
+              var sizeData = await controller.getData(page, pageSize);
+              controller.list.addAll(sizeData);
+              controller.scrollToBottom();
+              data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              break;
+            case 'areaTab':
+              var controller = Get.find<AreasListController>(tag: tag);
+              data = jsonEncode(controller.list.value);
+              break;
+            case 'areaRoomsTab':
+              AreaRoomsController areaRoomController = Get.find<AreaRoomsController>();
+              var sizeData = await areaRoomController.getData(page, pageSize);
+              areaRoomController.list.addAll(sizeData);
+              areaRoomController.scrollToBottom();
+              data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              break;
+            case 'doSearch':
+              SearchListController searchListController = Get.find<SearchListController>(tag: tag);
+              searchListController.keyword.value = keywords;
+              var sizeData = await searchListController.getData(page, pageSize);
+              searchListController.list.addAll(sizeData as List<LiveRoom>);
+              searchListController.scrollToBottom();
+              data = jsonEncode(sizeData.map((LiveRoom element) => jsonEncode(element.toJson())).toList());
+              break;
+            default:
+          }
+          ctx.body = jsonEncode({'data': data});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': data});
+        }
+      });
+      router.post('/toAreaDetail', (ctx, next) async {
+        try {
+          String tag = ctx.query['tag']!;
+          String area = ctx.query['area']!;
+          var site = Sites.of(tag);
+          var areaRoom = LiveArea.fromJson(jsonDecode(area));
+          AppNavigator.toCategoryDetail(site: site, category: areaRoom);
+          ctx.body = jsonEncode({'data': true});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+      router.post('/uploadFile', (ctx, next) async {
+        try {
+          ctx.body = jsonEncode({'data': true});
+        } catch (e) {
+          ctx.body = jsonEncode({'data': false});
+        }
+      });
+
+      app.use(router.middleware);
+      app.use((ctx, next) async {
+        if (ctx.query['type'] != null) {
+          String? type = ctx.query['type'];
+          if (type == 'uploadM3u8File') {
+            FileRecoverUtils().recoverM3u8BackupByWeb(ctx.parsed['file'], ctx.parsed['name']);
+          } else if (type == 'uploadRecoverFile') {
+            var dir = await getApplicationCacheDirectory();
+            final file = File('${dir.path}${Platform.pathSeparator}${ctx.parsed['name']}');
+            file.writeAsStringSync(ctx.parsed['file']);
+            if (settings.recover(file)) {
+              SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+            } else {
+              SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+            }
+          } else {
+            next();
           }
         } else {
           next();
         }
-      } else {
-        next();
-      }
-    });
-    app.listen(io.InternetAddress.anyIPv4.address, int.parse(port));
-    SnackBarUtil.success('Web服务打开成功,请用浏览器打开您的ip地址+:$port/pure_live/');
+      });
+      app.listen(io.InternetAddress.anyIPv4.address, int.parse(port));
+      SnackBarUtil.success('Web服务打开成功,请用浏览器打开您的ip地址+:$port/pure_live/');
+    } catch (e) {
+      settings.webPortEnable.value = false;
+      SnackBarUtil.success('Web服务打开失败，请手动打开');
+    }
   }
 
   closeServer() {

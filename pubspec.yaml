@@ -109,7 +109,7 @@ dependencies:
   crypto: ^3.0.3
   brotli: ^0.6.0
   flutter_restart: 
-    path: D:/flutter/flutterRestartPluginWip
+    git: https://github.com/liuchuancong/flutterRestartPluginWip.git
   move_to_desktop: ^0.0.2
   device_info_plus: ^9.1.1
   dart_tars_protocol:

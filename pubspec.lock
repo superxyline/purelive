@@ -528,9 +528,11 @@ packages:
   flutter_restart:
     dependency: "direct main"
     description:
-      path: "D:/flutter/flutterRestartPluginWip"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "834836313c93969368c4b0249a31a48b4b1e7d7b"
+      url: "https://github.com/liuchuancong/flutterRestartPluginWip.git"
+    source: git
     version: "0.0.4"
   flutter_smart_dialog:
     dependency: "direct main"

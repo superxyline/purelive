@@ -575,7 +575,7 @@ class SettingsService extends GetxController {
       'shieldList': [],
       'mergeDanmuRating': 0.0,
       "hotAreasList": [],
-      "webPortEnable": false,
+      "webPortEnable": true,
       "webPort": "8008"
     };
     return json;
