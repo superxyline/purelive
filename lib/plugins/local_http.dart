@@ -16,6 +16,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
+import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/popular/popular_grid_controller.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
@@ -45,8 +46,9 @@ class LocalHttpServer {
   void startServer(String port) async {
     try {
       final connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult != ConnectivityResult.wifi) {
-        SmartDialog.showToast('请连接wifi后使用', displayTime: const Duration(seconds: 2));
+      print(connectivityResult);
+      if (connectivityResult == ConnectivityResult.mobile) {
+        SmartDialog.showToast('请在局域网下使用', displayTime: const Duration(seconds: 2));
         return;
       }
       await readAssetsFiles();
@@ -87,7 +89,12 @@ class LocalHttpServer {
           } else if (type == 'areasRooms') {
             Get.offAndToNamed(RoutePath.kAreas)!;
           } else {
-            if (Get.currentRoute != RoutePath.kInitial) {
+            final LivePlayController livePlayController = Get.find<LivePlayController>();
+            if (livePlayController.videoController != null && livePlayController.videoController!.isFullscreen.value) {
+              if (livePlayController.videoController!.isFullscreen.value) {
+                livePlayController.videoController!.toggleFullScreen();
+              }
+            } else {
               Get.back();
             }
           }
@@ -305,14 +312,14 @@ class LocalHttpServer {
       SnackBarUtil.success('Web服务打开成功,请用浏览器打开您的ip地址+:$port/pure_live/');
     } catch (e) {
       settings.webPortEnable.value = false;
-      SnackBarUtil.success('Web服务打开失败，请手动打开');
+      SnackBarUtil.success('Web服务打开失败,请手动打开');
     }
   }
 
   closeServer() async {
     app.close();
     final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.wifi) {
+    if (connectivityResult != ConnectivityResult.mobile) {
       SnackBarUtil.success('Web服务关闭成功');
     }
   }
