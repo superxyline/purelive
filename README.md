@@ -94,7 +94,7 @@
 * 主开发者: [liuchuancong](https://github.com/liuchuancong)
 
 
-[![Stargazers over time](https://starchart.cc/Bian-Sh/UniJoystick.svg)](https://starchart.cc/liuchuancong/pure_live)
+[![Stargazers over time](https://starchart.cc/liuchuancong/pure_live.svg)](https://starchart.cc/liuchuancong/pure_live)
 
 ## 捐助
 
