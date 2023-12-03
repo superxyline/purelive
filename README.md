@@ -93,6 +93,9 @@
 
 * 主开发者: [liuchuancong](https://github.com/liuchuancong)
 
+
+[![Stargazers over time](https://starchart.cc/Bian-Sh/UniJoystick.svg)](https://starchart.cc/Bian-Sh/UniJoystick)
+
 ## 捐助
 
 <img alt="wechat" width="250" src="https://github.com/liuchuancong/pure_live/blob/master/assets/images/wechat.png">
