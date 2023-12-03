@@ -486,7 +486,7 @@ class SettingsPage extends GetView<SettingsService> {
             ),
             TextButton(
               onPressed: Get.back,
-              child: const Text("关闭"),
+              child: const Text("关闭弹窗"),
             ),
           ],
         ),

@@ -59,7 +59,7 @@
     "create_backup_subtitle": "可用于恢复当前数据",
     "recover_backup": "恢复备份",
     "recover_backup_subtitle": "从备份文件中恢复",
-    "auto_backup": "自动备份",
+    "auto_backup": "备份目录",
     "backup_directory": "备份目录",
     "create_backup_success": "创建备份成功",
     "create_backup_failed": "创建备份失败",
