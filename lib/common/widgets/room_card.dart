@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
+import 'package:pure_live/custom/custom_site_providder.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 // ignore: must_be_immutable
@@ -15,7 +16,12 @@ class RoomCard extends StatelessWidget {
   final bool dense;
 
   void onTap(BuildContext context) async {
-    AppNavigator.toLiveRoomDetail(liveRoom: room);
+    if (room.platform == 'custom') {
+      AppNavigator.toWebViewPage(
+          site: SiteInfoMation(id: room.roomId!, siteTitle: room.title!, siteUrl: room.link!, siteIsHot: room.data!));
+    } else {
+      AppNavigator.toLiveRoomDetail(liveRoom: room);
+    }
   }
 
   void onLongPress(BuildContext context) {

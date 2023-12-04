@@ -39,7 +39,8 @@ dependencies:
   flutter_js: ^0.8.0
   html: ^0.15.4
   http: ^1.1.0
-
+  webview_win_floating: ^2.2.2
+  webview_flutter: ^4.0.1
   url_launcher: ^6.1.12
   web_socket_channel: ^2.4.0
   cached_network_image: ^3.3.0
@@ -124,7 +125,6 @@ dependencies:
   dia_body: ^0.1.3
   dia_router: ^0.1.7
   dia_cors: ^0.1.2
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

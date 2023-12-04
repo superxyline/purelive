@@ -5,6 +5,7 @@ import 'package:pure_live/modules/areas/areas_list_controller.dart';
 class AreasController extends GetxController with GetSingleTickerProviderStateMixin {
   late TabController tabController;
   int index = 0;
+  final isCustomSite = false.obs;
   AreasController() {
     final preferPlatform = Get.find<SettingsService>().preferPlatform.value;
     final pIndex = Sites().availableSites().indexWhere((e) => e.id == preferPlatform);
@@ -21,7 +22,7 @@ class AreasController extends GetxController with GetSingleTickerProviderStateMi
       }
       index = currentIndex;
       var controller = Get.find<AreasListController>(tag: Sites().availableSites()[index].id);
-
+      isCustomSite.value = controller.site.id == 'custom';
       if (controller.list.isEmpty) {
         controller.loadData();
       }

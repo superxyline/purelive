@@ -8,6 +8,7 @@ import 'package:pure_live/modules/about/donate_page.dart';
 import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/webview/webview_page.dart';
 import 'package:pure_live/modules/account/account_bing.dart';
 import 'package:pure_live/modules/account/account_page.dart';
 import 'package:pure_live/modules/contact/contact_page.dart';
@@ -26,6 +27,7 @@ import 'package:pure_live/modules/area_rooms/area_rooms_page.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_binding.dart';
 import 'package:pure_live/modules/live_play/live_play_binding.dart';
 import 'package:pure_live/modules/shield/danmu_shield_binding.dart';
+import 'package:pure_live/modules/webview/webview_page_binding.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_binding.dart';
 import 'package:pure_live/modules/account/bilibili/qr_login_page.dart';
 import 'package:pure_live/modules/account/bilibili/bilibili_bings.dart';
@@ -147,5 +149,13 @@ class AppPages {
     ),
     GetPage(name: RoutePath.kUserManage, page: () => const UserManager()),
     GetPage(name: RoutePath.kVersionHistory, page: () => const VersionHistoryPage()),
+
+    GetPage(
+      name: RoutePath.kWebview,
+      page: () => const WebviewPagePage(),
+      bindings: [
+        WebviewPageBinding(),
+      ],
+    ),
   ];
 }

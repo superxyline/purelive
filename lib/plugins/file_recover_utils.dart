@@ -31,6 +31,14 @@ class FileRecoverUtils {
   }
 
   ///验证URL
+  static bool isHostUrl(String value) {
+    final urlRegExp = RegExp(
+        r"((https?:www\.)|(https?:\/\/))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    List<String?> urlMatches = urlRegExp.allMatches(value).map((m) => m.group(0)).toList();
+    return urlMatches.isNotEmpty;
+  }
+
+  ///验证URL
   static bool isPort(String value) {
     final portRegExp = RegExp(r"\d+");
     List<String?> portMatches = portRegExp.allMatches(value).map((m) => m.group(0)).toList();
