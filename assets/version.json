@@ -1,6 +1,6 @@
 {
-  "version": "1.4.9",
-  "version_num": 10409,
+  "version": "1.5.0",
+  "version_num": 10500,
   "version_desc": "-Fix:添加web页面控制设备（App,TV,windwos）,打开局域网ip添加端口号+/pure_live/打开页面，注意：路径/pure_live/必须一样。如果数据没有同步请刷新使用，左下角返回按钮为退出直播间，如果没有出来请刷新页面，读取的是设备的内存数据不是新数据,默认打开，如果不常用请及时关闭，避免卡顿以及流量消耗,设置中可永久关闭.\n-FIx:修复主页Android14返回按钮事件",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
