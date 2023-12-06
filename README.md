@@ -23,10 +23,12 @@
 ## 功能
 
 - [X] 使用[supabase](https://supabase.com/) 完成登录注册功能,邮箱为真实邮箱  ***白名单使用（Q:872934574咨询）*** 您可自己fork项目去supabase控制台生成远程服务，具体不在赘述，只提供表字段。
-- [X] 已实现**Android**/**TV**/**Windows**（TV bug较多，光标比较难用，建议使用鼠标。）  
+- [X] **平台管理** 多种平台选择喜欢的展示
+- [X] 已实现**Android**/**TV**/**Windows**（TV bug较多，光标比较难用，建议使用鼠标或WebServer。）
+- [X] 已实现**WevServer**（局域网连接使用手机可控制设备，切勿连点影响程序正常使用）  
 - [X] 已实现倒计时关闭应用
 - [X] **Android** 端多种播放器随意切换
-- [X] **M3u8** 自定义导入网络/本地直播源，可导入QQ文件,观看自定义内容
+- [X] **M3u8** 自定义导入网络/本地直播源，可直接使用APP打开,观看自定义内容。（导入请先打开App）
 - [X] 弹幕过滤，弹幕合并
 
 ## 下载
@@ -79,7 +81,7 @@
 > If any of the licenses are not being used correctly, please submit a new issue.
 ### 软件更新
 
-因为作者忙于工作,通常只会在周末处理相关事情,目前没有mac电脑无法使用Xcode打包，有合作者可与我联系。
+因为作者忙于工作,通常只会在周末处理相关事情,目前没有mac电脑无法使用Xcode打包IOS以及MAC，有合作者可与我联系。
 ## 代码参考
 
 * dart_simple_live [dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live)
