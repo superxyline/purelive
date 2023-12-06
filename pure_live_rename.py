@@ -55,7 +55,7 @@ def main():
         traversal_target_files(source_dir_name,version)
         print(buildcellctions)
         # 压缩为zip
-        # zip_dirs(source_dir_name)
+        zip_dirs(source_dir_name)
         # 12
 if __name__ == '__main__':
      main()
