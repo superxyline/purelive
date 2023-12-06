@@ -137,8 +137,8 @@ class CustomSite implements LiveSite {
       status: true,
       liveStatus: LiveStatus.live,
       platform: 'custom',
-      link: roomId,
-      data: roomId,
+      link: service.customSites[siteIndex].siteUrl,
+      data: service.customSites[siteIndex].siteUrl,
     );
   }
 

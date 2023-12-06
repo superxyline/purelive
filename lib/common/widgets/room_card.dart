@@ -17,8 +17,15 @@ class RoomCard extends StatelessWidget {
 
   void onTap(BuildContext context) async {
     if (room.platform == 'custom') {
+      final SettingsService service = Get.find<SettingsService>();
+      var siteIndex = service.customSites.indexWhere((item) => item.id == room.roomId);
+
       AppNavigator.toWebViewPage(
-          site: SiteInfoMation(id: room.roomId!, siteTitle: room.title!, siteUrl: room.link!, siteIsHot: room.data!));
+          site: SiteInfoMation(
+              id: room.roomId!,
+              siteTitle: service.customSites[siteIndex].siteTitle,
+              siteUrl: service.customSites[siteIndex].siteUrl,
+              siteIsHot: service.customSites[siteIndex].siteIsHot));
     } else {
       AppNavigator.toLiveRoomDetail(liveRoom: room);
     }
