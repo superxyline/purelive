@@ -54,7 +54,7 @@ class AreasPage extends GetView<AreasController> {
   Future<String?> showWebviewDialog() async {
     final TextEditingController textEditingController = TextEditingController();
     final TextEditingController urlEditingController = TextEditingController();
-    urlEditingController.text = '';
+    urlEditingController.text = 'http://';
     final isHotSite = false.obs;
     var result = await Get.dialog(
         AlertDialog(
@@ -113,8 +113,8 @@ class AreasPage extends GetView<AreasController> {
                   SmartDialog.showToast('请输入站点地址');
                   return;
                 }
-                if (!FileRecoverUtils.isUrl(urlEditingController.text)) {
-                  SmartDialog.showToast('请输入正确的站点地址');
+                if (!FileRecoverUtils.isHostUrl(urlEditingController.text)) {
+                  SmartDialog.showToast('请输入正确的站点地址,以http://或https://开头');
                   return;
                 }
                 var res = CustomSiteProvider.instance.inset(SiteInfoMation(

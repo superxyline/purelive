@@ -82,8 +82,8 @@ class _AreaCardState extends State<AreaCard> {
                   SmartDialog.showToast('请输入站点地址');
                   return;
                 }
-                if (!FileRecoverUtils.isUrl(urlEditingController.text)) {
-                  SmartDialog.showToast('请输入正确的站点地址');
+                if (!FileRecoverUtils.isHostUrl(urlEditingController.text)) {
+                  SmartDialog.showToast('请输入正确的站点地址,以http://或https://开头');
                   return;
                 }
                 var res = CustomSiteProvider.instance.updateCustomSites(SiteInfoMation(
