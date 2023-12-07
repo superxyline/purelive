@@ -35,10 +35,10 @@ class _AreaGridViewState extends State<AreaGridView> with SingleTickerProviderSt
           tabs: widget.controller.list.map<Widget>((e) => Tab(text: e.name)).toList(),
         ),
         Expanded(
-          child: TabBarView(
-            controller: tabController,
-            children: widget.controller.list.map<Widget>((e) => buildAreasView(e)).toList(),
-          ),
+          child: Obx(() => TabBarView(
+                controller: tabController,
+                children: widget.controller.list.map<Widget>((e) => buildAreasView(e)).toList(),
+              )),
         ),
       ],
     );

@@ -193,6 +193,11 @@ class LivePlayController extends StateController {
     if (currentLineIndex.value == playUrls.length - 1) {
       liveStatus.value = false;
       success.value = false;
+      if (videoController != null) {
+        if (videoController!.isFullscreen.value) {
+          videoController?.toggleFullScreen();
+        }
+      }
       return;
     }
     currentLineIndex.value++;

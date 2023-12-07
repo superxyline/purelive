@@ -5,6 +5,7 @@ import 'site/douyin_site.dart';
 import 'interface/live_site.dart';
 import 'package:pure_live/core/site/cc_site.dart';
 import 'package:pure_live/core/site/iptv_site.dart';
+import 'package:pure_live/core/site/custom_site.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
 import 'package:pure_live/common/services/settings_service.dart';
@@ -52,6 +53,12 @@ class Sites {
       name: "网络",
       logo: "assets/images/kuaishou.png",
       liveSite: IptvSite(),
+    ),
+    Site(
+      id: "custom",
+      name: "自定义",
+      logo: "assets/images/kuaishou.png",
+      liveSite: CustomSite(),
     ),
   ];
 

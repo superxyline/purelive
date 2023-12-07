@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import '../iptv/m3u_parser_nullsafe.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/core/iptv/iptv_utils.dart';
@@ -10,6 +11,7 @@ import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/core/danmaku/empty_danmaku.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 
 class IptvSite implements LiveSite {
   @override
@@ -125,15 +127,15 @@ class IptvSite implements LiveSite {
 
   @override
   Future<LiveRoom> getRoomDetail({required String roomId}) async {
-    var data = [];
-    data.add(roomId);
+    final SettingsService service = Get.find<SettingsService>();
+    var siteIndex = service.favoriteRooms.indexWhere((item) => item.roomId == roomId);
     return LiveRoom(
       cover: '',
       watching: '',
       roomId: roomId,
       area: '',
-      title: '网络',
-      nick: 'm3u订阅',
+      title: service.favoriteRooms[siteIndex].title,
+      nick: service.favoriteRooms[siteIndex].nick,
       avatar:
           'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
       introduction: '',
@@ -142,7 +144,7 @@ class IptvSite implements LiveSite {
       liveStatus: LiveStatus.live,
       platform: 'iptv',
       link: roomId,
-      data: data,
+      data: roomId,
     );
   }
 

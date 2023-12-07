@@ -82,16 +82,27 @@ class _OwnerCardState extends State<OwnerCard> {
           backgroundColor: Theme.of(context).disabledColor,
         ),
         title: Text(
-          widget.room.nick!,
+          widget.room.title != null ? '${widget.room.title}' : '',
           maxLines: 1,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        subtitle: Text(
-          widget.room.area!.isEmpty
-              ? "${widget.room.platform?.toUpperCase()}"
-              : "${widget.room.platform?.toUpperCase()} - ${widget.room.area}",
-          maxLines: 1,
-          style: const TextStyle(fontWeight: FontWeight.w500),
+        subtitle: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.room.nick!,
+              maxLines: 1,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            Text(
+              widget.room.area!.isEmpty
+                  ? "${widget.room.platform?.toUpperCase()}"
+                  : "${widget.room.platform?.toUpperCase()} - ${widget.room.area}",
+              maxLines: 1,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ],
         ),
         trailing: FilledButton.tonal(
           onPressed: () {
