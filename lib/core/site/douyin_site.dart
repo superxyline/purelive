@@ -1,22 +1,20 @@
-import 'dart:convert';
 import 'dart:math';
-
+import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_message.dart';
-import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/common/services/settings_service.dart';
-import 'package:pure_live/core/common/convert_helper.dart';
+import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/common/models/live_area.dart';
+import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/core/common/http_client.dart';
+import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/core/interface/live_site.dart';
+import 'package:pure_live/model/live_search_result.dart';
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/core/common/convert_helper.dart';
+import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/core/interface/live_site.dart';
-import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/model/live_category_result.dart';
-import 'package:pure_live/model/live_play_quality.dart';
-
-import 'package:pure_live/model/live_search_result.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 
 class DouyinSite implements LiveSite {
   @override
@@ -40,8 +38,7 @@ class DouyinSite implements LiveSite {
       if (headers.containsKey("cookie")) {
         return headers;
       }
-      var head = await HttpClient.instance
-          .head("https://live.douyin.com", header: headers);
+      var head = await HttpClient.instance.head("https://live.douyin.com", header: headers);
       head.headers["set-cookie"]?.forEach((element) {
         var cookie = element.split(";")[0];
         if (cookie.contains("ttwid")) {
@@ -70,22 +67,15 @@ class DouyinSite implements LiveSite {
     );
 
     var renderData =
-        RegExp(r'\{\\"pathname\\":\\"\/hot_live\\",\\"categoryData.*?\]\\n')
-                .firstMatch(result)
-                ?.group(0) ??
-            "";
-    var renderDataJson = json.decode(renderData
-        .trim()
-        .replaceAll('\\"', '"')
-        .replaceAll(r"\\", r"\")
-        .replaceAll(']\\n', ""));
+        RegExp(r'\{\\"pathname\\":\\"\/hot_live\\",\\"categoryData.*?\]\\n').firstMatch(result)?.group(0) ?? "";
+    var renderDataJson =
+        json.decode(renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""));
     for (var item in renderDataJson["categoryData"]) {
       List<LiveArea> subs = [];
       var id = '${item["partition"]["id_str"]},${item["partition"]["type"]}';
       for (var subItem in item["sub_partition"]) {
         var subCategory = LiveArea(
-          areaId:
-              '${subItem["partition"]["id_str"]},${subItem["partition"]["type"]}',
+          areaId: '${subItem["partition"]["id_str"]},${subItem["partition"]["type"]}',
           typeName: item["partition"]["title"] ?? '',
           areaType: id,
           areaName: subItem["partition"]["title"] ?? '',
@@ -116,8 +106,7 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<LiveCategoryResult> getCategoryRooms(LiveArea category,
-      {int page = 1}) async {
+  Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
     var ids = category.areaType?.split(',');
     var partitionId = ids?[0];
     var partitionType = ids?[1];
@@ -149,8 +138,7 @@ class DouyinSite implements LiveSite {
         status: true,
         platform: 'douyin',
         area: item['tag_name'].toString(),
-        watching:
-            item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
+        watching: item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
       );
       items.add(roomItem);
     }
@@ -186,8 +174,7 @@ class DouyinSite implements LiveSite {
         platform: 'douyin',
         area: item["tag_name"] ?? '热门推荐',
         avatar: item["room"]["owner"]["avatar_thumb"]["url_list"][0].toString(),
-        watching:
-            item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
+        watching: item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
         liveStatus: LiveStatus.live,
       );
       items.add(roomItem);
@@ -201,10 +188,8 @@ class DouyinSite implements LiveSite {
       var detail = await getRoomWebDetail(roomId);
       var requestHeader = await getRequestHeaders();
       var webRid = roomId;
-      var realRoomId =
-          detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
-      var userUniqueId =
-          detail["userStore"]["odin"]["user_unique_id"].toString();
+      var realRoomId = detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
+      var userUniqueId = detail["userStore"]["odin"]["user_unique_id"].toString();
       var result = await HttpClient.instance.getJson(
         "https://live.douyin.com/webcast/room/web/enter/",
         queryParameters: {
@@ -238,8 +223,7 @@ class DouyinSite implements LiveSite {
         cover: roomStatus ? roomInfo["cover"]["url_list"][0].toString() : "",
         nick: userInfo["nickname"].toString(),
         avatar: userInfo["avatar_thumb"]["url_list"][0].toString(),
-        watching:
-            roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
+        watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
         liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
         link: "https://live.douyin.com/$webRid",
         area: partition?['partition']?['title'].toString() ?? '',
@@ -278,15 +262,8 @@ class DouyinSite implements LiveSite {
       },
     );
 
-    var renderData = RegExp(r'\{\\"state\\":\{\\"isLiveModal.*?\]\\n')
-            .firstMatch(result)
-            ?.group(0) ??
-        "";
-    var str = renderData
-        .trim()
-        .replaceAll('\\"', '"')
-        .replaceAll(r"\\", r"\")
-        .replaceAll(']\\n', "");
+    var renderData = RegExp(r'\{\\"state\\":\{\\"isLiveModal.*?\]\\n').firstMatch(result)?.group(0) ?? "";
+    var str = renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', "");
     var renderDataJson = json.decode(str);
 
     return renderDataJson["state"];
@@ -296,13 +273,10 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<List<LivePlayQuality>> getPlayQualites(
-      {required LiveRoom detail}) async {
+  Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) async {
     List<LivePlayQuality> qualities = [];
-    var qualityData = json.decode(
-        detail.data["live_core_sdk_data"]["pull_data"]["stream_data"])["data"];
-    var qulityList =
-        detail.data["live_core_sdk_data"]["pull_data"]["options"]["qualities"];
+    var qualityData = json.decode(detail.data["live_core_sdk_data"]["pull_data"]["stream_data"])["data"];
+    var qulityList = detail.data["live_core_sdk_data"]["pull_data"]["options"]["qualities"];
     for (var quality in qulityList) {
       var qualityItem = LivePlayQuality(
         quality: quality["name"],
@@ -319,17 +293,14 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<List<String>> getPlayUrls(
-      {required LiveRoom detail, required LivePlayQuality quality}) async {
+  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
     return quality.data;
   }
 
   @override
-  Future<LiveSearchRoomResult> searchRooms(String keyword,
-      {int page = 1}) async {
+  Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
     String serverUrl = "https://www.douyin.com/aweme/v1/web/live/search/";
-    var uri = Uri.parse(serverUrl)
-        .replace(scheme: "https", port: 443, queryParameters: {
+    var uri = Uri.parse(serverUrl).replace(scheme: "https", port: 443, queryParameters: {
       "device_platform": "webapp",
       "aid": "6383",
       "channel": "channel_pc_web",
@@ -339,8 +310,8 @@ class DouyinSite implements LiveSite {
       "query_correct_type": "1",
       "is_filter_search": "0",
       "from_group_id": "",
-      "offset": ((page - 1) * 10).toString(),
-      "count": "10",
+      "offset": ((page - 1) * 20).toString(),
+      "count": "20",
       "pc_client_type": "1",
       "version_code": "170400",
       "version_name": "17.4.0",
@@ -400,8 +371,7 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<LiveSearchAnchorResult> searchAnchors(String keyword,
-      {int page = 1}) async {
+  Future<LiveSearchAnchorResult> searchAnchors(String keyword, {int page = 1}) async {
     throw Exception("抖音暂不支持搜索主播，请直接搜索直播间");
   }
 
@@ -412,8 +382,7 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage(
-      {required String roomId}) {
+  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
     return Future.value(<LiveSuperChatMessage>[]);
   }
 
