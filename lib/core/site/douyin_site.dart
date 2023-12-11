@@ -350,7 +350,8 @@ class DouyinSite implements LiveSite {
       },
     );
     var items = <LiveRoom>[];
-    for (var item in result["data"] ?? []) {
+    var queryList = result["data"] ?? [];
+    for (var item in queryList) {
       var itemData = json.decode(item["lives"]["rawdata"].toString());
       var roomStatus = (asT<int?>(itemData["status"]) ?? 0) == 2;
       var roomItem = LiveRoom(
@@ -367,7 +368,7 @@ class DouyinSite implements LiveSite {
       );
       items.add(roomItem);
     }
-    return LiveSearchRoomResult(hasMore: items.length >= 10, items: items);
+    return LiveSearchRoomResult(hasMore: queryList.length > 0, items: items);
   }
 
   @override

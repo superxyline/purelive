@@ -295,7 +295,8 @@ class BiliBiliSite implements LiveSite {
     );
 
     var items = <LiveRoom>[];
-    for (var item in result["data"]["result"]["live_room"] ?? []) {
+    var queryList = result["data"]["result"]["live_room"] ?? [];
+    for (var item in queryList ?? []) {
       var title = item["title"].toString();
       //移除title中的<em></em>标签
       title = title.replaceAll(RegExp(r"<.*?em.*?>"), "");
@@ -313,7 +314,7 @@ class BiliBiliSite implements LiveSite {
       );
       items.add(roomItem);
     }
-    return LiveSearchRoomResult(hasMore: result["data"]["result"]["live_room"].length > 0, items: items);
+    return LiveSearchRoomResult(hasMore: queryList.length > 0, items: items);
   }
 
   @override

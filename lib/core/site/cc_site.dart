@@ -210,8 +210,8 @@ class CCSite implements LiveSite {
       },
     );
     var items = <LiveRoom>[];
-
-    for (var item in result["webcc_anchor"]["result"]) {
+    var queryList = result["webcc_anchor"]["result"] ?? [];
+    for (var item in queryList) {
       var roomItem = LiveRoom(
         roomId: item["cuteid"].toString(),
         title: item["title"],
@@ -226,7 +226,7 @@ class CCSite implements LiveSite {
       );
       items.add(roomItem);
     }
-    var hasMore = result["webcc_anchor"]["result"].length >= 20;
+    var hasMore = queryList.length > 0;
     return LiveSearchRoomResult(hasMore: hasMore, items: items);
   }
 
