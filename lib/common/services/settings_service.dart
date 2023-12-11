@@ -207,7 +207,7 @@ class SettingsService extends GetxController {
 
   final webPort = (PrefUtil.getString('webPort') ?? "8008").obs;
 
-  final webPortEnable = (PrefUtil.getBool('webPortEnable') ?? true).obs;
+  final webPortEnable = (PrefUtil.getBool('webPortEnable') ?? false).obs;
 
   get language => SettingsService.languages[languageName.value]!;
 
@@ -492,7 +492,7 @@ class SettingsService extends GetxController {
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     webPort.value = json['webPort'] ?? '8008';
-    webPortEnable.value = json['webPortEnable'] ?? true;
+    webPortEnable.value = json['webPortEnable'] ?? false;
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -576,7 +576,7 @@ class SettingsService extends GetxController {
       'shieldList': [],
       'mergeDanmuRating': 0.0,
       "hotAreasList": [],
-      "webPortEnable": true,
+      "webPortEnable": false,
       "webPort": "8008",
     };
     return json;
