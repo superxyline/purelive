@@ -6,7 +6,6 @@ import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:pure_live/custom/custom_site_providder.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
@@ -60,10 +59,6 @@ class SettingsService extends GetxController {
 
     shieldList.listen((value) {
       PrefUtil.setStringList('shieldList', value);
-    });
-
-    customSites.listen((value) {
-      PrefUtil.setStringList('customSites', customSites.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
 
     hotAreasList.listen((value) {
@@ -329,9 +324,6 @@ class SettingsService extends GetxController {
 
   final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
 
-  final customSites =
-      ((PrefUtil.getStringList('customSites') ?? []).map((e) => SiteInfoMation.fromJson(jsonDecode(e))).toList()).obs;
-
   final hotAreasList = ((PrefUtil.getStringList('hotAreasList') ?? supportSites)).obs;
 
   // Favorite rooms storage
@@ -362,25 +354,6 @@ class SettingsService extends GetxController {
 
   void addShieldList(String value) {
     shieldList.add(value);
-  }
-
-  bool addCustomSites(SiteInfoMation value) {
-    if (customSites.any((element) => element.siteTitle == value.siteTitle || element.siteUrl == value.siteUrl)) {
-      return false;
-    }
-    customSites.add(value);
-    return true;
-  }
-
-  bool updateCustomSites(SiteInfoMation site) {
-    int idx = customSites.indexWhere((element) => element.id == site.id);
-    if (idx == -1) return false;
-    customSites[idx] = site;
-    return true;
-  }
-
-  void removeCustomSites(int value) {
-    customSites.removeAt(value);
   }
 
   void removeShieldList(int value) {
@@ -491,10 +464,6 @@ class SettingsService extends GetxController {
     shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
     hotAreasList.value =
         json['hotAreasList'] != null ? (json['hotAreasList'] as List).map((e) => e.toString()).toList() : [];
-
-    customSites.value = json['customSites'] != null
-        ? (json['customSites'] as List).map<SiteInfoMation>((e) => SiteInfoMation.fromJson(jsonDecode(e))).toList()
-        : [];
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 3;
     themeModeName.value = json['themeMode'] ?? "System";
@@ -567,8 +536,6 @@ class SettingsService extends GetxController {
     json['enableCodec'] = enableCodec.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
-
-    json['customSites'] = customSites.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
 
     json['mergeDanmuRating'] = mergeDanmuRating.value;
@@ -611,7 +578,6 @@ class SettingsService extends GetxController {
       "hotAreasList": [],
       "webPortEnable": true,
       "webPort": "8008",
-      "customSites": []
     };
     return json;
   }

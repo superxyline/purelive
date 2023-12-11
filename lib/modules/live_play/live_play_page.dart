@@ -2,6 +2,7 @@ import 'widgets/index.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:pure_live/plugins/screen_device.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
@@ -63,44 +64,64 @@ class LivePlayPage extends GetWidget<LivePlayController> {
             ),
           ],
         ),
-        body: LayoutBuilder(builder: (context, constraint) {
-          final width = constraint.maxWidth;
-          return SafeArea(
-            child: width <= 680
-                ? Column(
-                    children: <Widget>[
-                      buildVideoPlayer(),
-                      const ResolutionsRow(),
-                      const Divider(height: 1),
-                      Expanded(
-                        child: DanmakuListView(
-                          key: controller.danmakuViewKey,
-                          room: controller.room,
-                        ),
-                      ),
-                    ],
-                  )
-                : Row(children: <Widget>[
-                    Flexible(
-                      flex: 5,
-                      child: buildVideoPlayer(),
+        body: FutureBuilder(
+          future: ScreenDevice.getDeviceType(),
+          builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
+            if (snapshot.data == Device.phone || snapshot.data == Device.pad) {
+              return Column(
+                children: <Widget>[
+                  buildVideoPlayer(),
+                  const ResolutionsRow(),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: DanmakuListView(
+                      key: controller.danmakuViewKey,
+                      room: controller.room,
                     ),
-                    Flexible(
-                      flex: 3,
-                      child: Column(children: [
-                        const ResolutionsRow(),
-                        const Divider(height: 1),
-                        Expanded(
-                          child: DanmakuListView(
-                            key: controller.danmakuViewKey,
-                            room: controller.room,
+                  ),
+                ],
+              );
+            }
+            return LayoutBuilder(builder: (context, constraint) {
+              final width = constraint.maxWidth;
+              return SafeArea(
+                child: width <= 680
+                    ? Column(
+                        children: <Widget>[
+                          buildVideoPlayer(),
+                          const ResolutionsRow(),
+                          const Divider(height: 1),
+                          Expanded(
+                            child: DanmakuListView(
+                              key: controller.danmakuViewKey,
+                              room: controller.room,
+                            ),
                           ),
+                        ],
+                      )
+                    : Row(children: <Widget>[
+                        Flexible(
+                          flex: 5,
+                          child: buildVideoPlayer(),
+                        ),
+                        Flexible(
+                          flex: 3,
+                          child: Column(children: [
+                            const ResolutionsRow(),
+                            const Divider(height: 1),
+                            Expanded(
+                              child: DanmakuListView(
+                                key: controller.danmakuViewKey,
+                                room: controller.room,
+                              ),
+                            ),
+                          ]),
                         ),
                       ]),
-                    ),
-                  ]),
-          );
-        }),
+              );
+            });
+          },
+        ),
         floatingActionButton: FavoriteFloatingButton(room: controller.room),
       ),
     );
