@@ -600,14 +600,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "10.6.0"
-  fullscreen_window:
-    dependency: transitive
-    description:
-      name: fullscreen_window
-      sha256: fe3014f91bff16a82d142ba9d834980b8a84b4bb03347a92588d389ad92bd1d3
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.4"
   functions_client:
     dependency: transitive
     description:
@@ -1631,7 +1623,7 @@ packages:
     source: hosted
     version: "2.4.0"
   webview_flutter:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: webview_flutter
       sha256: "42393b4492e629aa3a88618530a4a00de8bb46e50e7b3993fedbfdc5352f0dbf"
@@ -1662,14 +1654,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.9.4"
-  webview_win_floating:
-    dependency: "direct main"
-    description:
-      name: webview_win_floating
-      sha256: cb1bff0fcfca9b7aa5159b95c96b8810ccd1c2c9feee1666549f5910c87c4b1a
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.2.2"
   win32:
     dependency: transitive
     description:

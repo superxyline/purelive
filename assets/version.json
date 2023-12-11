@@ -1,7 +1,7 @@
 {
-  "version": "1.5.0",
+  "version": "1.5.1",
   "version_num": 10500,
-  "version_desc": "-Add:添加自定义站点，分区内添加，长按编辑。\n-Fix:添加搜索标题。\n-Fix:修复M3u关注下名称显示",
+  "version_desc": "-Delete:删除自定义站点.\n-Fix:修复搜索\n-Fix:修复直播观看不显示刷新提升\n-Fix优化平板显示\n-Fix优化webServer以及手机以及pad默认关闭，tv自动打开",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

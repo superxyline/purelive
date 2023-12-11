@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/global.dart';
-import 'package:webview_win_floating/webview.dart';
 import 'package:pure_live/plugins/screen_device.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
@@ -14,7 +13,6 @@ const kWindowsScheme = 'purelive://signin';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
-  WindowsWebViewPlatform.registerWith();
   JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   MediaKit.ensureInitialized();
