@@ -501,7 +501,6 @@ class SettingsService extends GetxController {
     changePreferPlatform(preferPlatform.value);
     changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     changeAutoRefreshConfig(autoRefreshTime.value);
-    changeWebListen(webPort.value, webPortEnable.value);
   }
 
   Map<String, dynamic> toJson() {

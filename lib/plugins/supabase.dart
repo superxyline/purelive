@@ -42,7 +42,8 @@ class SupaBaseManager {
 
   Future<bool> loadUploadConfig() async {
     final user = Get.find<AuthController>().user;
-    List<dynamic> data = await client.from(supabasePolicy.checkTable).select().eq(supabasePolicy.email, user.email);
+    List<dynamic> data =
+        await client.from(supabasePolicy.checkTable).select().eq(supabasePolicy.email, user.email as Object);
     if (data.isNotEmpty) {
       canUploadConfig = true;
       return true;
