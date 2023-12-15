@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
 class FavoriteController extends GetxController with GetSingleTickerProviderStateMixin {
   final SettingsService settings = Get.find<SettingsService>();
@@ -58,10 +57,6 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
         settings.updateRoom(room);
       }
       syncRooms();
-      LivePlayController livePlayController = Get.find<LivePlayController>();
-      if (livePlayController.videoController == null) {
-        SmartDialog.showToast('刷新成功');
-      }
     } catch (e) {
       hasError = true;
       log(e.toString(), name: 'syncRooms');
