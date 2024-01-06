@@ -1,22 +1,22 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:math' as math;
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get/get.dart';
-import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_message.dart';
-import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/common/services/settings_service.dart';
-import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/core/danmaku/empty_danmaku.dart';
-import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/core/interface/live_site.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/model/live_category_result.dart';
+import 'package:pure_live/common/models/live_area.dart';
+import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/model/live_play_quality.dart';
-
+import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/model/live_search_result.dart';
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/core/danmaku/empty_danmaku.dart';
+import 'package:pure_live/model/live_category_result.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 
 class KuaishowSite implements LiveSite {
   @override
@@ -69,8 +69,8 @@ class KuaishowSite implements LiveSite {
 
   final SettingsService settings = Get.find<SettingsService>();
 
-  Future<List<LiveArea>> getAllSubCategores(LiveCategory liveCategory, int page,
-      int pageSize, List<LiveArea> allSubCategores) async {
+  Future<List<LiveArea>> getAllSubCategores(
+      LiveCategory liveCategory, int page, int pageSize, List<LiveArea> allSubCategores) async {
     try {
       var subsArea = await getSubCategores(liveCategory, page, pageSize);
       allSubCategores.addAll(subsArea);
@@ -85,15 +85,10 @@ class KuaishowSite implements LiveSite {
     }
   }
 
-  Future<List<LiveArea>> getSubCategores(
-      LiveCategory liveCategory, int page, int pageSize) async {
+  Future<List<LiveArea>> getSubCategores(LiveCategory liveCategory, int page, int pageSize) async {
     var result = await HttpClient.instance.getJson(
       "https://live.kuaishou.com/live_api/category/data",
-      queryParameters: {
-        "type": liveCategory.id,
-        "page": page,
-        "size": pageSize
-      },
+      queryParameters: {"type": liveCategory.id, "page": page, "size": pageSize},
       header: headers,
     );
 
@@ -114,16 +109,10 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<LiveCategoryResult> getCategoryRooms(LiveArea category,
-      {int page = 1}) async {
+  Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
     var result = await HttpClient.instance.getJson(
       "https://live.kuaishou.com/live_api/gameboard/list",
-      queryParameters: {
-        "filterType": 0,
-        "pageSize": 20,
-        "gameId": category.areaId,
-        "page": page
-      },
+      queryParameters: {"filterType": 0, "pageSize": 20, "gameId": category.areaId, "page": page},
       header: headers,
     );
     var items = <LiveRoom>[];
@@ -163,16 +152,13 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<List<String>> getPlayUrls(
-      {required LiveRoom detail, required LivePlayQuality quality}) async {
+  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
     return quality.data as List<String>;
   }
 
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
-    var resultText = await HttpClient.instance.getJson(
-        "https://live.kuaishou.com/live_api/home/list",
-        header: headers);
+    var resultText = await HttpClient.instance.getJson("https://live.kuaishou.com/live_api/home/list", header: headers);
 
     var result = resultText['data']['list'] ?? [];
     var items = <LiveRoom>[];
@@ -216,12 +202,7 @@ class KuaishowSite implements LiveSite {
     var map = {
       'common': {
         'identity_package': {'device_id': did, 'global_id': ''},
-        'app_package': {
-          'language': 'zh-CN',
-          'platform': 10,
-          'container': 'WEB',
-          'product_name': 'KS_GAME_LIVE_PC'
-        },
+        'app_package': {'language': 'zh-CN', 'platform': 10, 'container': 'WEB', 'product_name': 'KS_GAME_LIVE_PC'},
         'device_package': {
           'os_version': 'NT 6.1',
           'model': 'Windows',
@@ -265,8 +246,7 @@ class KuaishowSite implements LiveSite {
   // 获取pageId
   getPageId() {
     var pageId = '';
-    const charset =
-        'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
+    const charset = 'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
     for (var i = 0; i < 16; i++) {
       pageId += charset[math.Random().nextInt(63)];
     }
@@ -295,14 +275,8 @@ class KuaishowSite implements LiveSite {
     var variables = {'liveStreamId': liveRoomId};
     var query =
         r'query WebSocketInfoQuery($liveStreamId: String) {\n  webSocketInfo(liveStreamId: $liveStreamId) {\n    token\n    webSocketUrls\n    __typename\n  }\n}\n';
-    var res = await HttpClient.instance.postJson(
-        'https://live.kuaishou.com/live_graphql',
-        header: headers,
-        data: {
-          "operationName": 'WebSocketInfoQuery',
-          "variables": variables,
-          "query": query
-        });
+    var res = await HttpClient.instance.postJson('https://live.kuaishou.com/live_graphql',
+        header: headers, data: {"operationName": 'WebSocketInfoQuery', "variables": variables, "query": query});
     return res;
   }
 
@@ -319,10 +293,9 @@ class KuaishowSite implements LiveSite {
       header: headers,
     );
     try {
-      var text = RegExp(r"window\.__INITIAL_STATE__=(.*?);", multiLine: false)
-          .firstMatch(resultText)
-          ?.group(1);
-      var jsonObj = jsonDecode(text!);
+      var text = RegExp(r"window\.__INITIAL_STATE__=(.*?);", multiLine: false).firstMatch(resultText)?.group(1);
+      var transferData = text!.replaceAll("undefined", "null");
+      var jsonObj = jsonDecode(transferData);
       var liveStream = jsonObj["liveroom"]["playList"][0]["liveStream"];
       var author = jsonObj["liveroom"]["playList"][0]["author"];
       var gameInfo = jsonObj["liveroom"]["playList"][0]["gameInfo"];
@@ -339,14 +312,13 @@ class KuaishowSite implements LiveSite {
         introduction: author["description"],
         notice: author["description"],
         status: jsonObj["liveroom"]["playList"][0]["isLiving"],
-        liveStatus: jsonObj["liveroom"]["playList"][0]["isLiving"]
-            ? LiveStatus.live
-            : LiveStatus.offline,
+        liveStatus: jsonObj["liveroom"]["playList"][0]["isLiving"] ? LiveStatus.live : LiveStatus.offline,
         platform: 'kuaishou',
         link: url,
         data: liveStream["playUrls"],
       );
     } catch (e) {
+      log(e.toString());
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;
@@ -355,15 +327,13 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<LiveSearchRoomResult> searchRooms(String keyword,
-      {int page = 1}) async {
+  Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
     // 快手无法搜索主播，只能搜索游戏分类这里不做展示
     return LiveSearchRoomResult(hasMore: false, items: []);
   }
 
   @override
-  Future<LiveSearchAnchorResult> searchAnchors(String keyword,
-      {int page = 1}) async {
+  Future<LiveSearchAnchorResult> searchAnchors(String keyword, {int page = 1}) async {
     return LiveSearchAnchorResult(hasMore: false, items: []);
   }
 
@@ -373,8 +343,7 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage(
-      {required String roomId}) {
+  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
     //尚不支持
     return Future.value([]);
   }

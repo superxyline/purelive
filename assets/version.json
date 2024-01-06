@@ -1,7 +1,7 @@
 {
-  "version": "1.5.2",
-  "version_num": 10502,
-  "version_desc": "-Fix:修复刷新失败",
+  "version": "1.5.4",
+  "version_num": 10504,
+  "version_desc": "-Fix:修复抖音播放 \n -Fix:修复快手播放 \n -Fix:修复其他问题",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../search/search_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/screen_device.dart';
 import 'package:move_to_desktop/move_to_desktop.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
@@ -44,14 +45,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     favoriteController.tabBottomIndex.addListener(() {
       setState(() => _selectedIndex = favoriteController.tabBottomIndex.value);
     });
-    openWebServer();
-  }
-
-  openWebServer() {
-    final SettingsService settingsService = Get.find<SettingsService>();
-    if (settingsService.webPortEnable.value) {
-      settingsService.changeWebListen(settingsService.webPort.value, settingsService.webPortEnable.value);
-    }
   }
 
   @override
@@ -104,7 +97,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
         child: NewVersionDialog(entry: entry),
       ),
     );
-
+    if (Platform.isAndroid && await ScreenDevice.getDeviceType() == Device.tv) {
+      return;
+    }
     await VersionUtil.checkUpdate();
     bool isHasNerVersion = Get.find<SettingsService>().enableAutoCheckUpdate.value && VersionUtil.hasNewVersion();
     if (mounted) {
