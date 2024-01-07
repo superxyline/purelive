@@ -104,47 +104,40 @@ class DouyinSite implements LiveSite {
 
   @override
   Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
-    var ids = category.areaType?.split(',');
+    var ids = category.areaId?.split(',');
     var partitionId = ids?[0];
     var partitionType = ids?[1];
-
-    var result = await HttpClient.instance.getText(
-      "https://live.douyin.com/category/${partitionType}_$partitionId/",
-      queryParameters: {'enter_from_merge': 'page_refresh'},
+    var result = await HttpClient.instance.getJson(
+      "https://live.douyin.com/webcast/web/partition/detail/room/",
+      queryParameters: {
+        "aid": 6383,
+        "app_name": "douyin_web",
+        "live_id": 1,
+        "device_platform": "web",
+        "count": 15,
+        "offset": (page - 1) * 15,
+        "partition": partitionId,
+        "partition_type": partitionType,
+        "req_from": 2
+      },
       header: await getRequestHeaders(),
     );
-    var renderData = RegExp(r'\{\\"tdkMeta\\":.*?\]\\n').firstMatch(result)?.group(0) ?? "";
-    var hasMore = false;
+    var hasMore = (result["data"]["data"] as List).length >= 15;
     var items = <LiveRoom>[];
-    try {
-      var text = renderData
-          .trim()
-          .replaceAll('\\"', '"')
-          .replaceAll(r"\\", r"\")
-          .replaceAll(']\n', "")
-          .replaceAll(']\\n', "")
-          .replaceAll("\$undefined", "")
-          .toString();
-      var renderDataJson = json.decode(text);
-      hasMore = (renderDataJson["roomsData"]["data"] as List).length >= 15;
-
-      for (var item in renderDataJson["roomsData"]["data"] ?? []) {
-        var roomItem = LiveRoom(
-          roomId: item["web_rid"],
-          title: item["room"]["title"].toString(),
-          cover: item["cover"],
-          nick: item["room"]["owner"]["nickname"].toString(),
-          liveStatus: LiveStatus.live,
-          avatar: item["avatar"],
-          status: true,
-          platform: 'douyin',
-          area: item['tag_name'].toString(),
-          watching: item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
-        );
-        items.add(roomItem);
-      }
-    } catch (e) {
-      log(e.toString());
+    for (var item in result["data"]["data"]) {
+      var roomItem = LiveRoom(
+        roomId: item["web_rid"],
+        title: item["room"]["title"].toString(),
+        cover: item["room"]["cover"]["url_list"][0].toString(),
+        nick: item["room"]["owner"]["nickname"].toString(),
+        liveStatus: LiveStatus.live,
+        avatar: item["room"]["owner"]["avatar_thumb"]["url_list"][0].toString(),
+        status: true,
+        platform: 'douyin',
+        area: item['tag_name'].toString(),
+        watching: item["room"]?["room_view_stats"]?["display_value"].toString() ?? '',
+      );
+      items.add(roomItem);
     }
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
