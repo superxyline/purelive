@@ -33,7 +33,10 @@
 
 ## 下载
 
-请使用 蓝奏云 进行下载
+请使用 123云盘 进行下载
+下载地址 [纯粹直播](https://www.123pan.com/s/Jucxjv-NwYYd.html)
+
+蓝奏云已不在维护
 
 下载地址 [纯粹直播](https://wwvr.lanzouw.com/b01f6rqab)
 

@@ -2,15 +2,15 @@ import os
 import shutil
 import time
 source_dir_name = 'E:/project/pure_live_release/'
-target_win_app_name  = 'E:/project/pure_live/build/windows/x64/runner/Release/'
-target_apk_dir_name = 'E:/project/pure_live/build/app/outputs/flutter-apk/'
+# target_win_app_name  = 'E:/project/pure_live/build/windows/x64/runner/Release/'
+# target_apk_dir_name = 'E:/project/pure_live/build/app/outputs/flutter-apk/'
 target_files = ['app-arm64-v8a-release.apk','app-armeabi-v7a-release.apk','app-release.apk','app-x86_64-release.apk','pure_live.msix']
 build_path = []
 buildcellctions = []
-# target_apk_dir_name = 'D:/flutter/pure_live/build/windows/x64/runner/Release/'
-# target_win_app_name = 'D:/flutter/pure_live/build/app/outputs/flutter-apk/'
+target_win_app_name = 'D:/flutter/pure_live/build/windows/x64/runner/Release/'
+target_apk_dir_name = 'D:/flutter/pure_live/build/app/outputs/flutter-apk/'
 files = []
-dirArr = ['安卓_手机高版本','安卓_手机低版本或电视','不知道就下载这个','模拟器','win10以上系统下载']
+dirArr = ['安卓_手机高版本.apk','安卓_手机低版本或电视.apk','不知道就下载这个.apk','模拟器.apk','win10以上系统下载.msix']
 def traversal_dirs(path):
     for item in os.scandir(path):
         if item.is_dir():
@@ -31,9 +31,6 @@ def traversal_target_files(path,version):
       return
     for i in range(0,len(dirArr)):
             src = os.path.join(path,version + '-' +dirArr[i])
-            os.mkdir(src,mode=0o777)
-            file = open(os.path.join(src,target_files[i]), 'w')
-            file.close()
             source = buildcellctions[i]
             shutil.copy(source, src)
 def zip_dirs(path):
@@ -53,9 +50,9 @@ def main():
         traversal_files(target_apk_dir_name)
         traversal_files(target_win_app_name)
         traversal_target_files(source_dir_name,version)
-        print(buildcellctions)
+        # print(buildcellctions)
         # 压缩为zip
-        zip_dirs(source_dir_name)
+        # zip_dirs(source_dir_name)
         # 12
 if __name__ == '__main__':
      main()

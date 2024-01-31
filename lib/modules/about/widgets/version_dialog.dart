@@ -55,7 +55,7 @@ class NewVersionDialog extends StatelessWidget {
                 mode: LaunchMode.externalApplication,
               );
             },
-            child: const Text('国内下载：123云盘'),
+            child: const Text('本软件开源免费,国内下载：123云盘'),
           )
         ],
       ),
