@@ -179,6 +179,7 @@ class VideoController with ChangeNotifier {
         if (event.toString().contains('Failed to open')) {
           hasError.value = true;
           isPlaying.value = false;
+          SmartDialog.showToast("无法播放视频");
         }
       });
       mediaPlayerControllerInitialized.value = true;
@@ -415,7 +416,8 @@ class VideoController with ChangeNotifier {
                     imageUrl: room.avatar,
                     author: room.nick,
                     activityName: "MainActivity",
-                    packageName: 'com.mystyle.purelive')
+                    packageName: 'com.mystyle.purelive',
+                  )
                 : null,
           ));
           mobileController?.pause();

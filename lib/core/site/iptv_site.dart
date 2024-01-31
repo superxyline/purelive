@@ -82,10 +82,11 @@ class IptvSite implements LiveSite {
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
     List<LivePlayQuality> qualities = <LivePlayQuality>[];
+
     var qualityItem = LivePlayQuality(
       quality: '默认',
       sort: 1,
-      data: <String>[detail.data[0]],
+      data: <String>[detail.data],
     );
     qualities.add(qualityItem);
     return Future.value(qualities);
@@ -134,8 +135,8 @@ class IptvSite implements LiveSite {
       watching: '',
       roomId: roomId,
       area: '',
-      title: service.favoriteRooms[siteIndex].title,
-      nick: service.favoriteRooms[siteIndex].nick,
+      title: siteIndex == -1 ? "网络" : service.favoriteRooms[siteIndex].title,
+      nick: siteIndex == -1 ? "m3u订阅" : service.favoriteRooms[siteIndex].nick,
       avatar:
           'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
       introduction: '',

@@ -233,7 +233,7 @@ class SettingsService extends GetxController {
 
   final enableBackgroundPlay = (PrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
 
-  final enableScreenKeepOn = (PrefUtil.getBool('enableScreenKeepOn') ?? false).obs;
+  final enableScreenKeepOn = (PrefUtil.getBool('enableScreenKeepOn') ?? true).obs;
 
   final enableAutoCheckUpdate = (PrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
   final videoFitIndex = (PrefUtil.getInt('videoFitIndex') ?? 0).obs;
@@ -471,7 +471,7 @@ class SettingsService extends GetxController {
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
     enableDenseFavorites.value = json['enableDenseFavorites'] ?? false;
     enableBackgroundPlay.value = json['enableBackgroundPlay'] ?? false;
-    enableScreenKeepOn.value = json['enableScreenKeepOn'] ?? false;
+    enableScreenKeepOn.value = json['enableScreenKeepOn'] ?? true;
     enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
     languageName.value = json['languageName'] ?? "简体中文";

@@ -193,10 +193,12 @@ class LivePlayController extends StateController {
     if (currentLineIndex.value == playUrls.length - 1) {
       liveStatus.value = false;
       success.value = false;
+
       if (videoController != null) {
         if (videoController!.isFullscreen.value) {
           videoController?.toggleFullScreen();
         }
+        videoController?.hasError.value = true;
       }
       return;
     }
@@ -207,7 +209,6 @@ class LivePlayController extends StateController {
   void getPlayUrl() async {
     playUrls.value = [];
     currentLineIndex.value = 0;
-
     var playUrl =
         await currentSite.liveSite.getPlayUrls(detail: detail.value!, quality: qualites[currentQuality.value]);
     if (playUrl.isEmpty) {
