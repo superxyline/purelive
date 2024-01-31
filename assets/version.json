@@ -1,7 +1,7 @@
 {
   "version": "1.5.5",
   "version_num": 10505,
-  "version_desc": "-Fix:修复IPTV直播源解析失败问题\n-Fix:修复部分机型上播放器无法正常显示的问题\n-Fix:迁移下载网盘至123云盘",
+  "version_desc": "-Fix:修复IPTV直播源解析失败问题.\n-Fix:升级exoPlayer版本.\n-Fix:迁移下载网盘至123云盘.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
