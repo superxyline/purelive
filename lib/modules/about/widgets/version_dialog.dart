@@ -51,11 +51,11 @@ class NewVersionDialog extends StatelessWidget {
                 Navigator.pop(context);
               }
               launchUrl(
-                Uri.parse('https://wwvr.lanzouw.com/b01f6rqab'),
+                Uri.parse('https://www.123pan.com/s/Jucxjv-NwYYd.html'),
                 mode: LaunchMode.externalApplication,
               );
             },
-            child: const Text('国内下载：蓝奏云（40l9）'),
+            child: const Text('国内下载：123云盘'),
           )
         ],
       ),
