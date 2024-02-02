@@ -62,8 +62,12 @@ class DouyinSite implements LiveSite {
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
     List<LiveCategory> categories = [];
-    var renderData =
-        '{"pathname":"/","categoryData":[{"partition":{"id_str":"4609","type":1,"title":"主机游戏"},"sub_partition":[{"partition":{"id_str":"633","type":1,"title":"魔兽世界"},"sub_partition":[]},{"partition":{"id_str":"2607","type":1,"title":"永劫无间"},"sub_partition":[]},{"partition":{"id_str":"716","type":1,"title":"横版格斗"},"sub_partition":[]},{"partition":{"id_str":"1054","type":1,"title":"魔兽争霸3"},"sub_partition":[]},{"partition":{"id_str":"725","type":1,"title":"其他主机游戏"},"sub_partition":[]},{"partition":{"id_str":"623","type":1,"title":"我的世界"},"sub_partition":[]},{"partition":{"id_str":"705","type":1,"title":"仁王"},"sub_partition":[]},{"partition":{"id_str":"1215","type":1,"title":"糖豆人"},"sub_partition":[]}]},{"partition":{"id_str":"591","type":1,"title":"棋牌桌游"},"sub_partition":[{"partition":{"id_str":"592","type":1,"title":"斗地主"},"sub_partition":[]},{"partition":{"id_str":"624","type":1,"title":"麻将"},"sub_partition":[]},{"partition":{"id_str":"597","type":1,"title":"象棋"},"sub_partition":[]},{"partition":{"id_str":"729","type":1,"title":"其他棋牌游戏"},"sub_partition":[]},{"partition":{"id_str":"619","type":1,"title":"军棋"},"sub_partition":[]},{"partition":{"id_str":"5163","type":1,"title":"网易狼人杀"},"sub_partition":[]},{"partition":{"id_str":"5168","type":1,"title":"红狼（口袋狼人杀）"},"sub_partition":[]},{"partition":{"id_str":"1395","type":1,"title":"三国杀手游"},"sub_partition":[]}]},{"partition":{"id_str":"4627","type":1,"title":"角色扮演"},"sub_partition":[{"partition":{"id_str":"1251","type":1,"title":"原神"},"sub_partition":[]},{"partition":{"id_str":"2078","type":1,"title":"问道端游"},"sub_partition":[]},{"partition":{"id_str":"590","type":1,"title":"明日之后"},"sub_partition":[]},{"partition":{"id_str":"1603","type":1,"title":"皇室战争"},"sub_partition":[]},{"partition":{"id_str":"1240","type":1,"title":"光遇"},"sub_partition":[]},{"partition":{"id_str":"1102","type":1,"title":"问道手游"},"sub_partition":[]},{"partition":{"id_str":"2939","type":1,"title":"幻塔"},"sub_partition":[]},{"partition":{"id_str":"3637","type":1,"title":"经典天龙八部"},"sub_partition":[]}]},{"partition":{"id_str":"4630","type":1,"title":"休闲游戏"},"sub_partition":[{"partition":{"id_str":"3143","type":1,"title":"蛋仔派对"},"sub_partition":[]},{"partition":{"id_str":"5065","type":1,"title":"美食DIY"},"sub_partition":[]},{"partition":{"id_str":"651","type":1,"title":"植物大战僵尸"},"sub_partition":[]},{"partition":{"id_str":"6470","type":1,"title":"识字大师"},"sub_partition":[]},{"partition":{"id_str":"698","type":1,"title":"球球大作战"},"sub_partition":[]},{"partition":{"id_str":"1467","type":1,"title":"元气骑士"},"sub_partition":[]},{"partition":{"id_str":"1108","type":1,"title":"开心消消乐"},"sub_partition":[]},{"partition":{"id_str":"3447","type":1,"title":"找不同"},"sub_partition":[]}]},{"partition":{"id_str":"4618","type":1,"title":"竞技游戏"},"sub_partition":[{"partition":{"id_str":"1270","type":1,"title":"5v5推塔手游"},"sub_partition":[]},{"partition":{"id_str":"580","type":1,"title":"DOTA2"},"sub_partition":[]},{"partition":{"id_str":"655","type":1,"title":"赛车游戏"},"sub_partition":[]},{"partition":{"id_str":"687","type":1,"title":"格斗手游"},"sub_partition":[]},{"partition":{"id_str":"1106","type":1,"title":"跑跑卡丁车手游"},"sub_partition":[]},{"partition":{"id_str":"579","type":1,"title":"DOTA"},"sub_partition":[]},{"partition":{"id_str":"586","type":1,"title":"第五人格"},"sub_partition":[]},{"partition":{"id_str":"5618","type":1,"title":"梦三国"},"sub_partition":[]}]},{"partition":{"id_str":"4606","type":1,"title":"策略游戏"},"sub_partition":[{"partition":{"id_str":"1305","type":1,"title":"坦克世界"},"sub_partition":[]},{"partition":{"id_str":"1321","type":1,"title":"怀旧FC"},"sub_partition":[]},{"partition":{"id_str":"1055","type":1,"title":"帝国时代"},"sub_partition":[]},{"partition":{"id_str":"1457","type":1,"title":"合金弹头"},"sub_partition":[]},{"partition":{"id_str":"708","type":1,"title":"战舰世界"},"sub_partition":[]},{"partition":{"id_str":"1458","type":1,"title":"魂斗罗"},"sub_partition":[]},{"partition":{"id_str":"672","type":1,"title":"西游释厄传"},"sub_partition":[]},{"partition":{"id_str":"1052","type":1,"title":"恐龙快打"},"sub_partition":[]}]},{"partition":{"id_str":"4603","type":1,"title":"射击游戏"},"sub_partition":[{"partition":{"id_str":"648","type":1,"title":"CS:GO"},"sub_partition":[]},{"partition":{"id_str":"5746","type":1,"title":"无畏契约"},"sub_partition":[]},{"partition":{"id_str":"613","type":1,"title":"吃鸡手游"},"sub_partition":[]},{"partition":{"id_str":"600","type":1,"title":"射击游戏"},"sub_partition":[]},{"partition":{"id_str":"589","type":1,"title":"香肠派对"},"sub_partition":[]},{"partition":{"id_str":"4879","type":1,"title":"暗区突围"},"sub_partition":[]},{"partition":{"id_str":"4472","type":1,"title":"Apex英雄"},"sub_partition":[]},{"partition":{"id_str":"659","type":1,"title":"CS 1.6"},"sub_partition":[]}]},{"partition":{"id_str":"5837","type":1,"title":"卡牌游戏"},"sub_partition":[{"partition":{"id_str":"4817","type":1,"title":"崩坏：星穹铁道"},"sub_partition":[]},{"partition":{"id_str":"657","type":1,"title":"阴阳师"},"sub_partition":[]},{"partition":{"id_str":"1591","type":1,"title":"明日方舟"},"sub_partition":[]},{"partition":{"id_str":"3889","type":1,"title":"炉石传说"},"sub_partition":[]},{"partition":{"id_str":"4840","type":1,"title":"铁杆三国"},"sub_partition":[]},{"partition":{"id_str":"4844","type":1,"title":"山海经异兽录"},"sub_partition":[]},{"partition":{"id_str":"4183","type":1,"title":"少年三国志2"},"sub_partition":[]},{"partition":{"id_str":"6380","type":1,"title":"新不良人"},"sub_partition":[]}]},{"partition":{"id_str":"10000","type":3,"title":"娱乐天地"},"sub_partition":[{"partition":{"id_str":"2823","type":2,"title":"时尚"},"sub_partition":[]},{"partition":{"id_str":"2726","type":2,"title":"舞蹈"},"sub_partition":[]},{"partition":{"id_str":"2707","type":2,"title":"音乐"},"sub_partition":[]},{"partition":{"id_str":"2842","type":2,"title":"语音互动"},"sub_partition":[]},{"partition":{"id_str":"2836","type":2,"title":"情感"},"sub_partition":[]},{"partition":{"id_str":"2786","type":2,"title":"美食"},"sub_partition":[]},{"partition":{"id_str":"2791","type":2,"title":"运动"},"sub_partition":[]},{"partition":{"id_str":"2742","type":2,"title":"户外"},"sub_partition":[]}]},{"partition":{"id_str":"10001","type":3,"title":"科技文化"},"sub_partition":[{"partition":{"id_str":"2800","type":2,"title":"教育"},"sub_partition":[]},{"partition":{"id_str":"2756","type":2,"title":"人文艺术"},"sub_partition":[]}]}]}';
+    var result = await HttpClient.instance.getText(
+      "https://live.douyin.com/",
+      queryParameters: {},
+      header: await getRequestHeaders(),
+    );
+    var renderData = RegExp(r'\{\\"pathname\\":\\"\/\\",\\"categoryData.*?\]\\n').firstMatch(result)?.group(0) ?? "";
     var renderDataJson =
         json.decode(renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""));
     for (var item in renderDataJson["categoryData"]) {
@@ -325,33 +329,46 @@ class DouyinSite implements LiveSite {
       "browser_language": "zh-CN",
       "browser_platform": "Win32",
       "browser_name": "Edge",
-      "browser_version": "114.0.1823.58",
+      "browser_version": "120.0.0.0",
       "browser_online": "true",
       "engine_name": "Blink",
-      "engine_version": "114.0.0.0",
+      "engine_version": "120.0.0.0",
       "os_name": "Windows",
       "os_version": "10",
       "cpu_core_num": "12",
       "device_memory": "8",
       "platform": "PC",
-      "downlink": "4.7",
+      "downlink": "10",
       "effective_type": "4g",
       "round_trip_time": "100",
-      "webid": "7247041636524377637",
+      "webid": "7273033021933946427",
     });
     var requlestUrl = await signUrl(uri.toString());
+    var headResp = await HttpClient.instance.head('https://live.douyin.com', header: headers);
+    var dyCookie = "";
+    headResp.headers["set-cookie"]?.forEach((element) {
+      var cookie = element.split(";")[0];
+      if (cookie.contains("ttwid")) {
+        dyCookie += "$cookie;";
+      }
+      if (cookie.contains("__ac_nonce")) {
+        dyCookie += "$cookie;";
+      }
+    });
     var result = await HttpClient.instance.getJson(
       requlestUrl,
       queryParameters: {},
       header: {
-        "Accept":
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "Authority": kDefaultAuthority,
-        "Referer": kDefaultReferer,
-        "Cookie": "__ac_nonce=${generateRandomString(21)}",
+        "Accept": "*/*",
+        "Authority": 'www.douyin.com',
+        "Referer": requlestUrl,
+        "Cookie": dyCookie,
         "User-Agent": kDefaultUserAgent,
       },
     );
+    if (result == 'blocked') {
+      throw Exception("抖音直播搜索被限制，请稍后再试");
+    }
     var items = <LiveRoom>[];
     var queryList = result["data"] ?? [];
     for (var item in queryList) {
@@ -411,7 +428,7 @@ class DouyinSite implements LiveSite {
         header: {"Content-Type": "application/json"},
         data: {"url": url, "userAgent": kDefaultUserAgent},
       );
-      var requlestUrl = signResult["data"]["url"].toString();
+      var requlestUrl = '${signResult["data"]["url"]}&msToken=${Uri.encodeComponent(signResult["data"]["mstoken"])}';
       return requlestUrl;
     } catch (e) {
       CoreLog.error(e);
