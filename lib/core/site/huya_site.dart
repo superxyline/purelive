@@ -447,26 +447,25 @@ class HuyaSite implements LiveSite {
     final seqId = (DateTime.now().millisecondsSinceEpoch + int.parse(uid)).toString();
 
     final fm = utf8.decode(base64.decode(Uri.decodeComponent(query['fm']!)));
-
     final wsSecretPrefix = fm.split('_').first;
     final wsSecretHash = md5.convert(utf8.encode('$seqId|${query["ctype"]}|${query["t"]}')).toString();
-
     final wsSecret =
         md5.convert(utf8.encode('${wsSecretPrefix}_${uid}_${streamname}_${wsSecretHash}_$wsTime')).toString();
+
     return Uri(queryParameters: {
       "wsSecret": wsSecret,
       "wsTime": wsTime,
       "seqid": seqId,
-      "ctype": query["ctype"] ?? '',
+      "ctype": query["ctype"]!,
       "ver": "1",
-      "fs": query["fs"] ?? '',
-      "sphdcdn": query["sphdcdn"] ?? '',
-      "sphdDC": query["sphdDC"] ?? '',
-      "sphd": query["sphd"] ?? '',
-      "exsphd": query["exsphd"] ?? '',
+      "fs": query["fs"]!,
+      "sphdcdn": query["sphdcdn"] ?? "",
+      "sphdDC": query["sphdDC"] ?? "",
+      "sphd": query["sphd"] ?? "",
+      "exsphd": query["exsphd"] ?? "",
       "uid": uid,
       "uuid": getUUid(),
-      "t": query["t"] ?? '',
+      "t": query["t"]!,
       "sv": "2401310322"
     }).query;
   }
