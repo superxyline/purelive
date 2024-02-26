@@ -229,6 +229,12 @@ class LivePlayController extends StateController {
         "user-agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188"
       };
+    } else if (currentSite.id == 'huya') {
+      headers = {
+        "referer": "https://www.huya.com",
+        "user-agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
+      };
     }
     videoController = VideoController(
       playerKey: playerKey,
