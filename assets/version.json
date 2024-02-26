@@ -1,7 +1,7 @@
 {
-  "version": "1.5.6",
+  "version": "1.5.7",
   "version_num": 10505,
-  "version_desc": "-Fix:修复抖音分类以及搜索功能.",
+  "version_desc": "-Fix:修复虎牙播放中断问题.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

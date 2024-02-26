@@ -16,8 +16,6 @@ import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 
-
-
 class HuyaSite implements LiveSite {
   @override
   String id = "huya";
@@ -469,7 +467,7 @@ class HuyaSite implements LiveSite {
       "uid": uid,
       "uuid": getUUid(),
       "t": query["t"] ?? '',
-      "sv": "2110211124"
+      "sv": "2401310322"
     }).query;
   }
 
