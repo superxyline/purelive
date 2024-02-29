@@ -277,7 +277,6 @@ class VideoController with ChangeNotifier {
         debounceListen(() {
           if (mobileController!.videoPlayerController!.value.errorDescription != null) {
             if (mobileController!.videoPlayerController!.value.errorDescription!.contains('Source error') &&
-                room.platform == 'iptv' &&
                 !isTryToHls) {
               tryToHlsPlay();
             } else {

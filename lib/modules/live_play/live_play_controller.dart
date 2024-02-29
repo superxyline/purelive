@@ -231,8 +231,8 @@ class LivePlayController extends StateController {
       };
     } else if (currentSite.id == 'huya') {
       headers = {
-        "referer": "https://www.huya.com",
-        "user-agent":
+        "Referer": "https://www.huya.com",
+        "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
       };
     }
