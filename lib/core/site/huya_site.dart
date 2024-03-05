@@ -212,9 +212,11 @@ class HuyaSite implements LiveSite {
       var huyaBiterates = <HuyaBitRateModel>[];
       //读取可用线路
       var lines = jsonObj["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]["vStreamInfo"]["value"];
-
       for (var item in lines) {
-        if ((item["sFlvUrl"]?.toString() ?? "").isNotEmpty) {
+        if ((item["sFlvUrl"]?.toString() ?? "").isNotEmpty &&
+            item["iPCPriorityRate"] > -1 &&
+            item["iWebPriorityRate"] > -1 &&
+            item["iMobilePriorityRate"] > -1) {
           huyaLines.add(HuyaLineModel(
             line: item["sFlvUrl"].toString(),
             lineType: HuyaLineType.flv,
