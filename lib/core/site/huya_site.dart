@@ -142,8 +142,10 @@ class HuyaSite implements LiveSite {
           line.streamName,
         );
         src += "?$parms";
-        if (item.bitRate > 0) {
+        if (item.bitRate != 0) {
           src += "&ratio=${item.bitRate}";
+        } else {
+          src += "&ratio=0";
         }
         urls.add(src);
       }
@@ -442,8 +444,8 @@ class HuyaSite implements LiveSite {
     // 通过ChatGPT转换的Dart代码
     var query = Uri.splitQueryString(anticode);
 
-    query["t"] = "100";
-    query["ctype"] = "huya_live";
+    query["t"] = "102";
+    query["ctype"] = "tars_mp";
 
     final wsTime = (DateTime.now().millisecondsSinceEpoch ~/ 1000 + 21600).toRadixString(16);
     final seqId = (DateTime.now().millisecondsSinceEpoch + int.parse(uid)).toString();
@@ -467,7 +469,7 @@ class HuyaSite implements LiveSite {
       "exsphd": query["exsphd"] ?? "",
       "uid": uid,
       "uuid": getUUid(),
-      "t": query["t"]!,
+      "t": query["t"],
       "sv": "2401310322"
     }).query;
   }
