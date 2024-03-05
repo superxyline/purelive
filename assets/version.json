@@ -1,7 +1,7 @@
 {
-  "version": "1.5.8",
+  "version": "1.5.9",
   "version_num": 10505,
-  "version_desc": "-Fix:修复ExoPlayer无法播放虎牙视频.",
+  "version_desc": "-Fix:修复虎牙一起看.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
