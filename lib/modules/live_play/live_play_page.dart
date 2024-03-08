@@ -68,19 +68,41 @@ class LivePlayPage extends GetWidget<LivePlayController> {
           future: ScreenDevice.getDeviceType(),
           builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
             if (snapshot.data == Device.phone || snapshot.data == Device.pad) {
-              return Column(
-                children: <Widget>[
-                  buildVideoPlayer(),
-                  const ResolutionsRow(),
-                  const Divider(height: 1),
-                  Expanded(
-                    child: DanmakuListView(
-                      key: controller.danmakuViewKey,
-                      room: controller.room,
-                    ),
-                  ),
-                ],
-              );
+              return OrientationBuilder(builder: (context, orientation) {
+                return orientation == Orientation.portrait
+                    ? Column(
+                        children: <Widget>[
+                          buildVideoPlayer(),
+                          const ResolutionsRow(),
+                          const Divider(height: 1),
+                          Expanded(
+                            child: DanmakuListView(
+                              key: controller.danmakuViewKey,
+                              room: controller.room,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(children: <Widget>[
+                        Flexible(
+                          flex: 5,
+                          child: buildVideoPlayer(),
+                        ),
+                        Flexible(
+                          flex: 3,
+                          child: Column(children: [
+                            const ResolutionsRow(),
+                            const Divider(height: 1),
+                            Expanded(
+                              child: DanmakuListView(
+                                key: controller.danmakuViewKey,
+                                room: controller.room,
+                              ),
+                            ),
+                          ]),
+                        ),
+                      ]);
+              });
             }
             return LayoutBuilder(builder: (context, constraint) {
               final width = constraint.maxWidth;
