@@ -36,6 +36,12 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     offlineRooms.clear();
     onlineRooms.addAll(settings.favoriteRooms.where((room) => room.liveStatus == LiveStatus.live));
     offlineRooms.addAll(settings.favoriteRooms.where((room) => room.liveStatus != LiveStatus.live));
+    for (var room in onlineRooms) {
+      if (int.tryParse(room.watching!) == null) {
+        room.watching = "0";
+      }
+    }
+    onlineRooms.sort((a, b) => int.parse(b.watching!).compareTo(int.parse(a.watching!)));
   }
 
   Future<bool> onRefresh() async {
@@ -51,7 +57,6 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     }
     try {
       final rooms = await Future.wait(futures);
-      rooms.sort((a, b) => a.watching!.compareTo(b.watching!));
       for (var room in rooms) {
         settings.updateRoom(room);
       }
