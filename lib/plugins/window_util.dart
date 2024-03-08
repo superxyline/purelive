@@ -24,7 +24,6 @@ class WindowUtil {
     double? windowsWidth = PrefUtil.getDouble('windowsWidth') ?? 900;
     double? windowsHeight = PrefUtil.getDouble('windowsHeight') ?? 535;
     windowsWidth = windowsWidth > 400 ? windowsWidth : 400;
-    print(windowsWidth);
     windowsHeight = windowsHeight > 400 ? windowsHeight : 400;
     await windowManager.setBounds(Rect.fromLTWH(windowsXPosition, windowsYPosition, windowsWidth, windowsHeight));
   }
