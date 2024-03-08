@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 
@@ -36,7 +35,6 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     onlineRooms.clear();
     offlineRooms.clear();
     onlineRooms.addAll(settings.favoriteRooms.where((room) => room.liveStatus == LiveStatus.live));
-
     offlineRooms.addAll(settings.favoriteRooms.where((room) => room.liveStatus != LiveStatus.live));
   }
 
@@ -53,13 +51,13 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     }
     try {
       final rooms = await Future.wait(futures);
+      rooms.sort((a, b) => a.watching!.compareTo(b.watching!));
       for (var room in rooms) {
         settings.updateRoom(room);
       }
       syncRooms();
     } catch (e) {
       hasError = true;
-      log(e.toString(), name: 'syncRooms');
     }
     isFirstLoad = false;
     return hasError;

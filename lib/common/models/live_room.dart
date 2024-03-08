@@ -92,8 +92,7 @@ class LiveRoom {
       };
 
   @override
-  bool operator ==(covariant LiveRoom other) =>
-      platform == other.platform && roomId == other.roomId;
+  bool operator ==(covariant LiveRoom other) => platform == other.platform && roomId == other.roomId;
 
   @override
   int get hashCode => int.parse(roomId!);

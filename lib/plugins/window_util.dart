@@ -1,15 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:pure_live/common/utils/index.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:flutter/material.dart';
 
 class WindowUtil {
   static String title = '纯粹直播';
-  static Future<void> init(
-      {required double width, required double height}) async {
+  static Future<void> init({required double width, required double height}) async {
     double? windowsWidth = PrefUtil.getDouble('windowsWidth') ?? width;
     double? windowsHeight = PrefUtil.getDouble('windowsHeight') ?? height;
-    WindowOptions windowOptions =
-        WindowOptions(size: Size(windowsWidth, windowsHeight), center: false);
+    WindowOptions windowOptions = WindowOptions(size: Size(windowsWidth, windowsHeight), center: false);
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
@@ -25,8 +23,10 @@ class WindowUtil {
     double? windowsYPosition = PrefUtil.getDouble('windowsYPosition') ?? 0.0;
     double? windowsWidth = PrefUtil.getDouble('windowsWidth') ?? 900;
     double? windowsHeight = PrefUtil.getDouble('windowsHeight') ?? 535;
-    await windowManager.setBounds(Rect.fromLTWH(
-        windowsXPosition, windowsYPosition, windowsWidth, windowsHeight));
+    windowsWidth = windowsWidth > 400 ? windowsWidth : 400;
+    print(windowsWidth);
+    windowsHeight = windowsHeight > 400 ? windowsHeight : 400;
+    await windowManager.setBounds(Rect.fromLTWH(windowsXPosition, windowsYPosition, windowsWidth, windowsHeight));
   }
 
   static void setPosition() async {
