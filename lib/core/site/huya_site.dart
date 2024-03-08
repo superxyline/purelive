@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/common/models/live_area.dart';
@@ -115,7 +118,6 @@ class HuyaSite implements LiveSite {
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
     List<LivePlayQuality> qualities = <LivePlayQuality>[];
     var urlData = detail.data as HuyaUrlDataModel;
-
     if (urlData.bitRates.isEmpty) {
       urlData.bitRates = [
         HuyaBitRateModel(
@@ -142,10 +144,8 @@ class HuyaSite implements LiveSite {
           line.streamName,
         );
         src += "?$parms";
-        if (item.bitRate != 0) {
+        if (item.bitRate > 0) {
           src += "&ratio=${item.bitRate}";
-        } else {
-          src += "&ratio=0";
         }
         urls.add(src);
       }
@@ -206,6 +206,7 @@ class HuyaSite implements LiveSite {
       var text =
           RegExp(r"window\.HNF_GLOBAL_INIT.=.\{(.*?)\}.</script>", multiLine: false).firstMatch(resultText)?.group(1);
       var jsonObj = json.decode("{$text}");
+
       var title = jsonObj["roomInfo"]["tLiveInfo"]["sIntroduction"]?.toString() ?? "";
       if (title.isEmpty) {
         title = jsonObj["roomInfo"]["tLiveInfo"]["sRoomName"]?.toString() ?? "";
@@ -215,17 +216,16 @@ class HuyaSite implements LiveSite {
       //读取可用线路
       var lines = jsonObj["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]["vStreamInfo"]["value"];
       for (var item in lines) {
-        if ((item["sFlvUrl"]?.toString() ?? "").isNotEmpty &&
-            item["iPCPriorityRate"] > -1 &&
-            item["iWebPriorityRate"] > -1 &&
-            item["iMobilePriorityRate"] > -1) {
-          huyaLines.add(HuyaLineModel(
-            line: item["sFlvUrl"].toString(),
-            lineType: HuyaLineType.flv,
-            flvAntiCode: item["sFlvAntiCode"].toString(),
-            hlsAntiCode: item["sHlsAntiCode"].toString(),
-            streamName: item["sStreamName"].toString(),
-          ));
+        if ((item["sFlvUrl"]?.toString() ?? "").isNotEmpty) {
+          if (item["iPCPriorityRate"] > -1 || item["iWebPriorityRate"] > -1 || item["iMobilePriorityRate"] > -1) {
+            huyaLines.add(HuyaLineModel(
+              line: item["sFlvUrl"].toString(),
+              lineType: HuyaLineType.flv,
+              flvAntiCode: item["sFlvAntiCode"].toString(),
+              hlsAntiCode: item["sHlsAntiCode"].toString(),
+              streamName: item["sStreamName"].toString(),
+            ));
+          }
         }
       }
 
@@ -443,7 +443,6 @@ class HuyaSite implements LiveSite {
     // https://github.com/SeaHOH/ykdl/blob/master/ykdl/extractors/huya/live.py
     // 通过ChatGPT转换的Dart代码
     var query = Uri.splitQueryString(anticode);
-
     query["t"] = "102";
     query["ctype"] = "tars_mp";
 
@@ -455,7 +454,11 @@ class HuyaSite implements LiveSite {
     final wsSecretHash = md5.convert(utf8.encode('$seqId|${query["ctype"]}|${query["t"]}')).toString();
     final wsSecret =
         md5.convert(utf8.encode('${wsSecretPrefix}_${uid}_${streamname}_${wsSecretHash}_$wsTime')).toString();
-
+    tz.initializeTimeZones();
+    final location = tz.getLocation('Asia/Shanghai');
+    final now = tz.TZDateTime.now(location);
+    final formatter = DateFormat('yyyyMMddHH');
+    final formatted = formatter.format(now);
     return Uri(queryParameters: {
       "wsSecret": wsSecret,
       "wsTime": wsTime,
@@ -469,8 +472,8 @@ class HuyaSite implements LiveSite {
       "exsphd": query["exsphd"] ?? "",
       "uid": uid,
       "uuid": getUUid(),
-      "t": query["t"],
-      "sv": "2401310322"
+      "t": query["t"]!,
+      "sv": formatted
     }).query;
   }
 
