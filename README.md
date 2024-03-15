@@ -73,7 +73,7 @@
 由于第三方限制，观看b站高清直播需要登陆，您可点击三方认证即可获取cookie,本软件只是代理获取拿到**cookie**,不会获取用户的任何信息，用户信息仍由第三方管理
 
 ### M3u源
-您可点击设置-备份与还原-导入M3u源。[直播源转换](https://guihet.com/tvlistconvert.html)
+您可点击设置-备份与还原-导入M3u源（一些网络电视，电影轮训等）。[直播源转换](https://guihet.com/tvlistconvert.html)
 暂不支持其他目录保存
 * Android端在缓存内清除缓存即可删除
 * Windows 在目录`C:/Users/用户名/AppData/Local/com.example/pure_live`下`categories.json`内修改以及删除导入的源以及定义
