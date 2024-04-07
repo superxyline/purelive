@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
-
+import com.alizda.better_player.PlaybackService
 class MainActivity: FlutterActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,7 +18,7 @@ class MainActivity: FlutterActivity() {
     ///TODO: Call this method via channel after remote notification start
     private fun startNotificationService() {
         try {
-            val intent = Intent(this, BetterPlayerService::class.java)
+            val intent = Intent(this, PlaybackService::class.java)
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
                 startForegroundService(intent)
             } else {
@@ -31,7 +31,7 @@ class MainActivity: FlutterActivity() {
     ///TODO: Call this method via channel after remote notification stop
     private fun stopNotificationService() {
         try {
-            val intent = Intent(this, BetterPlayerService::class.java)
+            val intent = Intent(this, PlaybackService::class.java)
             stopService(intent)
         } catch (exception: Exception) {
 
