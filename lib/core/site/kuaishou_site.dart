@@ -51,8 +51,6 @@ class KuaishowSite implements LiveSite {
     return categories;
   }
 
-  final String kUserAgent =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
   final Map<String, dynamic> headers = {
     'User-Agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
@@ -110,8 +108,11 @@ class KuaishowSite implements LiveSite {
 
   @override
   Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
+    var api = category.areaId!.length < 7
+        ? "https://live.kuaishou.com/live_api/gameboard/list"
+        : "https://live.kuaishou.com/live_api/non-gameboard/list";
     var result = await HttpClient.instance.getJson(
-      "https://live.kuaishou.com/live_api/gameboard/list",
+      api,
       queryParameters: {"filterType": 0, "pageSize": 20, "gameId": category.areaId, "page": page},
       header: headers,
     );
