@@ -364,7 +364,6 @@ class VideoController with ChangeNotifier {
       if (key.currentState?.isFullscreen() ?? false) {
         key.currentState?.exitFullscreen();
       }
-      mediaPlayerController.player.pause();
       player.dispose();
     }
     super.dispose();
