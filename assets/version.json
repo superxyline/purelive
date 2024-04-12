@@ -1,7 +1,7 @@
 {
-  "version": "1.6.1",
+  "version": "1.6.2",
   "version_num": 10506,
-  "version_desc": "-Feature:Tv版本正式发布.\n-Fix:修复快手部分直播间不显示.",
+  "version_desc": "-Fix:修复TV直播间错误刷新.\n-Fix:修复TV直播间底部操作以及弹幕设置.\n-Fix:添加TV-Mpv播放器兼容设置.\n-Fix:去除exo播放器后台播放,部分手机打开闪退",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

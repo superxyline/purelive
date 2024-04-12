@@ -2,15 +2,15 @@ import os
 import shutil
 import time
 source_dir_name = 'E:/project/pure_live_release/'
-# target_win_app_name  = 'E:/project/pure_live/build/windows/x64/runner/Release/'
-# target_apk_dir_name = 'E:/project/pure_live/build/app/outputs/flutter-apk/'
+target_win_app_name  = 'E:/project/pure_live/build/windows/x64/runner/Release/'
+target_apk_dir_name = 'E:/project/pure_live/build/app/outputs/flutter-apk/'
 target_files = ['app-arm64-v8a-release.apk','app-armeabi-v7a-release.apk','app-release.apk','app-x86_64-release.apk','pure_live.msix']
 build_path = []
 buildcellctions = []
-target_win_app_name = 'D:/flutter/pure_live/build/windows/x64/runner/Release/'
-target_apk_dir_name = 'D:/flutter/pure_live/build/app/outputs/flutter-apk/'
+# target_win_app_name = 'D:/flutter/pure_live/build/windows/x64/runner/Release/'
+# target_apk_dir_name = 'D:/flutter/pure_live/build/app/outputs/flutter-apk/'
 files = []
-dirArr = ['安卓_手机高版本.apk','安卓_手机低版本或电视.apk','不知道就下载这个.apk','模拟器.apk','win10以上系统下载.msix']
+dirArr = ['安卓_手机高版本.apk','安卓_手机低版本.apk','安卓_手机All.apk','安卓模拟器.apk','win10以上系统下载.msix']
 def traversal_dirs(path):
     for item in os.scandir(path):
         if item.is_dir():
