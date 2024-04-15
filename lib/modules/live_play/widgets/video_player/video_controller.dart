@@ -630,7 +630,11 @@ class VideoController with ChangeNotifier {
   }
 
   void setVolumn(double value) async {
-    await FlutterVolumeController.setVolume(value);
+    if (Platform.isWindows) {
+      mediaPlayerController.player.setVolume(value * 100);
+    } else {
+      await FlutterVolumeController.setVolume(value);
+    }
   }
 
   void setBrightness(double value) async {

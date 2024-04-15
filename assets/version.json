@@ -1,7 +1,7 @@
 {
-  "version": "1.6.2",
+  "version": "1.6.3",
   "version_num": 10506,
-  "version_desc": "-Fix:修复TV直播间错误刷新.\n-Fix:修复TV直播间底部操作以及弹幕设置.\n-Fix:添加TV-Mpv播放器兼容设置.\n-Fix:去除exo播放器后台播放,部分手机打开闪退",
+  "version_desc": "-Feature:新增TV直播间搜索直链获取,可通过链接关注直播间.\n-Fix:windows音量不修改系统音量.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
