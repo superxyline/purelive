@@ -31,31 +31,38 @@ class LivePlayPage extends GetWidget<LivePlayController> {
       onBackButtonPressed: onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Row(children: [
-            CircleAvatar(
-              foregroundImage: controller.room.avatar!.isEmpty ? null : NetworkImage(controller.room.avatar!),
-              radius: 13,
-              backgroundColor: Theme.of(context).disabledColor,
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.room.nick!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-                Text(
-                  controller.room.area!.isEmpty
-                      ? controller.room.platform!.toUpperCase()
-                      : "${controller.room.platform!.toUpperCase()} / ${controller.room.area}",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
-                ),
-              ],
-            ),
-          ]),
+          title: Obx(() => controller.detail.value != null &&
+                  controller.detail.value!.nick != null &&
+                  controller.detail.value!.avatar != null &&
+                  controller.detail.value!.area != null
+              ? Row(children: [
+                  CircleAvatar(
+                    foregroundImage: controller.detail.value!.avatar!.isEmpty
+                        ? null
+                        : NetworkImage(controller.detail.value!.avatar!),
+                    radius: 13,
+                    backgroundColor: Theme.of(context).disabledColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.detail.value!.nick!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                      Text(
+                        controller.detail.value!.area!.isEmpty
+                            ? controller.detail.value!.platform!.toUpperCase()
+                            : "${controller.detail.value!.platform!.toUpperCase()} / ${controller.detail.value!.area}",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
+                      ),
+                    ],
+                  ),
+                ])
+              : Container()),
           actions: [
             IconButton(
               tooltip: S.of(context).dlan_button_info,
@@ -78,7 +85,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                           Expanded(
                             child: DanmakuListView(
                               key: controller.danmakuViewKey,
-                              room: controller.room,
+                              room: controller.detail.value!,
                             ),
                           ),
                         ],
@@ -96,7 +103,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                             Expanded(
                               child: DanmakuListView(
                                 key: controller.danmakuViewKey,
-                                room: controller.room,
+                                room: controller.detail.value!,
                               ),
                             ),
                           ]),
@@ -114,10 +121,10 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                           const ResolutionsRow(),
                           const Divider(height: 1),
                           Expanded(
-                            child: DanmakuListView(
-                              key: controller.danmakuViewKey,
-                              room: controller.room,
-                            ),
+                            child: Obx(() => DanmakuListView(
+                                  key: controller.danmakuViewKey,
+                                  room: controller.detail.value!,
+                                )),
                           ),
                         ],
                       )
@@ -132,10 +139,10 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                             const ResolutionsRow(),
                             const Divider(height: 1),
                             Expanded(
-                              child: DanmakuListView(
-                                key: controller.danmakuViewKey,
-                                room: controller.room,
-                              ),
+                              child: Obx(() => DanmakuListView(
+                                    key: controller.danmakuViewKey,
+                                    room: controller.detail.value!,
+                                  )),
                             ),
                           ]),
                         ),
@@ -144,7 +151,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
             });
           },
         ),
-        floatingActionButton: FavoriteFloatingButton(room: controller.room),
+        floatingActionButton: Obx(() => FavoriteFloatingButton(room: controller.detail.value!)),
       ),
     );
   }
@@ -166,7 +173,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                     clipBehavior: Clip.antiAlias,
                     color: Get.theme.focusColor,
                     child: CachedNetworkImage(
-                      imageUrl: controller.room.cover!,
+                      imageUrl: controller.detail.value!.cover!,
                       cacheManager: CustomCacheManager.instance,
                       fit: BoxFit.fill,
                       errorWidget: (context, error, stackTrace) => const Center(
@@ -195,12 +202,12 @@ class ResolutionsRow extends StatefulWidget {
 class _ResolutionsRowState extends State<ResolutionsRow> {
   LivePlayController get controller => Get.find();
   Widget buildInfoCount() {
-    // controller.room watching or followers
+    // controller.detail.value! watching or followers
     return Row(mainAxisSize: MainAxisSize.min, children: [
       const Icon(Icons.whatshot_rounded, size: 14),
       const SizedBox(width: 4),
       Text(
-        readableCount(controller.room.watching!),
+        readableCount(controller.detail.value!.watching!),
         style: Get.textTheme.bodySmall,
       ),
     ]);

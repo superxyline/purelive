@@ -8,6 +8,7 @@ import 'package:pure_live/modules/about/donate_page.dart';
 import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/toolbox/toolbox_page.dart';
 import 'package:pure_live/modules/account/account_bing.dart';
 import 'package:pure_live/modules/account/account_page.dart';
 import 'package:pure_live/modules/contact/contact_page.dart';
@@ -18,6 +19,7 @@ import 'package:pure_live/modules/auth/user_manage_page.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
+import 'package:pure_live/modules/toolbox/boolbox_binding.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_page.dart';
 import 'package:pure_live/modules/live_play/live_play_page.dart';
 import 'package:pure_live/modules/shield/danmu_shield_page.dart';
@@ -146,6 +148,15 @@ class AppPages {
       ],
     ),
     GetPage(name: RoutePath.kUserManage, page: () => const UserManager()),
+
     GetPage(name: RoutePath.kVersionHistory, page: () => const VersionHistoryPage()),
+
+    GetPage(
+      name: RoutePath.kToolbox,
+      page: () => const ToolBoxPage(),
+      bindings: [
+        ToolBoxBinding(),
+      ],
+    ),
   ];
 }

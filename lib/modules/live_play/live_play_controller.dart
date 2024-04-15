@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'widgets/video_player/video_controller.dart';
@@ -26,7 +25,10 @@ class LivePlayController extends StateController {
   final playerKey = GlobalKey();
   final danmakuViewKey = GlobalKey();
   final LiveRoom room;
+
   Rx<LiveRoom?> detail = Rx<LiveRoom?>(LiveRoom());
+
+  var currentPlayRoom = LiveRoom().obs;
   final success = false.obs;
   var liveStatus = false.obs;
   Map<String, List<String>> liveStream = {};
@@ -76,24 +78,34 @@ class LivePlayController extends StateController {
 
   @override
   void onInit() {
+    currentPlayRoom.value = room;
     super.onInit();
-    try {
-      currentSite.liveSite.getRoomDetail(roomId: room.roomId!).then((value) {
-        detail.value = value;
-        liveStatus.value = detail.value!.status! || detail.value!.isRecord!;
-        if (liveStatus.value) {
-          getPlayQualites();
-        }
-        // start danmaku server
-        List<String> except = ['kuaishou', 'iptv', 'cc'];
-        if (except.indexWhere((element) => element == detail.value?.platform!) == -1) {
-          initDanmau();
-          liveDanmaku.start(detail.value?.danmakuData);
-        }
-      }).then((value) => settings.addRoomToHistory(detail.value!));
-    } catch (e) {
-      log(e.toString(), name: 'LivePlayError');
+    onInitPlayerState();
+  }
+
+  Future<LiveRoom> onInitPlayerState() async {
+    var liveRoom = await currentSite.liveSite.getRoomDetail(roomId: currentPlayRoom.value.roomId!);
+    detail.value = liveRoom;
+    liveStatus.value = detail.value!.status! || detail.value!.isRecord!;
+
+    if (liveStatus.value) {
+      getPlayQualites();
+      settings.addRoomToHistory(liveRoom);
+      // start danmaku server
+      List<String> except = ['kuaishou', 'iptv', 'cc'];
+      if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {
+        initDanmau();
+        liveDanmaku.start(liveRoom.danmakuData);
+      }
+    } else {
+      success.value = false;
+      SmartDialog.showToast("当前主播未开播或主播已下播", displayTime: const Duration(seconds: 2));
+      playUrls.value = [];
+      currentLineIndex.value = 0;
+      qualites.value = [];
+      currentQuality.value = 0;
     }
+    return liveRoom;
   }
 
   /// 初始化弹幕接收事件

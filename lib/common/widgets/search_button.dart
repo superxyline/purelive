@@ -12,3 +12,15 @@ class SearchButton extends StatelessWidget {
     );
   }
 }
+
+class LinkButton extends StatelessWidget {
+  const LinkButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () => Get.toNamed(RoutePath.kToolbox),
+      icon: const Icon(Icons.link),
+    );
+  }
+}

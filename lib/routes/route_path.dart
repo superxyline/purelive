@@ -69,4 +69,7 @@ class RoutePath {
 
   /// webview
   static const kWebview = "/webview_all";
+
+  /// kToolbox
+  static const kToolbox = "/tool_box";
 }

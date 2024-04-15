@@ -8,13 +8,20 @@ class FavoritePage extends GetView<FavoriteController> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      bool showAction = constraint.maxWidth <= 680;
+      bool showAction = Get.width <= 680;
       return Scaffold(
         appBar: AppBar(
           centerTitle: true,
           scrolledUnderElevation: 0,
           leading: showAction ? const MenuButton() : null,
-          actions: showAction ? [const SearchButton()] : null,
+          actions: showAction
+              ? [
+                  const SearchButton(),
+                  const SizedBox(width: 4),
+                  const LinkButton(),
+                  const SizedBox(width: 4),
+                ]
+              : null,
           title: TabBar(
             controller: controller.tabController,
             isScrollable: true,
