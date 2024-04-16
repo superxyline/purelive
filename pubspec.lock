@@ -52,12 +52,10 @@ packages:
   better_player:
     dependency: "direct main"
     description:
-      path: "."
-      ref: media3
-      resolved-ref: "016f7536b3621771aa2171bf0cf90bf60db46dec"
-      url: "https://github.com/liuchuancong/better_player.git"
-    source: git
-    version: "0.0.8"
+      path: "C:/Users/XA-158/projects/flutter/better_player"
+      relative: false
+    source: path
+    version: "0.0.9"
   boolean_selector:
     dependency: transitive
     description:

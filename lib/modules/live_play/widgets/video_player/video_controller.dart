@@ -407,7 +407,16 @@ class VideoController with ChangeNotifier {
             url,
             liveStream: true,
             headers: headers,
-            notificationConfiguration: null,
+            notificationConfiguration: allowBackgroundPlay
+                ? BetterPlayerNotificationConfiguration(
+                    showNotification: true,
+                    title: room.title,
+                    imageUrl: room.avatar,
+                    author: room.nick,
+                    activityName: "MainActivity",
+                    packageName: 'com.mystyle.purelive',
+                  )
+                : null,
           ));
           mobileController?.pause();
         }
