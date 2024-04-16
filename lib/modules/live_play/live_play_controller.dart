@@ -228,7 +228,11 @@ class LivePlayController extends StateController {
       return;
     }
     playUrls.value = playUrl;
-    currentLineIndex.value = 0;
+    if (currentPlayRoom.value.platform == 'huya' && playUrls.length >= 2) {
+      currentLineIndex.value = 1;
+    } else {
+      currentLineIndex.value = 0;
+    }
 
     setPlayer();
   }
