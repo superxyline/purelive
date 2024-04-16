@@ -168,6 +168,8 @@ class CCSite implements LiveSite {
       }, header: {
         "user-agent": kUserAgent,
       });
+      print(roomId.toString());
+      print(result.toString());
       var channelId = result['data'][roomId]['channel_id'];
 
       String urlToGetReal = "https://cc.163.com/live/channel/?channelids=$channelId";
