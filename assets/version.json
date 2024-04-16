@@ -1,7 +1,7 @@
 {
-  "version": "1.6.3",
+  "version": "1.6.4",
   "version_num": 10506,
-  "version_desc": "-Feature:新增TV直播间搜索直链获取,可通过链接关注直播间.\n-Fix:windows音量不修改系统音量.",
+  "version_desc": "-Fix:,修复ExoPlayer后台播放问题.闪退请关闭后台播放或切换播放器\n-Fix:修复关注列表显示问题.\n-Fix:优化关注页面分类.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
