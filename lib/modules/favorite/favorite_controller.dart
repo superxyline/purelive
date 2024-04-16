@@ -2,13 +2,17 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 
-class FavoriteController extends GetxController with GetSingleTickerProviderStateMixin {
+class FavoriteController extends GetxController with GetTickerProviderStateMixin {
   final SettingsService settings = Get.find<SettingsService>();
   late TabController tabController;
+  late TabController tabSiteController;
   final tabBottomIndex = 0.obs;
+  final tabSiteIndex = 0.obs;
+  final tabOnlineIndex = 0.obs;
   bool isFirstLoad = true;
   FavoriteController() {
     tabController = TabController(length: 2, vsync: this);
+    tabSiteController = TabController(length: Sites.supportSites.length, vsync: this);
   }
 
   @override
@@ -19,6 +23,12 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     // 监听settings rooms变化
     settings.favoriteRooms.listen((rooms) => syncRooms());
     onRefresh();
+    tabController.addListener(() {
+      tabOnlineIndex.value = tabController.index;
+    });
+    tabSiteController.addListener(() {
+      tabSiteIndex.value = tabSiteController.index;
+    });
     // 定时自动刷新
     if (settings.autoRefreshTime.value != 0) {
       Timer.periodic(
@@ -52,7 +62,10 @@ class FavoriteController extends GetxController with GetSingleTickerProviderStat
     bool hasError = false;
     List<Future<LiveRoom>> futures = [];
     if (settings.favoriteRooms.value.isEmpty) return false;
-    for (final room in settings.favoriteRooms.value) {
+    final currentRooms = settings.favoriteRooms.value
+        .where((element) => element.platform == Sites.supportSites[tabSiteIndex.value].id)
+        .toList();
+    for (final room in currentRooms) {
       futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!));
     }
     try {

@@ -51,10 +51,7 @@ class FavoritePage extends GetView<FavoriteController> {
                         ),
                       ];
                     },
-                  ),
-                  // const SearchButton(),
-                  // const LinkButton(),
-                  // const SizedBox(width: 4),
+                  )
                 ]
               : null,
           title: TabBar(
@@ -70,11 +67,22 @@ class FavoritePage extends GetView<FavoriteController> {
             ],
           ),
         ),
-        body: TabBarView(
-          controller: controller.tabController,
+        body: Column(
           children: [
-            _RoomOnlineGridView(),
-            _RoomOfflineGridView(),
+            TabBar(
+              controller: controller.tabSiteController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.center,
+              indicatorSize: TabBarIndicatorSize.label,
+              tabs: Sites.supportSites.map<Widget>((e) => Tab(text: e.name)).toList(),
+            ),
+            Expanded(
+              child: Obx(() => TabBarView(
+                  controller: controller.tabSiteController,
+                  children: controller.tabOnlineIndex.value == 0
+                      ? Sites.supportSites.map((e) => e.id).toList().map((e) => _RoomOnlineGridView(e)).toList()
+                      : Sites.supportSites.map((e) => e.id).toList().map((e) => _RoomOfflineGridView(e)).toList())),
+            )
           ],
         ),
       );
@@ -83,8 +91,8 @@ class FavoritePage extends GetView<FavoriteController> {
 }
 
 class _RoomOnlineGridView extends GetView<FavoriteController> {
-  _RoomOnlineGridView();
-
+  _RoomOnlineGridView(this.site);
+  final String site;
   final refreshController = EasyRefreshController(
     controlFinishRefresh: true,
     controlFinishLoad: true,
@@ -120,8 +128,9 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
                     padding: const EdgeInsets.all(5),
                     controller: ScrollController(),
                     crossAxisCount: crossAxisCount,
-                    itemCount: controller.onlineRooms.length,
-                    itemBuilder: (context, index) => RoomCard(room: controller.onlineRooms[index], dense: dense),
+                    itemCount: controller.onlineRooms.where((el) => el.platform == site).toList().length,
+                    itemBuilder: (context, index) => RoomCard(
+                        room: controller.onlineRooms.where((el) => el.platform == site).toList()[index], dense: dense),
                   )
                 : EmptyView(
                     icon: Icons.favorite_rounded,
@@ -134,9 +143,12 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
 }
 
 class _RoomOfflineGridView extends GetView<FavoriteController> {
-  _RoomOfflineGridView();
-
-  final refreshController = EasyRefreshController();
+  _RoomOfflineGridView(this.site);
+  final String site;
+  final refreshController = EasyRefreshController(
+    controlFinishRefresh: true,
+    controlFinishLoad: true,
+  );
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
   Future onRefresh() async {
@@ -164,9 +176,9 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
                     padding: const EdgeInsets.all(5),
                     controller: ScrollController(),
                     crossAxisCount: crossAxisCount,
-                    itemCount: controller.offlineRooms.length,
+                    itemCount: controller.offlineRooms.where((el) => el.platform == site).toList().length,
                     itemBuilder: (context, index) => RoomCard(
-                      room: controller.offlineRooms[index],
+                      room: controller.offlineRooms.where((el) => el.platform == site).toList()[index],
                       dense: dense,
                     ),
                   )

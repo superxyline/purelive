@@ -15,7 +15,46 @@ class AreasPage extends GetView<AreasController> {
           centerTitle: true,
           scrolledUnderElevation: 0,
           leading: showAction ? const MenuButton() : null,
-          actions: showAction ? [const SearchButton()] : null,
+          actions: showAction
+              ? [
+                  PopupMenuButton(
+                    tooltip: '搜索',
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    offset: const Offset(12, 0),
+                    position: PopupMenuPosition.under,
+                    icon: const Icon(Icons.read_more_sharp),
+                    onSelected: (int index) {
+                      if (index == 0) {
+                        Get.toNamed(RoutePath.kSearch);
+                      } else {
+                        Get.toNamed(RoutePath.kToolbox);
+                      }
+                    },
+                    itemBuilder: (BuildContext context) {
+                      return [
+                        const PopupMenuItem(
+                          value: 0,
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: MenuListTile(
+                            leading: Icon(CustomIcons.search),
+                            text: "搜索直播",
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 1,
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: MenuListTile(
+                            leading: Icon(Icons.link),
+                            text: "链接访问",
+                          ),
+                        ),
+                      ];
+                    },
+                  )
+                ]
+              : null,
           title: TabBar(
             controller: controller.tabController,
             isScrollable: true,
