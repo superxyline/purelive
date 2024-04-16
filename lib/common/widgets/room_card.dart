@@ -62,37 +62,34 @@ class RoomCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-                Hero(
-                  tag: room.roomId!,
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Card(
-                      margin: const EdgeInsets.all(0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      color: Theme.of(context).focusColor,
-                      elevation: 0,
-                      child: room.liveStatus == LiveStatus.offline
-                          ? Center(
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Card(
+                    margin: const EdgeInsets.all(0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    color: Theme.of(context).focusColor,
+                    elevation: 0,
+                    child: room.liveStatus == LiveStatus.offline
+                        ? Center(
+                            child: Icon(
+                              Icons.tv_off_rounded,
+                              size: dense ? 36 : 60,
+                            ),
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: room.cover!,
+                            cacheManager: CustomCacheManager.instance,
+                            fit: BoxFit.fill,
+                            errorWidget: (context, error, stackTrace) => Center(
                               child: Icon(
-                                Icons.tv_off_rounded,
-                                size: dense ? 36 : 60,
-                              ),
-                            )
-                          : CachedNetworkImage(
-                              imageUrl: room.cover!,
-                              cacheManager: CustomCacheManager.instance,
-                              fit: BoxFit.fill,
-                              errorWidget: (context, error, stackTrace) => Center(
-                                child: Icon(
-                                  Icons.live_tv_rounded,
-                                  size: dense ? 38 : 62,
-                                ),
+                                Icons.live_tv_rounded,
+                                size: dense ? 38 : 62,
                               ),
                             ),
-                    ),
+                          ),
                   ),
                 ),
                 if (room.isRecord == true)

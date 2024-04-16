@@ -12,7 +12,7 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
   bool isFirstLoad = true;
   FavoriteController() {
     tabController = TabController(length: 2, vsync: this);
-    tabSiteController = TabController(length: Sites.supportSites.length, vsync: this);
+    tabSiteController = TabController(length: Sites().availableSites().length + 1, vsync: this);
   }
 
   @override
@@ -62,9 +62,13 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     bool hasError = false;
     List<Future<LiveRoom>> futures = [];
     if (settings.favoriteRooms.value.isEmpty) return false;
-    final currentRooms = settings.favoriteRooms.value
-        .where((element) => element.platform == Sites.supportSites[tabSiteIndex.value].id)
-        .toList();
+    var currentRooms = settings.favoriteRooms.value;
+    if (tabSiteIndex.value != 0) {
+      currentRooms = settings.favoriteRooms.value
+          .where((element) => element.platform == Sites().availableSites()[tabSiteIndex.value].id)
+          .toList();
+    }
+
     for (final room in currentRooms) {
       futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!));
     }

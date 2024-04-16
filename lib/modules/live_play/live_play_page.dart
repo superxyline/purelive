@@ -65,9 +65,11 @@ class LivePlayPage extends GetWidget<LivePlayController> {
               : Container()),
           actions: [
             IconButton(
-              tooltip: S.of(context).dlan_button_info,
-              onPressed: showDlnaCastDialog,
-              icon: const Icon(CustomIcons.cast),
+              tooltip: "open native app",
+              onPressed: () {
+                controller.openNaviteAPP();
+              },
+              icon: const Icon(Icons.open_in_new_rounded),
             ),
           ],
         ),
@@ -157,38 +159,31 @@ class LivePlayPage extends GetWidget<LivePlayController> {
   }
 
   Widget buildVideoPlayer() {
-    return Hero(
-      tag: controller.room.roomId!,
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Container(
-          color: Colors.black,
-          child: Obx(
-            () => controller.success.value
-                ? VideoPlayer(controller: controller.videoController!)
-                : Card(
-                    elevation: 0,
-                    margin: const EdgeInsets.all(0),
-                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                    clipBehavior: Clip.antiAlias,
-                    color: Get.theme.focusColor,
-                    child: CachedNetworkImage(
-                      imageUrl: controller.detail.value!.cover!,
-                      cacheManager: CustomCacheManager.instance,
-                      fit: BoxFit.fill,
-                      errorWidget: (context, error, stackTrace) => const Center(
-                        child: Icon(Icons.live_tv_rounded, size: 48),
-                      ),
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Container(
+        color: Colors.black,
+        child: Obx(
+          () => controller.success.value
+              ? VideoPlayer(controller: controller.videoController!)
+              : Card(
+                  elevation: 0,
+                  margin: const EdgeInsets.all(0),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  clipBehavior: Clip.antiAlias,
+                  color: Get.theme.focusColor,
+                  child: CachedNetworkImage(
+                    imageUrl: controller.detail.value!.cover!,
+                    cacheManager: CustomCacheManager.instance,
+                    fit: BoxFit.fill,
+                    errorWidget: (context, error, stackTrace) => const Center(
+                      child: Icon(Icons.live_tv_rounded, size: 48),
                     ),
                   ),
-          ),
+                ),
         ),
       ),
     );
-  }
-
-  void showDlnaCastDialog() {
-    Get.dialog(LiveDlnaPage(datasource: controller.playUrls[controller.currentLineIndex.value]));
   }
 }
 

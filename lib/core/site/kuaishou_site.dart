@@ -300,7 +300,8 @@ class KuaishowSite implements LiveSite {
       var liveStream = jsonObj["liveroom"]["playList"][0]["liveStream"];
       var author = jsonObj["liveroom"]["playList"][0]["author"];
       var gameInfo = jsonObj["liveroom"]["playList"][0]["gameInfo"];
-      // var liveStreamId = liveStream["id"];
+      var liveStreamId = liveStream["id"];
+
       // var res = await getWebsocketUrl(liveStreamId);
       return LiveRoom(
         cover: liveStream["coverUrl"],
@@ -315,7 +316,7 @@ class KuaishowSite implements LiveSite {
         status: jsonObj["liveroom"]["playList"][0]["isLiving"],
         liveStatus: jsonObj["liveroom"]["playList"][0]["isLiving"] ? LiveStatus.live : LiveStatus.offline,
         platform: 'kuaishou',
-        link: url,
+        link: liveStreamId,
         data: liveStream["playUrls"],
       );
     } catch (e) {

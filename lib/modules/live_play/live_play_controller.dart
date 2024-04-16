@@ -1,7 +1,12 @@
+import 'dart:io';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'widgets/video_player/video_controller.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/core/danmaku/huya_danmaku.dart';
+import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
 
@@ -178,7 +183,7 @@ class LivePlayController extends StateController {
     try {
       var playQualites = await currentSite.liveSite.getPlayQualites(detail: detail.value!);
       if (playQualites.isEmpty) {
-        SmartDialog.showToast("无法读取播放清晰度");
+        SmartDialog.showToast("无法读取播放清晰度,当前房间可能为连麦房间");
         return;
       }
       qualites.value = playQualites;
@@ -264,5 +269,45 @@ class LivePlayController extends StateController {
       headers: headers,
     );
     success.value = true;
+  }
+
+  openNaviteAPP() async {
+    var naviteUrl = "";
+    var webUrl = "";
+    if (site == Sites.bilibiliSite) {
+      naviteUrl = "bilibili://live/${detail.value?.roomId}";
+      webUrl = "https://live.bilibili.com/${detail.value?.roomId}";
+    } else if (site == Sites.douyinSite) {
+      var args = detail.value?.danmakuData as DouyinDanmakuArgs;
+      naviteUrl = "snssdk1128://webcast_room?room_id=${args.roomId}";
+      webUrl = "https://live.douyin.com/${args.webRid}";
+    } else if (site == Sites.huyaSite) {
+      var args = detail.value?.danmakuData as HuyaDanmakuArgs;
+      naviteUrl =
+          "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
+      webUrl = "https://www.huya.com/${detail.value?.roomId}";
+    } else if (site == Sites.douyuSite) {
+      naviteUrl =
+          "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${detail.value?.roomId}";
+      webUrl = "https://www.douyu.com/${detail.value?.roomId}";
+    } else if (site == Sites.ccSite) {
+      log(detail.value!.userId.toString(), name: "cc_user_id");
+      naviteUrl = "cc://join-room/${detail.value?.roomId}/${detail.value?.userId}/";
+      webUrl = "https://cc.163.com/${detail.value?.roomId}";
+    } else if (site == Sites.kuaishouSite) {
+      naviteUrl =
+          "kwai://liveaggregatesquare?liveStreamId=${detail.value?.link}&recoStreamId=${detail.value?.link}&recoLiveStreamId=${detail.value?.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
+      webUrl = "https://live.kuaishou.com/u/${detail.value?.roomId}";
+    }
+    try {
+      if (Platform.isAndroid) {
+        await launchUrlString(naviteUrl, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrlString(webUrl, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      SmartDialog.showToast("无法打开APP，将使用浏览器打开");
+      await launchUrlString(webUrl, mode: LaunchMode.externalApplication);
+    }
   }
 }

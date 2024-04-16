@@ -74,14 +74,27 @@ class FavoritePage extends GetView<FavoriteController> {
               isScrollable: true,
               tabAlignment: TabAlignment.center,
               indicatorSize: TabBarIndicatorSize.label,
-              tabs: Sites.supportSites.map<Widget>((e) => Tab(text: e.name)).toList(),
+              tabs: Sites().availableSites(containsAll: true).map<Widget>((e) => Tab(text: e.name)).toList(),
             ),
             Expanded(
-              child: Obx(() => TabBarView(
+              child: Obx(() {
+                return TabBarView(
                   controller: controller.tabSiteController,
                   children: controller.tabOnlineIndex.value == 0
-                      ? Sites.supportSites.map((e) => e.id).toList().map((e) => _RoomOnlineGridView(e)).toList()
-                      : Sites.supportSites.map((e) => e.id).toList().map((e) => _RoomOfflineGridView(e)).toList())),
+                      ? Sites()
+                          .availableSites(containsAll: true)
+                          .map((e) => e.id)
+                          .toList()
+                          .map((e) => _RoomOnlineGridView(e))
+                          .toList()
+                      : Sites()
+                          .availableSites(containsAll: true)
+                          .map((e) => e.id)
+                          .toList()
+                          .map((e) => _RoomOfflineGridView(e))
+                          .toList(),
+                );
+              }),
             )
           ],
         ),
@@ -128,9 +141,15 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
                     padding: const EdgeInsets.all(5),
                     controller: ScrollController(),
                     crossAxisCount: crossAxisCount,
-                    itemCount: controller.onlineRooms.where((el) => el.platform == site).toList().length,
+                    itemCount: site == 'all'
+                        ? controller.onlineRooms.length
+                        : controller.onlineRooms.where((el) => el.platform == site).toList().length,
                     itemBuilder: (context, index) => RoomCard(
-                        room: controller.onlineRooms.where((el) => el.platform == site).toList()[index], dense: dense),
+                      room: site == 'all'
+                          ? controller.onlineRooms[index]
+                          : controller.onlineRooms.where((el) => el.platform == site).toList()[index],
+                      dense: dense,
+                    ),
                   )
                 : EmptyView(
                     icon: Icons.favorite_rounded,
@@ -176,9 +195,13 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
                     padding: const EdgeInsets.all(5),
                     controller: ScrollController(),
                     crossAxisCount: crossAxisCount,
-                    itemCount: controller.offlineRooms.where((el) => el.platform == site).toList().length,
+                    itemCount: site == 'all'
+                        ? controller.offlineRooms.length
+                        : controller.offlineRooms.where((el) => el.platform == site).toList().length,
                     itemBuilder: (context, index) => RoomCard(
-                      room: controller.offlineRooms.where((el) => el.platform == site).toList()[index],
+                      room: site == 'all'
+                          ? controller.offlineRooms[index]
+                          : controller.offlineRooms.where((el) => el.platform == site).toList()[index],
                       dense: dense,
                     ),
                   )

@@ -90,7 +90,6 @@ dependencies:
   cookie_jar: ^4.0.8
   # system hardware utils
   wakelock_plus: ^1.1.3
-  dlna_dart: ^0.0.8
   battery_plus: ^5.0.2
   stop_watch_timer: ^3.0.2
   # storage

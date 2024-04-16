@@ -10,6 +10,14 @@ import 'package:pure_live/core/site/kuaishou_site.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 
 class Sites {
+  static const String bilibiliSite = "bilibili";
+  static const String douyuSite = "douyu";
+  static const String huyaSite = "huya";
+  static const String douyinSite = "douyin";
+  static const String kuaishouSite = "kuaishou";
+  static const String ccSite = "cc";
+  static const String iptvSite = "iptv";
+
   static List<Site> supportSites = [
     Site(
       id: "bilibili",
@@ -59,8 +67,13 @@ class Sites {
     return supportSites.firstWhere((e) => id == e.id);
   }
 
-  List<Site> availableSites() {
+  List<Site> availableSites({containsAll = false}) {
     final SettingsService settingsService = Get.find<SettingsService>();
+    if (containsAll) {
+      var result = supportSites.where((element) => settingsService.hotAreasList.value.contains(element.id)).toList();
+      result.insert(0, Site(id: "all", name: "全部", logo: "assets/images/all.png", liveSite: LiveSite()));
+      return result;
+    }
     return supportSites.where((element) => settingsService.hotAreasList.value.contains(element.id)).toList();
   }
 }
