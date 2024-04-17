@@ -44,7 +44,7 @@ class _AboutPageState extends State<AboutPage> {
           ),
           SectionTitle(title: S.of(context).project),
           ListTile(
-            title: Text(S.of(context).support_donate),
+            title: const Text("帮助与支持"),
             onTap: () => Get.toNamed(RoutePath.kDonate),
           ),
           ListTile(
