@@ -1,7 +1,7 @@
 {
-  "version": "1.6.4",
+  "version": "1.6.5",
   "version_num": 10506,
-  "version_desc": "-Fix:,修复ExoPlayer后台播放问题.闪退请关闭后台播放或切换播放器\n-Fix:修复关注列表显示问题.\n-Fix:优化关注页面分类.",
+  "version_desc": "-Fix:,修复Tv端线路切换问题.\n-Fix:优化手机端关注分区分类.\n-Fix:修复手机端关注分区显示问题.\n-Fix:还原投屏功能.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
