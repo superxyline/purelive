@@ -64,13 +64,42 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                 ])
               : Container()),
           actions: [
-            IconButton(
-              tooltip: "open native app",
-              onPressed: () {
-                controller.openNaviteAPP();
+            PopupMenuButton(
+              tooltip: '搜索',
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              offset: const Offset(12, 0),
+              position: PopupMenuPosition.under,
+              icon: const Icon(Icons.more_vert_rounded),
+              onSelected: (int index) {
+                if (index == 0) {
+                  controller.openNaviteAPP();
+                } else {
+                  showDlnaCastDialog();
+                }
               },
-              icon: const Icon(Icons.open_in_new_rounded),
-            ),
+              itemBuilder: (BuildContext context) {
+                return [
+                  const PopupMenuItem(
+                    value: 0,
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: MenuListTile(
+                      leading: Icon(Icons.open_in_new_rounded),
+                      text: "App内播放",
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 1,
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: MenuListTile(
+                      leading: Icon(Icons.live_tv_rounded),
+                      text: "投屏",
+                    ),
+                  ),
+                ];
+              },
+            )
           ],
         ),
         body: FutureBuilder(
@@ -156,6 +185,10 @@ class LivePlayPage extends GetWidget<LivePlayController> {
         floatingActionButton: Obx(() => FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
       ),
     );
+  }
+
+  void showDlnaCastDialog() {
+    Get.dialog(LiveDlnaPage(datasource: controller.playUrls[controller.currentLineIndex.value]));
   }
 
   Widget buildVideoPlayer() {

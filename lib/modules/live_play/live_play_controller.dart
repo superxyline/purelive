@@ -97,7 +97,7 @@ class LivePlayController extends StateController {
       getPlayQualites();
       settings.addRoomToHistory(liveRoom);
       // start danmaku server
-      List<String> except = ['kuaishou', 'iptv', 'cc'];
+      List<String> except = [Sites.kuaishouSite, Sites.iptvSite, Sites.ccSite];
       if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {
         initDanmau();
         liveDanmaku.start(liveRoom.danmakuData);
@@ -233,7 +233,7 @@ class LivePlayController extends StateController {
       return;
     }
     playUrls.value = playUrl;
-    if (currentPlayRoom.value.platform == 'huya' && playUrls.length >= 2) {
+    if (currentPlayRoom.value.platform == Sites.huyaSite && playUrls.length >= 2) {
       currentLineIndex.value = 1;
     } else {
       currentLineIndex.value = 0;
@@ -244,13 +244,13 @@ class LivePlayController extends StateController {
 
   void setPlayer() async {
     Map<String, String> headers = {};
-    if (currentSite.id == 'bilibili') {
+    if (currentSite.id == Sites.bilibiliSite) {
       headers = {
         "referer": "https://live.bilibili.com",
         "user-agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188"
       };
-    } else if (currentSite.id == 'huya') {
+    } else if (currentSite.id == Sites.huyaSite) {
       headers = {
         "Referer": "https://www.huya.com",
         "User-Agent":

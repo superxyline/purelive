@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'areas_grid_view.dart';
-import 'favorite_areas_page.dart';
 import 'package:pure_live/common/index.dart';
 
 class AreasPage extends GetView<AreasController> {
@@ -72,7 +71,7 @@ class AreasPage extends GetView<AreasController> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Get.to(() => const FavoriteAreasPage());
+            Get.toNamed(RoutePath.kFavoriteAreas);
           },
           child: const Icon(Icons.favorite_rounded),
         ),

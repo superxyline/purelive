@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:get/get.dart';
+import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/common/models/live_area.dart';
@@ -59,7 +60,7 @@ class CCSite implements LiveSite {
         areaId: gid,
         areaName: item["name"] ?? '',
         areaType: liveCategory.id,
-        platform: 'cc',
+        platform: Sites.ccSite,
         areaPic: item["cover"],
         typeName: liveCategory.name,
       );
@@ -87,7 +88,7 @@ class CCSite implements LiveSite {
         area: item["game_name"] ?? '',
         liveStatus: LiveStatus.live,
         status: true,
-        platform: 'cc',
+        platform: Sites.ccSite,
       );
       items.add(roomItem);
     }
@@ -159,7 +160,7 @@ class CCSite implements LiveSite {
         area: item["game_name"] ?? '',
         liveStatus: LiveStatus.live,
         status: true,
-        platform: 'cc',
+        platform: Sites.ccSite,
       );
       items.add(roomItem);
     }
@@ -194,7 +195,7 @@ class CCSite implements LiveSite {
         notice: roomInfo["personal_label"],
         status: roomInfo["status"] == 1,
         liveStatus: roomInfo["status"] == 1 ? LiveStatus.live : LiveStatus.offline,
-        platform: 'cc',
+        platform: Sites.ccSite,
         link: roomInfo['m3u8'],
         userId: roomInfo['cid'].toString(),
         data: roomInfo["quickplay"] ?? roomInfo["stream_list"],
@@ -231,7 +232,7 @@ class CCSite implements LiveSite {
         liveStatus: item['status'] != null && item['status'] == 1 ? LiveStatus.live : LiveStatus.offline,
         avatar: item["portrait"].toString(),
         watching: item["follower_num"].toString(),
-        platform: 'cc',
+        platform: Sites.ccSite,
       );
       items.add(roomItem);
     }

@@ -24,10 +24,12 @@ import 'package:pure_live/modules/hot_areas/hot_areas_page.dart';
 import 'package:pure_live/modules/live_play/live_play_page.dart';
 import 'package:pure_live/modules/shield/danmu_shield_page.dart';
 import 'package:pure_live/modules/settings/settings_binding.dart';
+import 'package:pure_live/modules/areas/favorite_areas_page.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_page.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_binding.dart';
 import 'package:pure_live/modules/live_play/live_play_binding.dart';
 import 'package:pure_live/modules/shield/danmu_shield_binding.dart';
+import 'package:pure_live/modules/areas/favorite_areas_binding.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_binding.dart';
 import 'package:pure_live/modules/account/bilibili/qr_login_page.dart';
 import 'package:pure_live/modules/account/bilibili/bilibili_bings.dart';
@@ -156,6 +158,14 @@ class AppPages {
       page: () => const ToolBoxPage(),
       bindings: [
         ToolBoxBinding(),
+      ],
+    ),
+
+    GetPage(
+      name: RoutePath.kFavoriteAreas,
+      page: () => const FavoriteAreasPage(),
+      bindings: [
+        FavoriteAreasBinding(),
       ],
     ),
   ];

@@ -112,6 +112,7 @@ dependencies:
     git: https://github.com/liuchuancong/flutterRestartPluginWip.git
   move_to_desktop: ^0.0.2
   device_info_plus: ^9.1.1
+  dlna_dart: ^0.0.8
   dart_tars_protocol:
     git: https://github.com/xiaoyaocz/dart_tars_protocol.git
   html_unescape: ^2.0.0
@@ -168,7 +169,6 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
-    - assets/crypto-js.js
     - assets/images/
     - assets/icons/
     - assets/keystore/

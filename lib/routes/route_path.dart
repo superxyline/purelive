@@ -6,6 +6,9 @@ class RoutePath {
   /// 关注
   static const kFavorite = "/favorite";
 
+  /// 关注
+  static const kFavoriteAreas = "/favoriteAreas";
+
   /// 热门
   static const kPopular = "/popular";
 

@@ -116,7 +116,7 @@ class ToolBoxController extends GetxController {
     if (url.contains("bilibili.com")) {
       var regExp = RegExp(r"bilibili\.com/([\d|\w]+)");
       id = regExp.firstMatch(url)?.group(1) ?? "";
-      return [id, Sites.of('bilibili').id];
+      return [id, Sites.bilibiliSite];
     }
 
     if (url.contains("b23.tv")) {
@@ -133,7 +133,7 @@ class ToolBoxController extends GetxController {
       if (url.endsWith('/')) {
         url = url.substring(0, url.length - 1);
       }
-      return [id, Sites.of('douyu').id];
+      return [id, Sites.douyuSite];
     }
     if (url.contains("huya.com")) {
       var regExp = RegExp(r"huya\.com/([\d|\w]+)");
@@ -142,7 +142,7 @@ class ToolBoxController extends GetxController {
       }
       id = regExp.firstMatch(url)?.group(1) ?? "";
 
-      return [id, Sites.of('huya').id];
+      return [id, Sites.huyaSite];
     }
     if (url.contains("live.douyin.com")) {
       var regExp = RegExp(r"live\.douyin\.com/([\d|\w]+)");
@@ -150,7 +150,7 @@ class ToolBoxController extends GetxController {
         url = url.substring(0, url.length - 1);
       }
       id = regExp.firstMatch(url)?.group(1) ?? "";
-      return [id, Sites.of('douyin').id];
+      return [id, Sites.douyinSite];
     }
     if (url.contains("live.kuaishou.com")) {
       var regExp = RegExp(r"live\.kuaishou\.com/u/([a-zA-Z0-9]+)$");
@@ -158,7 +158,7 @@ class ToolBoxController extends GetxController {
         url = url.substring(0, url.length - 1);
       }
       id = regExp.firstMatch(url)?.group(1) ?? "";
-      return [id, Sites.of('kuaishou').id];
+      return [id, Sites.kuaishouSite];
     }
     if (url.contains("cc.163.com")) {
       var regExp = RegExp(r"cc\.163\.com/([a-zA-Z0-9]+)$");
@@ -166,7 +166,7 @@ class ToolBoxController extends GetxController {
         url = url.substring(0, url.length - 1);
       }
       id = regExp.firstMatch(url)?.group(1) ?? "";
-      return [id, Sites.of('cc').id];
+      return [id, Sites.ccSite];
     }
     return [];
   }

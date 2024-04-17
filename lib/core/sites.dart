@@ -10,6 +10,7 @@ import 'package:pure_live/core/site/kuaishou_site.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 
 class Sites {
+  static const String allSite = "all";
   static const String bilibiliSite = "bilibili";
   static const String douyuSite = "douyu";
   static const String huyaSite = "huya";

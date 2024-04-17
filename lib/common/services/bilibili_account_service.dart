@@ -1,18 +1,16 @@
 import 'dart:async';
-
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:pure_live/common/models/bilibili_user_info_page.dart';
-import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/common/utils/pref_util.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
-import 'package:pure_live/core/sites.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/common/models/bilibili_user_info_page.dart';
 
 class BiliBiliAccountService extends GetxController {
-  static BiliBiliAccountService get instance =>
-      Get.find<BiliBiliAccountService>();
+  static BiliBiliAccountService get instance => Get.find<BiliBiliAccountService>();
   final SettingsService settingsService = Get.find<SettingsService>();
 
   var logined = false.obs;
@@ -57,7 +55,7 @@ class BiliBiliAccountService extends GetxController {
   }
 
   void setSite() {
-    var site = (Sites.of('bilibili').liveSite as BiliBiliSite);
+    var site = (Sites.of(Sites.bilibiliSite).liveSite as BiliBiliSite);
     site.userId = uid;
     site.cookie = cookie.value;
   }

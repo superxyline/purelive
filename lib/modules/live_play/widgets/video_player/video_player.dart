@@ -169,7 +169,7 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
                 key: widget.controller.key,
                 controller: widget.controller.mediaPlayerController,
                 fit: widget.controller.videoFit.value,
-                controls: widget.controller.room.platform == 'iptv'
+                controls: widget.controller.room.platform == Sites.iptvSite
                     ? media_kit_video.MaterialVideoControls
                     : (state) => _buildVideoPanel(),
               )

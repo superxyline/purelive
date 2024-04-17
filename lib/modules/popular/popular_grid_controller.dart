@@ -1,7 +1,6 @@
 import 'dart:async';
-
-import 'package:pure_live/common/base/base_controller.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/base/base_controller.dart';
 
 class PopularGridController extends BasePageController<LiveRoom> {
   final Site site;
@@ -11,7 +10,7 @@ class PopularGridController extends BasePageController<LiveRoom> {
   @override
   Future<List<LiveRoom>> getData(int page, int pageSize) async {
     var result = await site.liveSite.getRecommendRooms(page: page);
-    if (site.id == 'iptv' && list.isNotEmpty) {
+    if (site.id == Sites.iptvSite && list.isNotEmpty) {
       return [];
     }
     return result.items;

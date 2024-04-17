@@ -13,7 +13,6 @@ const kWindowsScheme = 'purelive://signin';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
-  JsEngine.init();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   MediaKit.ensureInitialized();
   if (Platform.isWindows) {

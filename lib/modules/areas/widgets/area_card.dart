@@ -22,7 +22,7 @@ class _AreaCardState extends State<AreaCard> {
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
         onTap: () {
-          if (widget.category.platform == 'iptv') {
+          if (widget.category.platform == Sites.iptvSite) {
             var roomItem = LiveRoom(
               roomId: widget.category.areaId,
               title: widget.category.typeName,

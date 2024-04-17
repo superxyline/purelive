@@ -141,11 +141,11 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
                     padding: const EdgeInsets.all(5),
                     controller: ScrollController(),
                     crossAxisCount: crossAxisCount,
-                    itemCount: site == 'all'
+                    itemCount: site == Sites.allSite
                         ? controller.onlineRooms.length
                         : controller.onlineRooms.where((el) => el.platform == site).toList().length,
                     itemBuilder: (context, index) => RoomCard(
-                      room: site == 'all'
+                      room: site == Sites.allSite
                           ? controller.onlineRooms[index]
                           : controller.onlineRooms.where((el) => el.platform == site).toList()[index],
                       dense: dense,
@@ -195,11 +195,11 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
                     padding: const EdgeInsets.all(5),
                     controller: ScrollController(),
                     crossAxisCount: crossAxisCount,
-                    itemCount: site == 'all'
+                    itemCount: site == Sites.allSite
                         ? controller.offlineRooms.length
                         : controller.offlineRooms.where((el) => el.platform == site).toList().length,
                     itemBuilder: (context, index) => RoomCard(
-                      room: site == 'all'
+                      room: site == Sites.allSite
                           ? controller.offlineRooms[index]
                           : controller.offlineRooms.where((el) => el.platform == site).toList()[index],
                       dense: dense,
