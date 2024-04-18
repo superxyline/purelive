@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
@@ -152,6 +152,10 @@ class ToolBoxController extends GetxController {
       id = regExp.firstMatch(url)?.group(1) ?? "";
       return [id, Sites.douyinSite];
     }
+    if (url.contains("v.douyin.com")) {
+      final id = await getRealDouyinUrl(url);
+      return [id, Sites.douyinSite];
+    }
     if (url.contains("live.kuaishou.com")) {
       var regExp = RegExp(r"live\.kuaishou\.com/u/([a-zA-Z0-9]+)$");
       if (url.endsWith('/')) {
@@ -171,16 +175,53 @@ class ToolBoxController extends GetxController {
     return [];
   }
 
+  Future<String> getRealDouyinUrl(String url) async {
+    final urlRegExp = RegExp(
+        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
+    String realUrl = urlMatches.first!;
+    var headers = {
+      "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Origin": "https://live.douyin.com",
+      "Referer": "https://live.douyin.com/7359038623041309449",
+      "Sec-Fetch-Site": "cross-site",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Dest": "empty",
+      "Accept-Language": "zh-CN,zh;q=0.9"
+    };
+    dio.Response response = await dio.Dio().get(
+      realUrl,
+      options: dio.Options(followRedirects: true, headers: headers, maxRedirects: 100),
+    );
+    final liveResponseRegExp = RegExp(r"/reflow/(\d+)");
+    String reflow = liveResponseRegExp.firstMatch(response.realUri.toString())?.group(0) ?? "";
+    var liveResponse = await dio.Dio().get("https://webcast.amemv.com/webcast/room/reflow/info/", queryParameters: {
+      "room_id": reflow.split("/").last.toString(),
+      'verifyFp': '',
+      'type_id': 0,
+      'live_id': 1,
+      'sec_user_id': '',
+      'app_id': 1128,
+      'msToken': '',
+      'X-Bogus': '',
+    });
+    var room = liveResponse.data['data']['room']['owner']['web_rid'];
+    return room.toString();
+  }
+
   Future<String> getLocation(String url) async {
     try {
       if (url.isEmpty) return "";
-      await Dio().get(
+      await dio.Dio().get(
         url,
-        options: Options(
+        options: dio.Options(
           followRedirects: false,
         ),
       );
-    } on DioException catch (e) {
+    } on dio.DioException catch (e) {
       if (e.response!.statusCode == 302) {
         var redirectUrl = e.response!.headers.value("Location");
         if (redirectUrl != null) {
