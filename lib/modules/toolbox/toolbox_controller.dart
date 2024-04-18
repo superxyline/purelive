@@ -186,7 +186,7 @@ class ToolBoxController extends GetxController {
       "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br, zstd",
       "Origin": "https://live.douyin.com",
-      "Referer": "https://live.douyin.com/7359038623041309449",
+      "Referer": "https://live.douyin.com/",
       "Sec-Fetch-Site": "cross-site",
       "Sec-Fetch-Mode": "cors",
       "Sec-Fetch-Dest": "empty",
