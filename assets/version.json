@@ -1,7 +1,7 @@
 {
-  "version": "1.6.5",
+  "version": "1.6.6",
   "version_num": 10506,
-  "version_desc": "-Fix:,修复Tv端线路切换问题.\n-Fix:优化手机端关注分区分类.\n-Fix:修复手机端关注分区显示问题.\n-Fix:还原投屏功能.",
+  "version_desc": "-Fix:,修复抖音链接无法访问直播间.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
