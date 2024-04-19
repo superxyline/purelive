@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'custom_interceptor.dart';
 import 'package:pure_live/core/common/core_error.dart';
 
-
 class HttpClient {
   static HttpClient? _httpUtil;
 
@@ -16,7 +15,7 @@ class HttpClient {
     dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 20),
       ),
     );
@@ -99,6 +98,7 @@ class HttpClient {
     Map<String, dynamic>? header,
     bool formUrlEncoded = false,
     CancelToken? cancel,
+    bool followRedirects = false,
   }) async {
     try {
       queryParameters ??= {};
@@ -112,6 +112,7 @@ class HttpClient {
           responseType: ResponseType.json,
           headers: header,
           contentType: formUrlEncoded ? Headers.formUrlEncodedContentType : null,
+          followRedirects: followRedirects,
         ),
         cancelToken: cancel,
       );

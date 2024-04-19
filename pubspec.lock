@@ -55,7 +55,7 @@ packages:
       path: "C:/Users/XA-158/projects/flutter/better_player"
       relative: false
     source: path
-    version: "0.0.9"
+    version: "0.1.0"
   boolean_selector:
     dependency: transitive
     description:

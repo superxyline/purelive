@@ -424,12 +424,13 @@ class DouyinSite implements LiveSite {
       // 发起一个签名请求
       // 服务端代码：https://github.com/5ime/Tiktok_Signature
       var signResult = await HttpClient.instance.postJson(
-        "https://tk.nsapps.cn/",
+        "https://x-bogus-psi.vercel.app/",
         queryParameters: {},
         header: {"Content-Type": "application/json"},
         data: {"url": url, "userAgent": kDefaultUserAgent},
       );
       var requlestUrl = '${signResult["data"]["url"]}&msToken=${Uri.encodeComponent(signResult["data"]["mstoken"])}';
+      print(requlestUrl);
       return requlestUrl;
     } catch (e) {
       CoreLog.error(e);
