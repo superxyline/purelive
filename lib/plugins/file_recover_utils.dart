@@ -217,7 +217,7 @@ class FileRecoverUtils {
     final SettingsService service = Get.find<SettingsService>();
     try {
       final response =
-          await await HttpClient.instance.postJson('$httpAddress/setSettings', data: jsonEncode(service.toJson()));
+          await await HttpClient.instance.postJson('$httpAddress/api/setSettings', data: jsonEncode(service.toJson()));
       return response.data;
     } catch (e) {
       return false;
