@@ -367,7 +367,6 @@ class DouyinSite implements LiveSite {
         "User-Agent": kDefaultUserAgent,
       },
     );
-    print(result);
     if (result == 'blocked') {
       throw Exception("抖音直播搜索被限制，请稍后再试");
     }
