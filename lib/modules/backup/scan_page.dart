@@ -57,34 +57,50 @@ class _ScanCodePageState extends State<ScanCodePage> {
         ],
       ),
       body: hasFound
-          ? Expanded(
-              child: Center(
-                child: syncResult
-                    ? const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            "正在同步...",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Text(
-                        isSuccess ? '同步成功' : "同步失败",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+          ? Center(
+              child: syncResult
+                  ? const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(
+                          height: 20,
                         ),
-                      ),
-              ),
-            )
+                        Text(
+                          "正在同步...",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          isSuccess ? '同步成功' : "同步失败",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              hasFound = false;
+                              syncResult = false;
+                              isSuccess = false;
+                            });
+                            cameraController = MobileScannerController();
+                          },
+                          child: const Text("点击同步"),
+                        ),
+                      ],
+                    ))
           : MobileScanner(
               // fit: BoxFit.contain,
               controller: cameraController,

@@ -216,9 +216,9 @@ class FileRecoverUtils {
   Future<bool> recoverSettingsBackup(String httpAddress) async {
     final SettingsService service = Get.find<SettingsService>();
     try {
-      final response =
-          await await HttpClient.instance.postJson('$httpAddress/api/setSettings', data: jsonEncode(service.toJson()));
-      return response.data;
+      final response = await await HttpClient.instance
+          .postJson('$httpAddress/api/setSettings', queryParameters: {"settings": jsonEncode(service.toJson())});
+      return jsonDecode(response)['data'];
     } catch (e) {
       return false;
     }
