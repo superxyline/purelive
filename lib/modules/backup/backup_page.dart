@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/backup/scan_page.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 
@@ -27,6 +29,14 @@ class _BackupPageState extends State<BackupPage> {
             subtitle: const Text('导入M3u直播源'),
             onTap: () => showImportSetDialog(),
           ),
+          if (Platform.isAndroid || Platform.isIOS)
+            ListTile(
+              title: const Text("同步TV数据"),
+              subtitle: const Text("将数据远程同步到TV"),
+              onTap: () async {
+                Get.to(() => const ScanCodePage());
+              },
+            ),
           ListTile(
             title: Text(S.of(context).create_backup),
             subtitle: Text(S.of(context).create_backup_subtitle),

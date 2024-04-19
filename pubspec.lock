@@ -52,11 +52,9 @@ packages:
   better_player:
     dependency: "direct main"
     description:
-      path: "."
-      ref: media3
-      resolved-ref: dbd95d8ad591981eb54ce7b1a09e95a630e5f72a
-      url: "https://github.com/liuchuancong/better_player.git"
-    source: git
+      path: "E:/project/better_player"
+      relative: false
+    source: path
     version: "0.1.0"
   boolean_selector:
     dependency: transitive
@@ -880,6 +878,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.5"
+  mobile_scanner:
+    dependency: "direct main"
+    description:
+      name: mobile_scanner
+      sha256: "827765afbd4792ff3fd105ad593821ac0f6d8a7d352689013b07ee85be336312"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.0.1"
   move_to_desktop:
     dependency: "direct main"
     description:

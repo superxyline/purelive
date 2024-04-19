@@ -7,6 +7,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:date_format/date_format.dart' hide S;
 import 'package:pure_live/core/iptv/iptv_utils.dart';
+import 'package:pure_live/core/common/http_client.dart';
 
 class FileRecoverUtils {
   ///获取后缀
@@ -208,6 +209,17 @@ class FileRecoverUtils {
       return true;
     } catch (e) {
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+      return false;
+    }
+  }
+
+  Future<bool> recoverSettingsBackup(String httpAddress) async {
+    final SettingsService service = Get.find<SettingsService>();
+    try {
+      final response =
+          await await HttpClient.instance.postJson('$httpAddress/setSettings', data: jsonEncode(service.toJson()));
+      return response.data;
+    } catch (e) {
       return false;
     }
   }
