@@ -1,7 +1,7 @@
 {
-  "version": "1.6.6",
+  "version": "1.6.7",
   "version_num": 10506,
-  "version_desc": "-Fix:,修复抖音链接无法访问直播间.",
+  "version_desc": "-Feature:手机可以在设置备份中直接同步TV.\n-Feature:TV添加背景切换.-Feature:TV控制按钮优化.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
