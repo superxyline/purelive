@@ -1,21 +1,17 @@
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:get/get.dart';
-import 'package:pure_live/core/sites.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/model/live_search_result.dart';
-import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/core/common/convert_helper.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/common/services/settings_service.dart';
 
 class DouyinSite implements LiveSite {
   @override
@@ -344,7 +340,6 @@ class DouyinSite implements LiveSite {
       "round_trip_time": "100",
       "webid": "7273033021933946427",
     });
-    var requlestUrl = await signUrl(uri.toString());
     var headResp = await HttpClient.instance.head('https://live.douyin.com', header: headers);
     var dyCookie = "";
     headResp.headers["set-cookie"]?.forEach((element) {
@@ -357,12 +352,12 @@ class DouyinSite implements LiveSite {
       }
     });
     var result = await HttpClient.instance.getJson(
-      requlestUrl,
+      uri.toString(),
       queryParameters: {},
       header: {
         "Accept": "*/*",
         "Authority": 'www.douyin.com',
-        "Referer": requlestUrl,
+        "Referer": uri.toString(),
         "Cookie": dyCookie,
         "User-Agent": kDefaultUserAgent,
       },
@@ -419,18 +414,50 @@ class DouyinSite implements LiveSite {
     return stringBuffer.toString();
   }
 
+  Future<String> getCookies() async {
+    const url = 'https://www.douyin.com/';
+    const headers = {
+      "authority": "www.douyin.com",
+      "accept": "application/json, text/plain, */*",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "pragma": "no-cache",
+      "referer": "https://www.douyin.com/",
+      "sec-ch-ua": "\"Not A(Brand\";v=\"99\", \"Google Chrome\";v=\"121\", \"Chromium\";v=\"121\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"Windows\"",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+      "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+    };
+    var headResp = await HttpClient.instance.get(url, header: headers);
+    var dyCookie = "";
+    var cookies = headResp.headers["set-cookie"]?[1];
+    dyCookie = cookies!.substring(cookies.indexOf('=') + 1, cookies.indexOf(';'));
+    print(dyCookie);
+    return dyCookie;
+  }
+
+  String msToken(int length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    final random = math.Random.secure(); // 使用安全的随机数生成器
+    final tokens = List.generate(length, (_) => characters[random.nextInt(characters.length)]);
+    return tokens.join('');
+  }
+
   Future<String> signUrl(String url) async {
     try {
       // 发起一个签名请求
       // 服务端代码：https://github.com/5ime/Tiktok_Signature
       var signResult = await HttpClient.instance.postJson(
-        "https://x-bogus-psi.vercel.app/",
+        "https://beta.tikhub.io/#/Douyin-Web-API//api/v1/douyin/web/generate_a_bogus",
         queryParameters: {},
         header: {"Content-Type": "application/json"},
         data: {"url": url, "userAgent": kDefaultUserAgent},
       );
       var requlestUrl = '${signResult["data"]["url"]}&msToken=${Uri.encodeComponent(signResult["data"]["mstoken"])}';
-      print(requlestUrl);
       return requlestUrl;
     } catch (e) {
       CoreLog.error(e);
