@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -87,6 +88,11 @@ class LivePlayController extends StateController {
   void onInit() {
     currentPlayRoom.value = room;
     super.onInit();
+    Timer(const Duration(seconds: 8), () {
+      if (hasLoaded.value == false) {
+        SmartDialog.showToast("获取直播间信息超时,请稍后重试");
+      }
+    });
     onInitPlayerState();
   }
 
