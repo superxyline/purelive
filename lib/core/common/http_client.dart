@@ -46,7 +46,6 @@ class HttpClient {
       );
       return result.data;
     } catch (e) {
-      print(e.toString());
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
