@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 
@@ -65,12 +66,16 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     var currentRooms = settings.favoriteRooms.value;
     if (tabSiteIndex.value != 0) {
       currentRooms = settings.favoriteRooms.value
-          .where((element) => element.platform == Sites().availableSites()[tabSiteIndex.value].id)
+          .where((element) => element.platform == Sites().availableSites(containsAll: true)[tabSiteIndex.value].id)
           .toList();
     }
-
     for (final room in currentRooms) {
-      futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!));
+      futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(
+            roomId: room.roomId!,
+            platform: room.platform!,
+            nick: room.platform!,
+            title: room.platform!,
+          ));
     }
     try {
       final rooms = await Future.wait(futures);

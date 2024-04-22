@@ -50,6 +50,8 @@ class LivePlayController extends StateController {
   /// 当前线路
   final currentLineIndex = 0.obs;
 
+  final hasLoaded = false.obs;
+
   int lastExitTime = 0;
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
@@ -89,13 +91,24 @@ class LivePlayController extends StateController {
   }
 
   Future<LiveRoom> onInitPlayerState() async {
-    var liveRoom = await currentSite.liveSite.getRoomDetail(roomId: currentPlayRoom.value.roomId!);
+    hasLoaded.value = false;
+    var liveRoom = await currentSite.liveSite.getRoomDetail(
+      roomId: currentPlayRoom.value.roomId!,
+      platform: currentPlayRoom.value.platform!,
+      nick: currentPlayRoom.value.nick!,
+      title: currentPlayRoom.value.title!,
+    );
     detail.value = liveRoom;
+    hasLoaded.value = true;
     liveStatus.value = detail.value!.status! || detail.value!.isRecord!;
 
     if (liveStatus.value) {
       getPlayQualites();
-      settings.addRoomToHistory(liveRoom);
+      if (currentPlayRoom.value.platform == Sites.iptvSite) {
+        settings.addRoomToHistory(currentPlayRoom.value);
+      } else {
+        settings.addRoomToHistory(liveRoom);
+      }
       // start danmaku server
       List<String> except = [Sites.kuaishouSite, Sites.iptvSite, Sites.ccSite];
       if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {

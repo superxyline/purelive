@@ -147,7 +147,7 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
+  Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
     var result = await HttpClient.instance.getJson(
       "https://live.douyin.com/webcast/web/partition/detail/room/",
       queryParameters: {
@@ -184,7 +184,8 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String roomId}) async {
+  Future<LiveRoom> getRoomDetail(
+      {required String nick, required String platform, required String roomId, required String title}) async {
     try {
       var detail = await getRoomWebDetail(roomId);
       var requestHeader = await getRequestHeaders();
@@ -241,7 +242,7 @@ class DouyinSite implements LiveSite {
         data: roomInfo["stream_url"],
       );
     } catch (e) {
-      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
+      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;
       return liveRoom;
@@ -342,7 +343,7 @@ class DouyinSite implements LiveSite {
       "downlink": "10",
       "effective_type": "4g",
       "round_trip_time": "100",
-      "webid": "7294093991380665856",
+      "webid": "7273033021933946427",
     });
     var requlestUrl = uri.toString();
     var headResp = await HttpClient.instance.head('https://live.douyin.com', header: headers);
@@ -398,8 +399,9 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<bool> getLiveStatus({required String roomId}) async {
-    var result = await getRoomDetail(roomId: roomId);
+  Future<bool> getLiveStatus(
+      {required String nick, required String platform, required String roomId, required String title}) async {
+    var result = await getRoomDetail(roomId: roomId, platform: platform, title: title, nick: nick);
     return result.status!;
   }
 

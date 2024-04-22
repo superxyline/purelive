@@ -52,7 +52,12 @@ class ToolBoxController extends GetxController {
     String platform = parseResult[1];
     try {
       SmartDialog.showLoading(msg: "");
-      var detail = await Sites.of(platform).liveSite.getRoomDetail(roomId: parseResult.first);
+      var detail = await Sites.of(platform).liveSite.getRoomDetail(
+            roomId: parseResult.first,
+            platform: platform,
+            nick: '',
+            title: '',
+          );
       var qualites = await Sites.of(platform).liveSite.getPlayQualites(detail: detail);
       SmartDialog.dismiss(status: SmartStatus.loading);
       if (qualites.isEmpty) {
@@ -113,6 +118,10 @@ class ToolBoxController extends GetxController {
 
   Future<List> parse(String url) async {
     var id = "";
+    final urlRegExp = RegExp(
+        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
+    url = urlMatches.first!;
     if (url.contains("bilibili.com")) {
       var regExp = RegExp(r"bilibili\.com/([\d|\w]+)");
       id = regExp.firstMatch(url)?.group(1) ?? "";

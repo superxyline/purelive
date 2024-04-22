@@ -345,7 +345,7 @@ class SettingsService extends GetxController {
     return favoriteRooms.any((element) => element.roomId == room.roomId);
   }
 
-  LiveRoom getLiveRoomByRoomId(roomId) {
+  LiveRoom getLiveRoomByRoomId(roomId, String platform) {
     if (!favoriteRooms.any((element) => element.roomId == roomId) &&
         !historyRooms.any((element) => element.roomId == roomId)) {
       return LiveRoom(
@@ -383,6 +383,7 @@ class SettingsService extends GetxController {
 
   bool updateRoom(LiveRoom room) {
     int idx = favoriteRooms.indexWhere((element) => element.roomId == room.roomId);
+    updateRoomInHistory(room);
     if (idx == -1) return false;
     favoriteRooms[idx] = room;
     return true;
@@ -403,11 +404,13 @@ class SettingsService extends GetxController {
     if (historyRooms.any((element) => element.roomId == room.roomId)) {
       historyRooms.remove(room);
     }
-    //默认只记录20条，够用了
-    if (historyRooms.length > 19) {
-      historyRooms.removeRange(0, historyRooms.length - 19);
+    updateRoom(room);
+    //默认只记录50条，够用了
+    // 防止数据量大页面卡顿
+    if (historyRooms.length > 50) {
+      historyRooms.removeRange(0, historyRooms.length - 50);
     }
-    historyRooms.add(room);
+    historyRooms.insert(0, room);
   }
 
   // Favorite areas storage

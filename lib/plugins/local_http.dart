@@ -177,18 +177,6 @@ class LocalHttpServer {
           ctx.body = jsonEncode({'data': false});
         }
       });
-      router.post('/playRoom', (ctx, next) async {
-        try {
-          final liveRoom = jsonDecode(ctx.query['liveRoom']!);
-          final realLiveRoom = settings.getLiveRoomByRoomId(liveRoom['roomId']);
-          Get.offAndToNamed(RoutePath.kInitial)!;
-          AppNavigator.toLiveRoomDetail(liveRoom: realLiveRoom);
-          ctx.body = jsonEncode({'data': true});
-        } catch (e) {
-          ctx.body = jsonEncode({'data': false});
-        }
-      });
-
       router.post('/getLibilibiLoginStatus', (ctx, next) async {
         final BiliBiliAccountService accountService = Get.find<BiliBiliAccountService>();
         ctx.body = jsonEncode({'data': accountService.logined.value, 'name': accountService.name.value});

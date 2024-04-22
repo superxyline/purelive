@@ -52,7 +52,7 @@ packages:
   better_player:
     dependency: "direct main"
     description:
-      path: "C:/Users/XA-158/projects/flutter/better_player"
+      path: "E:/project/better_player"
       relative: false
     source: path
     version: "0.1.0"
