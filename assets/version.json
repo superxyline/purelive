@@ -1,7 +1,7 @@
 {
   "version": "1.6.8",
   "version_num": 10506,
-  "version_desc": "-Fix:修复快手直播",
+  "version_desc": "-Fix:修复快手直播.\n-Intro:抖音算法已经更改,无法搜索请使用App链接功能搜索直播间关注",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
