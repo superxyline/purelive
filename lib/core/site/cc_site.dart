@@ -142,7 +142,7 @@ class CCSite implements LiveSite {
   }
 
   @override
-  Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
+  Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
     var result = await HttpClient.instance.getJson(
       "https://cc.163.com/api/category/live/",
       queryParameters: {"format": "json", "start": (page - 1) * 20, "size": 20},
@@ -169,7 +169,8 @@ class CCSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String roomId}) async {
+  Future<LiveRoom> getRoomDetail(
+      {required String nick, required String platform, required String roomId, required String title}) async {
     try {
       var url = "https://api.cc.163.com/v1/activitylives/anchor/lives";
       var result = await HttpClient.instance.getJson(url, queryParameters: {
@@ -202,7 +203,7 @@ class CCSite implements LiveSite {
       );
     } catch (e) {
       log(e.toString(), name: 'CC.getRoomDetail');
-      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
+      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;
       return liveRoom;
@@ -272,7 +273,8 @@ class CCSite implements LiveSite {
   }
 
   @override
-  Future<bool> getLiveStatus({required String roomId}) async {
+  Future<bool> getLiveStatus(
+      {required String nick, required String platform, required String roomId, required String title}) async {
     return Future.value(true);
   }
 

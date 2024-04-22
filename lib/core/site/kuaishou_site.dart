@@ -159,7 +159,7 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
+  Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
     var resultText = await HttpClient.instance.getJson("https://live.kuaishou.com/live_api/home/list", header: headers);
 
     var result = resultText['data']['list'] ?? [];
@@ -283,7 +283,8 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String roomId}) async {
+  Future<LiveRoom> getRoomDetail(
+      {required String nick, required String platform, required String roomId, required String title}) async {
     headers['cookie'] = cookie;
     var url = "https://live.kuaishou.com/u/$roomId";
 
@@ -307,7 +308,7 @@ class KuaishowSite implements LiveSite {
       return LiveRoom(
         cover: liveStream["coverUrl"],
         watching: gameInfo["watchingCount"].toString(),
-        roomId: author["description"],
+        roomId: author["id"],
         area: gameInfo["name"],
         title: author["description"].replaceAll("\n", " "),
         nick: author["name"].toString(),
@@ -322,7 +323,7 @@ class KuaishowSite implements LiveSite {
       );
     } catch (e) {
       log(e.toString());
-      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId);
+      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;
       return liveRoom;
@@ -341,7 +342,8 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<bool> getLiveStatus({required String roomId}) async {
+  Future<bool> getLiveStatus(
+      {required String nick, required String platform, required String roomId, required String title}) async {
     return false;
   }
 

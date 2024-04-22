@@ -18,7 +18,6 @@ class Sites {
   static const String kuaishouSite = "kuaishou";
   static const String ccSite = "cc";
   static const String iptvSite = "iptv";
-
   static List<Site> supportSites = [
     Site(
       id: "bilibili",
@@ -53,13 +52,13 @@ class Sites {
     Site(
       id: "cc",
       name: "网易CC",
-      logo: "assets/images/kuaishou.png",
+      logo: "assets/images/cc.png",
       liveSite: CCSite(),
     ),
     Site(
       id: "iptv",
       name: "网络",
-      logo: "assets/images/kuaishou.png",
+      logo: "assets/images/logo.png",
       liveSite: IptvSite(),
     ),
   ];

@@ -345,16 +345,17 @@ class SettingsService extends GetxController {
     return favoriteRooms.any((element) => element.roomId == room.roomId);
   }
 
-  LiveRoom getLiveRoomByRoomId(roomId) {
-    if (!favoriteRooms.any((element) => element.roomId == roomId) &&
-        !historyRooms.any((element) => element.roomId == roomId)) {
+  LiveRoom getLiveRoomByRoomId(roomId, platform) {
+    if (!favoriteRooms.any((element) => element.roomId == roomId && element.platform == platform) &&
+        !historyRooms.any((element) => element.roomId == roomId && element.platform == platform)) {
       return LiveRoom(
         roomId: roomId,
+        platform: platform,
         liveStatus: LiveStatus.unknown,
       );
     }
-    return favoriteRooms.firstWhere((element) => element.roomId == roomId,
-        orElse: () => historyRooms.firstWhere((element) => element.roomId == roomId));
+    return favoriteRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform,
+        orElse: () => historyRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform));
   }
 
   bool addRoom(LiveRoom room) {
@@ -403,11 +404,12 @@ class SettingsService extends GetxController {
     if (historyRooms.any((element) => element.roomId == room.roomId)) {
       historyRooms.remove(room);
     }
-    //默认只记录20条，够用了
-    if (historyRooms.length > 19) {
-      historyRooms.removeRange(0, historyRooms.length - 19);
+    //默认只记录50条，够用了
+    // 防止数据量大页面卡顿
+    if (historyRooms.length > 50) {
+      historyRooms.removeRange(0, historyRooms.length - 50);
     }
-    historyRooms.add(room);
+    historyRooms.insert(0, room);
   }
 
   // Favorite areas storage

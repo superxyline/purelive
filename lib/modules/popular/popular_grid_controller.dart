@@ -9,7 +9,7 @@ class PopularGridController extends BasePageController<LiveRoom> {
 
   @override
   Future<List<LiveRoom>> getData(int page, int pageSize) async {
-    var result = await site.liveSite.getRecommendRooms(page: page);
+    var result = await site.liveSite.getRecommendRooms(page: page, nick: '热门');
     if (site.id == Sites.iptvSite && list.isNotEmpty) {
       return [];
     }

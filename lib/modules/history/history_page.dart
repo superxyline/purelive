@@ -16,7 +16,12 @@ class HistoryPage extends GetView {
 
     for (final room in settings.historyRooms) {
       try {
-        var newRoom = await Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!);
+        var newRoom = await Sites.of(room.platform!).liveSite.getRoomDetail(
+              roomId: room.roomId!,
+              platform: room.platform!,
+              nick: room.nick!,
+              title: room.title!,
+            );
         settings.updateRoomInHistory(newRoom);
       } catch (e) {
         result = false;

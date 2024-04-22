@@ -89,13 +89,22 @@ class LivePlayController extends StateController {
   }
 
   Future<LiveRoom> onInitPlayerState() async {
-    var liveRoom = await currentSite.liveSite.getRoomDetail(roomId: currentPlayRoom.value.roomId!);
+    var liveRoom = await currentSite.liveSite.getRoomDetail(
+      roomId: currentPlayRoom.value.roomId!,
+      platform: currentPlayRoom.value.platform!,
+      title: currentPlayRoom.value.title!,
+      nick: currentPlayRoom.value.nick!,
+    );
     detail.value = liveRoom;
     liveStatus.value = detail.value!.status! || detail.value!.isRecord!;
 
     if (liveStatus.value) {
       getPlayQualites();
-      settings.addRoomToHistory(liveRoom);
+      if (currentPlayRoom.value.platform == Sites.iptvSite) {
+        settings.addRoomToHistory(currentPlayRoom.value);
+      } else {
+        settings.addRoomToHistory(liveRoom);
+      }
       // start danmaku server
       List<String> except = [Sites.kuaishouSite, Sites.iptvSite, Sites.ccSite];
       if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {

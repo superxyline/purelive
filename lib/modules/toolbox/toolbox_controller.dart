@@ -52,7 +52,9 @@ class ToolBoxController extends GetxController {
     String platform = parseResult[1];
     try {
       SmartDialog.showLoading(msg: "");
-      var detail = await Sites.of(platform).liveSite.getRoomDetail(roomId: parseResult.first);
+      var detail = await Sites.of(platform)
+          .liveSite
+          .getRoomDetail(roomId: parseResult.first, platform: platform, nick: '', title: '');
       var qualites = await Sites.of(platform).liveSite.getPlayQualites(detail: detail);
       SmartDialog.dismiss(status: SmartStatus.loading);
       if (qualites.isEmpty) {
@@ -112,64 +114,68 @@ class ToolBoxController extends GetxController {
   }
 
   Future<List> parse(String url) async {
+    final urlRegExp = RegExp(
+        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
+    String realUrl = urlMatches.first!;
     var id = "";
-    if (url.contains("bilibili.com")) {
+    if (realUrl.contains("bilibili.com")) {
       var regExp = RegExp(r"bilibili\.com/([\d|\w]+)");
-      id = regExp.firstMatch(url)?.group(1) ?? "";
+      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
       return [id, Sites.bilibiliSite];
     }
 
-    if (url.contains("b23.tv")) {
+    if (realUrl.contains("b23.tv")) {
       var btvReg = RegExp(r"https?:\/\/b23.tv\/[0-9a-z-A-Z]+");
-      var u = btvReg.firstMatch(url)?.group(0) ?? "";
+      var u = btvReg.firstMatch(realUrl)?.group(0) ?? "";
       var location = await getLocation(u);
 
       return await parse(location);
     }
 
-    if (url.contains("douyu.com")) {
+    if (realUrl.contains("douyu.com")) {
       var regExp = RegExp(r"douyu\.com/([\d|\w]+)");
-      id = regExp.firstMatch(url)?.group(1) ?? "";
-      if (url.endsWith('/')) {
-        url = url.substring(0, url.length - 1);
+      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
+      if (realUrl.endsWith('/')) {
+        realUrl = realUrl.substring(0, realUrl.length - 1);
       }
       return [id, Sites.douyuSite];
     }
-    if (url.contains("huya.com")) {
+    if (realUrl.contains("huya.com")) {
       var regExp = RegExp(r"huya\.com/([\d|\w]+)");
-      if (url.endsWith('/')) {
-        url = url.substring(0, url.length - 1);
+      if (realUrl.endsWith('/')) {
+        realUrl = realUrl.substring(0, realUrl.length - 1);
       }
-      id = regExp.firstMatch(url)?.group(1) ?? "";
+      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
 
       return [id, Sites.huyaSite];
     }
-    if (url.contains("live.douyin.com")) {
+    if (realUrl.contains("live.douyin.com")) {
       var regExp = RegExp(r"live\.douyin\.com/([\d|\w]+)");
-      if (url.endsWith('/')) {
-        url = url.substring(0, url.length - 1);
+      if (realUrl.endsWith('/')) {
+        realUrl = realUrl.substring(0, realUrl.length - 1);
       }
-      id = regExp.firstMatch(url)?.group(1) ?? "";
+      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
       return [id, Sites.douyinSite];
     }
-    if (url.contains("v.douyin.com")) {
-      final id = await getRealDouyinUrl(url);
+    if (realUrl.contains("v.douyin.com")) {
+      final id = await getRealDouyinUrl(realUrl);
       return [id, Sites.douyinSite];
     }
-    if (url.contains("live.kuaishou.com")) {
+    if (realUrl.contains("live.kuaishou.com")) {
       var regExp = RegExp(r"live\.kuaishou\.com/u/([a-zA-Z0-9]+)$");
-      if (url.endsWith('/')) {
-        url = url.substring(0, url.length - 1);
+      if (realUrl.endsWith('/')) {
+        realUrl = realUrl.substring(0, realUrl.length - 1);
       }
-      id = regExp.firstMatch(url)?.group(1) ?? "";
+      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
       return [id, Sites.kuaishouSite];
     }
-    if (url.contains("cc.163.com")) {
+    if (realUrl.contains("cc.163.com")) {
       var regExp = RegExp(r"cc\.163\.com/([a-zA-Z0-9]+)$");
-      if (url.endsWith('/')) {
-        url = url.substring(0, url.length - 1);
+      if (realUrl.endsWith('/')) {
+        realUrl = realUrl.substring(0, realUrl.length - 1);
       }
-      id = regExp.firstMatch(url)?.group(1) ?? "";
+      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
       return [id, Sites.ccSite];
     }
     return [];
