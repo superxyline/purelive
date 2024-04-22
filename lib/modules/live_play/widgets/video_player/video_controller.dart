@@ -192,6 +192,7 @@ class VideoController with ChangeNotifier {
             allowedScreenSleep: !allowScreenKeepOn,
             autoDetectFullscreenDeviceOrientation: true,
             autoDetectFullscreenAspectRatio: true,
+            enableCodec: enableCodec,
             errorBuilder: (context, errorMessage) => Container(),
             routePageBuilder: (context, animation, second, controllerProvider) => AnimatedBuilder(
               animation: animation,
