@@ -128,10 +128,15 @@ dependencies:
   dia_router: ^0.1.7
   dia_cors: ^0.1.2
   mobile_scanner: ^4.0.1 #二维码扫描
+  json_annotation: ^4.8.1
+  protoc_plugin: ^21.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
   change_app_package_name: any
+  json_serializable: ^6.7.1
+  build_runner: ^2.3.3
+  protoc_builder: ^0.4.1
   flutter_launcher_icons: ^0.13.1
   msix: ^3.16.7
 
