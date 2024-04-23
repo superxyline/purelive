@@ -195,7 +195,7 @@ class KuaishowSite implements LiveSite {
           var author = titem["author"];
           var gameInfo = titem["gameInfo"];
           var roomItems = LiveRoom(
-            cover: isImage(gameInfo['poster']) ? gameInfo['poster'].toString() : '${gameInfo['poster'].toString()}.jpg',
+            cover: gameInfo['poster'].toString(),
             watching: titem["watchingCount"].toString(),
             roomId: author["id"],
             area: gameInfo["name"],
