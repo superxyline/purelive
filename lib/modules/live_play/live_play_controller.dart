@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -50,6 +51,8 @@ class LivePlayController extends StateController {
   /// 当前线路
   final currentLineIndex = 0.obs;
 
+  final hasLoaded = false.obs;
+
   int lastExitTime = 0;
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
@@ -85,17 +88,24 @@ class LivePlayController extends StateController {
   void onInit() {
     currentPlayRoom.value = room;
     super.onInit();
+    Timer(const Duration(seconds: 8), () {
+      if (hasLoaded.value == false) {
+        SmartDialog.showToast("获取直播间信息超时,请稍后重试");
+      }
+    });
     onInitPlayerState();
   }
 
   Future<LiveRoom> onInitPlayerState() async {
+    hasLoaded.value = false;
     var liveRoom = await currentSite.liveSite.getRoomDetail(
       roomId: currentPlayRoom.value.roomId!,
       platform: currentPlayRoom.value.platform!,
-      title: currentPlayRoom.value.title!,
       nick: currentPlayRoom.value.nick!,
+      title: currentPlayRoom.value.title!,
     );
     detail.value = liveRoom;
+    hasLoaded.value = true;
     liveStatus.value = detail.value!.status! || detail.value!.isRecord!;
 
     if (liveStatus.value) {

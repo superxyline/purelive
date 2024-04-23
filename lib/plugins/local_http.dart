@@ -177,7 +177,6 @@ class LocalHttpServer {
           ctx.body = jsonEncode({'data': false});
         }
       });
-
       router.post('/getLibilibiLoginStatus', (ctx, next) async {
         final BiliBiliAccountService accountService = Get.find<BiliBiliAccountService>();
         ctx.body = jsonEncode({'data': accountService.logined.value, 'name': accountService.name.value});

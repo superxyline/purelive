@@ -31,15 +31,11 @@ class LivePlayPage extends GetWidget<LivePlayController> {
       onBackButtonPressed: onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Obx(() => controller.detail.value != null &&
-                  controller.detail.value!.nick != null &&
-                  controller.detail.value!.avatar != null &&
-                  controller.detail.value!.area != null
+          title: Obx(() => controller.hasLoaded.value
               ? Row(children: [
                   CircleAvatar(
-                    foregroundImage: controller.detail.value!.avatar!.isEmpty
-                        ? null
-                        : NetworkImage(controller.detail.value!.avatar!),
+                    foregroundImage:
+                        controller.detail.value!.avatar == null ? null : NetworkImage(controller.detail.value!.avatar!),
                     radius: 13,
                     backgroundColor: Theme.of(context).disabledColor,
                   ),
@@ -62,7 +58,33 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                     ],
                   ),
                 ])
-              : Container()),
+              : Row(children: [
+                  CircleAvatar(
+                    foregroundImage: controller.currentPlayRoom.value.avatar == null
+                        ? null
+                        : NetworkImage(controller.currentPlayRoom.value.avatar!),
+                    radius: 13,
+                    backgroundColor: Theme.of(context).disabledColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.detail.value!.nick!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                      Text(
+                        controller.currentPlayRoom.value.area!.isEmpty
+                            ? controller.currentPlayRoom.value.platform!.toUpperCase()
+                            : "${controller.currentPlayRoom.value.platform!.toUpperCase()} / ${controller.currentPlayRoom.value.area}",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
+                      ),
+                    ],
+                  ),
+                ])),
           actions: [
             PopupMenuButton(
               tooltip: '搜索',
@@ -86,7 +108,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                     padding: EdgeInsets.symmetric(horizontal: 12),
                     child: MenuListTile(
                       leading: Icon(Icons.open_in_new_rounded),
-                      text: "App内播放",
+                      text: "打开直播间",
                     ),
                   ),
                   const PopupMenuItem(

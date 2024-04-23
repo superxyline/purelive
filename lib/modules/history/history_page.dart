@@ -19,8 +19,8 @@ class HistoryPage extends GetView {
         var newRoom = await Sites.of(room.platform!).liveSite.getRoomDetail(
               roomId: room.roomId!,
               platform: room.platform!,
-              nick: room.nick!,
-              title: room.title!,
+              nick: room.platform!,
+              title: room.platform!,
             );
         settings.updateRoomInHistory(newRoom);
       } catch (e) {
@@ -46,7 +46,7 @@ class HistoryPage extends GetView {
       body: Obx(() {
         final SettingsService settings = Get.find<SettingsService>();
         const dense = true;
-        final rooms = settings.historyRooms.reversed.toList();
+        final rooms = settings.historyRooms.toList();
         return LayoutBuilder(builder: (context, constraint) {
           final width = constraint.maxWidth;
           int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
