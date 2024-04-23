@@ -328,7 +328,6 @@ class KuaishowSite implements LiveSite {
       var author = jsonObj["liveroom"]["playList"][0]["author"];
       var gameInfo = jsonObj["liveroom"]["playList"][0]["gameInfo"];
       var liveStreamId = liveStream["id"];
-      print(liveStreamId);
       return LiveRoom(
         cover:
             isImage(liveStream['poster']) ? liveStream['poster'].toString() : '${liveStream['poster'].toString()}.jpg',
