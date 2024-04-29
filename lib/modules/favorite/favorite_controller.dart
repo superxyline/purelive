@@ -21,7 +21,8 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     // 初始化关注页
     syncRooms();
     // 监听settings rooms变化
-    settings.favoriteRooms.listen((rooms) => syncRooms());
+    debounce(settings.favoriteRooms, (rooms) => syncRooms(), time: const Duration(milliseconds: 1000));
+    // settings.favoriteRooms.listen((rooms) => syncRooms());
     onRefresh();
     tabController.addListener(() {
       tabOnlineIndex.value = tabController.index;
@@ -91,13 +92,12 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     }
     try {
       for (var i = 0; i < groupedList.length; i++) {
-        await Future.delayed(const Duration(milliseconds: 300));
         final rooms = await Future.wait(groupedList[i]);
         for (var room in rooms) {
           settings.updateRoom(room);
         }
-        syncRooms();
       }
+      syncRooms();
     } catch (e) {
       hasError = true;
     }

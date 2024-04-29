@@ -164,7 +164,12 @@ class VideoController with ChangeNotifier {
     if (Platform.isWindows || Platform.isLinux) {
       player = Player();
       if (player.platform is NativePlayer) {
-        await (player.platform as dynamic).setProperty('cache', 'no');
+        (player.platform as dynamic).setProperty('cache', 'no'); // --cache=<yes|no|auto>
+        (player.platform as dynamic).setProperty('cache-secs', '0'); // --cache-secs=<seconds> with cache but why not.
+        (player.platform as dynamic).setProperty(
+            'demuxer-seekable-cache', 'no'); // --demuxer-seekable-cache=<yes|no|auto> Redundant with cache but why not.
+        (player.platform as dynamic).setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
+        (player.platform as dynamic).setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
       }
       mediaPlayerController = media_kit_video.VideoController(player);
       setDataSource(datasource);
