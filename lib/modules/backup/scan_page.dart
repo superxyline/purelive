@@ -10,7 +10,9 @@ class ScanCodePage extends StatefulWidget {
 }
 
 class _ScanCodePageState extends State<ScanCodePage> {
-  MobileScannerController cameraController = MobileScannerController();
+  MobileScannerController cameraController = MobileScannerController(
+    torchEnabled: true,
+  );
   bool hasFound = false;
   bool syncResult = false;
   bool isSuccess = false;
@@ -24,13 +26,27 @@ class _ScanCodePageState extends State<ScanCodePage> {
               ? Container()
               : IconButton(
                   icon: ValueListenableBuilder(
-                    valueListenable: cameraController.torchState,
+                    valueListenable: cameraController,
                     builder: (context, state, child) {
-                      switch (state) {
+                      switch (state.torchState) {
                         case TorchState.off:
                           return const Icon(Icons.flash_off, color: Colors.grey);
                         case TorchState.on:
                           return const Icon(Icons.flash_on, color: Colors.yellow);
+                        case TorchState.auto:
+                          return IconButton(
+                            color: Colors.white,
+                            iconSize: 32.0,
+                            icon: const Icon(Icons.flash_auto),
+                            onPressed: () async {
+                              await cameraController.toggleTorch();
+                            },
+                          );
+                        case TorchState.unavailable:
+                          return const Icon(
+                            Icons.no_flash,
+                            color: Colors.grey,
+                          );
                       }
                     },
                   ),
@@ -41,9 +57,9 @@ class _ScanCodePageState extends State<ScanCodePage> {
               ? Container()
               : IconButton(
                   icon: ValueListenableBuilder(
-                    valueListenable: cameraController.cameraFacingState,
+                    valueListenable: cameraController,
                     builder: (context, state, child) {
-                      switch (state) {
+                      switch (state.cameraDirection) {
                         case CameraFacing.front:
                           return const Icon(Icons.camera_front);
                         case CameraFacing.back:
