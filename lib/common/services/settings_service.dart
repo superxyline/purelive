@@ -350,11 +350,12 @@ class SettingsService extends GetxController {
         !historyRooms.any((element) => element.roomId == roomId)) {
       return LiveRoom(
         roomId: roomId,
+        platform: platform,
         liveStatus: LiveStatus.unknown,
       );
     }
-    return favoriteRooms.firstWhere((element) => element.roomId == roomId,
-        orElse: () => historyRooms.firstWhere((element) => element.roomId == roomId));
+    return favoriteRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform,
+        orElse: () => historyRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform));
   }
 
   bool addRoom(LiveRoom room) {

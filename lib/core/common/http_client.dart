@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'custom_interceptor.dart';
 import 'package:pure_live/core/common/core_error.dart';
 
+
 class HttpClient {
   static HttpClient? _httpUtil;
 

@@ -21,7 +21,8 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     // 初始化关注页
     syncRooms();
     // 监听settings rooms变化
-    settings.favoriteRooms.listen((rooms) => syncRooms());
+    debounce(settings.favoriteRooms, (rooms) => syncRooms(), time: const Duration(milliseconds: 1000));
+    // settings.favoriteRooms.listen((rooms) => syncRooms());
     onRefresh();
     tabController.addListener(() {
       tabOnlineIndex.value = tabController.index;
@@ -61,7 +62,9 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     }
     bool hasError = false;
     List<Future<LiveRoom>> futures = [];
-    if (settings.favoriteRooms.value.isEmpty) return false;
+    if (settings.favoriteRooms.value.isEmpty) {
+      return false;
+    }
     var currentRooms = settings.favoriteRooms.value;
     if (tabSiteIndex.value != 0) {
       currentRooms = settings.favoriteRooms.value
@@ -69,17 +72,30 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
           .toList();
     }
     for (final room in currentRooms) {
-      futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(
-            roomId: room.roomId!,
-            platform: room.platform!,
-            nick: room.platform!,
-            title: room.platform!,
-          ));
+      futures.add(Sites.of(room.platform!)
+          .liveSite
+          .getRoomDetail(roomId: room.roomId!, platform: room.platform!, title: room.title!, nick: room.nick!));
+    }
+    List<List<Future<LiveRoom>>> groupedList = [];
+
+    // 每次循环处理四个元素
+    for (int i = 0; i < futures.length; i += 3) {
+      // 获取当前循环开始到下一个四个元素的位置（但不超过原列表长度）
+      int end = i + 3;
+      if (end > futures.length) {
+        end = futures.length;
+      }
+      // 截取当前四个元素的子列表
+      List<Future<LiveRoom>> subList = futures.sublist(i, end);
+      // 将子列表添加到结果列表中
+      groupedList.add(subList);
     }
     try {
-      final rooms = await Future.wait(futures);
-      for (var room in rooms) {
-        settings.updateRoom(room);
+      for (var i = 0; i < groupedList.length; i++) {
+        final rooms = await Future.wait(groupedList[i]);
+        for (var room in rooms) {
+          settings.updateRoom(room);
+        }
       }
       syncRooms();
     } catch (e) {

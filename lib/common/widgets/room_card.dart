@@ -72,7 +72,7 @@ class RoomCard extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     color: Theme.of(context).focusColor,
                     elevation: 0,
-                    child: room.liveStatus == LiveStatus.offline
+                    child: room.liveStatus == LiveStatus.offline && room.cover!.isNotEmpty
                         ? Center(
                             child: Icon(
                               Icons.tv_off_rounded,
@@ -109,7 +109,7 @@ class RoomCard extends StatelessWidget {
                     bottom: dense ? 0 : 2,
                     child: CountChip(
                       icon: Icons.whatshot_rounded,
-                      count: readableCount(room.watching!),
+                      count: readableCount(room.watching ?? "0"),
                       dense: dense,
                     ),
                   ),
@@ -126,7 +126,7 @@ class RoomCard extends StatelessWidget {
                 backgroundColor: Theme.of(context).disabledColor,
               ),
               title: Text(
-                room.title!,
+                room.title ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -135,7 +135,7 @@ class RoomCard extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                room.nick!,
+                room.nick ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -146,7 +146,7 @@ class RoomCard extends StatelessWidget {
               trailing: dense
                   ? null
                   : Text(
-                      room.platform!.toUpperCase(),
+                      room.platform != null ? room.platform!.toUpperCase() : '',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,

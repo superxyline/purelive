@@ -204,7 +204,9 @@ class LivePlayPage extends GetWidget<LivePlayController> {
             });
           },
         ),
-        floatingActionButton: Obx(() => FavoriteFloatingButton(room: controller.detail.value!)),
+        floatingActionButton: Obx(() => controller.hasLoaded.value
+            ? FavoriteFloatingButton(room: controller.detail.value!)
+            : FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
       ),
     );
   }
