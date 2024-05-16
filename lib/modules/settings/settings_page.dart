@@ -60,13 +60,6 @@ class SettingsPage extends GetView<SettingsService> {
           ),
           SectionTitle(title: S.of(context).video),
           Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_background_play),
-                subtitle: Text(S.of(context).enable_background_play_subtitle),
-                value: controller.enableBackgroundPlay.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
-              )),
-          Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_screen_keep_on),
                 subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
                 value: controller.enableScreenKeepOn.value,
@@ -131,11 +124,6 @@ class SettingsPage extends GetView<SettingsService> {
             title: const Text("平台设置"),
             subtitle: const Text("自定义观看喜爱的平台"),
             onTap: () => Get.toNamed(RoutePath.kSettingsHotAreas),
-          ),
-          ListTile(
-            title: const Text("Web服务"),
-            subtitle: const Text("使用web页面控制应用"),
-            onTap: showWebPortDialog,
           ),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(

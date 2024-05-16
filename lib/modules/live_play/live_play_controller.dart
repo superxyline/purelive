@@ -7,6 +7,8 @@ import 'widgets/video_player/video_controller.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
@@ -19,6 +21,7 @@ class LivePlayController extends StateController {
   final String site;
 
   late final Site currentSite = Sites.of(site);
+
   late final LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
 
   final settings = Get.find<SettingsService>();
@@ -29,14 +32,17 @@ class LivePlayController extends StateController {
   VideoController? videoController;
 
   final playerKey = GlobalKey();
+
   final danmakuViewKey = GlobalKey();
+
   final LiveRoom room;
 
   Rx<LiveRoom?> detail = Rx<LiveRoom?>(LiveRoom());
 
-  var currentPlayRoom = LiveRoom().obs;
   final success = false.obs;
+
   var liveStatus = false.obs;
+
   Map<String, List<String>> liveStream = {};
 
   /// 清晰度数据
@@ -51,9 +57,41 @@ class LivePlayController extends StateController {
   /// 当前线路
   final currentLineIndex = 0.obs;
 
-  final hasLoaded = false.obs;
-
   int lastExitTime = 0;
+
+  /// 双击退出Flag
+  bool doubleClickExit = false;
+
+  /// 双击退出Timer
+  Timer? doubleClickTimer;
+
+  var isFirstLoad = true.obs;
+  // 0 代表向上 1 代表向下
+  int isNextOrPrev = 0;
+
+  // 当前直播间信息 下一个频道或者上一个
+  var currentPlayRoom = LiveRoom().obs;
+
+  var getVideoSuccess = true.obs;
+
+  var currentChannelIndex = 0.obs;
+
+  var lastChannelIndex = 0.obs;
+
+  Timer? channelTimer;
+
+  Timer? loadRefreshRoomTimer;
+
+  Timer? networkTimer;
+  // 切换线路会添加到这个数组里面
+  var isLastLine = false.obs;
+
+  var hasError = false.obs;
+
+  var loadTimeOut = true.obs;
+  // 是否是手动切换线路
+  var isActive = false.obs;
+
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
@@ -86,50 +124,220 @@ class LivePlayController extends StateController {
 
   @override
   void onInit() {
+    // 发现房间ID 会变化 使用静态列表ID 对比
+
     currentPlayRoom.value = room;
-    super.onInit();
-    Timer(const Duration(seconds: 8), () {
-      if (hasLoaded.value == false) {
-        SmartDialog.showToast("获取直播间信息超时,请稍后重试");
+    onInitPlayerState();
+
+    isFirstLoad.listen((p0) {
+      if (isFirstLoad.value) {
+        loadTimeOut.value = true;
+        Timer(const Duration(seconds: 5), () {
+          isFirstLoad.value = false;
+          loadTimeOut.value = false;
+          Timer(const Duration(seconds: 5), () {
+            loadTimeOut.value = true;
+          });
+        });
+      } else {
+        // 防止闪屏
+        Timer(const Duration(seconds: 2), () {
+          loadTimeOut.value = false;
+          Timer(const Duration(seconds: 5), () {
+            loadTimeOut.value = true;
+          });
+        });
       }
     });
-    onInitPlayerState();
+
+    isLastLine.listen((p0) {
+      if (isLastLine.value && hasError.value && isActive.value == false) {
+        // 刷新到了最后一路线 并且有错误
+        SmartDialog.showToast("当前房间无法播放,正在为您每10秒刷新直播间信息...", displayTime: const Duration(seconds: 2));
+        Timer(const Duration(seconds: 1), () {
+          loadRefreshRoomTimer?.cancel();
+          loadRefreshRoomTimer = Timer(const Duration(seconds: 10), () {
+            isLastLine.value = false;
+            isFirstLoad.value = true;
+            restoryQualityAndLines();
+            resetRoom(Sites.of(currentPlayRoom.value.platform!), currentPlayRoom.value.roomId!);
+          });
+        });
+      } else {
+        if (success.value) {
+          isActive.value = false;
+          loadRefreshRoomTimer?.cancel();
+        }
+      }
+    });
+    super.onInit();
   }
 
-  Future<LiveRoom> onInitPlayerState() async {
-    hasLoaded.value = false;
+  void resetRoom(Site site, String roomId) async {
+    success.value = false;
+    hasError.value = false;
+    await videoController?.destory();
+    videoController = null;
+    isFirstLoad.value = true;
+    getVideoSuccess.value = true;
+    loadTimeOut.value = true;
+    Timer(const Duration(milliseconds: 200), () {
+      if (lastChannelIndex.value == currentChannelIndex.value) {
+        resetPlayerState();
+      }
+    });
+  }
+
+  Future<LiveRoom> resetPlayerState({
+    ReloadDataType reloadDataType = ReloadDataType.refreash,
+    int line = 0,
+    int currentQuality = 0,
+  }) async {
+    channelTimer?.cancel();
+    handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, quality: currentQuality);
     var liveRoom = await currentSite.liveSite.getRoomDetail(
       roomId: currentPlayRoom.value.roomId!,
       platform: currentPlayRoom.value.platform!,
-      nick: currentPlayRoom.value.nick!,
       title: currentPlayRoom.value.title!,
+      nick: currentPlayRoom.value.nick!,
     );
     detail.value = liveRoom;
-    hasLoaded.value = true;
-    liveStatus.value = detail.value!.status! || detail.value!.isRecord!;
+    if (liveRoom.liveStatus == LiveStatus.unknown) {
+      SmartDialog.showToast("获取直播间信息失败,请按确定建重新获取", displayTime: const Duration(seconds: 2));
+      getVideoSuccess.value = false;
+      return liveRoom;
+    }
 
+    liveStatus.value = liveRoom.status! || liveRoom.isRecord!;
     if (liveStatus.value) {
       getPlayQualites();
+      getVideoSuccess.value = true;
       if (currentPlayRoom.value.platform == Sites.iptvSite) {
         settings.addRoomToHistory(currentPlayRoom.value);
       } else {
         settings.addRoomToHistory(liveRoom);
       }
       // start danmaku server
-      List<String> except = [Sites.kuaishouSite, Sites.iptvSite, Sites.ccSite];
+      List<String> except = ['kuaishou', 'iptv', 'cc'];
       if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {
         initDanmau();
         liveDanmaku.start(liveRoom.danmakuData);
       }
-    } else {
-      success.value = false;
-      SmartDialog.showToast("当前主播未开播或主播已下播", displayTime: const Duration(seconds: 2));
-      playUrls.value = [];
-      currentLineIndex.value = 0;
-      qualites.value = [];
-      currentQuality.value = 0;
     }
+
     return liveRoom;
+  }
+
+  Future<LiveRoom> onInitPlayerState({
+    ReloadDataType reloadDataType = ReloadDataType.refreash,
+    int line = 0,
+    int currentQuality = 0,
+    bool active = false,
+  }) async {
+    isActive.value = active;
+    isFirstLoad.value = true;
+    var liveRoom = await currentSite.liveSite.getRoomDetail(
+      roomId: currentPlayRoom.value.roomId!,
+      platform: currentPlayRoom.value.platform!,
+      title: currentPlayRoom.value.title!,
+      nick: currentPlayRoom.value.nick!,
+    );
+    isLastLine.value = calcIsLastLine(reloadDataType, line) && reloadDataType == ReloadDataType.changeLine;
+    if (isLastLine.value) {
+      hasError.value = true;
+    } else {
+      hasError.value = false;
+    }
+    // active 代表用户是否手动切换路线 只有不是手动自动切换才会显示路线错误信息
+
+    if (isLastLine.value && hasError.value && active == false) {
+      disPoserPlayer();
+      restoryQualityAndLines();
+      getVideoSuccess.value = false;
+      isFirstLoad.value = false;
+      return liveRoom;
+    } else {
+      handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, quality: currentQuality);
+      detail.value = liveRoom;
+      if (liveRoom.liveStatus == LiveStatus.unknown) {
+        SmartDialog.showToast("获取直播间信息失败,请按确定建重新获取", displayTime: const Duration(seconds: 2));
+        getVideoSuccess.value = false;
+        isFirstLoad.value = false;
+        return liveRoom;
+      }
+
+      liveStatus.value = liveRoom.status! || liveRoom.isRecord!;
+      if (liveStatus.value) {
+        getPlayQualites();
+        getVideoSuccess.value = true;
+        if (currentPlayRoom.value.platform == Sites.iptvSite) {
+          settings.addRoomToHistory(currentPlayRoom.value);
+        } else {
+          settings.addRoomToHistory(liveRoom);
+        }
+        // start danmaku server
+        List<String> except = ['kuaishou', 'iptv', 'cc'];
+        if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {
+          initDanmau();
+          liveDanmaku.start(liveRoom.danmakuData);
+        }
+      } else {
+        isFirstLoad.value = false;
+        success.value = false;
+        getVideoSuccess.value = true;
+        SmartDialog.showToast("当前主播未开播或主播已下播", displayTime: const Duration(seconds: 2));
+        restoryQualityAndLines();
+      }
+
+      return liveRoom;
+    }
+  }
+
+  bool calcIsLastLine(ReloadDataType reloadDataType, int line) {
+    var lastLine = line + 1;
+    if (playUrls.isEmpty) {
+      return true;
+    }
+    if (playUrls.length == 1) {
+      return true;
+    }
+    if (lastLine == playUrls.length - 1) {
+      return true;
+    }
+    return false;
+  }
+
+  disPoserPlayer() {
+    videoController?.dispose();
+    videoController = null;
+    liveDanmaku.stop();
+    success.value = false;
+    liveDanmaku.stop();
+  }
+
+  handleCurrentLineAndQuality({
+    ReloadDataType reloadDataType = ReloadDataType.refreash,
+    int line = 0,
+    int quality = 0,
+  }) {
+    disPoserPlayer();
+    try {
+      if (reloadDataType == ReloadDataType.refreash) {
+        restoryQualityAndLines();
+      } else {
+        isFirstLoad.value = false;
+      }
+    } catch (e) {
+      restoryQualityAndLines();
+      SmartDialog.showToast("切换线路失败", displayTime: const Duration(seconds: 2));
+    }
+  }
+
+  restoryQualityAndLines() {
+    playUrls.value = [];
+    currentLineIndex.value = 0;
+    qualites.value = [];
+    currentQuality.value = 0;
   }
 
   /// 初始化弹幕接收事件
@@ -158,7 +366,9 @@ class LivePlayController extends StateController {
           if (!DanmuMerge().isRepeat(msg.message)) {
             DanmuMerge().add(msg.message);
             messages.add(msg);
-            videoController?.sendDanmaku(msg);
+            if (videoController != null && videoController!.hasDestory == false) {
+              videoController?.sendDanmaku(msg);
+            }
           }
         }
       }
@@ -186,78 +396,67 @@ class LivePlayController extends StateController {
   }
 
   void setResolution(String quality, String index) {
+    if (videoController != null && videoController!.hasDestory == false) {
+      videoController!.destory();
+    }
     currentQuality.value = qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
-    videoController?.isTryToHls = false;
-    videoController?.isPlaying.value = false;
-    videoController?.hasError.value = false;
-    videoController?.setDataSource(playUrls.value[currentLineIndex.value], refresh: true);
-    update();
+    onInitPlayerState(
+      reloadDataType: ReloadDataType.changeLine,
+      line: currentLineIndex.value,
+      currentQuality: currentQuality.value,
+      active: true,
+    );
   }
 
   /// 初始化播放器
   void getPlayQualites() async {
-    qualites.value = [];
-    currentQuality.value = 0;
     try {
       var playQualites = await currentSite.liveSite.getPlayQualites(detail: detail.value!);
       if (playQualites.isEmpty) {
-        SmartDialog.showToast("无法读取播放清晰度,当前房间可能为连麦房间");
+        SmartDialog.showToast("无法读取视频信息,请按确定键重新获取", displayTime: const Duration(seconds: 2));
+        getVideoSuccess.value = false;
+        isFirstLoad.value = false;
+        success.value = false;
         return;
       }
       qualites.value = playQualites;
-      int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
-      if (qualityLevel == 0) {
-        //最高
-        currentQuality.value = 0;
-      } else if (qualityLevel == settings.resolutionsList.length - 1) {
-        //最低
-        currentQuality.value = playQualites.length - 1;
-      } else {
-        //中间值
-        int middle = (playQualites.length / 2).floor();
-        currentQuality.value = middle;
+      // 第一次加载 使用系统默认线路
+      if (isFirstLoad.value) {
+        int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
+        if (qualityLevel == 0) {
+          //最高
+          currentQuality.value = 0;
+        } else if (qualityLevel == settings.resolutionsList.length - 1) {
+          //最低
+          currentQuality.value = playQualites.length - 1;
+        } else {
+          //中间值
+          int middle = (playQualites.length / 2).floor();
+          currentQuality.value = middle;
+        }
       }
-
+      isFirstLoad.value = false;
       getPlayUrl();
     } catch (e) {
-      SmartDialog.showToast("无法读取播放清晰度");
-    }
-  }
-
-  void changePlayLine() {
-    if (currentLineIndex.value == playUrls.length - 1) {
-      liveStatus.value = false;
+      SmartDialog.showToast("无法读取视频信息,请按确定键重新获取");
+      getVideoSuccess.value = false;
+      isFirstLoad.value = false;
       success.value = false;
-
-      if (videoController != null) {
-        if (videoController!.isFullscreen.value) {
-          videoController?.toggleFullScreen();
-        }
-        videoController?.hasError.value = true;
-      }
-      return;
     }
-    currentLineIndex.value++;
-    setResolution(qualites.map((e) => e.quality).toList()[currentQuality.value], currentLineIndex.value.toString());
   }
 
   void getPlayUrl() async {
-    playUrls.value = [];
-    currentLineIndex.value = 0;
     var playUrl =
         await currentSite.liveSite.getPlayUrls(detail: detail.value!, quality: qualites[currentQuality.value]);
     if (playUrl.isEmpty) {
-      SmartDialog.showToast("无法读取播放地址");
+      SmartDialog.showToast("无法读取播放地址,请按确定键重新获取", displayTime: const Duration(seconds: 2));
+      getVideoSuccess.value = false;
+      isFirstLoad.value = false;
+      success.value = false;
       return;
     }
     playUrls.value = playUrl;
-    if (currentPlayRoom.value.platform == Sites.huyaSite && playUrls.length >= 2) {
-      currentLineIndex.value = 1;
-    } else {
-      currentLineIndex.value = 0;
-    }
-
     setPlayer();
   }
 
@@ -281,13 +480,27 @@ class LivePlayController extends StateController {
       room: detail.value!,
       datasourceType: 'network',
       datasource: playUrls.value[currentLineIndex.value],
-      allowBackgroundPlay: settings.enableBackgroundPlay.value,
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
       fullScreenByDefault: settings.enableFullScreenDefault.value,
       autoPlay: true,
       headers: headers,
+      qualiteName: qualites[currentQuality.value].quality,
+      currentLineIndex: currentLineIndex.value,
+      currentQuality: currentQuality.value,
     );
     success.value = true;
+
+    networkTimer?.cancel();
+    networkTimer = Timer(const Duration(seconds: 10), () async {
+      if (videoController != null && videoController!.hasDestory == false) {
+        final connectivityResults = await Connectivity().checkConnectivity();
+        if (!connectivityResults.contains(ConnectivityResult.none)) {
+          if (!videoController!.isActivePause.value && videoController!.isPlaying.value == false) {
+            videoController!.refresh();
+          }
+        }
+      }
+    });
   }
 
   openNaviteAPP() async {

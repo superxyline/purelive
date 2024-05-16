@@ -75,7 +75,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.04),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text.rich(

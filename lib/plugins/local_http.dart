@@ -46,10 +46,12 @@ class LocalHttpServer {
 
   void startServer(String port) async {
     try {
-      final connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult == ConnectivityResult.mobile) {
-        SmartDialog.showToast('请在局域网下使用', displayTime: const Duration(seconds: 2));
-        return;
+      final connectivityResults = await (Connectivity().checkConnectivity());
+      for (final result in connectivityResults) {
+        if (result == ConnectivityResult.mobile) {
+          SmartDialog.showToast('请在局域网下使用', displayTime: const Duration(seconds: 2));
+          return;
+        }
       }
       if (webPortEnableStatus) {
         return;
@@ -379,8 +381,15 @@ class LocalHttpServer {
 
   closeServer() async {
     app.close();
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult != ConnectivityResult.mobile) {
+    final connectivityResults = await (Connectivity().checkConnectivity());
+    bool isMobile = false;
+    for (final result in connectivityResults) {
+      if (result == ConnectivityResult.mobile) {
+        isMobile = true;
+        break;
+      }
+    }
+    if (!isMobile) {
       SnackBarUtil.success('Web服务关闭成功');
       webPortEnableStatus = false;
     }

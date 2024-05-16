@@ -308,7 +308,7 @@ class SettingsService extends GetxController {
 
   static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishow', 'cc', '网络'];
 
-  static const List<String> players = ['ExoPlayer', 'IjkPlayer', 'MpvPlayer'];
+  static const List<String> players = ['Exo播放器', '系统播放器', 'IJK播放器', '阿里播放器', 'MpvPlayer'];
   final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
 
   List<String> get playerlist => players;

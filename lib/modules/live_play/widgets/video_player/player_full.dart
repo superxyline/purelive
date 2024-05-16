@@ -24,7 +24,7 @@ class _PlayerFullState extends State<PlayerFull> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     widget.controller.isFullscreen.listen(onControllerEvent);
-    widget.controller.videoFit.listen((p0) {
+    widget.controller.videoFitIndex.listen((p0) {
       if (mounted) {
         setState(() {});
       }

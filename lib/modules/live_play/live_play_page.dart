@@ -31,11 +31,12 @@ class LivePlayPage extends GetWidget<LivePlayController> {
       onBackButtonPressed: onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Obx(() => controller.hasLoaded.value
+          title: Obx(() => controller.getVideoSuccess.value
               ? Row(children: [
                   CircleAvatar(
-                    foregroundImage:
-                        controller.detail.value!.avatar == null ? null : NetworkImage(controller.detail.value!.avatar!),
+                    foregroundImage: controller.detail.value == null && controller.detail.value!.avatar == null
+                        ? null
+                        : NetworkImage(controller.detail.value!.avatar!),
                     radius: 13,
                     backgroundColor: Theme.of(context).disabledColor,
                   ),
@@ -44,17 +45,20 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        controller.detail.value!.nick!,
+                        controller.detail.value == null && controller.detail.value!.nick == null
+                            ? ''
+                            : controller.detail.value!.nick!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.labelSmall,
                       ),
-                      Text(
-                        controller.detail.value!.area!.isEmpty
-                            ? controller.detail.value!.platform!.toUpperCase()
-                            : "${controller.detail.value!.platform!.toUpperCase()} / ${controller.detail.value!.area}",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
-                      ),
+                      if (controller.detail.value != null && controller.detail.value!.area != null)
+                        Text(
+                          controller.detail.value!.area!.isEmpty
+                              ? controller.detail.value!.platform!.toUpperCase()
+                              : "${controller.detail.value!.platform!.toUpperCase()} / ${controller.detail.value!.area}",
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
+                        ),
                     ],
                   ),
                 ])
@@ -204,7 +208,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
             });
           },
         ),
-        floatingActionButton: Obx(() => controller.hasLoaded.value
+        floatingActionButton: Obx(() => controller.getVideoSuccess.value
             ? FavoriteFloatingButton(room: controller.detail.value!)
             : FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
       ),
@@ -223,21 +227,51 @@ class LivePlayPage extends GetWidget<LivePlayController> {
         child: Obx(
           () => controller.success.value
               ? VideoPlayer(controller: controller.videoController!)
-              : Card(
-                  elevation: 0,
-                  margin: const EdgeInsets.all(0),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  clipBehavior: Clip.antiAlias,
-                  color: Get.theme.focusColor,
-                  child: CachedNetworkImage(
-                    imageUrl: controller.detail.value!.cover!,
-                    cacheManager: CustomCacheManager.instance,
-                    fit: BoxFit.fill,
-                    errorWidget: (context, error, stackTrace) => const Center(
-                      child: Icon(Icons.live_tv_rounded, size: 48),
-                    ),
-                  ),
-                ),
+              : controller.hasError.value && controller.isActive.value == false
+                  ? ErrorVideoWidget(controller: controller)
+                  : !controller.getVideoSuccess.value
+                      ? ErrorVideoWidget(controller: controller)
+                      : Card(
+                          elevation: 0,
+                          margin: const EdgeInsets.all(0),
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                          clipBehavior: Clip.antiAlias,
+                          color: Get.theme.focusColor,
+                          child: Obx(() => controller.isFirstLoad.value
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ))
+                              : controller.loadTimeOut.value
+                                  ? CachedNetworkImage(
+                                      imageUrl: controller.currentPlayRoom.value.cover!,
+                                      cacheManager: CustomCacheManager.instance,
+                                      fit: BoxFit.fill,
+                                      errorWidget: (context, error, stackTrace) => const Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.live_tv_rounded, size: 48),
+                                            Text(
+                                              "无法获取播放信息",
+                                              style: TextStyle(color: Colors.white, fontSize: 18),
+                                            ),
+                                            Text(
+                                              "当前房间未开播或无法观看",
+                                              style: TextStyle(color: Colors.white, fontSize: 18),
+                                            ),
+                                            Text(
+                                              "请按确定按钮刷新重试",
+                                              style: TextStyle(color: Colors.white, fontSize: 18),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : TimeOutVideoWidget(
+                                      controller: controller,
+                                    )),
+                        ),
         ),
       ),
     );
@@ -269,7 +303,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
     return controller.qualites
         .map<Widget>((rate) => PopupMenuButton(
               tooltip: rate.quality,
-              color: Get.theme.colorScheme.surfaceVariant,
+              color: Get.theme.colorScheme.surfaceContainerHighest,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -409,5 +443,111 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               ],
             ),
           );
+  }
+}
+
+class ErrorVideoWidget extends StatelessWidget {
+  const ErrorVideoWidget({super.key, required this.controller});
+
+  final LivePlayController controller;
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+        type: MaterialType.transparency,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Obx(() => Text(
+                    '${controller.currentPlayRoom.value.platform == Sites.iptvSite ? controller.currentPlayRoom.value.title : controller.currentPlayRoom.value.nick ?? ''}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  )),
+            ),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        S.of(context).play_video_failed,
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                    const Text(
+                      "所有线路已切换且无法播放",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    const Text(
+                      "请切换播放器或设置解码方式刷新重试",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    const Text(
+                      "如仍有问题可能该房间未开播或无法观看",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+}
+
+class TimeOutVideoWidget extends StatelessWidget {
+  const TimeOutVideoWidget({super.key, required this.controller});
+
+  final LivePlayController controller;
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+        type: MaterialType.transparency,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Obx(() => Text(
+                    '${controller.currentPlayRoom.value.platform == Sites.iptvSite ? controller.currentPlayRoom.value.title : controller.currentPlayRoom.value.nick ?? ''}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  )),
+            ),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        S.of(context).play_video_failed,
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                    const Text(
+                      "该房间未开播或已下播",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    const Text(
+                      "请刷新或者切换其他直播间进行观看吧",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
   }
 }
