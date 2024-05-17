@@ -44,14 +44,6 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
     super.didChangeDependencies();
   }
 
-  ImageProvider? getRoomCover(cover) {
-    try {
-      return CachedNetworkImageProvider(cover);
-    } catch (e) {
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     bool isDesktop = Platform.isWindows;

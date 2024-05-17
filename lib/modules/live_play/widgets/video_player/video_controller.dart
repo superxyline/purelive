@@ -199,11 +199,29 @@ class VideoController with ChangeNotifier {
       });
       mediaPlayerControllerInitialized.value = true;
     } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
+      if (videoPlayerIndex == 2) {
+        List<IjkOption> options = [];
+        options.add(IjkOption(category: IjkCategory.player, name: 'enable-accurate-seek', valueInt: 1));
+        options.add(IjkOption(category: IjkCategory.player, name: 'framedrop', valueInt: 50));
+        options.add(IjkOption(
+            category: IjkCategory.format, name: 'protocol_whitelist', value: 'crypto,file,http,https,tcp,tls,udp'));
+        options.add(IjkOption(category: IjkCategory.format, name: 'allowed_extensions', value: 'ALL'));
+        options.add(IjkOption(category: IjkCategory.format, name: 'rtsp_transport', value: 'tcp'));
+        if (enableCodec) {
+          options.add(IjkOption(category: IjkCategory.player, name: 'mediacodec', valueInt: 1));
+          options.add(IjkOption(category: IjkCategory.player, name: 'videotoolbox', valueInt: 0));
+        } else {
+          options.add(IjkOption(category: IjkCategory.player, name: 'mediacodec', valueInt: 0));
+          options.add(IjkOption(category: IjkCategory.player, name: 'videotoolbox', valueInt: 1));
+        }
+        options.add(IjkOption(category: IjkCategory.player, name: 'packet-buffering', valueInt: 0));
+        gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
+        gsyVideoPlayerController.setOptionModelList(options);
+      }
       gsyVideoPlayerController.setCurrentPlayer(getVideoPlayerType(videoPlayerIndex));
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
-      gsyVideoPlayerController.setNetWorkBuilder(datasource, mapHeadData: headers);
+      gsyVideoPlayerController.setNetWorkBuilder(datasource, mapHeadData: headers, cacheWithPlay: false);
       gsyVideoPlayerController.addEventsListener((VideoEventType event) {
         if (gsyVideoPlayerController.value.initialized) {
           if (event == VideoEventType.onListenerError) {

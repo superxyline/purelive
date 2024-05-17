@@ -2,7 +2,6 @@ import 'widgets/index.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:pure_live/plugins/screen_device.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
@@ -34,7 +33,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
           title: Obx(() => controller.getVideoSuccess.value
               ? Row(children: [
                   CircleAvatar(
-                    foregroundImage: controller.detail.value == null && controller.detail.value!.avatar == null
+                    foregroundImage: controller.detail.value == null && controller.detail.value!.avatar!.isEmpty
                         ? null
                         : NetworkImage(controller.detail.value!.avatar!),
                     radius: 13,
@@ -128,48 +127,10 @@ class LivePlayPage extends GetWidget<LivePlayController> {
             )
           ],
         ),
-        body: FutureBuilder(
-          future: ScreenDevice.getDeviceType(),
-          builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
-            if (snapshot.data == Device.phone || snapshot.data == Device.pad) {
-              return OrientationBuilder(builder: (context, orientation) {
-                return orientation == Orientation.portrait
-                    ? Column(
-                        children: <Widget>[
-                          buildVideoPlayer(),
-                          const ResolutionsRow(),
-                          const Divider(height: 1),
-                          Expanded(
-                            child: DanmakuListView(
-                              key: controller.danmakuViewKey,
-                              room: controller.detail.value!,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Row(children: <Widget>[
-                        Flexible(
-                          flex: 5,
-                          child: buildVideoPlayer(),
-                        ),
-                        Flexible(
-                          flex: 3,
-                          child: Column(children: [
-                            const ResolutionsRow(),
-                            const Divider(height: 1),
-                            Expanded(
-                              child: DanmakuListView(
-                                key: controller.danmakuViewKey,
-                                room: controller.detail.value!,
-                              ),
-                            ),
-                          ]),
-                        ),
-                      ]);
-              });
-            }
+        body: Builder(
+          builder: (BuildContext context) {
             return LayoutBuilder(builder: (context, constraint) {
-              final width = constraint.maxWidth;
+              final width = Get.width;
               return SafeArea(
                 child: width <= 680
                     ? Column(

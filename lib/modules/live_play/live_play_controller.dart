@@ -414,7 +414,7 @@ class LivePlayController extends StateController {
     try {
       var playQualites = await currentSite.liveSite.getPlayQualites(detail: detail.value!);
       if (playQualites.isEmpty) {
-        SmartDialog.showToast("无法读取视频信息,请按确定键重新获取", displayTime: const Duration(seconds: 2));
+        SmartDialog.showToast("无法读取视频信息,请重新获取", displayTime: const Duration(seconds: 2));
         getVideoSuccess.value = false;
         isFirstLoad.value = false;
         success.value = false;
@@ -439,7 +439,7 @@ class LivePlayController extends StateController {
       isFirstLoad.value = false;
       getPlayUrl();
     } catch (e) {
-      SmartDialog.showToast("无法读取视频信息,请按确定键重新获取");
+      SmartDialog.showToast("无法读取视频信息,请重新获取");
       getVideoSuccess.value = false;
       isFirstLoad.value = false;
       success.value = false;
@@ -450,7 +450,7 @@ class LivePlayController extends StateController {
     var playUrl =
         await currentSite.liveSite.getPlayUrls(detail: detail.value!, quality: qualites[currentQuality.value]);
     if (playUrl.isEmpty) {
-      SmartDialog.showToast("无法读取播放地址,请按确定键重新获取", displayTime: const Duration(seconds: 2));
+      SmartDialog.showToast("无法读取播放地址,请重新获取", displayTime: const Duration(seconds: 2));
       getVideoSuccess.value = false;
       isFirstLoad.value = false;
       success.value = false;

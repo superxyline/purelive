@@ -1,0 +1,2 @@
+-keep class tv.danmaku.ijk.** { *; }
+-keep class com.shuyu.gsyvideoplayer.** { *; }

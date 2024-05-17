@@ -108,7 +108,6 @@ dependencies:
   flutter_restart: 
     git: https://github.com/liuchuancong/flutterRestartPluginWip.git
   move_to_desktop: ^0.0.2
-  device_info_plus: ^10.1.0
   dlna_dart: ^0.0.8
   dart_tars_protocol:
     git: https://github.com/xiaoyaocz/dart_tars_protocol.git
