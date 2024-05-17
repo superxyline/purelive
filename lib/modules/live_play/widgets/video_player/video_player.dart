@@ -85,6 +85,10 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
         playerView: Stack(
           children: [
             GsyVideoPlayer(
+              alignment: Alignment.center,
+              fit: widget.controller.videoFit.value,
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
               controller: widget.controller.gsyVideoPlayerController,
             ),
             _buildVideoPanel(),

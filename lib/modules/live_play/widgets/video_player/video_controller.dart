@@ -28,7 +28,7 @@ class VideoController with ChangeNotifier {
   final Map<String, String> headers;
   final isVertical = false.obs;
   final videoFitIndex = 0.obs;
-
+  final videoFit = BoxFit.contain.obs;
   final mediaPlayerControllerInitialized = false.obs;
 
   ScreenBrightness brightnessController = ScreenBrightness();
@@ -138,6 +138,7 @@ class VideoController with ChangeNotifier {
     required this.currentQuality,
   }) {
     videoFitIndex.value = settings.videoFitIndex.value;
+    videoFit.value = settings.videofitArrary[videoFitIndex.value];
     hideDanmaku.value = settings.hideDanmaku.value;
     danmakuArea.value = settings.danmakuArea.value;
     danmakuSpeed.value = settings.danmakuSpeed.value;
@@ -199,26 +200,11 @@ class VideoController with ChangeNotifier {
       });
       mediaPlayerControllerInitialized.value = true;
     } else if (Platform.isAndroid || Platform.isIOS) {
-      if (videoPlayerIndex == 2) {
-        List<IjkOption> options = [];
-        options.add(IjkOption(category: IjkCategory.player, name: 'enable-accurate-seek', valueInt: 1));
-        options.add(IjkOption(category: IjkCategory.player, name: 'framedrop', valueInt: 50));
-        options.add(IjkOption(
-            category: IjkCategory.format, name: 'protocol_whitelist', value: 'crypto,file,http,https,tcp,tls,udp'));
-        options.add(IjkOption(category: IjkCategory.format, name: 'allowed_extensions', value: 'ALL'));
-        options.add(IjkOption(category: IjkCategory.format, name: 'rtsp_transport', value: 'tcp'));
-        if (enableCodec) {
-          options.add(IjkOption(category: IjkCategory.player, name: 'mediacodec', valueInt: 1));
-          options.add(IjkOption(category: IjkCategory.player, name: 'videotoolbox', valueInt: 0));
-        } else {
-          options.add(IjkOption(category: IjkCategory.player, name: 'mediacodec', valueInt: 0));
-          options.add(IjkOption(category: IjkCategory.player, name: 'videotoolbox', valueInt: 1));
-        }
-        options.add(IjkOption(category: IjkCategory.player, name: 'packet-buffering', valueInt: 0));
-        gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
-        gsyVideoPlayerController.setOptionModelList(options);
-      }
       gsyVideoPlayerController.setCurrentPlayer(getVideoPlayerType(videoPlayerIndex));
+      if (videoPlayerIndex == 2) {
+        gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
+      }
+      gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
       gsyVideoPlayerController.setNetWorkBuilder(datasource, mapHeadData: headers, cacheWithPlay: false);
@@ -228,9 +214,7 @@ class VideoController with ChangeNotifier {
             hasError.value = true;
             isPlaying.value = false;
           } else {
-            if (isPlaying.value != gsyVideoPlayerController.value.isPlaying) {
-              isPlaying.value = gsyVideoPlayerController.value.isPlaying;
-            }
+            isPlaying.value = gsyVideoPlayerController.value.isPlaying;
           }
         }
       });
@@ -414,17 +398,13 @@ class VideoController with ChangeNotifier {
     notifyListeners();
   }
 
-  void setVideoFit(int index) {
-    videoFitIndex.value = index;
+  void setVideoFit(BoxFit fit) {
+    videoFit.value = fit;
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      if (index < settings.videofitArrary.length) {
-        BoxFit fit = settings.videofitArrary[index];
-        key.currentState?.update(fit: fit);
-      }
+      key.currentState?.update(fit: fit);
     } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController.setShowType(getPlayerVideoShowType(index));
+      // gsyVideoPlayerController.setShowType();
     }
-    notifyListeners();
   }
 
   void togglePlayPause() {

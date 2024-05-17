@@ -1,9 +1,6 @@
-library flutter_barrage;
-
+import 'dart:math';
 import 'dart:async';
 import 'dart:collection';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:quiver/collection.dart';
 
@@ -50,16 +47,11 @@ class BarrageWall extends StatefulWidget {
     this.debug = false,
     this.safeBottomHeight = 0,
     this.speedCorrectionInMilliseconds = 3000,
-  })  : controller = controller ??
-            BarrageWallController.withBarrages(bullets,
-                timelineNotifier: timelineNotifier),
+  })  : controller = controller ?? BarrageWallController.withBarrages(bullets, timelineNotifier: timelineNotifier),
         selfCreatedController = controller == null {
     if (controller != null) {
-      this.controller.value = controller.value.size == 0
-          ? BarrageWallValue.fromList(bullets ?? [])
-          : controller.value;
-      this.controller.timelineNotifier =
-          controller.timelineNotifier ?? timelineNotifier;
+      this.controller.value = controller.value.size == 0 ? BarrageWallValue.fromList(bullets ?? []) : controller.value;
+      this.controller.timelineNotifier = controller.timelineNotifier ?? timelineNotifier;
     }
   }
 
@@ -78,11 +70,7 @@ class BulletPos {
   Widget widget;
 
   BulletPos(
-      {required this.id,
-      required this.channel,
-      required this.position,
-      required this.width,
-      required this.widget})
+      {required this.id, required this.channel, required this.position, required this.width, required this.widget})
       : lifetime = DateTime.now().millisecondsSinceEpoch;
 
   updateWith({required double position, double width = 0}) {
@@ -120,8 +108,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
   // 获取屏幕的绘画的实际高
   int _calcSafeHeight(double height) => height.isInfinite
       ? context.size!.height.toInt()
-      : (height - (_controller.safeBottomHeight ?? widget.safeBottomHeight))
-          .toInt();
+      : (height - (_controller.safeBottomHeight ?? widget.safeBottomHeight)).toInt();
 
   /// null means no available channels exists
   int? _nextChannel() {
@@ -135,8 +122,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
     var channel = randomSeed == 0 ? 0 : _random.nextInt(randomSeed);
     var channelCode = 1 << channel;
 
-    while (
-        _usedChannel & channelCode != 0 && _usedChannel ^ _channelMask! != 0) {
+    while (_usedChannel & channelCode != 0 && _usedChannel ^ _channelMask! != 0) {
       times++;
       channel = channel >= _totalChannels! ? 0 : channel + 1;
       channelCode = 1 << channel;
@@ -160,8 +146,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
       var isNotReleased = !_lastBullets[channel]!.released;
       var liveTooLong =
           false; // now - _lastBullets[channel].lifetime > widget.speed * 2 * 1000 + widget.speedCorrectionInMilliseconds;
-      if (liveTooLong ||
-          (isNotReleased && _lastBullets[channel]!.hasExtraSpace)) {
+      if (liveTooLong || (isNotReleased && _lastBullets[channel]!.hasExtraSpace)) {
         _lastBullets[channel]!.released = true;
         _usedChannel &= _channelMask! ^ 1 << channel;
       }
@@ -195,13 +180,9 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
         continue;
       }
 
-      final showTimeInMilliseconds =
-          widget.speed * 2 * 1000 - _speedCorrectionForChannels[nextChannel];
-      animationController = AnimationController(
-          duration: Duration(milliseconds: showTimeInMilliseconds),
-          vsync: this);
-      Animation<double> animation = Tween<double>(begin: 0, end: end)
-          .animate(animationController..forward());
+      final showTimeInMilliseconds = widget.speed * 2 * 1000 - _speedCorrectionForChannels[nextChannel];
+      animationController = AnimationController(duration: Duration(milliseconds: showTimeInMilliseconds), vsync: this);
+      Animation<double> animation = Tween<double>(begin: 0, end: end).animate(animationController..forward());
 
       final channelHeightPos = nextChannel * _maxBulletHeight!;
 
@@ -225,10 +206,8 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
               widgetWidth = renderBox!.size.width;
 
               /// 通过计算出的 widget width 在判断弹幕完全移出了可视区域
-              if (widgetWidth > 0 &&
-                  animation.value > (fixedWidth + widgetWidth)) {
-                _lastBullets[nextChannel]
-                    ?.updateWith(position: double.infinity);
+              if (widgetWidth > 0 && animation.value > (fixedWidth + widgetWidth)) {
+                _lastBullets[nextChannel]?.updateWith(position: double.infinity);
                 return const SizedBox();
               }
             }
@@ -238,8 +217,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
 //              '${_lastBullets[nextChannel]?.id} == ${context.hashCode} $child pos: ${animation.value}');
           // 【通道不为空】或者【通道的最后元素】之后出现了可以新增的元素
           if (!_lastBullets.containsKey(nextChannel) ||
-              (_lastBullets.containsKey(nextChannel) &&
-                  _lastBullets[nextChannel]!.position > animation.value)) {
+              (_lastBullets.containsKey(nextChannel) && _lastBullets[nextChannel]!.position > animation.value)) {
             _lastBullets[nextChannel] = BulletPos(
                 id: context.hashCode,
                 channel: nextChannel,
@@ -249,8 +227,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
 //            debugPrint('add ${_lastBullets[nextChannel]} - ${context.hashCode}');
           } else if (_lastBullets[nextChannel]!.id == context.hashCode) {
             // 当前元素是最后元素，更新相关信息
-            _lastBullets[nextChannel]
-                ?.updateWith(position: animation.value, width: widgetWidth);
+            _lastBullets[nextChannel]?.updateWith(position: animation.value, width: widgetWidth);
           } // 其他情况直接更新页面元素
 
           final widthPos = fixedWidth - animation.value;
@@ -278,8 +255,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
         return;
       }
 
-      if (_totalChannels == null ||
-          (_totalChannels != null && _lastHeight != _height)) {
+      if (_totalChannels == null || (_totalChannels != null && _lastHeight != _height)) {
         _lastHeight = _height;
         _maxBulletHeight = widget.maxBulletHeight;
         // 整除
@@ -288,9 +264,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
 
         List<int>.generate(_totalChannels! + 1, (i) {
           _speedCorrectionForChannels.add(
-              widget.speedCorrectionInMilliseconds > 0
-                  ? _random.nextInt(widget.speedCorrectionInMilliseconds)
-                  : 0);
+              widget.speedCorrectionInMilliseconds > 0 ? _random.nextInt(widget.speedCorrectionInMilliseconds) : 0);
           return 0;
         });
       }
@@ -300,7 +274,9 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
         bullets: _controller.value.waitingList,
         width: _width!,
       );
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -311,7 +287,9 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
 
     _controller.addListener(handleBullets);
     _controller.enabledNotifier.addListener(() {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
 
     _cleaner = Timer.periodic(const Duration(milliseconds: 100), (timer) {
@@ -352,8 +330,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                       Text('BarrageWallValue: ${_controller.value}'),
-                      Text(
-                          'TimelineNotifier: ${_controller.timelineNotifier?.value}'),
+                      Text('TimelineNotifier: ${_controller.timelineNotifier?.value}'),
                       Text('Timeline: ${_controller.timeline}'),
                       Text('Bullets: ${_widgets.length}'),
                       Text('UsedChannels: ${_usedChannel.toRadixString(2)}'),
@@ -387,11 +364,7 @@ class HashList<T> {
       if (_map.containsKey(key)) {
         _map[key]!.add(value);
       } else {
-        _map.putIfAbsent(
-            key,
-            () => TreeSet<T>(
-                comparator: comparator ?? (dynamic a, b) => a.compareTo(b))
-              ..add(value));
+        _map.putIfAbsent(key, () => TreeSet<T>(comparator: comparator ?? (dynamic a, b) => a.compareTo(b))..add(value));
       }
     }
   }
@@ -408,9 +381,8 @@ class BarrageValue {
 
   BarrageValue({this.timeline = -1, this.isPlaying = false});
 
-  BarrageValue copyWith({int? timeline, bool? isPlaying}) => BarrageValue(
-      timeline: timeline ?? this.timeline,
-      isPlaying: isPlaying ?? this.isPlaying);
+  BarrageValue copyWith({int? timeline, bool? isPlaying}) =>
+      BarrageValue(timeline: timeline ?? this.timeline, isPlaying: isPlaying ?? this.isPlaying);
 
   @override
   String toString() {
@@ -426,10 +398,8 @@ class BarrageWallValue {
 
   final HashList<Bullet> bullets;
 
-  BarrageWallValue.fromList(List<Bullet> bullets,
-      {this.showedTimeBefore = 0, this.waitingList = const []})
-      : bullets = HashList<Bullet>(
-            keyCalculator: (t) => Duration(milliseconds: t.showTime).inMinutes)
+  BarrageWallValue.fromList(List<Bullet> bullets, {this.showedTimeBefore = 0, this.waitingList = const []})
+      : bullets = HashList<Bullet>(keyCalculator: (t) => Duration(milliseconds: t.showTime).inMinutes)
           ..appendByMinutes(bullets),
         size = bullets.length,
         processedSize = 0;
@@ -476,16 +446,14 @@ class BarrageWallController extends ValueNotifier<BarrageWallValue> {
   BarrageWallController({List<Bullet>? bullets, this.timelineNotifier})
       : super(BarrageWallValue.fromList(bullets ?? const []));
 
-  BarrageWallController.withBarrages(List<Bullet>? bullets,
-      {this.timelineNotifier})
+  BarrageWallController.withBarrages(List<Bullet>? bullets, {this.timelineNotifier})
       : super(BarrageWallValue.fromList(bullets ?? const []));
 
   Future<void> initialize() async {
     final Completer<void> initializingCompleter = Completer<void>();
 
     if (timelineNotifier == null) {
-      _timer = Timer.periodic(const Duration(milliseconds: 100),
-          (Timer timer) async {
+      _timer = Timer.periodic(const Duration(milliseconds: 100), (Timer timer) async {
         if (_isDisposed) {
           timer.cancel();
           return;
@@ -510,8 +478,7 @@ class BarrageWallController extends ValueNotifier<BarrageWallValue> {
 
   /// reset the controller to new time state
   void reset(int showedTimeBefore) {
-    value = value.copyWith(
-        showedTimeBefore: showedTimeBefore, waitingList: [], processedSize: 0);
+    value = value.copyWith(showedTimeBefore: showedTimeBefore, waitingList: [], processedSize: 0);
   }
 
   void _handleTimelineNotifier() {
@@ -531,9 +498,7 @@ class BarrageWallController extends ValueNotifier<BarrageWallValue> {
 
     if (exists || bullets.isNotEmpty) {
       List<Bullet> toBePrecessed = value.bullets._map[key]
-              ?.where((barrage) =>
-                  barrage.showTime > value.showedTimeBefore &&
-                  barrage.showTime <= timeline)
+              ?.where((barrage) => barrage.showTime > value.showedTimeBefore && barrage.showTime <= timeline)
               .toList() ??
           [];
 

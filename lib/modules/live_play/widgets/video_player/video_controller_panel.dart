@@ -923,19 +923,18 @@ class VideoFitSetting extends StatefulWidget {
 }
 
 class _VideoFitSettingState extends State<VideoFitSetting> {
-  final fitmodes = [
-    "默认",
-    "16:9",
-    "4:3",
-    "全屏裁减",
-    "全屏拉伸",
-    "18:9",
-  ];
-
+  late final fitmodes = {
+    S.of(context).videofit_contain: BoxFit.contain,
+    S.of(context).videofit_fill: BoxFit.fill,
+    S.of(context).videofit_cover: BoxFit.cover,
+    S.of(context).videofit_fitwidth: BoxFit.fitWidth,
+    S.of(context).videofit_fitheight: BoxFit.fitHeight,
+  };
+  late int fitIndex = fitmodes.values.toList().indexWhere((e) => e == widget.controller.videoFit.value);
   @override
   Widget build(BuildContext context) {
     final Color color = Theme.of(context).colorScheme.primary.withOpacity(0.8);
-    final isSelected = [false, false, false, false, false, false];
+    final isSelected = [false, false, false, false, false];
     int fitIndex = widget.controller.videoFitIndex.value;
     isSelected[fitIndex] = true;
     return Column(
@@ -961,10 +960,10 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
             onPressed: (index) {
               setState(() {
                 fitIndex = index;
-                widget.controller.setVideoFit(index);
+                widget.controller.setVideoFit(fitmodes.values.toList()[index]);
               });
             },
-            children: fitmodes
+            children: fitmodes.keys
                 .map<Widget>((e) => Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(e,
