@@ -73,6 +73,9 @@ class VideoController with ChangeNotifier {
 
   // Video player control
   GsyVideoPlayerController gsyVideoPlayerController = GsyVideoPlayerController();
+
+  late ChewieController chewieController;
+
   final playerRefresh = false.obs;
 
   GlobalKey<BrightnessVolumnDargAreaState> brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
@@ -200,9 +203,44 @@ class VideoController with ChangeNotifier {
       });
       mediaPlayerControllerInitialized.value = true;
     } else if (Platform.isAndroid || Platform.isIOS) {
+      chewieController = ChewieController(
+        videoPlayerController: gsyVideoPlayerController,
+        autoPlay: true,
+        looping: false,
+        draggableProgressBar: false,
+        overlay: VideoControllerPanel(
+          controller: this,
+        ),
+        showControls: false,
+        useRootNavigator: true,
+        showOptions: false,
+      );
       gsyVideoPlayerController.setCurrentPlayer(getVideoPlayerType(videoPlayerIndex));
       if (videoPlayerIndex == 2) {
         gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
+
+        List<IjkOption> ijkOptions = [];
+        ijkOptions.add(IjkOption(
+          category: IjkCategory.format,
+          name: "allowed_media_types",
+          value: "video",
+        ));
+        ijkOptions.add(IjkOption(
+          category: IjkCategory.format,
+          name: "buffer_size",
+          valueInt: 1316,
+        ));
+        ijkOptions.add(IjkOption(
+          category: IjkCategory.player,
+          name: "packet-buffering",
+          valueInt: 0,
+        ));
+        ijkOptions.add(IjkOption(
+          category: IjkCategory.player,
+          name: "framedrop",
+          valueInt: 1,
+        ));
+        gsyVideoPlayerController.setOptionModelList(ijkOptions);
       }
       gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
@@ -372,6 +410,10 @@ class VideoController with ChangeNotifier {
         }
         player.dispose();
       } else {
+        if (chewieController.isFullScreen) {
+          chewieController.exitFullScreen();
+        }
+        chewieController.dispose();
         gsyVideoPlayerController.dispose();
       }
     } else {
@@ -429,7 +471,7 @@ class VideoController with ChangeNotifier {
       } else {
         if (isFullscreen.value) {
           isVertical.value = false;
-          gsyVideoPlayerController.onExitFullScreen();
+          chewieController.exitFullScreen();
         }
       }
 
@@ -494,21 +536,8 @@ class VideoController with ChangeNotifier {
       }
       isFullscreen.toggle();
     } else {
-      if (isFullscreen.value) {
-        isVertical.value = false;
-        gsyVideoPlayerController.onExitFullScreen();
-      } else {
-        isVertical.value = true;
-        gsyVideoPlayerController.onEnterFullScreen();
-      }
-      Timer(const Duration(milliseconds: 400), () {
-        isFullscreen.toggle();
-        // fix immersion status bar problem
-        if (Platform.isAndroid) {
-          SystemChrome.setEnabledSystemUIMode(
-              !isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky);
-        }
-      });
+      chewieController.toggleFullScreen();
+      isFullscreen.toggle();
     }
     refreshView();
   }

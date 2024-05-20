@@ -103,6 +103,7 @@ class LivePlayController extends StateController {
     }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
     if (!doubleExit) {
+      videoController!.destory();
       return Future.value(true);
     }
     int nowExitTime = DateTime.now().millisecondsSinceEpoch;
@@ -112,6 +113,7 @@ class LivePlayController extends StateController {
       videoController?.isFullscreen.value = false;
       return await Future.value(false);
     }
+    videoController!.destory();
     return await Future.value(true);
   }
 

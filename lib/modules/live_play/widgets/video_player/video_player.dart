@@ -73,27 +73,8 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
               ),
             ));
     } else {
-      return GsyPlayerVideoFullScreen(
-        controller: widget.controller.gsyVideoPlayerController,
-        routePageBuilder: (context, animation, second, controllerProvider) => AnimatedBuilder(
-          animation: animation,
-          builder: (context, child) => GsyEnterFullScreen(
-            controller: widget.controller.gsyVideoPlayerController,
-            controllerProvider: controllerProvider,
-          ),
-        ),
-        playerView: Stack(
-          children: [
-            GsyVideoPlayer(
-              alignment: Alignment.center,
-              fit: widget.controller.videoFit.value,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              controller: widget.controller.gsyVideoPlayerController,
-            ),
-            _buildVideoPanel(),
-          ],
-        ),
+      return Chewie(
+        controller: widget.controller.chewieController,
       );
     }
   }
