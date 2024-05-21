@@ -215,7 +215,7 @@ class VideoController with ChangeNotifier {
         useRootNavigator: true,
         showOptions: false,
       );
-      gsyVideoPlayerController.setCurrentPlayer(getVideoPlayerType(videoPlayerIndex));
+      gsyVideoPlayerController.setPlayerFactory(getVideoPlayerType(videoPlayerIndex));
       if (videoPlayerIndex == 2) {
         gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
 
@@ -224,16 +224,6 @@ class VideoController with ChangeNotifier {
           category: IjkCategory.format,
           name: "allowed_media_types",
           value: "video",
-        ));
-        ijkOptions.add(IjkOption(
-          category: IjkCategory.format,
-          name: "buffer_size",
-          valueInt: 1316,
-        ));
-        ijkOptions.add(IjkOption(
-          category: IjkCategory.player,
-          name: "packet-buffering",
-          valueInt: 0,
         ));
         ijkOptions.add(IjkOption(
           category: IjkCategory.player,
@@ -248,7 +238,7 @@ class VideoController with ChangeNotifier {
       gsyVideoPlayerController.setNetWorkBuilder(datasource, mapHeadData: headers, cacheWithPlay: false);
       gsyVideoPlayerController.addEventsListener((VideoEventType event) {
         if (gsyVideoPlayerController.value.initialized) {
-          if (event == VideoEventType.onListenerError) {
+          if (event == VideoEventType.onError) {
             hasError.value = true;
             isPlaying.value = false;
           } else {
