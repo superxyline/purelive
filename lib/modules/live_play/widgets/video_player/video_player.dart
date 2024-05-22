@@ -18,30 +18,12 @@ class VideoPlayer extends StatefulWidget {
   State<VideoPlayer> createState() => _VideoPlayerState();
 }
 
-class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
+class _VideoPlayerState extends State<VideoPlayer> {
   bool hasRender = false;
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
       controller: widget.controller,
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void didChangeDependencies() {
-    if (!widget.controller.initialized.value) {
-      final navigator = Navigator.of(context);
-      setState(() {
-        widget.controller.navigatorState = navigator;
-      });
-      widget.controller.initialized.value = true;
-    }
-    super.didChangeDependencies();
   }
 
   @override
@@ -77,11 +59,5 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
         controller: widget.controller.chewieController,
       );
     }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 }

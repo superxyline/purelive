@@ -960,6 +960,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
             onPressed: (index) {
               setState(() {
                 fitIndex = index;
+                widget.controller.videoFitIndex.value = index;
                 widget.controller.setVideoFit(fitmodes.values.toList()[index]);
               });
             },
