@@ -228,16 +228,6 @@ class VideoController with ChangeNotifier {
           value: "video",
         ));
         ijkOptions.add(IjkOption(
-          category: IjkCategory.format,
-          name: "buffer_size",
-          valueInt: 1316,
-        ));
-        ijkOptions.add(IjkOption(
-          category: IjkCategory.player,
-          name: "packet-buffering",
-          valueInt: 0,
-        ));
-        ijkOptions.add(IjkOption(
           category: IjkCategory.player,
           name: "framedrop",
           valueInt: 1,
