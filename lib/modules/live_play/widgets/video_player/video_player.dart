@@ -18,30 +18,11 @@ class VideoPlayer extends StatefulWidget {
   State<VideoPlayer> createState() => _VideoPlayerState();
 }
 
-class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
-  bool hasRender = false;
+class _VideoPlayerState extends State<VideoPlayer> {
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
       controller: widget.controller,
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void didChangeDependencies() {
-    if (!widget.controller.initialized.value) {
-      final navigator = Navigator.of(context);
-      setState(() {
-        widget.controller.navigatorState = navigator;
-      });
-      widget.controller.initialized.value = true;
-    }
-    super.didChangeDependencies();
   }
 
   @override
@@ -73,15 +54,32 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
               ),
             ));
     } else {
-      return Chewie(
-        controller: widget.controller.chewieController,
+      return Obx(
+        () => widget.controller.mediaPlayerControllerInitialized.value
+            ? Chewie(
+                controller: widget.controller.chewieController,
+              )
+            : Card(
+                elevation: 0,
+                margin: const EdgeInsets.all(0),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                clipBehavior: Clip.antiAlias,
+                color: Get.theme.focusColor,
+                child: CachedNetworkImage(
+                  cacheManager: CustomCacheManager.instance,
+                  imageUrl: widget.controller.room.cover!,
+                  fit: BoxFit.fill,
+                  errorWidget: (context, error, stackTrace) => const Center(
+                    child: Icon(Icons.live_tv_rounded, size: 48),
+                  ),
+                ),
+              ),
       );
     }
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }

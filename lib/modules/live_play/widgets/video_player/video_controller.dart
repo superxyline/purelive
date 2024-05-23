@@ -98,7 +98,7 @@ class VideoController with ChangeNotifier {
   late NavigatorState navigatorState;
 
   ///Flag which determines if widget has initialized
-  final initialized = false.obs;
+
   Timer? showControllerTimer;
   final showController = true.obs;
   final showSettting = false.obs;
@@ -243,6 +243,7 @@ class VideoController with ChangeNotifier {
             isPlaying.value = false;
           } else {
             isPlaying.value = gsyVideoPlayerController.value.isPlaying;
+            mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
           }
         }
       });
