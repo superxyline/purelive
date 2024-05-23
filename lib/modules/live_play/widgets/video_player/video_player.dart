@@ -19,6 +19,7 @@ class VideoPlayer extends StatefulWidget {
 }
 
 class _VideoPlayerState extends State<VideoPlayer> {
+  bool hasRender = false;
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
       controller: widget.controller,
@@ -76,10 +77,5 @@ class _VideoPlayerState extends State<VideoPlayer> {
               ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
