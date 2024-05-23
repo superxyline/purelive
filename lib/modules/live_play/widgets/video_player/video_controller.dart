@@ -190,6 +190,9 @@ class VideoController with ChangeNotifier {
       setDataSource(datasource);
       mediaPlayerController.player.stream.playing.listen((bool playing) {
         if (playing) {
+          if (!mediaPlayerControllerInitialized.value) {
+            mediaPlayerControllerInitialized.value = true;
+          }
           isPlaying.value = true;
         } else {
           isPlaying.value = false;
@@ -202,22 +205,18 @@ class VideoController with ChangeNotifier {
           SmartDialog.showToast("无法播放视频");
         }
       });
-      mediaPlayerControllerInitialized.value = true;
     } else if (Platform.isAndroid || Platform.isIOS) {
       chewieController = ChewieController(
-        videoPlayerController: gsyVideoPlayerController,
-        autoPlay: false,
-        looping: false,
-        draggableProgressBar: false,
-        aspectRatio: gsyVideoPlayerController.value.aspectRatio,
-        overlay: VideoControllerPanel(
-          controller: this,
-        ),
-        showControls: false,
-        useRootNavigator: true,
-        showOptions: false,
-        fullScreenByDefault: fullScreenByDefault,
-      );
+          videoPlayerController: gsyVideoPlayerController,
+          autoPlay: false,
+          looping: false,
+          draggableProgressBar: false,
+          overlay: VideoControllerPanel(
+            controller: this,
+          ),
+          showControls: false,
+          useRootNavigator: true,
+          showOptions: false);
       gsyVideoPlayerController.setPlayerFactory(getVideoPlayerType(videoPlayerIndex));
       if (videoPlayerIndex == 2) {
         gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
@@ -280,10 +279,13 @@ class VideoController with ChangeNotifier {
         isActivePause.value = false;
       }
     });
-    // fix auto fullscreen
-    if (fullScreenByDefault && datasource.isNotEmpty) {
-      Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
-    }
+
+    mediaPlayerControllerInitialized.listen((value) {
+      // fix auto fullscreen
+      if (fullScreenByDefault && datasource.isNotEmpty && value) {
+        Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
+      }
+    });
   }
 
   void debounceListen(Function? func, [int delay = 1000]) {
