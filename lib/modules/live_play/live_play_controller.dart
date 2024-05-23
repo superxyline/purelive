@@ -57,6 +57,8 @@ class LivePlayController extends StateController {
   /// 当前线路
   final currentLineIndex = 0.obs;
 
+  int loopCount = 0;
+
   int lastExitTime = 0;
 
   /// 双击退出Flag
@@ -73,8 +75,6 @@ class LivePlayController extends StateController {
   var currentPlayRoom = LiveRoom().obs;
 
   var getVideoSuccess = true.obs;
-
-  var currentChannelIndex = 0.obs;
 
   var lastChannelIndex = 0.obs;
 
@@ -129,11 +129,10 @@ class LivePlayController extends StateController {
 
     currentPlayRoom.value = room;
     onInitPlayerState();
-
     isFirstLoad.listen((p0) {
       if (isFirstLoad.value) {
         loadTimeOut.value = true;
-        Timer(const Duration(seconds: 5), () {
+        Timer(const Duration(seconds: 8), () {
           isFirstLoad.value = false;
           loadTimeOut.value = false;
           Timer(const Duration(seconds: 5), () {
@@ -182,57 +181,14 @@ class LivePlayController extends StateController {
     isFirstLoad.value = true;
     getVideoSuccess.value = true;
     loadTimeOut.value = true;
-    Timer(const Duration(milliseconds: 200), () {
-      if (lastChannelIndex.value == currentChannelIndex.value) {
-        resetPlayerState();
-      }
+    Timer(const Duration(milliseconds: 500), () {
+      onInitPlayerState();
     });
-  }
-
-  Future<LiveRoom> resetPlayerState({
-    ReloadDataType reloadDataType = ReloadDataType.refreash,
-    int line = 0,
-    int currentQuality = 0,
-  }) async {
-    channelTimer?.cancel();
-    handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, quality: currentQuality);
-    var liveRoom = await currentSite.liveSite.getRoomDetail(
-      roomId: currentPlayRoom.value.roomId!,
-      platform: currentPlayRoom.value.platform!,
-      title: currentPlayRoom.value.title!,
-      nick: currentPlayRoom.value.nick!,
-    );
-    detail.value = liveRoom;
-    if (liveRoom.liveStatus == LiveStatus.unknown) {
-      SmartDialog.showToast("获取直播间信息失败,请按确定建重新获取", displayTime: const Duration(seconds: 2));
-      getVideoSuccess.value = false;
-      return liveRoom;
-    }
-
-    liveStatus.value = liveRoom.status! || liveRoom.isRecord!;
-    if (liveStatus.value) {
-      getPlayQualites();
-      getVideoSuccess.value = true;
-      if (currentPlayRoom.value.platform == Sites.iptvSite) {
-        settings.addRoomToHistory(currentPlayRoom.value);
-      } else {
-        settings.addRoomToHistory(liveRoom);
-      }
-      // start danmaku server
-      List<String> except = ['kuaishou', 'iptv', 'cc'];
-      if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {
-        initDanmau();
-        liveDanmaku.start(liveRoom.danmakuData);
-      }
-    }
-
-    return liveRoom;
   }
 
   Future<LiveRoom> onInitPlayerState({
     ReloadDataType reloadDataType = ReloadDataType.refreash,
     int line = 0,
-    int currentQuality = 0,
     bool active = false,
   }) async {
     isActive.value = active;
@@ -243,22 +199,21 @@ class LivePlayController extends StateController {
       title: currentPlayRoom.value.title!,
       nick: currentPlayRoom.value.nick!,
     );
-    isLastLine.value = calcIsLastLine(reloadDataType, line) && reloadDataType == ReloadDataType.changeLine;
+    isLastLine.value = calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
     if (isLastLine.value) {
       hasError.value = true;
     } else {
       hasError.value = false;
     }
     // active 代表用户是否手动切换路线 只有不是手动自动切换才会显示路线错误信息
-
     if (isLastLine.value && hasError.value && active == false) {
-      disPoserPlayer();
       restoryQualityAndLines();
       getVideoSuccess.value = false;
       isFirstLoad.value = false;
+      success.value = false;
       return liveRoom;
     } else {
-      handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, quality: currentQuality);
+      handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, active: active);
       detail.value = liveRoom;
       if (liveRoom.liveStatus == LiveStatus.unknown) {
         SmartDialog.showToast("获取直播间信息失败,请按确定建重新获取", displayTime: const Duration(seconds: 2));
@@ -267,6 +222,7 @@ class LivePlayController extends StateController {
         return liveRoom;
       }
 
+      // 开始播放
       liveStatus.value = liveRoom.status! || liveRoom.isRecord!;
       if (liveStatus.value) {
         getPlayQualites();
@@ -294,7 +250,7 @@ class LivePlayController extends StateController {
     }
   }
 
-  bool calcIsLastLine(ReloadDataType reloadDataType, int line) {
+  bool calcIsLastLine(int line) {
     var lastLine = line + 1;
     if (playUrls.isEmpty) {
       return true;
@@ -319,30 +275,16 @@ class LivePlayController extends StateController {
   handleCurrentLineAndQuality({
     ReloadDataType reloadDataType = ReloadDataType.refreash,
     int line = 0,
-    int quality = 0,
+    bool active = false,
   }) {
-    disPoserPlayer();
-    try {
-      if (reloadDataType == ReloadDataType.refreash) {
-        restoryQualityAndLines();
-      } else if (reloadDataType == ReloadDataType.changeLine) {
-        if (line == playUrls.length - 1) {
-          currentLineIndex.value = 0;
-        } else {
-          currentLineIndex.value = currentLineIndex.value + 1;
-        }
-        isFirstLoad.value = false;
-      } else if (reloadDataType == ReloadDataType.changeQuality) {
-        if (quality == qualites.length - 1) {
-          currentQuality.value = 0;
-        } else {
-          currentQuality.value = currentQuality.value + 1;
-        }
-        isFirstLoad.value = false;
+    if (reloadDataType == ReloadDataType.changeLine && active == false) {
+      if (line == playUrls.length - 1) {
+        currentLineIndex.value = 0;
+      } else {
+        currentLineIndex.value = currentLineIndex.value + 1;
       }
-    } catch (e) {
-      restoryQualityAndLines();
-      SmartDialog.showToast("切换线路失败", displayTime: const Duration(seconds: 2));
+      loopCount++;
+      isFirstLoad.value = false;
     }
   }
 
@@ -350,6 +292,7 @@ class LivePlayController extends StateController {
     playUrls.value = [];
     currentLineIndex.value = 0;
     qualites.value = [];
+    loopCount = 0;
     currentQuality.value = 0;
   }
 
@@ -417,7 +360,6 @@ class LivePlayController extends StateController {
     onInitPlayerState(
       reloadDataType: ReloadDataType.changeLine,
       line: currentLineIndex.value,
-      currentQuality: currentQuality.value,
       active: true,
     );
   }

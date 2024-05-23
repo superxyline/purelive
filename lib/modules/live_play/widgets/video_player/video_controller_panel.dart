@@ -268,7 +268,7 @@ class TopActionBar extends StatelessWidget {
               const DatetimeInfo(),
               BatteryInfo(controller: controller),
             ],
-            if (!controller.fullscreenUI && controller.supportPip && controller.videoPlayerIndex == 0)
+            if (!controller.fullscreenUI && controller.supportPip && controller.videoPlayerIndex != 4)
               PIPButton(controller: controller),
           ]),
         ),

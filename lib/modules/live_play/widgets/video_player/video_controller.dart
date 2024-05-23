@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';
@@ -108,6 +109,8 @@ class VideoController with ChangeNotifier {
   double volume = 0.0;
 
   Timer? _debounceTimer;
+
+  Timer? videoRefreshTimer;
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
@@ -207,43 +210,50 @@ class VideoController with ChangeNotifier {
       });
     } else if (Platform.isAndroid || Platform.isIOS) {
       chewieController = ChewieController(
-          videoPlayerController: gsyVideoPlayerController,
-          autoPlay: false,
-          looping: false,
-          draggableProgressBar: false,
-          overlay: VideoControllerPanel(
-            controller: this,
-          ),
-          showControls: false,
-          useRootNavigator: true,
-          showOptions: false);
+        videoPlayerController: gsyVideoPlayerController,
+        autoPlay: false,
+        looping: false,
+        draggableProgressBar: false,
+        overlay: VideoControllerPanel(
+          controller: this,
+        ),
+        showControls: false,
+        useRootNavigator: true,
+        showOptions: false,
+      );
       gsyVideoPlayerController.setPlayerFactory(getVideoPlayerType(videoPlayerIndex));
-      if (videoPlayerIndex == 2) {
-        gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
-      }
       gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
-      gsyVideoPlayerController.setNetWorkBuilder(datasource, mapHeadData: headers, cacheWithPlay: false);
+      gsyVideoPlayerController.setNetWorkBuilder(datasource,
+          mapHeadData: headers, cacheWithPlay: false, useDefaultIjkOptions: true);
       gsyVideoPlayerController.addEventsListener((VideoEventType event) {
-        if (gsyVideoPlayerController.value.initialized) {
-          if (event == VideoEventType.onError) {
-            hasError.value = true;
-            isPlaying.value = false;
-          } else {
-            mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
-            if (mediaPlayerControllerInitialized.value) {
-              isPlaying.value = gsyVideoPlayerController.value.isPlaying;
-            }
+        if (event == VideoEventType.onError) {
+          hasError.value = true;
+          isPlaying.value = false;
+          log('video error ${gsyVideoPlayerController.value.what}', name: 'video_player');
+        } else {
+          mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
+          if (mediaPlayerControllerInitialized.value) {
+            isPlaying.value = gsyVideoPlayerController.value.isPlaying;
           }
         }
+      });
+
+      videoRefreshTimer?.cancel();
+      videoRefreshTimer = Timer(const Duration(seconds: 8), () {
+        if (isPlaying.value == false) {
+          SmartDialog.showToast("系统监测视频已停止播放,正在为您刷新视频");
+          changeLine();
+        }
+        videoRefreshTimer?.cancel();
       });
     }
     debounce(hasError, (callback) {
       if (hasError.value && !livePlayController.isLastLine.value) {
         changeLine();
       }
-    }, time: const Duration(seconds: 5));
+    }, time: const Duration(seconds: 2));
 
     showController.listen((p0) {
       if (showController.value) {
@@ -368,15 +378,8 @@ class VideoController with ChangeNotifier {
     livePlayController.onInitPlayerState(
       reloadDataType: ReloadDataType.changeLine,
       line: currentLineIndex,
-      currentQuality: currentQuality,
       active: active,
     );
-  }
-
-  void changeQuality() async {
-    await destory();
-    livePlayController.onInitPlayerState(
-        reloadDataType: ReloadDataType.changeQuality, line: currentLineIndex, currentQuality: currentQuality);
   }
 
   destory() async {
@@ -386,6 +389,7 @@ class VideoController with ChangeNotifier {
     hasError.value = false;
     livePlayController.success.value = false;
     hasDestory = true;
+    videoRefreshTimer?.cancel();
     if (allowScreenKeepOn) WakelockPlus.disable();
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetScreenBrightness();
@@ -560,7 +564,11 @@ class VideoController with ChangeNotifier {
   }
 
   void enterPipMode(BuildContext context) async {
-    if ((Platform.isAndroid || Platform.isIOS)) {}
+    if ((Platform.isAndroid || Platform.isIOS)) {
+      if (videoPlayerIndex != 4) {
+        await gsyVideoPlayerController.enablePictureInPicture();
+      }
+    }
   }
 
   // volumn & brightness
