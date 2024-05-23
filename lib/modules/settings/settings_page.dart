@@ -60,6 +60,13 @@ class SettingsPage extends GetView<SettingsService> {
           ),
           SectionTitle(title: S.of(context).video),
           Obx(() => SwitchListTile(
+                title: Text(S.of(context).enable_background_play),
+                subtitle: Text(S.of(context).enable_background_play_subtitle),
+                value: controller.enableBackgroundPlay.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
+              )),
+          Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_screen_keep_on),
                 subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
                 value: controller.enableScreenKeepOn.value,

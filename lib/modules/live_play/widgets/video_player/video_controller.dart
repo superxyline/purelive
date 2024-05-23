@@ -72,7 +72,8 @@ class VideoController with ChangeNotifier {
   late media_kit_video.VideoController mediaPlayerController;
 
   // Video player control
-  GsyVideoPlayerController gsyVideoPlayerController = GsyVideoPlayerController();
+  late GsyVideoPlayerController gsyVideoPlayerController =
+      GsyVideoPlayerController(allowBackgroundPlayback: allowBackgroundPlay);
 
   late ChewieController chewieController;
 
@@ -220,19 +221,6 @@ class VideoController with ChangeNotifier {
       gsyVideoPlayerController.setPlayerFactory(getVideoPlayerType(videoPlayerIndex));
       if (videoPlayerIndex == 2) {
         gsyVideoPlayerController.setLogLevel(LogLevel.logSilent);
-
-        List<IjkOption> ijkOptions = [];
-        ijkOptions.add(IjkOption(
-          category: IjkCategory.format,
-          name: "allowed_media_types",
-          value: "video",
-        ));
-        ijkOptions.add(IjkOption(
-          category: IjkCategory.player,
-          name: "framedrop",
-          valueInt: 1,
-        ));
-        gsyVideoPlayerController.setOptionModelList(ijkOptions);
       }
       gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
@@ -244,8 +232,10 @@ class VideoController with ChangeNotifier {
             hasError.value = true;
             isPlaying.value = false;
           } else {
-            isPlaying.value = gsyVideoPlayerController.value.isPlaying;
             mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
+            if (mediaPlayerControllerInitialized.value) {
+              isPlaying.value = gsyVideoPlayerController.value.isPlaying;
+            }
           }
         }
       });
@@ -439,7 +429,6 @@ class VideoController with ChangeNotifier {
       key.currentState?.update(fit: fit);
     } else if (Platform.isAndroid || Platform.isIOS) {
       gsyVideoPlayerController.setBoxFit(fit);
-      print('setVideoFit $fit');
     }
   }
 
@@ -457,8 +446,8 @@ class VideoController with ChangeNotifier {
 
   exitFullScreen() {
     if (Platform.isAndroid) {
-      isFullscreen.value = false;
       if (videoPlayerIndex == 4) {
+        isFullscreen.value = false;
         if (key.currentState?.isFullscreen() ?? false) {
           key.currentState?.exitFullscreen();
         }
@@ -466,9 +455,9 @@ class VideoController with ChangeNotifier {
         if (isFullscreen.value) {
           isVertical.value = false;
           gsyVideoPlayerController.exitFullScreen();
+          isFullscreen.value = false;
         }
       }
-
       showSettting.value = false;
     }
   }
@@ -522,16 +511,15 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
+    isFullscreen.toggle();
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       if (isFullscreen.value) {
         key.currentState?.exitFullscreen();
       } else {
         key.currentState?.enterFullscreen();
       }
-      isFullscreen.toggle();
     } else {
       gsyVideoPlayerController.toggleFullScreen();
-      isFullscreen.toggle();
     }
     refreshView();
   }

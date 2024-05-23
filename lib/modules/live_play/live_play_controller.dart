@@ -110,7 +110,6 @@ class LivePlayController extends StateController {
     if (nowExitTime - lastExitTime > 1000) {
       lastExitTime = nowExitTime;
       SmartDialog.showToast(S.current.double_click_to_exit);
-      videoController?.isFullscreen.value = false;
       return await Future.value(false);
     }
     videoController!.destory();
@@ -326,7 +325,19 @@ class LivePlayController extends StateController {
     try {
       if (reloadDataType == ReloadDataType.refreash) {
         restoryQualityAndLines();
-      } else {
+      } else if (reloadDataType == ReloadDataType.changeLine) {
+        if (line == playUrls.length - 1) {
+          currentLineIndex.value = 0;
+        } else {
+          currentLineIndex.value = currentLineIndex.value + 1;
+        }
+        isFirstLoad.value = false;
+      } else if (reloadDataType == ReloadDataType.changeQuality) {
+        if (quality == qualites.length - 1) {
+          currentQuality.value = 0;
+        } else {
+          currentQuality.value = currentQuality.value + 1;
+        }
         isFirstLoad.value = false;
       }
     } catch (e) {
@@ -483,6 +494,7 @@ class LivePlayController extends StateController {
       datasourceType: 'network',
       datasource: playUrls.value[currentLineIndex.value],
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
+      allowBackgroundPlay: settings.enableBackgroundPlay.value,
       fullScreenByDefault: settings.enableFullScreenDefault.value,
       autoPlay: true,
       headers: headers,
