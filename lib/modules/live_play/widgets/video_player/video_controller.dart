@@ -233,6 +233,9 @@ class VideoController with ChangeNotifier {
           isPlaying.value = false;
           log('video error ${gsyVideoPlayerController.value.what}', name: 'video_player');
         } else {
+          if (event == VideoEventType.startWindowFullscreen) {
+            gsyVideoPlayerController.setOrientationRotateWithSystem(true);
+          }
           mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
           if (mediaPlayerControllerInitialized.value) {
             isPlaying.value = gsyVideoPlayerController.value.isPlaying;
@@ -478,7 +481,7 @@ class VideoController with ChangeNotifier {
         DeviceOrientation.landscapeRight,
       ]);
     } else {
-      SystemChrome.setEnabledSystemUIMode(!isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
@@ -490,7 +493,6 @@ class VideoController with ChangeNotifier {
   /// 设置竖屏
   Future setPortraitOrientation() async {
     isVertical.value = true;
-    isFullscreen.value = false;
     if (videoPlayerIndex == 4) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
