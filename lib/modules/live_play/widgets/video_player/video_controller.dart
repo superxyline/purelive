@@ -568,6 +568,7 @@ class VideoController with ChangeNotifier {
   void enterPipMode(BuildContext context) async {
     if ((Platform.isAndroid || Platform.isIOS)) {
       if (videoPlayerIndex != 4) {
+        showController.value = false;
         await gsyVideoPlayerController.enablePictureInPicture();
       }
     }

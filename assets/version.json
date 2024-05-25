@@ -1,7 +1,7 @@
 {
   "version": "1.6.9",
   "version_num": 10506,
-  "version_desc": "-Fix:修复播放器",
+  "version_desc": "-Fix:优化视频播放.\n-Feature: 添加更多播放器支持.\n如获取失败以及快手直播间无法访问,请尝试更换网络环境或稍后重试。",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
