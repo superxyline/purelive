@@ -529,10 +529,10 @@ class BarrageWallController extends ValueNotifier<BarrageWallValue> {
   Future<void> dispose() async {
     if (!_isDisposed) {
       _timer?.cancel();
+      timelineNotifier?.dispose();
+      enabledNotifier.dispose();
     }
     _isDisposed = true;
-    timelineNotifier?.dispose();
-    enabledNotifier.dispose();
     super.dispose();
   }
 }

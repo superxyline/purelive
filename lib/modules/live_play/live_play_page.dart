@@ -170,7 +170,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
           },
         ),
         floatingActionButton: Obx(() => controller.getVideoSuccess.value
-            ? FavoriteFloatingButton(room: controller.detail.value!)
+            ? FavoriteFloatingButton(room: controller.currentPlayRoom.value)
             : FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
       ),
     );

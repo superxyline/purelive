@@ -153,16 +153,11 @@ class LivePlayController extends StateController {
     isLastLine.listen((p0) {
       if (isLastLine.value && hasError.value && isActive.value == false) {
         // 刷新到了最后一路线 并且有错误
-        SmartDialog.showToast("当前房间无法播放,正在为您每10秒刷新直播间信息...", displayTime: const Duration(seconds: 2));
-        Timer(const Duration(seconds: 1), () {
-          loadRefreshRoomTimer?.cancel();
-          loadRefreshRoomTimer = Timer(const Duration(seconds: 10), () {
-            isLastLine.value = false;
-            isFirstLoad.value = true;
-            restoryQualityAndLines();
-            resetRoom(Sites.of(currentPlayRoom.value.platform!), currentPlayRoom.value.roomId!);
-          });
-        });
+        SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...", displayTime: const Duration(seconds: 2));
+        isLastLine.value = false;
+        isFirstLoad.value = true;
+        restoryQualityAndLines();
+        resetRoom(Sites.of(currentPlayRoom.value.platform!), currentPlayRoom.value.roomId!);
       } else {
         if (success.value) {
           isActive.value = false;
@@ -176,12 +171,16 @@ class LivePlayController extends StateController {
   void resetRoom(Site site, String roomId) async {
     success.value = false;
     hasError.value = false;
-    await videoController?.destory();
-    videoController = null;
+    if (videoController != null && !videoController!.hasDestory) {
+      await videoController?.destory();
+      videoController = null;
+    }
+
     isFirstLoad.value = true;
-    getVideoSuccess.value = true;
-    loadTimeOut.value = true;
-    Timer(const Duration(milliseconds: 500), () {
+    getVideoSuccess.value = false;
+    loadTimeOut.value = false;
+    Timer(const Duration(milliseconds: 1000), () {
+      log('resetRoom', name: 'LivePlayController');
       onInitPlayerState();
     });
   }
@@ -216,7 +215,7 @@ class LivePlayController extends StateController {
       handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, active: active);
       detail.value = liveRoom;
       if (liveRoom.liveStatus == LiveStatus.unknown) {
-        SmartDialog.showToast("获取直播间信息失败,请按确定建重新获取", displayTime: const Duration(seconds: 2));
+        SmartDialog.showToast("获取直播间信息失败,请按重新获取", displayTime: const Duration(seconds: 2));
         getVideoSuccess.value = false;
         isFirstLoad.value = false;
         return liveRoom;
