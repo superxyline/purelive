@@ -128,7 +128,7 @@ class LivePlayController extends StateController {
     // 发现房间ID 会变化 使用静态列表ID 对比
 
     currentPlayRoom.value = room;
-    onInitPlayerState();
+    onInitPlayerState(firstLoad: true);
     isFirstLoad.listen((p0) {
       if (isFirstLoad.value) {
         loadTimeOut.value = true;
@@ -181,7 +181,7 @@ class LivePlayController extends StateController {
     loadTimeOut.value = false;
     Timer(const Duration(milliseconds: 1000), () {
       log('resetRoom', name: 'LivePlayController');
-      onInitPlayerState();
+      onInitPlayerState(firstLoad: true);
     });
   }
 
@@ -189,9 +189,10 @@ class LivePlayController extends StateController {
     ReloadDataType reloadDataType = ReloadDataType.refreash,
     int line = 0,
     bool active = false,
+    bool firstLoad = false,
   }) async {
     isActive.value = active;
-    isFirstLoad.value = true;
+    isFirstLoad.value = firstLoad;
     var liveRoom = await currentSite.liveSite.getRoomDetail(
       roomId: currentPlayRoom.value.roomId!,
       platform: currentPlayRoom.value.platform!,
@@ -224,7 +225,7 @@ class LivePlayController extends StateController {
       // 开始播放
       liveStatus.value = liveRoom.status! || liveRoom.isRecord!;
       if (liveStatus.value) {
-        getPlayQualites();
+        await getPlayQualites();
         getVideoSuccess.value = true;
         if (currentPlayRoom.value.platform == Sites.iptvSite) {
           settings.addRoomToHistory(currentPlayRoom.value);
@@ -354,17 +355,19 @@ class LivePlayController extends StateController {
     if (videoController != null && videoController!.hasDestory == false) {
       videoController!.destory();
     }
+
     currentQuality.value = qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
     onInitPlayerState(
       reloadDataType: ReloadDataType.changeLine,
       line: currentLineIndex.value,
       active: true,
+      firstLoad: false,
     );
   }
 
   /// 初始化播放器
-  void getPlayQualites() async {
+  Future<void> getPlayQualites() async {
     try {
       var playQualites = await currentSite.liveSite.getPlayQualites(detail: detail.value!);
       if (playQualites.isEmpty) {
@@ -400,7 +403,7 @@ class LivePlayController extends StateController {
     }
   }
 
-  void getPlayUrl() async {
+  Future<void> getPlayUrl() async {
     var playUrl =
         await currentSite.liveSite.getPlayUrls(detail: detail.value!, quality: qualites[currentQuality.value]);
     if (playUrl.isEmpty) {

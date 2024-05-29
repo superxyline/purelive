@@ -218,6 +218,7 @@ class VideoController with ChangeNotifier {
         showControls: false,
         useRootNavigator: true,
         showOptions: false,
+        rotateWithSystem: settings.enableRotateScreenWithSystem.value,
       );
       gsyVideoPlayerController.setPlayerFactory(getVideoPlayerType(videoPlayerIndex));
       gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);

@@ -75,7 +75,7 @@ class ToolBoxController extends GetxController {
                   textAlign: TextAlign.center,
                 ),
                 onTap: () {
-                  Get.back(result: e);
+                  Navigator.of(Get.context!).pop(e);
                 },
               ),
             )
@@ -102,7 +102,7 @@ class ToolBoxController extends GetxController {
                 ),
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: e));
-                  Get.back();
+                  Navigator.of(Get.context!).pop();
                   SmartDialog.showToast("已复制直链");
                 },
               ),
