@@ -109,7 +109,6 @@ class VideoController with ChangeNotifier {
 
   Timer? _debounceTimer;
 
-  Timer? videoRefreshTimer;
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
@@ -204,7 +203,6 @@ class VideoController with ChangeNotifier {
         if (event.toString().contains('Failed to open')) {
           hasError.value = true;
           isPlaying.value = false;
-          SmartDialog.showToast("无法播放视频");
         }
       });
     } else if (Platform.isAndroid || Platform.isIOS) {
@@ -221,39 +219,34 @@ class VideoController with ChangeNotifier {
         showControls: false,
         useRootNavigator: true,
         showOptions: false,
+        rotateWithSystem: settings.enableRotateScreenWithSystem.value,
       );
       gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
+      gsyVideoPlayerController.setTimeOut(4000);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
-      gsyVideoPlayerController.setNetWorkBuilder(datasource,
-          mapHeadData: headers, cacheWithPlay: false, useDefaultIjkOptions: true);
+      gsyVideoPlayerController.setNetWorkBuilder(
+        datasource,
+        mapHeadData: headers,
+        cacheWithPlay: false,
+        useDefaultIjkOptions: true,
+      );
       gsyVideoPlayerController.addEventsListener((VideoEventType event) {
         if (event == VideoEventType.onError) {
           hasError.value = true;
           isPlaying.value = false;
           log('video error ${gsyVideoPlayerController.value.what}', name: 'video_player');
         } else {
-          if (event == VideoEventType.startWindowFullscreen) {
-            gsyVideoPlayerController.setOrientationRotateWithSystem(true);
-          }
           mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
           if (mediaPlayerControllerInitialized.value) {
             isPlaying.value = gsyVideoPlayerController.value.isPlaying;
           }
         }
       });
-
-      videoRefreshTimer?.cancel();
-      videoRefreshTimer = Timer(const Duration(seconds: 8), () {
-        if (isPlaying.value == false) {
-          SmartDialog.showToast("系统监测视频已停止播放,正在为您刷新视频");
-          changeLine();
-        }
-        videoRefreshTimer?.cancel();
-      });
     }
     debounce(hasError, (callback) {
       if (hasError.value && !livePlayController.isLastLine.value) {
+        SmartDialog.showToast("视频播放失败,正在为您切换线路");
         changeLine();
       }
     }, time: const Duration(seconds: 2));
@@ -392,7 +385,6 @@ class VideoController with ChangeNotifier {
     hasError.value = false;
     livePlayController.success.value = false;
     hasDestory = true;
-    videoRefreshTimer?.cancel();
     if (allowScreenKeepOn) WakelockPlus.disable();
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetScreenBrightness();
@@ -519,14 +511,15 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
-    isFullscreen.toggle();
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       if (isFullscreen.value) {
         key.currentState?.exitFullscreen();
       } else {
         key.currentState?.enterFullscreen();
       }
+      isFullscreen.toggle();
     } else {
+      isFullscreen.toggle();
       gsyVideoPlayerController.toggleFullScreen();
     }
     refreshView();

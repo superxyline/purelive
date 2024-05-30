@@ -66,6 +66,14 @@ class SettingsPage extends GetView<SettingsService> {
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
               )),
+          if (Platform.isAndroid)
+            Obx(() => SwitchListTile(
+                  title: const Text("自动旋转屏幕"),
+                  subtitle: const Text("当全屏播放时,会自动旋转屏幕"),
+                  value: controller.enableRotateScreenWithSystem.value,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (bool value) => controller.enableRotateScreenWithSystem.value = value,
+                )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_screen_keep_on),
                 subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
