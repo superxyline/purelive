@@ -73,8 +73,7 @@ class VideoController with ChangeNotifier {
   late media_kit_video.VideoController mediaPlayerController;
 
   // Video player control
-  late GsyVideoPlayerController gsyVideoPlayerController =
-      GsyVideoPlayerController(allowBackgroundPlayback: allowBackgroundPlay);
+  late GsyVideoPlayerController gsyVideoPlayerController;
 
   late ChewieController chewieController;
 
@@ -209,6 +208,8 @@ class VideoController with ChangeNotifier {
         }
       });
     } else if (Platform.isAndroid || Platform.isIOS) {
+      gsyVideoPlayerController = GsyVideoPlayerController(
+          allowBackgroundPlayback: allowBackgroundPlay, player: getVideoPlayerType(videoPlayerIndex));
       chewieController = ChewieController(
         videoPlayerController: gsyVideoPlayerController,
         autoPlay: false,
@@ -221,7 +222,6 @@ class VideoController with ChangeNotifier {
         useRootNavigator: true,
         showOptions: false,
       );
-      gsyVideoPlayerController.setPlayerFactory(getVideoPlayerType(videoPlayerIndex));
       gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);

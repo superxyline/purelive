@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "¥ø¥‚÷±≤•"
-#define MyAppVersion "1.0.0.59"
+#define MyAppVersion "1.0.0.60"
 #define MyAppPublisher "My Company, Inc."
 #define MyAppExeName "pure_live.exe"
 #define MyAppAssocName MyAppName + " File"
