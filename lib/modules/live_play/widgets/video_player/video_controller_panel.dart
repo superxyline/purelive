@@ -606,7 +606,16 @@ class LockButton extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.only(right: 20.0),
                 child: IconButton(
-                  onPressed: () => controller.showLocked.toggle(),
+                  onPressed: () => {
+                    controller.showLocked.toggle(),
+                    if (Platform.isAndroid)
+                      {
+                        if (controller.showLocked.value)
+                          {controller.chewieController.disableRotation()}
+                        else
+                          {controller.chewieController.enableRotation()}
+                      }
+                  },
                   icon: Icon(
                     controller.showLocked.value ? Icons.lock_rounded : Icons.lock_open_rounded,
                     size: 28,

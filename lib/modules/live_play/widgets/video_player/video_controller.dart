@@ -511,14 +511,15 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
-    isFullscreen.toggle();
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       if (isFullscreen.value) {
         key.currentState?.exitFullscreen();
       } else {
         key.currentState?.enterFullscreen();
       }
+      isFullscreen.toggle();
     } else {
+      isFullscreen.toggle();
       gsyVideoPlayerController.toggleFullScreen();
     }
     refreshView();

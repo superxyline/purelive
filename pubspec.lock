@@ -718,7 +718,7 @@ packages:
       path: "E:\\project\\gsy_video_player"
       relative: false
     source: path
-    version: "0.0.4"
+    version: "0.0.5"
   gtk:
     dependency: transitive
     description:
