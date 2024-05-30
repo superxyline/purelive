@@ -253,7 +253,7 @@ class HuyaSite implements LiveSite {
       }
       return LiveRoom(
         cover: data['liveData']?['screenshot'] ?? '',
-        watching: data['liveData']?['attendeeCount']?.toString() ?? '',
+        watching: data['liveData']?['userCount']?.toString() ?? '',
         roomId: roomId,
         area: data['liveData']?['gameFullName'] ?? '',
         title: data['liveData']?['introduction'] ?? '',
