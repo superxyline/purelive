@@ -135,7 +135,9 @@ class _BackupPageState extends State<BackupPage> {
           ),
           actions: [
             TextButton(
-              onPressed: Get.back,
+              onPressed: () {
+                Navigator.of(Get.context!).pop();
+              },
               child: const Text("取消"),
             ),
             TextButton(
@@ -155,7 +157,7 @@ class _BackupPageState extends State<BackupPage> {
                 }
                 await FileRecoverUtils()
                     .recoverNetworkM3u8Backup(urlEditingController.text, textEditingController.text);
-                Get.back();
+                Navigator.of(Get.context!).pop();
               },
               child: const Text("确定"),
             ),

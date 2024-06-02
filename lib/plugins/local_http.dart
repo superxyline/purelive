@@ -99,9 +99,9 @@ class LocalHttpServer {
           if (currentRoute == '/areas') {
             Get.offAndToNamed(RoutePath.kInitial);
           } else if (currentRoute == RoutePath.kAreaRooms) {
-            Get.back();
+            Navigator.of(Get.context!).pop();
           } else if (currentRoute == '/home') {
-            Get.back();
+            Navigator.of(Get.context!).pop();
           } else if (currentRoute == RoutePath.kLivePlay) {
             final LivePlayController livePlayController = Get.find<LivePlayController>();
             if (livePlayController.videoController != null && livePlayController.videoController!.isFullscreen.value) {
@@ -109,7 +109,7 @@ class LocalHttpServer {
                 livePlayController.videoController!.toggleFullScreen();
               }
             } else {
-              Get.back();
+              Navigator.of(Get.context!).pop();
             }
           }
         } catch (e) {

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:pure_live/routes/route_path.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/base/base_controller.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
@@ -29,7 +29,7 @@ class BiliBiliWebLoginController extends BaseController {
       var cookieStr = cookies.map((e) => "${e.name}=${e.value}").join(";");
       BiliBiliAccountService.instance.setCookie(cookieStr);
       await BiliBiliAccountService.instance.loadUserInfo();
-      Get.back(result: true);
+      Navigator.of(Get.context!).pop(true);
     }
   }
 }

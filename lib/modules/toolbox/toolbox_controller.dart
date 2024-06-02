@@ -15,7 +15,7 @@ class ToolBoxController extends GetxController {
       return;
     }
     var parseResult = await parse(e);
-    if (parseResult.isEmpty && parseResult.first == "") {
+    if (parseResult.isEmpty || parseResult.first == "") {
       SmartDialog.showToast("无法解析此链接");
       return;
     }
@@ -120,6 +120,7 @@ class ToolBoxController extends GetxController {
     final urlRegExp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
+    if (urlMatches.isEmpty) return [];
     String realUrl = urlMatches.first!;
     var id = "";
     realUrl = urlMatches.first!;

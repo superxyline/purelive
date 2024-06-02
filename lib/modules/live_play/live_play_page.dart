@@ -13,10 +13,10 @@ class LivePlayPage extends GetWidget<LivePlayController> {
     try {
       var exit = await controller.onBackPressed();
       if (exit) {
-        Get.back();
+        Navigator.of(Get.context!).pop();
       }
     } catch (e) {
-      Get.back();
+      Navigator.of(Get.context!).pop();
     }
     return true;
   }
@@ -170,7 +170,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
           },
         ),
         floatingActionButton: Obx(() => controller.getVideoSuccess.value
-            ? FavoriteFloatingButton(room: controller.currentPlayRoom.value)
+            ? FavoriteFloatingButton(room: controller.detail.value!)
             : FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
       ),
     );
@@ -337,12 +337,10 @@ class FavoriteFloatingButton extends StatefulWidget {
 }
 
 class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
-  final settings = Get.find<SettingsService>();
-
-  late bool isFavorite = settings.isFavorite(widget.room);
-
   @override
   Widget build(BuildContext context) {
+    final settings = Get.find<SettingsService>();
+    late bool isFavorite = settings.isFavorite(widget.room);
     return isFavorite
         ? FloatingActionButton(
             elevation: 2,
@@ -355,11 +353,15 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                   content: Text(S.of(context).unfollow_message(widget.room.nick!)),
                   actions: [
                     TextButton(
-                      onPressed: () => Get.back(result: false),
+                      onPressed: () {
+                        Navigator.of(Get.context!).pop(false);
+                      },
                       child: Text(S.of(context).cancel),
                     ),
                     ElevatedButton(
-                      onPressed: () => Get.back(result: true),
+                      onPressed: () {
+                        Navigator.of(Get.context!).pop(true);
+                      },
                       child: Text(S.of(context).confirm),
                     ),
                   ],

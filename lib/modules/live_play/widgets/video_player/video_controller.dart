@@ -548,7 +548,7 @@ class VideoController with ChangeNotifier {
               key: UniqueKey(),
             ));
       } else {
-        Get.back();
+        Navigator.of(Get.context!).pop();
       }
       isWindowFullscreen.toggle();
     } else {

@@ -21,7 +21,9 @@ class SearchPage extends GetView<pure_live.SearchController> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
             prefixIcon: IconButton(
-              onPressed: Get.back,
+              onPressed: () {
+                Navigator.of(Get.context!).pop();
+              },
               icon: const Icon(Icons.arrow_back),
             ),
             suffixIcon: IconButton(

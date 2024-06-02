@@ -84,11 +84,11 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
                   content: Text(S.of(context).unfollow_message(widget.area.areaName!)),
                   actions: [
                     TextButton(
-                      onPressed: () => Get.back(result: false),
+                      onPressed: () => Navigator.of(Get.context!).pop(false),
                       child: Text(S.of(context).cancel),
                     ),
                     ElevatedButton(
-                      onPressed: () => Get.back(result: true),
+                      onPressed: () => Navigator.of(Get.context!).pop(true),
                       child: Text(S.of(context).confirm),
                     ),
                   ],
