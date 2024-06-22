@@ -1,7 +1,7 @@
 {
-  "version": "1.7.1",
+  "version": "1.7.2",
   "version_num": 10506,
-  "version_desc": "-Fix:修复mpv全屏.\n-Fix: 修复虎牙直播",
+  "version_desc": "-Fix:修复抖音直播弹幕",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
