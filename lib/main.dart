@@ -92,7 +92,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
     _appLinks = AppLinks();
 
     // Check initial link if app was in cold state (terminated)
-    final appLink = await _appLinks.getInitialAppLink();
+    final appLink = await _appLinks.getInitialLink();
     if (appLink != null) {
       openAppLink(appLink);
     }
