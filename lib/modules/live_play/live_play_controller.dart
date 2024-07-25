@@ -510,6 +510,12 @@ class LivePlayController extends StateController {
   }
 
   @override
+  void onClose() {
+    super.onClose();
+    disPoserPlayer();
+  }
+
+  @override
   void dispose() {
     disPoserPlayer();
     super.dispose();
