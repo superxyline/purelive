@@ -103,7 +103,7 @@ class LivePlayController extends StateController {
     }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
     if (!doubleExit) {
-      videoController!.destory();
+      disPoserPlayer();
       return Future.value(true);
     }
     int nowExitTime = DateTime.now().millisecondsSinceEpoch;
@@ -112,21 +112,15 @@ class LivePlayController extends StateController {
       SmartDialog.showToast(S.current.double_click_to_exit);
       return await Future.value(false);
     }
-    videoController!.destory();
+    disPoserPlayer();
     return await Future.value(true);
   }
 
   @override
-  void onClose() {
-    videoController?.dispose();
-    liveDanmaku.stop();
-    super.onClose();
-  }
-
-  @override
   void onInit() {
+    super.onInit();
     // 发现房间ID 会变化 使用静态列表ID 对比
-
+    log('onInit', name: 'LivePlayController');
     currentPlayRoom.value = room;
     onInitPlayerState(firstLoad: true);
     isFirstLoad.listen((p0) {
@@ -165,7 +159,6 @@ class LivePlayController extends StateController {
         }
       }
     });
-    super.onInit();
   }
 
   void resetRoom(Site site, String roomId) async {
@@ -179,7 +172,7 @@ class LivePlayController extends StateController {
     isFirstLoad.value = true;
     getVideoSuccess.value = false;
     loadTimeOut.value = false;
-    Timer(const Duration(milliseconds: 1000), () {
+    Timer(const Duration(milliseconds: 2000), () {
       log('resetRoom', name: 'LivePlayController');
       onInitPlayerState(firstLoad: true);
     });
@@ -269,7 +262,6 @@ class LivePlayController extends StateController {
     videoController = null;
     liveDanmaku.stop();
     success.value = false;
-    liveDanmaku.stop();
   }
 
   handleCurrentLineAndQuality({
@@ -515,5 +507,11 @@ class LivePlayController extends StateController {
       SmartDialog.showToast("无法打开APP，将使用浏览器打开");
       await launchUrlString(webUrl, mode: LaunchMode.externalApplication);
     }
+  }
+
+  @override
+  void dispose() {
+    disPoserPlayer();
+    super.dispose();
   }
 }

@@ -5,7 +5,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
-class LivePlayPage extends GetWidget<LivePlayController> {
+class LivePlayPage extends GetView<LivePlayController> {
   LivePlayPage({super.key});
 
   final SettingsService settings = Get.find<SettingsService>();

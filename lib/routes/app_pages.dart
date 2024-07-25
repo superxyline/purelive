@@ -110,7 +110,6 @@ class AppPages {
     GetPage(
       name: RoutePath.kLivePlay,
       page: () => LivePlayPage(),
-      preventDuplicates: true,
       bindings: [LivePlayBinding()],
     ),
     //账号设置
