@@ -1,7 +1,7 @@
 {
-  "version": "1.7.3",
+  "version": "1.7.4",
   "version_num": 10507,
-  "version_desc": "-Fix:修复斗鱼分类.\n -Add: Tv添加MPV播放器,VLC播放器. \n -Intro: 如果无法播放请切换播放器后重启App重试即可。",
+  "version_desc": "-Fix:修复Bilibili",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

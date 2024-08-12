@@ -167,7 +167,6 @@ class BiliBiliSite implements LiveSite {
           for (var codecItem in codecList) {
             var urlList = codecItem["url_info"];
             var baseUrl = codecItem["base_url"].toString();
-            print('${streamList}2112211221');
             for (var urlItem in urlList) {
               urls.add(
                 "${urlItem["host"]}$baseUrl${urlItem["extra"]}",
