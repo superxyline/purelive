@@ -63,7 +63,7 @@ dependencies:
   media_kit_video: ^1.2.4                        # For video rendering.
   media_kit_libs_video: ^1.0.4                   # Native video dependencies.
   gsy_video_player: 
-    path: E:/project/gsy_video_player
+    git: https://github.com/liuchuancong/gsy_video_player.git
   share_handler: ^0.0.19
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
@@ -94,8 +94,7 @@ dependencies:
   shared_preferences: ^2.2.2
   flutter_cache_manager: ^3.3.1
   # utils
-  get: 
-    git: https://github.com/jonataslaw/getx
+  get: 5.0.0-release-candidate-6
   intl: ^0.19.0
   timezone: ^0.9.3
   date_format: ^2.0.7
@@ -171,20 +170,20 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/keystore/
-    - assets/pure_live_web/
+    - assets/keystore/supabase.json
+    # - assets/pure_live_web/
     - assets/js/webmssdk.js
-    - assets/pure_live_web/assets/
-    - assets/pure_live_web/assets/assets/icons/
-    - assets/pure_live_web/assets/assets/images/
-    - assets/pure_live_web/assets/fonts/
-    - assets/pure_live_web/assets/packages/flex_color_picker/assets/
-    - assets/pure_live_web/assets/packages/flutter_js/assets/js/
-    - assets/pure_live_web/assets/packages/font_awesome_flutter/lib/fonts/
-    - assets/pure_live_web/assets/shaders/
-    - assets/pure_live_web/canvaskit/
-    - assets/pure_live_web/canvaskit/chromium/
-    - assets/pure_live_web/icons/
+    # - assets/pure_live_web/assets/
+    # - assets/pure_live_web/assets/assets/icons/
+    # - assets/pure_live_web/assets/assets/images/
+    # - assets/pure_live_web/assets/fonts/
+    # - assets/pure_live_web/assets/packages/flex_color_picker/assets/
+    # - assets/pure_live_web/assets/packages/flutter_js/assets/js/
+    # - assets/pure_live_web/assets/packages/font_awesome_flutter/lib/fonts/
+    # - assets/pure_live_web/assets/shaders/
+    # - assets/pure_live_web/canvaskit/
+    # - assets/pure_live_web/canvaskit/chromium/
+    # - assets/pure_live_web/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -214,13 +213,13 @@ flutter_intl:
   output_dir: lib/common/l10n/generated
 
 # windows msix package
-msix_config:
-  display_name: 纯粹直播
-  # publisher_display_name: puretech.com
-  # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.65
-  logo_path: assets/icons/icon.png
-  # capabilities: internetClient
-  certificate_path: assets/keystore/CERTIFICATE.pfx
-  certificate_password: xxxx
-  # publisher: O=puretech.com, C=CN
+# msix_config:
+#   display_name: 纯粹直播
+#   # publisher_display_name: puretech.com
+#   # identity_name: com.puretech.purelive
+#   msix_version: 1.0.0.65
+#   logo_path: assets/icons/icon.png
+#   # capabilities: internetClient
+#   certificate_path: assets/keystore/CERTIFICATE.pfx
+#   certificate_password: xxxx
+#   # publisher: O=puretech.com, C=CN

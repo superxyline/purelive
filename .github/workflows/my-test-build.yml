@@ -36,8 +36,8 @@ jobs:
         #   - platform: android-tv
         #     os: ubuntu-latest
 
-          - platform: ios
-            os: macos-latest
+        #   - platform: ios
+            # os: macos-latest
 
           - platform: windows
             os: windows-latest
@@ -46,10 +46,10 @@ jobs:
           - platform: linux
             os: ubuntu-latest
             arch: amd64
-            
-          - platform: macos
-            os: macos-13
-            arch: amd64
+
+        #   - platform: macos
+        #     os: macos-13
+        #     arch: amd64
 
           # - platform: macos
             # os: macos-latest
@@ -71,7 +71,6 @@ jobs:
       - name: Show Projcect Path
         run: |
            echo "projcect_path:  ${{ env.projcect_path }}"
-
 
       - name: Set android env var
         if: startsWith(matrix.platform,'android')
@@ -124,6 +123,14 @@ jobs:
         with:
           submodules: recursive
 
+    #   - name: replace
+    #     run: |
+    #         cd ${{ env.projcect_path }}
+    #         sed -i '/path: E:/d' pubspec.yaml
+    #         sed -i 's/gsy_video_player:/gsy_video_player: ^0.0.5/g' pubspec.yaml
+
+    #         cat -n pubspec.yaml
+
       - name: Setup JAVA
         if: startsWith(matrix.platform,'android')
         uses: actions/setup-java@v4
@@ -168,7 +175,7 @@ jobs:
         with:
           flutter-version: 3.22.x
           channel: 'stable'
-          cache: true
+          cache: "true"
 
       # 打开MAC Desktop支持
       - name: Enable Flutter MAC Desktop
@@ -205,7 +212,9 @@ jobs:
         if: startsWith(matrix.platform,'android')
         run: |
           cd ${{ env.projcect_path }}
-          flutter build apk --release --split-per-abi
+          # flutter build apk --release --split-per-abi
+          # flutter_distributor package --platform android --target apk --flutter-build-args split-per-abi --build-target-platform arm,arm64,x64  --skip-clean
+          flutter_distributor package --platform android --target apk --flutter-build-args split-per-abi --build-target-platform android-arm,android-arm64,android-x64  --skip-clean
 
       - name: Rename Android TV APK Name
         if: startsWith(matrix.platform,'android-tv')
@@ -219,7 +228,8 @@ jobs:
         if: startsWith(matrix.platform,'ios')
         run: |
           cd ${{ env.projcect_path }}
-          flutter build ios --release --no-codesign
+          # flutter build ios --release --no-codesign
+          flutter_distributor package --platform ios --skip-clean  --no-codesign
 
       #创建未签名ipa
       - name: Create IPA
@@ -243,7 +253,9 @@ jobs:
       - name: Install Linux Dependencies
         if: startsWith(matrix.platform,'linux')
         run: |
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libmpv-dev mpv
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libmpv-dev mpv libasound2-dev
+#          sudo apt-get install -y --only-upgrade libasound2-dev
       # 打包 Linux ZIP\DMG
       - name: Build Linux
         if: startsWith(matrix.platform,'linux')
@@ -251,12 +263,19 @@ jobs:
           cd ${{ env.projcect_path }}
           flutter_distributor package --platform linux --targets deb,zip --skip-clean
 
+      # build Windows inno_setup
+      - name: Setup Windows inno-setup Languages
+        if: startsWith(matrix.platform,'windows')
+        run: |
+          git clone https://github.com/maotoumao/inno-setup-action-cli.git inno-setup-action-cli --depth 1
+          xcopy /y inno-setup-action-cli\src\Languages "C:\Program Files (x86)\Inno Setup 6\Languages"
+
       # build Windows ZIP\MSIX
       - name: Build Windows
         if: startsWith(matrix.platform,'windows')
         run: |
           cd ${{ env.projcect_path }}
-          flutter_distributor package --platform windows --targets msix,zip --skip-clean
+          flutter_distributor package --platform windows --targets exe,msix,zip --skip-clean
 
 
       # 打包文件 至 Artifacts
@@ -274,6 +293,15 @@ jobs:
             ${{ env.projcect_path }}/build/*/*/*.deb
             ${{ env.projcect_path }}/build/*/*/*.msix
             ${{ env.projcect_path }}/build/*/*/*.exe
+
+            ${{ env.projcect_path }}/dist/*/*.apk
+            ${{ env.projcect_path }}/dist/*/*.ipa
+            ${{ env.projcect_path }}/dist/*/*.dmg
+            ${{ env.projcect_path }}/dist/*/*.zip
+            ${{ env.projcect_path }}/dist/*/*.deb
+            ${{ env.projcect_path }}/dist/*/*.msix
+            ${{ env.projcect_path }}/dist/*/*.exe
+            ${{ env.projcect_path }}/dist/*/*.zip
 
 
   upload-release:
@@ -305,7 +333,7 @@ jobs:
         id: version
         uses: juliangruber/read-file-action@v1
         with:
-          path: assets/app_version.json
+          path: assets/version.json
       - name: Echo version
         run: echo "${{ fromJson(steps.version.outputs.content).version }}"
       - name: Echo version content
