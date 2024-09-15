@@ -9,6 +9,9 @@ class LivePlayQuality {
 
   final int sort;
 
+  /// 播放链接
+  List<String> playUrlList = List.empty();
+
   LivePlayQuality({
     required this.quality,
     required this.data,

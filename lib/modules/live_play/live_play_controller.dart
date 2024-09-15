@@ -1,24 +1,28 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:math' as math;
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'widgets/video_player/video_controller.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import 'package:pure_live/model/live_play_quality.dart';
-import 'package:pure_live/core/danmaku/huya_danmaku.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
+import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
+import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
+import 'package:pure_live/modules/live_play/load_type.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+
+import 'widgets/video_player/video_controller.dart';
 
 class LivePlayController extends StateController {
   LivePlayController({
     required this.room,
     required this.site,
   });
+
   final String site;
 
   late final Site currentSite = Sites.of(site);
@@ -69,6 +73,7 @@ class LivePlayController extends StateController {
   Timer? doubleClickTimer;
 
   var isFirstLoad = true.obs;
+
   // 0 代表向上 1 代表向下
   int isNextOrPrev = 0;
 
@@ -84,12 +89,14 @@ class LivePlayController extends StateController {
   Timer? loadRefreshRoomTimer;
 
   Timer? networkTimer;
+
   // 切换线路会添加到这个数组里面
   var isLastLine = false.obs;
 
   var hasError = false.obs;
 
   var loadTimeOut = true.obs;
+
   // 是否是手动切换线路
   var isActive = false.obs;
 
@@ -148,11 +155,13 @@ class LivePlayController extends StateController {
     isLastLine.listen((p0) {
       if (isLastLine.value && hasError.value && isActive.value == false) {
         // 刷新到了最后一路线 并且有错误
-        SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...", displayTime: const Duration(seconds: 2));
+        SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...",
+            displayTime: const Duration(seconds: 2));
         isLastLine.value = false;
         isFirstLoad.value = true;
         restoryQualityAndLines();
-        resetRoom(Sites.of(currentPlayRoom.value.platform!), currentPlayRoom.value.roomId!);
+        resetRoom(Sites.of(currentPlayRoom.value.platform!),
+            currentPlayRoom.value.roomId!);
       } else {
         if (success.value) {
           isActive.value = false;
@@ -187,13 +196,18 @@ class LivePlayController extends StateController {
   }) async {
     isActive.value = active;
     isFirstLoad.value = firstLoad;
-    var liveRoom = await currentSite.liveSite.getRoomDetail(
-      roomId: currentPlayRoom.value.roomId!,
-      platform: currentPlayRoom.value.platform!,
-      title: currentPlayRoom.value.title!,
-      nick: currentPlayRoom.value.nick!,
-    );
-    isLastLine.value = calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
+    var liveRoom = currentPlayRoom.value;
+    // 只有第一次需要重新配置信息
+    if (isFirstLoad.value) {
+      liveRoom = await currentSite.liveSite.getRoomDetail(
+        roomId: currentPlayRoom.value.roomId!,
+        platform: currentPlayRoom.value.platform!,
+        title: currentPlayRoom.value.title!,
+        nick: currentPlayRoom.value.nick!,
+      );
+    }
+    isLastLine.value =
+        calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
     if (isLastLine.value) {
       hasError.value = true;
     } else {
@@ -207,10 +221,12 @@ class LivePlayController extends StateController {
       success.value = false;
       return liveRoom;
     } else {
-      handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, active: active);
+      handleCurrentLineAndQuality(
+          reloadDataType: reloadDataType, line: line, active: active);
       detail.value = liveRoom;
       if (liveRoom.liveStatus == LiveStatus.unknown) {
-        SmartDialog.showToast("获取直播间信息失败,请按重新获取", displayTime: const Duration(seconds: 2));
+        SmartDialog.showToast("获取直播间信息失败,请按重新获取",
+            displayTime: const Duration(seconds: 2));
         getVideoSuccess.value = false;
         isFirstLoad.value = false;
         return liveRoom;
@@ -228,7 +244,10 @@ class LivePlayController extends StateController {
         }
         // start danmaku server
         List<String> except = ['kuaishou', 'iptv', 'cc'];
-        if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {
+        // 重新刷新才重新加载弹幕
+        if (firstLoad &&
+            except.indexWhere((element) => element == liveRoom.platform!) ==
+                -1) {
           initDanmau();
           liveDanmaku.start(liveRoom.danmakuData);
         }
@@ -236,7 +255,8 @@ class LivePlayController extends StateController {
         isFirstLoad.value = false;
         success.value = false;
         getVideoSuccess.value = true;
-        SmartDialog.showToast("当前主播未开播或主播已下播", displayTime: const Duration(seconds: 2));
+        SmartDialog.showToast("当前主播未开播或主播已下播",
+            displayTime: const Duration(seconds: 2));
         restoryQualityAndLines();
       }
 
@@ -311,11 +331,13 @@ class LivePlayController extends StateController {
     );
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
-        if (settings.shieldList.every((element) => !msg.message.contains(element))) {
+        if (settings.shieldList
+            .every((element) => !msg.message.contains(element))) {
           if (!DanmuMerge().isRepeat(msg.message)) {
             DanmuMerge().add(msg.message);
             messages.add(msg);
-            if (videoController != null && videoController!.hasDestory == false) {
+            if (videoController != null &&
+                videoController!.hasDestory == false) {
               videoController?.sendDanmaku(msg);
             }
           }
@@ -349,7 +371,8 @@ class LivePlayController extends StateController {
       videoController!.destory();
     }
 
-    currentQuality.value = qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
+    currentQuality.value =
+        qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
     onInitPlayerState(
       reloadDataType: ReloadDataType.changeLine,
@@ -362,9 +385,14 @@ class LivePlayController extends StateController {
   /// 初始化播放器
   Future<void> getPlayQualites() async {
     try {
-      var playQualites = await currentSite.liveSite.getPlayQualites(detail: detail.value!);
+      var playQualites = qualites.value;
+      if (isFirstLoad.value) {
+        playQualites =
+            await currentSite.liveSite.getPlayQualites(detail: detail.value!);
+      }
       if (playQualites.isEmpty) {
-        SmartDialog.showToast("无法读取视频信息,请重新获取", displayTime: const Duration(seconds: 2));
+        SmartDialog.showToast("无法读取视频信息,请重新获取",
+            displayTime: const Duration(seconds: 2));
         getVideoSuccess.value = false;
         isFirstLoad.value = false;
         success.value = false;
@@ -373,19 +401,19 @@ class LivePlayController extends StateController {
       qualites.value = playQualites;
       // 第一次加载 使用系统默认线路
       if (isFirstLoad.value) {
-        int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
+        int qualityLevel =
+            settings.resolutionsList.indexOf(settings.preferResolution.value);
         qualityLevel = math.max(0, qualityLevel);
         qualityLevel = math.min(playQualites.length - 1, qualityLevel);
 
         // fix 清晰度判断逻辑, 根据名字匹配
         for (var i = 0; i < playQualites.length; i++) {
           var playQuality = playQualites[i];
-          if(playQuality.quality.contains(settings.preferResolution.value)){
+          if (playQuality.quality.contains(settings.preferResolution.value)) {
             currentQuality.value = i;
             break;
           }
         }
-
       }
       isFirstLoad.value = false;
       getPlayUrl();
@@ -398,16 +426,22 @@ class LivePlayController extends StateController {
   }
 
   Future<void> getPlayUrl() async {
-    var playUrl =
-        await currentSite.liveSite.getPlayUrls(detail: detail.value!, quality: qualites[currentQuality.value]);
-    if (playUrl.isEmpty) {
-      SmartDialog.showToast("无法读取播放地址,请重新获取", displayTime: const Duration(seconds: 2));
+    var quality = qualites[currentQuality.value];
+    var playUrlList = quality.playUrlList;
+    if (playUrlList.isNullOrEmpty) {
+      playUrlList = await currentSite.liveSite.getPlayUrls(
+          detail: detail.value!, quality: qualites[currentQuality.value]);
+      quality.playUrlList = playUrlList;
+    }
+    if (playUrlList.isNullOrEmpty) {
+      SmartDialog.showToast("无法读取播放地址,请重新获取",
+          displayTime: const Duration(seconds: 2));
       getVideoSuccess.value = false;
       isFirstLoad.value = false;
       success.value = false;
       return;
     }
-    playUrls.value = playUrl;
+    playUrls.value = playUrlList;
     setPlayer();
   }
 
@@ -423,7 +457,8 @@ class LivePlayController extends StateController {
         "cache-control": "no-cache",
         "dnt": "1",
         "pragma": "no-cache",
-        "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+        "sec-ch-ua":
+            '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
         "sec-ch-ua-mobile": "?0",
         "sec-ch-ua-platform": '"macOS"',
         "sec-fetch-dest": "document",
@@ -463,7 +498,8 @@ class LivePlayController extends StateController {
       if (videoController != null && videoController!.hasDestory == false) {
         final connectivityResults = await Connectivity().checkConnectivity();
         if (!connectivityResults.contains(ConnectivityResult.none)) {
-          if (!videoController!.isActivePause.value && videoController!.isPlaying.value == false) {
+          if (!videoController!.isActivePause.value &&
+              videoController!.isPlaying.value == false) {
             videoController!.refresh();
           }
         }
@@ -492,7 +528,8 @@ class LivePlayController extends StateController {
       webUrl = "https://www.douyu.com/${detail.value?.roomId}";
     } else if (site == Sites.ccSite) {
       log(detail.value!.userId.toString(), name: "cc_user_id");
-      naviteUrl = "cc://join-room/${detail.value?.roomId}/${detail.value?.userId}/";
+      naviteUrl =
+          "cc://join-room/${detail.value?.roomId}/${detail.value?.userId}/";
       webUrl = "https://cc.163.com/${detail.value?.roomId}";
     } else if (site == Sites.kuaishouSite) {
       naviteUrl =
