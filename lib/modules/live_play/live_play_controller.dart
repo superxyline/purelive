@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math' as math;
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'widgets/video_player/video_controller.dart';
@@ -373,17 +374,18 @@ class LivePlayController extends StateController {
       // 第一次加载 使用系统默认线路
       if (isFirstLoad.value) {
         int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
-        if (qualityLevel == 0) {
-          //最高
-          currentQuality.value = 0;
-        } else if (qualityLevel == settings.resolutionsList.length - 1) {
-          //最低
-          currentQuality.value = playQualites.length - 1;
-        } else {
-          //中间值
-          int middle = (playQualites.length / 2).floor();
-          currentQuality.value = middle;
+        qualityLevel = math.max(0, qualityLevel);
+        qualityLevel = math.min(playQualites.length - 1, qualityLevel);
+
+        // fix 清晰度判断逻辑, 根据名字匹配
+        for (var i = 0; i < playQualites.length; i++) {
+          var playQuality = playQualites[i];
+          if(playQuality.quality.contains(settings.preferResolution.value)){
+            currentQuality.value = i;
+            break;
+          }
         }
+
       }
       isFirstLoad.value = false;
       getPlayUrl();
