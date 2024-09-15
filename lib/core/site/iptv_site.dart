@@ -12,7 +12,7 @@ import 'package:pure_live/core/danmaku/empty_danmaku.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 
-class IptvSite implements LiveSite {
+class IptvSite extends LiveSite {
   @override
   String id = 'iptv';
 

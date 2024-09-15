@@ -85,4 +85,15 @@ class LiveSite {
   Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
     return Future.value([]);
   }
+
+  /// 是否支持批量更新房间
+  bool isSupportBatchUpdateLiveStatus() {
+    return false;
+  }
+
+  /// 批量更新房间
+  Future<List<LiveRoom>> getLiveRoomDetailList(
+      {required List<LiveRoom> list}) {
+    return Future.value(list);
+  }
 }

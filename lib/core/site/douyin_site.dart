@@ -17,7 +17,7 @@ import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 
-class DouyinSite implements LiveSite {
+class DouyinSite extends LiveSite {
   @override
   String id = "douyin";
 

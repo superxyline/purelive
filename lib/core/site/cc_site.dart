@@ -16,7 +16,7 @@ import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 
-class CCSite implements LiveSite {
+class CCSite extends LiveSite {
   @override
   String id = "cc";
 

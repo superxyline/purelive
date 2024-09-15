@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'custom_interceptor.dart';
 import 'package:pure_live/core/common/core_error.dart';
+
+import 'custom_io_http_client_adapter.dart';
 
 
 class HttpClient {
@@ -21,6 +24,7 @@ class HttpClient {
       ),
     );
     dio.interceptors.add(CustomInterceptor());
+    dio.httpClientAdapter = CustomIOHttpClientAdapter.instance;
   }
 
   /// Get请求，返回String
@@ -117,6 +121,7 @@ class HttpClient {
       );
       return result.data;
     } catch (e) {
+      SmartDialog.showToast(e.toString());
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {

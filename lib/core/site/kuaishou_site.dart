@@ -19,7 +19,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 
-class KuaishowSite implements LiveSite {
+class KuaishowSite extends LiveSite {
   @override
   String id = "kuaishou";
 

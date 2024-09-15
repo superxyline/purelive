@@ -71,6 +71,43 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
           .where((element) => element.platform == Sites().availableSites(containsAll: true)[tabSiteIndex.value].id)
           .toList();
     }
+
+    // 批量更新
+    var tmp = Sites.supportSites.where( (site) => site.liveSite.isSupportBatchUpdateLiveStatus() )
+    .map((site) => MapEntry(site.liveSite, <LiveRoom>[])).toList();
+    var batchUpdateSiteMap = Map.fromEntries(tmp);
+    if(batchUpdateSiteMap.isNotEmpty) {
+      // 没有批量更新列表
+      var unBatchUpdateRooms = <LiveRoom>[];
+      for (final room in currentRooms) {
+        var liveSite = Sites.of(room.platform!).liveSite;
+        if(liveSite.isSupportBatchUpdateLiveStatus()) {
+          batchUpdateSiteMap[liveSite]!.add(room);
+        } else {
+          unBatchUpdateRooms.add(room);
+        }
+      }
+
+      // 更新一条条更新的列表
+      currentRooms = unBatchUpdateRooms;
+
+      // 批量更新
+      List<Future<List<LiveRoom>>> futures = [];
+      batchUpdateSiteMap.forEach((liveSite, list) {
+        futures.add(liveSite.getLiveRoomDetailList(list: list));
+      });
+      try {
+        for (var i = 0; i < futures.length; i++) {
+          final rooms = await futures[i];
+          for (var room in rooms) {
+            settings.updateRoom(room);
+          }
+        }
+      } catch (e) {
+        hasError = true;
+      }
+    }
+
     for (final room in currentRooms) {
       futures.add(Sites.of(room.platform!)
           .liveSite
