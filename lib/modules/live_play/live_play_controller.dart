@@ -159,7 +159,7 @@ class LivePlayController extends StateController {
             displayTime: const Duration(seconds: 2));
         isLastLine.value = false;
         isFirstLoad.value = true;
-        // restoryQualityAndLines();
+        restoryQualityAndLines();
         resetRoom(Sites.of(currentPlayRoom.value.platform!),
             currentPlayRoom.value.roomId!);
       } else {
@@ -215,7 +215,7 @@ class LivePlayController extends StateController {
     }
     // active 代表用户是否手动切换路线 只有不是手动自动切换才会显示路线错误信息
     if (isLastLine.value && hasError.value && active == false) {
-      // restoryQualityAndLines();
+      restoryQualityAndLines();
       getVideoSuccess.value = false;
       isFirstLoad.value = false;
       success.value = false;
@@ -302,9 +302,9 @@ class LivePlayController extends StateController {
   }
 
   restoryQualityAndLines() {
-    playUrls.value = [];
+    // playUrls.value = [];
     currentLineIndex.value = 0;
-    qualites.value = [];
+    // qualites.value = [];
     loopCount = 0;
     currentQuality.value = 0;
   }
@@ -368,7 +368,8 @@ class LivePlayController extends StateController {
 
   void setResolution(String quality, String index) {
     if (videoController != null && videoController!.hasDestory == false) {
-      videoController!.destory();
+      // videoController!.destory();
+      videoController!.pause();
     }
 
     currentQuality.value =
@@ -410,10 +411,11 @@ class LivePlayController extends StateController {
         for (var i = 0; i < playQualites.length; i++) {
           var playQuality = playQualites[i];
           if (playQuality.quality.contains(settings.preferResolution.value)) {
-            currentQuality.value = i;
+            qualityLevel = i;
             break;
           }
         }
+        currentQuality.value = qualityLevel;
       }
       isFirstLoad.value = false;
       getPlayUrl();
@@ -478,22 +480,31 @@ class LivePlayController extends StateController {
       };
     }
 
-    videoController?.dispose();
+    videoController?.pause();
+    if(videoController == null || videoController!.hasDestory){
+      videoController = VideoController(
+        playerKey: playerKey,
+        room: detail.value!,
+        datasourceType: 'network',
+        datasource: playUrls.value[currentLineIndex.value],
+        allowScreenKeepOn: settings.enableScreenKeepOn.value,
+        allowBackgroundPlay: settings.enableBackgroundPlay.value,
+        fullScreenByDefault: settings.enableFullScreenDefault.value,
+        autoPlay: true,
+        headers: headers,
+        qualiteName: qualites[currentQuality.value].quality,
+        currentLineIndex: currentLineIndex.value,
+        currentQuality: currentQuality.value,
+      );
+    } else {
+      // videoController?.datasource = playUrls.value[currentLineIndex.value];
+      videoController?.qualiteName = qualites[currentQuality.value].quality;
+      videoController?.currentLineIndex = currentLineIndex.value;
+      videoController?.currentQuality = currentQuality.value;
+      videoController?.setDataSource(playUrls.value[currentLineIndex.value]);
+      videoController?.play();
+    }
 
-    videoController = VideoController(
-      playerKey: playerKey,
-      room: detail.value!,
-      datasourceType: 'network',
-      datasource: playUrls.value[currentLineIndex.value],
-      allowScreenKeepOn: settings.enableScreenKeepOn.value,
-      allowBackgroundPlay: settings.enableBackgroundPlay.value,
-      fullScreenByDefault: settings.enableFullScreenDefault.value,
-      autoPlay: true,
-      headers: headers,
-      qualiteName: qualites[currentQuality.value].quality,
-      currentLineIndex: currentLineIndex.value,
-      currentQuality: currentQuality.value,
-    );
     success.value = true;
 
     networkTimer?.cancel();

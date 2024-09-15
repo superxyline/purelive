@@ -36,11 +36,11 @@ class VideoController with ChangeNotifier {
 
   double initBrightness = 0.0;
 
-  final String qualiteName;
+  String qualiteName;
 
-  final int currentLineIndex;
+  int currentLineIndex;
 
-  final int currentQuality;
+  int currentQuality;
 
   final hasError = false.obs;
 
@@ -225,12 +225,7 @@ class VideoController with ChangeNotifier {
       gsyVideoPlayerController.setTimeOut(4000);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
-      gsyVideoPlayerController.setNetWorkBuilder(
-        datasource,
-        mapHeadData: headers,
-        cacheWithPlay: false,
-        useDefaultIjkOptions: true,
-      );
+      setDataSource(datasource);
       gsyVideoPlayerController.addEventsListener((VideoEventType event) {
         if (event == VideoEventType.onError) {
           hasError.value = true;
@@ -424,6 +419,14 @@ class VideoController with ChangeNotifier {
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       player.pause();
       player.open(Media(datasource, httpHeaders: headers));
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      gsyVideoPlayerController.pause();
+      gsyVideoPlayerController.setNetWorkBuilder(
+        datasource,
+        mapHeadData: headers,
+        cacheWithPlay: false,
+        useDefaultIjkOptions: true,
+      );
     }
     notifyListeners();
   }
@@ -446,6 +449,22 @@ class VideoController with ChangeNotifier {
       } else {
         gsyVideoPlayerController.resume();
       }
+    }
+  }
+
+  void play() {
+    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
+      mediaPlayerController.player.play();
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      gsyVideoPlayerController.resume();
+    }
+  }
+
+  void pause() {
+    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
+      mediaPlayerController.player.pause();
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      gsyVideoPlayerController.pause();
     }
   }
 
