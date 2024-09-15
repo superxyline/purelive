@@ -159,7 +159,7 @@ class LivePlayController extends StateController {
             displayTime: const Duration(seconds: 2));
         isLastLine.value = false;
         isFirstLoad.value = true;
-        restoryQualityAndLines();
+        // restoryQualityAndLines();
         resetRoom(Sites.of(currentPlayRoom.value.platform!),
             currentPlayRoom.value.roomId!);
       } else {
@@ -215,7 +215,7 @@ class LivePlayController extends StateController {
     }
     // active 代表用户是否手动切换路线 只有不是手动自动切换才会显示路线错误信息
     if (isLastLine.value && hasError.value && active == false) {
-      restoryQualityAndLines();
+      // restoryQualityAndLines();
       getVideoSuccess.value = false;
       isFirstLoad.value = false;
       success.value = false;
