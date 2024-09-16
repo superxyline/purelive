@@ -34,6 +34,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
           ? media_kit_video.Video(
               key: widget.controller.key,
               controller: widget.controller.mediaPlayerController,
+              pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value, // 进入背景模式时暂停
+              resumeUponEnteringForegroundMode: true, // 进入前景模式后恢复
               fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
               controls: widget.controller.room.platform == Sites.iptvSite
                   ? media_kit_video.MaterialVideoControls
