@@ -634,6 +634,8 @@ class DesktopFullscreen extends StatelessWidget {
             Obx(() => media_kit_video.Video(
                   controller: controller.mediaPlayerController,
                   fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
+                  pauseUponEnteringBackgroundMode: !controller.settings.enableBackgroundPlay.value, // 进入背景模式时暂停
+                  resumeUponEnteringForegroundMode: true, // 进入前景模式后恢复
                   controls: (state) => VideoControllerPanel(controller: controller),
                 ))
           ],
