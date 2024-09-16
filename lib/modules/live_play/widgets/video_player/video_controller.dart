@@ -63,12 +63,15 @@ class VideoController with ChangeNotifier {
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
 
   final refreshCompleted = true.obs;
+
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
-  late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
+  late final GlobalKey<media_kit_video.VideoState> key =
+      GlobalKey<media_kit_video.VideoState>();
 
   // Create a [Player] to control playback.
   late Player player;
+
   // CeoController] to handle video output from [Player].
   late media_kit_video.VideoController mediaPlayerController;
 
@@ -79,7 +82,8 @@ class VideoController with ChangeNotifier {
 
   final playerRefresh = false.obs;
 
-  GlobalKey<BrightnessVolumnDargAreaState> brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
+  GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
+      GlobalKey<BrightnessVolumnDargAreaState>();
 
   LivePlayController livePlayController = Get.find<LivePlayController>();
 
@@ -126,6 +130,7 @@ class VideoController with ChangeNotifier {
   final danmakuFontBorder = 0.5.obs;
   final danmakuOpacity = 1.0.obs;
   final mergeDanmuRating = 0.0.obs;
+
   VideoController({
     required this.playerKey,
     required this.room,
@@ -151,6 +156,7 @@ class VideoController with ChangeNotifier {
     danmakuFontBorder.value = settings.danmakuFontBorder.value;
     danmakuOpacity.value = settings.danmakuOpacity.value;
     mergeDanmuRating.value = settings.mergeDanmuRating.value;
+    initGSYVideoPlayer();
     initPagesConfig();
   }
 
@@ -164,6 +170,7 @@ class VideoController with ChangeNotifier {
   // Battery level control
   final Battery _battery = Battery();
   final batteryLevel = 100.obs;
+
   void initBattery() {
     if (Platform.isAndroid || Platform.isIOS) {
       _battery.batteryLevel.then((value) => batteryLevel.value = value);
@@ -183,9 +190,7 @@ class VideoController with ChangeNotifier {
         (player.platform as dynamic).setProperty('cache', 'no'); // --cache=<yes|no|auto>
         (player.platform as dynamic).setProperty('cache-secs', '0'); // --cache-secs=<seconds> with cache but why not.
         (player.platform as dynamic).setProperty(
-            'demuxer-seekable-cache', 'no'); // --demuxer-seekable-cache=<yes|no|auto> Redundant with cache but why not.
-        (player.platform as dynamic).setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
-        (player.platform as dynamic).setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
+            'demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
       }
       mediaPlayerController = media_kit_video.VideoController(player);
       setDataSource(datasource);
@@ -330,7 +335,8 @@ class VideoController with ChangeNotifier {
   void refresh() {
     destory();
     Timer(const Duration(seconds: 2), () {
-      livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.refreash);
+      livePlayController.onInitPlayerState(
+          reloadDataType: ReloadDataType.refreash);
     });
   }
 
@@ -389,24 +395,11 @@ class VideoController with ChangeNotifier {
       player.pause();
       player.open(Media(datasource, httpHeaders: headers));
     } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController?.dispose();
-      chewieController?.dispose();
-      gsyVideoPlayerController = GsyVideoPlayerController(
-          allowBackgroundPlayback: allowBackgroundPlay, player: getVideoPlayerType(videoPlayerIndex));
-      chewieController = ChewieController(
-        videoPlayerController: gsyVideoPlayerController,
-        autoPlay: false,
-        looping: false,
-        draggableProgressBar: false,
-        overlay: VideoControllerPanel(
-          controller: this,
-        ),
-        showControls: false,
-        useRootNavigator: true,
-        showOptions: false,
-        rotateWithSystem: settings.enableRotateScreenWithSystem.value,
-      );
-      gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
+      gsyVideoPlayerController.dispose();
+      chewieController.dispose();
+      initGSYVideoPlayer();
+      gsyVideoPlayerController
+          .setRenderType(GsyVideoPlayerRenderType.surfaceView);
       gsyVideoPlayerController.setTimeOut(4000);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
@@ -420,9 +413,11 @@ class VideoController with ChangeNotifier {
         if (event == VideoEventType.onError) {
           hasError.value = true;
           isPlaying.value = false;
-          log('video error ${gsyVideoPlayerController.value.what}', name: 'video_player');
+          log('video error ${gsyVideoPlayerController.value.what}',
+              name: 'video_player');
         } else {
-          mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
+          mediaPlayerControllerInitialized.value =
+              gsyVideoPlayerController.value.onVideoPlayerInitialized;
           if (mediaPlayerControllerInitialized.value) {
             isPlaying.value = gsyVideoPlayerController.value.isPlaying;
           }
@@ -430,6 +425,25 @@ class VideoController with ChangeNotifier {
       });
     }
     notifyListeners();
+  }
+
+  void initGSYVideoPlayer() {
+    gsyVideoPlayerController = GsyVideoPlayerController(
+        allowBackgroundPlayback: allowBackgroundPlay,
+        player: getVideoPlayerType(videoPlayerIndex));
+    chewieController = ChewieController(
+      videoPlayerController: gsyVideoPlayerController,
+      autoPlay: false,
+      looping: false,
+      draggableProgressBar: false,
+      overlay: VideoControllerPanel(
+        controller: this,
+      ),
+      showControls: false,
+      useRootNavigator: true,
+      showOptions: false,
+      rotateWithSystem: settings.enableRotateScreenWithSystem.value,
+    );
   }
 
   void setVideoFit(BoxFit fit) {
@@ -634,10 +648,15 @@ class DesktopFullscreen extends StatelessWidget {
           children: [
             Obx(() => media_kit_video.Video(
                   controller: controller.mediaPlayerController,
-                  fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
-                  pauseUponEnteringBackgroundMode: !controller.settings.enableBackgroundPlay.value, // 进入背景模式时暂停
-                  resumeUponEnteringForegroundMode: true, // 进入前景模式后恢复
-                  controls: (state) => VideoControllerPanel(controller: controller),
+                  fit: controller
+                      .settings.videofitArrary[controller.videoFitIndex.value],
+                  pauseUponEnteringBackgroundMode:
+                      !controller.settings.enableBackgroundPlay.value,
+                  // 进入背景模式时暂停
+                  resumeUponEnteringForegroundMode: true,
+                  // 进入前景模式后恢复
+                  controls: (state) =>
+                      VideoControllerPanel(controller: controller),
                 ))
           ],
         ),
