@@ -9,6 +9,7 @@ import 'package:pure_live/modules/live_play/widgets/video_player/video_controlle
 
 class VideoPlayer extends StatefulWidget {
   final VideoController controller;
+
   const VideoPlayer({
     super.key,
     required this.controller,
@@ -20,6 +21,7 @@ class VideoPlayer extends StatefulWidget {
 
 class _VideoPlayerState extends State<VideoPlayer> {
   bool hasRender = false;
+
   Widget _buildVideoPanel() {
     return VideoControllerPanel(
       controller: widget.controller,
@@ -34,9 +36,13 @@ class _VideoPlayerState extends State<VideoPlayer> {
           ? media_kit_video.Video(
               key: widget.controller.key,
               controller: widget.controller.mediaPlayerController,
-              pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value, // 进入背景模式时暂停
-              resumeUponEnteringForegroundMode: true, // 进入前景模式后恢复
-              fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+              pauseUponEnteringBackgroundMode:
+                  !widget.controller.settings.enableBackgroundPlay.value,
+              // 进入背景模式时暂停
+              resumeUponEnteringForegroundMode: true,
+              // 进入前景模式后恢复
+              fit: widget.controller.settings
+                  .videofitArrary[widget.controller.videoFitIndex.value],
               controls: widget.controller.room.platform == Sites.iptvSite
                   ? media_kit_video.MaterialVideoControls
                   : (state) => _buildVideoPanel(),
@@ -44,7 +50,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
           : Card(
               elevation: 0,
               margin: const EdgeInsets.all(0),
-              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              shape:
+                  const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
               clipBehavior: Clip.antiAlias,
               color: Get.theme.focusColor,
               child: CachedNetworkImage(
@@ -59,17 +66,19 @@ class _VideoPlayerState extends State<VideoPlayer> {
     } else {
       return Obx(
         () => widget.controller.mediaPlayerControllerInitialized.value
-            ? GsyVideoPlayer(
-          key: widget.controller.key,
-          controller: widget.controller.gsyVideoPlayerController,
-        )
-        // Chewie(
-        //         controller: widget.controller.chewieController,
-        //       )
+            ?
+            // GsyVideoPlayer(
+            // key: widget.controller.key,
+            // controller: widget.controller.gsyVideoPlayerController,
+            // )
+            Chewie(
+                controller: widget.controller.chewieController,
+              )
             : Card(
                 elevation: 0,
                 margin: const EdgeInsets.all(0),
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero),
                 clipBehavior: Clip.antiAlias,
                 color: Get.theme.focusColor,
                 child: CachedNetworkImage(
