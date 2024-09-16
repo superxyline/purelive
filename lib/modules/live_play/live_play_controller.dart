@@ -497,11 +497,12 @@ class LivePlayController extends StateController {
         currentQuality: currentQuality.value,
       );
     } else {
-      // videoController?.datasource = playUrls.value[currentLineIndex.value];
+      videoController?.datasource = playUrls.value[currentLineIndex.value];
       videoController?.qualiteName = qualites[currentQuality.value].quality;
       videoController?.currentLineIndex = currentLineIndex.value;
       videoController?.currentQuality = currentQuality.value;
-      videoController?.setDataSource(playUrls.value[currentLineIndex.value]);
+      // videoController?.setDataSource(playUrls.value[currentLineIndex.value]);
+      videoController?.initVideoController();
       videoController?.play();
     }
 
