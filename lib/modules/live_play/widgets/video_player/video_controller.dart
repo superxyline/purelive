@@ -420,7 +420,7 @@ class VideoController with ChangeNotifier {
       player.pause();
       player.open(Media(datasource, httpHeaders: headers));
     } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController.pause();
+      // gsyVideoPlayerController.pause();
       gsyVideoPlayerController.setNetWorkBuilder(
         datasource,
         mapHeadData: headers,
