@@ -503,7 +503,7 @@ class LivePlayController extends StateController {
       videoController?.currentQuality = currentQuality.value;
       // videoController?.setDataSource(playUrls.value[currentLineIndex.value]);
       videoController?.initVideoController();
-      videoController?.play();
+      // videoController?.play();
     }
 
     success.value = true;
