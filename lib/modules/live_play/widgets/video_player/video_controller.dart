@@ -206,38 +206,7 @@ class VideoController with ChangeNotifier {
         }
       });
     } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController = GsyVideoPlayerController(
-          allowBackgroundPlayback: allowBackgroundPlay, player: getVideoPlayerType(videoPlayerIndex));
-      chewieController = ChewieController(
-        videoPlayerController: gsyVideoPlayerController,
-        autoPlay: false,
-        looping: false,
-        draggableProgressBar: false,
-        overlay: VideoControllerPanel(
-          controller: this,
-        ),
-        showControls: false,
-        useRootNavigator: true,
-        showOptions: false,
-        rotateWithSystem: settings.enableRotateScreenWithSystem.value,
-      );
-      gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
-      gsyVideoPlayerController.setTimeOut(4000);
-      gsyVideoPlayerController.setMediaCodec(enableCodec);
-      gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
       setDataSource(datasource);
-      gsyVideoPlayerController.addEventsListener((VideoEventType event) {
-        if (event == VideoEventType.onError) {
-          hasError.value = true;
-          isPlaying.value = false;
-          log('video error ${gsyVideoPlayerController.value.what}', name: 'video_player');
-        } else {
-          mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
-          if (mediaPlayerControllerInitialized.value) {
-            isPlaying.value = gsyVideoPlayerController.value.isPlaying;
-          }
-        }
-      });
     }
     debounce(hasError, (callback) {
       if (hasError.value && !livePlayController.isLastLine.value) {
@@ -420,13 +389,40 @@ class VideoController with ChangeNotifier {
       player.pause();
       player.open(Media(datasource, httpHeaders: headers));
     } else if (Platform.isAndroid || Platform.isIOS) {
-      // gsyVideoPlayerController.pause();
-      gsyVideoPlayerController.setNetWorkBuilder(
-        datasource,
-        mapHeadData: headers,
-        cacheWithPlay: false,
-        useDefaultIjkOptions: true,
+      gsyVideoPlayerController?.dispose();
+      chewieController?.dispose();
+      gsyVideoPlayerController = GsyVideoPlayerController(
+          allowBackgroundPlayback: allowBackgroundPlay, player: getVideoPlayerType(videoPlayerIndex));
+      chewieController = ChewieController(
+        videoPlayerController: gsyVideoPlayerController,
+        autoPlay: false,
+        looping: false,
+        draggableProgressBar: false,
+        overlay: VideoControllerPanel(
+          controller: this,
+        ),
+        showControls: false,
+        useRootNavigator: true,
+        showOptions: false,
+        rotateWithSystem: settings.enableRotateScreenWithSystem.value,
       );
+      gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
+      gsyVideoPlayerController.setTimeOut(4000);
+      gsyVideoPlayerController.setMediaCodec(enableCodec);
+      gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
+      setDataSource(datasource);
+      gsyVideoPlayerController.addEventsListener((VideoEventType event) {
+        if (event == VideoEventType.onError) {
+          hasError.value = true;
+          isPlaying.value = false;
+          log('video error ${gsyVideoPlayerController.value.what}', name: 'video_player');
+        } else {
+          mediaPlayerControllerInitialized.value = gsyVideoPlayerController.value.onVideoPlayerInitialized;
+          if (mediaPlayerControllerInitialized.value) {
+            isPlaying.value = gsyVideoPlayerController.value.isPlaying;
+          }
+        }
+      });
     }
     notifyListeners();
   }

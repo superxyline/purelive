@@ -59,9 +59,13 @@ class _VideoPlayerState extends State<VideoPlayer> {
     } else {
       return Obx(
         () => widget.controller.mediaPlayerControllerInitialized.value
-            ? Chewie(
-                controller: widget.controller.chewieController,
-              )
+            ? GsyVideoPlayer(
+          key: widget.controller.key,
+          controller: widget.controller.gsyVideoPlayerController,
+        )
+        // Chewie(
+        //         controller: widget.controller.chewieController,
+        //       )
             : Card(
                 elevation: 0,
                 margin: const EdgeInsets.all(0),
