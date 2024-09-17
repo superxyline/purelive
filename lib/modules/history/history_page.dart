@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
+import '../util/update_room_util.dart';
+
 class HistoryPage extends GetView {
   HistoryPage({super.key});
 
@@ -11,22 +13,8 @@ class HistoryPage extends GetView {
   );
 
   Future onRefresh() async {
-    bool result = true;
     final SettingsService settings = Get.find<SettingsService>();
-
-    for (final room in settings.historyRooms) {
-      try {
-        var newRoom = await Sites.of(room.platform!).liveSite.getRoomDetail(
-              roomId: room.roomId!,
-              platform: room.platform!,
-              nick: room.platform!,
-              title: room.platform!,
-            );
-        settings.updateRoomInHistory(newRoom);
-      } catch (e) {
-        result = false;
-      }
-    }
+    bool result =await UpdateRoomUtil.updateRoomList(settings.historyRooms, settings);
     if (result) {
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();
