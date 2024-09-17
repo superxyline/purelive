@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:html_unescape/html_unescape.dart';
@@ -455,7 +456,26 @@ class DouyuSite extends LiveSite {
       }
 
       List<LiveRoom> rsList = [];
+      DateTime now = DateTime.now();
+
+      // 格式化日期为 "年月日" 240917
+      String formattedDate = DateFormat('yyMMdd').format(now);
+      /// https://rpic.douyucdn.cn/asrpic/240917/9999_src_1453.avif/dy1
+      RegExp exp = RegExp(r'/asrpic/(\d{6})/');
+
       for (var roomInfo in roomList) {
+
+        /// 通过图片日期判断是否录播
+        bool isRecord = true;
+        var roomSrc = roomInfo["room_src"].toString();
+        var allMatches = exp.allMatches(roomSrc);
+        for (var value in allMatches) {
+          var picDate = value.group(1);
+          if(formattedDate == picDate){
+            isRecord = false;
+          }
+        }
+
         var tmp = LiveRoom(
           cover: roomInfo["room_src"].toString(),
           watching: roomInfo["hn"].toString(),
@@ -474,7 +494,8 @@ class DouyuSite extends LiveSite {
           // data: await getPlayArgs(crptext, roomInfo["room_id"].toString()),
           platform: Sites.douyuSite,
           link: "https://www.douyu.com/${roomInfo["room_id"].toString()}",
-          isRecord: roomInfo["videoLoop"] == 1,
+          // isRecord: roomInfo["videoLoop"] == 1,
+          isRecord: isRecord,
         );
         rsList.add(tmp);
       }
