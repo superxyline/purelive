@@ -288,7 +288,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
                   items.add(PopupMenuItem<String>(
                     value: i.toString(),
                     child: Text(
-                      '线路${i + 1}',
+                      '线路${i + 1}\t${urls[i].contains(".flv") ? "FLV" : "HLS"}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: urls[i] == controller.playUrls[controller.currentLineIndex.value]
                                 ? Get.theme.colorScheme.primary
