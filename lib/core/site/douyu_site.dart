@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:pure_live/model/live_category.dart';
@@ -424,6 +425,9 @@ class DouyuSite extends LiveSite {
   @override
   Future<List<LiveRoom>> getLiveRoomDetailList(
       {required List<LiveRoom> list}) async {
+    if (list.isNullOrEmpty) {
+      return list;
+    }
     var idList = list.map((room) => room.roomId!).toList();
     // , (urlencode == >) %2C
     var rids = idList.join(",");
@@ -432,9 +436,7 @@ class DouyuSite extends LiveSite {
       var result = await HttpClient.instance.postJson(
           "https://apiv2.douyucdn.cn/Livenc/UserRelation/getFollowRoomListByRid",
           queryParameters: {},
-          data: {
-            "rids": rids
-          },
+          data: {"rids": rids},
           formUrlEncoded: true,
           header: {
             'referer': 'https://www.douyu.com/',
