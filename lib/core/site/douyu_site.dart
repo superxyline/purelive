@@ -1,24 +1,25 @@
-import 'dart:math';
 import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:html_unescape/html_unescape.dart';
 import 'package:intl/intl.dart';
+import 'package:pure_live/common/models/live_area.dart';
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/common/http_client.dart';
+import 'package:pure_live/core/danmaku/douyu_danmaku.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/core/sites.dart';
-import 'package:html_unescape/html_unescape.dart';
-import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
-import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/model/live_play_quality.dart';
-import 'package:pure_live/core/interface/live_site.dart';
-import 'package:pure_live/model/live_search_result.dart';
-import 'package:pure_live/common/models/live_message.dart';
-import 'package:pure_live/core/danmaku/douyu_danmaku.dart';
+import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_category_result.dart';
-import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_search_result.dart';
 
 class DouyuSite extends LiveSite {
   @override
@@ -429,6 +430,25 @@ class DouyuSite extends LiveSite {
     if (list.isNullOrEmpty) {
       return list;
     }
+
+    /// 分页获取，每页 20 个
+    var size = 20;
+    var futureList = <Future<List<LiveRoom>>>[];
+    for (var i = 0; i < list.length; i += size) {
+      var end = min(i + size, list.length);
+      var subList = list.sublist(i, end);
+      var future = getLiveRoomDetailListPart(list: subList);
+      futureList.add(future);
+    }
+    final rooms = await Future.wait(futureList);
+    return rooms.expand((e) => e).toList();
+  }
+
+  Future<List<LiveRoom>> getLiveRoomDetailListPart(
+      {required List<LiveRoom> list}) async {
+    if (list.isNullOrEmpty) {
+      return list;
+    }
     var idList = list.map((room) => room.roomId!).toList();
     // , (urlencode == >) %2C
     var rids = idList.join(",");
@@ -460,19 +480,24 @@ class DouyuSite extends LiveSite {
 
       // 格式化日期为 "年月日" 240917
       String formattedDate = DateFormat('yyMMdd').format(now);
+
       /// https://rpic.douyucdn.cn/asrpic/240917/9999_src_1453.avif/dy1
       RegExp exp = RegExp(r'/asrpic/(\d{6})/');
 
       for (var roomInfo in roomList) {
+        var isLiving = roomInfo["show_status"] == 1;
 
-        /// 通过图片日期判断是否录播
-        bool isRecord = true;
-        var roomSrc = roomInfo["room_src"].toString();
-        var allMatches = exp.allMatches(roomSrc);
-        for (var value in allMatches) {
-          var picDate = value.group(1);
-          if(formattedDate == picDate){
-            isRecord = false;
+        bool isRecord = false;
+        if (isLiving) {
+          /// 通过图片日期判断是否录播
+          isRecord = true;
+          var roomSrc = roomInfo["room_src"].toString();
+          var allMatches = exp.allMatches(roomSrc);
+          for (var value in allMatches) {
+            var picDate = value.group(1);
+            if (formattedDate == picDate) {
+              isRecord = false;
+            }
           }
         }
 
@@ -486,9 +511,7 @@ class DouyuSite extends LiveSite {
           introduction: roomInfo["close_notice"].toString(),
           area: roomInfo["cate2_name"]?.toString() ?? '',
           notice: roomInfo["close_notice"].toString() ?? "",
-          liveStatus: roomInfo["show_status"] == 1
-              ? LiveStatus.live
-              : LiveStatus.offline,
+          liveStatus: isLiving ? LiveStatus.live : LiveStatus.offline,
           status: roomInfo["show_status"] == 1,
           danmakuData: roomInfo["room_id"].toString(),
           // data: await getPlayArgs(crptext, roomInfo["room_id"].toString()),
