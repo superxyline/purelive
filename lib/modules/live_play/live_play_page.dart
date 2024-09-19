@@ -315,17 +315,15 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
       () => Container(
         height: 55,
         padding: const EdgeInsets.all(4.0),
-        child: Row(
+        child: ListView(
+          scrollDirection: Axis.horizontal,
           children: [
             Padding(
               padding: const EdgeInsets.all(8),
               child: buildInfoCount(),
             ),
             const Spacer(),
-            ListView(
-              scrollDirection: Axis.horizontal,
-              children: controller.success.value ? buildResultionsList() : [],
-            )
+              ...controller.success.value ? buildResultionsList() : [],
           ],
         ),
       ),
