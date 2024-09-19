@@ -378,7 +378,9 @@ class LivePlayController extends StateController {
     };
   }
 
+  /// 选择直播路线
   void setResolution(String quality, String index) {
+    isLoadingVideo.value = true;
     if (videoController != null && videoController!.hasDestory == false) {
       // videoController!.destory();
       videoController!.pause();

@@ -186,7 +186,13 @@ class LivePlayPage extends GetView<LivePlayController> {
       child: Container(
         color: Colors.black,
         child: Obx(
-          () => controller.success.value
+          () => controller.isLoadingVideo.value
+              ? const Center(
+                /// 加载动画
+                child: CircularProgressIndicator(
+                color: Colors.white,
+              ))
+              : controller.success.value
               ? VideoPlayer(controller: controller.videoController!)
               : controller.hasError.value && controller.isActive.value == false
                   ? ErrorVideoWidget(controller: controller)
@@ -316,7 +322,10 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               child: buildInfoCount(),
             ),
             const Spacer(),
-            ...controller.success.value ? buildResultionsList() : [],
+            ListView(
+              scrollDirection: Axis.horizontal,
+              children: controller.success.value ? buildResultionsList() : [],
+            )
           ],
         ),
       ),
