@@ -312,22 +312,20 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => Container(
-        height: 55,
-        padding: const EdgeInsets.all(4.0),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: buildInfoCount(),
+      () => CustomScrollView(
+        scrollDirection: Axis.horizontal,
+        slivers: [
+           SliverAppBar(
+            pinned: true,
+            expandedHeight: 55,
+
+            flexibleSpace: FlexibleSpaceBar(
+              title: buildInfoCount(),
             ),
-            // const Spacer(),
-            ListView(
-                scrollDirection: Axis.horizontal,
-                children:  controller.success.value ? buildResultionsList() : [],
-            )
-          ],
-        ),
+          ),
+          ...controller.success.value ? buildResultionsList() : []
+        ],
+        // height: 55,
       ),
     );
   }
