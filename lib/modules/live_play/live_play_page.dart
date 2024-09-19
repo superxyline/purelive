@@ -312,20 +312,22 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => SizedBox(
-          height: 55,
-          child: CustomScrollView(
-            scrollDirection: Axis.horizontal,
-            slivers: [
-              SliverAppBar(
-                pinned: true,
-                expandedHeight: 55,
-                flexibleSpace: buildInfoCount()
+      () => Container(
+        height: 55,
+        padding: const EdgeInsets.all(4.0),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: buildInfoCount(),
               ),
-              ...controller.success.value ? buildResultionsList() : []
-            ],
-            // height: 55,
-          )),
+              ...controller.success.value ? buildResultionsList() : [],
+            ]
+          ),
+        ),
+      ),
     );
   }
 }
