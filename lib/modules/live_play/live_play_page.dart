@@ -320,9 +320,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               SliverAppBar(
                 pinned: true,
                 expandedHeight: 55,
-                flexibleSpace: FlexibleSpaceBar(
-                  title: buildInfoCount(),
-                ),
+                flexibleSpace: buildInfoCount()
               ),
               ...controller.success.value ? buildResultionsList() : []
             ],
