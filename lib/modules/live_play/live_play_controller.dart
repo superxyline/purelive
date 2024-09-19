@@ -174,6 +174,7 @@ class LivePlayController extends StateController {
     });
 
     getVideoSuccess.listen((p0) {
+      isLoadingVideo.value = true;
       if(p0) {
         isLoadingVideo.value = false;
       }
