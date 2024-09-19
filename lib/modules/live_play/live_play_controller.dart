@@ -74,6 +74,9 @@ class LivePlayController extends StateController {
 
   var isFirstLoad = true.obs;
 
+  /// 是否在加载视频
+  var isLoadingVideo = true.obs;
+
   // 0 代表向上 1 代表向下
   int isNextOrPrev = 0;
 
@@ -169,6 +172,12 @@ class LivePlayController extends StateController {
         }
       }
     });
+
+    getVideoSuccess.listen((p0) {
+      if(p0) {
+        isLoadingVideo.value = false;
+      }
+    });
   }
 
   void resetRoom(Site site, String roomId) async {
@@ -182,6 +191,7 @@ class LivePlayController extends StateController {
     isFirstLoad.value = true;
     getVideoSuccess.value = false;
     loadTimeOut.value = false;
+    isLoadingVideo.value = true;
     Timer(const Duration(milliseconds: 2000), () {
       log('resetRoom', name: 'LivePlayController');
       onInitPlayerState(firstLoad: true);
@@ -196,6 +206,7 @@ class LivePlayController extends StateController {
   }) async {
     isActive.value = active;
     isFirstLoad.value = firstLoad;
+    isLoadingVideo.value = true;
     var liveRoom = currentPlayRoom.value;
     // 只有第一次需要重新配置信息
     if (isFirstLoad.value) {

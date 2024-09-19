@@ -260,7 +260,7 @@ class SettingsService extends GetxController {
 
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
-  static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
+  static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '高清', '流畅'];
 
   // cookie
 

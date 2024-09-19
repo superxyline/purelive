@@ -198,7 +198,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                           clipBehavior: Clip.antiAlias,
                           color: Get.theme.focusColor,
-                          child: Obx(() => controller.isFirstLoad.value
+                          child: Obx(() => controller.isLoadingVideo.value
                               ? const Center(
                                   child: CircularProgressIndicator(
                                   color: Colors.white,
