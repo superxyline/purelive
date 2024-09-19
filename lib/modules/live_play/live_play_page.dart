@@ -312,8 +312,9 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => Container(
-        height: 55,
+      () => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        // height: 55,
         padding: const EdgeInsets.all(4.0),
         child: Row(
           children: [
@@ -322,12 +323,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               child: buildInfoCount(),
             ),
             const Spacer(),
-            SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: controller.success.value ? buildResultionsList() : [],
-                ),
-            )
+            ...controller.success.value ? buildResultionsList() : [],
           ],
         ),
       ),
