@@ -322,11 +322,9 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               child: buildInfoCount(),
             ),
             // const Spacer(),
-            SingleChildScrollView(
+            ListView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: controller.success.value ? buildResultionsList() : [],
-                ),
+                children:  controller.success.value ? buildResultionsList() : [],
             )
           ],
         ),
