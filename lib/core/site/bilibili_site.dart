@@ -540,6 +540,9 @@ class BiliBiliSite extends LiveSite {
 
   @override
   Future<List<LiveRoom>> getLiveRoomDetailList({required List<LiveRoom> list}) async {
+    if(list.isEmpty) {
+      return List.empty();
+    }
     var urlPart = list.map((e)=> (e.userId!)).toList();
     var result = await HttpClient.instance.postJson(
       "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids",
