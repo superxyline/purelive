@@ -550,7 +550,7 @@ class BiliBiliSite extends LiveSite {
     );
 
     var items = <LiveRoom>[];
-    Map data = result["data"]["by_room_ids"] ?? {};
+    Map data = result["data"] ?? {};
     var values = data.values;
     for (var roomInfo in values) {
       var uname = roomInfo["uname"].toString();
