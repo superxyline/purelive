@@ -100,6 +100,7 @@ class BiliBiliSite extends LiveSite {
     for (var item in result["data"]["list"]) {
       var roomItem = LiveRoom(
           roomId: item["roomid"].toString(),
+          userId: item["uid"].toString(),
           title: item["title"].toString(),
           cover: "${item["cover"]}@400w.jpg",
           nick: item["uname"].toString(),
@@ -203,6 +204,7 @@ class BiliBiliSite extends LiveSite {
     for (var item in result["data"]["list"]) {
       var roomItem = LiveRoom(
         roomId: item["roomid"].toString(),
+        userId: item["uid"].toString(),
         title: item["title"].toString(),
         cover: "${item["cover"]}@400w.jpg",
         area: item["area_name"].toString(),
@@ -369,6 +371,7 @@ class BiliBiliSite extends LiveSite {
         roomId: roomId,
         title: roomInfo["room_info"]["title"].toString(),
         cover: roomInfo["room_info"]["cover"].toString(),
+        userId: roomInfo["room_info"]["uid"].toString(),
         nick: roomInfo["anchor_info"]["base_info"]["uname"].toString(),
         avatar: "${roomInfo["anchor_info"]["base_info"]["face"]}@100w.jpg",
         watching: roomInfo["room_info"]["online"].toString(),
@@ -421,6 +424,7 @@ class BiliBiliSite extends LiveSite {
       title = title.replaceAll(RegExp(r"<.*?em.*?>"), "");
       var roomItem = LiveRoom(
         roomId: item["roomid"].toString(),
+        userId: item["uid"].toString(),
         title: title,
         cover: "https:${item["cover"]}@400w.jpg",
         nick: item["uname"].toString(),
@@ -527,5 +531,67 @@ class BiliBiliSite extends LiveSite {
     } catch (e) {
       return "";
     }
+  }
+
+  @override
+  bool isSupportBatchUpdateLiveStatus() {
+    return true;
+  }
+
+  @override
+  Future<List<LiveRoom>> getLiveRoomDetailList({required List<LiveRoom> list}) async {
+    var urlPart = list.map((e)=> (e.userId!)).toList().join(",");
+    var result = await HttpClient.instance.getJson(
+      "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids",
+      queryParameters: {
+        "uids[]": urlPart
+      },
+      header: getHeader(),
+    );
+
+    var items = <LiveRoom>[];
+    Map data = result["data"]["by_room_ids"] ?? {};
+    var values = data.values;
+    for (var roomInfo in values) {
+      var uname = roomInfo["uname"].toString();
+      //移除title中的<em></em>标签
+      uname = uname.replaceAll(RegExp(r"<.*?em.*?>"), "");
+      var cover = roomInfo["keyframe"].toString();
+      if(cover == "") {
+        cover = roomInfo["cover_from_user"].toString();
+      }
+      if(cover == "") {
+        cover = roomInfo["cover"].toString();
+      }
+      if(cover == "") {
+        cover = roomInfo["background"].toString();
+      }
+      var liveStatus = (asT<int?>(roomInfo["live_status"]) ?? 0);
+      var flag = LiveStatus.offline;
+      if(liveStatus == 1) {
+         flag = LiveStatus.live;
+      } else if( liveStatus == 2) {
+        flag = LiveStatus.replay;
+      }
+      var room = LiveRoom(
+        roomId: roomInfo["room_id"].toString(),
+        title: roomInfo["title"].toString(),
+        cover: cover,
+        userId: roomInfo["uid"].toString(),
+        nick: roomInfo["uname"].toString(),
+        avatar: "${roomInfo["face"]}@100w.jpg",
+        watching: roomInfo["online"].toString(),
+        area: roomInfo['area_name'] ?? '',
+        status: liveStatus != 0,
+        liveStatus: flag,
+        link: "https://live.bilibili.com/${roomInfo["room_id"].toString()}",
+        // introduction: ["description"].toString(),
+        notice: "",
+        platform: Sites.bilibiliSite,
+        // danmakuData: ,
+      );
+      items.add(room);
+    }
+    return items;
   }
 }
