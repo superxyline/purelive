@@ -542,10 +542,7 @@ class BiliBiliSite extends LiveSite {
   Future<List<LiveRoom>> getLiveRoomDetailList({required List<LiveRoom> list}) async {
     var urlPart = list.map((e)=> (e.userId!)).toList().join(",");
     var result = await HttpClient.instance.getJson(
-      "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids",
-      queryParameters: {
-        "uids[]": urlPart
-      },
+      "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids?uids[]=$urlPart",
       header: getHeader(),
     );
 
