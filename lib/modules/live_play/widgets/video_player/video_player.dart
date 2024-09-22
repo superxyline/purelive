@@ -30,8 +30,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDesktop = Platform.isWindows || Platform.isMacOS || Platform.isLinux || Platform.isFuchsia ;
-    ///
+    bool isDesktop = Platform.isWindows ||
+        Platform.isMacOS ||
+        Platform.isLinux ||
+        Platform.isFuchsia;
+
+    /// 使用 mpv 解码
     if (isDesktop || widget.controller.videoPlayerIndex == 4) {
       return Stack(children: [
         Obx(() => media_kit_video.Video(
@@ -87,33 +91,41 @@ class _VideoPlayerState extends State<VideoPlayer> {
         ),
       ]);
     } else {
-      return Obx(
-        () => widget.controller.mediaPlayerControllerInitialized.value
-            ?
-            // GsyVideoPlayer(
-            // key: widget.controller.key,
-            // controller: widget.controller.gsyVideoPlayerController,
-            // )
-            Chewie(
-                controller: widget.controller.chewieController,
-              )
-            : Card(
-                elevation: 0,
-                margin: const EdgeInsets.all(0),
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero),
-                clipBehavior: Clip.antiAlias,
-                color: Get.theme.focusColor,
-                child: CachedNetworkImage(
-                  cacheManager: CustomCacheManager.instance,
-                  imageUrl: widget.controller.room.cover!,
-                  fit: BoxFit.fill,
-                  errorWidget: (context, error, stackTrace) => const Center(
-                    child: Icon(Icons.live_tv_rounded, size: 48),
-                  ),
+      return Stack(children: [
+        Obx(() => Chewie(
+              controller: widget.controller.chewieController,
+            )),
+
+        /// 封面
+        Obx(() => Visibility(
+            visible: !widget.controller.mediaPlayerControllerInitialized.value,
+            child: Card(
+              elevation: 0,
+              margin: const EdgeInsets.all(0),
+              shape:
+                  const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              clipBehavior: Clip.antiAlias,
+              color: Get.theme.focusColor,
+              child: CachedNetworkImage(
+                cacheManager: CustomCacheManager.instance,
+                imageUrl: widget.controller.room.cover!,
+                fit: BoxFit.fill,
+                errorWidget: (context, error, stackTrace) => const Center(
+                  child: Icon(Icons.live_tv_rounded, size: 48),
                 ),
               ),
-      );
+            ))),
+
+        /// 视频加载中
+        Obx(
+          () => Visibility(
+              visible:
+                  !widget.controller.gsyVideoPlayerController.value.isBuffering,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              )),
+        )
+      ]);
     }
   }
 }
