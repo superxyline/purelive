@@ -30,10 +30,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDesktop = Platform.isWindows;
+    bool isDesktop = Platform.isWindows || Platform.isMacOS || Platform.isLinux || Platform.isFuchsia ;
+    ///
     if (isDesktop || widget.controller.videoPlayerIndex == 4) {
-      return Obx(() => widget.controller.mediaPlayerControllerInitialized.value
-          ? media_kit_video.Video(
+      return Stack(children: [
+        Obx(() => media_kit_video.Video(
               key: widget.controller.key,
               controller: widget.controller.mediaPlayerController,
               pauseUponEnteringBackgroundMode:
@@ -46,8 +47,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
               controls: widget.controller.room.platform == Sites.iptvSite
                   ? media_kit_video.MaterialVideoControls
                   : (state) => _buildVideoPanel(),
-            )
-          : Card(
+            )),
+
+        /// 封面
+        Obx(() => Visibility(
+            visible: !widget.controller.mediaPlayerControllerInitialized.value,
+            child: Card(
               elevation: 0,
               margin: const EdgeInsets.all(0),
               shape:
@@ -62,7 +67,25 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   child: Icon(Icons.live_tv_rounded, size: 48),
                 ),
               ),
-            ));
+            ))),
+
+        /// 视频加载中
+        Center(
+          child: // 中间
+              StreamBuilder(
+            stream:
+                widget.controller.mediaPlayerController.player.stream.buffering,
+            initialData:
+                widget.controller.mediaPlayerController.player.state.buffering,
+            builder: (_, s) => Visibility(
+              visible: s.data ?? false,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ),
+      ]);
     } else {
       return Obx(
         () => widget.controller.mediaPlayerControllerInitialized.value
