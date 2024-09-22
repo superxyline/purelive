@@ -18,7 +18,7 @@ class HttpClient {
   HttpClient() {
     dio = Dio(
       BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
+        connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 20),
         sendTimeout: const Duration(seconds: 20),
       ),
