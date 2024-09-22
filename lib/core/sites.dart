@@ -20,43 +20,43 @@ class Sites {
   static const String iptvSite = "iptv";
   static List<Site> supportSites = [
     Site(
-      id: "bilibili",
+      id: bilibiliSite,
       name: "哔哩",
       logo: "assets/images/bilibili_2.png",
       liveSite: BiliBiliSite(),
     ),
     Site(
-      id: "douyu",
+      id: douyuSite,
       name: "斗鱼",
       logo: "assets/images/douyu.png",
       liveSite: DouyuSite(),
     ),
     Site(
-      id: "huya",
+      id: huyaSite,
       name: "虎牙",
       logo: "assets/images/huya.png",
       liveSite: HuyaSite(),
     ),
     Site(
-      id: "douyin",
+      id: douyinSite,
       name: "抖音",
       logo: "assets/images/douyin.png",
       liveSite: DouyinSite(),
     ),
     Site(
-      id: "kuaishou",
+      id: kuaishouSite,
       name: "快手",
       logo: "assets/images/kuaishou.png",
       liveSite: KuaishowSite(),
     ),
     Site(
-      id: "cc",
+      id: ccSite,
       name: "网易CC",
       logo: "assets/images/cc.png",
       liveSite: CCSite(),
     ),
     Site(
-      id: "iptv",
+      id: iptvSite,
       name: "网络",
       logo: "assets/images/logo.png",
       liveSite: IptvSite(),

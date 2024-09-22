@@ -328,12 +328,12 @@ class SettingsPage extends GetView<SettingsService> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(S.of(context).prefer_platform),
-          children: SettingsService.platforms.map<Widget>((name) {
+          children: Sites.supportSites.map<Widget>((site) {
             return RadioListTile<String>(
               activeColor: Theme.of(context).colorScheme.primary,
               groupValue: controller.preferPlatform.value,
-              value: name,
-              title: Text(name.toUpperCase()),
+              value: site.id,
+              title: Text(site.name.toUpperCase()),
               onChanged: (value) {
                 controller.changePreferPlatform(value!);
                 Navigator.of(context).pop();

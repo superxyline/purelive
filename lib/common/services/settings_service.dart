@@ -311,7 +311,7 @@ class SettingsService extends GetxController {
     PrefUtil.setInt('autoRefreshTime', minutes);
   }
 
-  static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishow', 'cc', '网络'];
+  static List<String> platforms = Sites.supportSites.map((site)=>site.id).toList();
 
   static const List<String> players = ['Exo播放器', '系统播放器', 'IJK播放器', '阿里播放器', 'MpvPlayer'];
   final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
@@ -325,15 +325,7 @@ class SettingsService extends GetxController {
     }
   }
 
-  static const List<String> supportSites = [
-    Sites.bilibiliSite,
-    Sites.douyuSite,
-    Sites.huyaSite,
-    Sites.douyinSite,
-    Sites.kuaishouSite,
-    Sites.ccSite,
-    Sites.iptvSite
-  ];
+  static List<String> supportSites = Sites.supportSites.map((site)=>site.id).toList();
 
   final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
 
