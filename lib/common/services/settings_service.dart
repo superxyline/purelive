@@ -150,6 +150,16 @@ class SettingsService extends GetxController {
     "Dark": ThemeMode.dark,
     "Light": ThemeMode.light,
   };
+
+  static String getThemeTitle(String themeModeName){
+    switch(themeModeName) {
+      case "System" :  return S.of(Get.context!).system;
+      case "Dark" :  return S.of(Get.context!).dark;
+      case "Light" :  return S.of(Get.context!).light;
+      default: return S.of(Get.context!).system;
+    }
+
+  }
   final themeModeName = (PrefUtil.getString('themeMode') ?? "System").obs;
 
   get themeMode => SettingsService.themeModes[themeModeName.value]!;

@@ -184,7 +184,7 @@ class SettingsPage extends GetView<SettingsService> {
                 activeColor: Theme.of(context).colorScheme.primary,
                 groupValue: controller.themeModeName.value,
                 value: name,
-                title: Text(name),
+                title: Text(SettingsService.getThemeTitle(name)),
                 onChanged: (value) {
                   controller.changeThemeMode(value!);
                   Navigator.of(context).pop();

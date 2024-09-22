@@ -77,6 +77,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("可用于恢复当前数据"),
         "create_backup_success": MessageLookupByLibrary.simpleMessage("创建备份成功"),
         "custom": MessageLookupByLibrary.simpleMessage("定制"),
+        "dark": MessageLookupByLibrary.simpleMessage("深色模式"),
         "develop_progress": MessageLookupByLibrary.simpleMessage("开发进度"),
         "dlan_button_info": MessageLookupByLibrary.simpleMessage("DLNA投屏"),
         "dlan_device_not_found":
@@ -151,6 +152,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "info_is_replay": m1,
         "issue_feedback": MessageLookupByLibrary.simpleMessage("问题反馈"),
         "license": MessageLookupByLibrary.simpleMessage("开源许可证"),
+        "light": MessageLookupByLibrary.simpleMessage("浅色模式"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("移到顶部"),
         "new_version_info": m2,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage("已在使用最新版本"),
@@ -231,6 +233,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("更新密码"),
         "support_donate": MessageLookupByLibrary.simpleMessage("捐赠支持"),
         "switch_platform": MessageLookupByLibrary.simpleMessage("切换直播平台"),
+        "system": MessageLookupByLibrary.simpleMessage("跟随系统"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
         "timedclose_time": m6,
         "unfollow": MessageLookupByLibrary.simpleMessage("取消关注"),

@@ -191,5 +191,8 @@
     "double_click_to_exit": "双击退出",
     "change_player": "切换播放器",
     "change_player_subtitle": "切换直播间播放器",
-    "enable_codec": "开启硬解码"
+    "enable_codec": "开启硬解码",
+    "system": "跟随系统",
+    "dark": "深色模式",
+    "light": "浅色模式"
 }

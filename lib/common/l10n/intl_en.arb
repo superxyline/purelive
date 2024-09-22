@@ -193,5 +193,8 @@
     "double_click_to_exit": "Double click to exit",
     "change_player": "Change videoPlayer",
     "change_player_subtitle": "Change videoPlayer of liveroom",
-    "enable_codec": "enable hardcodec"
+    "enable_codec": "enable hardcodec",
+    "system": "System",
+    "dark": "Dark",
+    "light": "Light"
 }

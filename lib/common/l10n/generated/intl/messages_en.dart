@@ -85,6 +85,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "create_backup_success":
             MessageLookupByLibrary.simpleMessage("Create backup success"),
         "custom": MessageLookupByLibrary.simpleMessage("Custom"),
+        "dark": MessageLookupByLibrary.simpleMessage("Dark"),
         "develop_progress": MessageLookupByLibrary.simpleMessage("Development"),
         "dlan_button_info":
             MessageLookupByLibrary.simpleMessage("DLNA Broadcast"),
@@ -180,6 +181,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "issue_feedback":
             MessageLookupByLibrary.simpleMessage("Issue Feedback"),
         "license": MessageLookupByLibrary.simpleMessage("License"),
+        "light": MessageLookupByLibrary.simpleMessage("Light"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("Move To Top"),
         "new_version_info": m2,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage(
@@ -282,6 +284,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Donate Support"),
         "switch_platform":
             MessageLookupByLibrary.simpleMessage("Switch platform"),
+        "system": MessageLookupByLibrary.simpleMessage("System"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
         "timedclose_time": m6,
         "unfollow": MessageLookupByLibrary.simpleMessage("Unfollow"),
