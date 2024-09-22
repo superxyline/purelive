@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
@@ -187,12 +188,24 @@ class VideoController with ChangeNotifier {
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       player = Player();
       if (player.platform is NativePlayer) {
-        (player.platform as dynamic).setProperty('cache', 'no'); // --cache=<yes|no|auto>
-        (player.platform as dynamic).setProperty('cache-secs', '0'); // --cache-secs=<seconds> with cache but why not.
+        (player.platform as dynamic)
+            .setProperty('cache', 'no'); // --cache=<yes|no|auto>
+        (player.platform as dynamic).setProperty('cache-secs',
+            '0'); // --cache-secs=<seconds> with cache but why not.
         (player.platform as dynamic).setProperty(
             'demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
       }
-      mediaPlayerController = media_kit_video.VideoController(player);
+      var conf = VideoControllerConfiguration(
+        enableHardwareAcceleration: enableCodec,
+      );
+      if (Platform.isAndroid || Platform.isIOS) {
+        conf = VideoControllerConfiguration(
+          vo: 'mediacodec_embed',
+          hwdec: 'mediacodec',
+          enableHardwareAcceleration: enableCodec,
+        );
+      }
+      mediaPlayerController = media_kit_video.VideoController(player, configuration: conf);
       setDataSource(datasource);
       mediaPlayerController.player.stream.playing.listen((bool playing) {
         if (playing) {
