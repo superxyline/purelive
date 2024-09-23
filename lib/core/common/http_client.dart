@@ -29,7 +29,7 @@ class HttpClient {
 
   static CacheOptions cacheOptions = CacheOptions(
     // A default store is required for interceptor.
-    store: getCacheStore(),
+    store: MemCacheStore(),
 
     // All subsequent fields are optional.
 
