@@ -92,35 +92,34 @@ class _VideoPlayerState extends State<VideoPlayer> {
       ]);
     } else {
       return Stack(children: [
-        Obx(() => Chewie(
+        Obx(() {
+          if (widget.controller.mediaPlayerControllerInitialized.value) {
+            return Chewie(
               controller: widget.controller.chewieController,
-            )),
-
-        /// 封面
-        Obx(() => Visibility(
-            visible: !widget.controller.mediaPlayerControllerInitialized.value,
-            child: Card(
-              elevation: 0,
-              margin: const EdgeInsets.all(0),
-              shape:
-                  const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-              clipBehavior: Clip.antiAlias,
-              color: Get.theme.focusColor,
-              child: CachedNetworkImage(
-                cacheManager: CustomCacheManager.instance,
-                imageUrl: widget.controller.room.cover!,
-                fit: BoxFit.fill,
-                errorWidget: (context, error, stackTrace) => const Center(
-                  child: Icon(Icons.live_tv_rounded, size: 48),
-                ),
+            );
+          }
+          return Card(
+            elevation: 0,
+            margin: const EdgeInsets.all(0),
+            shape:
+                const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            clipBehavior: Clip.antiAlias,
+            color: Get.theme.focusColor,
+            child: CachedNetworkImage(
+              cacheManager: CustomCacheManager.instance,
+              imageUrl: widget.controller.room.cover!,
+              fit: BoxFit.fill,
+              errorWidget: (context, error, stackTrace) => const Center(
+                child: Icon(Icons.live_tv_rounded, size: 48),
               ),
-            ))),
+            ),
+          );
+        }),
 
         /// 视频加载中
         Obx(
           () => Visibility(
-              visible:
-                  !widget.controller.gsyVideoPlayerController.value.isBuffering,
+              visible: !widget.controller.isBuffering.value,
               child: const Center(
                 child: CircularProgressIndicator(),
               )),

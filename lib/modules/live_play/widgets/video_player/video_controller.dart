@@ -223,6 +223,9 @@ class VideoController with ChangeNotifier {
           isPlaying.value = false;
         }
       });
+      mediaPlayerController.player.stream.buffering.listen((e) {
+        isBuffering.value = e;
+      });
     } else if (Platform.isAndroid || Platform.isIOS) {
       setDataSource(datasource);
     }
@@ -422,6 +425,24 @@ class VideoController with ChangeNotifier {
         cacheWithPlay: false,
         useDefaultIjkOptions: true,
       );
+      gsyVideoPlayerController.videoEventStreamController.stream.listen((e) {
+        switch (e.playState) {
+          case VideoPlayState.playing:
+          case VideoPlayState.playingBufferingStart:
+          case VideoPlayState.pause:
+          case VideoPlayState.completed:
+            isBuffering.value = true;
+            break;
+
+          case VideoPlayState.normal:
+          case VideoPlayState.prepareing:
+          case VideoPlayState.error:
+          case VideoPlayState.unknown:
+          default:
+            isBuffering.value = false;
+            break;
+        }
+      });
       gsyVideoPlayerController.addEventsListener((VideoEventType event) {
         if (event == VideoEventType.onError) {
           hasError.value = true;
