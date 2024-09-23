@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
@@ -21,6 +23,7 @@ class HttpClient {
     getTemporaryDirectory().then((dir){
       return DbCacheStore(databasePath: dir.path, logStatements: true);
     });
+    sleep(const Duration(seconds: 2));
     return null;
   }
 
