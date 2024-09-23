@@ -65,10 +65,13 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
           onNotification: _userScrollAction,
           child: ListView.builder(
             controller: _scrollController,
-            itemCount: controller.messages.length,
+            /// 只显示 100 条弹幕
+            itemCount: (controller.messages.length > 100 ? 100 : controller.messages.length),
             shrinkWrap: true,
             itemBuilder: (context, index) {
-              final danmaku = controller.messages[index];
+              var partIndex = controller.messages.length > 100 ? controller.messages.length - 100 : 0;
+              var sIndex = partIndex + index;
+              final danmaku = controller.messages[sIndex];
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                 alignment: Alignment.centerLeft,
