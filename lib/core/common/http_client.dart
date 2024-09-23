@@ -17,9 +17,11 @@ class HttpClient {
     return _httpUtil!;
   }
 
-  static getCacheStore() async {
-    var dir = await getTemporaryDirectory();
-    return DbCacheStore(databasePath: dir.path, logStatements: true);
+  static CacheStore? getCacheStore() {
+    getTemporaryDirectory().then((dir){
+      return DbCacheStore(databasePath: dir.path, logStatements: true);
+    });
+    return null;
   }
 
   static CacheOptions cacheOptions = CacheOptions(
