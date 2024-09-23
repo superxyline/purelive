@@ -23,7 +23,7 @@ class HttpClient {
     getTemporaryDirectory().then((dir){
       return DbCacheStore(databasePath: dir.path, logStatements: true);
     });
-    sleep(const Duration(seconds: 2));
+    sleep(const Duration(seconds: 1));
     return null;
   }
 
