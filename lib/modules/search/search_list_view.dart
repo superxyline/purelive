@@ -63,7 +63,7 @@ class _OwnerCardState extends State<OwnerCard> {
 
   ImageProvider? getRoomAvatar(avatar) {
     try {
-      return CachedNetworkImageProvider(avatar, errorListener: (err) {
+      return CachedNetworkImageProvider(avatar, cacheManager: CustomCacheManager.instance, errorListener: (err) {
         log("CachedNetworkImageProvider: Image failed to load!");
       });
     } catch (e) {
