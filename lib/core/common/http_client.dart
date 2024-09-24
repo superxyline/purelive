@@ -51,7 +51,7 @@ class HttpClient {
     keyBuilder: CacheOptions.defaultCacheKeyBuilder,
     // Default. Allows to cache POST requests.
     // Overriding [keyBuilder] is strongly recommended when [true].
-    allowPostMethod: false,
+    allowPostMethod: true,
   );
 
   late Dio dio;
