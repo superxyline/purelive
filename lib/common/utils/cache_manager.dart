@@ -1,7 +1,6 @@
 // ignore_for_file: implementation_imports
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter_cache_manager_dio/flutter_cache_manager_dio.dart';
 import 'package:path/path.dart' as p;
 import 'package:file/local.dart';
