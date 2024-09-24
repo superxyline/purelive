@@ -67,6 +67,8 @@ class HttpClient {
     dio.interceptors.add(CustomInterceptor());
     dio.interceptors.add(DioCacheInterceptor(options: cacheOptions));
     dio.httpClientAdapter = CustomIOHttpClientAdapter.instance;
+
+    HttpOverrides.global = GlobalHttpOverrides();
   }
 
   /// Get请求，返回String

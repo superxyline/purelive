@@ -14,3 +14,13 @@ class CustomIOHttpClientAdapter {
     });
   }
 }
+
+class GlobalHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    var client = super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+    return client;
+  }
+}
