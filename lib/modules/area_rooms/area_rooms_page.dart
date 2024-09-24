@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
@@ -101,7 +102,7 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
               });
             },
             child: CircleAvatar(
-              foregroundImage: (widget.area.areaPic == '') ? null : NetworkImage(widget.area.areaPic!),
+              foregroundImage: (widget.area.areaPic == '') ? null : CachedNetworkImageProvider(widget.area.areaPic!, cacheManager: CustomCacheManager.instance),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -114,7 +115,7 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
               settings.addArea(widget.area);
             },
             icon: CircleAvatar(
-              foregroundImage: (widget.area.areaPic == '') ? null : NetworkImage(widget.area.areaPic!),
+              foregroundImage: (widget.area.areaPic == '') ? null : CachedNetworkImageProvider(widget.area.areaPic!, cacheManager: CustomCacheManager.instance),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),

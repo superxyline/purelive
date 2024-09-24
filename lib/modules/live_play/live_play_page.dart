@@ -35,7 +35,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                   CircleAvatar(
                     foregroundImage: controller.detail.value == null && controller.detail.value!.avatar!.isEmpty
                         ? null
-                        : NetworkImage(controller.detail.value!.avatar!),
+                        : CachedNetworkImageProvider(controller.detail.value!.avatar!, cacheManager: CustomCacheManager.instance),
                     radius: 13,
                     backgroundColor: Theme.of(context).disabledColor,
                   ),
@@ -65,7 +65,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                   CircleAvatar(
                     foregroundImage: controller.currentPlayRoom.value.avatar == null
                         ? null
-                        : NetworkImage(controller.currentPlayRoom.value.avatar!),
+                        : CachedNetworkImageProvider(controller.currentPlayRoom.value.avatar!, cacheManager: CustomCacheManager.instance),
                     radius: 13,
                     backgroundColor: Theme.of(context).disabledColor,
                   ),
@@ -380,7 +380,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               });
             },
             child: CircleAvatar(
-              foregroundImage: (widget.room.avatar == '') ? null : NetworkImage(widget.room.avatar!),
+              foregroundImage: (widget.room.avatar == '') ? null : CachedNetworkImageProvider(widget.room.avatar!, cacheManager: CustomCacheManager.instance),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
@@ -393,7 +393,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               settings.addRoom(widget.room);
             },
             icon: CircleAvatar(
-              foregroundImage: (widget.room.avatar == '') ? null : NetworkImage(widget.room.avatar!),
+              foregroundImage: (widget.room.avatar == '') ? null : CachedNetworkImageProvider(widget.room.avatar!, cacheManager: CustomCacheManager.instance),
               radius: 18,
               backgroundColor: Theme.of(context).disabledColor,
             ),
