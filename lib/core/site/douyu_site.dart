@@ -96,6 +96,14 @@ class DouyuSite extends LiveSite {
       if (item["type"] != 1) {
         continue;
       }
+      var avatar = item['av'].toString();
+      if(avatar.isNotEmpty) {
+        if(!avatar.contains("https://")) {
+          avatar = "https://apic.douyucdn.cn/upload/${avatar}_middle.jpg";
+        }
+      } else {
+        avatar = "";
+      }
       var roomItem = LiveRoom(
         cover: item['rs16'].toString(),
         watching: item['ol'].toString(),
@@ -104,9 +112,7 @@ class DouyuSite extends LiveSite {
         nick: item['nn'].toString(),
         area: item['c2name'].toString(),
         liveStatus: LiveStatus.live,
-        avatar: item['av'].toString().isNotEmpty
-            ? 'https://apic.douyucdn.cn/upload/${item['av']}_middle.jpg'
-            : '',
+        avatar: avatar,
         status: true,
         platform: Sites.douyuSite,
       );
@@ -196,6 +202,14 @@ class DouyuSite extends LiveSite {
       if (item["type"] != 1) {
         continue;
       }
+      var avatar = item['av'].toString();
+      if(avatar.isNotEmpty) {
+        if(!avatar.contains("https://")) {
+          avatar = "https://apic.douyucdn.cn/upload/${avatar}_middle.jpg";
+        }
+      } else {
+        avatar = "";
+      }
       var roomItem = LiveRoom(
         cover: item['rs16'].toString(),
         watching: item['ol'].toString(),
@@ -203,9 +217,7 @@ class DouyuSite extends LiveSite {
         title: item['rn'].toString(),
         nick: item['nn'].toString(),
         area: item['c2name'].toString(),
-        avatar: item['av'].toString().isNotEmpty
-            ? 'https://apic.douyucdn.cn/upload/${item['av']}_middle.jpg'
-            : '',
+        avatar: avatar,
         platform: Sites.douyuSite,
         status: true,
         liveStatus: LiveStatus.live,
