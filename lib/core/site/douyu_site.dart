@@ -444,6 +444,7 @@ class DouyuSite extends LiveSite {
         .firstMatch(ub9)
         ?.group(1) ??
         "";
+    await JsEngine.init();
     final params = JsEngine.evaluate(
         '$ub9;;$functionName(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
         .toString();
