@@ -10,7 +10,7 @@ class CustomCache {
   }
   final String cacheDir;
 
-  CustomCache({this.cacheDir = 'cache_file'});
+  CustomCache({this.cacheDir = 'cache'});
 
   Future<void> setCache(String key, dynamic value) async {
     final file = await _getFile(key);
@@ -33,8 +33,8 @@ class CustomCache {
   }
 
   Future<File> _getFile(String key) async {
-    var baseDir = await getTemporaryDirectory();
-    await Directory("${baseDir.path}/$cacheDir").create(recursive: true);
+    // var baseDir = await getTemporaryDirectory();
+    await Directory(cacheDir).create(recursive: true);
     return File('$cacheDir/$key');
   }
 }
