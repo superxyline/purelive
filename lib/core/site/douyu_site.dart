@@ -437,8 +437,11 @@ class DouyuSite extends LiveSite {
     String homeJs = result.replaceAll("eval.*?;", "strc;");
     await JsEngine.init();
     var res = JsEngine.evaluate("$homeJs;;ub98484234()").toString();
+    SmartDialog.showToast(res);
     var funcSign = res.replaceAll(RegExp('return rt;}\\);?'), 'return rt;}')
         .replaceAll('(function (', 'function sign(');
+
+    SmartDialog.showToast(funcSign);
 
     String ub9 = funcSign;
     final tt = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
