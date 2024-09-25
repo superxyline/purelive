@@ -405,16 +405,17 @@ class DouyuSite extends LiveSite {
     html = html.replaceAll(RegExp(r"eval.*?;}"), "strc;}");
 
     var sign = await getSign(rid, oldHtml);
-    SmartDialog.showToast(sign);
+    // SmartDialog.showToast(sign);
+    return sign;
 
-    var result = await HttpClient.instance.postJson(
-        "http://alive.nsapps.cn/api/AllLive/DouyuSign",
-        data: {"html": html, "rid": rid});
-
-    if (result["code"] == 0) {
-      return result["data"].toString();
-    }
-    return "";
+    // var result = await HttpClient.instance.postJson(
+    //     "http://alive.nsapps.cn/api/AllLive/DouyuSign",
+    //     data: {"html": html, "rid": rid});
+    //
+    // if (result["code"] == 0) {
+    //   return result["data"].toString();
+    // }
+    // return "";
   }
 
   Future<String> getSign(String rid, String ub9) async {
