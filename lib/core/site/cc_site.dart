@@ -35,10 +35,14 @@ class CCSite extends LiveSite {
       LiveCategory(id: "5", name: "娱乐", children: []),
     ];
 
+    List<Future> futures = [];
     for (var item in categories) {
-      var items = await getSubCategores(item);
-      item.children.addAll(items);
+      futures.add(Future(() async {
+        var items = await getSubCategores(item);
+        item.children.addAll(items);
+      }));
     }
+    await Future.wait(futures);
     return categories;
   }
 

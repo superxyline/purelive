@@ -62,10 +62,14 @@ class KuaishowSite extends LiveSite {
       LiveCategory(id: "8", name: "文化", children: []),
     ];
 
+    List<Future> futures = [];
     for (var item in categories) {
-      var items = await getAllSubCategores(item, 1, 30, []);
-      item.children.addAll(items);
+      futures.add(Future(() async {
+        var items = await getAllSubCategores(item, 1, 30, []);
+        item.children.addAll(items);
+      }));
     }
+    await Future.wait(futures);
     return categories;
   }
 

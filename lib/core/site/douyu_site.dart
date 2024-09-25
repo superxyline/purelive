@@ -53,10 +53,14 @@ class DouyuSite extends LiveSite {
       LiveCategory(id: "15", name: "正能量", children: []),
     ];
 
+    List<Future> futures = [];
     for (var item in categories) {
-      var items = await getSubCategories(item);
-      item.children.addAll(items);
+      futures.add(Future(() async {
+        var items = await getSubCategories(item);
+        item.children.addAll(items);
+      }));
     }
+    await Future.wait(futures);
     return categories;
   }
 
