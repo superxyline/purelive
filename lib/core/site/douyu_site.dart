@@ -21,6 +21,8 @@ import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
+import '../../common/utils/js_engine.dart';
+
 class DouyuSite extends LiveSite {
   @override
   String id = "douyu";
@@ -402,6 +404,9 @@ class DouyuSite extends LiveSite {
         "";
     html = html.replaceAll(RegExp(r"eval.*?;}"), "strc;}");
 
+    var sign = await getSign(rid, html);
+    SmartDialog.showToast(sign);
+
     var result = await HttpClient.instance.postJson(
         "http://alive.nsapps.cn/api/AllLive/DouyuSign",
         data: {"html": html, "rid": rid});
@@ -411,6 +416,18 @@ class DouyuSite extends LiveSite {
     }
     return "";
   }
+
+  Future<String> getSign(String rid, String ub9) async {
+    final tt = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
+    ub9 = ub9.substring(0, ub9.lastIndexOf('function'));
+    ub9 = ub9.replaceAll("ub98484234(", "ub98484234_$rid(");
+    JsEngine.init();
+    final params = JsEngine.evaluate(
+        '$ub9;;ub98484234_$rid(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
+        .toString();
+    return params;
+  }
+
 
   int parseHotNum(String hn) {
     try {
