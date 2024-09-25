@@ -451,9 +451,13 @@ class DouyuSite extends LiveSite {
         ?.group(1) ??
         "";
 
+    SmartDialog.showToast(functionName);
+
     final params = JsEngine.evaluate(
         '$ub9;;$functionName(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
         .toString();
+
+    SmartDialog.showToast(params);
     return params;
 
   }
