@@ -29,7 +29,7 @@ void main(List<String> args) async {
 }
 
 void initService() {
-  // Get.put(AuthController());
+  Get.put(AuthController());
   Get.put(SettingsService());
   Get.put(FavoriteController());
   // Get.put(PopularController());

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/common/base/base_controller.dart';
+import 'package:pure_live/plugins/cache_to_file.dart';
 
 class AreasListController extends BasePageController<AppLiveCategory> {
   final Site site;
@@ -11,8 +12,14 @@ class AreasListController extends BasePageController<AppLiveCategory> {
 
   @override
   Future<List<AppLiveCategory>> getData(int page, int pageSize) async {
+    var cacheKey = "${site.id}_${tabIndex.value}_${page}_$pageSize";
+    if(await CustomCache.instance.isExistCache(cacheKey)) {
+      return (await CustomCache.instance.getCache<List<AppLiveCategory>>(cacheKey))!;
+    }
     var result = await site.liveSite.getCategores(page, pageSize);
-    return result.map((e) => AppLiveCategory.fromLiveCategory(e)).toList();
+    var list = result.map((e) => AppLiveCategory.fromLiveCategory(e)).toList();
+    CustomCache.instance.setCache(cacheKey, list);
+    return list;
   }
 }
 
