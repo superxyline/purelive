@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/modules/areas/widgets/area_card.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -44,7 +45,7 @@ class _AreaGridViewState extends State<AreaGridView> with SingleTickerProviderSt
     );
   }
 
-  Widget buildAreasView(AppLiveCategory category) {
+  Widget buildAreasView(LiveCategory category) {
     return LayoutBuilder(builder: (context, constraint) {
       final width = constraint.maxWidth;
       final crossAxisCount = width > 1280 ? 9 : (width > 960 ? 7 : (width > 640 ? 5 : 3));
