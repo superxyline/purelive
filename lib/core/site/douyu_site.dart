@@ -437,11 +437,11 @@ class DouyuSite extends LiveSite {
     String homeJs = result.replaceAll(RegExp(r"eval.*?;"), "strc;");
     await JsEngine.init();
     var res = JsEngine.evaluate("$homeJs;;ub98484234()").toString();
-    SmartDialog.showToast(res);
+    // SmartDialog.showToast(res);
     var funcSign = res.replaceAll(RegExp('return rt;}\\);?'), 'return rt;}')
         .replaceAll('(function (', 'function sign(');
 
-    SmartDialog.showToast(funcSign);
+    // SmartDialog.showToast(funcSign);
 
     String ub9 = funcSign;
     final tt = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
@@ -451,13 +451,13 @@ class DouyuSite extends LiveSite {
         ?.group(1) ??
         "";
 
-    SmartDialog.showToast(functionName);
+    // SmartDialog.showToast(functionName);
 
     final params = JsEngine.evaluate(
         '$ub9;;$functionName(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
         .toString();
 
-    SmartDialog.showToast(params);
+    // SmartDialog.showToast(params);
     return params;
 
   }
