@@ -445,7 +445,7 @@ class DouyuSite extends LiveSite {
 
     String ub9 = funcSign;
     final tt = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
-    ub9 = ub9.substring(0, ub9.lastIndexOf('function'));
+    // ub9 = ub9.substring(0, ub9.lastIndexOf('function'));
     var functionName = RegExp(r"function\s*([\s\S]*?)\s*\(", multiLine: true)
         .firstMatch(ub9)
         ?.group(1) ??
