@@ -42,11 +42,5 @@ class AppLiveCategory extends LiveCategory {
       name: item.name,
     );
   }
-  Map<String, dynamic> toJson() {
-    Map<String, dynamic> json = {};
-    json['id'] = id;
-    json['name'] = name;
-    json['children'] = children.map((LiveArea e) => jsonEncode(e.toJson())).toList();
-    return json;
-  }
+
 }

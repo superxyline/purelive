@@ -12,6 +12,19 @@ class LiveCategory {
     required this.children,
   });
 
+  LiveCategory.fromJson(Map<String, dynamic> json)
+      : name = json['name'] ?? '',
+        id = json['id'] ?? '',
+        children = json['children'] ?? [];
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'name': name,
+      'id': id,
+      'children': children,
+    };
+  }
+
   @override
   String toString() {
     return json.encode({
