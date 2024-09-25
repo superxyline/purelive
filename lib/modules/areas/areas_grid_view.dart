@@ -28,13 +28,13 @@ class _AreaGridViewState extends State<AreaGridView> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TabBar(
+        Obx(() => TabBar(
           controller: tabController,
           isScrollable: true,
           tabAlignment: TabAlignment.center,
           indicatorSize: TabBarIndicatorSize.label,
           tabs: widget.controller.list.map<Widget>((e) => Tab(text: e.name)).toList(),
-        ),
+        )),
         Expanded(
           child: Obx(() => TabBarView(
                 controller: tabController,
