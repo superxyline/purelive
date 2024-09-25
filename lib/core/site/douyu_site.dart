@@ -428,23 +428,26 @@ class DouyuSite extends LiveSite {
       response = (await HttpClient.instance.get(roomUrl)).data;
     }
 
-    final pattern = RegExp(
-        "(vdwdae325w_64we[\\s\\S]*function ub98484234[\\s\\S]*?)function");
-    final matcher = pattern.allMatches(response);
-    if (matcher.isEmpty) return "";
-    String result = matcher.toList()[0][0]!;
-    // String homejs = result.replaceAll("eval.*?;", "strc;");
-    String homejs = result;
+    //取加密的js
+    var result = RegExp(
+        r"(vdwdae325w_64we[\s\S]*function ub98484234[\s\S]*?)function", multiLine: true)
+        .firstMatch(response)
+        ?.group(1) ??
+        "";
+    String homeJs = result.replaceAll("eval.*?;", "strc;");
+    await JsEngine.init();
+    var res = JsEngine.evaluate("$homeJs;;ub98484234()").toString();
+    var funcSign = res.replaceAll(RegExp('return rt;}\\);?'), 'return rt;}')
+        .replaceAll('(function (', 'function sign(');
 
-
-    String ub9 = homejs;
+    String ub9 = funcSign;
     final tt = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
     ub9 = ub9.substring(0, ub9.lastIndexOf('function'));
     var functionName = RegExp(r"function\s*([\s\S]*?)\s*\(", multiLine: true)
         .firstMatch(ub9)
         ?.group(1) ??
         "";
-    await JsEngine.init();
+
     final params = JsEngine.evaluate(
         '$ub9;;$functionName(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
         .toString();
