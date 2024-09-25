@@ -422,8 +422,9 @@ class DouyuSite extends LiveSite {
     ub9 = ub9.substring(0, ub9.lastIndexOf('function'));
     ub9 = ub9.replaceAll("ub98484234(", "ub98484234_$rid(");
     JsEngine.init();
+    JsEngine.evaluate(ub9);
     final params = JsEngine.evaluate(
-        '$ub9;;ub98484234_$rid(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
+        'ub98484234_$rid(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
         .toString();
     return params;
   }
