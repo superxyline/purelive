@@ -13,7 +13,7 @@ class AreasListController extends BasePageController<LiveCategory> {
   @override
   Future<List<LiveCategory>> getData(int page, int pageSize) async {
     var cacheKey = "${site.id}_${tabIndex.value}_${page}_$pageSize";
-    if(await CustomCache.instance.isExistCache(cacheKey)) {
+    if(await CustomCache.instance.isExistCache(cacheKey) && site.id != Sites.iptvSite) {
       var list = (await CustomCache.instance.getCache<List>(cacheKey))!;
       var rs = list.map((e) => LiveCategory.fromJson(e)).toList();
       return rs;
@@ -21,6 +21,9 @@ class AreasListController extends BasePageController<LiveCategory> {
     var result = await site.liveSite.getCategores(page, pageSize);
     // var list = result.map((e) => AppLiveCategory.fromLiveCategory(e)).toList();
     var list = result.toList();
+    if(result.isEmpty || site.id == Sites.iptvSite) {
+      return list;
+    }
     await CustomCache.instance.setCache(cacheKey, list);
     return list;
   }
