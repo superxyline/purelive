@@ -433,7 +433,8 @@ class DouyuSite extends LiveSite {
     final matcher = pattern.allMatches(response);
     if (matcher.isEmpty) return "";
     String result = matcher.toList()[0][0]!;
-    String homejs = result.replaceAll("eval.*?;", "strc;");
+    // String homejs = result.replaceAll("eval.*?;", "strc;");
+    String homejs = result;
 
 
     String ub9 = homejs;
