@@ -43,7 +43,19 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     addToOverlay();
     favoriteController.tabBottomIndex.addListener(() {
       setState(() => _selectedIndex = favoriteController.tabBottomIndex.value);
+      setPageController(_selectedIndex);
     });
+  }
+
+  void setPageController(int selectIndex){
+    switch(selectIndex){
+      case 0 : Get.put(FavoriteController()); break;
+      case 1 : Get.put(PopularController()); break;
+      case 2 : Get.put(AreasController()); break;
+      case 3 : Get.put(SearchController()); break;
+      default:
+        Get.put(FavoriteController()); break;
+    }
   }
 
   @override
