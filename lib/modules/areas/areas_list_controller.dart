@@ -18,7 +18,7 @@ class AreasListController extends BasePageController<AppLiveCategory> {
     }
     var result = await site.liveSite.getCategores(page, pageSize);
     var list = result.map((e) => AppLiveCategory.fromLiveCategory(e)).toList();
-    CustomCache.instance.setCache(cacheKey, list);
+    await CustomCache.instance.setCache(cacheKey, list);
     return list;
   }
 }
