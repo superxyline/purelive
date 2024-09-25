@@ -99,8 +99,8 @@ class DouyuSite extends LiveSite {
         continue;
       }
       var avatar = item['av'].toString();
-      if(avatar.isNotEmpty) {
-        if(!avatar.contains("https://")) {
+      if (avatar.isNotEmpty) {
+        if (!avatar.contains("https://")) {
           avatar = "https://apic.douyucdn.cn/upload/${avatar}_middle.jpg";
         }
       } else {
@@ -205,8 +205,8 @@ class DouyuSite extends LiveSite {
         continue;
       }
       var avatar = item['av'].toString();
-      if(avatar.isNotEmpty) {
-        if(!avatar.contains("https://")) {
+      if (avatar.isNotEmpty) {
+        if (!avatar.contains("https://")) {
           avatar = "https://apic.douyucdn.cn/upload/${avatar}_middle.jpg";
         }
       } else {
@@ -394,17 +394,17 @@ class DouyuSite extends LiveSite {
     return detail.status!;
   }
 
-  Future<String> getPlayArgs(String html, String rid) async {
+  Future<String> getPlayArgs(String oldHtml, String rid) async {
     //取加密的js
-    html = RegExp(
+    var html = RegExp(
                 r"(vdwdae325w_64we[\s\S]*function ub98484234[\s\S]*?)function",
                 multiLine: true)
-            .firstMatch(html)
+            .firstMatch(oldHtml)
             ?.group(1) ??
         "";
     html = html.replaceAll(RegExp(r"eval.*?;}"), "strc;}");
 
-    var sign = await getSign(rid, html);
+    var sign = await getSign(rid, oldHtml);
     SmartDialog.showToast(sign);
 
     var result = await HttpClient.instance.postJson(
@@ -420,15 +420,18 @@ class DouyuSite extends LiveSite {
   Future<String> getSign(String rid, String ub9) async {
     final tt = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
     ub9 = ub9.substring(0, ub9.lastIndexOf('function'));
-    ub9 = ub9.replaceAll("ub98484234(", "ub98484234_$rid(");
-    JsEngine.init();
-    JsEngine.evaluate(ub9);
+    var functionName = RegExp(r"function\s*([\s\S]*?)\s*\(", multiLine: true)
+            .firstMatch(ub9)
+            ?.group(1) ??
+        "";
+    // ub9 = ub9.replaceAll("ub98484234(", "ub98484234_$rid(");
+    await JsEngine.init();
+    // JsEngine.evaluate(ub9);
     final params = JsEngine.evaluate(
-        'ub98484234_$rid(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
+            '$ub9;;$functionName(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
         .toString();
     return params;
   }
-
 
   int parseHotNum(String hn) {
     try {

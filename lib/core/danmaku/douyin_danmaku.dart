@@ -51,7 +51,7 @@ class DouyinDanmaku implements LiveDanmaku {
   Future start(dynamic args) async {
     danmakuArgs = args as DouyinDanmakuArgs;
     var ts = DateTime.now().millisecondsSinceEpoch;
-    JsEngine.init();
+    await JsEngine.init();
     await JsEngine.loadDouyinSdk();
     var xMsStub = getMsStub(danmakuArgs.roomId, danmakuArgs.userId);
     JsEvalResult jsEvalResult = await JsEngine.evaluateAsync("get_sign('$xMsStub')");

@@ -5,9 +5,13 @@ class JsEngine {
   static JavascriptRuntime? _jsRuntime;
   static JavascriptRuntime get jsRuntime => _jsRuntime!;
 
-  static void init() {
-    _jsRuntime ??= getJavascriptRuntime();
-    jsRuntime.enableHandlePromises();
+  static Future<void> init() async {
+    if(_jsRuntime == null) {
+      _jsRuntime = getJavascriptRuntime();
+      jsRuntime.enableHandlePromises();
+      await JsEngine.loadDouyinSdk();
+      await JsEngine.loadCryptoJsSdk();
+    }
   }
 
   static Future<void> loadDouyinSdk() async {
@@ -34,4 +38,12 @@ class JsEngine {
   }) {
     return jsRuntime.sendMessage(channelName: channelName, args: args);
   }
+
+  static Future<void> loadCryptoJsSdk() async {
+    final coreJS = await rootBundle.loadString('assets/js/crypto-js-core.js');
+    final md5JS = await rootBundle.loadString('assets/js/crypto-js-md5.js');
+    jsRuntime.evaluate(coreJS);
+    jsRuntime.evaluate(md5JS);
+  }
+
 }

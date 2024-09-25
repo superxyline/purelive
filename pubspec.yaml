@@ -176,6 +176,7 @@ flutter:
     - assets/keystore/supabase.json
     # - assets/pure_live_web/
     - assets/js/webmssdk.js
+    - assets/js/
     # - assets/pure_live_web/assets/
     # - assets/pure_live_web/assets/assets/icons/
     # - assets/pure_live_web/assets/assets/images/
