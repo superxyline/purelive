@@ -434,7 +434,7 @@ class DouyuSite extends LiveSite {
         .firstMatch(response)
         ?.group(1) ??
         "";
-    String homeJs = result.replaceAll("eval.*?;", "strc;");
+    String homeJs = result.replaceAll(RegExp(r"eval.*?;"), "strc;");
     await JsEngine.init();
     var res = JsEngine.evaluate("$homeJs;;ub98484234()").toString();
     SmartDialog.showToast(res);
