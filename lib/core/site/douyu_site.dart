@@ -252,16 +252,6 @@ class DouyuSite extends LiveSite {
         roomInfo = result["room"];
       }
 
-      var jsEncResult = await HttpClient.instance.getText(
-          "https://www.douyu.com/swf_api/homeH5Enc?rids=$roomId",
-          queryParameters: {},
-          header: {
-            'referer': 'https://www.douyu.com/$roomId',
-            'user-agent':
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"
-          });
-      var crptext = json.decode(jsEncResult)["data"]["room$roomId"].toString();
-
       return LiveRoom(
         cover: roomInfo["room_pic"].toString(),
         watching: roomInfo["room_biz_all"]["hot"].toString(),
@@ -276,7 +266,7 @@ class DouyuSite extends LiveSite {
             roomInfo["show_status"] == 1 ? LiveStatus.live : LiveStatus.offline,
         status: roomInfo["show_status"] == 1,
         danmakuData: roomInfo["room_id"].toString(),
-        data: await getPlayArgs(crptext, roomInfo["room_id"].toString()),
+        data: await getSignByHome(roomInfo["room_id"].toString()),
         platform: Sites.douyuSite,
         link: "https://www.douyu.com/$roomId",
         isRecord: roomInfo["videoLoop"] == 1,
@@ -394,7 +384,18 @@ class DouyuSite extends LiveSite {
     return detail.status!;
   }
 
-  Future<String> getPlayArgs(String oldHtml, String rid) async {
+  Future<String> getPlayArgs(String roomId) async {
+
+    var jsEncResult = await HttpClient.instance.getText(
+        "https://www.douyu.com/swf_api/homeH5Enc?rids=$roomId",
+        queryParameters: {},
+        header: {
+          'referer': 'https://www.douyu.com/$roomId',
+          'user-agent':
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"
+        });
+    var oldHtml = json.decode(jsEncResult)["data"]["room$roomId"].toString();
+
     //取加密的js
     var html = RegExp(
                 r"(vdwdae325w_64we[\s\S]*function ub98484234[\s\S]*?)function",
@@ -404,34 +405,49 @@ class DouyuSite extends LiveSite {
         "";
     html = html.replaceAll(RegExp(r"eval.*?;}"), "strc;}");
 
-    var sign = await getSign(rid, oldHtml);
-    // SmartDialog.showToast(sign);
-    return sign;
+    var result = await HttpClient.instance.postJson(
+        "http://alive.nsapps.cn/api/AllLive/DouyuSign",
+        data: {"html": html, "rid": roomId});
 
-    // var result = await HttpClient.instance.postJson(
-    //     "http://alive.nsapps.cn/api/AllLive/DouyuSign",
-    //     data: {"html": html, "rid": rid});
-    //
-    // if (result["code"] == 0) {
-    //   return result["data"].toString();
-    // }
-    // return "";
+    if (result["code"] == 0) {
+      return result["data"].toString();
+    }
+    return "";
   }
 
-  Future<String> getSign(String rid, String ub9) async {
+  /// 通过主页获取签名
+  Future<String> getSignByHome(String rid) async {
+    String roomUrl = "https://www.douyu.com/$rid";
+    String response = (await HttpClient.instance.get(roomUrl)).data;
+
+    String realRid = response.substring(
+        response.indexOf("\$ROOM.room_id =") + ("\$ROOM.room_id =").length);
+    realRid = realRid.substring(0, realRid.indexOf(";")).trim();
+    if (rid != realRid) {
+      roomUrl = "https://www.douyu.com/$realRid";
+      response = (await HttpClient.instance.get(roomUrl)).data;
+    }
+
+    final pattern = RegExp(
+        "(vdwdae325w_64we[\\s\\S]*function ub98484234[\\s\\S]*?)function");
+    final matcher = pattern.allMatches(response);
+    if (matcher.isEmpty) return "";
+    String result = matcher.toList()[0][0]!;
+    String homejs = result.replaceAll("eval.*?;", "strc;");
+
+
+    String ub9 = homejs;
     final tt = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
     ub9 = ub9.substring(0, ub9.lastIndexOf('function'));
     var functionName = RegExp(r"function\s*([\s\S]*?)\s*\(", multiLine: true)
-            .firstMatch(ub9)
-            ?.group(1) ??
+        .firstMatch(ub9)
+        ?.group(1) ??
         "";
-    // ub9 = ub9.replaceAll("ub98484234(", "ub98484234_$rid(");
-    await JsEngine.init();
-    // JsEngine.evaluate(ub9);
     final params = JsEngine.evaluate(
-            '$ub9;;$functionName(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
+        '$ub9;;$functionName(\'$rid\', \'10000000000000000000000000001501\', \'$tt\')')
         .toString();
     return params;
+
   }
 
   int parseHotNum(String hn) {
