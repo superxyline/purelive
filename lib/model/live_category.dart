@@ -15,13 +15,13 @@ class LiveCategory {
   LiveCategory.fromJson(Map<String, dynamic> json)
       : name = json['name'] ?? '',
         id = json['id'] ?? '',
-        children = json['children'] ?? [];
+        children = jsonDecode(json['children'] ?? "[]") as List<LiveArea>;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'name': name,
       'id': id,
-      'children': children,
+      'children': jsonEncode(children),
     };
   }
 
