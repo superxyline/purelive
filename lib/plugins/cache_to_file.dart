@@ -34,7 +34,8 @@ class CustomCache {
 
   Future<File> _getFile(String key) async {
     var baseDir = await getTemporaryDirectory();
-    await Directory('${baseDir.path}/$cacheDir').create(recursive: true);
-    return File('$cacheDir/$key');
+    var dir = '${baseDir.path}/$cacheDir';
+    await Directory(dir).create(recursive: true);
+    return File('$dir/$key');
   }
 }
