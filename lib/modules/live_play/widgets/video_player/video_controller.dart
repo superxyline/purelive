@@ -91,7 +91,7 @@ class VideoController with ChangeNotifier {
 
   final SettingsService settings = Get.find<SettingsService>();
 
-  int videoPlayerIndex = 0;
+  int videoPlayerIndex = 4;
 
   bool enableCodec = true;
 
@@ -561,8 +561,8 @@ class VideoController with ChangeNotifier {
 
   /// 设置横屏
   Future setLandscapeOrientation() async {
-    isVertical.value = false;
-    if (videoPlayerIndex == 4) {
+    // isVertical.value = false;
+    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
@@ -580,8 +580,8 @@ class VideoController with ChangeNotifier {
 
   /// 设置竖屏
   Future setPortraitOrientation() async {
-    isVertical.value = true;
-    if (videoPlayerIndex == 4) {
+    // isVertical.value = true;
+    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     } else {
@@ -606,6 +606,11 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(milliseconds: 500), () {
       enableController();
     });
+
+    setPortraitOrientation();
+    if(!isVertical.value && isFullscreen.value){
+      setLandscapeOrientation();
+    }
 
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       if (isFullscreen.value) {
