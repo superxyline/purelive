@@ -617,12 +617,12 @@ class VideoController with ChangeNotifier {
 
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       if (isFullscreen.value) {
-        key.currentState?.exitFullscreen();
+        await key.currentState?.exitFullscreen();
       } else {
-        key.currentState?.enterFullscreen();
+        await key.currentState?.enterFullscreen();
         if(isVertical.value) {
-          //全屏
-          await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+          // 竖屏
+          setPortraitOrientation();
         }
       }
       isFullscreen.toggle();
