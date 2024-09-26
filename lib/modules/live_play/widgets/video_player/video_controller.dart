@@ -550,7 +550,8 @@ class VideoController with ChangeNotifier {
         }
       } else {
         if (isFullscreen.value) {
-          isVertical.value = false;
+          // isVertical.value = false;
+          setLandscapeOrientation();
           gsyVideoPlayerController.exitFullScreen();
           isFullscreen.value = false;
         }
@@ -563,14 +564,14 @@ class VideoController with ChangeNotifier {
   Future setLandscapeOrientation() async {
     // isVertical.value = false;
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setPreferredOrientations([
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      await SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
     } else {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setPreferredOrientations([
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      await SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
@@ -582,11 +583,9 @@ class VideoController with ChangeNotifier {
   Future setPortraitOrientation() async {
     // isVertical.value = true;
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: SystemUiOverlay.values);
     } else {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: SystemUiOverlay.values);
       gsyVideoPlayerController.backToProtVideo();
     }
   }
