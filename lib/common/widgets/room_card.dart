@@ -84,6 +84,7 @@ class RoomCard extends StatelessWidget {
                   ),
                 ),
                 if (room.isRecord == true)
+                  // 录播标志
                   Positioned(
                     right: dense ? 0 : 2,
                     top: dense ? 0 : 2,
@@ -93,6 +94,14 @@ class RoomCard extends StatelessWidget {
                       dense: dense,
                       color: Theme.of(context).colorScheme.error,
                     ),
+                  ),
+                // 平台图标
+                Positioned(
+                  left: dense ? 5 : 7,
+                  top: dense ? 5 : 7,
+                  child: Image.asset(
+                    Sites.of(room.platform!).logo,
+                    width: 30,),
                   ),
                 if (room.isRecord == false && room.liveStatus == LiveStatus.live)
                   Positioned(

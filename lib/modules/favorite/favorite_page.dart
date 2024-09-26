@@ -58,7 +58,8 @@ class FavoritePage extends GetView<FavoriteController> {
             controller: controller.tabController,
             isScrollable: true,
             tabAlignment: TabAlignment.center,
-            labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            labelStyle:
+                const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
             tabs: [
@@ -74,7 +75,17 @@ class FavoritePage extends GetView<FavoriteController> {
               isScrollable: true,
               tabAlignment: TabAlignment.center,
               indicatorSize: TabBarIndicatorSize.label,
-              tabs: Sites().availableSites(containsAll: true).map<Widget>((e) => Tab(text: e.name)).toList(),
+              tabs: Sites()
+                  .availableSites(containsAll: true)
+                  .map<Widget>((e) => Tab(
+                        text: e.name,
+                        iconMargin: const EdgeInsets.all(0),
+                        icon: Image.asset(
+                          e.logo,
+                          width: 20,
+                        ),
+                      ))
+                  .toList(),
             ),
             Expanded(
               child: Obx(() {
@@ -105,6 +116,7 @@ class FavoritePage extends GetView<FavoriteController> {
 
 class _RoomOnlineGridView extends GetView<FavoriteController> {
   _RoomOnlineGridView(this.site);
+
   final String site;
   final refreshController = EasyRefreshController(
     controlFinishRefresh: true,
@@ -126,9 +138,11 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
       final width = constraint.maxWidth;
-      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+      int crossAxisCount =
+          width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
       if (dense) {
-        crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+        crossAxisCount =
+            width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
       }
       return Obx(() => EasyRefresh(
             controller: refreshController,
@@ -143,11 +157,16 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
                     crossAxisCount: crossAxisCount,
                     itemCount: site == Sites.allSite
                         ? controller.onlineRooms.length
-                        : controller.onlineRooms.where((el) => el.platform == site).toList().length,
+                        : controller.onlineRooms
+                            .where((el) => el.platform == site)
+                            .toList()
+                            .length,
                     itemBuilder: (context, index) => RoomCard(
                       room: site == Sites.allSite
                           ? controller.onlineRooms[index]
-                          : controller.onlineRooms.where((el) => el.platform == site).toList()[index],
+                          : controller.onlineRooms
+                              .where((el) => el.platform == site)
+                              .toList()[index],
                       dense: dense,
                     ),
                   )
@@ -163,6 +182,7 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
 
 class _RoomOfflineGridView extends GetView<FavoriteController> {
   _RoomOfflineGridView(this.site);
+
   final String site;
   final refreshController = EasyRefreshController(
     controlFinishRefresh: true,
@@ -179,9 +199,11 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
       final width = constraint.maxWidth;
-      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+      int crossAxisCount =
+          width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
       if (dense) {
-        crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+        crossAxisCount =
+            width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
       }
 
       return Obx(() => EasyRefresh(
@@ -197,11 +219,16 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
                     crossAxisCount: crossAxisCount,
                     itemCount: site == Sites.allSite
                         ? controller.offlineRooms.length
-                        : controller.offlineRooms.where((el) => el.platform == site).toList().length,
+                        : controller.offlineRooms
+                            .where((el) => el.platform == site)
+                            .toList()
+                            .length,
                     itemBuilder: (context, index) => RoomCard(
                       room: site == Sites.allSite
                           ? controller.offlineRooms[index]
-                          : controller.offlineRooms.where((el) => el.platform == site).toList()[index],
+                          : controller.offlineRooms
+                              .where((el) => el.platform == site)
+                              .toList()[index],
                       dense: dense,
                     ),
                   )

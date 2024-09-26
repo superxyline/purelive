@@ -333,7 +333,19 @@ class SettingsPage extends GetView<SettingsService> {
               activeColor: Theme.of(context).colorScheme.primary,
               groupValue: controller.preferPlatform.value,
               value: site.id,
-              title: Text(site.name.toUpperCase()),
+              title: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Image.asset(site.logo, width: 20,), // 替换为你的图片路径
+                  ),
+                  Expanded(
+                    child: Text(
+                      site.name.toUpperCase(), // 替换为你的文本
+                    ),
+                  ),
+                ],
+              ),
               onChanged: (value) {
                 controller.changePreferPlatform(value!);
                 Navigator.of(context).pop();

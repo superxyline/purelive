@@ -22,7 +22,8 @@ class SearchPage extends GetView<pure_live.SearchController> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
             prefixIcon: IconButton(
               onPressed: () {
-                Navigator.of(Get.context!).pop();
+                // Navigator.of(Get.context!).pop();
+                Get.back();
               },
               icon: const Icon(Icons.arrow_back),
             ),
@@ -39,7 +40,14 @@ class SearchPage extends GetView<pure_live.SearchController> {
           controller: controller.tabController,
           padding: EdgeInsets.zero,
           tabAlignment: TabAlignment.center,
-          tabs: Sites().availableSites().map((e) => Tab(text: e.name)).toList(),
+          tabs: Sites().availableSites().map((e) => Tab(
+            text: e.name,
+            iconMargin: const EdgeInsets.all(0),
+            icon: Image.asset(
+              e.logo,
+              width: 20,
+            ),
+          )).toList(),
           isScrollable: false,
           indicatorSize: TabBarIndicatorSize.label,
         ),

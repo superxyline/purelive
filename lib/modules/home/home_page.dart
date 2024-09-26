@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:get/get.dart';
-import '../search/search_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:move_to_desktop/move_to_desktop.dart';
@@ -11,6 +10,8 @@ import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/about/widgets/version_dialog.dart';
+import 'package:pure_live/modules/search/search_page.dart';
+import 'package:pure_live/modules/search/search_controller.dart' as search_controller;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
       case 0 : Get.put(FavoriteController()); break;
       case 1 : Get.put(PopularController()); break;
       case 2 : Get.put(AreasController()); break;
-      case 3 : Get.put(SearchController()); break;
+      case 3 : Get.put(search_controller.SearchController()); break;
       default:
         Get.put(FavoriteController()); break;
     }

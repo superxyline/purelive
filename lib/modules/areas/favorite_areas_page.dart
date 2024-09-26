@@ -21,7 +21,14 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
               isScrollable: true,
               tabAlignment: TabAlignment.center,
               indicatorSize: TabBarIndicatorSize.label,
-              tabs: Sites().availableSites(containsAll: true).map<Widget>((e) => Tab(text: e.name)).toList(),
+              tabs: Sites().availableSites(containsAll: true).map<Widget>((e) => Tab(
+                text: e.name,
+                iconMargin: const EdgeInsets.all(0),
+                icon: Image.asset(
+                  e.logo,
+                  width: 20,
+                ),
+              )).toList(),
             ),
             Expanded(
               child: Obx(() {

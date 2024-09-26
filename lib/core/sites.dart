@@ -58,7 +58,7 @@ class Sites {
     Site(
       id: iptvSite,
       name: "网络",
-      logo: "assets/images/logo.png",
+      logo: "assets/images/iptv.png",
       liveSite: IptvSite(),
     ),
   ];

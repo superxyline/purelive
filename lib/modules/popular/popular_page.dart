@@ -65,7 +65,14 @@ class PopularPage extends GetView<PopularController> {
             labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
-            tabs: Sites().availableSites().map((e) => Tab(text: e.name)).toList(),
+            tabs: Sites().availableSites().map((e) => Tab(
+              text: e.name,
+              iconMargin: const EdgeInsets.all(0),
+              icon: Image.asset(
+                e.logo,
+                width: 20,
+              ),
+            )).toList(),
           ),
         ),
         body: TabBarView(
