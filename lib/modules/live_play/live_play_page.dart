@@ -1,16 +1,17 @@
-import 'package:pure_live/plugins/cache_network.dart';
-
-import 'widgets/index.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/plugins/cache_network.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+
+import 'widgets/index.dart';
 
 class LivePlayPage extends GetView<LivePlayController> {
   LivePlayPage({super.key});
 
   final SettingsService settings = Get.find<SettingsService>();
+
   Future<bool> onWillPop() async {
     try {
       var exit = await controller.onBackPressed();
@@ -23,6 +24,57 @@ class LivePlayPage extends GetView<LivePlayController> {
     return true;
   }
 
+  /// 顶部左边的UI
+  buildTableTarLeft() {
+    return Row(children: [
+      /// 头像
+      CacheNetWorkUtils.getCircleAvatar(controller.detail.value?.avatar,
+          radius: 20),
+      const SizedBox(width: 8),
+
+      /// 右边
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// 名称
+          Text(
+            controller.detail.value == null &&
+                    controller.detail.value!.nick == null
+                ? ''
+                : controller.detail.value!.nick!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(Get.context!).textTheme.labelSmall,
+          ),
+
+          /// 所属站点
+          Row(
+            /// 横着摆放
+            children: [
+              /// 站点logo
+              if (controller.detail.value?.platform != null)
+                Image.asset(
+                  Sites.of(controller.currentPlayRoom.value.platform!).logo,
+                  width: 18,
+                ),
+
+              /// 站点logo
+              const SizedBox(width: 5),
+              if (controller.detail.value != null)
+                Text(
+                  "${Sites.of(controller.currentPlayRoom.value.platform!).name}${controller.currentPlayRoom.value.area == null || controller.currentPlayRoom.value.area != '' ? '' : "/${controller.detail.value!.area}"}",
+                  style: Theme.of(Get.context!)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(fontSize: 10),
+                ),
+            ],
+          ),
+        ],
+      ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (settings.enableScreenKeepOn.value) {
@@ -32,52 +84,7 @@ class LivePlayPage extends GetView<LivePlayController> {
       onBackButtonPressed: onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Obx(() => controller.getVideoSuccess.value
-              ? Row(children: [
-                  CacheNetWorkUtils.getCircleAvatar(controller.detail.value?.avatar, radius: 13),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        controller.detail.value == null && controller.detail.value!.nick == null
-                            ? ''
-                            : controller.detail.value!.nick!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                      if (controller.detail.value != null && controller.detail.value!.area != null)
-                        Text(
-                          controller.detail.value!.area!.isEmpty
-                              ? controller.detail.value!.platform!.toUpperCase()
-                              : "${controller.detail.value!.platform!.toUpperCase()} / ${controller.detail.value!.area}",
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
-                        ),
-                    ],
-                  ),
-                ])
-              : Row(children: [
-                  CacheNetWorkUtils.getCircleAvatar(controller.currentPlayRoom.value.avatar, radius: 13),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        controller.detail.value!.nick!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                      Text(
-                        controller.currentPlayRoom.value.area!.isEmpty
-                            ? controller.currentPlayRoom.value.platform!.toUpperCase()
-                            : "${controller.currentPlayRoom.value.platform!.toUpperCase()} / ${controller.currentPlayRoom.value.area}",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
-                      ),
-                    ],
-                  ),
-                ])),
+          title: Obx(() => buildTableTarLeft()),
           actions: [
             PopupMenuButton(
               tooltip: '搜索',
@@ -167,7 +174,8 @@ class LivePlayPage extends GetView<LivePlayController> {
   }
 
   void showDlnaCastDialog() {
-    Get.dialog(LiveDlnaPage(datasource: controller.playUrls[controller.currentLineIndex.value]));
+    Get.dialog(LiveDlnaPage(
+        datasource: controller.playUrls[controller.currentLineIndex.value]));
   }
 
   Widget buildVideoPlayer() {
@@ -182,53 +190,68 @@ class LivePlayPage extends GetView<LivePlayController> {
                 child: CircularProgressIndicator(
                 color: Colors.white,
               ))
-              :*/ controller.success.value
-              ? VideoPlayer(controller: controller.videoController!)
-              : controller.hasError.value && controller.isActive.value == false
-                  ? ErrorVideoWidget(controller: controller)
-                  : !controller.getVideoSuccess.value
+              :*/
+              controller.success.value
+                  ? VideoPlayer(controller: controller.videoController!)
+                  : controller.hasError.value &&
+                          controller.isActive.value == false
                       ? ErrorVideoWidget(controller: controller)
-                      : Card(
-                          elevation: 0,
-                          margin: const EdgeInsets.all(0),
-                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                          clipBehavior: Clip.antiAlias,
-                          color: Get.theme.focusColor,
-                          child: Obx(() => controller.isLoadingVideo.value
-                              ? const Center(
-                                  child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ))
-                              : controller.loadTimeOut.value
-                                  ? CachedNetworkImage(
-                                      imageUrl: controller.currentPlayRoom.value.cover!,
-                                      cacheManager: CustomCacheManager.instance,
-                                      fit: BoxFit.fill,
-                                      errorWidget: (context, error, stackTrace) => const Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.live_tv_rounded, size: 48),
-                                            Text(
-                                              "无法获取播放信息",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
+                      : !controller.getVideoSuccess.value
+                          ? ErrorVideoWidget(controller: controller)
+                          : Card(
+                              elevation: 0,
+                              margin: const EdgeInsets.all(0),
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero),
+                              clipBehavior: Clip.antiAlias,
+                              color: Get.theme.focusColor,
+                              child: Obx(() => controller.isLoadingVideo.value
+                                  ? const Center(
+                                      child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                    ))
+                                  : controller.loadTimeOut.value
+                                      ? CachedNetworkImage(
+                                          imageUrl: controller
+                                              .currentPlayRoom.value.cover!,
+                                          cacheManager:
+                                              CustomCacheManager.instance,
+                                          fit: BoxFit.fill,
+                                          errorWidget:
+                                              (context, error, stackTrace) =>
+                                                  const Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.live_tv_rounded,
+                                                    size: 48),
+                                                Text(
+                                                  "无法获取播放信息",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18),
+                                                ),
+                                                Text(
+                                                  "当前房间未开播或无法观看",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18),
+                                                ),
+                                                Text(
+                                                  "请按确定按钮刷新重试",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18),
+                                                ),
+                                              ],
                                             ),
-                                            Text(
-                                              "当前房间未开播或无法观看",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
-                                            ),
-                                            Text(
-                                              "请按确定按钮刷新重试",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  : TimeOutVideoWidget(
-                                      controller: controller,
-                                    )),
-                        ),
+                                          ),
+                                        )
+                                      : TimeOutVideoWidget(
+                                          controller: controller,
+                                        )),
+                            ),
         ),
       ),
     );
@@ -244,6 +267,7 @@ class ResolutionsRow extends StatefulWidget {
 
 class _ResolutionsRowState extends State<ResolutionsRow> {
   LivePlayController get controller => Get.find();
+
   Widget buildInfoCount() {
     // controller.detail.value! watching or followers
     return Row(mainAxisSize: MainAxisSize.min, children: [
@@ -269,7 +293,9 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               icon: Text(
                 rate.quality,
                 style: Get.theme.textTheme.labelSmall?.copyWith(
-                  color: rate.quality == controller.qualites[controller.currentQuality.value].quality
+                  color: rate.quality ==
+                          controller
+                              .qualites[controller.currentQuality.value].quality
                       ? Get.theme.colorScheme.primary
                       : null,
                 ),
@@ -286,7 +312,9 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
                     child: Text(
                       '线路${i + 1}\t${urls[i].contains(".flv") ? "FLV" : "HLS"}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: urls[i] == controller.playUrls[controller.currentLineIndex.value]
+                            color: urls[i] ==
+                                    controller.playUrls[
+                                        controller.currentLineIndex.value]
                                 ? Get.theme.colorScheme.primary
                                 : null,
                           ),
@@ -305,16 +333,13 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
       () => Container(
         height: 55,
         padding: const EdgeInsets.all(4.0),
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: [
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: buildInfoCount(),
-              ),
-              ... buildResultionsList(),
-            ]
+        child: ListView(scrollDirection: Axis.horizontal, children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: buildInfoCount(),
           ),
+          ...buildResultionsList(),
+        ]),
       ),
     );
   }
@@ -346,7 +371,8 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               Get.dialog(
                 AlertDialog(
                   title: Text(S.of(context).unfollow),
-                  content: Text(S.of(context).unfollow_message(widget.room.nick!)),
+                  content:
+                      Text(S.of(context).unfollow_message(widget.room.nick!)),
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -369,7 +395,8 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                 }
               });
             },
-            child: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar, radius: 18),
+            child: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar,
+                radius: 18),
           )
         : FloatingActionButton.extended(
             elevation: 2,
@@ -378,7 +405,8 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               setState(() => isFavorite = !isFavorite);
               settings.addRoom(widget.room);
             },
-            icon: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar, radius: 18),
+            icon: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar,
+                radius: 18),
             label: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -401,6 +429,7 @@ class ErrorVideoWidget extends StatelessWidget {
   const ErrorVideoWidget({super.key, required this.controller});
 
   final LivePlayController controller;
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -428,7 +457,8 @@ class ErrorVideoWidget extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         S.of(context).play_video_failed,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                     const Text(
@@ -456,6 +486,7 @@ class TimeOutVideoWidget extends StatelessWidget {
   const TimeOutVideoWidget({super.key, required this.controller});
 
   final LivePlayController controller;
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -483,7 +514,8 @@ class TimeOutVideoWidget extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         S.of(context).play_video_failed,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                     const Text(
