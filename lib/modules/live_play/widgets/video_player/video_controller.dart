@@ -28,6 +28,7 @@ class VideoController with ChangeNotifier {
   final bool fullScreenByDefault;
   final bool autoPlay;
   final Map<String, String> headers;
+  /// 是否为竖屏直播间
   final isVertical = false.obs;
   final videoFitIndex = 0.obs;
   final videoFit = BoxFit.contain.obs;
@@ -225,6 +226,21 @@ class VideoController with ChangeNotifier {
       mediaPlayerController.player.stream.buffering.listen((e) {
         isBuffering.value = e;
       });
+
+
+      player.stream.width.listen((event) {
+        log(
+            'width:$event  W:${(player.state.width)}  H:${(player.state.height)}');
+        isVertical.value =
+            (player.state.height ?? 9) > (player.state.width ?? 16);
+      });
+      player.stream.height.listen((event) {
+        log(
+            'height:$event  W:${(player.state.width)}  H:${(player.state.height)}');
+        isVertical.value =
+            (player.state.height ?? 9) > (player.state.width ?? 16);
+      });
+
     } else if (Platform.isAndroid || Platform.isIOS) {
       initGSYVideoPlayer();
       setDataSource(datasource);
@@ -444,6 +460,12 @@ class VideoController with ChangeNotifier {
             isBuffering.value = false;
             break;
         }
+        var size = e.size;
+        if( size != null){
+          isVertical.value =
+              (size.height ?? 9) > (size.width ?? 16);
+        }
+
       });
       gsyVideoPlayerController.addEventsListener((VideoEventType event) {
         if (event == VideoEventType.onError) {

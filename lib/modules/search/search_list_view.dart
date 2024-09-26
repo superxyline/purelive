@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
@@ -76,11 +77,7 @@ class _OwnerCardState extends State<OwnerCard> {
     return Card(
       child: ListTile(
         onTap: () => _onTap(context),
-        leading: CircleAvatar(
-          foregroundImage: widget.room.avatar!.isNotEmpty ? getRoomAvatar(widget.room.avatar) : null,
-          radius: 20,
-          backgroundColor: Theme.of(context).disabledColor,
-        ),
+        leading: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar, radius: 20),
         title: Text(
           widget.room.title != null ? '${widget.room.title}' : '',
           maxLines: 1,

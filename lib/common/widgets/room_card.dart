@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -34,16 +35,6 @@ class RoomCard extends StatelessWidget {
         actions: [FollowButton(room: room)],
       ),
     );
-  }
-
-  ImageProvider? getRoomAvatar(avatar) {
-    try {
-      return CachedNetworkImageProvider(avatar, cacheManager: CustomCacheManager.instance, errorListener: (err) {
-        log("CachedNetworkImageProvider: Image failed to load!");
-      });
-    } catch (e) {
-      return null;
-    }
   }
 
   @override
@@ -120,11 +111,7 @@ class RoomCard extends StatelessWidget {
               minLeadingWidth: dense ? 34 : null,
               contentPadding: dense ? const EdgeInsets.only(left: 8, right: 10) : null,
               horizontalTitleGap: dense ? 8 : null,
-              leading: CircleAvatar(
-                foregroundImage: room.avatar!.isNotEmpty ? getRoomAvatar(room.avatar) : null,
-                radius: dense ? 17 : null,
-                backgroundColor: Theme.of(context).disabledColor,
-              ),
+              leading: CacheNetWorkUtils.getCircleAvatar(room.avatar, radius: 17),
               title: Text(
                 room.title ?? '',
                 maxLines: 1,

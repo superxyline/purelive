@@ -4,6 +4,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:pure_live/plugins/cache_network.dart';
 
 class AreasRoomPage extends StatefulWidget {
   const AreasRoomPage({super.key});
@@ -101,11 +102,7 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
                 }
               });
             },
-            child: CircleAvatar(
-              foregroundImage: (widget.area.areaPic == '') ? null : CachedNetworkImageProvider(widget.area.areaPic!, cacheManager: CustomCacheManager.instance),
-              radius: 18,
-              backgroundColor: Theme.of(context).disabledColor,
-            ),
+            child: CacheNetWorkUtils.getCircleAvatar(widget.area.areaPic, radius: 18),
           )
         : FloatingActionButton.extended(
             elevation: 2,
@@ -114,11 +111,7 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
               setState(() => isFavorite = !isFavorite);
               settings.addArea(widget.area);
             },
-            icon: CircleAvatar(
-              foregroundImage: (widget.area.areaPic == '') ? null : CachedNetworkImageProvider(widget.area.areaPic!, cacheManager: CustomCacheManager.instance),
-              radius: 18,
-              backgroundColor: Theme.of(context).disabledColor,
-            ),
+            icon: CacheNetWorkUtils.getCircleAvatar(widget.area.areaPic, radius: 18),
             label: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

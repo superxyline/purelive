@@ -1,3 +1,5 @@
+import 'package:pure_live/plugins/cache_network.dart';
+
 import 'widgets/index.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -32,13 +34,7 @@ class LivePlayPage extends GetView<LivePlayController> {
         appBar: AppBar(
           title: Obx(() => controller.getVideoSuccess.value
               ? Row(children: [
-                  CircleAvatar(
-                    foregroundImage: controller.detail.value == null && controller.detail.value!.avatar!.isEmpty
-                        ? null
-                        : CachedNetworkImageProvider(controller.detail.value!.avatar!, cacheManager: CustomCacheManager.instance),
-                    radius: 13,
-                    backgroundColor: Theme.of(context).disabledColor,
-                  ),
+                  CacheNetWorkUtils.getCircleAvatar(controller.detail.value?.avatar, radius: 13),
                   const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,13 +58,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                   ),
                 ])
               : Row(children: [
-                  CircleAvatar(
-                    foregroundImage: controller.currentPlayRoom.value.avatar == null
-                        ? null
-                        : CachedNetworkImageProvider(controller.currentPlayRoom.value.avatar!, cacheManager: CustomCacheManager.instance),
-                    radius: 13,
-                    backgroundColor: Theme.of(context).disabledColor,
-                  ),
+                  CacheNetWorkUtils.getCircleAvatar(controller.currentPlayRoom.value.avatar, radius: 13),
                   const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,11 +369,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                 }
               });
             },
-            child: CircleAvatar(
-              foregroundImage: (widget.room.avatar == '') ? null : CachedNetworkImageProvider(widget.room.avatar!, cacheManager: CustomCacheManager.instance),
-              radius: 18,
-              backgroundColor: Theme.of(context).disabledColor,
-            ),
+            child: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar, radius: 18),
           )
         : FloatingActionButton.extended(
             elevation: 2,
@@ -392,11 +378,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               setState(() => isFavorite = !isFavorite);
               settings.addRoom(widget.room);
             },
-            icon: CircleAvatar(
-              foregroundImage: (widget.room.avatar == '') ? null : CachedNetworkImageProvider(widget.room.avatar!, cacheManager: CustomCacheManager.instance),
-              radius: 18,
-              backgroundColor: Theme.of(context).disabledColor,
-            ),
+            icon: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar, radius: 18),
             label: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
