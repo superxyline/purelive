@@ -607,7 +607,7 @@ class VideoController with ChangeNotifier {
     });
 
     setPortraitOrientation();
-    if(isFullscreen.value){
+    if(!isFullscreen.value){
       //全屏
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
       if(!isVertical.value){
