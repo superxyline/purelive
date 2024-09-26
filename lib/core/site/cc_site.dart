@@ -49,7 +49,6 @@ class CCSite extends LiveSite {
   final String kUserAgent =
       "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36 Edg/117.0.0.0";
 
-  final SettingsService settings = Get.find<SettingsService>();
   Future<List<LiveArea>> getSubCategores(LiveCategory liveCategory) async {
     var result = await HttpClient.instance.getJson("https://api.cc.163.com/v1/wapcc/gamecategory", queryParameters: {
       "catetype": liveCategory.id,
@@ -205,6 +204,7 @@ class CCSite extends LiveSite {
       );
     } catch (e) {
       log(e.toString(), name: 'CC.getRoomDetail');
+      final SettingsService settings = Get.find<SettingsService>();
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;

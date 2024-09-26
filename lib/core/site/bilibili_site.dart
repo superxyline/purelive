@@ -28,7 +28,6 @@ class BiliBiliSite extends LiveSite {
   int userId = 0;
   @override
   LiveDanmaku getDanmaku() => BiliBiliDanmaku();
-  final SettingsService settings = Get.find<SettingsService>();
 
   static const String kDefaultUserAgent =
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0";
@@ -392,6 +391,7 @@ class BiliBiliSite extends LiveSite {
         ),
       );
     } catch (e) {
+      final SettingsService settings = Get.find<SettingsService>();
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;

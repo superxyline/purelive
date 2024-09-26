@@ -46,6 +46,7 @@ class KuaishowSite extends LiveSite {
     'bmp',
     'gif'
   ];
+
   @override
   LiveDanmaku getDanmaku() => EmptyDanmaku();
 
@@ -86,8 +87,6 @@ class KuaishowSite extends LiveSite {
     'Sec-Fetch-Site': 'same-origin',
     'Sec-Fetch-User': '?1'
   };
-
-  final SettingsService settings = Get.find<SettingsService>();
 
   Future<List<LiveArea>> getAllSubCategores(
       LiveCategory liveCategory, int page, int pageSize, List<LiveArea> allSubCategores) async {
@@ -360,6 +359,7 @@ class KuaishowSite extends LiveSite {
         data: liveStream["playUrls"],
       );
     } catch (e) {
+      final SettingsService settings = Get.find<SettingsService>();
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;

@@ -32,7 +32,6 @@ class DouyuSite extends LiveSite {
 
   @override
   LiveDanmaku getDanmaku() => DouyuDanmaku();
-  final SettingsService settings = Get.find<SettingsService>();
 
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
@@ -276,6 +275,7 @@ class DouyuSite extends LiveSite {
         isRecord: roomInfo["videoLoop"] == 1,
       );
     } catch (e) {
+      final SettingsService settings = Get.find<SettingsService>();
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;
