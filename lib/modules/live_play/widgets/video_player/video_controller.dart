@@ -607,8 +607,12 @@ class VideoController with ChangeNotifier {
     });
 
     setPortraitOrientation();
-    if(!isVertical.value && isFullscreen.value){
-      setLandscapeOrientation();
+    if(isFullscreen.value){
+      //全屏
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+      if(!isVertical.value){
+        setLandscapeOrientation();
+      }
     }
 
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
