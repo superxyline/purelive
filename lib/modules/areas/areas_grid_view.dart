@@ -26,23 +26,29 @@ class _AreaGridViewState extends State<AreaGridView> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Obx(() => TabBar(
-          controller: tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.center,
-          indicatorSize: TabBarIndicatorSize.label,
-          tabs: widget.controller.list.map<Widget>((e) => Tab(text: e.name)).toList(),
-        )),
-        Expanded(
-          child: Obx(() => TabBarView(
+    return Obx(() => widget.controller.list.isNotEmpty
+        ? Column(
+            children: [
+              TabBar(
                 controller: tabController,
-                children: widget.controller.list.map<Widget>((e) => buildAreasView(e)).toList(),
-              )),
-        ),
-      ],
-    );
+                isScrollable: true,
+                tabAlignment: TabAlignment.center,
+                indicatorSize: TabBarIndicatorSize.label,
+                tabs: widget.controller.list
+                    .map<Widget>((e) => Tab(text: e.name))
+                    .toList(),
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: tabController,
+                  children: widget.controller.list
+                      .map<Widget>((e) => buildAreasView(e))
+                      .toList(),
+                ),
+              ),
+            ],
+          )
+        : Container());
   }
 
   Widget buildAreasView(LiveCategory category) {
