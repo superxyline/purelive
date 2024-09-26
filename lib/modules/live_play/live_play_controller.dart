@@ -494,7 +494,14 @@ class LivePlayController extends StateController {
       };
     }
 
-    videoController?.pause();
+    try {
+      // await videoController?.pause();
+    } catch (e){
+      // [Player] has been disposed
+      videoController?.dispose();
+      videoController?.hasDestory = true;
+      log(e.toString());
+    }
     if(videoController == null || videoController!.hasDestory){
       videoController = VideoController(
         playerKey: playerKey,
@@ -517,7 +524,7 @@ class LivePlayController extends StateController {
       videoController?.currentQuality = currentQuality.value;
       videoController?.setDataSource(playUrls.value[currentLineIndex.value]);
       // videoController?.initVideoController();
-      videoController?.play();
+      // videoController?.play();
     }
 
     success.value = true;
@@ -529,6 +536,7 @@ class LivePlayController extends StateController {
         if (!connectivityResults.contains(ConnectivityResult.none)) {
           if (!videoController!.isActivePause.value &&
               videoController!.isPlaying.value == false) {
+            log("videoController refresh");
             videoController!.refresh();
           }
         }

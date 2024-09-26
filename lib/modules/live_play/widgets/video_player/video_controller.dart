@@ -157,7 +157,6 @@ class VideoController with ChangeNotifier {
     danmakuFontBorder.value = settings.danmakuFontBorder.value;
     danmakuOpacity.value = settings.danmakuOpacity.value;
     mergeDanmuRating.value = settings.mergeDanmuRating.value;
-    initGSYVideoPlayer();
     initPagesConfig();
   }
 
@@ -227,6 +226,7 @@ class VideoController with ChangeNotifier {
         isBuffering.value = e;
       });
     } else if (Platform.isAndroid || Platform.isIOS) {
+      initGSYVideoPlayer();
       setDataSource(datasource);
     }
     debounce(hasError, (callback) {
@@ -351,8 +351,10 @@ class VideoController with ChangeNotifier {
   void refresh() {
     destory();
     Timer(const Duration(seconds: 2), () {
+      livePlayController.playUrls.value = [];
+      livePlayController.qualites.value = [];
       livePlayController.onInitPlayerState(
-          reloadDataType: ReloadDataType.refreash);
+          reloadDataType: ReloadDataType.refreash, firstLoad: true);
     });
   }
 
@@ -408,7 +410,7 @@ class VideoController with ChangeNotifier {
       hasError.value = false;
     }
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      player.pause();
+      // player.pause();
       player.open(Media(datasource, httpHeaders: headers));
     } else if (Platform.isAndroid || Platform.isIOS) {
       gsyVideoPlayerController.dispose();
@@ -509,11 +511,11 @@ class VideoController with ChangeNotifier {
     }
   }
 
-  void pause() {
+  Future<void> pause() async {
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      mediaPlayerController.player.pause();
+      await mediaPlayerController.player.pause();
     } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController.pause();
+      await gsyVideoPlayerController.pause();
     }
   }
 

@@ -322,7 +322,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
                 padding: const EdgeInsets.all(8),
                 child: buildInfoCount(),
               ),
-              ...controller.success.value ? buildResultionsList() : [],
+              ... buildResultionsList(),
             ]
           ),
       ),
