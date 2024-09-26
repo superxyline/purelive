@@ -617,9 +617,11 @@ class VideoController with ChangeNotifier {
 
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       if (isFullscreen.value) {
-        key.currentState?.exitFullscreen();
+        // key.currentState?.exitFullscreen();
+        windowManager.setFullScreen(false);
       } else {
-        key.currentState?.enterFullscreen();
+        // key.currentState?.enterFullscreen();
+        windowManager.setFullScreen(true);
       }
       isFullscreen.toggle();
     } else {
