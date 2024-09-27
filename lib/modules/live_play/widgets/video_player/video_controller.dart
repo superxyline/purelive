@@ -591,6 +591,7 @@ class VideoController with ChangeNotifier {
   }
 
   void toggleFullScreen() async {
+    log("toggleFullScreen", name: runtimeType.toString());
     // disable locked
     showLocked.value = false;
     // fix danmaku overlap bug
@@ -606,7 +607,7 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
-    setPortraitOrientation();
+    // setPortraitOrientation();
     // if(!isFullscreen.value){
     //   //全屏
     //   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
@@ -620,9 +621,15 @@ class VideoController with ChangeNotifier {
         await key.currentState?.exitFullscreen();
       } else {
         await key.currentState?.enterFullscreen();
+        log("isVertical: $isVertical", name: runtimeType.toString());
         if(isVertical.value) {
           // 竖屏
-          setPortraitOrientation();
+          // setPortraitOrientation();
+          SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+          SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ]);
         }
       }
       isFullscreen.toggle();
