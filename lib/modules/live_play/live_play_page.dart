@@ -60,7 +60,7 @@ class LivePlayPage extends GetView<LivePlayController> {
 
               /// 站点logo
               const SizedBox(width: 5),
-              if (controller.detail.value != null)
+              if (controller.detail.value != null && controller.detail.value!.platform != null)
                 Text(
                   "${Sites.of(controller.detail.value!.platform!).name}${controller.detail.value!.area == null || controller.detail.value!.area == '' ? '' : "/${ controller.detail.value!.area}"}",
                   style: Theme.of(Get.context!)
