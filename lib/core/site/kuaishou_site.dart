@@ -15,7 +15,6 @@ import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/common/models/live_message.dart';
-import 'package:pure_live/core/danmaku/empty_danmaku.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';

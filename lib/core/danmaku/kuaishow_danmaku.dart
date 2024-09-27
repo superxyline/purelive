@@ -151,7 +151,7 @@ class KuaishowDanmaku implements LiveDanmaku {
 
   void decodeMessage(List<int> data) {
     var socketMessage = SocketMessage.fromBuffer(data);
-    var compressionType = socketMessage.compressionType;
+    // var compressionType = socketMessage.compressionType;
 
     PayloadType payloadType = socketMessage.payloadType;
     // SC_FEED_PUSH 只获取推送信息
