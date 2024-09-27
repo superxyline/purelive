@@ -261,9 +261,10 @@ class LivePlayController extends StateController {
         // start danmaku server
         List<String> except = ['iptv', 'cc'];
         // 重新刷新才重新加载弹幕
-        if (firstLoad &&
-            except.indexWhere((element) => element == liveRoom.platform! && liveRoom.danmakuData != null) ==
-                -1) {
+        if ( firstLoad
+            && except.indexWhere((element) => element == liveRoom.platform! ) == -1
+            && liveRoom.danmakuData != null
+        ) {
           initDanmau();
           liveDanmaku.start(liveRoom.danmakuData);
         }
