@@ -40,6 +40,7 @@ class SearchPage extends GetView<pure_live.SearchController> {
           controller: controller.tabController,
           padding: EdgeInsets.zero,
           tabAlignment: TabAlignment.center,
+          labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           tabs: Sites().availableSites().map((e) => Tab(
             text: e.name,
             iconMargin: const EdgeInsets.all(0),
@@ -50,7 +51,6 @@ class SearchPage extends GetView<pure_live.SearchController> {
           )).toList(),
           isScrollable: true,
           indicatorSize: TabBarIndicatorSize.label,
-          labelStyle: const TextStyle(fontSize: 12),
         ),
       ),
       body: TabBarView(

@@ -59,7 +59,7 @@ class FavoritePage extends GetView<FavoriteController> {
             isScrollable: true,
             tabAlignment: TabAlignment.center,
             labelStyle:
-                const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
             tabs: [
@@ -75,6 +75,7 @@ class FavoritePage extends GetView<FavoriteController> {
               isScrollable: true,
               tabAlignment: TabAlignment.center,
               indicatorSize: TabBarIndicatorSize.label,
+              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               tabs: Sites()
                   .availableSites(containsAll: true)
                   .map<Widget>((e) => Tab(

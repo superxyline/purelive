@@ -58,7 +58,7 @@ class AreasPage extends GetView<AreasController> {
             controller: controller.tabController,
             isScrollable: true,
             tabAlignment: TabAlignment.center,
-            labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
             tabs: Sites().availableSites().map((e) => Tab(

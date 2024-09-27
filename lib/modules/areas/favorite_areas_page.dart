@@ -21,6 +21,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
               isScrollable: true,
               tabAlignment: TabAlignment.center,
               indicatorSize: TabBarIndicatorSize.label,
+              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               tabs: Sites().availableSites(containsAll: true).map<Widget>((e) => Tab(
                 text: e.name,
                 iconMargin: const EdgeInsets.all(0),
