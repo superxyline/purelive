@@ -95,7 +95,7 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
                   ],
                 ),
               ).then((value) {
-                if (value) {
+                if (value == true) {
                   setState(() => isFavorite = !isFavorite);
                   settings.removeArea(widget.area);
                 }

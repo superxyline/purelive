@@ -392,7 +392,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                   ],
                 ),
               ).then((value) {
-                if (value) {
+                if (value == true) {
                   controller.isFavorite.value = !controller.isFavorite.value;
                   // setState(() => controller.isFavorite.toggle);
                   settings.removeRoom(widget.room);
