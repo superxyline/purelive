@@ -417,6 +417,7 @@ class VideoController with ChangeNotifier {
   }
 
   void setDataSource(String url) async {
+    log( "play url: $url"  ,name: runtimeType.toString());
     datasource = url;
     // fix datasource empty error
     if (datasource.isEmpty) {
@@ -462,8 +463,7 @@ class VideoController with ChangeNotifier {
         }
         var size = e.size;
         if( size != null){
-          isVertical.value =
-              (size.height ?? 9) > (size.width ?? 16);
+          isVertical.value = (size.height) > (size.width);
         }
 
       });

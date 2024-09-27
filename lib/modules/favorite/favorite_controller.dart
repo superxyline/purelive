@@ -63,7 +63,6 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
       await const Duration(seconds: 1).delay();
     }
     bool hasError = false;
-    List<Future<LiveRoom>> futures = [];
     if (settings.favoriteRooms.value.isEmpty) {
       return false;
     }

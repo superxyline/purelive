@@ -164,9 +164,9 @@ class BiliBiliSite extends LiveSite {
     for (var streamItem in streamList) {
       var formatList = streamItem["format"];
       for (var formatItem in formatList) {
-        var formatName = formatItem["format_name"];
+        // var formatName = formatItem["format_name"];
         var codecList = formatItem["codec"];
-        if (formatName != 'flv') {
+        // if (formatName != 'flv') {
           for (var codecItem in codecList) {
             var urlList = codecItem["url_info"];
             var baseUrl = codecItem["base_url"].toString();
@@ -176,7 +176,7 @@ class BiliBiliSite extends LiveSite {
               );
             }
           }
-        }
+        // }
       }
     }
     // 对链接进行排序，包含mcdn的在后

@@ -576,7 +576,7 @@ class DouyuSite extends LiveSite {
           avatar: roomInfo["avatar"].toString(),
           introduction: roomInfo["close_notice"].toString(),
           area: roomInfo["cate2_name"]?.toString() ?? '',
-          notice: roomInfo["close_notice"].toString() ?? "",
+          notice: roomInfo["close_notice"]?.toString() ?? "",
           liveStatus: isLiving ? LiveStatus.live : LiveStatus.offline,
           status: roomInfo["show_status"] == 1,
           danmakuData: roomInfo["room_id"].toString(),

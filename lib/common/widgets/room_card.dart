@@ -1,9 +1,8 @@
-import 'dart:developer';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/routes/app_navigation.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 // ignore: must_be_immutable
 class RoomCard extends StatelessWidget {

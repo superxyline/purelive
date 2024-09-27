@@ -62,7 +62,7 @@ class LivePlayPage extends GetView<LivePlayController> {
               const SizedBox(width: 5),
               if (controller.detail.value != null)
                 Text(
-                  "${Sites.of(controller.currentPlayRoom.value.platform!).name}${controller.currentPlayRoom.value.area == null || controller.currentPlayRoom.value.area != '' ? '' : "/${controller.currentPlayRoom.value.area}"}",
+                  "${Sites.of(controller.detail.value!.platform!).name}${controller.detail.value!.area == null || controller.detail.value!.area == '' ? '' : "/${ controller.detail.value!.area}"}",
                   style: Theme.of(Get.context!)
                       .textTheme
                       .bodySmall

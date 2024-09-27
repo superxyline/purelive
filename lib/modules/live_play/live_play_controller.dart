@@ -245,7 +245,7 @@ class LivePlayController extends StateController {
       }
 
       // 开始播放
-      liveStatus.value = liveRoom.status! || liveRoom.isRecord!;
+      liveStatus.value = detail.value!.liveStatus != LiveStatus.unknown && detail.value!.liveStatus != LiveStatus.offline;
       if (liveStatus.value) {
         await getPlayQualites();
         getVideoSuccess.value = true;
@@ -284,7 +284,7 @@ class LivePlayController extends StateController {
     if (playUrls.length == 1) {
       return true;
     }
-    if (lastLine == playUrls.length - 1) {
+    if (lastLine == playUrls.length) {
       return true;
     }
     return false;
@@ -380,6 +380,8 @@ class LivePlayController extends StateController {
 
   /// 选择直播路线
   void setResolution(String quality, String index) {
+    log("setResolution", name: runtimeType.toString());
+    log("quality: $quality \t index: $index", name: runtimeType.toString());
     isLoadingVideo.value = true;
     if (videoController != null && videoController!.hasDestory == false) {
       // videoController!.destory();
@@ -458,6 +460,7 @@ class LivePlayController extends StateController {
       return;
     }
     playUrls.value = playUrlList;
+    log("playUrlList : ${playUrlList}", name: runtimeType.toString());
     setPlayer();
   }
 
@@ -502,6 +505,9 @@ class LivePlayController extends StateController {
       videoController?.hasDestory = true;
       log(e.toString());
     }
+    log("playUrls ${playUrls.value}", name: runtimeType.toString());
+    log("currentLineIndex : $currentLineIndex", name: runtimeType.toString());
+    log("current play url : ${playUrls.value[currentLineIndex.value]}", name: runtimeType.toString());
     if(videoController == null || videoController!.hasDestory){
       videoController = VideoController(
         playerKey: playerKey,
