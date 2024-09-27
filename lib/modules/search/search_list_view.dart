@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/cache_network.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
@@ -87,18 +88,18 @@ class _OwnerCardState extends State<OwnerCard> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (widget.room.nick != null)
             Text(
               widget.room.nick!,
               maxLines: 1,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
             ),
-            Text(
-              widget.room.area!.isEmpty
-                  ? "${widget.room.platform?.toUpperCase()}"
-                  : "${widget.room.platform?.toUpperCase()} - ${widget.room.area}",
-              maxLines: 1,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+            if(widget.room.platform != null)
+              Text(
+                  "${Sites.of(widget.room.platform!).name}${widget.room.area?.appendLeftTxt(" - ")}",
+                maxLines: 1,
+                style: const TextStyle(fontWeight: FontWeight.w200, fontSize: 10),
+              ),
           ],
         ),
         trailing: FilledButton.tonal(

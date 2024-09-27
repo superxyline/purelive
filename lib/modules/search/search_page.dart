@@ -48,8 +48,9 @@ class SearchPage extends GetView<pure_live.SearchController> {
               width: 20,
             ),
           )).toList(),
-          isScrollable: false,
+          isScrollable: true,
           indicatorSize: TabBarIndicatorSize.label,
+          labelStyle: const TextStyle(fontSize: 12),
         ),
       ),
       body: TabBarView(
