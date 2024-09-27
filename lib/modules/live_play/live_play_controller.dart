@@ -103,6 +103,9 @@ class LivePlayController extends StateController {
   // 是否是手动切换线路
   var isActive = false.obs;
 
+  /// 是否 关注
+  var isFavorite = false.obs;
+
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
@@ -217,6 +220,7 @@ class LivePlayController extends StateController {
         title: currentPlayRoom.value.title!,
         nick: currentPlayRoom.value.nick!,
       );
+      isFavorite.value = settings.isFavorite(liveRoom);
     }
     isLastLine.value =
         calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;

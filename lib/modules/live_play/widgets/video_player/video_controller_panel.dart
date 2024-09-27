@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/plugins/barrage.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
@@ -857,27 +858,29 @@ class FavoriteButton extends StatefulWidget {
 
 class _FavoriteButtonState extends State<FavoriteButton> {
   final settings = Get.find<SettingsService>();
-
-  late bool isFavorite = settings.isFavorite(widget.controller.room);
+  final LivePlayController controller = Get.find<LivePlayController>();
+  late var isFavorite = controller.isFavorite;
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Obx( () => GestureDetector(
       onTap: () {
-        if (isFavorite) {
+        if (isFavorite.value) {
           settings.removeRoom(widget.controller.room);
         } else {
           settings.addRoom(widget.controller.room);
         }
-        setState(() => isFavorite = !isFavorite);
+        controller.isFavorite.value = !controller.isFavorite.value;
+        // setState(() => isFavorite.toggle);
       },
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: Icon(
-          !isFavorite ? Icons.favorite_outline_outlined : Icons.favorite_rounded,
+          !isFavorite.value ? Icons.favorite_outline_outlined : Icons.favorite_rounded,
           color: Colors.white,
         ),
       ),
+     )
     );
   }
 }

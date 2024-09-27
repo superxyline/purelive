@@ -358,11 +358,14 @@ class FavoriteFloatingButton extends StatefulWidget {
 }
 
 class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
+
+  LivePlayController get controller => Get.find();
+
   @override
   Widget build(BuildContext context) {
     final settings = Get.find<SettingsService>();
-    late bool isFavorite = settings.isFavorite(widget.room);
-    return isFavorite
+    // late bool isFavorite = settings.isFavorite(widget.room);
+    return Obx( () => controller.isFavorite.value
         ? FloatingActionButton(
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
@@ -390,7 +393,8 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                 ),
               ).then((value) {
                 if (value) {
-                  setState(() => isFavorite = !isFavorite);
+                  controller.isFavorite.value = !controller.isFavorite.value;
+                  // setState(() => controller.isFavorite.toggle);
                   settings.removeRoom(widget.room);
                 }
               });
@@ -402,7 +406,8 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
             onPressed: () {
-              setState(() => isFavorite = !isFavorite);
+              controller.isFavorite.value = !controller.isFavorite.value;
+              // setState(() => controller.isFavorite.toggle);
               settings.addRoom(widget.room);
             },
             icon: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar,
@@ -421,7 +426,8 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                 ),
               ],
             ),
-          );
+          )
+    );
   }
 }
 
