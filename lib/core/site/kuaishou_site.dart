@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:math' as math;
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/core/danmaku/kuaishow_danmaku.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pure_live/model/live_category.dart';
@@ -48,7 +50,7 @@ class KuaishowSite extends LiveSite {
   ];
 
   @override
-  LiveDanmaku getDanmaku() => EmptyDanmaku();
+  LiveDanmaku getDanmaku() => KuaishowDanmaku();
 
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
@@ -301,15 +303,6 @@ class KuaishowSite extends LiveSite {
     }
   }
 
-  getWebsocketUrl(liveRoomId) async {
-    var variables = {'liveStreamId': liveRoomId};
-    var query =
-        r'query WebSocketInfoQuery($liveStreamId: String) {\n  webSocketInfo(liveStreamId: $liveStreamId) {\n    token\n    webSocketUrls\n    __typename\n  }\n}\n';
-    var res = await HttpClient.instance.postJson('https://live.kuaishou.com/live_graphql',
-        header: headers, data: {"operationName": 'WebSocketInfoQuery', "variables": variables, "query": query});
-    return res;
-  }
-
   @override
   Future<LiveRoom> getRoomDetail(
       {required String nick, required String platform, required String roomId, required String title}) async {
@@ -341,6 +334,20 @@ class KuaishowSite extends LiveSite {
       var author = jsonObj["liveroom"]["playList"][0]["author"];
       var gameInfo = jsonObj["liveroom"]["playList"][0]["gameInfo"];
       var liveStreamId = liveStream["id"];
+      KuaishowDanmakuArgs? tmpArgs;
+      try {
+        var expTag = liveStream["expTag"];
+        var websocketInfo = jsonObj["liveroom"]["playList"][0]["websocketInfo"];
+        var webSocketAddresses = websocketInfo["webSocketAddresses"][0];
+        var webSocketToken = websocketInfo["token"];
+        tmpArgs = KuaishowDanmakuArgs(url: webSocketAddresses,
+            token: webSocketToken,
+            liveStreamId: liveStreamId,
+            expTag: expTag);
+        log(jsonEncode(tmpArgs), name: runtimeType.toString());
+      } catch (e) {
+        log(e.toString());
+      }
       return LiveRoom(
         cover:
             isImage(liveStream['poster']) ? liveStream['poster'].toString() : '${liveStream['poster'].toString()}.jpg',
@@ -357,6 +364,7 @@ class KuaishowSite extends LiveSite {
         platform: Sites.kuaishouSite,
         link: liveStreamId,
         data: liveStream["playUrls"],
+        danmakuData: tmpArgs,
       );
     } catch (e) {
       final SettingsService settings = Get.find<SettingsService>();
