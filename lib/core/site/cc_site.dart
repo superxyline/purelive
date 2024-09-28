@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/danmaku/cc_danmaku.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
@@ -191,6 +192,10 @@ class CCSite extends LiveSite {
       Map ccResult = await HttpClient.instance.getJson(ccUrl, queryParameters: {});
       var values = ccResult.values.toList();
       var roomInfo = values[0];
+      var gameType = roomInfo["gametype"];
+      var channelId = roomInfo["channelid"];
+      var cclId = roomInfo["ccid"];
+      CCDanmakuArgs args = CCDanmakuArgs(roomId: cclId, channelId: channelId,gameType: gameType);
       return LiveRoom(
         cover: roomInfo["cover"],
         watching: roomInfo["follower_num"].toString(),
@@ -207,6 +212,7 @@ class CCSite extends LiveSite {
         link: roomInfo['m3u8'],
         userId: roomInfo['cid'].toString(),
         data: roomInfo["quickplay"] ?? roomInfo["stream_list"],
+        danmakuData: args,
       );
     } catch (e) {
       log(e.toString(), name: 'CC.getRoomDetail');

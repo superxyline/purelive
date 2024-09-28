@@ -259,7 +259,7 @@ class LivePlayController extends StateController {
           settings.addRoomToHistory(liveRoom);
         }
         // start danmaku server
-        List<String> except = ['iptv', 'cc'];
+        List<String> except = ['iptv'];
         // 重新刷新才重新加载弹幕
         if ( firstLoad
             && except.indexWhere((element) => element == liveRoom.platform! ) == -1
