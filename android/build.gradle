@@ -19,4 +19,7 @@ tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
 
-ext.kotlin_version = '1.7.10'
+ext.kotlin_version = '1.8.22'
+dependencies {
+    classpath 'com.android.tools.build:gradle:7.4.0'
+}
