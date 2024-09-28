@@ -66,6 +66,22 @@ class LiveMessageColor {
     return color;
   }
 
+  /// 16进制颜色转换 #FFFFFF
+  static LiveMessageColor hexToColor(String color){
+    var messageColor = LiveMessageColor.white;
+    if (color != "" && color.length == 7) {
+      try {
+        var r = int.parse(color.substring(1, 3), radix: 16);
+        var g = int.parse(color.substring(3, 5), radix: 16);
+        var b = int.parse(color.substring(5, 7), radix: 16);
+        messageColor = LiveMessageColor(r, g, b);
+      } catch (e) {
+        //
+      }
+    }
+    return messageColor;
+  }
+
   @override
   String toString() {
     return "#${r.toRadixString(16).padLeft(2, '0')}${g.toRadixString(16).padLeft(2, '0')}${b.toRadixString(16).padLeft(2, '0')}";

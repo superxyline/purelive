@@ -4,7 +4,6 @@ import 'dart:math' as math;
 
 import 'package:fixnum/src/int64.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
@@ -170,13 +169,7 @@ class KuaishowDanmaku implements LiveDanmaku {
       // log(commentFeed.toString(), name: runtimeType.toString());
       // log("color: $color", name: runtimeType.toString());
       // color: #FF8BA7
-      var messageColor = LiveMessageColor.white;
-      if (color != "" && color.length == 7) {
-        var r = int.parse(color.substring(1, 3), radix: 16);
-        var g = int.parse(color.substring(3, 5), radix: 16);
-        var b = int.parse(color.substring(5, 7), radix: 16);
-        messageColor = LiveMessageColor(r, g, b);
-      }
+      var messageColor = LiveMessageColor.hexToColor(color);
       onMessage?.call(LiveMessage(
         type: LiveMessageType.chat,
         color: messageColor,

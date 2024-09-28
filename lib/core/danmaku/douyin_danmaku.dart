@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
@@ -152,10 +153,13 @@ class DouyinDanmaku implements LiveDanmaku {
 
   void unPackWebcastChatMessage(List<int> payload) {
     var chatMessage = ChatMessage.fromBuffer(payload);
+    var color = chatMessage.fullScreenTextColor;
+    // log("chatMessage: $chatMessage", name: runtimeType.toString());
+    log("color: $color", name: runtimeType.toString());
     onMessage?.call(
       LiveMessage(
         type: LiveMessageType.chat,
-        color: LiveMessageColor.white,
+        color: LiveMessageColor.hexToColor(color),
         //暂不知道具体怎么转换颜色
         // color: chatMessage.common.fullScreenTextColor.
         //     ? LiveMessageColor.white

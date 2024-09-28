@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:get/get.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
@@ -15,6 +16,7 @@ import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 
 class CCSite extends LiveSite {
   @override
@@ -175,16 +177,20 @@ class CCSite extends LiveSite {
   Future<LiveRoom> getRoomDetail(
       {required String nick, required String platform, required String roomId, required String title}) async {
     try {
-      var url = "https://api.cc.163.com/v1/activitylives/anchor/lives";
-      var result = await HttpClient.instance.getJson(url, queryParameters: {
-        'anchor_ccid': roomId
-      }, header: {
-        "user-agent": kUserAgent,
-      });
-      var channelId = result['data'][roomId]['channel_id'];
-      String urlToGetReal = "https://cc.163.com/live/channel/?channelids=$channelId";
-      var resultReal = await HttpClient.instance.getJson(urlToGetReal, queryParameters: {'anchor_ccid': roomId});
-      var roomInfo = resultReal["data"][0];
+      // var url = "https://api.cc.163.com/v1/activitylives/anchor/lives";
+      // var result = await HttpClient.instance.getJson(url, queryParameters: {
+      //   'anchor_ccid': roomId
+      // }, header: {
+      //   "user-agent": kUserAgent,
+      // });
+      // var channelId = result['data'][roomId]['channel_id'];
+      // String urlToGetReal = "https://cc.163.com/live/channel/?channelids=$channelId";
+      // var resultReal = await HttpClient.instance.getJson(urlToGetReal, queryParameters: {'anchor_ccid': roomId});
+      // var roomInfo = resultReal["data"][0];
+      String ccUrl = "https://cc.163.com/live/userlive/?ccids=$roomId";
+      Map ccResult = await HttpClient.instance.getJson(ccUrl, queryParameters: {});
+      var values = ccResult.values.toList();
+      var roomInfo = values[0];
       return LiveRoom(
         cover: roomInfo["cover"],
         watching: roomInfo["follower_num"].toString(),
@@ -285,4 +291,83 @@ class CCSite extends LiveSite {
     //尚不支持
     return Future.value([]);
   }
+
+  @override
+  bool isSupportBatchUpdateLiveStatus() {
+    return true;
+  }
+
+  @override
+  Future<List<LiveRoom>> getLiveRoomDetailList(
+      {required List<LiveRoom> list})  async {
+    if(list.isEmpty) {
+      return List.empty();
+    }
+    try {
+      Map<String, LiveRoom> map = {};
+      var idList = <String>[];
+      for(var room in list) {
+        var roomId = room.roomId;
+        if(roomId.isNullOrEmpty) {
+          continue;
+        }
+        idList.add(roomId!);
+        map[roomId] = room;
+      }
+      if(idList.isEmpty) {
+        return List.empty();
+      }
+      var roomIds = idList.join(",");
+      String ccUrl = "https://cc.163.com/live/userlive/?ccids=$roomIds";
+      Map ccResult = await HttpClient.instance.getJson(ccUrl, queryParameters: {});
+      var values = ccResult.values.toList();
+      var keys = ccResult.keys.toList();
+      // CoreLog.d(jsonEncode(values));
+
+      var rsList = <LiveRoom>[];
+      for(var roomInfo in values){
+        var tmp = LiveRoom(
+          cover: roomInfo["cover"],
+          watching: roomInfo["follower_num"].toString(),
+          roomId: roomInfo["ccid"].toString(),
+          area: roomInfo["gamename"],
+          title: roomInfo["title"],
+          nick: roomInfo["nickname"].toString(),
+          avatar: roomInfo["purl"].toString(),
+          introduction: roomInfo["personal_label"],
+          notice: roomInfo["personal_label"],
+          status: roomInfo["status"] == 1,
+          liveStatus: roomInfo["status"] == 1 ? LiveStatus.live : LiveStatus.offline,
+          platform: Sites.ccSite,
+          link: roomInfo['m3u8'],
+          userId: roomInfo['cid'].toString(),
+          data: roomInfo["quickplay"] ?? roomInfo["stream_list"],
+        );
+        rsList.add(tmp);
+      }
+
+      // 没有数据的 room
+      idList.toSet().difference(keys.toSet())
+      .map( (rid) {
+        var liveRoom = map[rid];
+        if(liveRoom != null) {
+          liveRoom.liveStatus = LiveStatus.offline;
+          liveRoom.status = false;
+          rsList.add(liveRoom);
+        }
+      });
+      // CoreLog.d(jsonEncode(rsList));
+      return rsList;
+    } catch (e)  {
+      CoreLog.w(e.toString());
+      for(var liveRoom in list){
+        liveRoom.liveStatus = LiveStatus.offline;
+        liveRoom.status = false;
+      }
+      return list;
+    }
+  }
+
+
+
 }
