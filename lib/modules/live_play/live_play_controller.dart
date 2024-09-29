@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -105,6 +106,8 @@ class LivePlayController extends StateController {
 
   /// 是否 关注
   var isFavorite = false.obs;
+  /// 在线人数
+  var online = "".obs;
 
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
@@ -136,6 +139,7 @@ class LivePlayController extends StateController {
     // 发现房间ID 会变化 使用静态列表ID 对比
     log('onInit', name: 'LivePlayController');
     currentPlayRoom.value = room;
+    online.value = room.watching ?? "0";
     onInitPlayerState(firstLoad: true);
     isFirstLoad.listen((p0) {
       if (isFirstLoad.value) {
@@ -240,6 +244,7 @@ class LivePlayController extends StateController {
       handleCurrentLineAndQuality(
           reloadDataType: reloadDataType, line: line, active: active);
       detail.value = liveRoom;
+      online.value = liveRoom.watching ?? "0";
       if (liveRoom.liveStatus == LiveStatus.unknown) {
         SmartDialog.showToast("获取直播间信息失败,请按重新获取",
             displayTime: const Duration(seconds: 2));
@@ -359,6 +364,13 @@ class LivePlayController extends StateController {
             }
           }
         }
+      } else if (msg.type == LiveMessageType.online) {
+        /// 在线人数
+        var onlineNum = msg.data as int;
+        online.value = onlineNum.toString();
+        detail.value?.watching = online.toString();
+        currentPlayRoom.value.watching = online.toString();
+        CoreLog.d(online.toString());
       }
     };
     liveDanmaku.onClose = (msg) {

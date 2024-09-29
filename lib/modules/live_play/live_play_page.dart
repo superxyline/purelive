@@ -273,10 +273,10 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       const Icon(Icons.whatshot_rounded, size: 14),
       const SizedBox(width: 4),
-      Text(
-        readableCount(controller.detail.value!.watching!),
+      Obx( () => Text(
+        readableCount(readableCountStrToNum(controller.online.value).toString()),
         style: Get.textTheme.bodySmall,
-      ),
+      )),
     ]);
   }
 

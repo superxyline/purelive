@@ -153,8 +153,12 @@ class BiliBiliDanmaku implements LiveDanmaku {
       int operation = readInt(data, 8, 4);
       //内容
       var body = data.skip(16).toList();
+      // CoreLog.d("protocolVersion ${protocolVersion} operation ${operation} body ${body.length}");
       if (operation == 3) {
         var online = readInt(body, 0, 4);
+        // CoreLog.d("body ${body} body ${body.length}");
+        // 语音直播间 online 不正确 值为 1
+        if(online != 1)
 
         onMessage?.call(
           LiveMessage(
@@ -188,6 +192,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
 
   void parseMessage(String jsonMessage) {
     try {
+      // CoreLog.d(jsonMessage);
       var obj = json.decode(jsonMessage);
       var cmd = obj["cmd"].toString();
       if (cmd.contains("DANMU_MSG")) {

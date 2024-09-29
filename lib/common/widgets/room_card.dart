@@ -108,7 +108,7 @@ class RoomCard extends StatelessWidget {
                     bottom: dense ? 0 : 2,
                     child: CountChip(
                       icon: Icons.whatshot_rounded,
-                      count: readableCount(room.watching ?? "0"),
+                      count: readableCount(readableCountStrToNum(room.watching ?? "0").toString()),
                       dense: dense,
                     ),
                   ),
