@@ -367,10 +367,13 @@ class LivePlayController extends StateController {
       } else if (msg.type == LiveMessageType.online) {
         /// 在线人数
         var onlineNum = msg.data as int;
-        online.value = onlineNum.toString();
-        detail.value?.watching = online.toString();
-        currentPlayRoom.value.watching = online.toString();
+        var numStr = onlineNum.toString();
         CoreLog.d(online.toString());
+        if(online.value != numStr) {
+          online.value = onlineNum.toString();
+          // detail.value?.watching = online.toString();
+          // currentPlayRoom.value.watching = online.toString();
+        }
       }
     };
     liveDanmaku.onClose = (msg) {

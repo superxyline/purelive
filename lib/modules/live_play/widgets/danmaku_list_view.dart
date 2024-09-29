@@ -93,7 +93,10 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                         ),
                         TextSpan(
                           text: danmaku.message,
-                          style: const TextStyle(fontSize: 14),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: danmaku.color != LiveMessageColor.white ? Color.fromARGB(255, danmaku.color.r, danmaku.color.g, danmaku.color.b) : null
+                          ),
                         ),
                       ],
                     ),

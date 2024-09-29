@@ -28,6 +28,7 @@ class LiveMessage {
 
   /// 弹幕颜色
   final LiveMessageColor color;
+
   LiveMessage({
     required this.type,
     required this.userName,
@@ -39,8 +40,11 @@ class LiveMessage {
 
 class LiveMessageColor {
   final int r, g, b;
+
   LiveMessageColor(this.r, this.g, this.b);
+
   static LiveMessageColor get white => LiveMessageColor(255, 255, 255);
+
   static LiveMessageColor numberToColor(int intColor) {
     var obj = intColor.toRadixString(16);
 
@@ -67,7 +71,7 @@ class LiveMessageColor {
   }
 
   /// 16进制颜色转换 #FFFFFF
-  static LiveMessageColor hexToColor(String color){
+  static LiveMessageColor hexToColor(String color) {
     var messageColor = LiveMessageColor.white;
     if (color != "" && color.length == 7) {
       try {
@@ -81,6 +85,18 @@ class LiveMessageColor {
     }
     return messageColor;
   }
+
+  @override
+  int get hashCode {
+    return r * 10000 + g * 100 + b;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LiveMessageColor &&
+          runtimeType == other.runtimeType &&
+          (other.r == r && other.g == g && other.b == b);
 
   @override
   String toString() {
@@ -97,6 +113,7 @@ class LiveSuperChatMessage {
   final DateTime endTime;
   final String backgroundColor;
   final String backgroundBottomColor;
+
   LiveSuperChatMessage({
     required this.backgroundBottomColor,
     required this.backgroundColor,

@@ -153,16 +153,17 @@ class KuaishowDanmaku implements LiveDanmaku {
     // var compressionType = socketMessage.compressionType;
 
     PayloadType payloadType = socketMessage.payloadType;
+    // CoreLog.d(socketMessage.toString());
     // SC_FEED_PUSH 只获取推送信息
     if (payloadType != PayloadType.SC_FEED_PUSH) {
       return;
     }
     var payload = socketMessage.payload;
     var scWebFeedPush = SCWebFeedPush.fromBuffer(payload);
-    // log(scWebFeedPush.toString(), name: runtimeType.toString());
+    // CoreLog.d(scWebFeedPush.toString());
     // 在线人数
-    //    displayWatchingCount: 3.5万
-    //    displayLikeCount: 14.7万
+    //    displayWatchingCount: 3.5万  在线观众
+    //    displayLikeCount: 14.7万   总点赞数
     var displayWatchingCount = scWebFeedPush.displayWatchingCount;
     var displayLikeCount = scWebFeedPush.displayLikeCount;
     var commentFeeds = scWebFeedPush.commentFeeds;
