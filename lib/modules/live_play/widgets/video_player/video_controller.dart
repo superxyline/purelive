@@ -323,6 +323,7 @@ class VideoController with ChangeNotifier {
   refreshView() {
     refreshCompleted.value = false;
     Timer(const Duration(microseconds: 200), () {
+      brightnessKey.currentState?.dispose();
       brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
       refreshCompleted.value = true;
     });
@@ -408,6 +409,7 @@ class VideoController with ChangeNotifier {
   }
 
   destory() async {
+    disposeAllStream();
     danmakuController.disable();
     await danmakuController.dispose();
     isPlaying.value = false;
@@ -434,7 +436,6 @@ class VideoController with ChangeNotifier {
       }
       player.dispose();
     }
-    disposeAllStream();
   }
 
   void setDataSource(String url) async {
@@ -515,6 +516,7 @@ class VideoController with ChangeNotifier {
     disposeGsyStream();
     disposeDefaultVideoStream();
     clearStreamSubscription(otherStreamSubscriptionList);
+    brightnessKey.currentState?.dispose();
   }
 
 
