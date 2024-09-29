@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:gsy_video_player/gsy_video_player.dart';
 import 'package:pure_live/core/common/core_log.dart';
 
@@ -30,4 +32,23 @@ class FixGsyVideoPlayerController extends GsyVideoPlayerController {
       CoreLog.w(e.toString());
     }
   }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!value.allowBackgroundPlayback) {
+      if ([
+        AppLifecycleState.paused,
+        AppLifecycleState.detached,
+      ].contains(state)) {
+        if (value.isPlaying) {
+          pause();
+        }
+      } else if (state == AppLifecycleState.resumed) {
+        if (!value.isPlaying) {
+          resume();
+        }
+      }
+    }
+  }
+
 }
