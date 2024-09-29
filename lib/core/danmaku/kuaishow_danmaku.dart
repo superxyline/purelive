@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:fixnum/src/int64.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
@@ -148,6 +149,41 @@ class KuaishowDanmaku implements LiveDanmaku {
     webScoketUtils?.close();
   }
 
+  int strToNum(String? str) {
+    if (str == null || str == "") {
+      return 0;
+    }
+    var ratio = 1;
+    var tmp = str;
+    // 倍率
+    if (tmp.contains("百")) {
+      ratio *= 100;
+      tmp = tmp.replaceFirst("百", "");
+    }
+    if (tmp.contains("千")) {
+      ratio *= 1000;
+      tmp = tmp.replaceFirst("千", "");
+    }
+    if (tmp.contains("万")) {
+      ratio *= 10000;
+      tmp = tmp.replaceFirst("万", "");
+    }
+    if (tmp.contains("亿")) {
+      ratio *= 100000000;
+      tmp = tmp.replaceFirst("亿", "");
+    }
+    tmp = tmp.replaceAll("+", "").replaceAll("-", "");
+    var firstMatch = RegExp(r"(\d+(\.\d+)?)").firstMatch(tmp)?.group(1);
+
+    if (firstMatch == null) {
+      CoreLog.w("no match for '$tmp' to num");
+      return 0;
+    }
+    var parse = double.parse(firstMatch);
+    var num = (parse * ratio).floor();
+    return num;
+  }
+
   void decodeMessage(List<int> data) {
     var socketMessage = SocketMessage.fromBuffer(data);
     // var compressionType = socketMessage.compressionType;
@@ -160,12 +196,37 @@ class KuaishowDanmaku implements LiveDanmaku {
     var payload = socketMessage.payload;
     var scWebFeedPush = SCWebFeedPush.fromBuffer(payload);
     // log(scWebFeedPush.toString(), name: runtimeType.toString());
+    // 在线人数
+    //    displayWatchingCount: 3.5万
+    //    displayLikeCount: 14.7万
+    var displayWatchingCount = scWebFeedPush.displayWatchingCount;
+    var displayLikeCount = scWebFeedPush.displayLikeCount;
     var commentFeeds = scWebFeedPush.commentFeeds;
+
+    var online = strToNum(displayWatchingCount);
+    var likeCount = strToNum(displayLikeCount);
+    // CoreLog.d("online num:  $online \t likeCount num:  $likeCount");
+
+    onMessage?.call(
+      LiveMessage(
+        type: LiveMessageType.online,
+        data: online,
+        color: LiveMessageColor.white,
+        message: "",
+        userName: "",
+      ),
+    );
+
     for (var commentFeed in commentFeeds) {
       var user = commentFeed.user;
       var userName = user.userName;
       var color = commentFeed.color;
       var content = commentFeed.content;
+      // 赞了这个直播
+      var showType = commentFeed.showType;
+      if (showType != WebCommentFeedShowType.FEED_SHOW_NORMAL) {
+        continue;
+      }
       // log(commentFeed.toString(), name: runtimeType.toString());
       // log("color: $color", name: runtimeType.toString());
       // color: #FF8BA7
