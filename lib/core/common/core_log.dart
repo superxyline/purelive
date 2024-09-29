@@ -1,8 +1,24 @@
 import 'package:logger/logger.dart';
 
+
+enum RequestLogType {
+  /// 输出所有请求信息
+  /// 包括请求的URL，请求的参数，请求的头，请求的体，响应的头，响应的内容，耗时
+  all,
+
+  /// 简洁的输出
+  /// 仅输出请求的URL和响应的状态码
+  short,
+
+  /// 不输出请求信息
+  none,
+}
+
 class CoreLog {
   static bool enableLog = true;
   static Function(Level, String)? onPrintLog;
+  /// 请求日志模式
+  static RequestLogType requestLogType = RequestLogType.none;
   static Logger logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,
