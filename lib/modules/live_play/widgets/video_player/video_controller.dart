@@ -28,6 +28,7 @@ class VideoController with ChangeNotifier {
   final bool fullScreenByDefault;
   final bool autoPlay;
   final Map<String, String> headers;
+
   /// 是否为竖屏直播间
   final isVertical = false.obs;
   final videoFitIndex = 0.obs;
@@ -133,6 +134,14 @@ class VideoController with ChangeNotifier {
   final danmakuOpacity = 1.0.obs;
   final mergeDanmuRating = 0.0.obs;
 
+  /// 存储 Stream 流监听
+  /// 默认视频 MPV 视频监听流
+  final defaultVideoStreamSubscriptionList = <StreamSubscription>[];
+  // GSY 视频监听流
+  final gsyStreamSubscriptionList = <StreamSubscription>[];
+  // 其他类型 监听流
+  final otherStreamSubscriptionList = <StreamSubscription>[];
+
   VideoController({
     required this.playerKey,
     required this.room,
@@ -175,9 +184,10 @@ class VideoController with ChangeNotifier {
   void initBattery() {
     if (Platform.isAndroid || Platform.isIOS) {
       _battery.batteryLevel.then((value) => batteryLevel.value = value);
+      otherStreamSubscriptionList.add(
       _battery.onBatteryStateChanged.listen((BatteryState state) async {
         batteryLevel.value = await _battery.batteryLevel;
-      });
+      }));
     }
   }
 
@@ -205,8 +215,10 @@ class VideoController with ChangeNotifier {
           enableHardwareAcceleration: enableCodec,
         );
       }
-      mediaPlayerController = media_kit_video.VideoController(player, configuration: conf);
+      mediaPlayerController =
+          media_kit_video.VideoController(player, configuration: conf);
       setDataSource(datasource);
+      defaultVideoStreamSubscriptionList.add(
       mediaPlayerController.player.stream.playing.listen((bool playing) {
         if (playing) {
           if (!mediaPlayerControllerInitialized.value) {
@@ -216,31 +228,31 @@ class VideoController with ChangeNotifier {
         } else {
           isPlaying.value = false;
         }
-      });
+      }));
+      defaultVideoStreamSubscriptionList.add(
       mediaPlayerController.player.stream.error.listen((event) {
         if (event.toString().contains('Failed to open')) {
           hasError.value = true;
           isPlaying.value = false;
         }
-      });
+      }));
+      defaultVideoStreamSubscriptionList.add(
       mediaPlayerController.player.stream.buffering.listen((e) {
         isBuffering.value = e;
-      });
+      }));
 
-
+      defaultVideoStreamSubscriptionList.add(
       player.stream.width.listen((event) {
-        log(
-            'width:$event  W:${(player.state.width)}  H:${(player.state.height)}');
+        log('width:$event  W:${(player.state.width)}  H:${(player.state.height)}');
         isVertical.value =
             (player.state.height ?? 9) > (player.state.width ?? 16);
-      });
+      }));
+      defaultVideoStreamSubscriptionList.add(
       player.stream.height.listen((event) {
-        log(
-            'height:$event  W:${(player.state.width)}  H:${(player.state.height)}');
+        log('height:$event  W:${(player.state.width)}  H:${(player.state.height)}');
         isVertical.value =
             (player.state.height ?? 9) > (player.state.width ?? 16);
-      });
-
+      }));
     } else if (Platform.isAndroid || Platform.isIOS) {
       initGSYVideoPlayer();
       setDataSource(datasource);
@@ -252,6 +264,7 @@ class VideoController with ChangeNotifier {
       }
     }, time: const Duration(seconds: 2));
 
+    otherStreamSubscriptionList.add(
     showController.listen((p0) {
       if (showController.value) {
         if (isPlaying.value) {
@@ -263,8 +276,9 @@ class VideoController with ChangeNotifier {
       if (isPlaying.value) {
         hasActivePause?.cancel();
       }
-    });
+    }));
 
+    otherStreamSubscriptionList.add(
     isPlaying.listen((p0) {
       // 代表手动暂停了
       if (!isPlaying.value) {
@@ -285,14 +299,15 @@ class VideoController with ChangeNotifier {
         hasActivePause?.cancel();
         isActivePause.value = false;
       }
-    });
+    }));
 
+    otherStreamSubscriptionList.add(
     mediaPlayerControllerInitialized.listen((value) {
       // fix auto fullscreen
       if (fullScreenByDefault && datasource.isNotEmpty && value) {
         Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
       }
-    });
+    }));
   }
 
   void debounceListen(Function? func, [int delay = 1000]) {
@@ -315,29 +330,35 @@ class VideoController with ChangeNotifier {
 
   void initDanmaku() {
     hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
+    otherStreamSubscriptionList.add(
     hideDanmaku.listen((data) {
       PrefUtil.setBool('hideDanmaku', data);
-    });
+    }));
     danmakuArea.value = PrefUtil.getDouble('danmakuArea') ?? 1.0;
+    otherStreamSubscriptionList.add(
     danmakuArea.listen((data) {
       PrefUtil.setDouble('danmakuArea', data);
-    });
+    }));
     danmakuSpeed.value = PrefUtil.getDouble('danmakuSpeed') ?? 8;
+    otherStreamSubscriptionList.add(
     danmakuSpeed.listen((data) {
       PrefUtil.setDouble('danmakuSpeed', data);
-    });
+    }));
     danmakuFontSize.value = PrefUtil.getDouble('danmakuFontSize') ?? 16;
+    otherStreamSubscriptionList.add(
     danmakuFontSize.listen((data) {
       PrefUtil.setDouble('danmakuFontSize', data);
-    });
+    }));
     danmakuFontBorder.value = PrefUtil.getDouble('danmakuFontBorder') ?? 0.5;
+    otherStreamSubscriptionList.add(
     danmakuFontBorder.listen((data) {
       PrefUtil.setDouble('danmakuFontBorder', data);
-    });
+    }));
     danmakuOpacity.value = PrefUtil.getDouble('danmakuOpacity') ?? 1.0;
+    otherStreamSubscriptionList.add(
     danmakuOpacity.listen((data) {
       PrefUtil.setDouble('danmakuOpacity', data);
-    });
+    }));
   }
 
   void sendDanmaku(LiveMessage msg) {
@@ -405,8 +426,7 @@ class VideoController with ChangeNotifier {
         if (gsyVideoPlayerController.value.isFullScreen) {
           gsyVideoPlayerController.exitFullScreen();
         }
-        chewieController.dispose();
-        gsyVideoPlayerController.dispose();
+        disposeGSYVideoPlayer();
       }
     } else {
       if (key.currentState?.isFullscreen() ?? false) {
@@ -414,10 +434,11 @@ class VideoController with ChangeNotifier {
       }
       player.dispose();
     }
+    disposeAllStream();
   }
 
   void setDataSource(String url) async {
-    log( "play url: $url"  ,name: runtimeType.toString());
+    log("play url: $url", name: runtimeType.toString());
     datasource = url;
     // fix datasource empty error
     if (datasource.isEmpty) {
@@ -444,6 +465,7 @@ class VideoController with ChangeNotifier {
         cacheWithPlay: false,
         useDefaultIjkOptions: true,
       );
+      gsyStreamSubscriptionList.add(
       gsyVideoPlayerController.videoEventStreamController.stream.listen((e) {
         switch (e.playState) {
           case VideoPlayState.playing:
@@ -457,32 +479,70 @@ class VideoController with ChangeNotifier {
           case VideoPlayState.prepareing:
           case VideoPlayState.error:
           case VideoPlayState.unknown:
+            isBuffering.value = false;
+            break;
           default:
             isBuffering.value = false;
             break;
         }
         var size = e.size;
-        if( size != null){
+        if (size != null) {
           isVertical.value = (size.height) > (size.width);
         }
-
-      });
-      gsyVideoPlayerController.addEventsListener((VideoEventType event) {
-        if (event == VideoEventType.onError) {
-          hasError.value = true;
-          isPlaying.value = false;
-          log('video error ${gsyVideoPlayerController.value.what}',
-              name: 'video_player');
-        } else {
-          mediaPlayerControllerInitialized.value =
-              gsyVideoPlayerController.value.onVideoPlayerInitialized;
-          if (mediaPlayerControllerInitialized.value) {
-            isPlaying.value = gsyVideoPlayerController.value.isPlaying;
-          }
-        }
-      });
+      }));
+      gsyVideoPlayerController.addEventsListener(gsyEventsListener);
     }
     notifyListeners();
+  }
+
+  void clearStreamSubscription(List<StreamSubscription> list){
+    for(var s in list) {
+      s.cancel();
+    }
+    list.clear();
+  }
+
+  /// 释放 默认 播放器 Stream 流监听
+  void disposeDefaultVideoStream(){
+    clearStreamSubscription(defaultVideoStreamSubscriptionList);
+  }
+  /// 释放 Gsy Stream 流监听
+  void disposeGsyStream() {
+    clearStreamSubscription(gsyStreamSubscriptionList);
+  }
+  /// 释放 所有 Stream 流监听
+  void disposeAllStream(){
+    disposeGsyStream();
+    disposeDefaultVideoStream();
+    clearStreamSubscription(otherStreamSubscriptionList);
+  }
+
+
+  void gsyEventsListener(VideoEventType event) {
+    if (event == VideoEventType.onError) {
+      hasError.value = true;
+      isPlaying.value = false;
+      log('video error ${gsyVideoPlayerController.value.what}',
+          name: 'video_player');
+    } else {
+      mediaPlayerControllerInitialized.value =
+          gsyVideoPlayerController.value.onVideoPlayerInitialized;
+      if (mediaPlayerControllerInitialized.value) {
+        isPlaying.value = gsyVideoPlayerController.value.isPlaying;
+      }
+    }
+  }
+
+  /// GSYVideoPlayer 释放监听
+  void disposeGSYVideoPlayerListener() {
+    gsyVideoPlayerController.removeEventsListener(gsyEventsListener);
+  }
+
+  void disposeGSYVideoPlayer() {
+    disposeGSYVideoPlayerListener();
+    disposeGsyStream();
+    gsyVideoPlayerController.dispose();
+    chewieController.dispose();
   }
 
   void initGSYVideoPlayer() {
@@ -583,9 +643,11 @@ class VideoController with ChangeNotifier {
   Future setPortraitOrientation() async {
     // isVertical.value = true;
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: SystemUiOverlay.values);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
+          overlays: SystemUiOverlay.values);
     } else {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: SystemUiOverlay.values);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
+          overlays: SystemUiOverlay.values);
       gsyVideoPlayerController.backToProtVideo();
     }
   }
@@ -607,22 +669,13 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
-    // setPortraitOrientation();
-    // if(!isFullscreen.value){
-    //   //全屏
-    //   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-    //   if(!isVertical.value){
-    //     setLandscapeOrientation();
-    //   }
-    // }
-
     if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
       if (isFullscreen.value) {
         await key.currentState?.exitFullscreen();
       } else {
         await key.currentState?.enterFullscreen();
         log("isVertical: $isVertical", name: runtimeType.toString());
-        if(isVertical.value) {
+        if (isVertical.value) {
           // 竖屏
           // setPortraitOrientation();
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
