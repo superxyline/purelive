@@ -125,6 +125,7 @@ dependencies:
   dia_router: ^0.1.7
   dia_cors: ^0.1.2
   mobile_scanner: ^5.1.1 #二维码扫描
+  async_locks: ^4.0.1 #同步锁
 dev_dependencies:
   flutter_test:
     sdk: flutter

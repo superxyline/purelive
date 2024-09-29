@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:async_locks/async_locks.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'custom_interceptor.dart';
 import 'package:pure_live/core/common/core_error.dart';
 
@@ -71,6 +73,43 @@ class HttpClient {
     HttpOverrides.global = GlobalHttpOverrides();
   }
 
+  /// 用于存放 取消任务操作
+  static Map<int, CancelToken> cancelTokenMap = {};
+  static final cancelTokenLock = Lock();
+  // 最大排队请求队列
+  static const maxCancelTokenLen = 20;
+  static getCancelTokenKey(){
+    return DateTime.now().microsecondsSinceEpoch;
+  }
+
+  /// 尝试取消请求
+  static tryToCancelRequest() async {
+    if(cancelTokenMap.length <= maxCancelTokenLen) {
+      return;
+    }
+
+    await cancelTokenLock.run(() async {
+        if (cancelTokenMap.length <= maxCancelTokenLen) {
+          return;
+        }
+        await releaseCancelTokenMap();
+    });
+  }
+
+  /// 释放 请求
+  static Future<void> releaseCancelTokenMap() async {
+    await Future.delayed( const Duration(seconds: 3)).then((value) {
+      if (cancelTokenMap.length <= maxCancelTokenLen) {
+        return;
+      }
+      CoreLog.d("release Request: ${cancelTokenMap.length}");
+      for (var value in cancelTokenMap.values) {
+        value.cancel();
+      }
+      cancelTokenMap.clear();
+    });
+  }
+
   /// Get请求，返回String
   /// * [url] 请求链接
   /// * [queryParameters] 请求参数
@@ -81,6 +120,10 @@ class HttpClient {
     Map<String, dynamic>? header,
     CancelToken? cancel,
   }) async {
+    await tryToCancelRequest();
+    var cancelToken = cancel ?? CancelToken();
+    var cancelTokenKey = getCancelTokenKey();
+    cancelTokenMap[cancelTokenKey] = cancelToken;
     try {
       queryParameters ??= {};
       header ??= {};
@@ -91,8 +134,9 @@ class HttpClient {
           responseType: ResponseType.plain,
           headers: header,
         ),
-        cancelToken: cancel,
+        cancelToken: cancelToken,
       );
+      cancelTokenMap.remove(cancelTokenKey);
       return result.data;
     } catch (e) {
       if (e is DioException && e.type == DioExceptionType.badResponse) {
@@ -100,6 +144,8 @@ class HttpClient {
       } else {
         throw CoreError("发送GET请求失败");
       }
+    } finally {
+      cancelTokenMap.remove(cancelTokenKey);
     }
   }
 
@@ -113,6 +159,10 @@ class HttpClient {
     Map<String, dynamic>? header,
     CancelToken? cancel,
   }) async {
+    await tryToCancelRequest();
+    var cancelToken = cancel ?? CancelToken();
+    var cancelTokenKey = getCancelTokenKey();
+    cancelTokenMap[cancelTokenKey] = cancelToken;
     try {
       queryParameters ??= {};
       header ??= {};
@@ -123,7 +173,7 @@ class HttpClient {
           responseType: ResponseType.json,
           headers: header,
         ),
-        cancelToken: cancel,
+        cancelToken: cancelToken,
       );
       return result.data;
     } catch (e) {
@@ -132,6 +182,8 @@ class HttpClient {
       } else {
         throw CoreError("发送GET请求失败");
       }
+    } finally {
+      cancelTokenMap.remove(cancelTokenKey);
     }
   }
 
@@ -148,6 +200,10 @@ class HttpClient {
     bool formUrlEncoded = false,
     CancelToken? cancel,
   }) async {
+    await tryToCancelRequest();
+    var cancelToken = cancel ?? CancelToken();
+    var cancelTokenKey = getCancelTokenKey();
+    cancelTokenMap[cancelTokenKey] = cancelToken;
     try {
       queryParameters ??= {};
       header ??= {};
@@ -161,7 +217,7 @@ class HttpClient {
           headers: header,
           contentType: formUrlEncoded ? Headers.formUrlEncodedContentType : null,
         ),
-        cancelToken: cancel,
+        cancelToken: cancelToken,
       );
       return result.data;
     } catch (e) {
@@ -171,6 +227,8 @@ class HttpClient {
       } else {
         throw CoreError("发送POST请求失败");
       }
+    } finally {
+      cancelTokenMap.remove(cancelTokenKey);
     }
   }
 
@@ -184,6 +242,10 @@ class HttpClient {
     Map<String, dynamic>? header,
     CancelToken? cancel,
   }) async {
+    await tryToCancelRequest();
+    var cancelToken = cancel ?? CancelToken();
+    var cancelTokenKey = getCancelTokenKey();
+    cancelTokenMap[cancelTokenKey] = cancelToken;
     try {
       queryParameters ??= {};
       header ??= {};
@@ -194,7 +256,7 @@ class HttpClient {
           headers: header,
           receiveDataWhenStatusError: true,
         ),
-        cancelToken: cancel,
+        cancelToken: cancelToken,
       );
       return result;
     } catch (e) {
@@ -204,6 +266,8 @@ class HttpClient {
       } else {
         throw CoreError("发送HEAD请求失败");
       }
+    } finally {
+      cancelTokenMap.remove(cancelTokenKey);
     }
   }
 
@@ -217,6 +281,10 @@ class HttpClient {
     Map<String, dynamic>? header,
     CancelToken? cancel,
   }) async {
+    await tryToCancelRequest();
+    var cancelToken = cancel ?? CancelToken();
+    var cancelTokenKey = getCancelTokenKey();
+    cancelTokenMap[cancelTokenKey] = cancelToken;
     try {
       queryParameters ??= {};
       header ??= {};
@@ -227,7 +295,7 @@ class HttpClient {
           responseType: ResponseType.json,
           headers: header,
         ),
-        cancelToken: cancel,
+        cancelToken: cancelToken,
       );
       return result;
     } catch (e) {
@@ -236,6 +304,8 @@ class HttpClient {
       } else {
         throw CoreError("发送GET请求失败");
       }
+    } finally {
+      cancelTokenMap.remove(cancelTokenKey);
     }
   }
 }
