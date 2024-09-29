@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'fix_gsy_video_player_controller.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
@@ -548,7 +549,7 @@ class VideoController with ChangeNotifier {
   }
 
   void initGSYVideoPlayer() {
-    gsyVideoPlayerController = GsyVideoPlayerController(
+    gsyVideoPlayerController = FixGsyVideoPlayerController(
         allowBackgroundPlayback: allowBackgroundPlay,
         player: getVideoPlayerType(videoPlayerIndex));
     chewieController = ChewieController(
