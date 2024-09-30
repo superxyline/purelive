@@ -35,7 +35,7 @@ void initService() {
   Get.put(SettingsService());
   Get.put(FavoriteController());
   // Get.put(PopularController());
-  // Get.put(AreasController());
+  Get.put(AreasController());
   Get.put(BiliBiliAccountService());
 }
 
