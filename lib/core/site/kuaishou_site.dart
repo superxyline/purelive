@@ -1,25 +1,25 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:math' as math;
-import 'package:dio/dio.dart';
-import 'package:get/get.dart';
-import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/core/danmaku/kuaishow_danmaku.dart';
-import 'package:pure_live/core/sites.dart';
+
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/plugins/fake_useragent.dart';
-import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/model/live_play_quality.dart';
-import 'package:pure_live/core/interface/live_site.dart';
-import 'package:pure_live/model/live_search_result.dart';
-import 'package:pure_live/common/models/live_message.dart';
-import 'package:pure_live/model/live_category_result.dart';
+import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:get/get.dart';
+import 'package:pure_live/common/models/live_area.dart';
+import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/common/http_client.dart';
+import 'package:pure_live/core/danmaku/kuaishow_danmaku.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/core/interface/live_site.dart';
+import 'package:pure_live/core/sites.dart';
+import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/model/live_category_result.dart';
+import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_search_result.dart';
+import 'package:pure_live/plugins/fake_useragent.dart';
 
 class KuaishowSite extends LiveSite {
   @override
