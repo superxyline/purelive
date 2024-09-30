@@ -1,10 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/utils/pref_util.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/main.dart';
+import 'package:pure_live/plugins/global.dart';
 ///全局异常的捕捉
 class FlutterCatchError {
-  static run(Widget app) {
+  static run(Widget app, List<String> args) {
     ///Flutter 框架异常
     FlutterError.onError = (FlutterErrorDetails details) async {
       ///TODO 线上环境
@@ -18,7 +25,23 @@ class FlutterCatchError {
 
     setCustomErrorPage();
 
-    runZonedGuarded(() {
+    runZonedGuarded(() async {
+
+      WidgetsFlutterBinding.ensureInitialized();
+      PrefUtil.prefs = await SharedPreferences.getInstance();
+      MediaKit.ensureInitialized();
+      if (Platform.isWindows) {
+        register(kWindowsScheme);
+        await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
+        await windowManager.ensureInitialized();
+        await WindowUtil.init(width: 1280, height: 720);
+      }
+      // 先初始化supdatabase
+      await SupaBaseManager.getInstance().initial();
+      // 初始化服务
+      initService();
+      initRefresh();
+
       ///受保护的代码块
       runApp(app);
     }, (error, stack) => catchError(error, stack));
@@ -29,6 +52,7 @@ class FlutterCatchError {
     if(kDebugMode){
       print("AppCatchError>>>>>>>>>>: $kReleaseMode"); //是否是 Release版本
       print('APP出现异常  message:$error,stackTrace：$stack');
+      CoreLog.error(stack);
     }
   }
 

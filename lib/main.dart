@@ -12,21 +12,7 @@ import 'package:pure_live/common/services/bilibili_account_service.dart';
 const kWindowsScheme = 'purelive://signin';
 
 void main(List<String> args) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  PrefUtil.prefs = await SharedPreferences.getInstance();
-  MediaKit.ensureInitialized();
-  if (Platform.isWindows) {
-    register(kWindowsScheme);
-    await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
-    await windowManager.ensureInitialized();
-    await WindowUtil.init(width: 1280, height: 720);
-  }
-  // 先初始化supdatabase
-  await SupaBaseManager.getInstance().initial();
-  // 初始化服务
-  initService();
-  initRefresh();
-  FlutterCatchError.run(const MyApp());
+  FlutterCatchError.run(const MyApp(), args);
   // runApp(const MyApp());
 }
 

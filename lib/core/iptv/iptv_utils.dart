@@ -17,6 +17,7 @@ class IptvUtils {
     try {
       var dir = await getApplicationCacheDirectory();
       final categories = File('${dir.path}${Platform.pathSeparator}categories.json');
+      if(!await categories.exists()) return [];
       String jsonData = await categories.readAsString();
       List jsonArr = jsonData.isNotEmpty ? jsonDecode(jsonData) : [];
       List<IptvCategory> categoriesArr = jsonArr.map((e) => IptvCategory.fromJson(e)).toList();
