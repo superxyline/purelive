@@ -194,6 +194,16 @@ class DouyinSite extends LiveSite {
       //             "web_rid": "419548676305",
       var realRoomId = detail["roomStore"]["roomInfo"]["roomId"].toString();
       var userUniqueId = detail["userStore"]["odin"]["user_unique_id"].toString();
+      var webStreamUrl = detail["roomStore"]["roomInfo"]["web_stream_url"];
+      if(webStreamUrl == null) {
+        // 没有开播
+        // throw Exception("Not living");
+        final SettingsService settings = Get.find<SettingsService>();
+        LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
+        liveRoom.liveStatus = LiveStatus.offline;
+        liveRoom.status = false;
+        return liveRoom;
+      }
       var result = await HttpClient.instance.getJson(
         "https://live.douyin.com/webcast/room/web/enter/",
         queryParameters: {
