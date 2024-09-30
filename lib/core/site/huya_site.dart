@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'dart:developer' as developer;
 import 'package:pure_live/core/sites.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -217,7 +218,7 @@ class HuyaSite extends LiveSite {
       dynamic data = result['data'];
       var topSid = 0;
       var subSid = 0;
-      developer.log("data: $data");
+      CoreLog.d("data: $data");
       var huyaLines = <HuyaLineModel>[];
       var huyaBiterates = <HuyaBitRateModel>[];
       //读取可用线路

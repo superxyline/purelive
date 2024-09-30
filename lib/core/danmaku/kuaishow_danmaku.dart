@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:fixnum/src/int64.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
@@ -58,7 +59,7 @@ class KuaishowDanmaku implements LiveDanmaku {
 
   @override
   Future start(dynamic args) async {
-    log("start", name: runtimeType.toString());
+    CoreLog.d("start");
     if (args == null) {
       onClose?.call("服务器连接失败");
       return;

@@ -351,7 +351,7 @@ class KuaishowSite extends LiveSite {
             token: webSocketToken,
             liveStreamId: liveStreamId,
             expTag: expTag);
-        log(jsonEncode(tmpArgs), name: runtimeType.toString());
+        CoreLog.d(jsonEncode(tmpArgs));
       } catch (e) {
         // log(e.toString());
         CoreLog.error(e);

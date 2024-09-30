@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'package:pure_live/core/common/core_log.dart';
+
 import 'proto/douyin.pb.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_js/flutter_js.dart';
@@ -155,7 +157,7 @@ class DouyinDanmaku implements LiveDanmaku {
     var chatMessage = ChatMessage.fromBuffer(payload);
     var color = chatMessage.fullScreenTextColor;
     // log("chatMessage: $chatMessage", name: runtimeType.toString());
-    log("color: $color", name: runtimeType.toString());
+    CoreLog.d("color: $color");
     onMessage?.call(
       LiveMessage(
         type: LiveMessageType.chat,

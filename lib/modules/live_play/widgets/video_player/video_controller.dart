@@ -249,13 +249,13 @@ class VideoController with ChangeNotifier {
 
       defaultVideoStreamSubscriptionList
           .add(player.stream.width.listen((event) {
-        log('width:$event  W:${(player.state.width)}  H:${(player.state.height)}');
+        CoreLog.d('Video width:$event  W:${(player.state.width)}  H:${(player.state.height)}');
         isVertical.value =
             (player.state.height ?? 9) > (player.state.width ?? 16);
       }));
       defaultVideoStreamSubscriptionList
           .add(player.stream.height.listen((event) {
-        log('height:$event  W:${(player.state.width)}  H:${(player.state.height)}');
+        CoreLog.d('height:$event  W:${(player.state.width)}  H:${(player.state.height)}');
         isVertical.value =
             (player.state.height ?? 9) > (player.state.width ?? 16);
       }));
@@ -457,7 +457,7 @@ class VideoController with ChangeNotifier {
   }
 
   void setDataSource(String url) async {
-    log("play url: $url", name: runtimeType.toString());
+    CoreLog.d("play url: $url");
     datasource = url;
     // fix datasource empty error
     if (datasource.isEmpty) {
@@ -544,8 +544,7 @@ class VideoController with ChangeNotifier {
     if (event == VideoEventType.onError) {
       hasError.value = true;
       isPlaying.value = false;
-      log('video error ${gsyVideoPlayerController.value.what}',
-          name: 'video_player');
+      CoreLog.d('gsyVideoPlayer error ${gsyVideoPlayerController.value.what}');
     } else {
       mediaPlayerControllerInitialized.value =
           gsyVideoPlayerController.value.onVideoPlayerInitialized;
@@ -675,7 +674,7 @@ class VideoController with ChangeNotifier {
   }
 
   void toggleFullScreen() async {
-    log("toggleFullScreen", name: runtimeType.toString());
+    CoreLog.d("toggleFullScreen");
     // disable locked
     showLocked.value = false;
     // fix danmaku overlap bug
@@ -696,7 +695,7 @@ class VideoController with ChangeNotifier {
         await key.currentState?.exitFullscreen();
       } else {
         await key.currentState?.enterFullscreen();
-        log("isVertical: $isVertical", name: runtimeType.toString());
+        CoreLog.d("isVertical: $isVertical");
         if (isVertical.value) {
           // 竖屏
           // setPortraitOrientation();

@@ -137,7 +137,8 @@ class LivePlayController extends StateController {
   void onInit() {
     super.onInit();
     // 发现房间ID 会变化 使用静态列表ID 对比
-    log('onInit', name: 'LivePlayController');
+    CoreLog.d('onInit');
+
     currentPlayRoom.value = room;
     online.value = room.watching ?? "0";
     onInitPlayerState(firstLoad: true);
@@ -201,7 +202,8 @@ class LivePlayController extends StateController {
     loadTimeOut.value = false;
     isLoadingVideo.value = true;
     Timer(const Duration(milliseconds: 2000), () {
-      log('resetRoom', name: 'LivePlayController');
+      // log('resetRoom', name: 'LivePlayController');
+      CoreLog.d('resetRoom');
       onInitPlayerState(firstLoad: true);
     });
   }
@@ -400,8 +402,8 @@ class LivePlayController extends StateController {
 
   /// 选择直播路线
   void setResolution(String quality, String index) {
-    log("setResolution", name: runtimeType.toString());
-    log("quality: $quality \t index: $index", name: runtimeType.toString());
+    CoreLog.d("setResolution");
+    CoreLog.d("quality: $quality \t index: $index");
     isLoadingVideo.value = true;
     if (videoController != null && videoController!.hasDestory == false) {
       // videoController!.destory();
@@ -564,7 +566,7 @@ class LivePlayController extends StateController {
         if (!connectivityResults.contains(ConnectivityResult.none)) {
           if (!videoController!.isActivePause.value &&
               videoController!.isPlaying.value == false) {
-            log("videoController refresh");
+            CoreLog.d("videoController refresh");
             videoController!.refresh();
           }
         }
@@ -592,7 +594,7 @@ class LivePlayController extends StateController {
           "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${detail.value?.roomId}";
       webUrl = "https://www.douyu.com/${detail.value?.roomId}";
     } else if (site == Sites.ccSite) {
-      log(detail.value!.userId.toString(), name: "cc_user_id");
+      CoreLog.d("cc_user_id :${detail.value!.userId.toString()}");
       naviteUrl =
           "cc://join-room/${detail.value?.roomId}/${detail.value?.userId}/";
       webUrl = "https://cc.163.com/${detail.value?.roomId}";
