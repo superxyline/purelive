@@ -90,8 +90,8 @@ class KuaishowSite extends LiveSite {
     'Sec-Fetch-User': '?1'
   };
 
-  Future<List<LiveArea>> getAllSubCategores(
-      LiveCategory liveCategory, int page, int pageSize, List<LiveArea> allSubCategores) async {
+  Future<List<LiveArea>> getAllSubCategores(LiveCategory liveCategory, int page,
+      int pageSize, List<LiveArea> allSubCategores) async {
     try {
       var subsArea = await getSubCategores(liveCategory, page, pageSize);
       allSubCategores.addAll(subsArea);
@@ -107,10 +107,15 @@ class KuaishowSite extends LiveSite {
     }
   }
 
-  Future<List<LiveArea>> getSubCategores(LiveCategory liveCategory, int page, int pageSize) async {
+  Future<List<LiveArea>> getSubCategores(
+      LiveCategory liveCategory, int page, int pageSize) async {
     var result = await HttpClient.instance.getJson(
       "https://live.kuaishou.com/live_api/category/data",
-      queryParameters: {"type": liveCategory.id, "page": page, "size": pageSize},
+      queryParameters: {
+        "type": liveCategory.id,
+        "page": page,
+        "size": pageSize
+      },
       header: headers,
     );
 
@@ -139,13 +144,19 @@ class KuaishowSite extends LiveSite {
   }
 
   @override
-  Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
+  Future<LiveCategoryResult> getCategoryRooms(LiveArea category,
+      {int page = 1}) async {
     var api = category.areaId!.length < 7
         ? "https://live.kuaishou.com/live_api/gameboard/list"
         : "https://live.kuaishou.com/live_api/non-gameboard/list";
     var result = await HttpClient.instance.getJson(
       api,
-      queryParameters: {"filterType": 0, "pageSize": 20, "gameId": category.areaId, "page": page},
+      queryParameters: {
+        "filterType": 0,
+        "pageSize": 20,
+        "gameId": category.areaId,
+        "page": page
+      },
       header: headers,
     );
     var items = <LiveRoom>[];
@@ -153,7 +164,9 @@ class KuaishowSite extends LiveSite {
       var roomItem = LiveRoom(
         roomId: item["author"]["id"] ?? '',
         title: item['caption'] ?? '',
-        cover: isImage(item['poster']) ? item['poster'].toString() : '${item['poster'].toString()}.jpg',
+        cover: isImage(item['poster'])
+            ? item['poster'].toString()
+            : '${item['poster'].toString()}.jpg',
         nick: item["author"]["name"].toString(),
         watching: item["watchingCount"].toString(),
         avatar: item["author"]["avatar"],
@@ -185,12 +198,14 @@ class KuaishowSite extends LiveSite {
   }
 
   @override
-  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
+  Future<List<String>> getPlayUrls(
+      {required LiveRoom detail, required LivePlayQuality quality}) async {
     return quality.data as List<String>;
   }
 
   @override
-  Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
+  Future<LiveCategoryResult> getRecommendRooms(
+      {int page = 1, required String nick}) async {
     var resultText = await HttpClient.instance
         .getJson("https://live.kuaishou.com/live_api/hot/list",
             queryParameters: {
@@ -205,25 +220,31 @@ class KuaishowSite extends LiveSite {
     var result = resultText['data']['list'] ?? [];
     var items = <LiveRoom>[];
     for (var item in result) {
-          var titem = item;
-          var author = titem["author"];
-          var gameInfo = titem["gameInfo"];
-          var roomItems = LiveRoom(
-            cover: isImage(item['poster']) ? item['poster'].toString() : '${item['poster'].toString()}.jpg',
-            watching: titem["watchingCount"].toString(),
-            roomId: author["id"],
-            area: gameInfo["name"],
-            title: author["description"] != null ? author["description"].replaceAll("\n", " ") : '',
-            nick: author["name"].toString(),
-            avatar: author["avatar"].toString(),
-            introduction: author["description"] != null ? author["description"].replaceAll("\n", " ") : '',
-            notice: author["description"],
-            status: true,
-            liveStatus: LiveStatus.live,
-            platform: Sites.kuaishouSite,
-            data: titem["playUrls"],
-          );
-          items.add(roomItems);
+      var titem = item;
+      var author = titem["author"];
+      var gameInfo = titem["gameInfo"];
+      var roomItems = LiveRoom(
+        cover: isImage(item['poster'])
+            ? item['poster'].toString()
+            : '${item['poster'].toString()}.jpg',
+        watching: titem["watchingCount"].toString(),
+        roomId: author["id"],
+        area: gameInfo["name"],
+        title: author["description"] != null
+            ? author["description"].replaceAll("\n", " ")
+            : '',
+        nick: author["name"].toString(),
+        avatar: author["avatar"].toString(),
+        introduction: author["description"] != null
+            ? author["description"].replaceAll("\n", " ")
+            : '',
+        notice: author["description"],
+        status: true,
+        liveStatus: LiveStatus.live,
+        platform: Sites.kuaishouSite,
+        data: titem["playUrls"],
+      );
+      items.add(roomItems);
     }
     var hasMore = items.length >= 20;
     return LiveCategoryResult(hasMore: hasMore, items: items);
@@ -241,7 +262,12 @@ class KuaishowSite extends LiveSite {
     var map = {
       'common': {
         'identity_package': {'device_id': did, 'global_id': ''},
-        'app_package': {'language': 'zh-CN', 'platform': 10, 'container': 'WEB', 'product_name': 'KS_GAME_LIVE_PC'},
+        'app_package': {
+          'language': 'zh-CN',
+          'platform': 10,
+          'container': 'WEB',
+          'product_name': 'KS_GAME_LIVE_PC'
+        },
         'device_package': {
           'os_version': 'NT 6.1',
           'model': 'Windows',
@@ -285,7 +311,8 @@ class KuaishowSite extends LiveSite {
   // 获取pageId
   getPageId() {
     var pageId = '';
-    const charset = 'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
+    const charset =
+        'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
     for (var i = 0; i < 16; i++) {
       pageId += charset[math.Random().nextInt(63)];
     }
@@ -312,13 +339,17 @@ class KuaishowSite extends LiveSite {
 
   @override
   Future<LiveRoom> getRoomDetail(
-      {required String nick, required String platform, required String roomId, required String title}) async {
+      {required String nick,
+      required String platform,
+      required String roomId,
+      required String title}) async {
     headers['cookie'] = cookie;
     var url = "https://live.kuaishou.com/u/$roomId";
     var mHeaders = headers;
     var fakeUseragent = FakeUserAgent.getRandomUserAgent();
     mHeaders['User-Agent'] = fakeUseragent['userAgent'];
-    mHeaders['sec-ch-ua'] = 'Google Chrome;v=${fakeUseragent['v']}, Chromium;v=${fakeUseragent['v']}, Not=A?Brand;v=24';
+    mHeaders['sec-ch-ua'] =
+        'Google Chrome;v=${fakeUseragent['v']}, Chromium;v=${fakeUseragent['v']}, Not=A?Brand;v=24';
     mHeaders['sec-ch-ua-platform'] = fakeUseragent['device'];
     mHeaders['sec-fetch-dest'] = 'document';
     mHeaders['sec-fetch-mode'] = 'navigate';
@@ -334,41 +365,61 @@ class KuaishowSite extends LiveSite {
       header: mHeaders,
     );
     try {
-      var text = RegExp(r"window\.__INITIAL_STATE__=(.*?);", multiLine: false).firstMatch(resultText)?.group(1);
+      var text = RegExp(r"window\.__INITIAL_STATE__=(.*?);", multiLine: false)
+          .firstMatch(resultText)
+          ?.group(1);
       var transferData = text!.replaceAll("undefined", "null");
       var jsonObj = jsonDecode(transferData);
       var liveStream = jsonObj["liveroom"]["playList"][0]["liveStream"];
       var author = jsonObj["liveroom"]["playList"][0]["author"];
       var gameInfo = jsonObj["liveroom"]["playList"][0]["gameInfo"];
       var liveStreamId = liveStream["id"];
-      KuaishowDanmakuArgs? tmpArgs;
-      try {
-        var expTag = liveStream["expTag"];
-        var websocketInfo = jsonObj["liveroom"]["playList"][0]["websocketInfo"];
-        var webSocketAddresses = websocketInfo["webSocketAddresses"][0];
-        var webSocketToken = websocketInfo["token"];
-        tmpArgs = KuaishowDanmakuArgs(url: webSocketAddresses,
-            token: webSocketToken,
-            liveStreamId: liveStreamId,
-            expTag: expTag);
-        CoreLog.d(jsonEncode(tmpArgs));
-      } catch (e) {
-        // log(e.toString());
-        CoreLog.error(e);
-      }
+      KuaishowDanmakuArgs? tmpArgs = () {
+        try {
+          var expTag = liveStream["expTag"];
+          var websocketInfo =
+              jsonObj["liveroom"]["playList"][0]["websocketInfo"];
+          var websocketInfo2 = websocketInfo["webSocketAddresses"];
+          if (websocketInfo2 == null) {
+            return null;
+          }
+          var webSocketAddresses = websocketInfo["webSocketAddresses"][0];
+          var webSocketToken = websocketInfo["token"];
+          return KuaishowDanmakuArgs(
+              url: webSocketAddresses,
+              token: webSocketToken,
+              liveStreamId: liveStreamId,
+              expTag: expTag);
+        } catch (e) {
+          // log(e.toString());
+          CoreLog.error(e);
+        }
+        return null;
+      }();
+      // CoreLog.d(jsonEncode(tmpArgs));
+      // CoreLog.d("${jsonEncode(jsonObj)}");
       return LiveRoom(
-        cover:
-            isImage(liveStream['poster']) ? liveStream['poster'].toString() : '${liveStream['poster'].toString()}.jpg',
-        watching: jsonObj["liveroom"]["playList"][0]["isLiving"] ? gameInfo["watchingCount"].toString() : '0',
+        cover: liveStream['poster'] != null
+            ? isImage(liveStream['poster'])
+                ? liveStream['poster'].toString()
+                : '${liveStream['poster'].toString()}.jpg'
+            : "",
+        watching: jsonObj["liveroom"]["playList"][0]["isLiving"]
+            ? gameInfo["watchingCount"].toString()
+            : '0',
         roomId: author["id"],
         area: gameInfo["name"] ?? '',
-        title: author["description"] != null ? author["description"].replaceAll("\n", " ") : '',
+        title: author["description"] != null
+            ? author["description"].replaceAll("\n", " ")
+            : '',
         nick: author["name"].toString(),
         avatar: author["avatar"].toString(),
         introduction: author["description"].toString(),
         notice: author["description"].toString(),
         status: jsonObj["liveroom"]["playList"][0]["isLiving"],
-        liveStatus: jsonObj["liveroom"]["playList"][0]["isLiving"] ? LiveStatus.live : LiveStatus.offline,
+        liveStatus: jsonObj["liveroom"]["playList"][0]["isLiving"]
+            ? LiveStatus.live
+            : LiveStatus.offline,
         platform: Sites.kuaishouSite,
         link: liveStreamId,
         data: liveStream["playUrls"],
@@ -385,24 +436,30 @@ class KuaishowSite extends LiveSite {
   }
 
   @override
-  Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
+  Future<LiveSearchRoomResult> searchRooms(String keyword,
+      {int page = 1}) async {
     // 快手无法搜索主播，只能搜索游戏分类这里不做展示
     return LiveSearchRoomResult(hasMore: false, items: []);
   }
 
   @override
-  Future<LiveSearchAnchorResult> searchAnchors(String keyword, {int page = 1}) async {
+  Future<LiveSearchAnchorResult> searchAnchors(String keyword,
+      {int page = 1}) async {
     return LiveSearchAnchorResult(hasMore: false, items: []);
   }
 
   @override
   Future<bool> getLiveStatus(
-      {required String nick, required String platform, required String roomId, required String title}) async {
+      {required String nick,
+      required String platform,
+      required String roomId,
+      required String title}) async {
     return false;
   }
 
   @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
+  Future<List<LiveSuperChatMessage>> getSuperChatMessage(
+      {required String roomId}) {
     //尚不支持
     return Future.value([]);
   }
