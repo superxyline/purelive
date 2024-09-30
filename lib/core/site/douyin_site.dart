@@ -189,7 +189,10 @@ class DouyinSite extends LiveSite {
       var detail = await getRoomWebDetail(roomId);
       var requestHeader = await getRequestHeaders();
       var webRid = roomId;
-      var realRoomId = detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
+      // CoreLog.d("${jsonEncode(detail)}");
+      //      "roomId": "7420273996494179123",
+      //             "web_rid": "419548676305",
+      var realRoomId = detail["roomStore"]["roomInfo"]["roomId"].toString();
       var userUniqueId = detail["userStore"]["odin"]["user_unique_id"].toString();
       var result = await HttpClient.instance.getJson(
         "https://live.douyin.com/webcast/room/web/enter/",
@@ -214,6 +217,7 @@ class DouyinSite extends LiveSite {
         },
         header: requestHeader,
       );
+      // CoreLog.d("${jsonEncode(result)}");
       var roomInfo = result["data"]["data"][0];
       var userInfo = result["data"]["user"];
       var partition = result["data"]['partition_road_map'];
