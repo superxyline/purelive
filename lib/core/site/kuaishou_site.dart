@@ -189,7 +189,16 @@ class KuaishowSite extends LiveSite {
 
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
-    var resultText = await HttpClient.instance.getJson("https://live.kuaishou.com/live_api/home/list", header: headers);
+    var resultText = await HttpClient.instance
+        .getJson("https://live.kuaishou.com/live_api/hot/list",
+            queryParameters: {
+              'type': 'HOT',
+              'filterType': 0,
+              'page': page,
+              'pageSize': 20,
+              'cursor': '',
+            },
+            header: headers);
 
     var result = resultText['data']['list'] ?? [];
     var items = <LiveRoom>[];
@@ -199,7 +208,7 @@ class KuaishowSite extends LiveSite {
           var author = titem["author"];
           var gameInfo = titem["gameInfo"];
           var roomItems = LiveRoom(
-            cover: gameInfo['poster'].toString(),
+            cover: isImage(item['poster']) ? item['poster'].toString() : '${item['poster'].toString()}.jpg',
             watching: titem["watchingCount"].toString(),
             roomId: author["id"],
             area: gameInfo["name"],
