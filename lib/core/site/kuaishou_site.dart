@@ -224,7 +224,7 @@ class KuaishowSite extends LiveSite {
           );
           items.add(roomItems);
     }
-    var hasMore = items.isNotEmpty;
+    var hasMore = items.length >= 20;
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 
