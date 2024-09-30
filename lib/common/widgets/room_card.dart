@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 
@@ -95,12 +96,10 @@ class RoomCard extends StatelessWidget {
                     ),
                   ),
                 // 平台图标
-                Positioned(
+                 Positioned(
                   left: dense ? 5 : 7,
                   top: dense ? 5 : 7,
-                  child: Image.asset(
-                    Sites.of(room.platform!).logo,
-                    width: 30,),
+                  child: SiteWidget.getSiteLogeImage(room.platform!)!,
                   ),
                 if (room.isRecord == false && room.liveStatus == LiveStatus.live)
                   Positioned(

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'popular_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:pure_live/core/sites.dart';
@@ -65,14 +66,7 @@ class PopularPage extends GetView<PopularController> {
             labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
-            tabs: Sites().availableSites().map((e) => Tab(
-              text: e.name,
-              iconMargin: const EdgeInsets.all(0),
-              icon: Image.asset(
-                e.logo,
-                width: 20,
-              ),
-            )).toList(),
+            tabs: SiteWidget.availableSitesTabList,
           ),
         ),
         body: TabBarView(

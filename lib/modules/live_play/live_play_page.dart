@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/plugins/cache_network.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -53,10 +54,7 @@ class LivePlayPage extends GetView<LivePlayController> {
             children: [
               /// 站点logo
               if (controller.detail.value?.platform != null)
-                Image.asset(
-                  Sites.of(controller.currentPlayRoom.value.platform!).logo,
-                  width: 18,
-                ),
+                SiteWidget.getSiteLogeImage(controller.detail.value!.platform!)!,
 
               /// 站点logo
               const SizedBox(width: 5),

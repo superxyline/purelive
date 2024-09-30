@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_controller.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
 
 class HotAreasPage extends GetView<HotAreasController> {
   const HotAreasPage({super.key});
@@ -8,7 +9,13 @@ class HotAreasPage extends GetView<HotAreasController> {
   _initListData() {
     return controller.sites.map((e) {
       return SwitchListTile(
-          title: Text(e.name),
+          title: Row(
+            children: [
+              SiteWidget.getSiteLogeImage(e.id)!,
+              const SizedBox(width: 5),
+              Text(e.name),
+            ],
+          ),
           value: e.show,
           activeColor: Theme.of(Get.context!).colorScheme.primary,
           onChanged: (bool value) => controller.onChanged(e.id, value));

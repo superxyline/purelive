@@ -67,11 +67,13 @@ class Sites {
     return supportSites.firstWhere((e) => id == e.id);
   }
 
+  static Site allLiveSite = Site(id: allSite, name: "全部", logo: "assets/images/all.png", liveSite: LiveSite());
+
   List<Site> availableSites({containsAll = false}) {
     final SettingsService settingsService = Get.find<SettingsService>();
     if (containsAll) {
       var result = supportSites.where((element) => settingsService.hotAreasList.value.contains(element.id)).toList();
-      result.insert(0, Site(id: "all", name: "全部", logo: "assets/images/all.png", liveSite: LiveSite()));
+      result.insert(0, allLiveSite);
       return result;
     }
     return supportSites.where((element) => settingsService.hotAreasList.value.contains(element.id)).toList();

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
 
 class FavoritePage extends GetView<FavoriteController> {
   const FavoritePage({super.key});
@@ -76,17 +77,7 @@ class FavoritePage extends GetView<FavoriteController> {
               tabAlignment: TabAlignment.center,
               indicatorSize: TabBarIndicatorSize.label,
               labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-              tabs: Sites()
-                  .availableSites(containsAll: true)
-                  .map<Widget>((e) => Tab(
-                        text: e.name,
-                        iconMargin: const EdgeInsets.all(0),
-                        icon: Image.asset(
-                          e.logo,
-                          width: 20,
-                        ),
-                      ))
-                  .toList(),
+              tabs: SiteWidget.availableSitesWithAllTabList,
             ),
             Expanded(
               child: Obx(() {

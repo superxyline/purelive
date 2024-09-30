@@ -4,6 +4,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 
@@ -337,7 +338,7 @@ class SettingsPage extends GetView<SettingsService> {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(right: 8.0),
-                    child: Image.asset(site.logo, width: 20,), // 替换为你的图片路径
+                    child: SiteWidget.getSiteLogeImage(site.id), // 替换为你的图片路径
                   ),
                   Expanded(
                     child: Text(

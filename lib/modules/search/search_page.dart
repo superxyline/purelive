@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'search_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:pure_live/core/sites.dart';
@@ -41,14 +42,7 @@ class SearchPage extends GetView<pure_live.SearchController> {
           padding: EdgeInsets.zero,
           tabAlignment: TabAlignment.center,
           labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-          tabs: Sites().availableSites().map((e) => Tab(
-            text: e.name,
-            iconMargin: const EdgeInsets.all(0),
-            icon: Image.asset(
-              e.logo,
-              width: 20,
-            ),
-          )).toList(),
+          tabs: SiteWidget.availableSitesTabList,
           isScrollable: true,
           indicatorSize: TabBarIndicatorSize.label,
         ),
