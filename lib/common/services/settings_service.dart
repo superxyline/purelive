@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
@@ -300,6 +301,7 @@ class SettingsService extends GetxController {
         LocalHttpServer().closeServer();
       }
     } catch (e) {
+      CoreLog.error(e);
       SmartDialog.showToast('打开故障,请稍后重试');
     }
   }
@@ -458,6 +460,7 @@ class SettingsService extends GetxController {
       final json = toJson();
       file.writeAsStringSync(jsonEncode(json));
     } catch (e) {
+      CoreLog.error(e);
       return false;
     }
     return true;
@@ -468,6 +471,7 @@ class SettingsService extends GetxController {
       final json = file.readAsStringSync();
       fromJson(jsonDecode(json));
     } catch (e) {
+      CoreLog.error(e);
       return false;
     }
     return true;

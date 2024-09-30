@@ -102,6 +102,7 @@ class KuaishowSite extends LiveSite {
       }
       return allSubCategores;
     } catch (e) {
+      CoreLog.error(e);
       return allSubCategores;
     }
   }
@@ -352,7 +353,8 @@ class KuaishowSite extends LiveSite {
             expTag: expTag);
         log(jsonEncode(tmpArgs), name: runtimeType.toString());
       } catch (e) {
-        log(e.toString());
+        // log(e.toString());
+        CoreLog.error(e);
       }
       return LiveRoom(
         cover:
@@ -373,6 +375,7 @@ class KuaishowSite extends LiveSite {
         danmakuData: tmpArgs,
       );
     } catch (e) {
+      CoreLog.error(e);
       final SettingsService settings = Get.find<SettingsService>();
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;

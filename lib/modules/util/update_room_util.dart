@@ -1,3 +1,5 @@
+import 'package:pure_live/core/common/core_log.dart';
+
 import '../../common/models/live_room.dart';
 import '../../common/services/settings_service.dart';
 import '../../core/sites.dart';
@@ -42,6 +44,7 @@ class UpdateRoomUtil {
           }
         }
       } catch (e) {
+        CoreLog.error(e);
         hasError = true;
       }
     }
@@ -79,6 +82,7 @@ class UpdateRoomUtil {
         }
       }
     } catch (e) {
+      CoreLog.error(e);
       hasError = true;
     }
     return hasError;

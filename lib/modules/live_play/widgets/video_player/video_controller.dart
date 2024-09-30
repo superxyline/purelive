@@ -10,6 +10,7 @@ import 'package:gsy_video_player/gsy_video_player.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/danmaku_text.dart';
@@ -269,7 +270,9 @@ class VideoController with ChangeNotifier {
           SmartDialog.showToast("视频播放失败,正在为您切换线路");
           changeLine();
         }
-      } catch (e) {}
+      } catch (e) {
+        CoreLog.error(e);
+      }
     }, time: const Duration(seconds: 2));
 
     otherStreamSubscriptionList.add(showController.listen((p0) {
@@ -395,7 +398,9 @@ class VideoController with ChangeNotifier {
         livePlayController.qualites.value = [];
         livePlayController.onInitPlayerState(
             reloadDataType: ReloadDataType.refreash, firstLoad: true);
-      } catch (e) {}
+      } catch (e) {
+        CoreLog.error(e);
+      }
     });
   }
 
@@ -410,7 +415,9 @@ class VideoController with ChangeNotifier {
           line: currentLineIndex,
           active: active,
         );
-      } catch (e) {}
+      } catch (e) {
+        CoreLog.error(e);
+      }
     });
   }
 
@@ -423,7 +430,9 @@ class VideoController with ChangeNotifier {
     try {
       LivePlayController livePlayController = Get.find<LivePlayController>();
       livePlayController.success.value = false;
-    } catch (e) {}
+    } catch (e) {
+      CoreLog.error(e);
+    }
     hasDestory = true;
     if (allowScreenKeepOn) WakelockPlus.disable();
     if (Platform.isAndroid || Platform.isIOS) {

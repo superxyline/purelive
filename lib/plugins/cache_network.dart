@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/utils/cache_manager.dart';
+import 'package:pure_live/core/common/core_log.dart';
 
 class CacheNetWorkUtils {
   static Widget getCacheImage(String imageUrl,
@@ -34,10 +33,13 @@ class CacheNetWorkUtils {
       }
       return CachedNetworkImageProvider(avatar,
           cacheManager: CustomCacheManager.instance, errorListener: (err) {
-        log(err.toString());
-        log("CachedNetworkImageProvider: Image failed to load!");
+        // log(err.toString());
+        // CoreLog.e("", (err as Error).stackTrace!);
+        // log("CachedNetworkImageProvider: Image failed to load!");
+        CoreLog.error(err);
       });
     } catch (e) {
+      CoreLog.error(e);
       return null;
     }
   }

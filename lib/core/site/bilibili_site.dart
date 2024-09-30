@@ -7,6 +7,7 @@ import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/convert_helper.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/bilibili_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -391,6 +392,7 @@ class BiliBiliSite extends LiveSite {
         ),
       );
     } catch (e) {
+      CoreLog.error(e);
       final SettingsService settings = Get.find<SettingsService>();
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
@@ -529,6 +531,7 @@ class BiliBiliSite extends LiveSite {
       );
       return result["data"]["b_3"].toString();
     } catch (e) {
+      CoreLog.error(e);
       return "";
     }
   }

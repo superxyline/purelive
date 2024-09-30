@@ -15,6 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/message_lookup_by_library.dart';
 import 'package:intl/src/intl_helpers.dart';
+import 'package:pure_live/core/common/core_log.dart';
 
 import 'messages_en.dart' as messages_en;
 import 'messages_zh_CN.dart' as messages_zh_cn;
@@ -55,6 +56,7 @@ bool _messagesExistFor(String locale) {
   try {
     return _findExact(locale) != null;
   } catch (e) {
+    CoreLog.error(e);
     return false;
   }
 }

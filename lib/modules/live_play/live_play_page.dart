@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/plugins/cache_network.dart';
@@ -20,6 +21,7 @@ class LivePlayPage extends GetView<LivePlayController> {
         Navigator.of(Get.context!).pop();
       }
     } catch (e) {
+      CoreLog.error(e);
       Navigator.of(Get.context!).pop();
     }
     return true;

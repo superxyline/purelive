@@ -1,3 +1,5 @@
+import 'package:pure_live/core/common/core_log.dart';
+
 String readableCount(String info) {
   info = info.trim();
   if(info == "") {
@@ -9,6 +11,7 @@ String readableCount(String info) {
       return '${(count / 10000).toStringAsFixed(1)}万';
     }
   } catch (e) {
+    CoreLog.error(e);
     return info;
   }
   return info;

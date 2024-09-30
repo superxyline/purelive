@@ -6,6 +6,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:pure_live/common/index.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:date_format/date_format.dart' hide S;
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/iptv/iptv_utils.dart';
 import 'package:pure_live/core/common/http_client.dart';
 
@@ -80,6 +81,7 @@ class FileRecoverUtils {
       SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
       return true;
     } catch (e) {
+      CoreLog.error(e);
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
       return false;
     }
@@ -173,6 +175,7 @@ class FileRecoverUtils {
       SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
       return true;
     } catch (e) {
+      CoreLog.error(e);
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
       return false;
     }
@@ -208,6 +211,7 @@ class FileRecoverUtils {
       SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
       return true;
     } catch (e) {
+      CoreLog.error(e);
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
       return false;
     }
@@ -220,6 +224,7 @@ class FileRecoverUtils {
           .postJson('$httpAddress/api/setSettings', queryParameters: {"settings": jsonEncode(service.toJson())});
       return jsonDecode(response)['data'];
     } catch (e) {
+      CoreLog.error(e);
       return false;
     }
   }
@@ -246,6 +251,7 @@ class FileRecoverUtils {
       SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
       return true;
     } catch (e) {
+      CoreLog.error(e);
       SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
       return false;
     }

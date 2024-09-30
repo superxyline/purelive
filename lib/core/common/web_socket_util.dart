@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:web_socket_channel/io.dart';
 
 enum SocketStatus {
@@ -76,6 +77,7 @@ class WebScoketUtils {
       await webSocket?.ready;
       ready();
     } catch (e) {
+      CoreLog.error(e);
       if (!retry) {
         connect(retry: true);
         return;

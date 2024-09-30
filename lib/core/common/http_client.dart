@@ -139,6 +139,7 @@ class HttpClient {
       cancelTokenMap.remove(cancelTokenKey);
       return result.data;
     } catch (e) {
+      CoreLog.error(e);
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
@@ -177,6 +178,7 @@ class HttpClient {
       );
       return result.data;
     } catch (e) {
+      CoreLog.error(e);
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
@@ -221,6 +223,7 @@ class HttpClient {
       );
       return result.data;
     } catch (e) {
+      CoreLog.error(e);
       SmartDialog.showToast(e.toString());
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
@@ -260,6 +263,7 @@ class HttpClient {
       );
       return result;
     } catch (e) {
+      CoreLog.error(e);
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         //throw CoreError(e.message, statusCode: e.response?.statusCode ?? 0);
         return e.response!;
@@ -299,6 +303,7 @@ class HttpClient {
       );
       return result;
     } catch (e) {
+      CoreLog.error(e);
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         return e.response!;
       } else {

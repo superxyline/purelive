@@ -1,3 +1,5 @@
+import 'package:pure_live/core/common/core_log.dart';
+
 enum LiveMessageType {
   /// 聊天
   chat,
@@ -81,6 +83,7 @@ class LiveMessageColor {
         messageColor = LiveMessageColor(r, g, b);
       } catch (e) {
         //
+        CoreLog.error(e);
       }
     }
     return messageColor;

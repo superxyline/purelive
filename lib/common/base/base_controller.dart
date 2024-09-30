@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter/widgets.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:pure_live/core/common/core_log.dart';
 
 class BaseController extends GetxController {
   /// 加载中，更新页面
@@ -103,6 +104,7 @@ class BasePageController<T> extends BaseController {
         list.addAll(result);
       }
     } catch (e) {
+      CoreLog.error(e);
       handleError(e, showPageError: currentPage == 1);
     } finally {
       loadding = false;

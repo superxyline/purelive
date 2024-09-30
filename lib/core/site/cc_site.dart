@@ -1,22 +1,22 @@
 import 'dart:convert';
-import 'dart:developer';
+
 import 'package:get/get.dart';
-import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/core/danmaku/cc_danmaku.dart';
-import 'package:pure_live/core/sites.dart';
-import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/model/live_play_quality.dart';
-import 'package:pure_live/core/interface/live_site.dart';
-import 'package:pure_live/model/live_search_result.dart';
-import 'package:pure_live/core/danmaku/empty_danmaku.dart';
 import 'package:pure_live/common/models/live_message.dart';
-import 'package:pure_live/model/live_category_result.dart';
-import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/common/http_client.dart';
+import 'package:pure_live/core/danmaku/cc_danmaku.dart';
+import 'package:pure_live/core/danmaku/empty_danmaku.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/core/interface/live_site.dart';
+import 'package:pure_live/core/sites.dart';
+import 'package:pure_live/model/live_anchor_item.dart';
+import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/model/live_category_result.dart';
+import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
 class CCSite extends LiveSite {
@@ -215,7 +215,7 @@ class CCSite extends LiveSite {
         danmakuData: args,
       );
     } catch (e) {
-      log(e.toString(), name: 'CC.getRoomDetail');
+      CoreLog.error(e);
       final SettingsService settings = Get.find<SettingsService>();
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
@@ -365,7 +365,7 @@ class CCSite extends LiveSite {
       // CoreLog.d(jsonEncode(rsList));
       return rsList;
     } catch (e)  {
-      CoreLog.w(e.toString());
+      CoreLog.error(e);
       for(var liveRoom in list){
         liveRoom.liveStatus = LiveStatus.offline;
         liveRoom.status = false;

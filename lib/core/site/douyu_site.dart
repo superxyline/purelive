@@ -9,6 +9,7 @@ import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/douyu_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -275,6 +276,7 @@ class DouyuSite extends LiveSite {
         isRecord: roomInfo["videoLoop"] == 1,
       );
     } catch (e) {
+      CoreLog.error(e);
       final SettingsService settings = Get.find<SettingsService>();
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
@@ -590,6 +592,7 @@ class DouyuSite extends LiveSite {
       }
       return rsList;
     } catch (e) {
+      CoreLog.error(e);
       SmartDialog.showToast(e.toString());
       for (var liveRoom in list) {
         liveRoom.liveStatus = LiveStatus.offline;

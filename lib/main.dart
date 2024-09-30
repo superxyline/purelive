@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/flutter_catch_error.dart';
 import 'package:pure_live/plugins/global.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
@@ -25,7 +26,8 @@ void main(List<String> args) async {
   // 初始化服务
   initService();
   initRefresh();
-  runApp(const MyApp());
+  FlutterCatchError.run(const MyApp());
+  // runApp(const MyApp());
 }
 
 void initService() {

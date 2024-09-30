@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/common/utils/pref_util.dart';
 import 'package:pure_live/core/common/http_client.dart';
@@ -49,6 +50,7 @@ class BiliBiliAccountService extends GetxController {
           logout();
         }
       } catch (e) {
+        CoreLog.error(e);
         SmartDialog.showToast("获取哔哩哔哩用户信息失败，可前往账号管理重试");
       }
     });

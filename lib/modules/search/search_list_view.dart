@@ -1,12 +1,12 @@
-import 'dart:developer';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/search/search_list_controller.dart';
 import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/routes/app_navigation.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:pure_live/modules/search/search_list_controller.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class SearchListView extends StatelessWidget {
   final String tag;
@@ -66,9 +66,11 @@ class _OwnerCardState extends State<OwnerCard> {
   ImageProvider? getRoomAvatar(avatar) {
     try {
       return CachedNetworkImageProvider(avatar, cacheManager: CustomCacheManager.instance, errorListener: (err) {
-        log("CachedNetworkImageProvider: Image failed to load!");
+        // log("CachedNetworkImageProvider: Image failed to load!");
+        CoreLog.error(err);
       });
     } catch (e) {
+      CoreLog.error(e);
       return null;
     }
   }

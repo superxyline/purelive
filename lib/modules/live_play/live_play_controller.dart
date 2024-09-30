@@ -456,6 +456,7 @@ class LivePlayController extends StateController {
       isFirstLoad.value = false;
       getPlayUrl();
     } catch (e) {
+      CoreLog.error(e);
       SmartDialog.showToast("无法读取视频信息,请重新获取");
       getVideoSuccess.value = false;
       isFirstLoad.value = false;
@@ -480,7 +481,7 @@ class LivePlayController extends StateController {
       return;
     }
     playUrls.value = playUrlList;
-    log("playUrlList : ${playUrlList}", name: runtimeType.toString());
+    // log("playUrlList : ${playUrlList}", name: runtimeType.toString());
     setPlayer();
   }
 
@@ -523,11 +524,12 @@ class LivePlayController extends StateController {
       // [Player] has been disposed
       videoController?.dispose();
       videoController?.hasDestory = true;
-      log(e.toString());
+      // log(e.toString());
+      CoreLog.error(e);
     }
-    log("playUrls ${playUrls.value}", name: runtimeType.toString());
-    log("currentLineIndex : $currentLineIndex", name: runtimeType.toString());
-    log("current play url : ${playUrls.value[currentLineIndex.value]}", name: runtimeType.toString());
+    // log("playUrls ${playUrls.value}", name: runtimeType.toString());
+    // log("currentLineIndex : $currentLineIndex", name: runtimeType.toString());
+    // log("current play url : ${playUrls.value[currentLineIndex.value]}", name: runtimeType.toString());
     if(videoController == null || videoController!.hasDestory){
       videoController = VideoController(
         playerKey: playerKey,
@@ -613,8 +615,8 @@ class LivePlayController extends StateController {
 
   @override
   void onClose() {
-    super.onClose();
     disPoserPlayer();
+    super.onClose();
   }
 
   @override

@@ -1,8 +1,8 @@
-import 'dart:developer';
-import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 
 class ToolBoxController extends GetxController {
@@ -110,6 +110,7 @@ class ToolBoxController extends GetxController {
             .toList(),
       ));
     } catch (e) {
+      CoreLog.error(e);
       SmartDialog.showToast("读取直链失败");
     } finally {
       SmartDialog.dismiss(status: SmartStatus.loading);
@@ -233,6 +234,7 @@ class ToolBoxController extends GetxController {
         ),
       );
     } on dio.DioException catch (e) {
+      CoreLog.error(e);
       if (e.response!.statusCode == 302) {
         var redirectUrl = e.response!.headers.value("Location");
         if (redirectUrl != null) {
@@ -240,7 +242,7 @@ class ToolBoxController extends GetxController {
         }
       }
     } catch (e) {
-      log(e.toString(), name: "getLocation");
+      CoreLog.error(e);
     }
     return "";
   }

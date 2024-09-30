@@ -11,7 +11,7 @@ class FixGsyVideoPlayerController extends GsyVideoPlayerController {
     try {
       await super.pause();
     } catch (e) {
-      CoreLog.w(e.toString());
+      CoreLog.error(e);
     }
   }
 
@@ -20,7 +20,7 @@ class FixGsyVideoPlayerController extends GsyVideoPlayerController {
     try {
       await super.playOrPause();
     } catch (e) {
-      CoreLog.w(e.toString());
+      CoreLog.error(e);
     }
   }
 
@@ -29,7 +29,7 @@ class FixGsyVideoPlayerController extends GsyVideoPlayerController {
     try {
       await super.resume();
     } catch (e) {
-      CoreLog.w(e.toString());
+      CoreLog.error(e);
     }
   }
 

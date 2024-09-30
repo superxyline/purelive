@@ -9,6 +9,7 @@ import 'package:dia_body/dia_body.dart';
 import 'package:dia_static/dia_static.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:flutter_restart/flutter_restart.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:dia_router/dia_router.dart' as dia_router;
@@ -113,6 +114,7 @@ class LocalHttpServer {
             }
           }
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -124,6 +126,7 @@ class LocalHttpServer {
           }
           ctx.body = jsonEncode({'data': true});
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -149,6 +152,7 @@ class LocalHttpServer {
             });
           }
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': '操作失败'});
         }
       });
@@ -160,6 +164,7 @@ class LocalHttpServer {
           });
           AppNavigator.toLiveRoomDetail(liveRoom: LiveRoom.fromJson(liveRoom));
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -168,6 +173,7 @@ class LocalHttpServer {
           ctx.body = jsonEncode({'data': true});
           Get.toNamed(RoutePath.kSearch);
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -176,6 +182,7 @@ class LocalHttpServer {
           ctx.body = jsonEncode({'data': true});
           Get.toNamed(RoutePath.kSearch);
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -189,6 +196,7 @@ class LocalHttpServer {
           Get.toNamed(RoutePath.kBiliBiliQRLogin);
           ctx.body = jsonEncode({'data': true});
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -197,6 +205,7 @@ class LocalHttpServer {
           BiliBiliAccountService.instance.logout();
           ctx.body = jsonEncode({'data': true});
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -205,6 +214,7 @@ class LocalHttpServer {
           settings.fromJson(json.decode(ctx.query['setting']!));
           ctx.body = jsonEncode({'data': true});
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -241,6 +251,7 @@ class LocalHttpServer {
 
           ctx.body = jsonEncode({'data': true});
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -323,6 +334,7 @@ class LocalHttpServer {
           }
           ctx.body = jsonEncode({'data': data});
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': data});
         }
       });
@@ -335,6 +347,7 @@ class LocalHttpServer {
           var areaRoom = LiveArea.fromJson(jsonDecode(area));
           AppNavigator.toCategoryDetail(site: site, category: areaRoom);
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -342,6 +355,7 @@ class LocalHttpServer {
         try {
           ctx.body = jsonEncode({'data': true});
         } catch (e) {
+          CoreLog.error(e);
           ctx.body = jsonEncode({'data': false});
         }
       });
@@ -373,6 +387,7 @@ class LocalHttpServer {
       webPortEnableStatus = true;
       SnackBarUtil.success('Web服务打开成功,请用浏览器打开您的ip地址+:$port/pure_live/');
     } catch (e) {
+      CoreLog.error(e);
       webPortEnableStatus = true;
       settings.webPortEnable.value = false;
       SnackBarUtil.success('Web服务打开失败,请手动打开');
