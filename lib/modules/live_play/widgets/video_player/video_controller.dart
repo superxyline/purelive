@@ -1,22 +1,24 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
+
+import 'package:battery_plus/battery_plus.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:get/get.dart';
+import 'package:gsy_video_player/gsy_video_player.dart';
+import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/modules/live_play/load_type.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/danmaku_text.dart';
+import 'package:pure_live/plugins/barrage.dart';
+import 'package:screen_brightness/screen_brightness.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+
 import 'fix_gsy_video_player_controller.dart';
 import 'video_controller_panel.dart';
-import 'package:flutter/services.dart';
-import 'package:pure_live/common/index.dart';
-import 'package:battery_plus/battery_plus.dart';
-import 'package:pure_live/plugins/barrage.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:gsy_video_player/gsy_video_player.dart';
-import 'package:screen_brightness/screen_brightness.dart';
-import 'package:pure_live/modules/live_play/load_type.dart';
-import 'package:pure_live/modules/live_play/live_play_controller.dart';
-import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
-import 'package:flutter_volume_controller/flutter_volume_controller.dart';
-import 'package:pure_live/modules/live_play/widgets/video_player/danmaku_text.dart';
 
 class VideoController with ChangeNotifier {
   final GlobalKey playerKey;
@@ -89,7 +91,7 @@ class VideoController with ChangeNotifier {
   GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
       GlobalKey<BrightnessVolumnDargAreaState>();
 
-  LivePlayController livePlayController = Get.find<LivePlayController>();
+  // LivePlayController livePlayController = Get.find<LivePlayController>();
 
   final SettingsService settings = Get.find<SettingsService>();
 
@@ -138,8 +140,10 @@ class VideoController with ChangeNotifier {
   /// 存储 Stream 流监听
   /// 默认视频 MPV 视频监听流
   final defaultVideoStreamSubscriptionList = <StreamSubscription>[];
+
   // GSY 视频监听流
   final gsyStreamSubscriptionList = <StreamSubscription>[];
+
   // 其他类型 监听流
   final otherStreamSubscriptionList = <StreamSubscription>[];
 
@@ -186,7 +190,7 @@ class VideoController with ChangeNotifier {
     if (Platform.isAndroid || Platform.isIOS) {
       _battery.batteryLevel.then((value) => batteryLevel.value = value);
       otherStreamSubscriptionList.add(
-      _battery.onBatteryStateChanged.listen((BatteryState state) async {
+          _battery.onBatteryStateChanged.listen((BatteryState state) async {
         batteryLevel.value = await _battery.batteryLevel;
       }));
     }
@@ -220,7 +224,7 @@ class VideoController with ChangeNotifier {
           media_kit_video.VideoController(player, configuration: conf);
       setDataSource(datasource);
       defaultVideoStreamSubscriptionList.add(
-      mediaPlayerController.player.stream.playing.listen((bool playing) {
+          mediaPlayerController.player.stream.playing.listen((bool playing) {
         if (playing) {
           if (!mediaPlayerControllerInitialized.value) {
             mediaPlayerControllerInitialized.value = true;
@@ -230,26 +234,26 @@ class VideoController with ChangeNotifier {
           isPlaying.value = false;
         }
       }));
-      defaultVideoStreamSubscriptionList.add(
-      mediaPlayerController.player.stream.error.listen((event) {
+      defaultVideoStreamSubscriptionList
+          .add(mediaPlayerController.player.stream.error.listen((event) {
         if (event.toString().contains('Failed to open')) {
           hasError.value = true;
           isPlaying.value = false;
         }
       }));
-      defaultVideoStreamSubscriptionList.add(
-      mediaPlayerController.player.stream.buffering.listen((e) {
+      defaultVideoStreamSubscriptionList
+          .add(mediaPlayerController.player.stream.buffering.listen((e) {
         isBuffering.value = e;
       }));
 
-      defaultVideoStreamSubscriptionList.add(
-      player.stream.width.listen((event) {
+      defaultVideoStreamSubscriptionList
+          .add(player.stream.width.listen((event) {
         log('width:$event  W:${(player.state.width)}  H:${(player.state.height)}');
         isVertical.value =
             (player.state.height ?? 9) > (player.state.width ?? 16);
       }));
-      defaultVideoStreamSubscriptionList.add(
-      player.stream.height.listen((event) {
+      defaultVideoStreamSubscriptionList
+          .add(player.stream.height.listen((event) {
         log('height:$event  W:${(player.state.width)}  H:${(player.state.height)}');
         isVertical.value =
             (player.state.height ?? 9) > (player.state.width ?? 16);
@@ -259,14 +263,16 @@ class VideoController with ChangeNotifier {
       setDataSource(datasource);
     }
     debounce(hasError, (callback) {
-      if (hasError.value && !livePlayController.isLastLine.value) {
-        SmartDialog.showToast("视频播放失败,正在为您切换线路");
-        changeLine();
-      }
+      try {
+        LivePlayController livePlayController = Get.find<LivePlayController>();
+        if (hasError.value && !livePlayController.isLastLine.value) {
+          SmartDialog.showToast("视频播放失败,正在为您切换线路");
+          changeLine();
+        }
+      } catch (e) {}
     }, time: const Duration(seconds: 2));
 
-    otherStreamSubscriptionList.add(
-    showController.listen((p0) {
+    otherStreamSubscriptionList.add(showController.listen((p0) {
       if (showController.value) {
         if (isPlaying.value) {
           // 取消手动暂停
@@ -279,8 +285,7 @@ class VideoController with ChangeNotifier {
       }
     }));
 
-    otherStreamSubscriptionList.add(
-    isPlaying.listen((p0) {
+    otherStreamSubscriptionList.add(isPlaying.listen((p0) {
       // 代表手动暂停了
       if (!isPlaying.value) {
         if (showController.value) {
@@ -302,8 +307,8 @@ class VideoController with ChangeNotifier {
       }
     }));
 
-    otherStreamSubscriptionList.add(
-    mediaPlayerControllerInitialized.listen((value) {
+    otherStreamSubscriptionList
+        .add(mediaPlayerControllerInitialized.listen((value) {
       // fix auto fullscreen
       if (fullScreenByDefault && datasource.isNotEmpty && value) {
         Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
@@ -332,33 +337,27 @@ class VideoController with ChangeNotifier {
 
   void initDanmaku() {
     hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
-    otherStreamSubscriptionList.add(
-    hideDanmaku.listen((data) {
+    otherStreamSubscriptionList.add(hideDanmaku.listen((data) {
       PrefUtil.setBool('hideDanmaku', data);
     }));
     danmakuArea.value = PrefUtil.getDouble('danmakuArea') ?? 1.0;
-    otherStreamSubscriptionList.add(
-    danmakuArea.listen((data) {
+    otherStreamSubscriptionList.add(danmakuArea.listen((data) {
       PrefUtil.setDouble('danmakuArea', data);
     }));
     danmakuSpeed.value = PrefUtil.getDouble('danmakuSpeed') ?? 8;
-    otherStreamSubscriptionList.add(
-    danmakuSpeed.listen((data) {
+    otherStreamSubscriptionList.add(danmakuSpeed.listen((data) {
       PrefUtil.setDouble('danmakuSpeed', data);
     }));
     danmakuFontSize.value = PrefUtil.getDouble('danmakuFontSize') ?? 16;
-    otherStreamSubscriptionList.add(
-    danmakuFontSize.listen((data) {
+    otherStreamSubscriptionList.add(danmakuFontSize.listen((data) {
       PrefUtil.setDouble('danmakuFontSize', data);
     }));
     danmakuFontBorder.value = PrefUtil.getDouble('danmakuFontBorder') ?? 0.5;
-    otherStreamSubscriptionList.add(
-    danmakuFontBorder.listen((data) {
+    otherStreamSubscriptionList.add(danmakuFontBorder.listen((data) {
       PrefUtil.setDouble('danmakuFontBorder', data);
     }));
     danmakuOpacity.value = PrefUtil.getDouble('danmakuOpacity') ?? 1.0;
-    otherStreamSubscriptionList.add(
-    danmakuOpacity.listen((data) {
+    otherStreamSubscriptionList.add(danmakuOpacity.listen((data) {
       PrefUtil.setDouble('danmakuOpacity', data);
     }));
   }
@@ -390,10 +389,13 @@ class VideoController with ChangeNotifier {
   void refresh() {
     destory();
     Timer(const Duration(seconds: 2), () {
-      livePlayController.playUrls.value = [];
-      livePlayController.qualites.value = [];
-      livePlayController.onInitPlayerState(
-          reloadDataType: ReloadDataType.refreash, firstLoad: true);
+      try {
+        LivePlayController livePlayController = Get.find<LivePlayController>();
+        livePlayController.playUrls.value = [];
+        livePlayController.qualites.value = [];
+        livePlayController.onInitPlayerState(
+            reloadDataType: ReloadDataType.refreash, firstLoad: true);
+      } catch (e) {}
     });
   }
 
@@ -401,11 +403,14 @@ class VideoController with ChangeNotifier {
     // 播放错误 不一定是线路问题 先切换路线解决 后面尝试通知用户切换播放器
     await destory();
     Timer(const Duration(seconds: 2), () {
-      livePlayController.onInitPlayerState(
-        reloadDataType: ReloadDataType.changeLine,
-        line: currentLineIndex,
-        active: active,
-      );
+      try {
+        LivePlayController livePlayController = Get.find<LivePlayController>();
+        livePlayController.onInitPlayerState(
+          reloadDataType: ReloadDataType.changeLine,
+          line: currentLineIndex,
+          active: active,
+        );
+      } catch (e) {}
     });
   }
 
@@ -415,7 +420,10 @@ class VideoController with ChangeNotifier {
     await danmakuController.dispose();
     isPlaying.value = false;
     hasError.value = false;
-    livePlayController.success.value = false;
+    try {
+      LivePlayController livePlayController = Get.find<LivePlayController>();
+      livePlayController.success.value = false;
+    } catch (e) {}
     hasDestory = true;
     if (allowScreenKeepOn) WakelockPlus.disable();
     if (Platform.isAndroid || Platform.isIOS) {
@@ -467,8 +475,9 @@ class VideoController with ChangeNotifier {
         cacheWithPlay: false,
         useDefaultIjkOptions: true,
       );
-      gsyStreamSubscriptionList.add(
-      gsyVideoPlayerController.videoEventStreamController.stream.listen((e) {
+      gsyStreamSubscriptionList.add(gsyVideoPlayerController
+          .videoEventStreamController.stream
+          .listen((e) {
         switch (e.playState) {
           case VideoPlayState.playing:
           case VideoPlayState.playingBufferingStart:
@@ -497,29 +506,30 @@ class VideoController with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearStreamSubscription(List<StreamSubscription> list){
-    for(var s in list) {
+  void clearStreamSubscription(List<StreamSubscription> list) {
+    for (var s in list) {
       s.cancel();
     }
     list.clear();
   }
 
   /// 释放 默认 播放器 Stream 流监听
-  void disposeDefaultVideoStream(){
+  void disposeDefaultVideoStream() {
     clearStreamSubscription(defaultVideoStreamSubscriptionList);
   }
+
   /// 释放 Gsy Stream 流监听
   void disposeGsyStream() {
     clearStreamSubscription(gsyStreamSubscriptionList);
   }
+
   /// 释放 所有 Stream 流监听
-  void disposeAllStream(){
+  void disposeAllStream() {
     disposeGsyStream();
     disposeDefaultVideoStream();
     clearStreamSubscription(otherStreamSubscriptionList);
     brightnessKey.currentState?.dispose();
   }
-
 
   void gsyEventsListener(VideoEventType event) {
     if (event == VideoEventType.onError) {
