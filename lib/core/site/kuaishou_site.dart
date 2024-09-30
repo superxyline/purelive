@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:math' as math;
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/danmaku/kuaishow_danmaku.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -203,8 +204,7 @@ class KuaishowSite extends LiveSite {
     var result = resultText['data']['list'] ?? [];
     var items = <LiveRoom>[];
     for (var item in result) {
-      for (var sitem in item["gameLiveInfo"]) {
-        for (var titem in sitem["liveInfo"]) {
+          var titem = item;
           var author = titem["author"];
           var gameInfo = titem["gameInfo"];
           var roomItems = LiveRoom(
@@ -223,10 +223,8 @@ class KuaishowSite extends LiveSite {
             data: titem["playUrls"],
           );
           items.add(roomItems);
-        }
-      }
     }
-    var hasMore = false;
+    var hasMore = items.isNotEmpty;
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 
