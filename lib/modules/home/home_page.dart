@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     }
   }
 
-  void onBackButtonPressed(bool canPop) async {
+  void onBackButtonPressed(bool canPop, data) async {
     if (canPop) {
       final moveToDesktopPlugin = MoveToDesktop();
       await moveToDesktopPlugin.moveToDesktop();
@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     super.build(context);
     return PopScope(
       canPop: Get.currentRoute == RoutePath.kInitial,
-      onPopInvoked: onBackButtonPressed,
+      onPopInvokedWithResult: onBackButtonPressed,
       child: LayoutBuilder(
         builder: (context, constraint) => constraint.maxWidth <= 680
             ? HomeMobileView(

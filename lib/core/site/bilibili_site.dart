@@ -21,10 +21,10 @@ import 'package:pure_live/model/live_search_result.dart';
 
 class BiliBiliSite extends LiveSite {
   @override
-  String id = "bilibili";
+  String get id => "bilibili";
 
   @override
-  String name = "哔哩哔哩直播";
+  String get name => "哔哩哔哩直播";
   String cookie = "";
   int userId = 0;
   @override

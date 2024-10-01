@@ -158,9 +158,8 @@ class BiliBiliDanmaku implements LiveDanmaku {
         var online = readInt(body, 0, 4);
         // CoreLog.d("body ${body} body ${body.length}");
         // 语音直播间 online 不正确 值为 1
-        if(online != 1)
-
-        onMessage?.call(
+        if(online != 1) {
+          onMessage?.call(
           LiveMessage(
             type: LiveMessageType.online,
             data: online,
@@ -169,6 +168,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
             userName: "",
           ),
         );
+        }
       } else if (operation == 5) {
         if (protocolVersion == 2) {
           body = zlib.decode(body);

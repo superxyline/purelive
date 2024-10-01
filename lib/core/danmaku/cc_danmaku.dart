@@ -10,17 +10,16 @@ import 'package:uuid/uuid.dart';
 
 import '../common/binary_writer.dart';
 
-
-class CCDanmakuArgs{
+class CCDanmakuArgs {
   int channelId;
   int gameType;
   int roomId;
+
   CCDanmakuArgs({
     required this.channelId,
     required this.roomId,
     required this.gameType,
   });
-
 }
 
 class CCDanmaku implements LiveDanmaku {
@@ -62,10 +61,10 @@ class CCDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-  List<int> get_reg() {
+  List<int> getReg() {
     var sid = 6144;
     var cid = 2;
-    var update_req_info = {
+    var updateReqInfo = {
       '22': 640,
       '23': 360,
       '24': 'web',
@@ -73,19 +72,17 @@ class CCDanmaku implements LiveDanmaku {
       '29': '163_cc',
       '30': '',
       '31':
-      'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Mobile Safari/537.36',
+          'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Mobile Safari/537.36',
     };
-    var uuid = Uuid();
-    var device_token = uuid.v1() + '@web.cc.163.com';
-    var macAdd = device_token;
+    var uuid = const Uuid();
+    var deviceToken = '${uuid.v1()}@web.cc.163.com';
+    var macAdd = deviceToken;
     var data = {
-      'web-cc': DateTime
-          .now()
-          .microsecondsSinceEpoch,
+      'web-cc': DateTime.now().microsecondsSinceEpoch,
       'macAdd': macAdd,
-      'device_token': device_token,
+      'device_token': deviceToken,
       'page_uuid': uuid.v1(),
-      'update_req_info': update_req_info,
+      'update_req_info': updateReqInfo,
       'system': 'win',
       'memory': 1,
       'version': 1,
@@ -105,7 +102,7 @@ class CCDanmaku implements LiveDanmaku {
     return writer.buffer;
   }
 
-  List<int> get_beat(){
+  List<int> getBeat() {
     var sid = 6144;
     var cid = 5;
     // var data = {};
@@ -134,7 +131,7 @@ class CCDanmaku implements LiveDanmaku {
     return result;
   }
 
-  convert(int source, {Type type = Type.WORD}) {
+  convert(int source, {Type type = Type.word}) {
     var s = source.toRadixString(16);
     var pre = '0';
     if (s.length % 2 == 1) {
@@ -143,31 +140,30 @@ class CCDanmaku implements LiveDanmaku {
     List list = <int>[];
     var uint8list = createUint8ListFromHexString(s);
     switch (type) {
-      case Type.BYTE:
+      case Type.byte:
         break;
-      case Type.WORD:
+      case Type.word:
         if (uint8list.length == 1) {
           list.add(0);
         }
         break;
-      case Type.DWORD:
+      case Type.dword:
         for (var i = 0; i < 4 - uint8list.length; i++) {
           list.add(0);
         }
         break;
-      case Type.STRING:
-        // TODO: Handle this case.
+      case Type.string:
+      // TODO: Handle this case.
     }
     list.addAll(uint8list);
     return list;
   }
 
-
   List<int> encodeNum(int r) {
     var writer = BinaryWriter([]);
-    if(r < 256){
+    if (r < 256) {
       writer.writeInt(r, 1, endian: Endian.little);
-    } else if(r < 65525) {
+    } else if (r < 65525) {
       writer.writeInt(r, 2, endian: Endian.little);
     } else {
       writer.writeInt(r, 4, endian: Endian.little);
@@ -175,27 +171,27 @@ class CCDanmaku implements LiveDanmaku {
     return writer.buffer;
   }
 
-  List<int> encodeList(List list){
+  List<int> encodeList(List list) {
     var writer = BinaryWriter([]);
     for (var value in list) {
-      if(value.runtimeType == Map) {
+      if (value.runtimeType == Map) {
         writer.writeBytes(encodeDict(value));
         continue;
       }
 
-      if(value.runtimeType == double) {
+      if (value.runtimeType == double) {
         writer.writeDouble(value, 8, endian: Endian.little);
         continue;
       }
-      if(value.runtimeType == int) {
+      if (value.runtimeType == int) {
         writer.writeBytes(encodeNum(value));
         continue;
       }
-      if(value.runtimeType == String) {
+      if (value.runtimeType == String) {
         writer.writeBytes(encodeStr(value));
         continue;
       }
-      if(value.runtimeType == List) {
+      if (value.runtimeType == List) {
         writer.writeBytes(encodeList(value));
         continue;
       }
@@ -209,39 +205,37 @@ class CCDanmaku implements LiveDanmaku {
       var keyBytes = utf8.encode(key);
       writer.writeBytes(keyBytes);
       var value = d[key];
-      if(value.runtimeType == Map) {
+      if (value.runtimeType == Map) {
         writer.writeBytes(encodeDict(value));
         continue;
       }
 
-      if(value.runtimeType == double) {
+      if (value.runtimeType == double) {
         writer.writeDouble(value, 8, endian: Endian.little);
         continue;
       }
 
-      if(value.runtimeType == int) {
+      if (value.runtimeType == int) {
         writer.writeBytes(encodeNum(value));
         continue;
       }
 
-      if(value.runtimeType == String) {
+      if (value.runtimeType == String) {
         writer.writeBytes(encodeStr(value));
         continue;
       }
 
-      if(value.runtimeType == List) {
+      if (value.runtimeType == List) {
         writer.writeBytes(encodeList(value));
         continue;
       }
-
     }
     return writer.buffer;
   }
 
   void joinRoom(args) {
-
     // 先注册信息
-    webScoketUtils?.sendMessage(get_reg());
+    webScoketUtils?.sendMessage(getReg());
 
     var args2 = args as CCDanmakuArgs;
     var sid = 512;
@@ -263,7 +257,7 @@ class CCDanmaku implements LiveDanmaku {
 
   @override
   void heartbeat() {
-    webScoketUtils?.sendMessage(get_beat());
+    webScoketUtils?.sendMessage(getBeat());
   }
 
   @override
@@ -326,7 +320,8 @@ class CCDanmaku implements LiveDanmaku {
   String? deserialize(List<int> buffer) {
     try {
       var reader = BinaryReader(Uint8List.fromList(buffer));
-      int fullMsgLength = reader.readInt32(endian: Endian.little); //fullMsgLength
+      int fullMsgLength =
+          reader.readInt32(endian: Endian.little); //fullMsgLength
       CoreLog.d("$fullMsgLength");
       reader.readInt32(endian: Endian.little); //fullMsgLength2
       int bodyLength = fullMsgLength - 9;
@@ -400,8 +395,8 @@ class CCDanmaku implements LiveDanmaku {
 }
 
 enum Type {
-  BYTE, //1
-  WORD, //2
-  DWORD, //4
-  STRING
+  byte, //1
+  word, //2
+  dword, //4
+  string
 }

@@ -23,10 +23,10 @@ import 'package:pure_live/plugins/fake_useragent.dart';
 
 class KuaishowSite extends LiveSite {
   @override
-  String id = "kuaishou";
+  String get id => "kuaishou";
 
   @override
-  String name = "快手直播";
+  String get name => "快手直播";
 
   String cookie = '';
   Map<String, String> cookieObj = {};

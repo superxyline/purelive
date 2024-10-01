@@ -26,10 +26,10 @@ import '../../common/utils/js_engine.dart';
 
 class DouyuSite extends LiveSite {
   @override
-  String id = "douyu";
+  String get id => "douyu";
 
   @override
-  String name = "斗鱼直播";
+  String get name => "斗鱼直播";
 
   @override
   LiveDanmaku getDanmaku() => DouyuDanmaku();

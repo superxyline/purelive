@@ -33,7 +33,7 @@ class FixGsyVideoPlayerController extends GsyVideoPlayerController {
     }
   }
 
-  @override
+
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (!value.allowBackgroundPlayback) {
       if ([

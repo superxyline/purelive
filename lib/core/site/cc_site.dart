@@ -21,10 +21,10 @@ import 'package:pure_live/plugins/extension/string_extension.dart';
 
 class CCSite extends LiveSite {
   @override
-  String id = "cc";
+  String get id => "cc";
 
   @override
-  String name = "网易CC直播";
+  String get name => "网易CC直播";
 
   @override
   LiveDanmaku getDanmaku() => EmptyDanmaku();

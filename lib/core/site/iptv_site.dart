@@ -14,10 +14,10 @@ import 'package:pure_live/core/interface/live_danmaku.dart';
 
 class IptvSite extends LiveSite {
   @override
-  String id = 'iptv';
+  String get id => 'iptv';
 
   @override
-  String name = "网络";
+  String get name => "网络";
 
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {

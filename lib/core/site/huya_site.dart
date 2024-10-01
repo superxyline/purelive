@@ -24,10 +24,10 @@ import 'package:timezone/timezone.dart' as tz;
 
 class HuyaSite extends LiveSite {
   @override
-  String id = "huya";
+  String get id => "huya";
 
   @override
-  String name = "虎牙直播";
+  String get name => "虎牙直播";
 
   @override
   LiveDanmaku getDanmaku() => HuyaDanmaku();

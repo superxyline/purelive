@@ -19,10 +19,10 @@ import 'package:pure_live/common/services/settings_service.dart';
 
 class DouyinSite extends LiveSite {
   @override
-  String id = "douyin";
+  String get id => "douyin";
 
   @override
-  String name = "抖音直播";
+  String get name => "抖音直播";
 
   @override
   LiveDanmaku getDanmaku() => DouyinDanmaku();
