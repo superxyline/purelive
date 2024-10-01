@@ -1,13 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'dart:async';
-import 'package:get/get.dart';
+
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/flutter_catch_error.dart';
-import 'package:pure_live/plugins/global.dart';
-import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
+import 'package:pure_live/plugins/file_recover_utils.dart';
+import 'package:pure_live/plugins/flutter_catch_error.dart';
 
 const kWindowsScheme = 'purelive://signin';
 

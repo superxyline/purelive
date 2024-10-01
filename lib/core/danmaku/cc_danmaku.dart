@@ -108,7 +108,7 @@ class CCDanmaku implements LiveDanmaku {
   List<int> get_beat(){
     var sid = 6144;
     var cid = 5;
-    var data = {};
+    // var data = {};
 
     var writer = BinaryWriter([]);
     writer.writeInt(sid, 2, endian: Endian.little);

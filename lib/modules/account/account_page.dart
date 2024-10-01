@@ -1,6 +1,8 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
+import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
 
 class AccountPage extends GetView<AccountController> {
@@ -23,7 +25,7 @@ class AccountPage extends GetView<AccountController> {
           ),
           Obx(
             () => ListTile(
-              leading: Image.asset(
+              leading: ExtendedImage.asset(
                 'assets/images/bilibili_2.png',
                 width: 36,
                 height: 36,
@@ -36,39 +38,20 @@ class AccountPage extends GetView<AccountController> {
               onTap: controller.bilibiliTap,
             ),
           ),
-          ListTile(
-            leading: Image.asset(
-              'assets/images/douyu.png',
-              width: 36,
-              height: 36,
-            ),
-            title: const Text("斗鱼直播"),
-            subtitle: const Text("尚不支持"),
-            enabled: false,
-            trailing: const Icon(Icons.chevron_right),
-          ),
-          ListTile(
-            leading: Image.asset(
-              'assets/images/huya.png',
-              width: 36,
-              height: 36,
-            ),
-            title: const Text("虎牙直播"),
-            subtitle: const Text("尚不支持"),
-            enabled: false,
-            trailing: const Icon(Icons.chevron_right),
-          ),
-          ListTile(
-            leading: Image.asset(
-              'assets/images/douyin.png',
-              width: 36,
-              height: 36,
-            ),
-            title: const Text("抖音直播"),
-            subtitle: const Text("尚不支持"),
-            enabled: false,
-            trailing: const Icon(Icons.chevron_right),
-          ),
+          ...Sites.supportSites
+              .where((site) =>
+                  !([Sites.bilibiliSite, Sites.allSite].contains(site.id)))
+              .map((site) => ListTile(
+                    leading: ExtendedImage.asset(
+                      site.logo,
+                      width: 36,
+                      height: 36,
+                    ),
+                    title: Text("${site.name} 直播"),
+                    subtitle: const Text("尚不支持"),
+                    enabled: false,
+                    trailing: const Icon(Icons.chevron_right),
+                  )),
         ],
       ),
     );

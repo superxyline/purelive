@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
@@ -70,17 +69,7 @@ class RoomCard extends StatelessWidget {
                               size: dense ? 36 : 60,
                             ),
                           )
-                        : CachedNetworkImage(
-                            imageUrl: room.cover!,
-                            cacheManager: CustomCacheManager.instance,
-                            fit: BoxFit.fill,
-                            errorWidget: (context, error, stackTrace) => Center(
-                              child: Icon(
-                                Icons.live_tv_rounded,
-                                size: dense ? 38 : 62,
-                              ),
-                            ),
-                          ),
+                        : CacheNetWorkUtils.getCacheImageV2(room.cover!),
                   ),
                 ),
                 if (room.isRecord == true)

@@ -1,6 +1,6 @@
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/routes/app_navigation.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class AreaCard extends StatefulWidget {
   const AreaCard({super.key, required this.category});
@@ -54,17 +54,7 @@ class _AreaCardState extends State<AreaCard> {
                 clipBehavior: Clip.antiAlias,
                 color: Colors.white,
                 elevation: 0,
-                child: CachedNetworkImage(
-                  imageUrl: widget.category.areaPic!,
-                  cacheManager: CustomCacheManager.instance,
-                  fit: BoxFit.fill,
-                  errorWidget: (context, error, stackTrace) => const Center(
-                    child: Icon(
-                      Icons.live_tv_rounded,
-                      size: 38,
-                    ),
-                  ),
-                ),
+                child: CacheNetWorkUtils.getCacheImageV2(widget.category.areaPic!),
               ),
             ),
             ListTile(

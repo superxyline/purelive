@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
 import 'widgets/version_dialog.dart';
 import 'package:pure_live/common/index.dart';
@@ -83,7 +84,7 @@ class _AboutPageState extends State<AboutPage> {
       applicationVersion: VersionUtil.version,
       applicationIcon: SizedBox(
         width: 60,
-        child: Center(child: Image.asset('assets/icons/icon.png')),
+        child: Center(child: ExtendedImage.asset('assets/icons/icon.png')),
       ),
     );
   }

@@ -563,8 +563,8 @@ class LivePlayController extends StateController {
       if (videoController != null && videoController!.hasDestory == false) {
         final connectivityResults = await Connectivity().checkConnectivity();
         if (!connectivityResults.contains(ConnectivityResult.none)) {
-          if (!videoController!.isActivePause.value &&
-              videoController!.isPlaying.value == false) {
+          if ( videoController?.isActivePause.value != true &&
+              videoController?.isPlaying.value != true) {
             CoreLog.d("videoController refresh");
             videoController!.refresh();
           }

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -56,13 +55,15 @@ class LivePlayPage extends GetView<LivePlayController> {
             children: [
               /// 站点logo
               if (controller.detail.value?.platform != null)
-                SiteWidget.getSiteLogeImage(controller.detail.value!.platform!)!,
+                SiteWidget.getSiteLogeImage(
+                    controller.detail.value!.platform!)!,
 
               /// 站点logo
               const SizedBox(width: 5),
-              if (controller.detail.value != null && controller.detail.value!.platform != null)
+              if (controller.detail.value != null &&
+                  controller.detail.value!.platform != null)
                 Text(
-                  "${Sites.of(controller.detail.value!.platform!).name}${controller.detail.value!.area == null || controller.detail.value!.area == '' ? '' : "/${ controller.detail.value!.area}"}",
+                  "${Sites.of(controller.detail.value!.platform!).name}${controller.detail.value!.area == null || controller.detail.value!.area == '' ? '' : "/${controller.detail.value!.area}"}",
                   style: Theme.of(Get.context!)
                       .textTheme
                       .bodySmall
@@ -211,41 +212,32 @@ class LivePlayPage extends GetView<LivePlayController> {
                                       color: Colors.white,
                                     ))
                                   : controller.loadTimeOut.value
-                                      ? CachedNetworkImage(
-                                          imageUrl: controller
-                                              .currentPlayRoom.value.cover!,
-                                          cacheManager:
-                                              CustomCacheManager.instance,
-                                          fit: BoxFit.fill,
-                                          errorWidget:
-                                              (context, error, stackTrace) =>
-                                                  const Center(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(Icons.live_tv_rounded,
-                                                    size: 48),
-                                                Text(
-                                                  "无法获取播放信息",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 18),
-                                                ),
-                                                Text(
-                                                  "当前房间未开播或无法观看",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 18),
-                                                ),
-                                                Text(
-                                                  "请按确定按钮刷新重试",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 18),
-                                                ),
-                                              ],
-                                            ),
+                                      ? const Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.live_tv_rounded,
+                                                  size: 48),
+                                              Text(
+                                                "无法获取播放信息",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18),
+                                              ),
+                                              Text(
+                                                "当前房间未开播或无法观看",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18),
+                                              ),
+                                              Text(
+                                                "请按确定按钮刷新重试",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18),
+                                              ),
+                                            ],
                                           ),
                                         )
                                       : TimeOutVideoWidget(
@@ -273,10 +265,11 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       const Icon(Icons.whatshot_rounded, size: 14),
       const SizedBox(width: 4),
-      Obx( () => Text(
-        readableCount(readableCountStrToNum(controller.online.value).toString()),
-        style: Get.textTheme.bodySmall,
-      )),
+      Obx(() => Text(
+            readableCount(
+                readableCountStrToNum(controller.online.value).toString()),
+            style: Get.textTheme.bodySmall,
+          )),
     ]);
   }
 
@@ -358,14 +351,13 @@ class FavoriteFloatingButton extends StatefulWidget {
 }
 
 class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
-
   LivePlayController get controller => Get.find();
 
   @override
   Widget build(BuildContext context) {
     final settings = Get.find<SettingsService>();
     // late bool isFavorite = settings.isFavorite(widget.room);
-    return Obx( () => controller.isFavorite.value
+    return Obx(() => controller.isFavorite.value
         ? FloatingActionButton(
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
@@ -426,8 +418,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                 ),
               ],
             ),
-          )
-    );
+          ));
   }
 }
 

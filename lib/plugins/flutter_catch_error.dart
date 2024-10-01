@@ -2,10 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:media_kit/media_kit.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/utils/pref_util.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/main.dart';
 import 'package:pure_live/plugins/global.dart';

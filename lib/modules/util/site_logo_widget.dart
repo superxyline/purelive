@@ -1,27 +1,32 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pure_live/core/sites.dart';
 
 class SiteWidget {
   /// 所有站点的 logo
-  static Map<String, Image> get siteLogeImageMap {
+  static Map<String, Widget> get siteLogeImageMap {
     var list = Sites.supportSites
         .map((e) => MapEntry(
             e.id,
-            Image.asset(
+            ExtendedImage.asset(
               e.logo,
               width: 20,
+              cacheRawData: true,
+              enableMemoryCache: true,
             )))
         .toList();
     var map = Map.fromEntries(list);
-    map[Sites.allLiveSite.id] = Image.asset(
+    map[Sites.allLiveSite.id] = ExtendedImage.asset(
       Sites.allLiveSite.logo,
       width: 20,
+      cacheRawData: true,
+      enableMemoryCache: true,
     );
     return map;
   }
 
   /// 获取站点 logo Image
-  static Image? getSiteLogeImage(String siteId) {
+  static Widget? getSiteLogeImage(String siteId) {
     return siteLogeImageMap[siteId];
   }
 

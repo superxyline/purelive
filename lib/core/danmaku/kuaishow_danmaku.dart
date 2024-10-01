@@ -165,11 +165,11 @@ class KuaishowDanmaku implements LiveDanmaku {
     //    displayWatchingCount: 3.5万  在线观众
     //    displayLikeCount: 14.7万   总点赞数
     var displayWatchingCount = scWebFeedPush.displayWatchingCount;
-    var displayLikeCount = scWebFeedPush.displayLikeCount;
+    // var displayLikeCount = scWebFeedPush.displayLikeCount;
+    // var likeCount = readableCountStrToNum(displayLikeCount);
     var commentFeeds = scWebFeedPush.commentFeeds;
 
     var online = readableCountStrToNum(displayWatchingCount);
-    var likeCount = readableCountStrToNum(displayLikeCount);
     // CoreLog.d("online num:  $online \t likeCount num:  $likeCount");
 
     onMessage?.call(

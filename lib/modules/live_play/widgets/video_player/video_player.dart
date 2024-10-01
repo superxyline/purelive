@@ -1,11 +1,12 @@
 import 'dart:io';
+
 import 'package:get/get.dart';
-import 'package:pure_live/common/index.dart';
 import 'package:gsy_video_player/gsy_video_player.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
+import 'package:pure_live/plugins/cache_network.dart';
 
 class VideoPlayer extends StatefulWidget {
   final VideoController controller;
@@ -63,14 +64,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
               clipBehavior: Clip.antiAlias,
               color: Get.theme.focusColor,
-              child: CachedNetworkImage(
-                cacheManager: CustomCacheManager.instance,
-                imageUrl: widget.controller.room.cover!,
-                fit: BoxFit.fill,
-                errorWidget: (context, error, stackTrace) => const Center(
-                  child: Icon(Icons.live_tv_rounded, size: 48),
-                ),
-              ),
+              child: CacheNetWorkUtils.getCacheImageV2(widget.controller.room.cover!),
             ))),
 
         /// 视频加载中
@@ -105,14 +99,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                 const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             clipBehavior: Clip.antiAlias,
             color: Get.theme.focusColor,
-            child: CachedNetworkImage(
-              cacheManager: CustomCacheManager.instance,
-              imageUrl: widget.controller.room.cover!,
-              fit: BoxFit.fill,
-              errorWidget: (context, error, stackTrace) => const Center(
-                child: Icon(Icons.live_tv_rounded, size: 48),
-              ),
-            ),
+            child: CacheNetWorkUtils.getCacheImageV2(widget.controller.room.cover!),
           );
         }),
 
