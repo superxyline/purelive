@@ -1,5 +1,7 @@
-import 'package:get/get.dart';
+import 'dart:async';
+
 import 'package:flutter/rendering.dart';
+import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
@@ -12,22 +14,26 @@ class DanmakuListView extends StatefulWidget {
   State<DanmakuListView> createState() => DanmakuListViewState();
 }
 
-class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliveClientMixin<DanmakuListView> {
+class DanmakuListViewState extends State<DanmakuListView>
+    with AutomaticKeepAliveClientMixin<DanmakuListView> {
   final ScrollController _scrollController = ScrollController();
   bool _scrollHappen = false;
 
   LivePlayController get controller => Get.find<LivePlayController>();
+  final List<StreamSubscription> listenList = [];
 
   @override
   void initState() {
     super.initState();
-    controller.messages.listen((p0) {
+    listenList.add(controller.messages.listen((p0) {
       _scrollToBottom();
-    });
+    }));
   }
 
   @override
   void dispose() {
+    listenList.map((e) async => await e.cancel());
+    listenList.clear();
     _scrollController.dispose();
     super.dispose();
   }
@@ -65,20 +71,29 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
           onNotification: _userScrollAction,
           child: ListView.builder(
             controller: _scrollController,
+
             /// 只显示 100 条弹幕
-            itemCount: (controller.messages.length > 100 ? 100 : controller.messages.length),
+            itemCount: (controller.messages.length > 100
+                ? 100
+                : controller.messages.length),
             shrinkWrap: true,
             itemBuilder: (context, index) {
-              var partIndex = controller.messages.length > 100 ? controller.messages.length - 100 : 0;
+              var partIndex = controller.messages.length > 100
+                  ? controller.messages.length - 100
+                  : 0;
               var sIndex = partIndex + index;
               final danmaku = controller.messages[sIndex];
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.04),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text.rich(
@@ -94,9 +109,11 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                         TextSpan(
                           text: danmaku.message,
                           style: TextStyle(
-                            fontSize: 14,
-                            color: danmaku.color != LiveMessageColor.white ? Color.fromARGB(255, danmaku.color.r, danmaku.color.g, danmaku.color.b) : null
-                          ),
+                              fontSize: 14,
+                              color: danmaku.color != LiveMessageColor.white
+                                  ? Color.fromARGB(255, danmaku.color.r,
+                                      danmaku.color.g, danmaku.color.b)
+                                  : null),
                         ),
                       ],
                     ),
