@@ -72,10 +72,10 @@ dependencies:
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0
   window_manager: ^0.4.2
-  url_protocol:
-    git:
-      url: https://github.com/LucasXu0/flutter_url_protocol.git
-      commit: 77a8420
+#  url_protocol:
+#    git:
+#      url: https://github.com/LucasXu0/flutter_url_protocol.git
+#      commit: 77a8420
   win32_registry: ^1.1.2
   windows_single_instance: ^1.0.0
   app_links: ^6.1.4

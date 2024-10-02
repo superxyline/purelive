@@ -21,19 +21,25 @@ class DanmakuListViewState extends State<DanmakuListView>
 
   LivePlayController get controller => Get.find<LivePlayController>();
   final List<StreamSubscription> listenList = [];
+  final List<Worker> workerList = [];
 
   @override
   void initState() {
     super.initState();
-    listenList.add(controller.messages.listen((p0) {
+    workerList.add(debounce(controller.messages, (callback) {
       _scrollToBottom();
-    }));
+    }, time: 300.milliseconds));
+    // listenList.add(controller.messages.listen((p0) {
+    //   _scrollToBottom();
+    // }));
   }
 
   @override
   void dispose() {
     listenList.map((e) async => await e.cancel());
     listenList.clear();
+    workerList.map((e) => e.dispose());
+    workerList.clear();
     _scrollController.dispose();
     super.dispose();
   }
@@ -43,7 +49,7 @@ class DanmakuListViewState extends State<DanmakuListView>
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 1000),
         curve: Curves.linearToEaseOut,
       );
       setState(() {});

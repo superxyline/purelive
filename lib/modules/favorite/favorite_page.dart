@@ -88,12 +88,18 @@ class FavoritePage extends GetView<FavoriteController> {
 
 class _RoomGridView extends GetView<FavoriteController> {
   _RoomGridView(this.sourceRxList) {
-    sourceRxList.listen((onData) {
+    // sourceRxList.listen((onData) {
+    //   // CoreLog.d("sourceRxList change ... ${sourceRxList.hashCode} \n ${StackTrace.current.toString()}");
+    //   CoreLog.d("sourceRxList change ... ${sourceRxList.hashCode} ");
+    //   initSiteSet(onData);
+    //   filter();
+    // });
+    debounce(sourceRxList, (onData) {
       // CoreLog.d("sourceRxList change ... ${sourceRxList.hashCode} \n ${StackTrace.current.toString()}");
       CoreLog.d("sourceRxList change ... ${sourceRxList.hashCode} ");
       initSiteSet(onData);
       filter();
-    });
+    }, time: 1.seconds);
     initSiteSet(sourceRxList.value);
     filter();
   }
