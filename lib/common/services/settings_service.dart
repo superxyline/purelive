@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
@@ -345,16 +346,21 @@ class SettingsService extends GetxController {
 
   // Favorite rooms storage
   final favoriteRooms =
-      ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
+      ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e)))
+          .where( (room)=> !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty ).toList()).obs;
 
   final historyRooms =
-      ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
+      ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e)))
+          .where( (room)=> !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty ).toList()).obs;
 
   bool isFavorite(LiveRoom room) {
+    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+      return false;
+    }
     return favoriteRooms.any((element) => element.roomId == room.roomId);
   }
 
-  LiveRoom getLiveRoomByRoomId(roomId, String platform) {
+  LiveRoom getLiveRoomByRoomId(String roomId, String platform) {
     if (!favoriteRooms.any((element) => element.roomId == roomId) &&
         !historyRooms.any((element) => element.roomId == roomId)) {
       return LiveRoom(
@@ -368,6 +374,9 @@ class SettingsService extends GetxController {
   }
 
   bool addRoom(LiveRoom room) {
+    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+      return false;
+    }
     if (favoriteRooms.any((element) => element.roomId == room.roomId)) {
       return false;
     }
@@ -392,6 +401,9 @@ class SettingsService extends GetxController {
   }
 
   bool updateRoom(LiveRoom room) {
+    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+      return false;
+    }
     int idx = favoriteRooms.indexWhere((element) => element.roomId == room.roomId);
     updateRoomInHistory(room);
     if (idx == -1) return false;
@@ -404,6 +416,9 @@ class SettingsService extends GetxController {
   }
 
   bool updateRoomInHistory(LiveRoom room) {
+    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+      return false;
+    }
     int idx = historyRooms.indexWhere((element) => element.roomId == room.roomId);
     if (idx == -1) return false;
     historyRooms[idx] = room;
@@ -411,6 +426,9 @@ class SettingsService extends GetxController {
   }
 
   void addRoomToHistory(LiveRoom room) {
+    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+      return;
+    }
     if (historyRooms.any((element) => element.roomId == room.roomId)) {
       historyRooms.remove(room);
     }

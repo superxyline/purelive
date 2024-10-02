@@ -41,8 +41,8 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     }
   }
 
-  final onlineRooms = [].obs;
-  final offlineRooms = [].obs;
+  final onlineRooms = <LiveRoom>[].obs;
+  final offlineRooms = <LiveRoom>[].obs;
 
   void syncRooms() {
     onlineRooms.clear();

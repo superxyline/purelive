@@ -10,7 +10,7 @@ class SiteWidget {
             e.id,
             ExtendedImage.asset(
               e.logo,
-              width: 20,
+              width: 22,
               cacheRawData: true,
               enableMemoryCache: true,
             )))
@@ -18,7 +18,7 @@ class SiteWidget {
     var map = Map.fromEntries(list);
     map[Sites.allLiveSite.id] = ExtendedImage.asset(
       Sites.allLiveSite.logo,
-      width: 20,
+      width: 22,
       cacheRawData: true,
       enableMemoryCache: true,
     );
