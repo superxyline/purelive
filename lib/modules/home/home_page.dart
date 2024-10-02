@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:move_to_desktop/move_to_desktop.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
@@ -11,7 +12,8 @@ import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/about/widgets/version_dialog.dart';
 import 'package:pure_live/modules/search/search_page.dart';
-import 'package:pure_live/modules/search/search_controller.dart' as search_controller;
+import 'package:pure_live/modules/search/search_controller.dart'
+    as search_controller;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,9 +22,11 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin, WindowListener {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin, WindowListener {
   Timer? _debounceTimer;
   final FavoriteController favoriteController = Get.find<FavoriteController>();
+
   @override
   void initState() {
     super.initState();
@@ -33,7 +37,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
         if (Platform.isAndroid) {
           SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
-            systemNavigationBarColor: Theme.of(context).navigationBarTheme.backgroundColor,
+            systemNavigationBarColor:
+                Theme.of(context).navigationBarTheme.backgroundColor,
           ));
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         } else {
@@ -48,14 +53,58 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     });
   }
 
-  void setPageController(int selectIndex){
-    switch(selectIndex){
-      case 0 : Get.put(FavoriteController()); break;
-      case 1 : Get.put(PopularController()); break;
-      case 2 : Get.put(AreasController()); break;
-      case 3 : Get.put(search_controller.SearchController()); break;
+  void setPageController(int selectIndex) {
+    switch (selectIndex) {
+      case 0:
+        try {
+          var findOrNull = Get.findOrNull<FavoriteController>();
+          if (findOrNull == null) {
+            Get.put(FavoriteController());
+          }
+        } catch (e) {
+          CoreLog.error(e);
+        }
+        break;
+      case 1:
+        try {
+          var findOrNull = Get.findOrNull<PopularController>();
+          if (findOrNull == null) {
+            Get.put(PopularController());
+          }
+        } catch (e) {
+          CoreLog.error(e);
+        }
+        break;
+      case 2:
+        try {
+          var findOrNull = Get.findOrNull<AreasController>();
+          if (findOrNull == null) {
+            Get.put(AreasController());
+          }
+        } catch (e) {
+          CoreLog.error(e);
+        }
+        break;
+      case 3:
+        try {
+          var findOrNull = Get.findOrNull<search_controller.SearchController>();
+          if (findOrNull == null) {
+            Get.put(search_controller.SearchController());
+          }
+        } catch (e) {
+          CoreLog.error(e);
+        }
+        break;
       default:
-        Get.put(FavoriteController()); break;
+        try {
+          var findOrNull = Get.findOrNull<FavoriteController>();
+          if (findOrNull == null) {
+            Get.put(FavoriteController());
+          }
+        } catch (e) {
+          CoreLog.error(e);
+        }
+        break;
     }
   }
 
@@ -79,6 +128,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     AreasPage(),
     SearchPage(),
   ];
+
   void debounceListen(Function? func, [int delay = 1000]) {
     if (_debounceTimer != null) {
       _debounceTimer?.cancel();
@@ -110,10 +160,13 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
       ),
     );
     await VersionUtil.checkUpdate();
-    bool isHasNerVersion = Get.find<SettingsService>().enableAutoCheckUpdate.value && VersionUtil.hasNewVersion();
+    bool isHasNerVersion =
+        Get.find<SettingsService>().enableAutoCheckUpdate.value &&
+            VersionUtil.hasNewVersion();
     if (mounted) {
       if (overlay != null && isHasNerVersion) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => overlay.insert(entry));
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => overlay.insert(entry));
       } else {
         if (overlay != null && isHasNerVersion) {
           overlay.insert(entry);

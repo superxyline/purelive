@@ -262,7 +262,7 @@ class VideoController with ChangeNotifier {
       initGSYVideoPlayer();
       setDataSource(datasource);
     }
-    debounce(hasError, (callback) {
+    otherStreamSubscriptionList.add(hasError.listen((p0){
       try {
         LivePlayController livePlayController = Get.find<LivePlayController>();
         if (hasError.value && !livePlayController.isLastLine.value) {
@@ -272,7 +272,18 @@ class VideoController with ChangeNotifier {
       } catch (e) {
         CoreLog.error(e);
       }
-    }, time: const Duration(seconds: 2));
+    }));
+    /*debounce(hasError, (callback) {
+      try {
+        LivePlayController livePlayController = Get.find<LivePlayController>();
+        if (hasError.value && !livePlayController.isLastLine.value) {
+          SmartDialog.showToast("视频播放失败,正在为您切换线路");
+          changeLine();
+        }
+      } catch (e) {
+        CoreLog.error(e);
+      }
+    }, time: const Duration(seconds: 2));*/
 
     otherStreamSubscriptionList.add(showController.listen((p0) {
       if (showController.value) {
@@ -427,8 +438,10 @@ class VideoController with ChangeNotifier {
     isPlaying.value = false;
     hasError.value = false;
     try {
-      LivePlayController livePlayController = Get.find<LivePlayController>();
-      livePlayController.success.value = false;
+      LivePlayController? livePlayController = Get.findOrNull<LivePlayController>();
+      if(livePlayController != null) {
+        livePlayController.success.value = false;
+      }
     } catch (e) {
       CoreLog.error(e);
     }

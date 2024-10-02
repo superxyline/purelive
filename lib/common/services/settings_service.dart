@@ -344,6 +344,8 @@ class SettingsService extends GetxController {
 
   final hotAreasList = ((PrefUtil.getStringList('hotAreasList') ?? supportSites)).obs;
 
+  // 用于标志 关注房间列表长度 是否变化,
+  final favoriteRoomsLengthChangeFlag = false.obs;
   // Favorite rooms storage
   final favoriteRooms =
       ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e)))
@@ -381,6 +383,7 @@ class SettingsService extends GetxController {
       return false;
     }
     favoriteRooms.add(room);
+    favoriteRoomsLengthChangeFlag.toggle();
     return true;
   }
 
@@ -397,6 +400,7 @@ class SettingsService extends GetxController {
       return false;
     }
     favoriteRooms.remove(room);
+    favoriteRoomsLengthChangeFlag.toggle();
     return true;
   }
 
