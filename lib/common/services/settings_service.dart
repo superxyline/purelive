@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
-import 'package:pure_live/plugins/local_http.dart';
+// import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
@@ -136,14 +136,14 @@ class SettingsService extends GetxController {
       PrefUtil.setDouble('mergeDanmuRating', value);
     });
 
-    webPort.listen((value) {
-      PrefUtil.setString('webPort', value);
-    });
+    // webPort.listen((value) {
+    //   PrefUtil.setString('webPort', value);
+    // });
 
-    webPortEnable.listen((value) {
-      changeWebListen(webPort.value, value);
-      PrefUtil.setBool('webPortEnable', value);
-    });
+    // webPortEnable.listen((value) {
+    //   changeWebListen(webPort.value, value);
+    //   PrefUtil.setBool('webPortEnable', value);
+    // });
   }
 
   // Theme settings
@@ -297,9 +297,9 @@ class SettingsService extends GetxController {
   void changeWebListen(port, enable) {
     try {
       if (enable) {
-        LocalHttpServer().startServer(port);
+        // LocalHttpServer().startServer(port);
       } else {
-        LocalHttpServer().closeServer();
+        // LocalHttpServer().closeServer();
       }
     } catch (e) {
       CoreLog.error(e);
