@@ -74,19 +74,22 @@ class CacheNetWorkUtils {
     return CircleAvatar(
         radius: radius,
         child: getCacheImageV2(avatar,
-            radius: radius, fit: BoxFit.fill, shape: BoxShape.circle));
+            radius: radius, fit: BoxFit.fitWidth, shape: BoxShape.circle, cacheWidth: 40));
   }
 
-  static Widget getCacheImageV2(String imageUrl,
-      {double radius = 0.0,
-      bool full = false,
-      BoxFit fit = BoxFit.fitWidth,
-      BoxShape? shape}) {
-    if (imageUrl.isEmpty) {
+  static Widget getCacheImageV2(
+    String? imageUrl, {
+    double radius = 0.0,
+    bool full = false,
+    BoxFit fit = BoxFit.fitWidth,
+    BoxShape? shape,
+    int? cacheWidth,
+    int? cacheHeight,
+  }) {
+    if (imageUrl == null || imageUrl.isEmpty) {
       return const SizedBox(
         child: Icon(
-          Icons.error,
-          color: Colors.red,
+          Icons.image_not_supported_outlined,
         ),
       );
     }
@@ -96,8 +99,10 @@ class CacheNetWorkUtils {
       fit: fit,
       borderRadius: BorderRadius.all(Radius.circular(radius)),
       shape: shape,
-      // cacheWidth: ,
-      // cacheHeight: ,
+      cacheWidth: cacheWidth,
+      cacheHeight: cacheHeight,
+      width: cacheWidth?.toDouble(),
+      height: cacheWidth?.toDouble(),
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
@@ -115,8 +120,7 @@ class CacheNetWorkUtils {
             return state.completedWidget;
           case LoadState.failed:
             return const Icon(
-              Icons.error,
-              color: Colors.red,
+              Icons.image_not_supported_outlined,
             );
           /*GestureDetector(
               child: const Stack(

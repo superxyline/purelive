@@ -8,7 +8,7 @@ import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
-import 'package:pure_live/core/common/core_log.dart';
+// import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -218,7 +218,7 @@ class HuyaSite extends LiveSite {
       dynamic data = result['data'];
       var topSid = 0;
       var subSid = 0;
-      CoreLog.d("data: $data");
+      // CoreLog.d("data: $data");
       var huyaLines = <HuyaLineModel>[];
       var huyaBiterates = <HuyaBitRateModel>[];
       //读取可用线路
