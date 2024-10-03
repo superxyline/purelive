@@ -4,10 +4,13 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:move_to_desktop/move_to_desktop.dart';
+import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
+import 'package:pure_live/modules/home/mobile_view_v2.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
+import 'package:pure_live/modules/home/tablet_view_v2.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/about/widgets/version_dialog.dart';
@@ -190,17 +193,8 @@ class _HomePageState extends State<HomePage>
       onPopInvokedWithResult: onBackButtonPressed,
       child: LayoutBuilder(
         builder: (context, constraint) => constraint.maxWidth <= 680
-            ? HomeMobileView(
-                body: bodys[_selectedIndex],
-                index: _selectedIndex,
-                onDestinationSelected: onDestinationSelected,
-                onFavoriteDoubleTap: handMoveRefresh,
-              )
-            : HomeTabletView(
-                body: bodys[_selectedIndex],
-                index: _selectedIndex,
-                onDestinationSelected: onDestinationSelected,
-              ),
+            ? HomeMobileViewV2()
+            : HomeTabletViewV2(),
       ),
     );
   }

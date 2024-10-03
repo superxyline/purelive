@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
+import 'package:pure_live/modules/home/home_controller.dart';
+import 'package:pure_live/modules/search/search_controller.dart' as pure_live;
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/plugins/flutter_catch_error.dart';
 
@@ -20,9 +22,11 @@ void initService() {
   Get.put(AuthController());
   Get.put(SettingsService());
   Get.put(FavoriteController());
-  // Get.put(PopularController());
+  Get.put(PopularController());
   Get.put(AreasController());
   Get.put(BiliBiliAccountService());
+  Get.put(pure_live.SearchController());
+  Get.put(HomeController());
 }
 
 class MyApp extends StatefulWidget {
