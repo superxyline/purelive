@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'popular_grid_view.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +72,7 @@ class PopularPage extends GetView<PopularController> {
         ),
         body: TabBarView(
           controller: controller.tabController,
-          children: Sites().availableSites().map((e) => PopularGridView(e.id)).toList(),
+          children: Sites().availableSites().map((e) => KeepAliveWrapper(child: PopularGridView(e.id))).toList(),
         ),
       );
     });

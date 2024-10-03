@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/modules/areas/widgets/area_card.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
@@ -42,7 +43,7 @@ class _AreaGridViewState extends State<AreaGridView> with SingleTickerProviderSt
                 child: TabBarView(
                   controller: tabController,
                   children: widget.controller.list
-                      .map<Widget>((e) => buildAreasView(e))
+                      .map<Widget>((e) => KeepAliveWrapper(child: buildAreasView(e)))
                       .toList(),
                 ),
               ),

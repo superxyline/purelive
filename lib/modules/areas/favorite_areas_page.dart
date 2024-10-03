@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/modules/areas/widgets/area_card.dart';
 import 'package:pure_live/modules/areas/favorite_areas_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -33,7 +34,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
                         .availableSites(containsAll: true)
                         .map((e) => e.id)
                         .toList()
-                        .map((e) => buildTabView(context, crossAxisCount, e))
+                        .map((e) => KeepAliveWrapper(child: buildTabView(context, crossAxisCount, e)))
                         .toList());
               }),
             )
