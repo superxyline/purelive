@@ -379,6 +379,7 @@ class KuaishowSite extends LiveSite {
           var expTag = liveStream["expTag"];
           var websocketInfo =
               jsonObj["liveroom"]["playList"][0]["websocketInfo"];
+          if(websocketInfo == null) return null;
           var websocketInfo2 = websocketInfo["webSocketAddresses"];
           if (websocketInfo2 == null) {
             return null;
