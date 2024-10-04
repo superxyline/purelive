@@ -1,4 +1,5 @@
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 
 import '../../common/models/live_room.dart';
 import '../../common/services/settings_service.dart';
@@ -8,6 +9,12 @@ class UpdateRoomUtil {
   ///  更新房间
   static Future<bool> updateRoomList(
       List<LiveRoom> roomList, SettingsService settings) async {
+    // 过滤非法数据
+    roomList = roomList.where((room)=> !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList();
+
+    // 已经更新的数据
+    List<LiveRoom> updatedRoomList = [];
+
     // 批量更新
     var tmp = Sites.supportSites
         .where((site) => site.liveSite.isSupportBatchUpdateLiveStatus())
@@ -39,9 +46,10 @@ class UpdateRoomUtil {
       try {
         for (var i = 0; i < futures.length; i++) {
           final rooms = await futures[i];
-          for (var room in rooms) {
-            settings.updateRoom(room);
-          }
+          // for (var room in rooms) {
+          //   settings.updateRoom(room);
+          // }
+          updatedRoomList.addAll(rooms);
         }
       } catch (e) {
         CoreLog.error(e);
@@ -77,14 +85,18 @@ class UpdateRoomUtil {
     try {
       for (var i = 0; i < groupedList.length; i++) {
         final rooms = await Future.wait(groupedList[i]);
-        for (var room in rooms) {
-          settings.updateRoom(room);
-        }
+        // for (var room in rooms) {
+        //   settings.updateRoom(room);
+        // }
+        updatedRoomList.addAll(rooms);
       }
     } catch (e) {
       CoreLog.error(e);
       hasError = true;
     }
+
+    settings.updateRooms(updatedRoomList);
+
     return hasError;
   }
 }

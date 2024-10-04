@@ -59,7 +59,7 @@ class HistoryPage extends GetView {
                     crossAxisCount: crossAxisCount,
                     itemCount: rooms.length,
                     itemBuilder: (context, index) => RoomCard(
-                      room: rooms[index],
+                      room: rooms[rooms.length - 1 - index],
                       dense: dense,
                     ),
                   ),

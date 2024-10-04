@@ -431,10 +431,23 @@ class SettingsService extends GetxController {
     return true;
   }
 
-  updateRooms(List<LiveRoom> rooms) {
-    favoriteRooms.value = rooms;
-    favoriteRoomsMap.clear();
-    favoriteRoomsMap = toRoomMap(rooms);
+  void innerUpdateRooms(List<LiveRoom> rooms, Map<String,LiveRoom> roomsMap, RxList<LiveRoom> rxList){
+    bool flag = false;
+    for(var room in rooms) {
+      var liveRoomKey = getLiveRoomKey(room);
+      if(roomsMap.containsKey(liveRoomKey)) {
+        flag = true;
+        roomsMap[liveRoomKey] = room;
+      }
+    }
+    if(flag) {
+      rxList.value = roomsMap.values.toList();
+    }
+  }
+
+  void updateRooms(List<LiveRoom> rooms) {
+    innerUpdateRooms(rooms, favoriteRoomsMap, favoriteRooms);
+    innerUpdateRooms(rooms, historyRoomsMap, historyRooms);
   }
 
   bool updateRoomInHistory(LiveRoom room) {
@@ -445,7 +458,7 @@ class SettingsService extends GetxController {
     var containsKey = historyRoomsMap.containsKey(liveRoomKey);
     if(!containsKey) return false;
     historyRoomsMap[liveRoomKey] = room;
-    historyRooms.value = historyRoomsMap.values.toList().reversed.toList();
+    historyRooms.value = historyRoomsMap.values.toList();
     return true;
   }
 
@@ -469,7 +482,7 @@ class SettingsService extends GetxController {
     for(var i=0; i< length2 - 50;i++){
       historyRoomsMap.remove(keys[i]);
     }
-    historyRooms.value = historyRoomsMap.values.toList().reversed.toList();
+    historyRooms.value = historyRoomsMap.values.toList();
   }
 
   // Favorite areas storage
