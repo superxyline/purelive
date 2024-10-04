@@ -157,7 +157,7 @@ class DouyinDanmaku implements LiveDanmaku {
     var chatMessage = ChatMessage.fromBuffer(payload);
     var color = chatMessage.fullScreenTextColor;
     // log("chatMessage: $chatMessage", name: runtimeType.toString());
-    CoreLog.d("color: $color");
+    // CoreLog.d("color: $color");
     onMessage?.call(
       LiveMessage(
         type: LiveMessageType.chat,
