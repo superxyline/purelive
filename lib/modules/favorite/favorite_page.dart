@@ -76,9 +76,9 @@ class FavoritePage extends GetView<FavoriteController> {
           controller: controller.tabController,
           children: [
             KeepAliveWrapper(
-              child: _RoomGridView(controller.onlineRooms),
+              child: _RoomGridView(FavoriteController.onlineRoomsIndex),
             ),
-            KeepAliveWrapper(child: _RoomGridView(controller.offlineRooms)),
+            KeepAliveWrapper(child: _RoomGridView(FavoriteController.offlineRoomsIndex)),
           ],
         ),
       );
@@ -87,65 +87,22 @@ class FavoritePage extends GetView<FavoriteController> {
 }
 
 class _RoomGridView extends GetView<FavoriteController> {
-  _RoomGridView(this.sourceRxList) {
+  _RoomGridView(this.selectIndex) {
     // sourceRxList.listen((onData) {
     //   // CoreLog.d("sourceRxList change ... ${sourceRxList.hashCode} \n ${StackTrace.current.toString()}");
     //   CoreLog.d("sourceRxList change ... ${sourceRxList.hashCode} ");
     //   initSiteSet(onData);
     //   filter();
     // });
-    debounce(sourceRxList, (onData) {
-      // CoreLog.d("sourceRxList change ... ${sourceRxList.hashCode} \n ${StackTrace.current.toString()}");
-      CoreLog.d("sourceRxList change ... ${sourceRxList.hashCode} ");
-      initSiteSet(onData);
-      filter();
-    }, time: 1.seconds);
-    initSiteSet(sourceRxList.value);
-    filter();
   }
 
-  /// 存储已有的站点
-  final siteSet = <String>{};
+  final int selectIndex;
 
-  void initSiteSet(List<LiveRoom> list) {
-    siteSet.clear();
-    siteSet.add(Sites.allSite);
-    for (var room in list) {
-      if (room.platform != null) {
-        siteSet.add(room.platform!);
-      }
-    }
-  }
-
-  final RxList<LiveRoom> dataList = <LiveRoom>[].obs;
-  final RxList<LiveRoom> sourceRxList;
   final refreshController = EasyRefreshController(
     controlFinishRefresh: true,
     controlFinishLoad: true,
   );
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
-
-  int sortByWatching(LiveRoom a, LiveRoom b) =>
-      readableCountStrToNum(b.watching)
-          .compareTo(readableCountStrToNum(a.watching));
-  var isSort = false.obs;
-
-  Rx<String> selectedSite = Rx(Sites.allSite);
-
-  bool filterSite(LiveRoom a) =>
-      selectedSite.value == Sites.allSite || a.platform == selectedSite.value;
-
-  void filter() {
-    // CoreLog.d("selectedSite ${selectedSite}");
-    var list = sourceRxList.value;
-    list = list.where(filterSite).toList();
-    // CoreLog.d("${jsonEncode(list)}");
-    if (isSort.value) {
-      list.sort(sortByWatching);
-    }
-    dataList.value = list;
-    // sort();
-  }
 
   Future onRefresh() async {
     bool result = await controller.onRefresh();
@@ -177,7 +134,7 @@ class _RoomGridView extends GetView<FavoriteController> {
         child: () {
           // CoreLog.d("rebuild dataList");
           // CoreLog.d("dataList \n ${jsonEncode(dataList.value)}");
-          return Obx(() => dataList.isNotEmpty
+          return Obx(() => controller.filterDataList[selectIndex].isNotEmpty
               ? Scaffold(
                   body: () {
                     CoreLog.d("MasonryGridView.count change ");
@@ -185,9 +142,9 @@ class _RoomGridView extends GetView<FavoriteController> {
                       padding: const EdgeInsets.all(5),
                       controller: ScrollController(),
                       crossAxisCount: crossAxisCount,
-                      itemCount: dataList.length,
+                      itemCount:  controller.filterDataList[selectIndex].length,
                       itemBuilder: (context, index) => RoomCard(
-                        room: dataList[index],
+                        room:  controller.filterDataList[selectIndex][index],
                         dense: dense,
                       ),
                     );
@@ -226,19 +183,7 @@ class _RoomGridView extends GetView<FavoriteController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.refresh),
-              title: const Text("排序"),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                if (isSort.value != true) {
-                  isSort.value = true;
-                  filter();
-                }
-                Navigator.pop(curContext);
-              },
-            ),
-            ...siteSet.map((siteId) {
+            ...controller.siteSetList[selectIndex].map((siteId) {
               var site = Sites.allLiveSite;
               if (siteId != Sites.allSite) {
                 site = Sites.of(siteId);
@@ -247,13 +192,16 @@ class _RoomGridView extends GetView<FavoriteController> {
                 leading: SiteWidget.getSiteLogeImage(site.id),
                 title: Text(site.name),
                 onTap: () {
-                  selectedSite.value = site.id;
-                  filter();
+                  var curSiteId = controller.selectedSiteList[selectIndex];
+                  if(curSiteId != site.id) {
+                    controller.selectedSiteList[selectIndex] = site.id;
+                    controller.filterDate(selectIndex);
+                  }
                   Navigator.pop(curContext);
                 },
-                selected: site.id == selectedSite.value,
+                selected: site.id == controller.selectedSiteList[selectIndex],
               );
-            })
+            }),
           ],
         ),
       ),

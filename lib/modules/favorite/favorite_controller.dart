@@ -33,8 +33,20 @@ class FavoriteController extends GetxController
     listenList.clear();
     // 监听settings rooms变化
     // debounce(settings.favoriteRooms, (rooms) => syncRooms(), time: const Duration(milliseconds: 1000));
-    listenList.add(settings.favoriteRoomsLengthChangeFlag.listen((rooms) => syncRooms()));
-    listenList.add(onlineRooms.listen((rooms) {CoreLog.d("onlineRooms ....");}));
+    initFilterDataList(indexLength);
+    initSiteSetList(indexLength);
+    listenList.add(
+        settings.favoriteRoomsLengthChangeFlag.listen((rooms) => syncRooms()));
+    listenList.add(onlineRooms.listen((rooms) {
+      CoreLog.d("onlineRooms ....");
+      initSiteSet(rooms, onlineRoomsIndex);
+      filterDate(onlineRoomsIndex);
+    }));
+    listenList.add(offlineRooms.listen((rooms) {
+      CoreLog.d("offlineRooms ....");
+      initSiteSet(rooms, offlineRoomsIndex);
+      filterDate(offlineRoomsIndex);
+    }));
     onRefresh();
     tabController.addListener(() {
       tabOnlineIndex.value = tabController.index;
@@ -67,7 +79,8 @@ class FavoriteController extends GetxController
           readableCount(readableCountStrToNum(room.watching).toString());
       return room;
     }).toList();
-    onlineList.sort((a,b)=> readableCountStrToNum(b.watching).compareTo( readableCountStrToNum(a.watching)));
+    onlineList.sort((a, b) => readableCountStrToNum(b.watching)
+        .compareTo(readableCountStrToNum(a.watching)));
     onlineRooms.value = onlineList;
 
     var offlineList = settings.favoriteRooms
@@ -104,6 +117,76 @@ class FavoriteController extends GetxController
     syncRooms();
     isFirstLoad = false;
     return hasError;
+  }
+
+  /// 用于过滤列表
+  /// 索引
+  static const int onlineRoomsIndex = 0;
+  static const int offlineRoomsIndex = 1;
+
+  /// 索引长度
+  final int indexLength = 2;
+
+  /// 存储已有的站点
+  final List<Set<String>> siteSetList = [];
+  final List<String> selectedSiteList = [];
+
+  /// 初始化 存储已有的站点 列表长度
+  void initSiteSetList(int len) {
+    siteSetList.clear();
+    selectedSiteList.clear();
+    for (var i = 0; i < len; i++) {
+      siteSetList.add(<String>{});
+      selectedSiteList.add(Sites.allSite);
+    }
+  }
+
+  /// 设置 存储已有的站点， 根据 直播间
+  void initSiteSet(List<LiveRoom> list, int siteSetListIndex) {
+    var siteSet = siteSetList[siteSetListIndex];
+    siteSet.clear();
+    siteSet.add(Sites.allSite);
+    for (var room in list) {
+      if (room.platform != null) {
+        siteSet.add(room.platform!);
+      }
+    }
+  }
+
+  /// 用于过滤的列表
+  final RxList<LiveRoom> dataList = <LiveRoom>[].obs;
+  final List<RxList<LiveRoom>> filterDataList = [];
+
+  void initFilterDataList(int len) {
+    siteSetList.clear();
+    for (var i = 0; i < len; i++) {
+      filterDataList.add(<LiveRoom>[].obs);
+    }
+  }
+
+  void initFilterDataListDate(List<LiveRoom> list, int filterDataListIndex) {
+    var dataList = filterDataList[filterDataListIndex];
+    dataList.value = list;
+  }
+
+  bool filterSite(LiveRoom a, String selectedSite) =>
+      selectedSite == Sites.allSite || a.platform == selectedSite;
+
+  void filterDate(int filterDataListIndex) {
+    // CoreLog.d("selectedSite ${selectedSite}");
+    String siteId = selectedSiteList[filterDataListIndex];
+    var list = () {
+      switch (filterDataListIndex) {
+        case onlineRoomsIndex: //
+          return onlineRooms.value;
+        case offlineRoomsIndex:
+          return offlineRooms.value;
+        default:
+          return <LiveRoom>[];
+      }
+    }();
+    list = list.where((e) => filterSite(e, siteId)).toList();
+    filterDataList[filterDataListIndex].value = list;
   }
 
   @override
