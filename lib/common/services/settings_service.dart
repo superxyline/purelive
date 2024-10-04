@@ -350,10 +350,23 @@ class SettingsService extends GetxController {
   final favoriteRooms =
       ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e)))
           .where( (room)=> !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty ).toList()).obs;
+  // 存储关注，用于优化遍历
+  late Map<String, LiveRoom> favoriteRoomsMap = toRoomMap(favoriteRooms.value);
+
+  Map<String, LiveRoom> toRoomMap(List<LiveRoom> list) => Map.fromEntries(list.map((e)=>MapEntry(getLiveRoomKey(e),e)));
 
   final historyRooms =
       ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e)))
           .where( (room)=> !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty ).toList()).obs;
+  // 存储历史，用于优化遍历
+  late Map<String, LiveRoom> historyRoomsMap = toRoomMap(historyRooms.value);
+  String getLiveRoomKey(LiveRoom room){
+    return toLiveRoomKey(room.platform, room.roomId);
+  }
+
+  String toLiveRoomKey(String? platform, String? roomId){
+    return "${platform ?? ''}__${roomId ?? ''}";
+  }
 
   bool isFavorite(LiveRoom room) {
     if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
@@ -363,25 +376,23 @@ class SettingsService extends GetxController {
   }
 
   LiveRoom getLiveRoomByRoomId(String roomId, String platform) {
-    if (!favoriteRooms.any((element) => element.roomId == roomId) &&
-        !historyRooms.any((element) => element.roomId == roomId)) {
-      return LiveRoom(
-        roomId: roomId,
-        platform: platform,
-        liveStatus: LiveStatus.unknown,
-      );
-    }
-    return favoriteRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform,
-        orElse: () => historyRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform));
+    var liveRoomKey = toLiveRoomKey(platform, roomId);
+    return favoriteRoomsMap[liveRoomKey] ??  historyRoomsMap[liveRoomKey] ?? LiveRoom(
+      roomId: roomId,
+      platform: platform,
+      liveStatus: LiveStatus.unknown,
+    );
   }
 
   bool addRoom(LiveRoom room) {
     if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return false;
     }
-    if (favoriteRooms.any((element) => element.roomId == room.roomId)) {
+    var liveRoomKey = getLiveRoomKey(room);
+    if (favoriteRoomsMap.containsKey(liveRoomKey)) {
       return false;
     }
+    favoriteRoomsMap[liveRoomKey] = room;
     favoriteRooms.add(room);
     favoriteRoomsLengthChangeFlag.toggle();
     return true;
@@ -396,9 +407,11 @@ class SettingsService extends GetxController {
   }
 
   bool removeRoom(LiveRoom room) {
-    if (!favoriteRooms.any((element) => element.roomId == room.roomId)) {
+    var liveRoomKey = getLiveRoomKey(room);
+    if (!favoriteRoomsMap.containsKey(liveRoomKey)) {
       return false;
     }
+    favoriteRoomsMap.remove(liveRoomKey);
     favoriteRooms.remove(room);
     favoriteRoomsLengthChangeFlag.toggle();
     return true;
@@ -408,24 +421,31 @@ class SettingsService extends GetxController {
     if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return false;
     }
-    int idx = favoriteRooms.indexWhere((element) => element.roomId == room.roomId);
     updateRoomInHistory(room);
-    if (idx == -1) return false;
-    favoriteRooms[idx] = room;
+
+    var liveRoomKey = getLiveRoomKey(room);
+    var containsKey = favoriteRoomsMap.containsKey(liveRoomKey);
+    if (!containsKey) return false;
+    favoriteRoomsMap[liveRoomKey] = room;
+    favoriteRooms.value = favoriteRoomsMap.values.toList();
     return true;
   }
 
   updateRooms(List<LiveRoom> rooms) {
     favoriteRooms.value = rooms;
+    favoriteRoomsMap.clear();
+    favoriteRoomsMap = toRoomMap(rooms);
   }
 
   bool updateRoomInHistory(LiveRoom room) {
     if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return false;
     }
-    int idx = historyRooms.indexWhere((element) => element.roomId == room.roomId);
-    if (idx == -1) return false;
-    historyRooms[idx] = room;
+    var liveRoomKey = getLiveRoomKey(room);
+    var containsKey = historyRoomsMap.containsKey(liveRoomKey);
+    if(!containsKey) return false;
+    historyRoomsMap[liveRoomKey] = room;
+    historyRooms.value = historyRoomsMap.values.toList().reversed.toList();
     return true;
   }
 
@@ -433,8 +453,9 @@ class SettingsService extends GetxController {
     if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return;
     }
-    if (historyRooms.any((element) => element.roomId == room.roomId)) {
-      historyRooms.remove(room);
+    var liveRoomKey = getLiveRoomKey(room);
+    if (historyRoomsMap.containsKey(liveRoomKey)) {
+      historyRoomsMap.remove(liveRoomKey);
     }
     updateRoom(room);
     //默认只记录50条，够用了
@@ -442,10 +463,13 @@ class SettingsService extends GetxController {
     // if (historyRooms.length > 50) {
     //   historyRooms.removeRange(0, historyRooms.length - 50);
     // }
-    while(historyRooms.length > 50) {
-      historyRooms.removeLast();
+    historyRoomsMap[liveRoomKey] = room;
+    var keys = historyRoomsMap.keys.toList();
+    var length2 = keys.length;
+    for(var i=0; i< length2 - 50;i++){
+      historyRoomsMap.remove(keys[i]);
     }
-    historyRooms.insert(0, room);
+    historyRooms.value = historyRoomsMap.values.toList().reversed.toList();
   }
 
   // Favorite areas storage
