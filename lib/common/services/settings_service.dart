@@ -439,8 +439,11 @@ class SettingsService extends GetxController {
     updateRoom(room);
     //默认只记录50条，够用了
     // 防止数据量大页面卡顿
-    if (historyRooms.length > 50) {
-      historyRooms.removeRange(0, historyRooms.length - 50);
+    // if (historyRooms.length > 50) {
+    //   historyRooms.removeRange(0, historyRooms.length - 50);
+    // }
+    while(historyRooms.length > 50) {
+      historyRooms.removeLast();
     }
     historyRooms.insert(0, room);
   }
