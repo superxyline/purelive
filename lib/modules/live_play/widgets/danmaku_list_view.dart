@@ -71,7 +71,9 @@ class DanmakuListViewState extends State<DanmakuListView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Stack(
+    return Obx( () => Visibility(
+      visible: controller.videoController?.isFullscreen.value != true,
+        child: Stack(
       children: [
         NotificationListener<UserScrollNotification>(
           onNotification: _userScrollAction,
@@ -143,7 +145,7 @@ class DanmakuListViewState extends State<DanmakuListView>
             ),
           )
       ],
-    );
+    )));
   }
 
   @override
