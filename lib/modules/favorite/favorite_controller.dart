@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -25,10 +26,8 @@ class FavoriteController extends GetxController
   final listenList = <StreamSubscription>[];
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
-    // 初始化关注页
-    syncRooms();
     workerList.clear();
     listenList.clear();
     // 监听settings rooms变化
@@ -47,13 +46,21 @@ class FavoriteController extends GetxController
       initSiteSet(rooms, offlineRoomsIndex);
       filterDate(offlineRoomsIndex);
     }));
-    onRefresh();
+
     tabController.addListener(() {
       tabOnlineIndex.value = tabController.index;
     });
     tabSiteController.addListener(() {
       tabSiteIndex.value = tabSiteController.index;
     });
+
+    // 初始化关注页
+    syncRooms();
+
+    // 更新直播间信息
+    await onRefresh();
+
+
     // 定时自动刷新
     if (settings.autoRefreshTime.value != 0) {
       Timer.periodic(
@@ -61,6 +68,10 @@ class FavoriteController extends GetxController
         (timer) => onRefresh(),
       );
     }
+
+    CoreLog.d("onInit");
+
+
   }
 
   final onlineRooms = <LiveRoom>[].obs;

@@ -36,9 +36,9 @@ class AreasController extends GetxController with GetSingleTickerProviderStateMi
       futures.add(Future(() async {
         Get.put(AreasListController(site), tag: site.id);
         var controller = Get.find<AreasListController>(tag: site.id);
-        if (controller.list.isEmpty) {
-          controller.loadData();
-        }
+        // if (controller.list.isEmpty) {
+        //   controller.loadData();
+        // }
       }));
     }
     await Future.wait(futures);
