@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:async_locks/async_locks.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -23,17 +22,13 @@ class DanmakuListViewState extends State<DanmakuListView>
   LivePlayController get controller => Get.find<LivePlayController>();
   final List<StreamSubscription> listenList = [];
   final List<Worker> workerList = [];
-  final Lock lock = Lock();
+  // final Lock lock = Lock();
   @override
   void initState() {
     super.initState();
     workerList.add(debounce(controller.messages, (callback) async {
-      if(!lock.locked) {
-        await lock.run(() async {
-          await  _scrollToBottom();
-        });
-      }
-    }, time: 300.milliseconds));
+      await  _scrollToBottom();
+    }, time: 1300.milliseconds));
     // listenList.add(controller.messages.listen((p0) {
     //   _scrollToBottom();
     // }));
