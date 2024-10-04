@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/status/app_loadding_widget.dart';
 import 'package:pure_live/modules/popular/popular_grid_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -25,7 +26,9 @@ class _PopularGridViewState extends State<PopularGridView> {
               controller: controller.easyRefreshController,
               onRefresh: controller.refreshData,
               onLoad: controller.loadData,
-              child: controller.list.isNotEmpty
+              child: Stack(
+                  children: [
+                    controller.list.isNotEmpty
                   ? MasonryGridView.count(
                       padding: const EdgeInsets.all(5),
                       controller: controller.scrollController,
@@ -38,6 +41,11 @@ class _PopularGridViewState extends State<PopularGridView> {
                       title: S.of(context).empty_live_title,
                       subtitle: S.of(context).empty_live_subtitle,
                     ),
+                    Visibility(
+                      visible: (controller.loadding.value),
+                      child: const AppLoaddingWidget(),
+                    ),
+                  ])
             ));
       },
     );
