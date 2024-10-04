@@ -369,7 +369,7 @@ class LivePlayController extends StateController {
         /// 在线人数
         var onlineNum = msg.data as int;
         var numStr = onlineNum.toString();
-        CoreLog.d(online.toString());
+        // CoreLog.d(online.toString());
         if(online.value != numStr) {
           online.value = onlineNum.toString();
           // detail.value?.watching = online.toString();
