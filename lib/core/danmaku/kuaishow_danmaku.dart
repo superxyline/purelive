@@ -6,6 +6,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
+import 'package:pure_live/core/danmaku/util/danmaku_message_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
 import 'package:pure_live/plugins/fake_useragent.dart';
@@ -200,7 +201,7 @@ class KuaishowDanmaku implements LiveDanmaku {
       onMessage?.call(LiveMessage(
         type: LiveMessageType.chat,
         color: messageColor,
-        message: content,
+        message: DanmakuMessageUtil.handleMessage(content),
         userName: userName,
       ));
     }

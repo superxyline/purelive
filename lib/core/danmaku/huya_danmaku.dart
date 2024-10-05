@@ -134,7 +134,7 @@ class HuyaDanmaku implements LiveDanmaku {
 
           var color = messageNotice.bulletFormat.fontColor;
 
-          CoreLog.d("color ${color}");
+          // CoreLog.d("color ${color}");
           onMessage?.call(
             LiveMessage(
               type: LiveMessageType.chat,
