@@ -4,7 +4,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:brotli/brotli.dart';
+import 'package:flutter/material.dart';
 import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/core/common/convert_helper.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
@@ -163,7 +165,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
           LiveMessage(
             type: LiveMessageType.online,
             data: online,
-            color: LiveMessageColor.white,
+            color: Colors.white,
             message: "",
             userName: "",
           ),
@@ -206,8 +208,8 @@ class BiliBiliDanmaku implements LiveDanmaku {
               userName: username,
               message: message,
               color: color == 0
-                  ? LiveMessageColor.white
-                  : LiveMessageColor.numberToColor(color),
+                  ? Colors.white
+                  : ColorUtil.numberToColor(color),
             );
             onMessage?.call(liveMsg);
           }
@@ -235,7 +237,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
           type: LiveMessageType.superChat,
           userName: "SUPER_CHAT_MESSAGE",
           message: "SUPER_CHAT_MESSAGE",
-          color: LiveMessageColor.white,
+          color: Colors.white,
           data: sc,
         );
         onMessage?.call(liveMsg);

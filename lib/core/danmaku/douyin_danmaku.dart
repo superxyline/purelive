@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/common/utils/js_engine.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart' as http;
@@ -161,10 +163,10 @@ class DouyinDanmaku implements LiveDanmaku {
     onMessage?.call(
       LiveMessage(
         type: LiveMessageType.chat,
-        color: LiveMessageColor.hexToColor(color),
+        color: ColorUtil.hexToColor(color),
         //暂不知道具体怎么转换颜色
         // color: chatMessage.common.fullScreenTextColor.
-        //     ? LiveMessageColor.white
+        //     ? Colors.white
         //     : LiveMessageColor.numberToColor(color),
         message: chatMessage.content,
         userName: chatMessage.user.nickName,
@@ -198,7 +200,7 @@ class DouyinDanmaku implements LiveDanmaku {
       LiveMessage(
         type: LiveMessageType.online,
         data: roomUserSeqMessage.total.toInt(),
-        color: LiveMessageColor.white,
+        color: Colors.white,
         message: "",
         userName: "",
       ),

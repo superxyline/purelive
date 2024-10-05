@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
 import 'package:pure_live/core/common/core_log.dart';
 
 enum LiveMessageType {
@@ -29,7 +32,7 @@ class LiveMessage {
   final dynamic data;
 
   /// 弹幕颜色
-  final LiveMessageColor color;
+  final Color color;
 
   LiveMessage({
     required this.type,

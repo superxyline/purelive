@@ -280,6 +280,14 @@ class LivePlayController extends StateController {
         getVideoSuccess.value = true;
         SmartDialog.showToast("当前主播未开播或主播已下播",
             displayTime: const Duration(seconds: 2));
+        messages.add(
+          LiveMessage(
+            type: LiveMessageType.chat,
+            userName: "系统消息",
+            message: "当前主播未开播或主播已下播",
+            color: Colors.redAccent,
+          ),
+        );
         restoryQualityAndLines();
       }
 
@@ -340,7 +348,7 @@ class LivePlayController extends StateController {
           type: LiveMessageType.chat,
           userName: "系统消息",
           message: "当前主播未开播，正在轮播录像",
-          color: LiveMessageColor.white,
+          color: Colors.grey,
         ),
       );
     }
@@ -349,7 +357,7 @@ class LivePlayController extends StateController {
         type: LiveMessageType.chat,
         userName: "系统消息",
         message: "开始连接弹幕服务器",
-        color: LiveMessageColor.white,
+        color: Colors.blueGrey,
       ),
     );
     liveDanmaku.onMessage = (msg) {
@@ -383,7 +391,7 @@ class LivePlayController extends StateController {
           type: LiveMessageType.chat,
           userName: "系统消息",
           message: msg,
-          color: LiveMessageColor.white,
+          color: Colors.blueGrey,
         ),
       );
     };
@@ -393,7 +401,7 @@ class LivePlayController extends StateController {
           type: LiveMessageType.chat,
           userName: "系统消息",
           message: "弹幕服务器连接正常",
-          color: LiveMessageColor.white,
+          color: Colors.blueGrey,
         ),
       );
     };

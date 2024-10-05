@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:pure_live/common/utils/color_util.dart';
+
 import '../common/binary_writer.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/common/models/live_message.dart';
@@ -169,22 +172,22 @@ class DouyuDanmaku implements LiveDanmaku {
     return str.replaceAll("@S", "/").replaceAll("@A", "@");
   }
 
-  LiveMessageColor getColor(int type) {
+  Color getColor(int type) {
     switch (type) {
       case 1:
-        return LiveMessageColor(255, 0, 0);
+        return ColorUtil.fromRGB(255, 0, 0);
       case 2:
-        return LiveMessageColor(30, 135, 240);
+        return ColorUtil.fromRGB(30, 135, 240);
       case 3:
-        return LiveMessageColor(122, 200, 75);
+        return ColorUtil.fromRGB(122, 200, 75);
       case 4:
-        return LiveMessageColor(255, 127, 0);
+        return ColorUtil.fromRGB(255, 127, 0);
       case 5:
-        return LiveMessageColor(155, 57, 244);
+        return ColorUtil.fromRGB(155, 57, 244);
       case 6:
-        return LiveMessageColor(255, 105, 180);
+        return ColorUtil.fromRGB(255, 105, 180);
       default:
-        return LiveMessageColor.white;
+        return Colors.white;
     }
   }
 }

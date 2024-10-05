@@ -384,7 +384,7 @@ class VideoController with ChangeNotifier {
           msg.message,
           fontSize: danmakuFontSize.value,
           strokeWidth: danmakuFontBorder.value,
-          color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b),
+          color: msg.color,
         ),
       ),
     ]);

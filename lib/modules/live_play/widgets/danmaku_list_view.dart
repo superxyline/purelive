@@ -107,21 +107,22 @@ class DanmakuListViewState extends State<DanmakuListView>
                   child: Text.rich(
                     TextSpan(
                       children: [
+                        /// 弹幕的用户名
                         TextSpan(
                           text: "${danmaku.userName}: ",
                           style: const TextStyle(
+                            color: Colors.grey,
                             fontSize: 14,
                             fontWeight: FontWeight.w300,
                           ),
                         ),
+                        /// 弹幕主体部分
                         TextSpan(
                           text: danmaku.message,
                           style: TextStyle(
                               fontSize: 14,
-                              color: danmaku.color != LiveMessageColor.white
-                                  ? Color.fromARGB(255, danmaku.color.r,
-                                      danmaku.color.g, danmaku.color.b)
-                                  : null),
+                              color: danmaku.color != Colors.white ? danmaku.color : null
+                          ),
                         ),
                       ],
                     ),

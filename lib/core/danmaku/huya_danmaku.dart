@@ -7,7 +7,9 @@ import 'dart:typed_data';
 import 'package:dart_tars_protocol/tars_input_stream.dart';
 import 'package:dart_tars_protocol/tars_output_stream.dart';
 import 'package:dart_tars_protocol/tars_struct.dart';
+import 'package:flutter/material.dart';
 import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -132,12 +134,13 @@ class HuyaDanmaku implements LiveDanmaku {
 
           var color = messageNotice.bulletFormat.fontColor;
 
+          CoreLog.d("color ${color}");
           onMessage?.call(
             LiveMessage(
               type: LiveMessageType.chat,
-              color: color <= 0
-                  ? LiveMessageColor.white
-                  : LiveMessageColor.numberToColor(color),
+              color: color <= 0 || color == 0xFF
+                  ? Colors.white
+                  : ColorUtil.numberToColor(color),
               message: content,
               userName: uname,
             ),
@@ -150,7 +153,7 @@ class HuyaDanmaku implements LiveDanmaku {
             LiveMessage(
               type: LiveMessageType.online,
               data: online,
-              color: LiveMessageColor.white,
+              color: Colors.white,
               message: "",
               userName: "",
             ),
