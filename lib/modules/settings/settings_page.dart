@@ -148,7 +148,7 @@ class SettingsPage extends GetView<SettingsService> {
                   activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.doubleExit.value = value,
                 )),
-          if (Platform.isAndroid)
+          // if (Platform.isAndroid)
             ListTile(
               title: Text(S.of(context).change_player),
               subtitle: Text(S.of(context).change_player_subtitle),

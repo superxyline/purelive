@@ -1,0 +1,275 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart' as media_kit;
+import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
+import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/sites.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart'
+    as video_player;
+import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
+import 'package:pure_live/modules/util/listen_list_util.dart';
+
+import 'video_play_impl.dart';
+
+class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
+  // Video player status
+  // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
+  late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
+
+  // Create a [Player] to control playback.
+  late media_kit.Player player;
+
+  // CeoController] to handle video output from [Player].
+  late media_kit_video.VideoController mediaPlayerController;
+
+  /// 存储 Stream 流监听
+  /// 默认视频 MPV 视频监听流
+  final defaultVideoStreamSubscriptionList = <StreamSubscription>[];
+
+  final SettingsService settings = Get.find<SettingsService>();
+
+  @override
+  final String playerName;
+
+  MpvVideoPlay({required this.playerName,});
+
+  late video_player.VideoController controller;
+  @override
+  void init({required video_player.VideoController controller}) {
+    this.controller = controller;
+    ListenListUtil.clearStreamSubscriptionList(defaultVideoStreamSubscriptionList);
+    player = media_kit.Player();
+    if (player.platform is media_kit.NativePlayer) {
+      (player.platform as dynamic)
+          .setProperty('cache', 'no'); // --cache=<yes|no|auto>
+      (player.platform as dynamic).setProperty(
+          'cache-secs', '0'); // --cache-secs=<seconds> with cache but why not.
+      (player.platform as dynamic).setProperty(
+          'demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
+    }
+    var conf = media_kit_video.VideoControllerConfiguration(
+      enableHardwareAcceleration: settings.enableCodec.value,
+    );
+    if (Platform.isAndroid || Platform.isIOS) {
+      conf = media_kit_video.VideoControllerConfiguration(
+        vo: 'mediacodec_embed',
+        hwdec: 'mediacodec',
+        enableHardwareAcceleration: settings.enableCodec.value,
+      );
+    }
+    mediaPlayerController = media_kit_video.VideoController(player, configuration: conf);
+    defaultVideoStreamSubscriptionList
+        .add(mediaPlayerController.player.stream.playing.listen((bool playing) {
+      if (playing) {
+        isPlaying.value = true;
+      } else {
+        isPlaying.value = false;
+      }
+    }));
+    defaultVideoStreamSubscriptionList
+        .add(mediaPlayerController.player.stream.error.listen((event) {
+      if (event.toString().contains('Failed to open')) {
+        hasError.value = true;
+        isPlaying.value = false;
+      }
+    }));
+    defaultVideoStreamSubscriptionList
+        .add(mediaPlayerController.player.stream.buffering.listen((e) {
+          CoreLog.d("isBuffering : $isBuffering  hashcode: ${isBuffering.hashCode}");
+      isBuffering.value = e;
+    }));
+
+    defaultVideoStreamSubscriptionList.add(player.stream.width.listen((event) {
+      CoreLog.d(
+          'Video width:$event  W:${(player.state.width)}  H:${(player.state.height)}');
+      isVertical.value =
+          (player.state.height ?? 9) > (player.state.width ?? 16);
+    }));
+    defaultVideoStreamSubscriptionList.add(player.stream.height.listen((event) {
+      CoreLog.d(
+          'height:$event  W:${(player.state.width)}  H:${(player.state.height)}');
+      isVertical.value =
+          (player.state.height ?? 9) > (player.state.width ?? 16);
+    }));
+  }
+
+  @override
+  void dispose() {
+    ListenListUtil.clearStreamSubscriptionList(defaultVideoStreamSubscriptionList);
+    if (key.currentState?.isFullscreen() ?? false) {
+      key.currentState?.exitFullscreen();
+    }
+    player.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Future<void> enterFullscreen() async {
+    await key.currentState?.enterFullscreen();
+    CoreLog.d("isVertical: $isVertical");
+    if (isVertical.value) {
+      // 竖屏
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
+  }
+
+  @override
+  Future<void> exitFullScreen() async {
+    await key.currentState?.exitFullscreen();
+  }
+
+  @override
+  Future<void> toggleFullScreen() async {
+    isFullscreen.toggle();
+    if(key.currentState?.isFullscreen() == true) {
+      return exitFullScreen();
+    }
+    return enterFullscreen();
+  }
+
+  @override
+  Future<void> toggleWindowFullScreen() async {
+    if (Platform.isWindows || Platform.isLinux) {
+      if (!isWindowFullscreen.value) {
+        Get.to(() => DesktopFullscreen(
+          controller: controller,
+          key: UniqueKey(),
+          mediaPlayerController: mediaPlayerController,
+        ));
+      } else {
+        Navigator.of(Get.context!).pop();
+      }
+      isWindowFullscreen.toggle();
+    } else {
+      throw UnimplementedError('Unsupported Platform');
+    }
+  }
+
+  @override
+  Future<void> openVideo(String datasource, Map<String, String> headers) async {
+    CoreLog.d("play url: $datasource");
+    // fix datasource empty error
+    if (datasource.isEmpty) {
+      hasError.value = true;
+      return;
+    } else {
+      hasError.value = false;
+    }
+    return player.open(media_kit.Media(datasource, httpHeaders: headers));
+  }
+
+  @override
+  Future<void> pause() async {
+    return player.pause();
+  }
+
+  @override
+  Future<void> togglePlayPause() async {
+    mediaPlayerController.player.playOrPause();
+  }
+
+  @override
+  Future<void> play() {
+    return player.play();
+  }
+
+  @override
+  void setVideoFit(BoxFit fit) {
+    key.currentState?.update(fit: fit);
+  }
+
+  @override
+  bool get supportPip => false;
+
+  @override
+  List<String> get supportPlatformList =>
+      ["linux", "macos", "windows", "android", "ios"];
+
+  @override
+  Widget getVideoPlayerWidget() {
+    return Obx(() => media_kit_video.Video(
+          key: key,
+          controller: mediaPlayerController,
+          pauseUponEnteringBackgroundMode: !settings.enableBackgroundPlay.value,
+          // 进入背景模式时暂停
+          resumeUponEnteringForegroundMode: true,
+          // 进入前景模式后恢复
+          fit: controller
+              .settings.videofitArrary[controller.videoFitIndex.value],
+          controls: "" == Sites.iptvSite
+              ? media_kit_video.MaterialVideoControls
+              : (state) => VideoControllerPanel(
+                    controller: controller,
+                  ),
+        ));
+  }
+
+  @override
+  Widget getDesktopFullscreenWidget() {
+    return Material(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          children: [
+            Obx(() => media_kit_video.Video(
+                  controller: mediaPlayerController,
+                  fit: controller
+                      .settings.videofitArrary[controller.videoFitIndex.value],
+                  pauseUponEnteringBackgroundMode:
+                      !controller.settings.enableBackgroundPlay.value,
+                  // 进入背景模式时暂停
+                  resumeUponEnteringForegroundMode: true,
+                  // 进入前景模式后恢复
+                  controls: (state) =>
+                      VideoControllerPanel(controller: controller),
+                ))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DesktopFullscreen extends StatelessWidget {
+  const DesktopFullscreen({super.key, required this.controller, required this.mediaPlayerController});
+
+  final video_player.VideoController controller;
+  final media_kit_video.VideoController mediaPlayerController;
+  get settings => Get.find<SettingsService>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          children: [
+            Obx(() => media_kit_video.Video(
+              controller: mediaPlayerController,
+              fit: settings.videofitArrary[controller.videoFitIndex.value],
+              pauseUponEnteringBackgroundMode:
+              !settings.enableBackgroundPlay.value,
+              // 进入背景模式时暂停
+              resumeUponEnteringForegroundMode: true,
+              // 进入前景模式后恢复
+              controls: (state) =>
+                  VideoControllerPanel(controller: controller),
+            ))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+

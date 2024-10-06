@@ -26,20 +26,20 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
 
   // Video controllers
   VideoController get controller => widget.controller;
-  double currentVolumn = 1.0;
-  bool showVolumn = true;
-  Timer? _hideVolumn;
+  double currentVolume = 1.0;
+  bool showVolume = true;
+  Timer? _hideVolume;
   void restartTimer() {
-    _hideVolumn?.cancel();
-    _hideVolumn = Timer(const Duration(seconds: 1), () {
-      setState(() => showVolumn = true);
+    _hideVolume?.cancel();
+    _hideVolume = Timer(const Duration(seconds: 1), () {
+      setState(() => showVolume = true);
     });
-    setState(() => showVolumn = false);
+    setState(() => showVolume = false);
   }
 
   @override
   void dispose() {
-    _hideVolumn?.cancel();
+    _hideVolume?.cancel();
     super.dispose();
   }
 
@@ -54,51 +54,51 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
   void updateVolumn(double? volume) {
     restartTimer();
     setState(() {
-      currentVolumn = volume!;
+      currentVolume = volume!;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     IconData iconData;
-    iconData = currentVolumn <= 0
+    iconData = currentVolume <= 0
         ? Icons.volume_mute
-        : currentVolumn < 0.5
+        : currentVolume < 0.5
             ? Icons.volume_down
             : Icons.volume_up;
     return Material(
       type: MaterialType.transparency,
       child: CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.mediaPlay): () => controller.mediaPlayerController.player.play(),
-          const SingleActivator(LogicalKeyboardKey.mediaPause): () => controller.mediaPlayerController.player.pause(),
+          const SingleActivator(LogicalKeyboardKey.mediaPlay): () => controller.videoPlayer.play(),
+          const SingleActivator(LogicalKeyboardKey.mediaPause): () => controller.videoPlayer.pause(),
           const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () =>
-              controller.mediaPlayerController.player.playOrPause(),
-          const SingleActivator(LogicalKeyboardKey.space): () => controller.mediaPlayerController.player.playOrPause(),
+              controller.videoPlayer.togglePlayPause(),
+          const SingleActivator(LogicalKeyboardKey.space): () => controller.videoPlayer.togglePlayPause(),
           const SingleActivator(LogicalKeyboardKey.keyR): () => controller.refresh(),
           const SingleActivator(LogicalKeyboardKey.arrowUp): () async {
             double? volume = 1.0;
-            volume = await controller.volumn();
+            volume = await controller.getVolume();
             volume = (volume! + 0.05);
             volume = min(volume, 1.0);
             volume = max(volume, 0.0);
-            controller.setVolumn(volume);
+            controller.setVolume(volume);
             updateVolumn(volume);
           },
           const SingleActivator(LogicalKeyboardKey.arrowDown): () async {
             double? volume = 1.0;
-            volume = await controller.volumn();
+            volume = await controller.getVolume();
             volume = (volume! - 0.05);
             volume = min(volume, 1.0);
             volume = max(volume, 0.0);
-            controller.setVolumn(volume);
+            controller.setVolume(volume);
             updateVolumn(volume);
           },
           const SingleActivator(LogicalKeyboardKey.escape): () => controller.toggleFullScreen(),
         },
         child: Focus(
           autofocus: true,
-          child: Obx(() => controller.hasError.value
+          child: Obx(() => controller.videoPlayer.hasError.value
               ? ErrorWidget(controller: controller)
               : MouseRegion(
                   onHover: (event) => controller.enableController(),
@@ -111,7 +111,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                       color: Colors.transparent,
                       alignment: Alignment.center,
                       child: AnimatedOpacity(
-                        opacity: !showVolumn ? 0.8 : 0.0,
+                        opacity: !showVolume ? 0.8 : 0.0,
                         duration: const Duration(milliseconds: 300),
                         child: Card(
                           color: Colors.black,
@@ -129,7 +129,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                                       width: 100,
                                       height: 20,
                                       child: LinearProgressIndicator(
-                                        value: currentVolumn,
+                                        value: currentVolume,
                                         backgroundColor: Colors.white38,
                                         valueColor: AlwaysStoppedAnimation(
                                           Theme.of(context).indicatorColor,
@@ -150,13 +150,13 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                           if (controller.showSettting.value) {
                             controller.showSettting.toggle();
                           } else {
-                            controller.isPlaying.value ? controller.enableController() : controller.togglePlayPause();
+                            controller.videoPlayer.isPlaying.value ? controller.enableController() : controller.togglePlayPause();
                           }
                         },
-                        onDoubleTap: () => controller.isWindowFullscreen.value
+                        onDoubleTap: () => controller.videoPlayer.isWindowFullscreen.value
                             ? controller.toggleWindowFullScreen()
                             : controller.toggleFullScreen(),
-                        child: BrightnessVolumnDargArea(
+                        child: BrightnessVolumeDargArea(
                           controller: controller,
                         )),
                     SettingsPanel(
@@ -232,7 +232,7 @@ class TopActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => AnimatedPositioned(
-        top: (!controller.isPipMode.value &&
+        top: (!controller.videoPlayer.isPipMode.value &&
                 !controller.showSettting.value &&
                 controller.showController.value &&
                 !controller.showLocked.value)
@@ -254,7 +254,7 @@ class TopActionBar extends StatelessWidget {
             ),
           ),
           child: Row(children: [
-            if (controller.fullscreenUI) BackButton(controller: controller),
+            if (controller.videoPlayer.fullscreenUI) BackButton(controller: controller),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -265,11 +265,11 @@ class TopActionBar extends StatelessWidget {
                 ),
               ),
             ),
-            if (controller.fullscreenUI) ...[
+            if (controller.videoPlayer.fullscreenUI) ...[
               const DatetimeInfo(),
               BatteryInfo(controller: controller),
             ],
-            if (!controller.fullscreenUI && controller.supportPip && controller.videoPlayerIndex != 4)
+            if (!controller.videoPlayer.fullscreenUI && controller.videoPlayer.supportPip && controller.videoPlayerIndex != 4)
               PIPButton(controller: controller),
           ]),
         ),
@@ -370,7 +370,7 @@ class BackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () =>
-          controller.isWindowFullscreen.value ? controller.toggleWindowFullScreen() : controller.toggleFullScreen(),
+          controller.videoPlayer.isWindowFullscreen.value ? controller.toggleWindowFullScreen() : controller.toggleFullScreen(),
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
@@ -433,8 +433,8 @@ class DanmakuViewer extends StatelessWidget {
   }
 }
 
-class BrightnessVolumnDargArea extends StatefulWidget {
-  const BrightnessVolumnDargArea({
+class BrightnessVolumeDargArea extends StatefulWidget {
+  const BrightnessVolumeDargArea({
     super.key,
     required this.controller,
   });
@@ -442,10 +442,10 @@ class BrightnessVolumnDargArea extends StatefulWidget {
   final VideoController controller;
 
   @override
-  State<BrightnessVolumnDargArea> createState() => BrightnessVolumnDargAreaState();
+  State<BrightnessVolumeDargArea> createState() => BrightnessVolumeDargAreaState();
 }
 
-class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
+class BrightnessVolumeDargAreaState extends State<BrightnessVolumeDargArea> {
   VideoController get controller => widget.controller;
 
   // Darg bv ui control
@@ -465,7 +465,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
     super.dispose();
   }
 
-  void updateVolumn(double? volume) {
+  void updateVolume(double? volume) {
     _isDargLeft = false;
     _cancelAndRestartHideBVTimer();
     setState(() {
@@ -481,13 +481,13 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
     setState(() => _hideBVStuff = false);
   }
 
-  void _onVerticalDragUpdate(Offset postion, Offset delta) async {
+  void _onVerticalDragUpdate(Offset position, Offset delta) async {
     if (controller.showLocked.value) return;
     if (delta.distance < 0.2) return;
 
     // fix darg left change to switch bug
     final width = MediaQuery.of(context).size.width;
-    final dargLeft = (postion.dx > (width / 2)) ? false : true;
+    final dargLeft = (position.dx > (width / 2)) ? false : true;
     // disable windows brightness
     if (Platform.isWindows && dargLeft) return;
     if (_hideBVStuff || _isDargLeft != dargLeft) {
@@ -497,7 +497,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
           setState(() => _updateDargVarVal = v);
         });
       } else {
-        await controller.volumn().then((double? v) {
+        await controller.getVolume().then((double? v) {
           setState(() => _updateDargVarVal = v!);
         });
       }
@@ -513,7 +513,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
     if (_isDargLeft) {
       controller.setBrightness(dragRange);
     } else {
-      controller.setVolumn(dragRange);
+      controller.setVolume(dragRange);
     }
     setState(() => _updateDargVarVal = dragRange);
   }
@@ -593,9 +593,9 @@ class LockButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() => AnimatedOpacity(
-          opacity: (!controller.isPipMode.value &&
+          opacity: (!controller.videoPlayer.isPipMode.value &&
                   !controller.showSettting.value &&
-                  controller.fullscreenUI &&
+                  controller.videoPlayer.fullscreenUI &&
                   controller.showController.value)
               ? 0.9
               : 0.0,
@@ -612,9 +612,9 @@ class LockButton extends StatelessWidget {
                     if (Platform.isAndroid)
                       {
                         if (controller.showLocked.value)
-                          {controller.chewieController.disableRotation()}
+                          {controller.videoPlayer.disableRotation()}
                         else
-                          {controller.chewieController.enableRotation()}
+                          {controller.videoPlayer.enableRotation()}
                       }
                   },
                   icon: Icon(
@@ -649,7 +649,7 @@ class BottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() => AnimatedPositioned(
-          bottom: (!controller.isPipMode.value &&
+          bottom: (!controller.videoPlayer.isPipMode.value &&
                   !controller.showSettting.value &&
                   controller.showController.value &&
                   !controller.showLocked.value)
@@ -676,11 +676,11 @@ class BottomActionBar extends StatelessWidget {
                 RefreshButton(controller: controller),
                 DanmakuButton(controller: controller),
                 FavoriteButton(controller: controller),
-                if (controller.isFullscreen.value) SettingsButton(controller: controller),
+                if (controller.videoPlayer.isFullscreen.value) SettingsButton(controller: controller),
                 const Spacer(),
-                if (controller.supportWindowFull && !controller.isFullscreen.value)
+                if (controller.videoPlayer.supportWindowFull && !controller.videoPlayer.isFullscreen.value)
                   ExpandWindowButton(controller: controller),
-                if (!controller.isWindowFullscreen.value) ExpandButton(controller: controller),
+                if (!controller.videoPlayer.isWindowFullscreen.value) ExpandButton(controller: controller),
               ],
             ),
           ),
@@ -701,7 +701,7 @@ class PlayPauseButton extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.all(12),
             child: Icon(
-              controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
+              controller.videoPlayer.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
               color: Colors.white,
             ),
           )),
@@ -812,7 +812,7 @@ class ExpandWindowButton extends StatelessWidget {
         child: RotatedBox(
           quarterTurns: 1,
           child: Obx(() => Icon(
-                controller.isWindowFullscreen.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
+                controller.videoPlayer.isWindowFullscreen.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
                 color: Colors.white,
                 size: 26,
               )),
@@ -835,7 +835,7 @@ class ExpandButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: Obx(() => Icon(
-              controller.isFullscreen.value ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+              controller.videoPlayer.isFullscreen.value ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
               color: Colors.white,
               size: 26,
             )),

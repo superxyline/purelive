@@ -1,0 +1,219 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:gsy_video_player/gsy_video_player.dart';
+import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/fix_gsy_video_player_controller.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart'
+    as video_player;
+import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
+import 'package:pure_live/modules/util/listen_list_util.dart';
+
+import 'video_play_impl.dart';
+
+class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
+  // Video player control
+  late GsyVideoPlayerController gsyVideoPlayerController;
+
+  late ChewieController chewieController;
+
+  /// 存储 Stream 流监听
+  /// 默认视频 MPV 视频监听流
+  final defaultVideoStreamSubscriptionList = <StreamSubscription>[];
+
+  final SettingsService settings = Get.find<SettingsService>();
+
+  @override
+  late final String playerName;
+  late GsyVideoPlayerType playerType;
+
+  GsyVideoPlay(
+      {required this.playerName,
+      this.playerType = GsyVideoPlayerType.ijk});
+
+  late video_player.VideoController controller;
+  @override
+  void init({required video_player.VideoController controller}) {
+    this.controller = controller;
+    ListenListUtil.clearStreamSubscriptionList(
+        defaultVideoStreamSubscriptionList);
+    gsyVideoPlayerController = FixGsyVideoPlayerController(
+        allowBackgroundPlayback: settings.enableBackgroundPlay.value,
+        player: playerType);
+    chewieController = ChewieController(
+      videoPlayerController: gsyVideoPlayerController,
+      autoPlay: false,
+      looping: false,
+      draggableProgressBar: false,
+      overlay: VideoControllerPanel(
+        controller: controller,
+      ),
+      showControls: false,
+      useRootNavigator: true,
+      showOptions: false,
+      rotateWithSystem: settings.enableRotateScreenWithSystem.value,
+    );
+
+    var enableCodec = settings.enableCodec.value;
+
+    gsyVideoPlayerController
+        .setRenderType(GsyVideoPlayerRenderType.surfaceView);
+    gsyVideoPlayerController.setTimeOut(4000);
+    gsyVideoPlayerController.setMediaCodec(enableCodec);
+    gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
+
+    defaultVideoStreamSubscriptionList.add(
+        gsyVideoPlayerController.videoEventStreamController.stream.listen((e) {
+      switch (e.playState) {
+        case VideoPlayState.playing:
+        case VideoPlayState.playingBufferingStart:
+        case VideoPlayState.pause:
+        case VideoPlayState.completed:
+          isBuffering.value = true;
+          break;
+
+        case VideoPlayState.normal:
+        case VideoPlayState.prepareing:
+        case VideoPlayState.error:
+        case VideoPlayState.unknown:
+          isBuffering.value = false;
+          break;
+        default:
+          isBuffering.value = false;
+          break;
+      }
+      var size = e.size;
+      if (size != null) {
+        isVertical.value = (size.height) > (size.width);
+      }
+    }));
+    gsyVideoPlayerController.addEventsListener(gsyEventsListener);
+    //notifyListeners();
+  }
+
+  void gsyEventsListener(VideoEventType event) {
+    if (event == VideoEventType.onError) {
+      hasError.value = true;
+      isPlaying.value = false;
+      CoreLog.d('gsyVideoPlayer error ${gsyVideoPlayerController.value.what}');
+    } else {
+      isPlaying.value = gsyVideoPlayerController.value.isPlaying;
+    }
+  }
+
+  /// GSYVideoPlayer 释放监听
+  void disposeGSYVideoPlayerListener() {
+    gsyVideoPlayerController.removeEventsListener(gsyEventsListener);
+  }
+
+  @override
+  void dispose() {
+    ListenListUtil.clearStreamSubscriptionList(
+        defaultVideoStreamSubscriptionList);
+    disposeGSYVideoPlayerListener();
+    gsyVideoPlayerController.dispose();
+    chewieController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Future<void> enterFullscreen() async {
+    gsyVideoPlayerController.enterFullScreen();
+  }
+
+  @override
+  Future<void> exitFullScreen() async {
+    gsyVideoPlayerController.exitFullScreen();
+  }
+
+  @override
+  Future<void> openVideo(String datasource, Map<String, String> headers) async {
+    CoreLog.d("play url: $datasource");
+    // fix datasource empty error
+    if (datasource.isEmpty) {
+      hasError.value = true;
+      return;
+    } else {
+      hasError.value = false;
+    }
+    return gsyVideoPlayerController.setDataSourceBuilder(
+      datasource,
+      mapHeadData: headers,
+      cacheWithPlay: false,
+      useDefaultIjkOptions: true,
+    );
+  }
+
+  @override
+  Future<void> pause() async {
+    return gsyVideoPlayerController.pause();
+  }
+
+  @override
+  Future<void> play() {
+    return gsyVideoPlayerController.resume();
+  }
+
+  @override
+  void setVideoFit(BoxFit fit) {
+    gsyVideoPlayerController.setBoxFit(fit);
+  }
+
+  @override
+  bool get supportPip => true;
+
+  @override
+  Future<void> enterPipMode(BuildContext context) async {
+    await gsyVideoPlayerController.enablePictureInPicture();
+  }
+
+  @override
+  List<String> get supportPlatformList => ["android"];
+
+  @override
+  Widget getVideoPlayerWidget() {
+    return Obx(() => Chewie(
+          controller: chewieController,
+        ));
+  }
+
+  @override
+  Future<void> toggleFullScreen() async {
+    gsyVideoPlayerController.toggleFullScreen();
+  }
+
+  @override
+  Future<void> toggleWindowFullScreen() async {
+    gsyVideoPlayerController.toggleFullScreen();
+  }
+
+  @override
+  Future<void> togglePlayPause() async {
+    gsyVideoPlayerController.playOrPause();
+  }
+
+  @override
+  Future<void> setLandscapeOrientation() async {
+    super.setLandscapeOrientation();
+    gsyVideoPlayerController.resolveByClick();
+  }
+
+  @override
+  Future<void> setPortraitOrientation() async {
+    super.setPortraitOrientation();
+    gsyVideoPlayerController.backToProtVideo();
+  }
+
+  @override
+  void disableRotation() {
+    chewieController.disableRotation();
+  }
+
+  @override
+  void enableRotation() {
+    chewieController.enableRotation();
+  }
+
+}

@@ -2,12 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:get/get.dart';
-import 'package:gsy_video_player/gsy_video_player.dart';
-import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
@@ -17,7 +13,8 @@ import 'package:pure_live/plugins/barrage.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'fix_gsy_video_player_controller.dart';
+import 'model/video_play_impl.dart';
+import 'model/video_player_factory.dart';
 import 'video_controller_panel.dart';
 
 class VideoController with ChangeNotifier {
@@ -40,56 +37,20 @@ class VideoController with ChangeNotifier {
 
   ScreenBrightness brightnessController = ScreenBrightness();
 
-  double initBrightness = 0.0;
-
   String qualiteName;
 
   int currentLineIndex;
 
   int currentQuality;
 
-  final hasError = false.obs;
-
-  final isPlaying = false.obs;
-
-  final isBuffering = false.obs;
-
-  final isPipMode = false.obs;
-
-  final isFullscreen = false.obs;
-
-  final isWindowFullscreen = false.obs;
-
   bool hasDestory = false;
-
-  bool get supportPip => Platform.isAndroid;
-
-  bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
-
-  bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
 
   final refreshCompleted = true.obs;
 
-  // Video player status
-  // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
-  late final GlobalKey<media_kit_video.VideoState> key =
-      GlobalKey<media_kit_video.VideoState>();
-
-  // Create a [Player] to control playback.
-  late Player player;
-
-  // CeoController] to handle video output from [Player].
-  late media_kit_video.VideoController mediaPlayerController;
-
-  // Video player control
-  late GsyVideoPlayerController gsyVideoPlayerController;
-
-  late ChewieController chewieController;
-
   final playerRefresh = false.obs;
 
-  GlobalKey<BrightnessVolumnDargAreaState> brightnessKey =
-      GlobalKey<BrightnessVolumnDargAreaState>();
+  GlobalKey<BrightnessVolumeDargAreaState> brightnessKey =
+      GlobalKey<BrightnessVolumeDargAreaState>();
 
   // LivePlayController livePlayController = Get.find<LivePlayController>();
 
@@ -196,76 +157,22 @@ class VideoController with ChangeNotifier {
     }
   }
 
+  late VideoPlayerInterFace videoPlayer;
+
   void initVideoController() async {
     FlutterVolumeController.updateShowSystemUI(false);
     videoPlayerIndex = settings.videoPlayerIndex.value;
     enableCodec = settings.enableCodec.value;
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      player = Player();
-      if (player.platform is NativePlayer) {
-        (player.platform as dynamic)
-            .setProperty('cache', 'no'); // --cache=<yes|no|auto>
-        (player.platform as dynamic).setProperty('cache-secs',
-            '0'); // --cache-secs=<seconds> with cache but why not.
-        (player.platform as dynamic).setProperty(
-            'demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
-      }
-      var conf = VideoControllerConfiguration(
-        enableHardwareAcceleration: enableCodec,
-      );
-      if (Platform.isAndroid || Platform.isIOS) {
-        conf = VideoControllerConfiguration(
-          vo: 'mediacodec_embed',
-          hwdec: 'mediacodec',
-          enableHardwareAcceleration: enableCodec,
-        );
-      }
-      mediaPlayerController =
-          media_kit_video.VideoController(player, configuration: conf);
-      setDataSource(datasource);
-      defaultVideoStreamSubscriptionList.add(
-          mediaPlayerController.player.stream.playing.listen((bool playing) {
-        if (playing) {
-          if (!mediaPlayerControllerInitialized.value) {
-            mediaPlayerControllerInitialized.value = true;
-          }
-          isPlaying.value = true;
-        } else {
-          isPlaying.value = false;
-        }
-      }));
-      defaultVideoStreamSubscriptionList
-          .add(mediaPlayerController.player.stream.error.listen((event) {
-        if (event.toString().contains('Failed to open')) {
-          hasError.value = true;
-          isPlaying.value = false;
-        }
-      }));
-      defaultVideoStreamSubscriptionList
-          .add(mediaPlayerController.player.stream.buffering.listen((e) {
-        isBuffering.value = e;
-      }));
 
-      defaultVideoStreamSubscriptionList
-          .add(player.stream.width.listen((event) {
-        CoreLog.d('Video width:$event  W:${(player.state.width)}  H:${(player.state.height)}');
-        isVertical.value =
-            (player.state.height ?? 9) > (player.state.width ?? 16);
-      }));
-      defaultVideoStreamSubscriptionList
-          .add(player.stream.height.listen((event) {
-        CoreLog.d('height:$event  W:${(player.state.width)}  H:${(player.state.height)}');
-        isVertical.value =
-            (player.state.height ?? 9) > (player.state.width ?? 16);
-      }));
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      initGSYVideoPlayer();
-      setDataSource(datasource);
-    }
-    otherStreamSubscriptionList.add(hasError.listen((p0){
+    videoPlayer =
+        VideoPlayerFactory.getSupportVideoPlayerList()[videoPlayerIndex];
+    videoPlayer.init(controller: this);
+
+    otherStreamSubscriptionList.add(videoPlayer.hasError.listen((p0) {
       try {
         LivePlayController livePlayController = Get.find<LivePlayController>();
-        if (hasError.value && !livePlayController.isLastLine.value) {
+        if (videoPlayer.hasError.value &&
+            !livePlayController.isLastLine.value) {
           SmartDialog.showToast("视频播放失败,正在为您切换线路");
           changeLine();
         }
@@ -287,20 +194,20 @@ class VideoController with ChangeNotifier {
 
     otherStreamSubscriptionList.add(showController.listen((p0) {
       if (showController.value) {
-        if (isPlaying.value) {
+        if (videoPlayer.isPlaying.value) {
           // 取消手动暂停
 
           isActivePause.value = false;
         }
       }
-      if (isPlaying.value) {
+      if (videoPlayer.isPlaying.value) {
         hasActivePause?.cancel();
       }
     }));
 
-    otherStreamSubscriptionList.add(isPlaying.listen((p0) {
+    otherStreamSubscriptionList.add(videoPlayer.isPlaying.listen((p0) {
       // 代表手动暂停了
-      if (!isPlaying.value) {
+      if (!videoPlayer.isPlaying.value) {
         if (showController.value) {
           isActivePause.value = true;
           hasActivePause?.cancel();
@@ -343,7 +250,7 @@ class VideoController with ChangeNotifier {
     refreshCompleted.value = false;
     Timer(const Duration(microseconds: 200), () {
       brightnessKey.currentState?.dispose();
-      brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
+      brightnessKey = GlobalKey<BrightnessVolumeDargAreaState>();
       refreshCompleted.value = true;
     });
   }
@@ -435,11 +342,12 @@ class VideoController with ChangeNotifier {
     disposeAllStream();
     danmakuController.disable();
     await danmakuController.dispose();
-    isPlaying.value = false;
-    hasError.value = false;
+    videoPlayer.isPlaying.value = false;
+    videoPlayer.hasError.value = false;
     try {
-      LivePlayController? livePlayController = Get.findOrNull<LivePlayController>();
-      if(livePlayController != null) {
+      LivePlayController? livePlayController =
+          Get.findOrNull<LivePlayController>();
+      if (livePlayController != null) {
         livePlayController.success.value = false;
       }
     } catch (e) {
@@ -447,83 +355,25 @@ class VideoController with ChangeNotifier {
     }
     hasDestory = true;
     if (allowScreenKeepOn) WakelockPlus.disable();
-    if (Platform.isAndroid || Platform.isIOS) {
-      brightnessController.resetScreenBrightness();
-      if (videoPlayerIndex == 4) {
-        if (key.currentState?.isFullscreen() ?? false) {
-          key.currentState?.exitFullscreen();
-        }
-        player.dispose();
-      } else {
-        if (gsyVideoPlayerController.value.isFullScreen) {
-          gsyVideoPlayerController.exitFullScreen();
-        }
-        disposeGSYVideoPlayer();
-      }
-    } else {
-      if (key.currentState?.isFullscreen() ?? false) {
-        key.currentState?.exitFullscreen();
-      }
-      player.dispose();
+
+    // 关闭时退出全屏
+    if (videoPlayer.isFullscreen.value) {
+      videoPlayer.exitFullScreen();
     }
+    videoPlayer.dispose();
   }
 
-  void setDataSource(String url) async {
+  void setDataSource(String url, Map<String, String> headers) async {
     CoreLog.d("play url: $url");
     datasource = url;
     // fix datasource empty error
     if (datasource.isEmpty) {
-      hasError.value = true;
+      videoPlayer.hasError.value = true;
       return;
     } else {
-      hasError.value = false;
+      videoPlayer.hasError.value = false;
     }
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      // player.pause();
-      player.open(Media(datasource, httpHeaders: headers));
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController.dispose();
-      chewieController.dispose();
-      initGSYVideoPlayer();
-      gsyVideoPlayerController
-          .setRenderType(GsyVideoPlayerRenderType.surfaceView);
-      gsyVideoPlayerController.setTimeOut(4000);
-      gsyVideoPlayerController.setMediaCodec(enableCodec);
-      gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
-      gsyVideoPlayerController.setNetWorkBuilder(
-        datasource,
-        mapHeadData: headers,
-        cacheWithPlay: false,
-        useDefaultIjkOptions: true,
-      );
-      gsyStreamSubscriptionList.add(gsyVideoPlayerController
-          .videoEventStreamController.stream
-          .listen((e) {
-        switch (e.playState) {
-          case VideoPlayState.playing:
-          case VideoPlayState.playingBufferingStart:
-          case VideoPlayState.pause:
-          case VideoPlayState.completed:
-            isBuffering.value = true;
-            break;
-
-          case VideoPlayState.normal:
-          case VideoPlayState.prepareing:
-          case VideoPlayState.error:
-          case VideoPlayState.unknown:
-            isBuffering.value = false;
-            break;
-          default:
-            isBuffering.value = false;
-            break;
-        }
-        var size = e.size;
-        if (size != null) {
-          isVertical.value = (size.height) > (size.width);
-        }
-      }));
-      gsyVideoPlayerController.addEventsListener(gsyEventsListener);
-    }
+    await videoPlayer.openVideo(url, headers);
     notifyListeners();
   }
 
@@ -552,137 +402,37 @@ class VideoController with ChangeNotifier {
     brightnessKey.currentState?.dispose();
   }
 
-  void gsyEventsListener(VideoEventType event) {
-    if (event == VideoEventType.onError) {
-      hasError.value = true;
-      isPlaying.value = false;
-      CoreLog.d('gsyVideoPlayer error ${gsyVideoPlayerController.value.what}');
-    } else {
-      mediaPlayerControllerInitialized.value =
-          gsyVideoPlayerController.value.onVideoPlayerInitialized;
-      if (mediaPlayerControllerInitialized.value) {
-        isPlaying.value = gsyVideoPlayerController.value.isPlaying;
-      }
-    }
-  }
-
-  /// GSYVideoPlayer 释放监听
-  void disposeGSYVideoPlayerListener() {
-    gsyVideoPlayerController.removeEventsListener(gsyEventsListener);
-  }
-
-  void disposeGSYVideoPlayer() {
-    disposeGSYVideoPlayerListener();
-    disposeGsyStream();
-    gsyVideoPlayerController.dispose();
-    chewieController.dispose();
-  }
-
-  void initGSYVideoPlayer() {
-    gsyVideoPlayerController = FixGsyVideoPlayerController(
-        allowBackgroundPlayback: allowBackgroundPlay,
-        player: getVideoPlayerType(videoPlayerIndex));
-    chewieController = ChewieController(
-      videoPlayerController: gsyVideoPlayerController,
-      autoPlay: false,
-      looping: false,
-      draggableProgressBar: false,
-      overlay: VideoControllerPanel(
-        controller: this,
-      ),
-      showControls: false,
-      useRootNavigator: true,
-      showOptions: false,
-      rotateWithSystem: settings.enableRotateScreenWithSystem.value,
-    );
-  }
-
   void setVideoFit(BoxFit fit) {
     videoFit.value = fit;
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      key.currentState?.update(fit: fit);
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController.setBoxFit(fit);
-    }
+    videoPlayer.setVideoFit(fit);
   }
 
   void togglePlayPause() {
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      mediaPlayerController.player.playOrPause();
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      if (isPlaying.value) {
-        gsyVideoPlayerController.pause();
-      } else {
-        gsyVideoPlayerController.resume();
-      }
-    }
+    videoPlayer.togglePlayPause();
   }
 
   void play() {
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      mediaPlayerController.player.play();
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      gsyVideoPlayerController.resume();
-    }
+    videoPlayer.play();
   }
 
   Future<void> pause() async {
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      await mediaPlayerController.player.pause();
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      await gsyVideoPlayerController.pause();
-    }
+    videoPlayer.pause();
   }
 
-  exitFullScreen() {
-    if (Platform.isAndroid) {
-      if (videoPlayerIndex == 4) {
-        isFullscreen.value = false;
-        if (key.currentState?.isFullscreen() ?? false) {
-          key.currentState?.exitFullscreen();
-        }
-      } else {
-        if (isFullscreen.value) {
-          // isVertical.value = false;
-          setLandscapeOrientation();
-          gsyVideoPlayerController.exitFullScreen();
-          isFullscreen.value = false;
-        }
-      }
-      showSettting.value = false;
-    }
+  Future<void> exitFullScreen() async {
+    videoPlayer.exitFullScreen();
+    showSettting.value = false;
   }
 
   /// 设置横屏
   Future setLandscapeOrientation() async {
     // isVertical.value = false;
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-    } else {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-      gsyVideoPlayerController.resolveByClick();
-    }
+    videoPlayer.setLandscapeOrientation();
   }
 
   /// 设置竖屏
   Future setPortraitOrientation() async {
-    // isVertical.value = true;
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
-          overlays: SystemUiOverlay.values);
-    } else {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
-          overlays: SystemUiOverlay.values);
-      gsyVideoPlayerController.backToProtVideo();
-    }
+    videoPlayer.setPortraitOrientation();
   }
 
   void toggleFullScreen() async {
@@ -702,27 +452,7 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
-    if (Platform.isWindows || Platform.isLinux || videoPlayerIndex == 4) {
-      if (isFullscreen.value) {
-        await key.currentState?.exitFullscreen();
-      } else {
-        await key.currentState?.enterFullscreen();
-        CoreLog.d("isVertical: $isVertical");
-        if (isVertical.value) {
-          // 竖屏
-          // setPortraitOrientation();
-          SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-          SystemChrome.setPreferredOrientations([
-            DeviceOrientation.portraitUp,
-            DeviceOrientation.portraitDown,
-          ]);
-        }
-      }
-      isFullscreen.toggle();
-    } else {
-      isFullscreen.toggle();
-      gsyVideoPlayerController.toggleFullScreen();
-    }
+    videoPlayer.toggleFullScreen();
     refreshView();
   }
 
@@ -742,90 +472,36 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
-    if (Platform.isWindows || Platform.isLinux) {
-      if (!isWindowFullscreen.value) {
-        Get.to(() => DesktopFullscreen(
-              controller: this,
-              key: UniqueKey(),
-            ));
-      } else {
-        Navigator.of(Get.context!).pop();
-      }
-      isWindowFullscreen.toggle();
-    } else {
-      throw UnimplementedError('Unsupported Platform');
-    }
+    videoPlayer.toggleWindowFullScreen();
     enableController();
     refreshView();
   }
 
   void enterPipMode(BuildContext context) async {
-    if ((Platform.isAndroid || Platform.isIOS)) {
-      if (videoPlayerIndex != 4) {
-        showController.value = false;
-        await gsyVideoPlayerController.enablePictureInPicture();
-      }
-    }
+    videoPlayer.enterPipMode(context);
   }
 
-  // volumn & brightness
-  Future<double?> volumn() async {
-    if (Platform.isWindows) {
-      return mediaPlayerController.player.state.volume / 100;
-    }
+  /////////// 音量 & 亮度
+  /// 获取音量
+  Future<double?> getVolume() async {
     return await FlutterVolumeController.getVolume();
   }
 
+  /// 设置音量
+  void setVolume(double value) async {
+    await FlutterVolumeController.setVolume(value);
+  }
+
+  /// 获取亮度
   Future<double> brightness() async {
     return await brightnessController.current;
   }
 
-  void setVolumn(double value) async {
-    if (Platform.isWindows) {
-      mediaPlayerController.player.setVolume(value * 100);
-    } else {
-      await FlutterVolumeController.setVolume(value);
-    }
-  }
-
+  /// 设置亮度
   void setBrightness(double value) async {
-    if (Platform.isAndroid || Platform.isIOS) {
-      await brightnessController.setScreenBrightness(value);
-    }
+    await brightnessController.setScreenBrightness(value);
   }
 }
 
 // use fullscreen with controller provider
-
-class DesktopFullscreen extends StatelessWidget {
-  const DesktopFullscreen({super.key, required this.controller});
-
-  final VideoController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: Stack(
-          children: [
-            Obx(() => media_kit_video.Video(
-                  controller: controller.mediaPlayerController,
-                  fit: controller
-                      .settings.videofitArrary[controller.videoFitIndex.value],
-                  pauseUponEnteringBackgroundMode:
-                      !controller.settings.enableBackgroundPlay.value,
-                  // 进入背景模式时暂停
-                  resumeUponEnteringForegroundMode: true,
-                  // 进入前景模式后恢复
-                  controls: (state) =>
-                      VideoControllerPanel(controller: controller),
-                ))
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // use fullscreen with controller provider

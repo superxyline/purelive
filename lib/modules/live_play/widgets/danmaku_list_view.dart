@@ -72,7 +72,7 @@ class DanmakuListViewState extends State<DanmakuListView>
   Widget build(BuildContext context) {
     super.build(context);
     return Obx( () => Visibility(
-      visible: controller.videoController?.isFullscreen.value != true,
+      visible: controller.videoController?.videoPlayer.isFullscreen.value != true,
         child: Stack(
       children: [
         NotificationListener<UserScrollNotification>(

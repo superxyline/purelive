@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/model/video_player_factory.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 // import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -326,7 +327,8 @@ class SettingsService extends GetxController {
 
   static List<String> platforms = Sites.supportSites.map((site)=>site.id).toList();
 
-  static const List<String> players = ['Exo播放器', '系统播放器', 'IJK播放器', '阿里播放器', 'MpvPlayer'];
+  // static const List<String> players = ['Exo播放器', '系统播放器', 'IJK播放器', '阿里播放器', 'MpvPlayer'];
+  static List<String> players = VideoPlayerFactory.getSupportVideoPlayerList().map((e) => e.playerName).toList();
   final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
 
   List<String> get playerlist => players;

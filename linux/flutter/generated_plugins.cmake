@@ -9,6 +9,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   gtk
   media_kit_libs_linux
   media_kit_video
+  screen_brightness_linux
   screen_retriever
   url_launcher_linux
   window_manager

@@ -113,7 +113,7 @@ class LivePlayController extends StateController {
       videoController?.showSettting.toggle();
       return await Future.value(false);
     }
-    if (videoController!.isFullscreen.value) {
+    if (videoController!.videoPlayer.isFullscreen.value) {
       videoController?.exitFullScreen();
       return await Future.value(false);
     }
@@ -559,10 +559,16 @@ class LivePlayController extends StateController {
       videoController?.qualiteName = qualites[currentQuality.value].quality;
       videoController?.currentLineIndex = currentLineIndex.value;
       videoController?.currentQuality = currentQuality.value;
-      videoController?.setDataSource(playUrls.value[currentLineIndex.value]);
+      videoController?.setDataSource(playUrls.value[currentLineIndex.value], headers);
       // videoController?.initVideoController();
       // videoController?.play();
     }
+
+    videoController?.datasource = playUrls.value[currentLineIndex.value];
+    videoController?.qualiteName = qualites[currentQuality.value].quality;
+    videoController?.currentLineIndex = currentLineIndex.value;
+    videoController?.currentQuality = currentQuality.value;
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value], headers);
 
     success.value = true;
 
@@ -572,7 +578,7 @@ class LivePlayController extends StateController {
         final connectivityResults = await Connectivity().checkConnectivity();
         if (!connectivityResults.contains(ConnectivityResult.none)) {
           if ( videoController?.isActivePause.value != true &&
-              videoController?.isPlaying.value != true) {
+              videoController?.videoPlayer.isPlaying.value != true) {
             CoreLog.d("videoController refresh");
             videoController!.refresh();
           }
