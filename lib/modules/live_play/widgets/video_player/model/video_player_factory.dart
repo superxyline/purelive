@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:gsy_video_player/gsy_video_player.dart';
 
+import 'fvp_video_play.dart';
 import 'gsy_video_play.dart';
 import 'mpv_video_play.dart';
 import 'video_play_impl.dart';
@@ -15,6 +16,7 @@ final class VideoPlayerFactory{
       GsyVideoPlay(playerName: "IJK播放器", playerType: GsyVideoPlayerType.ijk),
       GsyVideoPlay(playerName: "阿里播放器", playerType: GsyVideoPlayerType.ali),
       MpvVideoPlay(playerName: "MPV播放器",),
+      FvpVideoPlay(playerName: "FVP播放器",),
     ];
     return list;
   }

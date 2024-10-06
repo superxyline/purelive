@@ -6,6 +6,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/main.dart';
 import 'package:pure_live/plugins/global.dart';
+import 'package:fvp/fvp.dart' as fvp;
 ///全局异常的捕捉
 class FlutterCatchError {
   static run(Widget app, List<String> args) {
@@ -27,6 +28,7 @@ class FlutterCatchError {
       WidgetsFlutterBinding.ensureInitialized();
       PrefUtil.prefs = await SharedPreferences.getInstance();
       MediaKit.ensureInitialized();
+      fvp.registerWith();
       if (Platform.isWindows) {
         register(kWindowsScheme);
         await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
