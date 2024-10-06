@@ -1,22 +1,20 @@
-import 'dart:io';
 import 'dart:async';
-import 'package:get/get.dart';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
-import 'package:pure_live/common/index.dart';
+import 'package:get/get.dart';
 import 'package:move_to_desktop/move_to_desktop.dart';
-import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/about/widgets/version_dialog.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
-import 'package:pure_live/modules/home/mobile_view.dart';
+import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/home/mobile_view_v2.dart';
-import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/home/tablet_view_v2.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
-import 'package:pure_live/modules/favorite/favorite_page.dart';
-import 'package:pure_live/modules/about/widgets/version_dialog.dart';
-import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/search/search_controller.dart'
     as search_controller;
+import 'package:pure_live/modules/search/search_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

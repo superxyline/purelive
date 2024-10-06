@@ -8,7 +8,6 @@ import 'package:flutter_js/flutter_js.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/common/utils/js_engine.dart';
-import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart' as http;
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/danmaku/util/danmaku_message_util.dart';

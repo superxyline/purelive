@@ -4,7 +4,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
-import 'package:flutter/material.dart';
 
 class FavoritePage extends GetView<FavoriteController> {
   const FavoritePage({super.key});

@@ -1,4 +1,3 @@
-library models;
 
 export 'live_room.dart';
 export 'live_area.dart';

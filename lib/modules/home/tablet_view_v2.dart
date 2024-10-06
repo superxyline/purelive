@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/modules/home/home_controller.dart';
-import 'package:pure_live/modules/search/search_controller.dart' as pure_live;
 
 class HomeTabletViewV2 extends GetView<HomeController> {
   const HomeTabletViewV2({

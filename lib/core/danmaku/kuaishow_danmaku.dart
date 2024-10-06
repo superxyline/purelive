@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:fixnum/src/int64.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/core/common/core_log.dart';

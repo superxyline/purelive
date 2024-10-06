@@ -16,7 +16,7 @@ final class DanmakuMessageUtil {
       var txt = match.group(1);
       var emojiText = emojiMap[txt];
       if (emojiText.isNullOrEmpty) {
-        CoreLog.d("un match: ${txt}");
+        CoreLog.d("un match: $txt");
         return allTxt;
       }
       return emojiText ?? allTxt;

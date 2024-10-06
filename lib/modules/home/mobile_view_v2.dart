@@ -4,9 +4,9 @@ import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/modules/home/home_controller.dart';
 
 class HomeMobileViewV2 extends GetView<HomeController> {
-  HomeMobileViewV2({
+  const HomeMobileViewV2({
     super.key,
-  }) {}
+  });
 
   @override
   Widget build(BuildContext context) {

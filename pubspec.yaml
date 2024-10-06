@@ -80,7 +80,7 @@ dependencies:
   windows_single_instance: ^1.0.0
   app_links: ^6.1.4
   protobuf: ^3.1.0
-  fixnum: ^1.1.0
+  fixnum: ^1.1.0 # 32位，64位 数字
   dio: ^5.3.3
   dio_cookie_manager: ^3.1.1
   dio_cache_interceptor: ^3.5.0
@@ -127,6 +127,7 @@ dependencies:
   mobile_scanner: ^5.1.1 #二维码扫描
   async_locks: ^4.0.1 #同步锁
   extended_image: ^8.3.1  #图片缓存
+  uuid: ^4.4.2   # 用于生成 UUID
 dev_dependencies:
   flutter_test:
     sdk: flutter

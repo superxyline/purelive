@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:pure_live/common/base/base_controller.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/status/app_empty_widget.dart';
@@ -35,8 +34,8 @@ class PageGridView extends StatelessWidget {
     this.mainAxisSpacing = 0.0,
     this.showPCRefreshButton = true,
     required this.crossAxisCount,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

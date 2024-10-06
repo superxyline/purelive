@@ -1,4 +1,3 @@
-library utils;
 
 export './text_util.dart';
 export './pref_util.dart';

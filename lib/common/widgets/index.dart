@@ -1,4 +1,3 @@
-library widgets;
 
 export './room_card.dart';
 export './empty_view.dart';
