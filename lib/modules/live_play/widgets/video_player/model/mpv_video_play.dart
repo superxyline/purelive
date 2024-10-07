@@ -238,7 +238,7 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
                   // 进入前景模式后恢复
                   controls: (state) =>
                       VideoControllerPanel(controller: controller),
-              onEnterFullscreen: enterNativeFullscreen,
+                  onEnterFullscreen: enterNativeFullscreen,
                 ))
           ],
         ),
@@ -250,14 +250,15 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   Future<void> enterNativeFullscreen() async {
     try {
       if (Platform.isAndroid || Platform.isIOS) {
-        if(isVertical.value){
+        if (isVertical.value) {
           // 竖屏
           await Future.wait(
             [
-              SystemChrome.setEnabledSystemUIMode(
-                SystemUiMode.immersiveSticky,
-                overlays: [],
-              ),
+              SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge),
+              // SystemChrome.setEnabledSystemUIMode(
+              //   SystemUiMode.immersiveSticky,
+              //   overlays: [],
+              // ),
               SystemChrome.setPreferredOrientations(
                 [
                   DeviceOrientation.portraitUp,
