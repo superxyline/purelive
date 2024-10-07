@@ -95,7 +95,7 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     }));
     gsyVideoPlayerController.addEventsListener(gsyEventsListener);
     chewieController.addListener(chewieControllerListener);
-    //notifyListeners();
+    notifyListeners();
   }
 
   void chewieControllerListener() {
@@ -118,7 +118,11 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     //   isPlaying.value = gsyVideoPlayerController.value.isPlaying;
     // }
     hasError.updateValueNotEquate(event == VideoEventType.onError);
-    isPlaying.updateValueNotEquate(gsyVideoPlayerController.value.isPlaying);
+    var tmpIsPlaying = gsyVideoPlayerController.value.isPlaying;
+    isPlaying.updateValueNotEquate(tmpIsPlaying);
+    if(tmpIsPlaying){
+      isBuffering.updateValueNotEquate(tmpIsPlaying);
+    }
     // isBuffering.updateValueNotEquate(gsyVideoPlayerController.value.isBuffering);
     isVertical.updateValueNotEquate(gsyVideoPlayerController.value.size.width <
         gsyVideoPlayerController.value.size.height);
