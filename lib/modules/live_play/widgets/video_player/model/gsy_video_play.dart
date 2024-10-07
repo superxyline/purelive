@@ -10,6 +10,7 @@ import 'package:pure_live/modules/live_play/widgets/video_player/video_controlle
     as video_player;
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
+import 'package:pure_live/modules/util/rx_util.dart';
 
 import 'video_play_impl.dart';
 
@@ -17,7 +18,8 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   // Video player control
   late GsyVideoPlayerController gsyVideoPlayerController;
 
-  late ChewieController chewieController;
+  late Rx<ChewieController> chewieController =
+      ChewieController(videoPlayerController: gsyVideoPlayerController).obs;
 
   /// 存储 Stream 流监听
   /// 默认视频 MPV 视频监听流
@@ -30,10 +32,10 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   late GsyVideoPlayerType playerType;
 
   GsyVideoPlay(
-      {required this.playerName,
-      this.playerType = GsyVideoPlayerType.ijk});
+      {required this.playerName, this.playerType = GsyVideoPlayerType.ijk});
 
   late video_player.VideoController controller;
+
   @override
   void init({required video_player.VideoController controller}) {
     this.controller = controller;
@@ -42,7 +44,7 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     gsyVideoPlayerController = FixGsyVideoPlayerController(
         allowBackgroundPlayback: settings.enableBackgroundPlay.value,
         player: playerType);
-    chewieController = ChewieController(
+    chewieController.value = ChewieController(
       videoPlayerController: gsyVideoPlayerController,
       autoPlay: false,
       looping: false,
@@ -71,22 +73,24 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
         case VideoPlayState.playingBufferingStart:
         case VideoPlayState.pause:
         case VideoPlayState.completed:
-          isBuffering.value = true;
+        case VideoPlayState.completed:
+          isBuffering.updateValueNotEquate(true);
           break;
 
         case VideoPlayState.normal:
         case VideoPlayState.prepareing:
         case VideoPlayState.error:
         case VideoPlayState.unknown:
-          isBuffering.value = false;
+          isBuffering.updateValueNotEquate(false);
           break;
         default:
-          isBuffering.value = false;
+          isBuffering.updateValueNotEquate(false);
           break;
       }
       var size = e.size;
       if (size != null) {
-        isVertical.value = (size.height) > (size.width);
+        // isVertical.value = (size.height) > (size.width);
+        isVertical.updateValueNotEquate((size.height) > (size.width));
       }
     }));
     gsyVideoPlayerController.addEventsListener(gsyEventsListener);
@@ -94,13 +98,17 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   }
 
   void gsyEventsListener(VideoEventType event) {
-    if (event == VideoEventType.onError) {
-      hasError.value = true;
-      isPlaying.value = false;
-      CoreLog.d('gsyVideoPlayer error ${gsyVideoPlayerController.value.what}');
-    } else {
-      isPlaying.value = gsyVideoPlayerController.value.isPlaying;
-    }
+    // if (event == VideoEventType.onError) {
+    //   hasError.updateValueNotEquate(true);
+    //   isPlaying.updateValueNotEquate(false);
+    //   CoreLog.d('gsyVideoPlayer error ${gsyVideoPlayerController.value.what}');
+    // } else {
+    //   isPlaying.value = gsyVideoPlayerController.value.isPlaying;
+    // }
+    hasError.updateValueNotEquate(event == VideoEventType.onError);
+    isPlaying.updateValueNotEquate(gsyVideoPlayerController.value.isPlaying);
+    // isBuffering.updateValueNotEquate(gsyVideoPlayerController.value.isBuffering);
+    isVertical.updateValueNotEquate(gsyVideoPlayerController.value.size.width < gsyVideoPlayerController.value.size.height);
   }
 
   /// GSYVideoPlayer 释放监听
@@ -175,18 +183,19 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   @override
   Widget getVideoPlayerWidget() {
     return Obx(() => Chewie(
-          controller: chewieController,
+          controller: chewieController.value,
         ));
   }
 
   @override
   Future<void> toggleFullScreen() async {
+    isFullscreen.toggle();
     gsyVideoPlayerController.toggleFullScreen();
   }
 
   @override
   Future<void> toggleWindowFullScreen() async {
-    gsyVideoPlayerController.toggleFullScreen();
+    return toggleFullScreen();
   }
 
   @override
@@ -208,12 +217,11 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
   @override
   void disableRotation() {
-    chewieController.disableRotation();
+    chewieController.value.disableRotation();
   }
 
   @override
   void enableRotation() {
-    chewieController.enableRotation();
+    chewieController.value.enableRotation();
   }
-
 }

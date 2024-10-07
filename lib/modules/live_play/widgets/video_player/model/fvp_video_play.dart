@@ -128,7 +128,7 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     );
 
     videoPlayerController.addListener(listenerVideo);
-    await videoPlayerController.initialize();
+    // await videoPlayerController.initialize();
     var oldValue = chewieController.value;
     chewieController.value = ChewieController(
       videoPlayerController: videoPlayerController,
@@ -141,7 +141,15 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
       showControls: false,
       useRootNavigator: true,
       showOptions: false,
+      isLive: true,
     );
+
+    chewieController.value.addListener((){
+      var isLive = chewieController.value.isLive;
+      var isPlaying = chewieController.value.isPlaying;
+      var isFullScreen = chewieController.value.isFullScreen;
+      CoreLog.d("isLive $isLive isPlaying $isPlaying isFullScreen $isFullScreen");
+    });
 
     // oldVideo.dispose();
     // oldValue.dispose();
@@ -197,12 +205,13 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
   @override
   Future<void> toggleFullScreen() async {
+    isFullscreen.toggle();
     chewieController.value.toggleFullScreen();
   }
 
   @override
   Future<void> toggleWindowFullScreen() async {
-    chewieController.value.toggleFullScreen();
+    return toggleFullScreen();
   }
 
   @override
