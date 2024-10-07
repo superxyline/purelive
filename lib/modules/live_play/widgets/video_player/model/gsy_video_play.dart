@@ -74,17 +74,17 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
         case VideoPlayState.pause:
         case VideoPlayState.completed:
         case VideoPlayState.completed:
-          isBuffering.updateValueNotEquate(true);
+          isBuffering.updateValueNotEquate(e.isPlaying == true || true);
           break;
 
         case VideoPlayState.normal:
         case VideoPlayState.prepareing:
         case VideoPlayState.error:
         case VideoPlayState.unknown:
-          isBuffering.updateValueNotEquate(false);
+          isBuffering.updateValueNotEquate(e.isPlaying == true || false);
           break;
         default:
-          isBuffering.updateValueNotEquate(false);
+          isBuffering.updateValueNotEquate(e.isPlaying == true || false);
           break;
       }
       var size = e.size;
@@ -94,7 +94,19 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
       }
     }));
     gsyVideoPlayerController.addEventsListener(gsyEventsListener);
+    chewieController.addListener(chewieControllerListener);
     //notifyListeners();
+  }
+
+  void chewieControllerListener() {
+    var tmpIsLive = chewieController.value.isLive;
+    var tmpIsPlaying = chewieController.value.isPlaying;
+    var tmpIsFullScreen =
+        chewieController.value.videoPlayerController.value.isFullScreen;
+    CoreLog.d(
+        "isLive $tmpIsLive isPlaying $tmpIsPlaying isFullScreen $tmpIsFullScreen");
+    isFullscreen.updateValueNotEquate(tmpIsFullScreen);
+    isPlaying.updateValueNotEquate(tmpIsPlaying);
   }
 
   void gsyEventsListener(VideoEventType event) {
@@ -108,12 +120,14 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     hasError.updateValueNotEquate(event == VideoEventType.onError);
     isPlaying.updateValueNotEquate(gsyVideoPlayerController.value.isPlaying);
     // isBuffering.updateValueNotEquate(gsyVideoPlayerController.value.isBuffering);
-    isVertical.updateValueNotEquate(gsyVideoPlayerController.value.size.width < gsyVideoPlayerController.value.size.height);
+    isVertical.updateValueNotEquate(gsyVideoPlayerController.value.size.width <
+        gsyVideoPlayerController.value.size.height);
   }
 
   /// GSYVideoPlayer 释放监听
   void disposeGSYVideoPlayerListener() {
     gsyVideoPlayerController.removeEventsListener(gsyEventsListener);
+    chewieController.removeListener(chewieControllerListener);
   }
 
   @override

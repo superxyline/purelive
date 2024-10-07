@@ -17,11 +17,13 @@ import 'video_play_impl.dart';
 /// FVP 播放器
 class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   // Video player control
-  late VideoPlayerController videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(""));
+  late VideoPlayerController videoPlayerController =
+      VideoPlayerController.networkUrl(Uri.parse(""));
 
   // late ChewieController chewieController;
 
-  late Rx<ChewieController> chewieController = ChewieController(videoPlayerController: videoPlayerController).obs;
+  late Rx<ChewieController> chewieController =
+      ChewieController(videoPlayerController: videoPlayerController).obs;
 
   /// 存储 Stream 流监听
   /// 默认视频 MPV 视频监听流
@@ -63,7 +65,7 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
       showOptions: false,
     );
 
-    var enableCodec = settings.enableCodec.value;
+    // var enableCodec = settings.enableCodec.value;
 
     //notifyListeners();
   }
@@ -90,6 +92,7 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
         defaultVideoStreamSubscriptionList);
     disposeVideoPlayerListener();
     videoPlayerController.removeListener(listenerVideo);
+    chewieController.value.addListener(chewieControllerListener);
     videoPlayerController.dispose();
     chewieController.value.dispose();
     super.dispose();
@@ -107,6 +110,8 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
   @override
   Future<void> openVideo(String datasource, Map<String, String> headers) async {
+    isBuffering.updateValueNotEquate(false);
+    isPlaying.updateValueNotEquate(false);
     CoreLog.d("play url: $datasource");
     // fix datasource empty error
     if (datasource.isEmpty) {
@@ -119,8 +124,12 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
         VideoPlayerOptions(allowBackgroundPlayback: true);
 
     var oldVideo = videoPlayerController;
-
     videoPlayerController.removeListener(listenerVideo);
+    try {
+      oldVideo.dispose();
+    } catch (e) {
+      CoreLog.error(e);
+    }
     // videoPlayerController.remove
     videoPlayerController = VideoPlayerController.networkUrl(
       Uri.parse(datasource),
@@ -130,43 +139,55 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     videoPlayerController.addListener(listenerVideo);
     // await videoPlayerController.initialize();
     var oldValue = chewieController.value;
+    try {
+      oldValue.removeListener(chewieControllerListener);
+      oldValue.dispose();
+    } catch (e) {
+      CoreLog.error(e);
+    }
     chewieController.value = ChewieController(
       videoPlayerController: videoPlayerController,
       autoPlay: true,
       looping: false,
-      draggableProgressBar: false,
+      draggableProgressBar: true,
       overlay: VideoControllerPanel(
         controller: controller,
       ),
       showControls: false,
       useRootNavigator: true,
       showOptions: false,
-      isLive: true,
+      // isLive: true,
     );
 
-    chewieController.value.addListener((){
-      var isLive = chewieController.value.isLive;
-      var isPlaying = chewieController.value.isPlaying;
-      var isFullScreen = chewieController.value.isFullScreen;
-      CoreLog.d("isLive $isLive isPlaying $isPlaying isFullScreen $isFullScreen");
-    });
+    chewieController.value.addListener(chewieControllerListener);
 
     // oldVideo.dispose();
     // oldValue.dispose();
-
   }
 
-  void listenerVideo(){
+  void chewieControllerListener() {
+    var tmpIsLive = chewieController.value.isLive;
+    var tmpIsPlaying = chewieController.value.isPlaying;
+    var tmpIsFullScreen = chewieController.value.isFullScreen;
+    CoreLog.d(
+        "isLive $tmpIsLive isPlaying $tmpIsPlaying isFullScreen $tmpIsFullScreen");
+    isFullscreen.updateValueNotEquate(tmpIsFullScreen);
+    isPlaying.updateValueNotEquate(tmpIsPlaying);
+  }
+
+  void listenerVideo() {
     // videoPlayerController.printInfo();
     // videoPlayerController.printError();
     var isError = videoPlayerController.value.errorDescription != null;
-    if(isError) {
+    if (isError) {
       CoreLog.d("Error: ${videoPlayerController.value.errorDescription}");
     }
-    hasError.updateValueNotEquate(videoPlayerController.value.errorDescription != null);
+    hasError.updateValueNotEquate(
+        videoPlayerController.value.errorDescription != null);
     isPlaying.updateValueNotEquate(videoPlayerController.value.isPlaying);
     isBuffering.updateValueNotEquate(videoPlayerController.value.isBuffering);
-    isVertical.updateValueNotEquate(videoPlayerController.value.size.width < videoPlayerController.value.size.height);
+    isVertical.updateValueNotEquate(videoPlayerController.value.size.width <
+        videoPlayerController.value.size.height);
   }
 
   @override
@@ -198,7 +219,7 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
   @override
   Widget getVideoPlayerWidget() {
-    return Obx( () => Chewie(
+    return Obx(() => Chewie(
           controller: chewieController.value,
         ));
   }
@@ -240,5 +261,4 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   void enableRotation() {
     // chewieController.value.enableRotation();
   }
-
 }
