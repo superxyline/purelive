@@ -17,13 +17,13 @@ import 'video_play_impl.dart';
 /// FVP 播放器
 class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   // Video player control
-  late VideoPlayerController videoPlayerController =
-      VideoPlayerController.networkUrl(Uri.parse(""));
+  late Rx<VideoPlayerController> videoPlayerController =
+      VideoPlayerController.networkUrl(Uri.parse("")).obs;
 
   // late ChewieController chewieController;
 
   late Rx<ChewieController> chewieController =
-      ChewieController(videoPlayerController: videoPlayerController).obs;
+      ChewieController(videoPlayerController: videoPlayerController.value).obs;
 
   /// 存储 Stream 流监听
   /// 默认视频 MPV 视频监听流
@@ -48,12 +48,12 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
     VideoPlayerOptions options =
         VideoPlayerOptions(allowBackgroundPlayback: true);
-    videoPlayerController = VideoPlayerController.networkUrl(
+    videoPlayerController.value = VideoPlayerController.networkUrl(
       Uri.parse(""),
       videoPlayerOptions: options,
     );
     chewieController.value = ChewieController(
-      videoPlayerController: videoPlayerController,
+      videoPlayerController: videoPlayerController.value,
       autoPlay: false,
       looping: false,
       draggableProgressBar: false,
@@ -74,15 +74,15 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   //   if (event == VideoEventType.onError) {
   //     hasError.value = true;
   //     isPlaying.value = false;
-  //     CoreLog.d('VideoPlayer error ${videoPlayerController.value.what}');
+  //     CoreLog.d('VideoPlayer error ${videoPlayerController.value.value.what}');
   //   } else {
-  //     isPlaying.value = videoPlayerController.value.isPlaying;
+  //     isPlaying.value = videoPlayerController.value.value.isPlaying;
   //   }
   // }
 
   /// VideoPlayer 释放监听
   void disposeVideoPlayerListener() {
-    // chewieController.value.videoPlayerController.value.
+    // chewieController.value.videoPlayerController.value.value.
     // chewieController.value.removeListener(EventsListener);
   }
 
@@ -91,9 +91,9 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     ListenListUtil.clearStreamSubscriptionList(
         defaultVideoStreamSubscriptionList);
     disposeVideoPlayerListener();
-    videoPlayerController.removeListener(listenerVideo);
+    videoPlayerController.value.removeListener(listenerVideo);
     chewieController.value.addListener(chewieControllerListener);
-    videoPlayerController.dispose();
+    videoPlayerController.value.dispose();
     chewieController.value.dispose();
     super.dispose();
   }
@@ -123,21 +123,21 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     VideoPlayerOptions options =
         VideoPlayerOptions(allowBackgroundPlayback: true);
 
-    var oldVideo = videoPlayerController;
-    videoPlayerController.removeListener(listenerVideo);
+    var oldVideo = videoPlayerController.value;
+    videoPlayerController.value.removeListener(listenerVideo);
     try {
       oldVideo.dispose();
     } catch (e) {
       CoreLog.error(e);
     }
-    // videoPlayerController.remove
-    videoPlayerController = VideoPlayerController.networkUrl(
+    // videoPlayerController.value.remove
+    videoPlayerController.value = VideoPlayerController.networkUrl(
       Uri.parse(datasource),
       videoPlayerOptions: options,
     );
 
-    videoPlayerController.addListener(listenerVideo);
-    // await videoPlayerController.initialize();
+    videoPlayerController.value.addListener(listenerVideo);
+    // await videoPlayerController.value.initialize();
     var oldValue = chewieController.value;
     try {
       oldValue.removeListener(chewieControllerListener);
@@ -145,10 +145,25 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     } catch (e) {
       CoreLog.error(e);
     }
+
+    initChewieController();
+  }
+
+
+  /// 视频宽和高比
+  double? aspectRatio = null;
+  void initChewieController(){
+    try {
+      chewieController.value.removeListener(chewieControllerListener);
+      chewieController.value.dispose();
+    } catch (e) {
+      CoreLog.error(e);
+    }
     chewieController.value = ChewieController(
-      videoPlayerController: videoPlayerController,
+      videoPlayerController: videoPlayerController.value,
       autoPlay: true,
       looping: false,
+      aspectRatio: aspectRatio,  //视频宽和高比
       draggableProgressBar: true,
       overlay: VideoControllerPanel(
         controller: controller,
@@ -156,14 +171,23 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
       showControls: false,
       useRootNavigator: true,
       showOptions: false,
+      // fullScreenByDefault: true,
+      // systemOverlaysOnEnterFullScreen: SystemUiOverlay.values,
+      // deviceOrientationsOnEnterFullScreen: [
+      //   DeviceOrientation.landscapeLeft,
+      //   DeviceOrientation.landscapeRight
+      // ],
+      // systemOverlaysAfterFullScreen: SystemUiOverlay.values,
+      // deviceOrientationsAfterFullScreen: [
+      //   DeviceOrientation.portraitUp,
+      //   DeviceOrientation.portraitDown
+      // ],
       // isLive: true,
     );
 
     chewieController.value.addListener(chewieControllerListener);
-
-    // oldVideo.dispose();
-    // oldValue.dispose();
   }
+
 
   void chewieControllerListener() {
     var tmpIsLive = chewieController.value.isLive;
@@ -176,18 +200,27 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   }
 
   void listenerVideo() {
-    // videoPlayerController.printInfo();
-    // videoPlayerController.printError();
-    var isError = videoPlayerController.value.errorDescription != null;
+    // videoPlayerController.value.printInfo();
+    // videoPlayerController.value.printError();
+    var isError = videoPlayerController.value.value.errorDescription != null;
     if (isError) {
-      CoreLog.d("Error: ${videoPlayerController.value.errorDescription}");
+      CoreLog.d("Error: ${videoPlayerController.value.value.errorDescription}");
     }
     hasError.updateValueNotEquate(
-        videoPlayerController.value.errorDescription != null);
-    isPlaying.updateValueNotEquate(videoPlayerController.value.isPlaying);
-    isBuffering.updateValueNotEquate(videoPlayerController.value.isBuffering);
-    isVertical.updateValueNotEquate(videoPlayerController.value.size.width <
-        videoPlayerController.value.size.height);
+        videoPlayerController.value.value.errorDescription != null);
+    isPlaying.updateValueNotEquate(videoPlayerController.value.value.isPlaying);
+    isBuffering
+        .updateValueNotEquate(videoPlayerController.value.value.isBuffering);
+    isVertical.updateValueNotEquate(
+        videoPlayerController.value.value.size.width <
+            videoPlayerController.value.value.size.height);
+
+    var tmpAspectRatio = videoPlayerController.value.value.size.width / videoPlayerController.value.value.size.height;
+    /// 重新设置宽高比
+    if(tmpAspectRatio != aspectRatio) {
+      aspectRatio = tmpAspectRatio;
+      initChewieController();
+    }
   }
 
   @override
