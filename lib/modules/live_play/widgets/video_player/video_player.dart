@@ -34,7 +34,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
           widget.controller.videoPlayer.getVideoPlayerWidget(),
           /// 视频加载中
           Visibility(
-              visible: widget.controller.videoPlayer.isBuffering.value,
+              visible: !widget.controller.videoPlayer.isPlaying.value && !widget.controller.videoPlayer.isBuffering.value,
               child: const Center(
                 child: CircularProgressIndicator(),
               )),
