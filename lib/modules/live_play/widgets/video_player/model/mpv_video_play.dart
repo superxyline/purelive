@@ -283,10 +283,7 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
           );
         }
       } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-        await const MethodChannel('com.alexmercerind/media_kit_video')
-            .invokeMethod(
-          'Utils.EnterNativeFullscreen',
-        );
+        await media_kit_video.defaultEnterNativeFullscreen();
       }
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
