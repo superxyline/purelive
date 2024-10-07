@@ -217,6 +217,7 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
               : (state) => VideoControllerPanel(
                     controller: controller,
                   ),
+          onEnterFullscreen: enterNativeFullscreen,
         ));
   }
 
