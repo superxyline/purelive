@@ -118,15 +118,15 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   @override
   Future<void> enterFullscreen() async {
     await key.currentState?.enterFullscreen();
-    CoreLog.d("isVertical: $isVertical");
-    if (isVertical.value) {
-      // 竖屏
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-    }
+    // CoreLog.d("isVertical: $isVertical");
+    // if (isVertical.value) {
+    //   // 竖屏
+    //   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    //   SystemChrome.setPreferredOrientations([
+    //     DeviceOrientation.portraitUp,
+    //     DeviceOrientation.portraitDown,
+    //   ]);
+    // }
   }
 
   @override
@@ -238,11 +238,60 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
                   // 进入前景模式后恢复
                   controls: (state) =>
                       VideoControllerPanel(controller: controller),
+              onEnterFullscreen: enterNativeFullscreen,
                 ))
           ],
         ),
       ),
     );
+  }
+
+  /// copy from media-kit media_kit_video-1.2.5\lib\src\video\video_texture.dart
+  Future<void> enterNativeFullscreen() async {
+    try {
+      if (Platform.isAndroid || Platform.isIOS) {
+        if(isVertical.value){
+          // 竖屏
+          await Future.wait(
+            [
+              SystemChrome.setEnabledSystemUIMode(
+                SystemUiMode.immersiveSticky,
+                overlays: [],
+              ),
+              SystemChrome.setPreferredOrientations(
+                [
+                  DeviceOrientation.portraitUp,
+                  DeviceOrientation.portraitDown,
+                ],
+              ),
+            ],
+          );
+        } else {
+          await Future.wait(
+            [
+              SystemChrome.setEnabledSystemUIMode(
+                SystemUiMode.immersiveSticky,
+                overlays: [],
+              ),
+              SystemChrome.setPreferredOrientations(
+                [
+                  DeviceOrientation.landscapeLeft,
+                  DeviceOrientation.landscapeRight,
+                ],
+              ),
+            ],
+          );
+        }
+      } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        await const MethodChannel('com.alexmercerind/media_kit_video')
+            .invokeMethod(
+          'Utils.EnterNativeFullscreen',
+        );
+      }
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
   }
 }
 
