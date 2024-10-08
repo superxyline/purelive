@@ -13,6 +13,8 @@ import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/model/fvp_video_play.dart';
+import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'widgets/video_player/video_controller.dart';
@@ -108,13 +110,15 @@ class LivePlayController extends StateController {
   /// 在线人数
   var online = "".obs;
 
+  final isFullscreen = false.obs;
+
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
       return await Future.value(false);
     }
     if (videoController!.videoPlayer.isFullscreen.value) {
-      videoController?.exitFullScreen();
+      videoController?.exitFull();
       return await Future.value(false);
     }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
@@ -494,20 +498,20 @@ class LivePlayController extends StateController {
     setPlayer();
   }
 
-  void setPlayer() async {
+  Map<String, String> getUrlHeaders(){
     Map<String, String> headers = {};
     if (currentSite.id == Sites.bilibiliSite) {
       headers = {
         "cookie": settings.bilibiliCookie.value,
         "authority": "api.bilibili.com",
         "accept":
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "accept-language": "zh-CN,zh;q=0.9",
         "cache-control": "no-cache",
         "dnt": "1",
         "pragma": "no-cache",
         "sec-ch-ua":
-            '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+        '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
         "sec-ch-ua-mobile": "?0",
         "sec-ch-ua-platform": '"macOS"',
         "sec-fetch-dest": "document",
@@ -516,17 +520,21 @@ class LivePlayController extends StateController {
         "sec-fetch-user": "?1",
         "upgrade-insecure-requests": "1",
         "user-agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
         "referer": "https://live.bilibili.com"
       };
     } else if (currentSite.id == Sites.huyaSite) {
       headers = {
         "Referer": "https://www.huya.com",
         "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
       };
     }
+    return headers;
+  }
 
+  void setPlayer() async {
+    var headers = getUrlHeaders();
     try {
       // await videoController?.pause();
     } catch (e){
@@ -554,6 +562,9 @@ class LivePlayController extends StateController {
         currentLineIndex: currentLineIndex.value,
         currentQuality: currentQuality.value,
       );
+      videoController?.videoPlayer.isFullscreen.listen((e) {
+        isFullscreen.updateValueNotEquate(e);
+      });
     } else {
       videoController?.datasource = playUrls.value[currentLineIndex.value];
       videoController?.qualiteName = qualites[currentQuality.value].quality;

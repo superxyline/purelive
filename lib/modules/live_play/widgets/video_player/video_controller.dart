@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:auto_orientation/auto_orientation.dart';
 import 'package:battery_plus/battery_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -426,13 +429,36 @@ class VideoController with ChangeNotifier {
 
   /// 设置横屏
   Future setLandscapeOrientation() async {
-    // isVertical.value = false;
-    videoPlayer.setLandscapeOrientation();
+    if (await beforeIOS16()) {
+      AutoOrientation.landscapeAutoMode();
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
   }
 
   /// 设置竖屏
   Future setPortraitOrientation() async {
-    videoPlayer.setPortraitOrientation();
+    if (await beforeIOS16()) {
+      AutoOrientation.portraitAutoMode();
+    } else {
+      await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    }
+  }
+
+  /// 是否是IOS16以下
+  Future<bool> beforeIOS16() async {
+    if (Platform.isIOS) {
+      final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      var info = await deviceInfo.iosInfo;
+      var version = info.systemVersion;
+      var versionInt = int.tryParse(version.split('.').first) ?? 0;
+      return versionInt < 16;
+    } else {
+      return false;
+    }
   }
 
   void toggleFullScreen() async {
@@ -452,8 +478,44 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
-    videoPlayer.toggleFullScreen();
+    videoPlayer.isFullscreen.toggle();
+    if(videoPlayer.isFullscreen.value){
+      enterFullScreen();
+    } else {
+      exitFull();
+    }
     refreshView();
+  }
+
+  /// 进入全屏
+  void enterFullScreen() {
+    videoPlayer.isFullscreen.value = true;
+    if (Platform.isAndroid || Platform.isIOS) {
+      //全屏
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+      if (!isVertical.value) {
+        //横屏
+        setLandscapeOrientation();
+      }
+    } else {
+      windowManager.setFullScreen(true);
+    }
+    //danmakuController?.clear();
+  }
+
+  /// 退出全屏
+  void exitFull() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
+          overlays: SystemUiOverlay.values);
+      setPortraitOrientation();
+    } else {
+      windowManager.setFullScreen(false);
+    }
+    showSettting.value = false;
+    videoPlayer.isFullscreen.value = false;
+
+    //danmakuController?.clear();
   }
 
   void toggleWindowFullScreen() {

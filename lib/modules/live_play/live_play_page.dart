@@ -81,97 +81,115 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (settings.enableScreenKeepOn.value) {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
-    return BackButtonListener(
-      onBackButtonPressed: onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Obx(() => buildTableTarLeft()),
-          actions: [
-            PopupMenuButton(
-              tooltip: '搜索',
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              offset: const Offset(12, 0),
-              position: PopupMenuPosition.under,
-              icon: const Icon(Icons.more_vert_rounded),
-              onSelected: (int index) {
-                if (index == 0) {
-                  controller.openNaviteAPP();
-                } else {
-                  showDlnaCastDialog();
-                }
-              },
-              itemBuilder: (BuildContext context) {
-                return [
-                  const PopupMenuItem(
-                    value: 0,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: MenuListTile(
-                      leading: Icon(Icons.open_in_new_rounded),
-                      text: "打开直播间",
+    final page = Obx(() {
+      CoreLog.d("isFullscreen.value ${controller.isFullscreen.value}");
+      if (controller.isFullscreen.value == true) {
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (e) {
+            controller.videoController?.exitFull();
+          },
+          child: Scaffold(
+            body: buildVideoPlayer(),
+          ),
+        );
+      };
+      return BackButtonListener(
+        onBackButtonPressed: onWillPop,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Obx(() => buildTableTarLeft()),
+            actions: [
+              PopupMenuButton(
+                tooltip: '搜索',
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                offset: const Offset(12, 0),
+                position: PopupMenuPosition.under,
+                icon: const Icon(Icons.more_vert_rounded),
+                onSelected: (int index) {
+                  if (index == 0) {
+                    controller.openNaviteAPP();
+                  } else {
+                    showDlnaCastDialog();
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    const PopupMenuItem(
+                      value: 0,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: MenuListTile(
+                        leading: Icon(Icons.open_in_new_rounded),
+                        text: "打开直播间",
+                      ),
                     ),
-                  ),
-                  const PopupMenuItem(
-                    value: 1,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: MenuListTile(
-                      leading: Icon(Icons.live_tv_rounded),
-                      text: "投屏",
+                    const PopupMenuItem(
+                      value: 1,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: MenuListTile(
+                        leading: Icon(Icons.live_tv_rounded),
+                        text: "投屏",
+                      ),
                     ),
-                  ),
-                ];
-              },
-            )
-          ],
-        ),
-        body: Builder(
-          builder: (BuildContext context) {
-            return LayoutBuilder(builder: (context, constraint) {
-              final width = Get.width;
-              return SafeArea(
-                child: width <= 680
-                    ? Column(
-                        children: <Widget>[
-                          buildVideoPlayer(),
-                          const ResolutionsRow(),
-                          const Divider(height: 1),
-                          Expanded(
-                            child: Obx(() => DanmakuListView(
-                                  key: controller.danmakuViewKey,
-                                  room: controller.detail.value!,
-                                )),
-                          ),
-                        ],
-                      )
-                    : Row(children: <Widget>[
-                        Flexible(
-                          flex: 5,
-                          child: buildVideoPlayer(),
-                        ),
-                        Flexible(
-                          flex: 3,
-                          child: Column(children: [
-                            const ResolutionsRow(),
-                            const Divider(height: 1),
-                            Expanded(
-                              child: Obx(() => DanmakuListView(
-                                    key: controller.danmakuViewKey,
-                                    room: controller.detail.value!,
-                                  )),
-                            ),
-                          ]),
+                  ];
+                },
+              )
+            ],
+          ),
+          body: Builder(
+            builder: (BuildContext context) {
+              return LayoutBuilder(builder: (context, constraint) {
+                final width = Get.width;
+                return SafeArea(
+                  child: width <= 680
+                      ? Column(
+                    children: <Widget>[
+                      buildVideoPlayer(),
+                      const ResolutionsRow(),
+                      const Divider(height: 1),
+                      Expanded(
+                        child: Obx(() =>
+                            DanmakuListView(
+                              key: controller.danmakuViewKey,
+                              room: controller.detail.value!,
+                            )),
+                      ),
+                    ],
+                  )
+                      : Row(children: <Widget>[
+                    Flexible(
+                      flex: 5,
+                      child: buildVideoPlayer(),
+                    ),
+                    Flexible(
+                      flex: 3,
+                      child: Column(children: [
+                        const ResolutionsRow(),
+                        const Divider(height: 1),
+                        Expanded(
+                          child: Obx(() =>
+                              DanmakuListView(
+                                key: controller.danmakuViewKey,
+                                room: controller.detail.value!,
+                              )),
                         ),
                       ]),
-              );
-            });
-          },
+                    ),
+                  ]),
+                );
+              });
+            },
+          ),
+          floatingActionButton: Obx(() =>
+          controller.getVideoSuccess.value
+              ? FavoriteFloatingButton(room: controller.detail.value!)
+              : FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
         ),
-        floatingActionButton: Obx(() => controller.getVideoSuccess.value
-            ? FavoriteFloatingButton(room: controller.detail.value!)
-            : FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
-      ),
-    );
+      );
+    });
+    return page;
   }
 
   void showDlnaCastDialog() {
