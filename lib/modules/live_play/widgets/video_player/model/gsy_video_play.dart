@@ -68,26 +68,30 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
     defaultVideoStreamSubscriptionList.add(
         gsyVideoPlayerController.videoEventStreamController.stream.listen((e) {
-      switch (e.playState) {
-        case VideoPlayState.playing:
-        case VideoPlayState.playingBufferingStart:
-        case VideoPlayState.pause:
-        case VideoPlayState.completed:
-        case VideoPlayState.completed:
-          isBuffering.updateValueNotEquate(e.isPlaying == true || true);
-          break;
-
-        case VideoPlayState.normal:
-        case VideoPlayState.prepareing:
-        case VideoPlayState.error:
-        case VideoPlayState.unknown:
-          isBuffering.updateValueNotEquate(e.isPlaying == true || false);
-          break;
-        default:
-          isBuffering.updateValueNotEquate(e.isPlaying == true || false);
-          break;
-      }
+      // switch (e.playState) {
+      //   case VideoPlayState.playing:
+      //   case VideoPlayState.playingBufferingStart:
+      //   case VideoPlayState.pause:
+      //   case VideoPlayState.completed:
+      //   case VideoPlayState.completed:
+      //     isBuffering.updateValueNotEquate(e.isPlaying == false || false);
+      //     break;
+      //
+      //   case VideoPlayState.normal:
+      //   case VideoPlayState.prepareing:
+      //   case VideoPlayState.error:
+      //   case VideoPlayState.unknown:
+      //     isBuffering.updateValueNotEquate(e.isPlaying == false || true);
+      //     break;
+      //   default:
+      //     isBuffering.updateValueNotEquate(e.isPlaying == false || true);
+      //     break;
+      // }
       var size = e.size;
+      var isBuffering2 = e.isBuffering;
+      if (isBuffering2 != null) {
+        isBuffering.updateValueNotEquate(isBuffering2);
+      }
       if (size != null) {
         // isVertical.value = (size.height) > (size.width);
         isVertical.updateValueNotEquate((size.height) > (size.width));
@@ -120,7 +124,7 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     hasError.updateValueNotEquate(event == VideoEventType.onError);
     var tmpIsPlaying = gsyVideoPlayerController.value.isPlaying;
     isPlaying.updateValueNotEquate(tmpIsPlaying);
-    if(tmpIsPlaying){
+    if (tmpIsPlaying) {
       isBuffering.updateValueNotEquate(tmpIsPlaying);
     }
     // isBuffering.updateValueNotEquate(gsyVideoPlayerController.value.isBuffering);
@@ -164,6 +168,8 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     } else {
       hasError.value = false;
     }
+    isBuffering.updateValueNotEquate(true);
+    isPlaying.updateValueNotEquate(false);
     return gsyVideoPlayerController.setDataSourceBuilder(
       datasource,
       mapHeadData: headers,

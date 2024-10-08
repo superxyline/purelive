@@ -26,32 +26,33 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-
     /// 使用 mpv 解码
-      return  Obx((){
-        CoreLog.d("isBuffering widget: ${widget.controller.videoPlayer.isBuffering}   hashcode: ${widget.controller.videoPlayer.isBuffering.hashCode}");
-        return Stack(children: [
-          widget.controller.videoPlayer.getVideoPlayerWidget(),
-          /// 视频加载中
-          Visibility(
-              visible: !widget.controller.videoPlayer.isPlaying.value && !widget.controller.videoPlayer.isBuffering.value,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              )),
+    return Obx(() {
+      CoreLog.d(
+          "isBuffering widget: ${widget.controller.videoPlayer.isBuffering}   hashcode: ${widget.controller.videoPlayer.isBuffering.hashCode}");
+      return Stack(children: [
+        widget.controller.videoPlayer.getVideoPlayerWidget(),
 
-          /// 封面
-          // Obx(() => Visibility(
-          //     visible: !widget.controller.mediaPlayerControllerInitialized.value,
-          //     child: Card(
-          //       elevation: 0,
-          //       margin: const EdgeInsets.all(0),
-          //       shape:
-          //           const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-          //       clipBehavior: Clip.antiAlias,
-          //       color: Get.theme.focusColor,
-          //       child: CacheNetWorkUtils.getCacheImageV2(widget.controller.room.cover!),
-          //     ))),
-        ]);
-      });
+        /// 视频加载中
+        Visibility(
+            visible: widget.controller.videoPlayer.isBuffering.value,
+            child: const Center(
+              child: CircularProgressIndicator(),
+            )),
+
+        /// 封面
+        // Obx(() => Visibility(
+        //     visible: !widget.controller.mediaPlayerControllerInitialized.value,
+        //     child: Card(
+        //       elevation: 0,
+        //       margin: const EdgeInsets.all(0),
+        //       shape:
+        //           const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        //       clipBehavior: Clip.antiAlias,
+        //       color: Get.theme.focusColor,
+        //       child: CacheNetWorkUtils.getCacheImageV2(widget.controller.room.cover!),
+        //     ))),
+      ]);
+    });
   }
 }

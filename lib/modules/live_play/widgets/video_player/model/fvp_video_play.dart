@@ -110,7 +110,7 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
   @override
   Future<void> openVideo(String datasource, Map<String, String> headers) async {
-    isBuffering.updateValueNotEquate(false);
+    isBuffering.updateValueNotEquate(true);
     isPlaying.updateValueNotEquate(false);
     CoreLog.d("play url: $datasource");
     // fix datasource empty error
@@ -149,10 +149,10 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     initChewieController();
   }
 
-
   /// 视频宽和高比
   double? aspectRatio = null;
-  void initChewieController(){
+
+  void initChewieController() {
     try {
       chewieController.value.removeListener(chewieControllerListener);
       chewieController.value.dispose();
@@ -163,7 +163,8 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
       videoPlayerController: videoPlayerController.value,
       autoPlay: true,
       looping: false,
-      aspectRatio: aspectRatio,  //视频宽和高比
+      aspectRatio: aspectRatio,
+      //视频宽和高比
       draggableProgressBar: true,
       overlay: VideoControllerPanel(
         controller: controller,
@@ -187,7 +188,6 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
     chewieController.value.addListener(chewieControllerListener);
   }
-
 
   void chewieControllerListener() {
     var tmpIsLive = chewieController.value.isLive;
@@ -215,9 +215,13 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
         videoPlayerController.value.value.size.width <
             videoPlayerController.value.value.size.height);
 
-    var tmpAspectRatio = videoPlayerController.value.value.size.width / videoPlayerController.value.value.size.height;
+    // CoreLog.d("isPlaying: ${isPlaying} isBuffering: $isBuffering hasError: $hasError");
+
+    var tmpAspectRatio = videoPlayerController.value.value.size.width /
+        videoPlayerController.value.value.size.height;
+
     /// 重新设置宽高比
-    if(tmpAspectRatio != aspectRatio) {
+    if (tmpAspectRatio != aspectRatio) {
       aspectRatio = tmpAspectRatio;
       initChewieController();
     }

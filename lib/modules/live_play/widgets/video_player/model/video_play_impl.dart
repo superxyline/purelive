@@ -4,27 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart'
-as video_player;
+    as video_player;
 
 /// 视频播放器接口
 abstract class VideoPlayerInterFace {
-
   /// 播放链接
   Future<void> openVideo(String datasource, Map<String, String> headers);
 
   /// 播放
   Future<void> play();
+
   /// 暂停
   Future<void> pause();
+
   /// 播放或者暂停
   Future<void> togglePlayPause();
 
   /// 进入全屏
   Future<void> enterFullscreen();
+
   /// 退出全屏
   Future<void> exitFullScreen();
 
   Future<void> toggleFullScreen();
+
   Future<void> toggleWindowFullScreen();
 
   /// 设置视频填充
@@ -39,7 +42,7 @@ abstract class VideoPlayerInterFace {
   /// 是否播放
   final isPlaying = false.obs;
 
-  /// 是否在播放中
+  /// 是否在缓冲中
   final isBuffering = false.obs;
 
   /// 是否 画中画
@@ -58,12 +61,14 @@ abstract class VideoPlayerInterFace {
   final isVertical = false.obs;
 
   /// 是否 支持画中画
-  bool get supportPip => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  bool get supportPip =>
+      Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
   void enterPipMode(BuildContext context) async {}
 
   /// 是否 支持 窗口全屏
-  bool get supportWindowFull => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  bool get supportWindowFull =>
+      Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
   /// 是否 进入 窗口全屏
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
@@ -84,6 +89,7 @@ abstract class VideoPlayerInterFace {
       DeviceOrientation.landscapeRight,
     ]);
   }
+
   /// 设置竖屏
   Future<void> setPortraitOrientation() async {
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
@@ -91,9 +97,10 @@ abstract class VideoPlayerInterFace {
   }
 
   /// 锁屏
-  void disableRotation(){}
+  void disableRotation() {}
+
   /// 解锁屏
-  void enableRotation(){}
+  void enableRotation() {}
 
   /// 播放器名称
   String get playerName;
@@ -103,7 +110,7 @@ abstract class VideoPlayerInterFace {
 
   /// 获取 播放器视图
   Widget getVideoPlayerWidget();
+
   /// 获取 播放器全屏视图
   Widget getDesktopFullscreenWidget() => getVideoPlayerWidget();
 }
-

@@ -84,9 +84,9 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     }));
     defaultVideoStreamSubscriptionList
         .add(mediaPlayerController.player.stream.buffering.listen((e) {
+      isBuffering.updateValueNotEquate(e);
       CoreLog.d(
           "isBuffering : $isBuffering  hashcode: ${isBuffering.hashCode}");
-      isBuffering.updateValueNotEquate(e);
     }));
 
     defaultVideoStreamSubscriptionList.add(player.stream.width.listen((event) {
@@ -171,6 +171,8 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     } else {
       hasError.value = false;
     }
+    isBuffering.updateValueNotEquate(true);
+    isPlaying.updateValueNotEquate(false);
     return player.open(media_kit.Media(datasource, httpHeaders: headers));
   }
 
