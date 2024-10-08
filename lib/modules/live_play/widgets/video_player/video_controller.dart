@@ -493,7 +493,7 @@ class VideoController with ChangeNotifier {
     if (Platform.isAndroid || Platform.isIOS) {
       //全屏
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-      if (!isVertical.value) {
+      if (!videoPlayer.isVertical.value) {
         //横屏
         setLandscapeOrientation();
       }
