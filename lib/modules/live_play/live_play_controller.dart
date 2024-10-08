@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:floating/floating.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -13,9 +15,9 @@ import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
-import 'package:pure_live/modules/live_play/widgets/video_player/model/fvp_video_play.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'widgets/video_player/video_controller.dart';
 
@@ -109,8 +111,69 @@ class LivePlayController extends StateController {
   var isFavorite = false.obs;
   /// 在线人数
   var online = "".obs;
-
+  /// 是否全屏
   final isFullscreen = false.obs;
+  /// PIP画中画
+  final pip = Floating();
+  StreamSubscription? _pipSubscription;
+
+  /// 释放一些系统状态
+  Future resetSystem() async {
+    _pipSubscription?.cancel();
+    // pip.dispose();
+    await SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+      overlays: SystemUiOverlay.values,
+    );
+
+    await videoController?.setPortraitOrientation();
+    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+      // 亮度重置,桌面平台可能会报错,暂时不处理桌面平台的亮度
+      try {
+        await videoController?.brightnessController.resetScreenBrightness();
+      } catch (e) {
+        CoreLog.error(e);
+      }
+    }
+
+    await WakelockPlus.disable();
+  }
+
+  Future enablePIP() async {
+    if (!Platform.isAndroid) {
+      return;
+    }
+    if (await pip.isPipAvailable == false) {
+      SmartDialog.showToast("设备不支持小窗播放");
+      return;
+    }
+
+    //关闭并清除弹幕
+    if (videoController?.videoPlayer.isPipMode.value == true) {
+      videoController?.hideDanmaku.value = true;
+    }
+    videoController?.danmakuController.reset(0);
+    // //关闭控制器
+    // showControlsState.value = false;
+
+    //监听事件
+    var isVertical = videoController?.videoPlayer.isVertical.value ?? false;
+    Rational ratio = const Rational.landscape();
+    if (isVertical) {
+      ratio = const Rational.vertical();
+    } else {
+      ratio = const Rational.landscape();
+    }
+    await pip.enable(ImmediatePiP());
+
+    _pipSubscription ??= pip.pipStatusStream.listen((event) {
+      if (event == PiPStatus.disabled) {
+        // danmakuController?.clear();
+        // showDanmakuState.value = danmakuStateBeforePIP;
+      }
+      CoreLog.w(event.toString());
+    });
+  }
 
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
@@ -318,6 +381,7 @@ class LivePlayController extends StateController {
     videoController = null;
     liveDanmaku.stop();
     success.value = false;
+    resetSystem();
   }
 
   handleCurrentLineAndQuality({

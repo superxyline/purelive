@@ -134,6 +134,7 @@ dependencies:
   uuid: ^4.4.2   # 用于生成 UUID
   auto_orientation: ^2.3.1 #屏幕方向
   device_info_plus: ^10.1.2 #设备信息
+  floating: ^4.0.1 #PIP画中画
 dev_dependencies:
   flutter_test:
     sdk: flutter

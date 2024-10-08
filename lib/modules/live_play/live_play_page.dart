@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:floating/floating.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -189,7 +192,14 @@ class LivePlayPage extends GetView<LivePlayController> {
         ),
       );
     });
-    return page;
+    if (!Platform.isAndroid) {
+      return page;
+    }
+    return PiPSwitcher(
+      floating: controller.pip,
+      childWhenDisabled: page,
+      childWhenEnabled: buildVideoPlayer(),
+    );
   }
 
   void showDlnaCastDialog() {
