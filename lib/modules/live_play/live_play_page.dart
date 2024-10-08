@@ -93,7 +93,7 @@ class LivePlayPage extends GetView<LivePlayController> {
             controller.videoController?.exitFull();
           },
           child: Scaffold(
-            body: buildVideoPlayer(),
+            body: buildVideoPlayerBody(),
           ),
         );
       }
@@ -148,45 +148,42 @@ class LivePlayPage extends GetView<LivePlayController> {
                 return SafeArea(
                   child: width <= 680
                       ? Column(
-                    children: <Widget>[
-                      buildVideoPlayer(),
-                      const ResolutionsRow(),
-                      const Divider(height: 1),
-                      Expanded(
-                        child: Obx(() =>
-                            DanmakuListView(
-                              key: controller.danmakuViewKey,
-                              room: controller.detail.value!,
-                            )),
-                      ),
-                    ],
-                  )
+                          children: <Widget>[
+                            buildVideoPlayer(),
+                            const ResolutionsRow(),
+                            const Divider(height: 1),
+                            Expanded(
+                              child: Obx(() => DanmakuListView(
+                                    key: controller.danmakuViewKey,
+                                    room: controller.detail.value!,
+                                  )),
+                            ),
+                          ],
+                        )
                       : Row(children: <Widget>[
-                    Flexible(
-                      flex: 5,
-                      child: buildVideoPlayer(),
-                    ),
-                    Flexible(
-                      flex: 3,
-                      child: Column(children: [
-                        const ResolutionsRow(),
-                        const Divider(height: 1),
-                        Expanded(
-                          child: Obx(() =>
-                              DanmakuListView(
-                                key: controller.danmakuViewKey,
-                                room: controller.detail.value!,
-                              )),
-                        ),
-                      ]),
-                    ),
-                  ]),
+                          Flexible(
+                            flex: 5,
+                            child: buildVideoPlayer(),
+                          ),
+                          Flexible(
+                            flex: 3,
+                            child: Column(children: [
+                              const ResolutionsRow(),
+                              const Divider(height: 1),
+                              Expanded(
+                                child: Obx(() => DanmakuListView(
+                                      key: controller.danmakuViewKey,
+                                      room: controller.detail.value!,
+                                    )),
+                              ),
+                            ]),
+                          ),
+                        ]),
                 );
               });
             },
           ),
-          floatingActionButton: Obx(() =>
-          controller.getVideoSuccess.value
+          floatingActionButton: Obx(() => controller.getVideoSuccess.value
               ? FavoriteFloatingButton(room: controller.detail.value!)
               : FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
         ),
@@ -207,72 +204,78 @@ class LivePlayPage extends GetView<LivePlayController> {
         datasource: controller.playUrls[controller.currentLineIndex.value]));
   }
 
+  /// 播放器主页UI
   Widget buildVideoPlayer() {
     return AspectRatio(
       aspectRatio: 16 / 9,
-      child: Container(
-        color: Colors.black,
-        child: Obx(
-          () => /*controller.isLoadingVideo.value
+      child: buildVideoPlayerBody(),
+    );
+  }
+
+  /// 播放器主体内容
+  Widget buildVideoPlayerBody() {
+    return Container(
+      color: Colors.black,
+      child: Obx(
+        () => /*controller.isLoadingVideo.value
               ? const Center(
                 /// 加载动画
                 child: CircularProgressIndicator(
                 color: Colors.white,
               ))
               :*/
-              controller.success.value
-                  ? VideoPlayer(controller: controller.videoController!)
-                  : controller.hasError.value &&
-                          controller.isActive.value == false
-                      ? ErrorVideoWidget(controller: controller)
-                      : !controller.getVideoSuccess.value
-                          ? ErrorVideoWidget(controller: controller)
-                          : Card(
-                              elevation: 0,
-                              margin: const EdgeInsets.all(0),
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.zero),
-                              clipBehavior: Clip.antiAlias,
-                              color: Get.theme.focusColor,
-                              child: Obx(() => controller.isLoadingVideo.value
-                                  ? const Center(
-                                      child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                    ))
-                                  : controller.loadTimeOut.value
-                                      ? const Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(Icons.live_tv_rounded,
-                                                  size: 48),
-                                              Text(
-                                                "无法获取播放信息",
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18),
-                                              ),
-                                              Text(
-                                                "当前房间未开播或无法观看",
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18),
-                                              ),
-                                              Text(
-                                                "请按确定按钮刷新重试",
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : TimeOutVideoWidget(
-                                          controller: controller,
-                                        )),
-                            ),
-        ),
+            controller.success.value
+                ? VideoPlayer(controller: controller.videoController!)
+                : controller.hasError.value &&
+                        controller.isActive.value == false
+                    ? ErrorVideoWidget(controller: controller)
+                    : !controller.getVideoSuccess.value
+                        ? ErrorVideoWidget(controller: controller)
+                        : Card(
+                            elevation: 0,
+                            margin: const EdgeInsets.all(0),
+                            shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero),
+                            clipBehavior: Clip.antiAlias,
+                            color: Get.theme.focusColor,
+                            child: Obx(() => controller.isLoadingVideo.value
+                                ? const Center(
+                                    child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ))
+                                : controller.loadTimeOut.value
+                                    ? const Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.live_tv_rounded,
+                                                size: 48),
+                                            Text(
+                                              "无法获取播放信息",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18),
+                                            ),
+                                            Text(
+                                              "当前房间未开播或无法观看",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18),
+                                            ),
+                                            Text(
+                                              "请按确定按钮刷新重试",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : TimeOutVideoWidget(
+                                        controller: controller,
+                                      )),
+                          ),
       ),
     );
   }

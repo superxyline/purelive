@@ -150,7 +150,7 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   }
 
   /// 视频宽和高比
-  double? aspectRatio = null;
+  double? aspectRatio;
 
   void initChewieController() {
     try {

@@ -46,7 +46,8 @@ class DanmakuListViewState extends State<DanmakuListView>
 
   Future<void> _scrollToBottom() async {
     if (_scrollHappen) return;
-    if (_scrollController.hasClients) {
+    /// 没有全屏时，才滚动
+    if (_scrollController.hasClients && !controller.isFullscreen.value) {
       await _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 1000),

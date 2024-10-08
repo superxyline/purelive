@@ -65,7 +65,7 @@ class CoreLog {
     onPrintLog?.call(Level.error, e.toString());
     logger.e(
       "${DateTime.now().toString()} - ${getFunctionName()}\n${e.toString()}",
-      error: e,
+      error: e?.toString(),
       stackTrace: (e is Error) ? e.stackTrace : StackTrace.current,
     );
   }

@@ -164,6 +164,7 @@ class LivePlayController extends StateController {
     } else {
       ratio = const Rational.landscape();
     }
+    CoreLog.d("$ratio");
     await pip.enable(ImmediatePiP());
 
     _pipSubscription ??= pip.pipStatusStream.listen((event) {
