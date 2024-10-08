@@ -277,17 +277,17 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     chewieController.value.togglePause();
   }
 
-  @override
-  Future<void> setLandscapeOrientation() async {
-    super.setLandscapeOrientation();
-    // chewieController.value.resolveByClick();
-  }
+  // @override
+  // Future<void> setLandscapeOrientation() async {
+  //   super.setLandscapeOrientation();
+  //   // chewieController.value.resolveByClick();
+  // }
 
-  @override
-  Future<void> setPortraitOrientation() async {
-    super.setPortraitOrientation();
-    // chewieController.value.backToProtVideo();
-  }
+  // @override
+  // Future<void> setPortraitOrientation() async {
+  //   super.setPortraitOrientation();
+  //   // chewieController.value.backToProtVideo();
+  // }
 
   @override
   void disableRotation() {

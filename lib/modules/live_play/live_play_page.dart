@@ -89,14 +89,14 @@ class LivePlayPage extends GetView<LivePlayController> {
       if (controller.isFullscreen.value == true) {
         return PopScope(
           canPop: false,
-          onPopInvoked: (e) {
+          onPopInvokedWithResult: (didPop, result) {
             controller.videoController?.exitFull();
           },
           child: Scaffold(
             body: buildVideoPlayer(),
           ),
         );
-      };
+      }
       return BackButtonListener(
         onBackButtonPressed: onWillPop,
         child: Scaffold(
