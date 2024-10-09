@@ -15,6 +15,7 @@ import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
+import 'package:pure_live/modules/util/listen_list_util.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -109,13 +110,19 @@ class LivePlayController extends StateController {
 
   /// 是否 关注
   var isFavorite = false.obs;
+
   /// 在线人数
   var online = "".obs;
+
   /// 是否全屏
   final isFullscreen = false.obs;
+
   /// PIP画中画
   final pip = Floating();
   StreamSubscription? _pipSubscription;
+
+  /// StreamSubscription
+  final List<StreamSubscription?> subscriptionList = [];
 
   /// 释放一些系统状态
   Future resetSystem() async {
@@ -167,13 +174,13 @@ class LivePlayController extends StateController {
     CoreLog.d("$ratio");
     await pip.enable(ImmediatePiP());
 
-    _pipSubscription ??= pip.pipStatusStream.listen((event) {
+    subscriptionList.add(pip.pipStatusStream.listen((event) {
       if (event == PiPStatus.disabled) {
         // danmakuController?.clear();
         // showDanmakuState.value = danmakuStateBeforePIP;
       }
       CoreLog.w(event.toString());
-    });
+    }));
   }
 
   Future<bool> onBackPressed() async {
@@ -209,7 +216,7 @@ class LivePlayController extends StateController {
     currentPlayRoom.value = room;
     online.value = room.watching ?? "0";
     onInitPlayerState(firstLoad: true);
-    isFirstLoad.listen((p0) {
+    subscriptionList.add(isFirstLoad.listen((p0) {
       if (isFirstLoad.value) {
         loadTimeOut.value = true;
         Timer(const Duration(seconds: 8), () {
@@ -228,9 +235,9 @@ class LivePlayController extends StateController {
           });
         });
       }
-    });
+    }));
 
-    isLastLine.listen((p0) {
+    subscriptionList.add(isLastLine.listen((p0) {
       if (isLastLine.value && hasError.value && isActive.value == false) {
         // 刷新到了最后一路线 并且有错误
         SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...",
@@ -246,14 +253,14 @@ class LivePlayController extends StateController {
           loadRefreshRoomTimer?.cancel();
         }
       }
-    });
+    }));
 
-    getVideoSuccess.listen((p0) {
+    subscriptionList.add(getVideoSuccess.listen((p0) {
       isLoadingVideo.value = true;
-      if(p0) {
+      if (p0) {
         isLoadingVideo.value = false;
       }
-    });
+    }));
   }
 
   void resetRoom(Site site, String roomId) async {
@@ -323,7 +330,8 @@ class LivePlayController extends StateController {
       }
 
       // 开始播放
-      liveStatus.value = detail.value!.liveStatus != LiveStatus.unknown && detail.value!.liveStatus != LiveStatus.offline;
+      liveStatus.value = detail.value!.liveStatus != LiveStatus.unknown &&
+          detail.value!.liveStatus != LiveStatus.offline;
       if (liveStatus.value) {
         await getPlayQualites();
         getVideoSuccess.value = true;
@@ -335,10 +343,10 @@ class LivePlayController extends StateController {
         // start danmaku server
         List<String> except = ['iptv'];
         // 重新刷新才重新加载弹幕
-        if ( firstLoad
-            && except.indexWhere((element) => element == liveRoom.platform! ) == -1
-            && liveRoom.danmakuData != null
-        ) {
+        if (firstLoad &&
+            except.indexWhere((element) => element == liveRoom.platform!) ==
+                -1 &&
+            liveRoom.danmakuData != null) {
           initDanmau();
           liveDanmaku.start(liveRoom.danmakuData);
         }
@@ -378,6 +386,8 @@ class LivePlayController extends StateController {
   }
 
   disPoserPlayer() {
+    ListenListUtil.clearStreamSubscriptionList(
+        subscriptionList.where((e) => e != null).map((e) => e!).toList());
     videoController?.dispose();
     videoController = null;
     liveDanmaku.stop();
@@ -447,7 +457,7 @@ class LivePlayController extends StateController {
         var onlineNum = msg.data as int;
         var numStr = onlineNum.toString();
         // CoreLog.d(online.toString());
-        if(online.value != numStr) {
+        if (online.value != numStr) {
           online.value = onlineNum.toString();
           // detail.value?.watching = online.toString();
           // currentPlayRoom.value.watching = online.toString();
@@ -563,20 +573,20 @@ class LivePlayController extends StateController {
     setPlayer();
   }
 
-  Map<String, String> getUrlHeaders(){
+  Map<String, String> getUrlHeaders() {
     Map<String, String> headers = {};
     if (currentSite.id == Sites.bilibiliSite) {
       headers = {
         "cookie": settings.bilibiliCookie.value,
         "authority": "api.bilibili.com",
         "accept":
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "accept-language": "zh-CN,zh;q=0.9",
         "cache-control": "no-cache",
         "dnt": "1",
         "pragma": "no-cache",
         "sec-ch-ua":
-        '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+            '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
         "sec-ch-ua-mobile": "?0",
         "sec-ch-ua-platform": '"macOS"',
         "sec-fetch-dest": "document",
@@ -585,14 +595,14 @@ class LivePlayController extends StateController {
         "sec-fetch-user": "?1",
         "upgrade-insecure-requests": "1",
         "user-agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
         "referer": "https://live.bilibili.com"
       };
     } else if (currentSite.id == Sites.huyaSite) {
       headers = {
         "Referer": "https://www.huya.com",
         "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
       };
     }
     return headers;
@@ -602,7 +612,7 @@ class LivePlayController extends StateController {
     var headers = getUrlHeaders();
     try {
       // await videoController?.pause();
-    } catch (e){
+    } catch (e) {
       // [Player] has been disposed
       videoController?.dispose();
       videoController?.hasDestory = true;
@@ -612,7 +622,7 @@ class LivePlayController extends StateController {
     // log("playUrls ${playUrls.value}", name: runtimeType.toString());
     // log("currentLineIndex : $currentLineIndex", name: runtimeType.toString());
     // log("current play url : ${playUrls.value[currentLineIndex.value]}", name: runtimeType.toString());
-    if(videoController == null || videoController!.hasDestory){
+    if (videoController == null || videoController!.hasDestory) {
       videoController = VideoController(
         playerKey: playerKey,
         room: detail.value!,
@@ -627,15 +637,17 @@ class LivePlayController extends StateController {
         currentLineIndex: currentLineIndex.value,
         currentQuality: currentQuality.value,
       );
-      videoController?.videoPlayer.isFullscreen.listen((e) {
+      subscriptionList
+          .add(videoController?.videoPlayer.isFullscreen.listen((e) {
         isFullscreen.updateValueNotEquate(e);
-      });
+      }));
     } else {
       videoController?.datasource = playUrls.value[currentLineIndex.value];
       videoController?.qualiteName = qualites[currentQuality.value].quality;
       videoController?.currentLineIndex = currentLineIndex.value;
       videoController?.currentQuality = currentQuality.value;
-      videoController?.setDataSource(playUrls.value[currentLineIndex.value], headers);
+      videoController?.setDataSource(
+          playUrls.value[currentLineIndex.value], headers);
       // videoController?.initVideoController();
       // videoController?.play();
     }
@@ -644,7 +656,8 @@ class LivePlayController extends StateController {
     videoController?.qualiteName = qualites[currentQuality.value].quality;
     videoController?.currentLineIndex = currentLineIndex.value;
     videoController?.currentQuality = currentQuality.value;
-    videoController?.setDataSource(playUrls.value[currentLineIndex.value], headers);
+    videoController?.setDataSource(
+        playUrls.value[currentLineIndex.value], headers);
 
     success.value = true;
 
@@ -653,7 +666,7 @@ class LivePlayController extends StateController {
       if (videoController != null && videoController!.hasDestory == false) {
         final connectivityResults = await Connectivity().checkConnectivity();
         if (!connectivityResults.contains(ConnectivityResult.none)) {
-          if ( videoController?.isActivePause.value != true &&
+          if (videoController?.isActivePause.value != true &&
               videoController?.videoPlayer.isPlaying.value != true) {
             CoreLog.d("videoController refresh");
             videoController!.refresh();
