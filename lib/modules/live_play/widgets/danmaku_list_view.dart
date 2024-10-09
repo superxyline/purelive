@@ -53,7 +53,7 @@ class DanmakuListViewState extends State<DanmakuListView>
         duration: const Duration(milliseconds: 1000),
         curve: Curves.linearToEaseOut,
       );
-      setState(() {});
+      // setState(() {});
     }
   }
 
@@ -151,5 +151,5 @@ class DanmakuListViewState extends State<DanmakuListView>
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }
