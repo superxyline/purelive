@@ -544,7 +544,16 @@ class VideoController with ChangeNotifier {
   }
 
   void enterPipMode(BuildContext context) async {
-    videoPlayer.enterPipMode(context);
+    // videoPlayer.enterPipMode(context);
+    try {
+      LivePlayController? livePlayController =
+      Get.findOrNull<LivePlayController?>();
+      if (livePlayController != null) {
+        livePlayController.enablePIP();
+      }
+    } catch (e) {
+      CoreLog.error(e);
+    }
   }
 
   /////////// 音量 & 亮度
