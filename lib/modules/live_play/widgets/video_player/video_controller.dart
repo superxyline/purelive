@@ -33,10 +33,14 @@ class VideoController with ChangeNotifier {
   final Map<String, String> headers;
 
   /// 是否为竖屏直播间
-  final isVertical = false.obs;
   final videoFitIndex = 0.obs;
   final videoFit = BoxFit.contain.obs;
   final mediaPlayerControllerInitialized = false.obs;
+
+  /// 是否为竖屏直播间
+  RxBool get isVertical {
+    return videoPlayer.isVertical;
+  }
 
   ScreenBrightness brightnessController = ScreenBrightness();
 
