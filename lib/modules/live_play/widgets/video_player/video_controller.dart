@@ -353,7 +353,7 @@ class VideoController with ChangeNotifier {
     videoPlayer.hasError.value = false;
     try {
       LivePlayController? livePlayController =
-          Get.findOrNull<LivePlayController>();
+          Get.findOrNull<LivePlayController?>();
       if (livePlayController != null) {
         livePlayController.success.value = false;
       }
