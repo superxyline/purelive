@@ -127,7 +127,7 @@ class LivePlayController extends StateController {
   /// 释放一些系统状态
   Future resetSystem() async {
     _pipSubscription?.cancel();
-    // pip.dispose();
+    pip.dispose();
     await SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: SystemUiOverlay.values,
@@ -172,9 +172,9 @@ class LivePlayController extends StateController {
       ratio = const Rational.landscape();
     }
     CoreLog.d("$ratio");
-    await pip.enable(ImmediatePiP());
+    await pip.enable(aspectRatio: ratio);
 
-    subscriptionList.add(pip.pipStatusStream.listen((event) {
+    subscriptionList.add(pip.pipStatus$.listen((event) {
       if (event == PiPStatus.disabled) {
         // danmakuController?.clear();
         // showDanmakuState.value = danmakuStateBeforePIP;
