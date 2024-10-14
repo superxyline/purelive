@@ -1,3 +1,3 @@
-library style;
+library;
 
 export './theme.dart';

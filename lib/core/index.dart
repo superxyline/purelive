@@ -1,3 +1,3 @@
-library api;
+library;
 
 export 'sites.dart';

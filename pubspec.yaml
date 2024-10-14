@@ -59,9 +59,9 @@ dependencies:
   email_validator: ^3.0.0
   font_awesome_flutter: ^10.6.0
   # video player mobile
-  media_kit: ^1.1.10+1                           # Primary package.
-  media_kit_video: ^1.2.4                        # For video rendering.
-  media_kit_libs_video: ^1.0.4                   # Native video dependencies.
+  media_kit: ^1.1.1                        # Primary package.
+  media_kit_video: ^1.2.5                        # For video rendering.
+  media_kit_libs_video: ^1.0.5                   # Native video dependencies.
   gsy_video_player: 
     path: E:/project/gsy_video_player
   share_handler: ^0.0.19
@@ -121,7 +121,7 @@ dependencies:
   dia_body: ^0.1.3
   dia_router: ^0.1.7
   dia_cors: ^0.1.2
-  mobile_scanner: ^5.1.1 #二维码扫描
+  mobile_scanner: ^6.0.1 #二维码扫描
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -129,7 +129,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
   build_runner: ^2.3.3
   protoc_builder: ^0.4.1
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.1
   msix: ^3.16.7
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -137,7 +137,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # flutter pub run flutter_launcher_icons
 flutter_icons:
