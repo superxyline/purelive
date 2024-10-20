@@ -31,6 +31,9 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
   final SettingsService settings = Get.find<SettingsService>();
 
+  /// 存储 视频控制器，用于没有释放的视频流
+  static final controllerList = <VideoPlayerController>[];
+
   @override
   late final String playerName;
 
@@ -87,7 +90,7 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   }
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     ListenListUtil.clearStreamSubscriptionList(
         defaultVideoStreamSubscriptionList);
     disposeVideoPlayerListener();
@@ -95,6 +98,13 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     chewieController.value.addListener(chewieControllerListener);
     videoPlayerController.value.dispose();
     chewieController.value.dispose();
+    for(var controller in controllerList) {
+      try{
+        await controller.dispose();
+      }catch(e){
+        //
+      }
+    }
     super.dispose();
   }
 
@@ -131,10 +141,13 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
       CoreLog.error(e);
     }
     // videoPlayerController.value.remove
-    videoPlayerController.value = VideoPlayerController.networkUrl(
+    var videoPlayerController2 = VideoPlayerController.networkUrl(
       Uri.parse(datasource),
       videoPlayerOptions: options,
     );
+    videoPlayerController.value = videoPlayerController2;
+
+    controllerList.add(videoPlayerController2);
 
     videoPlayerController.value.addListener(listenerVideo);
     // await videoPlayerController.value.initialize();
