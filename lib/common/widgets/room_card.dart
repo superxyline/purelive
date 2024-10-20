@@ -90,7 +90,8 @@ class RoomCard extends StatelessWidget {
                   top: dense ? 5 : 7,
                   child: SiteWidget.getSiteLogeImage(room.platform!)!,
                   ),
-                if (room.isRecord == false && room.liveStatus == LiveStatus.live)
+                // 人气值
+                if (room.liveStatus == LiveStatus.live || room.liveStatus == LiveStatus.replay)
                   Positioned(
                     right: dense ? 0 : 2,
                     bottom: dense ? 0 : 2,
