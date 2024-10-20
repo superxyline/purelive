@@ -8,7 +8,6 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer-aliplay:v9.0.0-release-jitpack"
 
     }
 }
