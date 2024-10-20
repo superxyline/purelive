@@ -63,7 +63,7 @@ dependencies:
   media_kit_video: ^1.2.5                        # For video rendering.
   media_kit_libs_video: ^1.0.5                   # Native video dependencies.
   gsy_video_player: 
-    git: https://github.com/liuchuancong/gsy_video_player.git
+    git: https://github.com/HDYOU/gsy_video_player.git
   fvp: ^0.26.1                              # FVP 视频播放器
   video_player: ^2.9.2                      #  视频播放器
   chewie: ^1.8.5                      #  视频播放器
