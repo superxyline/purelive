@@ -19,6 +19,7 @@ class HomeMobileViewV2 extends GetView<HomeController> {
         // labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         // labelPadding: const EdgeInsets.symmetric(horizontal: 12),
         indicatorSize: TabBarIndicatorSize.tab,
+        indicator: const BoxDecoration(),
         tabs: [
           Tab(
             icon: const Icon(Icons.favorite_rounded),
