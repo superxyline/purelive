@@ -15,7 +15,7 @@ import 'package:video_player/video_player.dart';
 import 'video_play_impl.dart';
 
 /// FVP 播放器
-class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
+class FvpVideoPlay extends VideoPlayerInterFace {
   // Video player control
   late Rx<VideoPlayerController> videoPlayerController =
       VideoPlayerController.networkUrl(Uri.parse("")).obs;
@@ -98,14 +98,15 @@ class FvpVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     chewieController.value.addListener(chewieControllerListener);
     videoPlayerController.value.dispose();
     chewieController.value.dispose();
-    for(var controller in controllerList) {
-      try{
+    for (var i = 0; i < controllerList.length; i++) {
+      var controller = controllerList[i];
+      try {
         await controller.dispose();
-      }catch(e){
+      } catch (e) {
         //
       }
     }
-    super.dispose();
+    // super.dispose();
   }
 
   @override
