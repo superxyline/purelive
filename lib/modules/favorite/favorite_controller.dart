@@ -60,7 +60,6 @@ class FavoriteController extends GetxController
     // 更新直播间信息
     await onRefresh();
 
-
     // 定时自动刷新
     if (settings.autoRefreshTime.value != 0) {
       Timer.periodic(
@@ -70,8 +69,6 @@ class FavoriteController extends GetxController
     }
 
     CoreLog.d("onInit");
-
-
   }
 
   final onlineRooms = <LiveRoom>[].obs;
@@ -106,7 +103,14 @@ class FavoriteController extends GetxController
     //     (a, b) => int.parse(b.watching!).compareTo(int.parse(a.watching!)));
   }
 
+  /// 是否在更新
+  var isUpdating = false;
+
   Future<bool> onRefresh() async {
+    if (isUpdating) {
+      return false;
+    }
+    isUpdating = true;
     // 自动刷新时间为0关闭。不是手动刷新并且不是第一次刷新
     if (isFirstLoad) {
       await const Duration(seconds: 1).delay();
@@ -127,6 +131,7 @@ class FavoriteController extends GetxController
     hasError = await UpdateRoomUtil.updateRoomList(currentRooms, settings);
     syncRooms();
     isFirstLoad = false;
+    isUpdating = false;
     return hasError;
   }
 
