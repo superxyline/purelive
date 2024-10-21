@@ -275,14 +275,16 @@ class Utils {
     required String title,
     required Widget child,
     double bottomMaxWidth = 600,
-    double rightMaxWidth = 320,
+    double? rightMaxWidth,
   }) async {
     var size2 = MediaQuery.of(Get.context!).size;
     var width = size2.width;
     var height = size2.height;
     if (width <= height) {
-      return showBottomSheet(title: title, child: child, maxWidth: bottomMaxWidth);
+      return showBottomSheet(
+          title: title, child: child, maxWidth: bottomMaxWidth);
     }
+    rightMaxWidth ??= width / 2;
     return showRightSheet(title: title, child: child, maxWidth: rightMaxWidth);
   }
 
