@@ -331,55 +331,7 @@ class TopActionBar extends StatelessWidget {
   }
 }
 
-/// 历史记录信息
-void showFavorite(VideoController controller) {
-  // if (controller.isVertical.value) {
-  //   // controller.showFollowUserSheet();
-  //   return;
-  // }
-
-  final FavoriteController favoriteController = Get.find<FavoriteController>();
-  const dense = true;
-  final rooms = favoriteController.onlineRooms;
-  Utils.showRightDialog(
-    title: S.of(Get.context!).favorites_title,
-    width: 400,
-    useSystem: true,
-    child: () {
-      return LayoutBuilder(builder: (context, constraint) {
-        final width = constraint.maxWidth;
-        int crossAxisCount =
-            width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-        if (dense) {
-          crossAxisCount =
-              width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-        }
-        return EasyRefresh(
-          child: rooms.isEmpty
-              ? EmptyView(
-                  icon: Icons.history_rounded,
-                  title: S.of(context).empty_history,
-                  subtitle: '',
-                )
-              : MasonryGridView.count(
-                  padding: const EdgeInsets.all(5),
-                  controller: ScrollController(),
-                  crossAxisCount: crossAxisCount,
-                  itemCount: rooms.length,
-                  itemBuilder: (context, index) => RoomCard(
-                    room: rooms[index],
-                    dense: dense,
-                    onTap: () {
-                      resetRoomInDialog(rooms[index]);
-                    },
-                  ),
-                ),
-        );
-      });
-    }(),
-  );
-}
-
+/// 重置直播间
 void resetRoomInDialog(LiveRoom item, {isBottomSheet = false}) {
   if (isBottomSheet) {
     var curContext = Get.context!;
@@ -405,60 +357,10 @@ void resetRoomInDialog(LiveRoom item, {isBottomSheet = false}) {
   );
 }
 
-/// 历史记录信息
-void showHistory(VideoController controller) {
-  if (controller.isVertical.value) {
-    // controller.showFollowUserSheet();
-    return;
-  }
-
-  final SettingsService settings = Get.find<SettingsService>();
-  const dense = true;
-  final rooms = settings.historyRooms;
-  Utils.showRightDialog(
-    title: S.of(Get.context!).history,
-    width: 400,
-    useSystem: true,
-    child: () {
-      return LayoutBuilder(builder: (context, constraint) {
-        final width = constraint.maxWidth;
-        int crossAxisCount =
-            width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-        if (dense) {
-          crossAxisCount =
-              width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-        }
-        return EasyRefresh(
-          child: rooms.isEmpty
-              ? EmptyView(
-                  icon: Icons.history_rounded,
-                  title: S.of(context).empty_history,
-                  subtitle: '',
-                )
-              : MasonryGridView.count(
-                  padding: const EdgeInsets.all(5),
-                  controller: ScrollController(),
-                  crossAxisCount: crossAxisCount,
-                  itemCount: rooms.length,
-                  itemBuilder: (context, index) => RoomCard(
-                    room: rooms[rooms.length - 1 - index],
-                    dense: dense,
-                    onTap: () {
-                      resetRoomInDialog(rooms[rooms.length - 1 - index]);
-                    },
-                  ),
-                ),
-        );
-      });
-    }(),
-  );
-}
-
 /// 显示列表
 void showDialogList(VideoController controller, RxList<LiveRoom> rooms,
     {var isReverse = false, String title = ""}) {
   var livePlayController = Get.find<LivePlayController>();
-  const dense = true;
   if (controller.isVertical.value || !livePlayController.isFullscreen.value) {
     // controller.showFollowUserSheet();
     Utils.showBottomSheet(
@@ -469,7 +371,7 @@ void showDialogList(VideoController controller, RxList<LiveRoom> rooms,
   }
 
   Utils.showRightDialog(
-    title: S.of(Get.context!).history,
+    title: title,
     width: 400,
     useSystem: true,
     child: showDialogListBody(rooms, isReverse: isReverse),
