@@ -381,7 +381,7 @@ void resetRoomInDialog(LiveRoom item){
 
   var controller = Get.find<LivePlayController>();
   var currentPlayRoom = controller.currentPlayRoom;
-  if(item.platform == currentPlayRoom.value.platform || item.roomId == currentPlayRoom.value.roomId) {
+  if(item.platform == currentPlayRoom.value.platform && item.roomId == currentPlayRoom.value.roomId) {
     return;
   }
   controller.videoController?.exitFull();

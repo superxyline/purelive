@@ -241,7 +241,7 @@ class LivePlayController extends StateController {
       if (isLastLine.value && hasError.value && isActive.value == false) {
         // 刷新到了最后一路线 并且有错误
         SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...",
-            displayTime: const Duration(seconds: 2));
+            displayTime: const Duration(seconds: 1));
         isLastLine.value = false;
         isFirstLoad.value = true;
         restoryQualityAndLines();
@@ -264,9 +264,9 @@ class LivePlayController extends StateController {
   }
 
   void resetRoom(Site site, String roomId) async {
-    if (currentPlayRoom.value.platform == site.id && currentPlayRoom.value.roomId == roomId) {
-      return;
-    }
+    // if (currentPlayRoom.value.platform == site.id && currentPlayRoom.value.roomId == roomId) {
+    //   return;
+    // }
     currentSite = site;
 
     var liveRoom = currentPlayRoom.value;
