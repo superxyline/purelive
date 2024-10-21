@@ -139,14 +139,14 @@ jobs:
           java-version: 17
           cache: "gradle"
 
-      - name: Setup NDK
-        if: startsWith(matrix.platform,'android')
-        uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r26b
-          add-to-path: true
-          link-to-sdk: true
+#      - name: Setup NDK
+#        if: startsWith(matrix.platform,'android')
+#        uses: nttld/setup-ndk@v1
+#        id: setup-ndk
+#        with:
+#          ndk-version: r26b
+#          add-to-path: true
+#          link-to-sdk: true
 
       - name: Download Android keystore
         id: android_keystore
