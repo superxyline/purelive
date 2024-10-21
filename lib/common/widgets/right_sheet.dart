@@ -9,6 +9,15 @@ Future<T?> showModalRightSheet<T>({
   bool clickEmptyPop = false,
   RouteSettings? routeSettings,
   bool useRootNavigator = false,
+  bool enableDrag = false,
+  double elevation = 0.0,
+  Color? dragHandleColor,
+  Size? dragHandleSize,
+  Color? backgroundColor,
+  Color? shadowColor,
+  ShapeBorder? shape,
+  Clip? clipBehavior,
+  BoxConstraints? constraints,
 }) {
   assert(debugCheckHasMediaQuery(context));
   assert(debugCheckHasMaterialLocalizations(context));
@@ -22,6 +31,14 @@ Future<T?> showModalRightSheet<T>({
     theme: Theme.of(context),
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     settings: routeSettings,
+    enableDrag: enableDrag,
+    elevation: elevation,
+    dragHandleColor: dragHandleColor,
+    dragHandleSize: dragHandleSize,
+    backgroundColor: backgroundColor,
+    shape: shape,
+    clipBehavior: clipBehavior,
+    constraints: constraints,
   ));
 }
 
@@ -36,11 +53,29 @@ class _ModalRightSheetRoute<T> extends PopupRoute<T> {
     required this.barrierLabel,
     required this.clickEmptyPop,
     required super.settings,
+    required this.enableDrag,
+    required this.elevation,
+    this.dragHandleColor,
+    this.dragHandleSize,
+    this.backgroundColor,
+    this.shadowColor,
+    this.shape,
+    this.clipBehavior,
+    this.constraints,
   });
 
   final WidgetBuilder builder;
   final ThemeData theme;
   final bool clickEmptyPop;
+  final bool enableDrag;
+  final double elevation;
+  final Color? dragHandleColor;
+  final Size? dragHandleSize;
+  final Color? backgroundColor;
+  final Color? shadowColor;
+  final ShapeBorder? shape;
+  final Clip? clipBehavior;
+  final BoxConstraints? constraints;
 
   @override
   Duration get transitionDuration => _kRightSheetDuration;
@@ -72,7 +107,17 @@ class _ModalRightSheetRoute<T> extends PopupRoute<T> {
       context: context,
       removeTop: false,
       child: _ModalRightSheet<T>(
-          route: this, clickEmptyPop: this.clickEmptyPop),
+        route: this,
+        clickEmptyPop: this.clickEmptyPop,
+        enableDrag: enableDrag,
+        elevation: elevation,
+        dragHandleColor: dragHandleColor,
+        dragHandleSize: dragHandleSize,
+        backgroundColor: backgroundColor,
+        shape: shape,
+        clipBehavior: clipBehavior,
+        constraints: constraints,
+      ),
     );
     rightSheet = Theme(data: theme, child: rightSheet);
     return rightSheet;
@@ -81,10 +126,31 @@ class _ModalRightSheetRoute<T> extends PopupRoute<T> {
 
 class _ModalRightSheet<T> extends StatefulWidget {
   const _ModalRightSheet(
-      {super.key, required this.route, this.clickEmptyPop = true});
+      {super.key,
+      required this.route,
+      this.clickEmptyPop = true,
+      required this.enableDrag,
+      required this.elevation,
+      this.dragHandleColor,
+      this.dragHandleSize,
+      this.backgroundColor,
+      this.shadowColor,
+      this.shape,
+      this.clipBehavior,
+      this.constraints});
 
   final _ModalRightSheetRoute<T> route;
   final bool clickEmptyPop;
+
+  final bool enableDrag;
+  final double elevation;
+  final Color? dragHandleColor;
+  final Size? dragHandleSize;
+  final Color? backgroundColor;
+  final Color? shadowColor;
+  final ShapeBorder? shape;
+  final Clip? clipBehavior;
+  final BoxConstraints? constraints;
 
   @override
   _ModalRightSheetState<T> createState() => _ModalRightSheetState<T>();
@@ -99,13 +165,18 @@ class _ModalRightSheetState<T> extends State<_ModalRightSheet<T>> {
     String? routeLabel;
     switch (defaultTargetPlatform) {
       case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
         routeLabel = '';
         break;
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
         routeLabel = localizations.dialogLabel;
         break;
       default:
+        routeLabel = '';
+        break;
     }
 
     return GestureDetector(
@@ -131,6 +202,12 @@ class _ModalRightSheetState<T> extends State<_ModalRightSheet<T>> {
                       animationController: widget.route._animationController,
                       onClosing: () => Navigator.pop(context),
                       builder: widget.route.builder,
+                      enableDrag: widget.enableDrag,
+                      backgroundColor: widget.backgroundColor,
+                      elevation: widget.elevation,
+                      shape: widget.shape,
+                      clipBehavior: widget.clipBehavior,
+                      constraints: widget.constraints,
                     ),
                   ),
                 ),
@@ -170,13 +247,24 @@ class RightSheet extends StatefulWidget {
   /// Typically, right sheets are created implicitly by
   /// [ScaffoldState.showRightSheet], for persistent right sheets, or by
   /// [showModalRightSheet], for modal right sheets.
-  const RightSheet(
-      {super.key,
-      this.animationController,
-      this.enableDrag = true,
-      this.elevation = 8.0,
-      required this.onClosing,
-      required this.builder});
+  const RightSheet({
+    super.key,
+    this.animationController,
+    this.enableDrag = true,
+    this.showDragHandle,
+    this.dragHandleColor,
+    this.dragHandleSize,
+    this.onDragStart,
+    this.onDragEnd,
+    this.backgroundColor,
+    this.shadowColor,
+    this.elevation = 0.0,
+    this.shape,
+    this.clipBehavior,
+    this.constraints,
+    required this.onClosing,
+    required this.builder,
+  });
 
   /// The animation that controls the right sheet's position.
   ///
@@ -207,6 +295,101 @@ class RightSheet extends StatefulWidget {
   ///
   /// Defaults to 0.
   final double elevation;
+
+  /// Specifies whether a drag handle is shown.
+  ///
+  /// The drag handle appears at the top of the bottom sheet. The default color is
+  /// [ColorScheme.onSurfaceVariant] with an opacity of 0.4 and can be customized
+  /// using [dragHandleColor]. The default size is `Size(32,4)` and can be customized
+  /// with [dragHandleSize].
+  ///
+  /// If null, then the value of [BottomSheetThemeData.showDragHandle] is used. If
+  /// that is also null, defaults to false.
+  ///
+  /// If this is true, the [animationController] must not be null.
+  /// Use [BottomSheet.createAnimationController] to create one, or provide
+  /// another AnimationController.
+  final bool? showDragHandle;
+
+  /// The bottom sheet drag handle's color.
+  ///
+  /// Defaults to [BottomSheetThemeData.dragHandleColor].
+  /// If that is also null, defaults to [ColorScheme.onSurfaceVariant].
+  final Color? dragHandleColor;
+
+  /// Defaults to [BottomSheetThemeData.dragHandleSize].
+  /// If that is also null, defaults to Size(32, 4).
+  final Size? dragHandleSize;
+
+  /// Called when the user begins dragging the bottom sheet vertically, if
+  /// [enableDrag] is true.
+  ///
+  /// Would typically be used to change the bottom sheet animation curve so
+  /// that it tracks the user's finger accurately.
+  final BottomSheetDragStartHandler? onDragStart;
+
+  /// Called when the user stops dragging the bottom sheet, if [enableDrag]
+  /// is true.
+  ///
+  /// Would typically be used to reset the bottom sheet animation curve, so
+  /// that it animates non-linearly. Called before [onClosing] if the bottom
+  /// sheet is closing.
+  final BottomSheetDragEndHandler? onDragEnd;
+
+  /// The bottom sheet's background color.
+  ///
+  /// Defines the bottom sheet's [Material.color].
+  ///
+  /// Defaults to null and falls back to [Material]'s default.
+  final Color? backgroundColor;
+
+  /// The color of the shadow below the sheet.
+  ///
+  /// If this property is null, then [BottomSheetThemeData.shadowColor] of
+  /// [ThemeData.bottomSheetTheme] is used. If that is also null, the default value
+  /// is transparent.
+  ///
+  /// See also:
+  ///
+  ///  * [elevation], which defines the size of the shadow below the sheet.
+  ///  * [shape], which defines the shape of the sheet and its shadow.
+  final Color? shadowColor;
+
+  /// The shape of the bottom sheet.
+  ///
+  /// Defines the bottom sheet's [Material.shape].
+  ///
+  /// Defaults to null and falls back to [Material]'s default.
+  final ShapeBorder? shape;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defines the bottom sheet's [Material.clipBehavior].
+  ///
+  /// Use this property to enable clipping of content when the bottom sheet has
+  /// a custom [shape] and the content can extend past this shape. For example,
+  /// a bottom sheet with rounded corners and an edge-to-edge [Image] at the
+  /// top.
+  ///
+  /// If this property is null then [BottomSheetThemeData.clipBehavior] of
+  /// [ThemeData.bottomSheetTheme] is used. If that's null then the behavior
+  /// will be [Clip.none].
+  final Clip? clipBehavior;
+
+  /// Defines minimum and maximum sizes for a [BottomSheet].
+  ///
+  /// If null, then the ambient [ThemeData.bottomSheetTheme]'s
+  /// [BottomSheetThemeData.constraints] will be used. If that
+  /// is null and [ThemeData.useMaterial3] is true, then the bottom sheet
+  /// will have a max width of 640dp. If [ThemeData.useMaterial3] is false, then
+  /// the bottom sheet's size will be constrained by its parent
+  /// (usually a [Scaffold]). In this case, consider limiting the width by
+  /// setting smaller constraints for large screens.
+  ///
+  /// If constraints are specified (either in this property or in the
+  /// theme), the bottom sheet will be aligned to the bottom-center of
+  /// the available space. Otherwise, no alignment is applied.
+  final BoxConstraints? constraints;
 
   @override
   RightSheetState createState() => RightSheetState();
@@ -259,14 +442,55 @@ class RightSheetState extends State<RightSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget sheet = Material(
+    final BottomSheetThemeData bottomSheetTheme =
+        Theme.of(context).bottomSheetTheme;
+    final bool useMaterial3 = Theme.of(context).useMaterial3;
+    final BottomSheetThemeData defaults = const BottomSheetThemeData();
+    final BoxConstraints? constraints = widget.constraints ??
+        bottomSheetTheme.constraints ??
+        defaults.constraints;
+    final Color? color = widget.backgroundColor ??
+        bottomSheetTheme.backgroundColor ??
+        defaults.backgroundColor;
+    final Color? surfaceTintColor =
+        bottomSheetTheme.surfaceTintColor ?? defaults.surfaceTintColor;
+    final Color? shadowColor = widget.shadowColor ??
+        bottomSheetTheme.shadowColor ??
+        defaults.shadowColor;
+    final double elevation = widget.elevation ??
+        bottomSheetTheme.elevation ??
+        defaults.elevation ??
+        0;
+    final ShapeBorder? shape =
+        widget.shape ?? bottomSheetTheme.shape ?? defaults.shape;
+    final Clip clipBehavior =
+        widget.clipBehavior ?? bottomSheetTheme.clipBehavior ?? Clip.none;
+    final bool showDragHandle = widget.showDragHandle ??
+        (widget.enableDrag && (bottomSheetTheme.showDragHandle ?? false));
+
+     Widget sheet = Material(
       key: _childKey,
       elevation: widget.elevation,
+      shape: shape,
+      clipBehavior: clipBehavior,
+      color: color,
       child: Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: widget.builder(context),
       ),
     );
+
+    if (constraints != null) {
+      sheet = Align(
+        alignment: Alignment.topRight,
+        heightFactor: 1.0,
+        child: ConstrainedBox(
+          constraints: constraints,
+          child: sheet,
+        ),
+      );
+    }
+
     return !widget.enableDrag
         ? sheet
         : GestureDetector(

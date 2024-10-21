@@ -227,54 +227,45 @@ class Utils {
   static Future showRightSheet({
     required String title,
     required Widget child,
-    double maxWidth = 600,
+    double maxWidth = 320,
   }) async {
     var result = await showModalRightSheet(
       context: Get.context!,
       clickEmptyPop: true,
       useRootNavigator: true,
-      builder: (context) => Container(
-        width: maxWidth + MediaQuery.of(context).padding.right,
-        padding: EdgeInsets.only(right: MediaQuery.of(context).padding.right),
-        decoration: BoxDecoration(
-          color: Get.theme.cardColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(4),
-            bottomLeft: Radius.circular(4),
-          ),
+      constraints: BoxConstraints(
+        maxWidth: maxWidth,
+      ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          bottomLeft: Radius.circular(12),
         ),
-        child: SafeArea(
-          left: false,
-          right: false,
-          child: MediaQuery(
-            data: const MediaQueryData(padding: EdgeInsets.zero),
-            child: Column(
-              children: [
-                ListTile(
-                  visualDensity: VisualDensity.compact,
-                  contentPadding: EdgeInsets.zero,
-                  leading: IconButton(
-                    onPressed: () {
-                      Navigator.pop(Get.context!);
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                  title: Text(
-                    title,
-                    style: Get.textTheme.titleMedium,
-                  ),
-                ),
-                Divider(
-                  height: 1,
-                  color: Colors.grey.withOpacity(.1),
-                ),
-                Expanded(
-                  child: child,
-                ),
-              ],
+      ),
+      builder: (context) => Column(
+        children: [
+          ListTile(
+            visualDensity: VisualDensity.compact,
+            contentPadding: EdgeInsets.zero,
+            leading: IconButton(
+              onPressed: () {
+                Navigator.pop(Get.context!);
+              },
+              icon: const Icon(Icons.arrow_back),
+            ),
+            title: Text(
+              title,
+              style: Get.textTheme.titleMedium,
             ),
           ),
-        ),
+          Divider(
+            height: 1,
+            color: Colors.grey.withOpacity(.1),
+          ),
+          Expanded(
+            child: child,
+          ),
+        ],
       ),
     );
     return result;
@@ -283,15 +274,16 @@ class Utils {
   static Future showRightOrBottomSheet({
     required String title,
     required Widget child,
-    double maxWidth = 600,
+    double bottomMaxWidth = 600,
+    double rightMaxWidth = 320,
   }) async {
     var size2 = MediaQuery.of(Get.context!).size;
     var width = size2.width;
     var height = size2.height;
     if (width <= height) {
-      return showBottomSheet(title: title, child: child, maxWidth: maxWidth);
+      return showBottomSheet(title: title, child: child, maxWidth: bottomMaxWidth);
     }
-    return showRightSheet(title: title, child: child, maxWidth: maxWidth);
+    return showRightSheet(title: title, child: child, maxWidth: rightMaxWidth);
   }
 
   /// 文本编辑的弹窗
