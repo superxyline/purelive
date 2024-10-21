@@ -357,6 +357,7 @@ class LivePlayController extends StateController {
                 -1 &&
             liveRoom.danmakuData != null) {
           initDanmau();
+          liveDanmaku.stop();
           liveDanmaku.start(liveRoom.danmakuData);
         }
       } else {
@@ -430,6 +431,7 @@ class LivePlayController extends StateController {
 
   /// 初始化弹幕接收事件
   void initDanmau() {
+    messages.clear();
     if (detail.value!.isRecord!) {
       messages.add(
         LiveMessage(
