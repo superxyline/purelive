@@ -291,7 +291,7 @@ class TopActionBar extends StatelessWidget {
                 // showFavorite(controller);
                 showDialogList(
                     controller, Get.find<FavoriteController>().onlineRooms,
-                    isReverse: true, title: S.of(context).favorites_title);
+                    isReverse: false, title: S.of(context).favorites_title);
               },
               icon: const Icon(
                 Icons.featured_play_list_outlined,
