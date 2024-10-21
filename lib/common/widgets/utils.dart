@@ -1,18 +1,17 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pure_live/common/widgets/right_sheet.dart';
 import 'package:pure_live/core/common/common_request.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:remixicon/remixicon.dart';
-import 'package:intl/intl.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'app_style.dart';
@@ -232,6 +231,8 @@ class Utils {
   }) async {
     var result = await showModalRightSheet(
       context: Get.context!,
+      clickEmptyPop: true,
+      useRootNavigator: true,
       builder: (context) => Container(
         width: maxWidth + MediaQuery.of(context).padding.right,
         padding: EdgeInsets.only(right: MediaQuery.of(context).padding.right),
@@ -287,7 +288,7 @@ class Utils {
     var size2 = MediaQuery.of(Get.context!).size;
     var width = size2.width;
     var height = size2.height;
-    if(width <= height) {
+    if (width <= height) {
       return showBottomSheet(title: title, child: child, maxWidth: maxWidth);
     }
     return showRightSheet(title: title, child: child, maxWidth: maxWidth);

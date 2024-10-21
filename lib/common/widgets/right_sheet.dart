@@ -270,8 +270,8 @@ class RightSheetState extends State<RightSheet> {
     return !widget.enableDrag
         ? sheet
         : GestureDetector(
-            onVerticalDragUpdate: _handleDragUpdate,
-            onVerticalDragEnd: _handleDragEnd,
+            onHorizontalDragUpdate: _handleDragUpdate,
+            onHorizontalDragEnd: _handleDragEnd,
             excludeFromSemantics: true,
             child: sheet,
           );
