@@ -356,8 +356,12 @@ class LivePlayController extends StateController {
             except.indexWhere((element) => element == liveRoom.platform!) ==
                 -1 &&
             liveRoom.danmakuData != null) {
+          try {
+            liveDanmaku.stop();
+          } catch (e) {
+            CoreLog.error(e);
+          }
           initDanmau();
-          liveDanmaku.stop();
           liveDanmaku.start(liveRoom.danmakuData);
         }
       } else {
