@@ -380,11 +380,13 @@ void showFavorite(VideoController controller) {
   );
 }
 
-void resetRoomInDialog(LiveRoom item) {
-  // Utils.hideRightDialog();
-  // Get.back();
-  var curContext = Get.context!;
-  Navigator.pop(curContext);
+void resetRoomInDialog(LiveRoom item, {isBottomSheet = false}) {
+  if (isBottomSheet) {
+    var curContext = Get.context!;
+    Navigator.pop(curContext);
+  } else {
+    Utils.hideRightDialog();
+  }
 
   if (item.platform.isNullOrEmpty || item.roomId.isNullOrEmpty) {
     return;
@@ -461,7 +463,7 @@ void showDialogList(VideoController controller, RxList<LiveRoom> rooms,
     // controller.showFollowUserSheet();
     Utils.showBottomSheet(
       title: title,
-      child: showDialogListBody(rooms, isReverse: isReverse),
+      child: showDialogListBody(rooms, isReverse: isReverse, isBottomSheet: true),
     );
     return;
   }
@@ -474,7 +476,8 @@ void showDialogList(VideoController controller, RxList<LiveRoom> rooms,
   );
 }
 
-Widget showDialogListBody(RxList<LiveRoom> rooms, {bool isReverse = false}) {
+Widget showDialogListBody(RxList<LiveRoom> rooms,
+    {isReverse = false, isBottomSheet = false}) {
   return LayoutBuilder(builder: (context, constraint) {
     final width = constraint.maxWidth;
     var dense = true;
@@ -501,9 +504,11 @@ Widget showDialogListBody(RxList<LiveRoom> rooms, {bool isReverse = false}) {
                     isReverse ? rooms[rooms.length - 1 - index] : rooms[index],
                 dense: dense,
                 onTap: () {
-                  resetRoomInDialog(isReverse
-                      ? rooms[rooms.length - 1 - index]
-                      : rooms[index]);
+                  resetRoomInDialog(
+                      isReverse
+                          ? rooms[rooms.length - 1 - index]
+                          : rooms[index],
+                      isBottomSheet: isBottomSheet);
                 },
               ),
             ),

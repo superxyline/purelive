@@ -50,13 +50,13 @@ class Utils {
   /// - `confirm` 确认按钮内容，留空为确定
   /// - `cancel` 取消按钮内容，留空为取消
   static Future<bool> showAlertDialog(
-      String content, {
-        String title = '',
-        String confirm = '',
-        String cancel = '',
-        bool selectable = false,
-        List<Widget>? actions,
-      }) async {
+    String content, {
+    String title = '',
+    String confirm = '',
+    String cancel = '',
+    bool selectable = false,
+    List<Widget>? actions,
+  }) async {
     var result = await Get.dialog(
       AlertDialog(
         title: Text(title),
@@ -156,7 +156,7 @@ class Utils {
                   leading: IconButton(
                     onPressed: () {
                       SmartDialog.dismiss(status: SmartStatus.allCustom).then(
-                            (value) => onDismiss?.call(),
+                        (value) => onDismiss?.call(),
                       );
                     },
                     icon: const Icon(Icons.arrow_back),
@@ -209,7 +209,9 @@ class Utils {
             ),
             title: Text(title),
             trailing: IconButton(
-              onPressed: Get.back,
+              onPressed: () {
+                Navigator.pop(Get.context!);
+              },
               icon: const Icon(Remix.close_line),
             ),
           ),
@@ -228,15 +230,15 @@ class Utils {
   /// - `confirm` 确认按钮内容
   /// - `cancel` 取消按钮内容
   static Future<String?> showEditTextDialog(
-      String content, {
-        String title = '',
-        String? hintText,
-        String confirm = '',
-        String cancel = '',
-        TextValidate? validate,
-      }) async {
+    String content, {
+    String title = '',
+    String? hintText,
+    String confirm = '',
+    String cancel = '',
+    TextValidate? validate,
+  }) async {
     final TextEditingController textEditingController =
-    TextEditingController(text: content);
+        TextEditingController(text: content);
     var result = await Get.dialog(
       AlertDialog(
         title: Text(title),
@@ -280,24 +282,24 @@ class Utils {
   }
 
   static Future<T?> showOptionDialog<T>(
-      List<T> contents,
-      T value, {
-        String title = '',
-      }) async {
+    List<T> contents,
+    T value, {
+    String title = '',
+  }) async {
     var result = await Get.dialog(
       SimpleDialog(
         title: Text(title),
         children: contents
             .map(
               (e) => RadioListTile<T>(
-            title: Text(e.toString()),
-            value: e,
-            groupValue: value,
-            onChanged: (e) {
-              Get.back(result: e);
-            },
-          ),
-        )
+                title: Text(e.toString()),
+                value: e,
+                groupValue: value,
+                onChanged: (e) {
+                  Get.back(result: e);
+                },
+              ),
+            )
             .toList(),
       ),
     );
@@ -320,24 +322,24 @@ class Utils {
   }
 
   static Future<T?> showMapOptionDialog<T>(
-      Map<T, String> contents,
-      T value, {
-        String title = '',
-      }) async {
+    Map<T, String> contents,
+    T value, {
+    String title = '',
+  }) async {
     var result = await Get.dialog(
       SimpleDialog(
         title: Text(title),
         children: contents.keys
             .map(
               (e) => RadioListTile<T>(
-            title: Text((contents[e] ?? '-').tr),
-            value: e,
-            groupValue: value,
-            onChanged: (e) {
-              Get.back(result: e);
-            },
-          ),
-        )
+                title: Text((contents[e] ?? '-').tr),
+                value: e,
+                groupValue: value,
+                onChanged: (e) {
+                  Get.back(result: e);
+                },
+              ),
+            )
             .toList(),
       ),
     );

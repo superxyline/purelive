@@ -32,7 +32,7 @@ class LivePlayController extends StateController {
 
   late Site currentSite = Sites.of(site);
 
-  late final LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
+  late LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
 
   final settings = Get.find<SettingsService>();
 
@@ -361,6 +361,7 @@ class LivePlayController extends StateController {
           } catch (e) {
             CoreLog.error(e);
           }
+          liveDanmaku = Sites.of(currentPlayRoom.value.platform!).liveSite.getDanmaku();
           initDanmau();
           liveDanmaku.start(liveRoom.danmakuData);
         }
