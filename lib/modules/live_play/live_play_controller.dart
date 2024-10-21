@@ -30,7 +30,7 @@ class LivePlayController extends StateController {
 
   final String site;
 
-  late final Site currentSite = Sites.of(site);
+  late Site currentSite = Sites.of(site);
 
   late final LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
 
@@ -264,6 +264,15 @@ class LivePlayController extends StateController {
   }
 
   void resetRoom(Site site, String roomId) async {
+    if (currentPlayRoom.value.platform == site.id && currentPlayRoom.value.roomId == roomId) {
+      return;
+    }
+    currentSite = site;
+
+    var liveRoom = currentPlayRoom.value;
+    liveRoom.roomId = roomId;
+    liveRoom.platform = site.id;
+
     success.value = false;
     hasError.value = false;
     if (videoController != null && !videoController!.hasDestory) {
@@ -275,7 +284,7 @@ class LivePlayController extends StateController {
     getVideoSuccess.value = false;
     loadTimeOut.value = false;
     isLoadingVideo.value = true;
-    Timer(const Duration(milliseconds: 2000), () {
+    Timer(const Duration(milliseconds: 100), () {
       // log('resetRoom', name: 'LivePlayController');
       CoreLog.d('resetRoom');
       onInitPlayerState(firstLoad: true);

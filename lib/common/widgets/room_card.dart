@@ -10,11 +10,14 @@ class RoomCard extends StatelessWidget {
     super.key,
     required this.room,
     this.dense = false,
+    this.onTap,
   });
   final LiveRoom room;
+  /// 密集
   final bool dense;
+  final GestureTapCallback? onTap;
 
-  void onTap(BuildContext context) async {
+  void defaultOnTap(BuildContext context) async {
     AppNavigator.toLiveRoomDetail(liveRoom: room);
   }
 
@@ -45,7 +48,13 @@ class RoomCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
-        onTap: () => onTap(context),
+        onTap: () {
+          if(onTap == null) {
+            defaultOnTap(context);
+          } else {
+            onTap!();
+          }
+        },
         onLongPress: () => onLongPress(context),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -130,7 +139,7 @@ class RoomCard extends StatelessWidget {
               trailing: dense
                   ? null
                   : Text(
-                      room.platform != null ? room.platform!.toUpperCase() : '',
+                      room.platform != null ? Sites.of(room.platform!).name : '',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
