@@ -4,6 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pure_live/common/widgets/right_sheet.dart';
 import 'package:pure_live/core/common/common_request.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:remixicon/remixicon.dart';
@@ -222,6 +223,74 @@ class Utils {
       ),
     );
     return result;
+  }
+
+  static Future showRightSheet({
+    required String title,
+    required Widget child,
+    double maxWidth = 600,
+  }) async {
+    var result = await showModalRightSheet(
+      context: Get.context!,
+      builder: (context) => Container(
+        width: maxWidth + MediaQuery.of(context).padding.right,
+        padding: EdgeInsets.only(right: MediaQuery.of(context).padding.right),
+        decoration: BoxDecoration(
+          color: Get.theme.cardColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(4),
+            bottomLeft: Radius.circular(4),
+          ),
+        ),
+        child: SafeArea(
+          left: false,
+          right: false,
+          child: MediaQuery(
+            data: const MediaQueryData(padding: EdgeInsets.zero),
+            child: Column(
+              children: [
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  contentPadding: EdgeInsets.zero,
+                  leading: IconButton(
+                    onPressed: () {
+                      Navigator.pop(Get.context!);
+                    },
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  title: Text(
+                    title,
+                    style: Get.textTheme.titleMedium,
+                  ),
+                ),
+                Divider(
+                  height: 1,
+                  color: Colors.grey.withOpacity(.1),
+                ),
+                Expanded(
+                  child: child,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    return result;
+  }
+
+  static Future showRightOrBottomSheet({
+    required String title,
+    required Widget child,
+    double maxWidth = 600,
+  }) async {
+    var size2 = MediaQuery.of(Get.context!).size;
+    var width = size2.width;
+    var height = size2.height;
+    if(width <= height) {
+      return showBottomSheet(title: title, child: child, maxWidth: maxWidth);
+    }
+    return showRightSheet(title: title, child: child, maxWidth: maxWidth);
   }
 
   /// 文本编辑的弹窗

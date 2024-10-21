@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
@@ -333,12 +332,14 @@ class TopActionBar extends StatelessWidget {
 
 /// 重置直播间
 void resetRoomInDialog(LiveRoom item, {isBottomSheet = false}) {
-  if (isBottomSheet) {
-    var curContext = Get.context!;
-    Navigator.pop(curContext);
-  } else {
-    Utils.hideRightDialog();
-  }
+  // if (isBottomSheet) {
+  //   var curContext = Get.context!;
+  //   Navigator.pop(curContext);
+  // } else {
+  //   Utils.hideRightDialog();
+  // }
+
+  Navigator.pop(Get.context!);
 
   if (item.platform.isNullOrEmpty || item.roomId.isNullOrEmpty) {
     return;
@@ -360,20 +361,22 @@ void resetRoomInDialog(LiveRoom item, {isBottomSheet = false}) {
 /// 显示列表
 void showDialogList(VideoController controller, RxList<LiveRoom> rooms,
     {var isReverse = false, String title = ""}) {
-  var livePlayController = Get.find<LivePlayController>();
-  if (controller.isVertical.value || !livePlayController.isFullscreen.value) {
-    // controller.showFollowUserSheet();
-    Utils.showBottomSheet(
-      title: title,
-      child: showDialogListBody(rooms, isReverse: isReverse, isBottomSheet: true),
-    );
-    return;
-  }
-
-  Utils.showRightDialog(
+  // var livePlayController = Get.find<LivePlayController>();
+  // if (controller.isVertical.value || !livePlayController.isFullscreen.value) {
+  //   // controller.showFollowUserSheet();
+  //   Utils.showBottomSheet(
+  //     title: title,
+  //     child: showDialogListBody(rooms, isReverse: isReverse, isBottomSheet: true),
+  //   );
+  //   return;
+  // }
+  //
+  // Utils.showRightSheet(
+  //   title: title,
+  //   child: showDialogListBody(rooms, isReverse: isReverse),
+  // );
+  Utils.showRightOrBottomSheet(
     title: title,
-    width: 400,
-    useSystem: true,
     child: showDialogListBody(rooms, isReverse: isReverse),
   );
 }
