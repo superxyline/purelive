@@ -36,7 +36,7 @@ gradle.beforeProject { project ->
         }
     }
     if (project.name == "gsy_video_player") {
-        project.afterEvaluate {
+        project.beforeEvaluate {
             if (project.hasProperty("android")) {
                 def gsyVideoVersion  = '9.0.0-release-jitpack'
                 project.android{
