@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
@@ -65,7 +66,8 @@ class SettingsPage extends GetView<SettingsService> {
                 subtitle: Text(S.of(context).enable_background_play_subtitle),
                 value: controller.enableBackgroundPlay.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
+                onChanged: (bool value) =>
+                    controller.enableBackgroundPlay.value = value,
               )),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
@@ -73,21 +75,25 @@ class SettingsPage extends GetView<SettingsService> {
                   subtitle: const Text("当全屏播放时,会自动旋转屏幕"),
                   value: controller.enableRotateScreenWithSystem.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.enableRotateScreenWithSystem.value = value,
+                  onChanged: (bool value) =>
+                      controller.enableRotateScreenWithSystem.value = value,
                 )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_screen_keep_on),
                 subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
                 value: controller.enableScreenKeepOn.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
+                onChanged: (bool value) =>
+                    controller.enableScreenKeepOn.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_fullscreen_default),
-                subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
+                subtitle:
+                    Text(S.of(context).enable_fullscreen_default_subtitle),
                 value: controller.enableFullScreenDefault.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
+                onChanged: (bool value) =>
+                    controller.enableFullScreenDefault.value = value,
               )),
           ListTile(
             title: Text(S.of(context).prefer_resolution),
@@ -100,21 +106,25 @@ class SettingsPage extends GetView<SettingsService> {
                 subtitle: Text(S.of(context).enable_dynamic_color_subtitle),
                 value: controller.enableDynamicTheme.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableDynamicTheme.value = value,
+                onChanged: (bool value) =>
+                    controller.enableDynamicTheme.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_dense_favorites_mode),
-                subtitle: Text(S.of(context).enable_dense_favorites_mode_subtitle),
+                subtitle:
+                    Text(S.of(context).enable_dense_favorites_mode_subtitle),
                 value: controller.enableDenseFavorites.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableDenseFavorites.value = value,
+                onChanged: (bool value) =>
+                    controller.enableDenseFavorites.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_auto_check_update),
                 subtitle: Text(S.of(context).enable_auto_check_update_subtitle),
                 value: controller.enableAutoCheckUpdate.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
+                onChanged: (bool value) =>
+                    controller.enableAutoCheckUpdate.value = value,
               )),
           ListTile(
             title: Text(S.of(context).prefer_platform),
@@ -146,27 +156,31 @@ class SettingsPage extends GetView<SettingsService> {
                   title: Text(S.of(context).double_click_to_exit),
                   value: controller.doubleExit.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.doubleExit.value = value,
+                  onChanged: (bool value) =>
+                      controller.doubleExit.value = value,
                 )),
           // if (Platform.isAndroid)
-            ListTile(
-              title: Text(S.of(context).change_player),
-              subtitle: Text(S.of(context).change_player_subtitle),
-              trailing: Obx(() => Text(controller.playerlist[controller.videoPlayerIndex.value])),
-              onTap: showVideoSetDialog,
-            ),
+          ListTile(
+            title: Text(S.of(context).change_player),
+            subtitle: Text(S.of(context).change_player_subtitle),
+            trailing: Obx(() =>
+                Text(controller.playerlist[controller.videoPlayerIndex.value])),
+            onTap: showVideoSetDialog,
+          ),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
                   title: Text(S.of(context).enable_codec),
                   value: controller.enableCodec.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.enableCodec.value = value,
+                  onChanged: (bool value) =>
+                      controller.enableCodec.value = value,
                 )),
           if (Platform.isAndroid)
             ListTile(
               title: Text(S.of(context).auto_shutdown_time),
               subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
-              trailing: Obx(() => Text('${controller.autoShutDownTime} minute')),
+              trailing:
+                  Obx(() => Text('${controller.autoShutDownTime} minute')),
               onTap: showAutoShutDownTimeSetDialog,
             ),
         ],
@@ -174,29 +188,32 @@ class SettingsPage extends GetView<SettingsService> {
     );
   }
 
-  void showThemeModeSelectorDialog() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            title: Text(S.of(Get.context!).change_theme_mode),
-            children: SettingsService.themeModes.keys.map<Widget>((name) {
-              return RadioListTile<String>(
-                activeColor: Theme.of(context).colorScheme.primary,
-                groupValue: controller.themeModeName.value,
-                value: name,
-                title: Text(SettingsService.getThemeTitle(name)),
-                onChanged: (value) {
-                  controller.changeThemeMode(value!);
-                  Navigator.of(context).pop();
-                },
-              );
-            }).toList(),
-          );
-        });
+  /// 主题模式
+  static void showThemeModeSelectorDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+        title: S.of(Get.context!).change_theme_mode,
+        child: ListView(
+          children: SettingsService.themeModes.keys.map<Widget>((name) {
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.themeModeName.value,
+              value: name,
+              title: Text(SettingsService.getThemeTitle(name)),
+              onChanged: (value) {
+                controller.changeThemeMode(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList(),
+        ));
   }
 
-  Future<bool> colorPickerDialog() async {
+  /// 主题颜色
+  static Future<bool> colorPickerDialog() async {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
     return ColorPicker(
       color: HexColor(controller.themeColorSwitch.value),
       onColorChanged: (Color color) {
@@ -249,198 +266,199 @@ class SettingsPage extends GetView<SettingsService> {
     ).showPickerDialog(
       context,
       actionsPadding: const EdgeInsets.all(16),
-      constraints: const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
+      constraints:
+          const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
     );
   }
 
-  void showLanguageSelecterDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text(S.of(context).change_language),
-          children: SettingsService.languages.keys.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
-              groupValue: controller.languageName.value,
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
-                controller.changeLanguage(value!);
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  void showVideoSetDialog() {
-    List<String> playerList = controller.playerlist;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text(S.of(context).change_player),
-          children: playerList.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
-              groupValue: playerList[controller.videoPlayerIndex.value],
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
-                controller.changePlayer(playerList.indexOf(name));
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  void showPreferResolutionSelectorDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text(S.of(context).prefer_resolution),
-          children: SettingsService.resolutions.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
-              groupValue: controller.preferResolution.value,
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
-                controller.changePreferResolution(value!);
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  void showPreferPlatformSelectorDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text(S.of(context).prefer_platform),
-          children: Sites.supportSites.map<Widget>((site) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
-              groupValue: controller.preferPlatform.value,
-              value: site.id,
-              title: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: SiteWidget.getSiteLogeImage(site.id), // 替换为你的图片路径
-                  ),
-                  Expanded(
-                    child: Text(
-                      site.name.toUpperCase(), // 替换为你的文本
-                    ),
-                  ),
-                ],
-              ),
-              onChanged: (value) {
-                controller.changePreferPlatform(value!);
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  void showAutoRefreshTimeSetDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        // title: Text(S.of(context).auto_refresh_time),
-        content: Obx(() => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Slider(
-                  min: 0,
-                  max: 120,
-                  label: S.of(context).auto_refresh_time,
-                  value: controller.autoRefreshTime.toDouble(),
-                  onChanged: (value) => controller.autoRefreshTime.value = value.toInt(),
-                ),
-                Text('${S.of(context).auto_refresh_time}:'
-                    ' ${controller.autoRefreshTime}分钟'),
-              ],
-            )),
+  /// 语言选择
+  static void showLanguageSelecterDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.of(context).change_language,
+      child: ListView(
+        children: SettingsService.languages.keys.map<Widget>((name) {
+          return RadioListTile<String>(
+            activeColor: Theme.of(context).colorScheme.primary,
+            groupValue: controller.languageName.value,
+            value: name,
+            title: Text(name),
+            onChanged: (value) {
+              controller.changeLanguage(value!);
+              Navigator.of(context).pop();
+            },
+          );
+        }).toList(),
       ),
     );
   }
 
-  void showDanmuSetDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(S.of(context).settings_danmaku_title),
-        content: SizedBox(
-          width: Platform.isAndroid ? MediaQuery.of(context).size.width : MediaQuery.of(context).size.width * 0.6,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                VideoFitSetting(
-                  controller: controller,
+  /// 视频播放器
+  static void showVideoSetDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    List<String> playerList = controller.playerlist;
+    Utils.showRightOrBottomSheet(
+      title: S.of(context).change_player,
+      child: ListView(
+        children: playerList.map<Widget>((name) {
+          return RadioListTile<String>(
+            activeColor: Theme.of(context).colorScheme.primary,
+            groupValue: playerList[controller.videoPlayerIndex.value],
+            value: name,
+            title: Text(name),
+            onChanged: (value) {
+              controller.changePlayer(playerList.indexOf(name));
+              Navigator.of(context).pop();
+            },
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// 直播 清晰度
+  static void showPreferResolutionSelectorDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.of(context).prefer_resolution,
+      child: ListView(
+        children: SettingsService.resolutions.map<Widget>((name) {
+          return RadioListTile<String>(
+            activeColor: Theme.of(context).colorScheme.primary,
+            groupValue: controller.preferResolution.value,
+            value: name,
+            title: Text(name),
+            onChanged: (value) {
+              controller.changePreferResolution(value!);
+              Navigator.of(context).pop();
+            },
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// 平台选择
+  static void showPreferPlatformSelectorDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.of(context).prefer_platform,
+      child: ListView(
+        children: Sites.supportSites.map<Widget>((site) {
+          return RadioListTile<String>(
+            activeColor: Theme.of(context).colorScheme.primary,
+            groupValue: controller.preferPlatform.value,
+            value: site.id,
+            title: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: SiteWidget.getSiteLogeImage(site.id), // 替换为你的图片路径
                 ),
-                DanmakuSetting(
-                  controller: controller,
-                ),
-                const SizedBox(
-                  height: 20,
+                Expanded(
+                  child: Text(
+                    site.name.toUpperCase(), // 替换为你的文本
+                  ),
                 ),
               ],
             ),
+            onChanged: (value) {
+              controller.changePreferPlatform(value!);
+              Navigator.of(context).pop();
+            },
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// 定时更新关注
+  static void showAutoRefreshTimeSetDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.of(context).auto_refresh_time,
+      child: Obx(() => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Slider(
+                min: 0,
+                max: 120,
+                label: S.of(context).auto_refresh_time,
+                value: controller.autoRefreshTime.toDouble(),
+                onChanged: (value) =>
+                    controller.autoRefreshTime.value = value.toInt(),
+              ),
+              Text('${S.of(context).auto_refresh_time}:'
+                  ' ${controller.autoRefreshTime}分钟'),
+            ],
+          )),
+    );
+  }
+
+  /// 弹幕设置
+  static void showDanmuSetDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.of(context).settings_danmaku_title,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          VideoFitSetting(
+            controller: controller,
           ),
-        ),
+          DanmakuSetting(
+            controller: controller,
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
       ),
     );
   }
 
-  void showAutoShutDownTimeSetDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        // title: Text(S.of(context).auto_refresh_time),
-        content: Obx(() => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SwitchListTile(
-                  title: Text(S.of(context).auto_shutdown_time_subtitle),
-                  value: controller.enableAutoShutDownTime.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.enableAutoShutDownTime.value = value,
-                ),
-                Slider(
-                  min: 1,
-                  max: 1200,
-                  label: S.of(context).auto_refresh_time,
-                  value: controller.autoShutDownTime.toDouble(),
-                  onChanged: (value) {
-                    controller.autoShutDownTime.value = value.toInt();
-                  },
-                ),
-                Text('${S.of(context).auto_shutdown_time}:'
-                    ' ${controller.autoShutDownTime} minute'),
-              ],
-            )),
-      ),
+  /// 定时关闭 app
+  static void showAutoShutDownTimeSetDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.of(context).auto_refresh_time,
+      child: Obx(() => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SwitchListTile(
+                title: Text(S.of(context).auto_shutdown_time_subtitle),
+                value: controller.enableAutoShutDownTime.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) =>
+                    controller.enableAutoShutDownTime.value = value,
+              ),
+              Slider(
+                min: 1,
+                max: 1200,
+                label: S.of(context).auto_refresh_time,
+                value: controller.autoShutDownTime.toDouble(),
+                onChanged: (value) {
+                  controller.autoShutDownTime.value = value.toInt();
+                },
+              ),
+              Text('${S.of(context).auto_shutdown_time}:'
+                  ' ${controller.autoShutDownTime} 分钟'),
+            ],
+          )),
     );
   }
 
-  Future<String?> showWebPortDialog() async {
+  /// Web 端口
+  static Future<String?> showWebPortDialog() async {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
     final TextEditingController textEditingController = TextEditingController();
     textEditingController.text = controller.webPort.value;
     var result = await Get.dialog(
@@ -486,12 +504,14 @@ class SettingsPage extends GetView<SettingsService> {
                   SmartDialog.showToast('请输入端口号');
                   return;
                 }
-                bool validate = FileRecoverUtils.isPort(textEditingController.text);
+                bool validate =
+                    FileRecoverUtils.isPort(textEditingController.text);
                 if (!validate) {
                   SmartDialog.showToast('请输入正确的端口号');
                   return;
                 }
-                if (int.parse(textEditingController.text) < 1 || int.parse(textEditingController.text) > 65535) {
+                if (int.parse(textEditingController.text) < 1 ||
+                    int.parse(textEditingController.text) > 65535) {
                   SmartDialog.showToast('请输入正确的端口号');
                   return;
                 }
