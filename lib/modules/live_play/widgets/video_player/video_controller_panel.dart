@@ -288,7 +288,10 @@ class TopActionBar extends StatelessWidget {
             /// 直播中的关注列表
             IconButton(
               onPressed: () {
-                showFavorite(controller);
+                // showFavorite(controller);
+                showDialogList(
+                    controller, Get.find<FavoriteController>().onlineRooms,
+                    isReverse: true, title: S.of(context).favorites_title);
               },
               icon: const Icon(
                 Icons.featured_play_list_outlined,
@@ -299,7 +302,10 @@ class TopActionBar extends StatelessWidget {
             /// 历史记录
             IconButton(
               onPressed: () {
-                showHistory(controller);
+                // showHistory(controller);
+                showDialogList(
+                    controller, Get.find<SettingsService>().historyRooms,
+                    isReverse: true, title: S.of(context).history);
               },
               icon: const Icon(
                 Icons.history,
@@ -342,46 +348,52 @@ void showFavorite(VideoController controller) {
     child: () {
       return LayoutBuilder(builder: (context, constraint) {
         final width = constraint.maxWidth;
-        int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+        int crossAxisCount =
+            width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
         if (dense) {
-          crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+          crossAxisCount =
+              width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
         }
         return EasyRefresh(
           child: rooms.isEmpty
               ? EmptyView(
-            icon: Icons.history_rounded,
-            title: S.of(context).empty_history,
-            subtitle: '',
-          )
+                  icon: Icons.history_rounded,
+                  title: S.of(context).empty_history,
+                  subtitle: '',
+                )
               : MasonryGridView.count(
-            padding: const EdgeInsets.all(5),
-            controller: ScrollController(),
-            crossAxisCount: crossAxisCount,
-            itemCount: rooms.length,
-            itemBuilder: (context, index) => RoomCard(
-              room: rooms[index],
-              dense: dense,
-              onTap: (){
-                resetRoomInDialog(rooms[index]);
-              },
-            ),
-          ),
+                  padding: const EdgeInsets.all(5),
+                  controller: ScrollController(),
+                  crossAxisCount: crossAxisCount,
+                  itemCount: rooms.length,
+                  itemBuilder: (context, index) => RoomCard(
+                    room: rooms[index],
+                    dense: dense,
+                    onTap: () {
+                      resetRoomInDialog(rooms[index]);
+                    },
+                  ),
+                ),
         );
       });
     }(),
   );
 }
 
-void resetRoomInDialog(LiveRoom item){
-  Utils.hideRightDialog();
+void resetRoomInDialog(LiveRoom item) {
+  // Utils.hideRightDialog();
+  // Get.back();
+  var curContext = Get.context!;
+  Navigator.pop(curContext);
 
-  if(item.platform.isNullOrEmpty || item.roomId.isNullOrEmpty) {
+  if (item.platform.isNullOrEmpty || item.roomId.isNullOrEmpty) {
     return;
   }
 
   var controller = Get.find<LivePlayController>();
   var currentPlayRoom = controller.currentPlayRoom;
-  if(item.platform == currentPlayRoom.value.platform && item.roomId == currentPlayRoom.value.roomId) {
+  if (item.platform == currentPlayRoom.value.platform &&
+      item.roomId == currentPlayRoom.value.roomId) {
     return;
   }
   controller.videoController?.exitFull();
@@ -406,36 +418,97 @@ void showHistory(VideoController controller) {
     width: 400,
     useSystem: true,
     child: () {
-    return LayoutBuilder(builder: (context, constraint) {
-      final width = constraint.maxWidth;
-      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      if (dense) {
-        crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-      }
-      return EasyRefresh(
-        child: rooms.isEmpty
-            ? EmptyView(
-          icon: Icons.history_rounded,
-          title: S.of(context).empty_history,
-          subtitle: '',
-        )
-            : MasonryGridView.count(
-          padding: const EdgeInsets.all(5),
-          controller: ScrollController(),
-          crossAxisCount: crossAxisCount,
-          itemCount: rooms.length,
-          itemBuilder: (context, index) => RoomCard(
-            room: rooms[rooms.length - 1 - index],
-            dense: dense,
-            onTap: (){
-              resetRoomInDialog(rooms[rooms.length - 1 - index]);
-            },
-          ),
-        ),
-      );
-    });
-  }(),
+      return LayoutBuilder(builder: (context, constraint) {
+        final width = constraint.maxWidth;
+        int crossAxisCount =
+            width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+        if (dense) {
+          crossAxisCount =
+              width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+        }
+        return EasyRefresh(
+          child: rooms.isEmpty
+              ? EmptyView(
+                  icon: Icons.history_rounded,
+                  title: S.of(context).empty_history,
+                  subtitle: '',
+                )
+              : MasonryGridView.count(
+                  padding: const EdgeInsets.all(5),
+                  controller: ScrollController(),
+                  crossAxisCount: crossAxisCount,
+                  itemCount: rooms.length,
+                  itemBuilder: (context, index) => RoomCard(
+                    room: rooms[rooms.length - 1 - index],
+                    dense: dense,
+                    onTap: () {
+                      resetRoomInDialog(rooms[rooms.length - 1 - index]);
+                    },
+                  ),
+                ),
+        );
+      });
+    }(),
   );
+}
+
+/// 显示列表
+void showDialogList(VideoController controller, RxList<LiveRoom> rooms,
+    {var isReverse = false, String title = ""}) {
+  var livePlayController = Get.find<LivePlayController>();
+  const dense = true;
+  if (controller.isVertical.value || !livePlayController.isFullscreen.value) {
+    // controller.showFollowUserSheet();
+    Utils.showBottomSheet(
+      title: title,
+      child: showDialogListBody(rooms, isReverse: isReverse),
+    );
+    return;
+  }
+
+  Utils.showRightDialog(
+    title: S.of(Get.context!).history,
+    width: 400,
+    useSystem: true,
+    child: showDialogListBody(rooms, isReverse: isReverse),
+  );
+}
+
+Widget showDialogListBody(RxList<LiveRoom> rooms, {bool isReverse = false}) {
+  return LayoutBuilder(builder: (context, constraint) {
+    final width = constraint.maxWidth;
+    var dense = true;
+    int crossAxisCount =
+        width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+    if (dense) {
+      crossAxisCount =
+          width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+    }
+    return Obx(
+      () => rooms.isEmpty
+          ? EmptyView(
+              icon: Icons.history_rounded,
+              title: S.of(context).empty_history,
+              subtitle: '',
+            )
+          : MasonryGridView.count(
+              padding: const EdgeInsets.all(5),
+              controller: ScrollController(),
+              crossAxisCount: crossAxisCount,
+              itemCount: rooms.length,
+              itemBuilder: (context, index) => RoomCard(
+                room:
+                    isReverse ? rooms[rooms.length - 1 - index] : rooms[index],
+                dense: dense,
+                onTap: () {
+                  resetRoomInDialog(isReverse
+                      ? rooms[rooms.length - 1 - index]
+                      : rooms[index]);
+                },
+              ),
+            ),
+    );
+  });
 }
 
 /// 时间信息
