@@ -1081,6 +1081,13 @@ class SettingsPanel extends StatelessWidget {
           duration: const Duration(milliseconds: 500),
           child: Card(
             color: Colors.black.withOpacity(0.8),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                bottomLeft: Radius.circular(12),
+              ),
+            ),
+            margin: EdgeInsets.zero,
             child: SizedBox(
               width: width,
               child: ListView(
