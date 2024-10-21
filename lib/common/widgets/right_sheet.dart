@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pure_live/core/common/core_log.dart';
 
 Future<T?> showModalRightSheet<T>({
   required BuildContext context,
@@ -444,6 +445,7 @@ class RightSheetState extends State<RightSheet> {
     } else {
       widget.animationController!.forward();
     }
+    // CoreLog.d("${widget.animationController!.value} ${_childWidth} ${details.primaryVelocity} ${details.globalPosition} ${details.localPosition} ${details}");
   }
 
   @override

@@ -173,9 +173,9 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                         child: BrightnessVolumeDargArea(
                           controller: controller,
                         )),
-                    SettingsPanel(
-                      controller: controller,
-                    ),
+                    // SettingsPanel(
+                    //   controller: controller,
+                    // ),
                     LockButton(controller: controller),
                     TopActionBar(
                       controller: controller,
@@ -835,7 +835,7 @@ class BottomActionBar extends StatelessWidget {
                 RefreshButton(controller: controller),
                 DanmakuButton(controller: controller),
                 FavoriteButton(controller: controller),
-                if (controller.videoPlayer.isFullscreen.value)
+                // if (controller.videoPlayer.isFullscreen.value)
                   SettingsButton(controller: controller),
                 const Spacer(),
                 if (controller.videoPlayer.supportWindowFull &&
@@ -953,7 +953,10 @@ class SettingsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => controller.showSettting.toggle(),
+      onTap: () {
+        controller.showSettting.toggle();
+        showSettingSheet(controller);
+      },
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
@@ -964,6 +967,20 @@ class SettingsButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 设置弹窗
+Future showSettingSheet(VideoController controller) {
+  return Utils.showRightOrBottomSheet(
+      title: S.of(Get.context!).settings_title,
+      color: Colors.black.withOpacity(0.8),
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          VideoFitSetting(controller: controller),
+          DanmakuSetting(controller: controller),
+        ],
+      ));
 }
 
 class ExpandWindowButton extends StatelessWidget {

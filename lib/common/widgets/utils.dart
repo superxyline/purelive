@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:pure_live/common/widgets/right_sheet.dart';
 import 'package:pure_live/core/common/common_request.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -189,6 +190,7 @@ class Utils {
     required String title,
     required Widget child,
     double maxWidth = 600,
+    Color? color,
   }) async {
     var result = await showModalBottomSheet(
       context: Get.context!,
@@ -201,8 +203,10 @@ class Utils {
           topRight: Radius.circular(12),
         ),
       ),
+      backgroundColor: color,
       builder: (_) => Column(
         children: [
+          if(!title.isNullOrEmpty)
           ListTile(
             contentPadding: const EdgeInsets.only(
               left: 12,
@@ -228,6 +232,7 @@ class Utils {
     required String title,
     required Widget child,
     double maxWidth = 320,
+    Color? color,
   }) async {
     var result = await showModalRightSheet(
       context: Get.context!,
@@ -242,8 +247,10 @@ class Utils {
           bottomLeft: Radius.circular(12),
         ),
       ),
+      backgroundColor: color,
       builder: (context) => Column(
         children: [
+          if(!title.isNullOrEmpty)
           ListTile(
             visualDensity: VisualDensity.compact,
             contentPadding: EdgeInsets.zero,
@@ -276,16 +283,17 @@ class Utils {
     required Widget child,
     double bottomMaxWidth = 600,
     double? rightMaxWidth,
+    Color? color,
   }) async {
     var size2 = MediaQuery.of(Get.context!).size;
     var width = size2.width;
     var height = size2.height;
     if (width <= height) {
       return showBottomSheet(
-          title: title, child: child, maxWidth: bottomMaxWidth);
+          title: title, child: child, maxWidth: bottomMaxWidth, color: color);
     }
     rightMaxWidth ??= width / 2;
-    return showRightSheet(title: title, child: child, maxWidth: rightMaxWidth);
+    return showRightSheet(title: title, child: child, maxWidth: rightMaxWidth, color: color);
   }
 
   /// 文本编辑的弹窗
