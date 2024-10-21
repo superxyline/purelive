@@ -9,7 +9,7 @@ Future<T?> showModalRightSheet<T>({
   bool clickEmptyPop = false,
   RouteSettings? routeSettings,
   bool useRootNavigator = false,
-  bool enableDrag = false,
+  bool enableDrag = true,
   double elevation = 0.0,
   Color? dragHandleColor,
   Size? dragHandleSize,
