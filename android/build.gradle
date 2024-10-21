@@ -60,6 +60,9 @@ configurations.all {
         if (details.requested.group == 'org.jetbrains.kotlin') {
             details.useVersion '1.8.22'
         }
+        if (details.requested.group == 'com.github.CarGuo.GSYVideoPlayer') {
+            details.useVersion '9.0.0-release-jitpack'
+        }
     }
 }
 
