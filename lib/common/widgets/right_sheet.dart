@@ -422,13 +422,19 @@ class RightSheetState extends State<RightSheet> {
   }
 
   void _handleDragEnd(DragEndDetails details) {
+    // CoreLog.d("${widget.animationController!.value} ${_childWidth} ${_kMinFlingVelocity} ${details.primaryVelocity} ${details.globalPosition}");
+    // CoreLog.d("${details.globalPosition.dx} ${details.localPosition.dx} ${details.velocity.pixelsPerSecond.dx}");
+    // CoreLog.d("${details.globalPosition.dy} ${details.localPosition.dy} ${details.velocity.pixelsPerSecond.dy}");
+    // CoreLog.d("_dismissUnderway ${_dismissUnderway} ${_kMinFlingVelocity}");
     if (_dismissUnderway) return;
-    if (details.velocity.pixelsPerSecond.dy > _kMinFlingVelocity) {
+    if (details.velocity.pixelsPerSecond.dx > _kMinFlingVelocity) {
       final double flingVelocity =
           -details.velocity.pixelsPerSecond.dx / _childWidth;
       if (widget.animationController!.value > 0.0) {
         widget.animationController!.fling(velocity: flingVelocity);
       }
+      // CoreLog.d("flingVelocity ${flingVelocity}");
+
       if (flingVelocity < 0.0) widget.onClosing();
     } else if (widget.animationController!.value < _kCloseProgressThreshold) {
       if (widget.animationController!.value > 0.0) {
@@ -468,7 +474,7 @@ class RightSheetState extends State<RightSheet> {
     final bool showDragHandle = widget.showDragHandle ??
         (widget.enableDrag && (bottomSheetTheme.showDragHandle ?? false));
 
-     Widget sheet = Material(
+    Widget sheet = Material(
       key: _childKey,
       elevation: widget.elevation,
       shape: shape,
