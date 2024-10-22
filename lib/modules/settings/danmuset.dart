@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
-import 'package:gsy_video_player/gsy_video_player.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/settings/tmp_tab_controller.dart';
 
 class VideoFitSetting extends StatefulWidget {
   const VideoFitSetting({
@@ -12,29 +11,41 @@ class VideoFitSetting extends StatefulWidget {
   final SettingsService controller;
 
   @override
-  State<VideoFitSetting> createState() => _VideoFitSettingState();
+  State<VideoFitSetting> createState() => _VideoFitSettingState(controller);
 }
 
 class _VideoFitSettingState extends State<VideoFitSetting> {
+  final SettingsService controller;
+  late final TabController tabController;
+  late final fitmodes = {
+    S.of(Get.context!).videofit_contain: BoxFit.contain,
+    S.of(Get.context!).videofit_fill: BoxFit.fill,
+    S.of(Get.context!).videofit_cover: BoxFit.cover,
+    S.of(Get.context!).videofit_fitwidth: BoxFit.fitWidth,
+    S.of(Get.context!).videofit_fitheight: BoxFit.fitHeight,
+  };
+
+  _VideoFitSettingState(this.controller) {
+    tabController = TabController(
+        initialIndex: controller.videoFitIndex.value,
+        length: fitmodes.length,
+        vsync: TmpTabController());
+    tabController.addListener(tabControllerListener);
+  }
+
+  void tabControllerListener() {
+    controller.videoFitIndex.value = tabController.index;
+  }
+
+  @override
+  void dispose() {
+    tabController.removeListener(tabControllerListener);
+    tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final fitmodes = {
-      S.of(context).videofit_contain: BoxFit.contain,
-      S.of(context).videofit_fill: BoxFit.fill,
-      S.of(context).videofit_cover: BoxFit.cover,
-      S.of(context).videofit_fitwidth: BoxFit.fitWidth,
-      S.of(context).videofit_fitheight: BoxFit.fitHeight,
-    };
-    final Color color = Theme.of(context).colorScheme.primary.withOpacity(0.9);
-    final isSelected = List.filled(fitmodes.length, false).obs;
-    isSelected[widget.controller.videoFitIndex.value] = true;
-    void updateSelected(int index){
-      widget.controller.videoFitIndex.value = index;
-      var list = List.filled(fitmodes.length, false);
-      list[index] = true;
-      isSelected.value=[];
-      isSelected.value = list;
-    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -42,33 +53,51 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
         Obx(() => SwitchListTile(
               title: Text(S.of(context).settings_danmaku_open),
               contentPadding: EdgeInsets.zero,
-              value: !widget.controller.hideDanmaku.value,
+              value: !controller.hideDanmaku.value,
               activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (bool value) =>
-                  widget.controller.hideDanmaku.value = !value,
+              onChanged: (bool value) => controller.hideDanmaku.value = !value,
             )),
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
               leading: const Text('弹幕合并'),
               subtitle: Text(
-                  '相似度大于${widget.controller.mergeDanmuRating.value * 100}%的弹幕会被合并'),
+                  '相似度大于${controller.mergeDanmuRating.value * 100}%的弹幕会被合并'),
               title: Slider(
                 divisions: 10,
                 min: 0.0,
                 max: 1.0,
-                value: widget.controller.mergeDanmuRating.value,
-                onChanged: (val) =>
-                    widget.controller.mergeDanmuRating.value = val,
+                value: controller.mergeDanmuRating.value,
+                onChanged: (val) => controller.mergeDanmuRating.value = val,
               ),
-              trailing: Text(
-                  '${(widget.controller.mergeDanmuRating.value * 100).toInt()}%'),
+              trailing:
+                  Text('${(controller.mergeDanmuRating.value * 100).toInt()}%'),
             )),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Text(S.of(context).settings_videofit_title),
         ),
-        Obx(() => Visibility(
+        TabBar(
+          controller: tabController,
+          padding: EdgeInsets.zero,
+          tabAlignment: TabAlignment.center,
+          labelStyle:
+              const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          tabs: fitmodes.keys.map<Widget>((e) => Tab(text: e)).toList(),
+          isScrollable: true,
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicator: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+            border: Border.all(color: Colors.black26),
+            borderRadius: BorderRadius.circular(4),
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [Colors.transparent, Colors.black45],
+            ),
+          ),
+        ),
+        /*Obx(() => Visibility(
               visible: isSelected.isNotEmpty,
               child: SizedBox(
                   height: 50,
@@ -80,22 +109,35 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
                     scrollDirection: Axis.horizontal,
                     children: fitmodes.keys.mapIndex((key, index) {
                       var item = fitmodes[key];
-                      return Obx((){
-                        CoreLog.d("rebuild TextButton ${index} ${key} ${isSelected}");
+                      return Obx(() {
+                        CoreLog.d(
+                            "rebuild TextButton ${index} ${key} ${isSelected}");
                         return TextButton(
-                            autofocus: isSelected[index],
-                            child: Text(key),
-                            // selectedColor: Get.theme.colorScheme.primary,
-                            // shape: RoundedRectangleBorder(
-                            //   borderRadius: BorderRadius.circular(8),
-                            // ),
-                            onPressed: () {
-                              updateSelected(index);
-                            },
-                          );});
+                          autofocus: isSelected[index],
+                          child: Text(key),
+                          // selectedColor: Get.theme.colorScheme.primary,
+                          // shape: RoundedRectangleBorder(
+                          //   borderRadius: BorderRadius.circular(8),
+                          // ),
+                          style: TextButton.styleFrom(
+                              foregroundColor: Get.theme.colorScheme.primary,
+                              overlayColor: Get.theme.colorScheme.primary,
+                              shadowColor: Get.theme.colorScheme.primary,
+                              // backgroundColor: Get.theme.colorScheme.secondary,
+                              disabledBackgroundColor: Get.theme.disabledColor,
+                              disabledForegroundColor: Get.theme.disabledColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: EdgeInsets.all(5)),
+                          onPressed: () {
+                            updateSelected(index);
+                          },
+                        );
+                      });
                     }).toList(),
                   )),
-            ))
+            ))*/
       ],
     );
   }

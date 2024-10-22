@@ -407,7 +407,7 @@ class SettingsPage extends GetView<SettingsService> {
     Utils.showRightOrBottomSheet(
       title: S.of(context).settings_danmaku_title,
       child: ListView(
-        shrinkWrap: true,
+        // shrinkWrap: true,
         padding: const EdgeInsets.all(16),
         children: [
           VideoFitSetting(
