@@ -97,13 +97,13 @@ class VideoController with ChangeNotifier {
 
   // Danmaku player control
   BarrageWallController danmakuController = BarrageWallController();
-  final hideDanmaku = false.obs;
-  final danmakuArea = 1.0.obs;
-  final danmakuSpeed = 8.0.obs;
-  final danmakuFontSize = 16.0.obs;
-  final danmakuFontBorder = 0.5.obs;
-  final danmakuOpacity = 1.0.obs;
-  final mergeDanmuRating = 0.0.obs;
+  // final hideDanmaku = false.obs;
+  // final danmakuArea = 1.0.obs;
+  // final danmakuSpeed = 8.0.obs;
+  // final danmakuFontSize = 16.0.obs;
+  // final danmakuFontBorder = 0.5.obs;
+  // final danmakuOpacity = 1.0.obs;
+  // final mergeDanmuRating = 0.0.obs;
 
   /// 存储 Stream 流监听
   /// 默认视频 MPV 视频监听流
@@ -133,13 +133,13 @@ class VideoController with ChangeNotifier {
   }) {
     videoFitIndex.value = settings.videoFitIndex.value;
     videoFit.value = settings.videofitArrary[videoFitIndex.value];
-    hideDanmaku.value = settings.hideDanmaku.value;
-    danmakuArea.value = settings.danmakuArea.value;
-    danmakuSpeed.value = settings.danmakuSpeed.value;
-    danmakuFontSize.value = settings.danmakuFontSize.value;
-    danmakuFontBorder.value = settings.danmakuFontBorder.value;
-    danmakuOpacity.value = settings.danmakuOpacity.value;
-    mergeDanmuRating.value = settings.mergeDanmuRating.value;
+    // hideDanmaku.value = settings.hideDanmaku.value;
+    // danmakuArea.value = settings.danmakuArea.value;
+    // danmakuSpeed.value = settings.danmakuSpeed.value;
+    // danmakuFontSize.value = settings.danmakuFontSize.value;
+    // danmakuFontBorder.value = settings.danmakuFontBorder.value;
+    // danmakuOpacity.value = settings.danmakuOpacity.value;
+    // mergeDanmuRating.value = settings.mergeDanmuRating.value;
     initPagesConfig();
   }
 
@@ -263,7 +263,7 @@ class VideoController with ChangeNotifier {
   }
 
   void initDanmaku() {
-    hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
+    /*hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
     otherStreamSubscriptionList.add(hideDanmaku.listen((data) {
       PrefUtil.setBool('hideDanmaku', data);
     }));
@@ -286,18 +286,18 @@ class VideoController with ChangeNotifier {
     danmakuOpacity.value = PrefUtil.getDouble('danmakuOpacity') ?? 1.0;
     otherStreamSubscriptionList.add(danmakuOpacity.listen((data) {
       PrefUtil.setDouble('danmakuOpacity', data);
-    }));
+    }));*/
   }
 
   void sendDanmaku(LiveMessage msg) {
-    if (hideDanmaku.value) return;
+    if (settings.hideDanmaku.value) return;
 
     danmakuController.send([
       Bullet(
         child: DanmakuText(
           msg.message,
-          fontSize: danmakuFontSize.value,
-          strokeWidth: danmakuFontBorder.value,
+          fontSize: settings.danmakuFontSize.value,
+          strokeWidth: settings.danmakuFontBorder.value,
           color: msg.color,
         ),
       ),
@@ -470,10 +470,10 @@ class VideoController with ChangeNotifier {
     // disable locked
     showLocked.value = false;
     // fix danmaku overlap bug
-    if (!hideDanmaku.value) {
-      hideDanmaku.value = true;
+    if (!settings.hideDanmaku.value) {
+      settings.hideDanmaku.value = true;
       Timer(const Duration(milliseconds: 500), () {
-        hideDanmaku.value = false;
+        settings.hideDanmaku.value = false;
       });
     }
     // fix obx setstate when build
@@ -526,10 +526,10 @@ class VideoController with ChangeNotifier {
     // disable locked
     showLocked.value = false;
     // fix danmaku overlap bug
-    if (!hideDanmaku.value) {
-      hideDanmaku.value = true;
+    if (!settings.hideDanmaku.value) {
+      settings.hideDanmaku.value = true;
       Timer(const Duration(milliseconds: 500), () {
-        hideDanmaku.value = false;
+        settings.hideDanmaku.value = false;
       });
     }
     // fix obx setstate when build

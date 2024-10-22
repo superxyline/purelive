@@ -157,7 +157,7 @@ class LivePlayController extends StateController {
 
     //关闭并清除弹幕
     if (videoController?.videoPlayer.isPipMode.value == true) {
-      videoController?.hideDanmaku.value = true;
+      videoController?.settings.hideDanmaku.value = true;
     }
     videoController?.danmakuController.reset(0);
     // //关闭控制器
