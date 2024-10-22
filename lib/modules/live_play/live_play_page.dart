@@ -72,7 +72,8 @@ class LivePlayPage extends GetView<LivePlayController> {
                     style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
                         elevation: 0,
-                        minimumSize: Size.square(30),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        minimumSize: Size.square(10),
                         side: BorderSide(
                           width: 0,
                           style: BorderStyle.none,
