@@ -74,7 +74,7 @@ class CacheNetWorkUtils {
     return CircleAvatar(
         radius: radius,
         child: getCacheImageV2(avatar,
-            radius: radius, fit: BoxFit.fitWidth, shape: BoxShape.circle, cacheWidth: 40));
+            radius: radius, fit: BoxFit.fitWidth, shape: BoxShape.circle, cacheWidth: 60));
   }
 
   static Widget getCacheImageV2(

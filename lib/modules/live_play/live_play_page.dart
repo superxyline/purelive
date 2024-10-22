@@ -69,7 +69,26 @@ class LivePlayPage extends GetView<LivePlayController> {
               if (controller.detail.value != null &&
                   controller.detail.value!.platform != null)
                 TextButton(
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                    style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        elevation: 0,
+                        minimumSize: Size.square(30),
+                        side: BorderSide(
+                          width: 0,
+                          style: BorderStyle.none,
+                          strokeAlign: 0,
+                          color: Colors.grey.withOpacity(0.1),
+                        ),
+                        textStyle: Theme.of(Get.context!).textTheme.labelSmall,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            width: 0,
+                            style: BorderStyle.none,
+                            strokeAlign: 0,
+                            color: Colors.grey.withOpacity(0.1),
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        )),
                     onPressed: () {
                       if (controller.detail.value != null &&
                           !controller.detail.value!.area.isNullOrEmpty &&
@@ -117,8 +136,8 @@ class LivePlayPage extends GetView<LivePlayController> {
                       "${Sites.of(controller.detail.value!.platform!).name}${controller.detail.value!.area == null || controller.detail.value!.area == '' ? '' : "/${controller.detail.value!.area}"}",
                       style: Theme.of(Get.context!)
                           .textTheme
-                          .bodySmall
-                          ?.copyWith(fontSize: 10),
+                          .labelSmall
+                          ,
                     )),
             ],
           ),
