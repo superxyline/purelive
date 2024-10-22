@@ -75,11 +75,11 @@ class Utils {
         actions: [
           ...?actions,
           TextButton(
-            onPressed: (() => Get.back(result: false)),
+            onPressed: (() => Navigator.of(Get.context!).pop(false)),
             child: Text(cancel.isEmpty ? "取消" : cancel),
           ),
           TextButton(
-            onPressed: (() => Get.back(result: true)),
+            onPressed: (() => Navigator.of(Get.context!).pop(true)),
             child: Text(confirm.isEmpty ? "确定" : confirm),
           ),
         ],
@@ -103,7 +103,7 @@ class Utils {
         ),
         actions: [
           TextButton(
-            onPressed: (() => Get.back(result: true)),
+            onPressed: (() => Navigator.of(Get.context!).pop(true)),
             child: Text(confirm.isEmpty ? "确定" : confirm),
           ),
         ],
@@ -332,7 +332,7 @@ class Utils {
         ),
         actions: [
           TextButton(
-            onPressed: Get.back,
+            onPressed: () => Navigator.of(Get.context!).pop(),
             child: const Text("取消"),
           ),
           TextButton(
@@ -340,8 +340,7 @@ class Utils {
               if (validate != null && !validate(textEditingController.text)) {
                 return;
               }
-
-              Get.back(result: textEditingController.text);
+              Navigator.of(Get.context!).pop(textEditingController.text);
             },
             child: const Text("确定"),
           ),
@@ -368,7 +367,7 @@ class Utils {
                 value: e,
                 groupValue: value,
                 onChanged: (e) {
-                  Get.back(result: e);
+                  Navigator.of(Get.context!).pop(e);
                 },
               ),
             )
@@ -408,7 +407,7 @@ class Utils {
                 value: e,
                 groupValue: value,
                 onChanged: (e) {
-                  Get.back(result: e);
+                  Navigator.of(Get.context!).pop(e);
                 },
               ),
             )
@@ -443,7 +442,7 @@ class Utils {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        Get.back();
+                        Navigator.of(Get.context!).pop();
                       },
                       child: const Text("取消"),
                     ),

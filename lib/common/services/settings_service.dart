@@ -464,6 +464,12 @@ class SettingsService extends GetxController {
     return true;
   }
 
+  /// 清除历史记录
+  void clearHistory(){
+    historyRoomsMap.clear();
+    historyRooms.clear();
+  }
+
   void addRoomToHistory(LiveRoom room) {
     if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return;
