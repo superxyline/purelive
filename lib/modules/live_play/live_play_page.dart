@@ -69,6 +69,7 @@ class LivePlayPage extends GetView<LivePlayController> {
               if (controller.detail.value != null &&
                   controller.detail.value!.platform != null)
                 TextButton(
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
                     onPressed: () {
                       if (controller.detail.value != null &&
                           !controller.detail.value!.area.isNullOrEmpty &&
@@ -93,7 +94,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                                 j < liveCategory.children.length && !flag;
                                 j++) {
                               var tmpLiveArea = liveCategory.children[j];
-                              if(tmpLiveArea.areaName == area) {
+                              if (tmpLiveArea.areaName == area) {
                                 liveArea = tmpLiveArea;
                                 flag = true;
                                 break;
