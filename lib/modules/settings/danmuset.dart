@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:gsy_video_player/gsy_video_player.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 
 class VideoFitSetting extends StatefulWidget {
   const VideoFitSetting({
@@ -25,8 +26,15 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
       S.of(context).videofit_fitheight: BoxFit.fitHeight,
     };
     final Color color = Theme.of(context).colorScheme.primary.withOpacity(0.9);
-    final isSelected = [false, false, false, false, false];
+    final isSelected = List.filled(fitmodes.length, false).obs;
     isSelected[widget.controller.videoFitIndex.value] = true;
+    void updateSelected(int index){
+      widget.controller.videoFitIndex.value = index;
+      var list = List.filled(fitmodes.length, false);
+      list[index] = true;
+      isSelected.value=[];
+      isSelected.value = list;
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -61,29 +69,30 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
           child: Text(S.of(context).settings_videofit_title),
         ),
         Obx(() => Visibility(
-              visible: widget.controller.videoFitIndex.value > -10,
+              visible: isSelected.isNotEmpty,
               child: SizedBox(
                   height: 50,
                   width: MediaQuery.of(context).size.width,
                   child: ListView(
                     controller: ScrollController(),
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    // physics: NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     children: fitmodes.keys.mapIndex((key, index) {
                       var item = fitmodes[key];
-                      return Obx(() => TextButton(
-                            autofocus:
-                                widget.controller.videoFitIndex.value == index,
+                      return Obx((){
+                        CoreLog.d("rebuild TextButton ${index} ${key} ${isSelected}");
+                        return TextButton(
+                            autofocus: isSelected[index],
                             child: Text(key),
                             // selectedColor: Get.theme.colorScheme.primary,
                             // shape: RoundedRectangleBorder(
                             //   borderRadius: BorderRadius.circular(8),
                             // ),
                             onPressed: () {
-                              widget.controller.videoFitIndex.value = index;
+                              updateSelected(index);
                             },
-                          ));
+                          );});
                     }).toList(),
                   )),
             ))
