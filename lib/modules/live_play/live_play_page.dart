@@ -4,9 +4,12 @@ import 'package:floating/floating.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/plugins/cache_network.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
+import 'package:pure_live/routes/app_navigation.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'widgets/index.dart';
@@ -65,13 +68,57 @@ class LivePlayPage extends GetView<LivePlayController> {
               const SizedBox(width: 5),
               if (controller.detail.value != null &&
                   controller.detail.value!.platform != null)
-                Text(
-                  "${Sites.of(controller.detail.value!.platform!).name}${controller.detail.value!.area == null || controller.detail.value!.area == '' ? '' : "/${controller.detail.value!.area}"}",
-                  style: Theme.of(Get.context!)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(fontSize: 10),
-                ),
+                TextButton(
+                    onPressed: () {
+                      if (controller.detail.value != null &&
+                          !controller.detail.value!.area.isNullOrEmpty &&
+                          !controller.detail.value!.platform.isNullOrEmpty) {
+                        try {
+                          /// 平台
+                          var site = controller.detail.value!.platform!;
+                          var areasListController =
+                              Get.findOrNull<AreasListController>(tag: site);
+                          if (areasListController == null) {
+                            return;
+                          }
+                          var list = areasListController.list;
+
+                          /// 类别
+                          var area = controller.detail.value!.area!;
+                          LiveArea? liveArea;
+                          bool flag = false;
+                          for (var i = 0; i < list.length && !flag; i++) {
+                            var liveCategory = list[i];
+                            for (var j = 0;
+                                j < liveCategory.children.length && !flag;
+                                j++) {
+                              var tmpLiveArea = liveCategory.children[j];
+                              if(tmpLiveArea.areaName == area) {
+                                liveArea = tmpLiveArea;
+                                flag = true;
+                                break;
+                              }
+                            }
+                          }
+                          if (liveArea == null) {
+                            CoreLog.w("Not Find ${site}/${area}");
+                            return;
+                          }
+                          Navigator.pop(Get.context!);
+                          AppNavigator.toCategoryDetail(
+                              site: Sites.of(site), category: liveArea);
+                        } catch (e) {
+                          CoreLog.error(e);
+                        }
+                      }
+                    },
+                    child: Text(
+                      "${Sites.of(controller.detail.value!.platform!).name}${controller.detail.value!.area == null || controller.detail.value!.area == '' ? '' : "/${controller.detail.value!.area}"}",
+                      style: Theme.of(Get.context!)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontSize: 10),
+                    )),
             ],
           ),
         ],
