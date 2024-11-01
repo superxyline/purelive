@@ -1,7 +1,7 @@
 {
   "version": "1.7.5",
   "version_num": 10507,
-  "version_desc": "-Fix:修复Bilibili",
+  "version_desc": "-Fix:修复斗鱼分类",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
