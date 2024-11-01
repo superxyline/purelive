@@ -1,7 +1,7 @@
 {
   "version": "1.7.5",
   "version_num": 10507,
-  "version_desc": "-Fix:修复斗鱼分类",
+  "version_desc": "-Fix:修复斗鱼分类. \n-Fix:移除Tv端Vlc播放器. \n-Intro: 安装若无法播放请在设置中切换播放器后关闭App重新打开播放,Bilibili请优先Ijk进行播放.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
