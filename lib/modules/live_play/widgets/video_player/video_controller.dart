@@ -182,8 +182,7 @@ class VideoController with ChangeNotifier {
       if (player.platform is NativePlayer) {
         (player.platform as dynamic).setProperty('cache', 'no'); // --cache=<yes|no|auto>
         (player.platform as dynamic).setProperty('cache-secs', '0'); // --cache-secs=<seconds> with cache but why not.
-        (player.platform as dynamic).setProperty(
-            'demuxer-seekable-cache', 'no'); // --demuxer-seekable-cache=<yes|no|auto> Redundant with cache but why not.
+        (player.platform as dynamic).setProperty('demuxer-seekable-cache', 'no');
         (player.platform as dynamic).setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
         (player.platform as dynamic).setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
       }
@@ -206,8 +205,16 @@ class VideoController with ChangeNotifier {
         }
       });
     } else if (Platform.isAndroid || Platform.isIOS) {
+      bool useDefaultIjkPlayer = false;
+      if (room.platform == Sites.bilibiliSite) {
+        if (getVideoPlayerType(videoPlayerIndex) == GsyVideoPlayerType.sysytem ||
+            getVideoPlayerType(videoPlayerIndex) == GsyVideoPlayerType.ali) {
+          useDefaultIjkPlayer = true;
+        }
+      }
       gsyVideoPlayerController = GsyVideoPlayerController(
-          allowBackgroundPlayback: allowBackgroundPlay, player: getVideoPlayerType(videoPlayerIndex));
+          allowBackgroundPlayback: allowBackgroundPlay,
+          player: useDefaultIjkPlayer ? GsyVideoPlayerType.ijk : getVideoPlayerType(videoPlayerIndex));
       chewieController = ChewieController(
         videoPlayerController: gsyVideoPlayerController,
         autoPlay: false,
@@ -221,7 +228,7 @@ class VideoController with ChangeNotifier {
         showOptions: false,
         rotateWithSystem: settings.enableRotateScreenWithSystem.value,
       );
-      gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.surfaceView);
+      gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.textureView);
       gsyVideoPlayerController.setTimeOut(4000);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
@@ -363,8 +370,8 @@ class VideoController with ChangeNotifier {
     super.dispose();
   }
 
-  void refresh() {
-    destory();
+  void refresh() async {
+    await destory();
     Timer(const Duration(seconds: 2), () {
       livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.refreash);
     });
