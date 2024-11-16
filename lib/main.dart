@@ -145,8 +145,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
         builder: (lightDynamic, darkDynamic) {
           return Obx(() {
             var themeColor = HexColor(settings.themeColorSwitch.value);
-            var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
-            var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
+            ThemeData lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
+            ThemeData darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
             if (settings.enableDynamicTheme.value) {
               lightTheme = MyTheme(colorScheme: lightDynamic).lightThemeData;
               darkTheme = MyTheme(colorScheme: darkDynamic).darkThemeData;
@@ -154,8 +154,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
             return GetMaterialApp(
               title: '纯粹直播',
               themeMode: SettingsService.themeModes[settings.themeModeName.value]!,
-              theme: lightTheme,
-              darkTheme: darkTheme,
+              theme: lightTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
+              darkTheme: darkTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
               locale: SettingsService.languages[settings.languageName.value]!,
               navigatorObservers: [FlutterSmartDialog.observer],
               builder: FlutterSmartDialog.init(),

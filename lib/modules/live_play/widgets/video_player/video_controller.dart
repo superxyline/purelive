@@ -229,7 +229,6 @@ class VideoController with ChangeNotifier {
         rotateWithSystem: settings.enableRotateScreenWithSystem.value,
       );
       gsyVideoPlayerController.setRenderType(GsyVideoPlayerRenderType.textureView);
-      gsyVideoPlayerController.setTimeOut(4000);
       gsyVideoPlayerController.setMediaCodec(enableCodec);
       gsyVideoPlayerController.setMediaCodecTexture(enableCodec);
       gsyVideoPlayerController.setNetWorkBuilder(
@@ -239,6 +238,7 @@ class VideoController with ChangeNotifier {
         useDefaultIjkOptions: true,
       );
       gsyVideoPlayerController.addEventsListener((VideoEventType event) {
+        log('video error ${gsyVideoPlayerController.value.what}', name: 'video_player');
         if (event == VideoEventType.onError) {
           hasError.value = true;
           isPlaying.value = false;

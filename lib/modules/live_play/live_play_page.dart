@@ -147,12 +147,11 @@ class LivePlayPage extends GetView<LivePlayController> {
                         ],
                       )
                     : Row(children: <Widget>[
-                        Flexible(
-                          flex: 5,
+                        Expanded(
                           child: buildVideoPlayer(),
                         ),
-                        Flexible(
-                          flex: 3,
+                        SizedBox(
+                          width: 400,
                           child: Column(children: [
                             const ResolutionsRow(),
                             const Divider(height: 1),
