@@ -207,6 +207,12 @@ class HuyaSite implements LiveSite {
         'https://mp.huya.com/cache.php?m=Live'
         '&do=profileRoom&roomid=$roomId',
         header: {
+          'Accept': '*/*',
+          'Origin': 'https://www.huya.com',
+          'Referer': 'https://www.huya.com/',
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-site',
           "user-agent": kUserAgent,
         });
     var result = json.decode(resultText);
@@ -366,6 +372,12 @@ class HuyaSite implements LiveSite {
       {required String nick, required String platform, required String roomId, required String title}) async {
     var resultText = await HttpClient.instance.getText("https://m.huya.com/$roomId", queryParameters: {}, header: {
       "user-agent": kUserAgent,
+      'Accept': '*/*',
+      'Origin': 'https://www.huya.com',
+      'Referer': 'https://www.huya.com/',
+      'Sec-Fetch-Dest': 'empty',
+      'Sec-Fetch-Mode': 'cors',
+      'Sec-Fetch-Site': 'same-site',
     });
     var text =
         RegExp(r"window\.HNF_GLOBAL_INIT.=.\{(.*?)\}.</script>", multiLine: false).firstMatch(resultText)?.group(1);
@@ -380,6 +392,12 @@ class HuyaSite implements LiveSite {
       data: {"appId": 5002, "byPass": 3, "context": "", "version": "2.4", "data": {}},
       header: {
         "user-agent": kUserAgent,
+        'Accept': '*/*',
+        'Origin': 'https://www.huya.com',
+        'Referer': 'https://www.huya.com/',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-site',
       },
     );
     return result["data"]["uid"].toString();

@@ -398,7 +398,7 @@ class VideoController with ChangeNotifier {
     hasDestory = true;
     if (allowScreenKeepOn) WakelockPlus.disable();
     if (Platform.isAndroid || Platform.isIOS) {
-      brightnessController.resetScreenBrightness();
+      brightnessController.resetApplicationScreenBrightness();
       if (videoPlayerIndex == 4) {
         if (key.currentState?.isFullscreen() ?? false) {
           key.currentState?.exitFullscreen();
@@ -587,7 +587,7 @@ class VideoController with ChangeNotifier {
   }
 
   Future<double> brightness() async {
-    return await brightnessController.current;
+    return await brightnessController.application;
   }
 
   void setVolumn(double value) async {
@@ -600,7 +600,7 @@ class VideoController with ChangeNotifier {
 
   void setBrightness(double value) async {
     if (Platform.isAndroid || Platform.isIOS) {
-      await brightnessController.setScreenBrightness(value);
+      await brightnessController.setApplicationScreenBrightness(value);
     }
   }
 }

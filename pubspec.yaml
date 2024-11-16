@@ -59,15 +59,28 @@ dependencies:
   email_validator: ^3.0.0
   font_awesome_flutter: ^10.6.0
   # video player mobile
-  media_kit: ^1.1.1                        # Primary package.
-  media_kit_video: ^1.2.5                        # For video rendering.
-  media_kit_libs_video: ^1.0.5                   # Native video dependencies.
+  # 视频播放
+  media_kit:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./media_kit
+  media_kit_video:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./media_kit_video
+  media_kit_libs_video:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./libs/universal/media_kit_libs_video
   gsy_video_player: 
     path: E:/project/gsy_video_player
   share_handler: ^0.0.19
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
-  screen_brightness: ^0.2.2+1
+  screen_brightness: ^2.0.0+2
   flutter_volume_controller: ^1.2.7
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0
@@ -122,6 +135,22 @@ dependencies:
   dia_router: ^0.1.7
   dia_cors: ^0.1.2
   mobile_scanner: ^6.0.1 #二维码扫描
+dependency_overrides: 
+  media_kit:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./media_kit
+  media_kit_video:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./media_kit_video
+  media_kit_libs_video:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./libs/universal/media_kit_libs_video
 dev_dependencies:
   flutter_test:
     sdk: flutter
