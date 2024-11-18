@@ -310,6 +310,8 @@ class LivePlayController extends StateController {
         nick: currentPlayRoom.value.nick!,
       );
       isFavorite.value = settings.isFavorite(liveRoom);
+      currentPlayRoom.value = liveRoom;
+      currentPlayRoom.value.data = liveRoom.data;
     }
     isLastLine.value =
         calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
