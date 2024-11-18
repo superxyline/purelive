@@ -256,11 +256,19 @@ class VideoController with ChangeNotifier {
   refreshView() {
     refreshCompleted.value = false;
     Timer(const Duration(microseconds: 200), () async {
-      await brightnessController.resetScreenBrightness();
-      brightnessKey.currentState?.dispose();
+      await resetScreenBrightness();
       brightnessKey = GlobalKey<BrightnessVolumeDargAreaState>();
       refreshCompleted.value = true;
     });
+  }
+
+  /// 重置屏幕亮度
+  Future<void> resetScreenBrightness() async {
+    try {
+      await brightnessController.resetScreenBrightness();
+    }catch(e){
+      CoreLog.error(e);
+    }
   }
 
   void initDanmaku() {
@@ -347,6 +355,7 @@ class VideoController with ChangeNotifier {
   }
 
   destory() async {
+    resetScreenBrightness();
     disposeAllStream();
     danmakuController.disable();
     await danmakuController.dispose();
@@ -369,7 +378,6 @@ class VideoController with ChangeNotifier {
       videoPlayer.exitFullScreen();
     }
     videoPlayer.dispose();
-    brightnessController.resetScreenBrightness();
   }
 
   void setDataSource(String url, Map<String, String> headers) async {
