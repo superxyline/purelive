@@ -374,7 +374,7 @@ class SettingsService extends GetxController {
     if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return false;
     }
-    return favoriteRoomsMap.containsKey(room.roomId);
+    return favoriteRoomsMap.containsKey(getLiveRoomKey(room));
   }
 
   LiveRoom getLiveRoomByRoomId(String roomId, String platform) {
