@@ -2,6 +2,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
+import 'package:pure_live/common/widgets/status/app_loadding_widget.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
 import 'package:pure_live/plugins/cache_network.dart';
 
@@ -28,27 +29,35 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
         appBar: AppBar(title: Text(controller.subCategory.areaName!)),
         body: LayoutBuilder(builder: (context, constraint) {
           final width = constraint.maxWidth;
-          final crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+          final crossAxisCount =
+              width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
           return Obx(() => EasyRefresh(
-                controller: controller.easyRefreshController,
-                onRefresh: controller.refreshData,
-                onLoad: controller.loadData,
-                child: controller.list.isNotEmpty
+              controller: controller.easyRefreshController,
+              onRefresh: controller.refreshData,
+              onLoad: controller.loadData,
+              child: Stack(children: [
+                controller.list.isNotEmpty
                     ? MasonryGridView.count(
                         padding: const EdgeInsets.all(5),
                         controller: controller.scrollController,
                         crossAxisCount: crossAxisCount,
                         itemCount: controller.list.length,
-                        itemBuilder: (context, index) => RoomCard(room: controller.list[index], dense: true),
+                        itemBuilder: (context, index) =>
+                            RoomCard(room: controller.list[index], dense: true),
                       )
                     : EmptyView(
                         icon: Icons.live_tv_rounded,
                         title: S.of(context).empty_areas_room_title,
                         subtitle: S.of(context).empty_areas_room_subtitle,
                       ),
-              ));
+                Visibility(
+                  visible: (controller.loadding.value),
+                  child: const AppLoaddingWidget(),
+                ),
+              ])));
         }),
-        floatingActionButton: FavoriteAreaFloatingButton(area: controller.subCategory),
+        floatingActionButton:
+            FavoriteAreaFloatingButton(area: controller.subCategory),
       ),
     );
   }
@@ -63,10 +72,12 @@ class FavoriteAreaFloatingButton extends StatefulWidget {
   final LiveArea area;
 
   @override
-  State<FavoriteAreaFloatingButton> createState() => _FavoriteAreaFloatingButtonState();
+  State<FavoriteAreaFloatingButton> createState() =>
+      _FavoriteAreaFloatingButtonState();
 }
 
-class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton> {
+class _FavoriteAreaFloatingButtonState
+    extends State<FavoriteAreaFloatingButton> {
   final settings = Get.find<SettingsService>();
 
   late bool isFavorite = settings.isFavoriteArea(widget.area);
@@ -82,7 +93,8 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
               Get.dialog(
                 AlertDialog(
                   title: Text(S.of(context).unfollow),
-                  content: Text(S.of(context).unfollow_message(widget.area.areaName!)),
+                  content: Text(
+                      S.of(context).unfollow_message(widget.area.areaName!)),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(Get.context!).pop(false),
@@ -101,7 +113,8 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
                 }
               });
             },
-            child: CacheNetWorkUtils.getCircleAvatar(widget.area.areaPic, radius: 18),
+            child: CacheNetWorkUtils.getCircleAvatar(widget.area.areaPic,
+                radius: 18),
           )
         : FloatingActionButton.extended(
             elevation: 2,
@@ -110,7 +123,8 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
               setState(() => isFavorite = !isFavorite);
               settings.addArea(widget.area);
             },
-            icon: CacheNetWorkUtils.getCircleAvatar(widget.area.areaPic, radius: 18),
+            icon: CacheNetWorkUtils.getCircleAvatar(widget.area.areaPic,
+                radius: 18),
             label: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
