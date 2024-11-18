@@ -255,7 +255,8 @@ class VideoController with ChangeNotifier {
 
   refreshView() {
     refreshCompleted.value = false;
-    Timer(const Duration(microseconds: 200), () {
+    Timer(const Duration(microseconds: 200), () async {
+      await brightnessController.resetScreenBrightness();
       brightnessKey.currentState?.dispose();
       brightnessKey = GlobalKey<BrightnessVolumeDargAreaState>();
       refreshCompleted.value = true;
@@ -368,6 +369,7 @@ class VideoController with ChangeNotifier {
       videoPlayer.exitFullScreen();
     }
     videoPlayer.dispose();
+    brightnessController.resetScreenBrightness();
   }
 
   void setDataSource(String url, Map<String, String> headers) async {
