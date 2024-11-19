@@ -64,7 +64,8 @@ class VideoController with ChangeNotifier {
 
   final refreshCompleted = true.obs;
 
-  final pip = Floating();
+  // ignore: prefer_typing_uninitialized_variables
+  late final pip;
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
   late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
@@ -250,8 +251,8 @@ class VideoController with ChangeNotifier {
         Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
       }
     });
-
     if (Platform.isAndroid) {
+      pip = Floating();
       pip.pipStatusStream.listen((status) {
         if (status == PiPStatus.enabled) {
           isPipMode.value = true;

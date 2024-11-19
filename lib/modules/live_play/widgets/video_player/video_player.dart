@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
@@ -25,28 +26,40 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return PiPSwitcher(
-      floating: widget.controller.pip,
-      childWhenDisabled: media_kit_video.Video(
-        key: widget.controller.key,
-        pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-        resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-        controller: widget.controller.mediaPlayerController,
-        fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
-        controls: widget.controller.room.platform == Sites.iptvSite
-            ? media_kit_video.MaterialVideoControls
-            : (state) => _buildVideoPanel(),
-      ),
-      childWhenEnabled: media_kit_video.Video(
-        key: widget.controller.key,
-        pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-        resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-        controller: widget.controller.mediaPlayerController,
-        fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
-        controls: widget.controller.room.platform == Sites.iptvSite
-            ? media_kit_video.MaterialVideoControls
-            : (state) => _buildVideoPanel(),
-      ),
+    if (Platform.isAndroid) {
+      return PiPSwitcher(
+        floating: widget.controller.pip,
+        childWhenDisabled: media_kit_video.Video(
+          key: widget.controller.key,
+          pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+          resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+          controller: widget.controller.mediaPlayerController,
+          fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+          controls: widget.controller.room.platform == Sites.iptvSite
+              ? media_kit_video.MaterialVideoControls
+              : (state) => _buildVideoPanel(),
+        ),
+        childWhenEnabled: media_kit_video.Video(
+          key: widget.controller.key,
+          pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+          resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+          controller: widget.controller.mediaPlayerController,
+          fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+          controls: widget.controller.room.platform == Sites.iptvSite
+              ? media_kit_video.MaterialVideoControls
+              : (state) => _buildVideoPanel(),
+        ),
+      );
+    }
+    return media_kit_video.Video(
+      key: widget.controller.key,
+      pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+      resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+      controller: widget.controller.mediaPlayerController,
+      fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+      controls: widget.controller.room.platform == Sites.iptvSite
+          ? media_kit_video.MaterialVideoControls
+          : (state) => _buildVideoPanel(),
     );
   }
 }
