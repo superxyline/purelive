@@ -197,40 +197,43 @@ class LivePlayPage extends GetView<LivePlayController> {
                           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                           clipBehavior: Clip.antiAlias,
                           color: Get.theme.focusColor,
-                          child: Obx(() => controller.isFirstLoad.value
-                              ? const Center(
-                                  child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ))
-                              : controller.loadTimeOut.value
-                                  ? CachedNetworkImage(
-                                      imageUrl: controller.currentPlayRoom.value.cover!,
-                                      cacheManager: CustomCacheManager.instance,
-                                      fit: BoxFit.fill,
-                                      errorWidget: (context, error, stackTrace) => const Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.live_tv_rounded, size: 48),
-                                            Text(
-                                              "无法获取播放信息",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
-                                            ),
-                                            Text(
-                                              "当前房间未开播或无法观看",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
-                                            ),
-                                            Text(
-                                              "请按确定按钮刷新重试",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
-                                            ),
-                                          ],
+                          child: Obx(
+                            () => controller.isFirstLoad.value
+                                ? const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : controller.loadTimeOut.value
+                                    ? CachedNetworkImage(
+                                        imageUrl: controller.currentPlayRoom.value.cover!,
+                                        cacheManager: CustomCacheManager.instance,
+                                        fit: BoxFit.fill,
+                                        errorWidget: (context, error, stackTrace) => const Center(
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.live_tv_rounded, size: 48),
+                                              Text(
+                                                "无法获取播放信息",
+                                                style: TextStyle(color: Colors.white, fontSize: 18),
+                                              ),
+                                              Text(
+                                                "当前房间未开播或无法观看",
+                                                style: TextStyle(color: Colors.white, fontSize: 18),
+                                              ),
+                                              Text(
+                                                "请按确定按钮刷新重试",
+                                                style: TextStyle(color: Colors.white, fontSize: 18),
+                                              ),
+                                            ],
+                                          ),
                                         ),
+                                      )
+                                    : TimeOutVideoWidget(
+                                        controller: controller,
                                       ),
-                                    )
-                                  : TimeOutVideoWidget(
-                                      controller: controller,
-                                    )),
+                          ),
                         ),
         ),
       ),

@@ -68,19 +68,12 @@ class SettingsPage extends GetView<SettingsService> {
               )),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
-                  title: const Text("自动旋转屏幕"),
-                  subtitle: const Text("当全屏播放时,会自动旋转屏幕"),
-                  value: controller.enableRotateScreenWithSystem.value,
+                  title: Text(S.of(context).enable_screen_keep_on),
+                  subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
+                  value: controller.enableScreenKeepOn.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.enableRotateScreenWithSystem.value = value,
+                  onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
                 )),
-          Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_screen_keep_on),
-                subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
-                value: controller.enableScreenKeepOn.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
-              )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_fullscreen_default),
                 subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
@@ -148,18 +141,19 @@ class SettingsPage extends GetView<SettingsService> {
                   onChanged: (bool value) => controller.doubleExit.value = value,
                 )),
           if (Platform.isAndroid)
-            ListTile(
-              title: Text(S.of(context).change_player),
-              subtitle: Text(S.of(context).change_player_subtitle),
-              trailing: Obx(() => Text(controller.playerlist[controller.videoPlayerIndex.value])),
-              onTap: showVideoSetDialog,
-            ),
-          if (Platform.isAndroid)
             Obx(() => SwitchListTile(
                   title: Text(S.of(context).enable_codec),
                   value: controller.enableCodec.value,
                   activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.enableCodec.value = value,
+                )),
+          if (Platform.isAndroid)
+            Obx(() => SwitchListTile(
+                  title: Text('兼容模式'),
+                  subtitle: Text('若播放卡顿可尝试打开此选项'),
+                  value: controller.playerCompatMode.value,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (bool value) => controller.playerCompatMode.value = value,
                 )),
           if (Platform.isAndroid)
             ListTile(

@@ -75,8 +75,6 @@ dependencies:
       url: https://github.com/media-kit/media-kit.git
       ref: main
       path: ./libs/universal/media_kit_libs_video
-  gsy_video_player: 
-    path: E:/project/gsy_video_player
   share_handler: ^0.0.19
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
@@ -85,6 +83,7 @@ dependencies:
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0
   window_manager: ^0.4.2
+  floating: ^5.0.1
   url_protocol:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git

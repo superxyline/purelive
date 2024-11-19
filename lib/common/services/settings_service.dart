@@ -122,6 +122,10 @@ class SettingsService extends GetxController {
       PrefUtil.setBool('enableCodec', value);
     });
 
+    playerCompatMode.listen((value) {
+      PrefUtil.setBool('playerCompatMode', value);
+    });
+
     videoPlayerIndex.listen((value) {
       PrefUtil.setInt('videoPlayerIndex', value);
     });
@@ -255,6 +259,8 @@ class SettingsService extends GetxController {
   final videoPlayerIndex = (PrefUtil.getInt('videoPlayerIndex') ?? 0).obs;
 
   final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
+
+  final playerCompatMode = (PrefUtil.getBool('playerCompatMode') ?? false).obs;
 
   final mergeDanmuRating = (PrefUtil.getDouble('mergeDanmuRating') ?? 0.0).obs;
 
@@ -514,6 +520,7 @@ class SettingsService extends GetxController {
     doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
     enableCodec.value = json['enableCodec'] ?? true;
+    playerCompatMode.value = json['playerCompatMode'] ?? false;
     mergeDanmuRating.value = json['mergeDanmuRating'] != null ? double.parse(json['mergeDanmuRating'].toString()) : 0.0;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
@@ -560,6 +567,7 @@ class SettingsService extends GetxController {
     json['doubleExit'] = doubleExit.value;
     json['videoPlayerIndex'] = videoPlayerIndex.value;
     json['enableCodec'] = enableCodec.value;
+    json['playerCompatMode'] = playerCompatMode.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
     json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
@@ -599,6 +607,7 @@ class SettingsService extends GetxController {
       'doubleExit': true,
       "videoPlayerIndex": 0,
       'enableCodec': true,
+      'playerCompatMode': false,
       'bilibiliCookie': '',
       'shieldList': [],
       'mergeDanmuRating': 0.0,

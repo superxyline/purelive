@@ -268,8 +268,7 @@ class TopActionBar extends StatelessWidget {
               const DatetimeInfo(),
               BatteryInfo(controller: controller),
             ],
-            if (!controller.fullscreenUI && controller.supportPip && controller.videoPlayerIndex != 4)
-              PIPButton(controller: controller),
+            if (!controller.fullscreenUI && controller.supportPip) PIPButton(controller: controller),
           ]),
         ),
       ),
@@ -608,13 +607,6 @@ class LockButton extends StatelessWidget {
                 child: IconButton(
                   onPressed: () => {
                     controller.showLocked.toggle(),
-                    if (Platform.isAndroid)
-                      {
-                        if (controller.showLocked.value)
-                          {controller.chewieController.disableRotation()}
-                        else
-                          {controller.chewieController.enableRotation()}
-                      }
                   },
                   icon: Icon(
                     controller.showLocked.value ? Icons.lock_rounded : Icons.lock_open_rounded,

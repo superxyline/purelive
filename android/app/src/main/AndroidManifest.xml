@@ -92,26 +92,12 @@
     <!-- enable floating window -->
     <service android:name="flutter.overlay.window.flutter_overlay_window.OverlayService"
       android:exported="false" />
-    <service android:name=".PlaybackService" android:foregroundServiceType="mediaPlayback"
-      android:exported="true"
-      android:permission="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK">
-      <intent-filter>
-        <action android:name="androidx.media3.session.MediaSessionService" />
-      </intent-filter>
-    </service>
-    <receiver android:name="androidx.media3.session.MediaButtonReceiver" android:exported="true">
-      <intent-filter>
-        <action android:name="android.intent.action.MEDIA_BUTTON" />
-      </intent-filter>
-    </receiver>
     <provider android:name="androidx.core.content.FileProvider"
       android:authorities="${applicationId}.fileProvider" android:exported="false"
       android:grantUriPermissions="true" tools:replace="android:authorities">
       <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/filepaths" tools:replace="android:resource" />
     </provider>
-    <meta-data android:name="com.aliyun.alivc_license.licensekey"
-      android:value="rPbcIXKZlgsLDcmy6301c8c32439b4f28ad49d79d12c46303" />
   </application>
   <uses-feature android:name="android.software.leanback" android:required="false" />
   <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
