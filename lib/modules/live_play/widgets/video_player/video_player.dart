@@ -29,8 +29,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
       floating: widget.controller.pip,
       childWhenDisabled: media_kit_video.Video(
         key: widget.controller.key,
-        pauseUponEnteringBackgroundMode: widget.controller.settings.enableBackgroundPlay.value,
-        resumeUponEnteringForegroundMode: widget.controller.settings.enableBackgroundPlay.value,
+        pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+        resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
         controller: widget.controller.mediaPlayerController,
         fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
         controls: widget.controller.room.platform == Sites.iptvSite
@@ -39,8 +39,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
       ),
       childWhenEnabled: media_kit_video.Video(
         key: widget.controller.key,
-        pauseUponEnteringBackgroundMode: widget.controller.settings.enableBackgroundPlay.value,
-        resumeUponEnteringForegroundMode: widget.controller.settings.enableBackgroundPlay.value,
+        pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+        resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
         controller: widget.controller.mediaPlayerController,
         fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
         controls: widget.controller.room.platform == Sites.iptvSite
