@@ -215,7 +215,7 @@ class LivePlayController extends StateController {
 
     currentPlayRoom.value = room;
     online.value = room.watching ?? "0";
-    detail.value = currentPlayRoom.value;
+    // detail.value = currentPlayRoom.value;
     isFavorite.value = settings.isFavorite(room);
     onInitPlayerState(firstLoad: true);
     subscriptionList.add(isFirstLoad.listen((p0) {
