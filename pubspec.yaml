@@ -89,6 +89,8 @@ dependencies:
   dio_cookie_manager: ^3.1.1
   dio_cache_interceptor: ^3.5.0
   dio_cache_interceptor_db_store: ^5.1.1
+  dio_compatibility_layer: ^0.1.0 # 允许 dio 使用 http 包
+  rhttp: ^0.9.1  # 使用 rust 请求http
   flutter_cache_manager_dio: ^4.0.0
   cookie_jar: ^4.0.8
   # system hardware utils

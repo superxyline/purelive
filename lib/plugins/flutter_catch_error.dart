@@ -7,6 +7,7 @@ import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/main.dart';
 import 'package:pure_live/plugins/global.dart';
 import 'package:fvp/fvp.dart' as fvp;
+import 'package:pure_live/core/common/http_client.dart' as my_http_client;
 ///全局异常的捕捉
 class FlutterCatchError {
   static run(Widget app, List<String> args) {
@@ -25,6 +26,8 @@ class FlutterCatchError {
 
     runZonedGuarded(() async {
 
+      /// 初始化 http
+      await my_http_client.HttpClient.initHttp();
       WidgetsFlutterBinding.ensureInitialized();
       PrefUtil.prefs = await SharedPreferences.getInstance();
       MediaKit.ensureInitialized();

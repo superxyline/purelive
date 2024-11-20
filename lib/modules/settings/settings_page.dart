@@ -544,20 +544,19 @@ class SettingsPage extends GetView<SettingsService> {
   /// 缓存管理
   static Future<void> showCacheManageSetDialog() async {
     var controller = Get.find<SettingsService>();
-    var context = Get.context!;
     var cacheDirectorySize = await CustomCache.instance.getCacheDirectorySize();
     var imageCacheDirectorySize =
         await CustomCache.instance.getImageCacheDirectorySize();
     var areaCacheDirectorySize =
         await CustomCache.instance.getAreaCacheDirectorySize();
     Utils.showRightOrBottomSheet(
-      title: S.of(context).cache_manage,
+      title: S.of(Get.context!).cache_manage,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.of(context).cache_manage_clear_all),
+            title: Text(S.of(Get.context!).cache_manage_clear_all),
             subtitle: Text(cacheDirectorySize),
             onTap: () async {
               var result =
@@ -569,7 +568,7 @@ class SettingsPage extends GetView<SettingsService> {
           ),
           ListTile(
             leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.of(context).cache_manage_clear_image),
+            title: Text(S.of(Get.context!).cache_manage_clear_image),
             subtitle: Text(imageCacheDirectorySize),
             onTap: () async {
               var result =
@@ -581,7 +580,7 @@ class SettingsPage extends GetView<SettingsService> {
           ),
           ListTile(
             leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.of(context).cache_manage_clear_area),
+            title: Text(S.of(Get.context!).cache_manage_clear_area),
             // subtitle: Text(areaCacheDirectorySize),
             subtitle: Text(areaCacheDirectorySize),
             onTap: () async {

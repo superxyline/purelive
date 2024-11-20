@@ -4,14 +4,16 @@ import 'package:async_locks/async_locks.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
+import 'package:dio_compatibility_layer/dio_compatibility_layer.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pure_live/core/common/core_log.dart';
-import 'custom_interceptor.dart';
 import 'package:pure_live/core/common/core_error.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:rhttp/rhttp.dart' as rhttp;
 
+import '../../plugins/dns4flutter/dns_helper.dart';
+import 'custom_interceptor.dart';
 import 'custom_io_http_client_adapter.dart';
-
 
 class HttpClient {
   static HttpClient? _httpUtil;
@@ -22,7 +24,7 @@ class HttpClient {
   }
 
   static CacheStore? getCacheStore() {
-    getTemporaryDirectory().then((dir){
+    getTemporaryDirectory().then((dir) {
       return DbCacheStore(databasePath: dir.path, logStatements: true);
     });
     sleep(const Duration(seconds: 1));
@@ -57,8 +59,22 @@ class HttpClient {
   );
 
   late Dio dio;
-  HttpClient() {
+  static late rhttp.RhttpCompatibleClient compatibleClient;
 
+  static initHttp() async {
+    await rhttp.Rhttp.init();
+    compatibleClient = await rhttp.RhttpCompatibleClient.create(
+        settings: rhttp.ClientSettings(
+      dnsSettings: rhttp.DnsSettings.dynamic(resolver: (String host) async {
+        return await DnsHelper.lookupARecords(host);
+      }),
+      tlsSettings: rhttp.TlsSettings(
+        verifyCertificates: false,
+      ),
+    ));
+  }
+
+  HttpClient() {
     dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 10),
@@ -69,6 +85,7 @@ class HttpClient {
     dio.interceptors.add(CustomInterceptor());
     dio.interceptors.add(DioCacheInterceptor(options: cacheOptions));
     dio.httpClientAdapter = CustomIOHttpClientAdapter.instance;
+    dio.httpClientAdapter = ConversionLayerAdapter(compatibleClient);
 
     HttpOverrides.global = GlobalHttpOverrides();
   }
@@ -76,29 +93,31 @@ class HttpClient {
   /// 用于存放 取消任务操作
   static Map<int, CancelToken> cancelTokenMap = {};
   static final cancelTokenLock = Lock();
+
   // 最大排队请求队列
   static const maxCancelTokenLen = 20;
-  static getCancelTokenKey(){
+
+  static getCancelTokenKey() {
     return DateTime.now().microsecondsSinceEpoch;
   }
 
   /// 尝试取消请求
   static tryToCancelRequest() async {
-    if(cancelTokenMap.length <= maxCancelTokenLen) {
+    if (cancelTokenMap.length <= maxCancelTokenLen) {
       return;
     }
 
     await cancelTokenLock.run(() async {
-        if (cancelTokenMap.length <= maxCancelTokenLen) {
-          return;
-        }
-        await releaseCancelTokenMap();
+      if (cancelTokenMap.length <= maxCancelTokenLen) {
+        return;
+      }
+      await releaseCancelTokenMap();
     });
   }
 
   /// 释放 请求
   static Future<void> releaseCancelTokenMap() async {
-    await Future.delayed( const Duration(seconds: 3)).then((value) {
+    await Future.delayed(const Duration(seconds: 3)).then((value) {
       if (cancelTokenMap.length <= maxCancelTokenLen) {
         return;
       }
@@ -141,7 +160,8 @@ class HttpClient {
     } catch (e) {
       CoreLog.error(e);
       if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
+        throw CoreError(e.message ?? "",
+            statusCode: e.response?.statusCode ?? 0);
       } else {
         throw CoreError("发送GET请求失败");
       }
@@ -180,7 +200,8 @@ class HttpClient {
     } catch (e) {
       CoreLog.error(e);
       if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
+        throw CoreError(e.message ?? "",
+            statusCode: e.response?.statusCode ?? 0);
       } else {
         throw CoreError("发送GET请求失败");
       }
@@ -217,7 +238,8 @@ class HttpClient {
         options: Options(
           responseType: ResponseType.json,
           headers: header,
-          contentType: formUrlEncoded ? Headers.formUrlEncodedContentType : null,
+          contentType:
+              formUrlEncoded ? Headers.formUrlEncodedContentType : null,
         ),
         cancelToken: cancelToken,
       );
@@ -226,7 +248,8 @@ class HttpClient {
       CoreLog.error(e);
       SmartDialog.showToast(e.toString());
       if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
+        throw CoreError(e.message ?? "",
+            statusCode: e.response?.statusCode ?? 0);
       } else {
         throw CoreError("发送POST请求失败");
       }
