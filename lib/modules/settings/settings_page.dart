@@ -6,6 +6,7 @@ import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
+import 'package:pure_live/modules/util/time_util.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 
@@ -134,7 +135,7 @@ class SettingsPage extends GetView<SettingsService> {
           ListTile(
             title: Text(S.of(context).auto_refresh_time),
             subtitle: Text(S.of(context).auto_refresh_time_subtitle),
-            trailing: Obx(() => Text('${controller.autoRefreshTime}分钟')),
+            trailing: Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoRefreshTime.value))),
             onTap: showAutoRefreshTimeSetDialog,
           ),
           ListTile(
@@ -180,7 +181,7 @@ class SettingsPage extends GetView<SettingsService> {
               title: Text(S.of(context).auto_shutdown_time),
               subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
               trailing:
-                  Obx(() => Text('${controller.autoShutDownTime} minute')),
+                  Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoShutDownTime.value))),
               onTap: showAutoShutDownTimeSetDialog,
             ),
         ],
@@ -394,7 +395,7 @@ class SettingsPage extends GetView<SettingsService> {
                     controller.autoRefreshTime.value = value.toInt(),
               ),
               Text('${S.of(context).auto_refresh_time}:'
-                  ' ${controller.autoRefreshTime}分钟'),
+                  ' ${TimeUtil.minuteValueToStr(controller.autoRefreshTime.value)}'),
             ],
           )),
     );
@@ -450,7 +451,7 @@ class SettingsPage extends GetView<SettingsService> {
                 },
               ),
               Text('${S.of(context).auto_shutdown_time}:'
-                  ' ${controller.autoShutDownTime} 分钟'),
+                  ' ${TimeUtil.minuteValueToStr(controller.autoShutDownTime.value)}'),
             ],
           )),
     );

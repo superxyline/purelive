@@ -196,5 +196,9 @@
     "enable_codec": "enable hardcodec",
     "system": "System",
     "dark": "Dark",
-    "light": "Light"
+    "light": "Light",
+    "second": "second",
+    "minute": "minute",
+    "hour": "hour",
+    "day": "day"
 }

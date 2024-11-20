@@ -195,5 +195,10 @@
     "enable_codec": "开启硬解码",
     "system": "跟随系统",
     "dark": "深色模式",
-    "light": "浅色模式"
+    "light": "浅色模式",
+
+    "second": "秒",
+    "minute": "分钟",
+    "hour": "小时",
+    "day": "天"
 }

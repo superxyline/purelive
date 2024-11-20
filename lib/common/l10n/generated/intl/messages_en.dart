@@ -86,6 +86,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Create backup success"),
         "custom": MessageLookupByLibrary.simpleMessage("Custom"),
         "dark": MessageLookupByLibrary.simpleMessage("Dark"),
+        "day": MessageLookupByLibrary.simpleMessage("day"),
         "develop_progress": MessageLookupByLibrary.simpleMessage("Development"),
         "dlan_button_info":
             MessageLookupByLibrary.simpleMessage("DLNA Broadcast"),
@@ -176,12 +177,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "hide_offline_rooms":
             MessageLookupByLibrary.simpleMessage("Hide Offline Rooms"),
         "history": MessageLookupByLibrary.simpleMessage("History"),
+        "hour": MessageLookupByLibrary.simpleMessage("hour"),
         "info_is_offline": m0,
         "info_is_replay": m1,
         "issue_feedback":
             MessageLookupByLibrary.simpleMessage("Issue Feedback"),
         "license": MessageLookupByLibrary.simpleMessage("License"),
         "light": MessageLookupByLibrary.simpleMessage("Light"),
+        "minute": MessageLookupByLibrary.simpleMessage("minute"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("Move To Top"),
         "new_version_info": m2,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage(
@@ -220,6 +223,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "room_info_content": m4,
         "search_input_hint":
             MessageLookupByLibrary.simpleMessage("Input live room keyword"),
+        "second": MessageLookupByLibrary.simpleMessage("second"),
         "select_recover_file":
             MessageLookupByLibrary.simpleMessage("Select backup file"),
         "settings_danmaku_amount":
