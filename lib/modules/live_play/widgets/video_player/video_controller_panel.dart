@@ -573,17 +573,20 @@ class DanmakuViewer extends StatelessWidget {
               : controller.settings.danmakuOpacity.value,
           child: controller.settings.danmakuArea.value == 0.0
               ? Container()
-              : BarrageWall(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height *
-                      controller.settings.danmakuArea.value,
-                  controller: controller.danmakuController,
-                  speed: controller.settings.danmakuSpeed.value.toInt(),
-                  maxBulletHeight: controller.settings.danmakuFontSize * 1.5,
-                  massiveMode: false,
-                  // disabled by default
-                  child: Container(),
-                ),
+              : LayoutBuilder(builder: (context, constraint) {
+            final width = constraint.maxWidth;
+            final height = constraint.maxHeight;
+            return BarrageWall(
+              width: width,
+              height: height * controller.settings.danmakuArea.value,
+              controller: controller.danmakuController,
+              speed: controller.settings.danmakuSpeed.value.toInt(),
+              maxBulletHeight: controller.settings.danmakuFontSize * 1.5,
+              massiveMode: false,
+              // disabled by default
+              child: Container(),
+            );
+          })
         ));
   }
 }
