@@ -267,7 +267,7 @@ class VideoController with ChangeNotifier {
     try {
       await brightnessController.resetScreenBrightness();
     }catch(e){
-      CoreLog.error(e);
+      // CoreLog.error(e);
     }
   }
 
