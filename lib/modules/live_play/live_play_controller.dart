@@ -459,7 +459,14 @@ class LivePlayController extends StateController {
     );
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
-        if (settings.shieldList
+
+        bool isShow = true;
+        /// 彩色弹幕
+        if(settings.showColourDanmaku.value) {
+          isShow = msg.color != Colors.white;
+        }
+
+        if (isShow && settings.shieldList
             .every((element) => !msg.message.contains(element))) {
           if (!DanmuMerge().isRepeat(msg.message)) {
             DanmuMerge().add(msg.message);

@@ -187,6 +187,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "select_recover_file": MessageLookupByLibrary.simpleMessage("选择备份文件"),
         "settings_danmaku_amount": MessageLookupByLibrary.simpleMessage("弹幕数量"),
         "settings_danmaku_area": MessageLookupByLibrary.simpleMessage("弹幕区域"),
+        "settings_danmaku_colour":
+            MessageLookupByLibrary.simpleMessage("只显示彩色弹幕"),
         "settings_danmaku_fontBorder":
             MessageLookupByLibrary.simpleMessage("描边宽度"),
         "settings_danmaku_fontsize":

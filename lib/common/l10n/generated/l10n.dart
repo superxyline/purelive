@@ -1151,6 +1151,16 @@ class S {
     );
   }
 
+  /// `Only display color Danmaku`
+  String get settings_danmaku_colour {
+    return Intl.message(
+      'Only display color Danmaku',
+      name: 'settings_danmaku_colour',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Danmaku opacity`
   String get settings_danmaku_opacity {
     return Intl.message(

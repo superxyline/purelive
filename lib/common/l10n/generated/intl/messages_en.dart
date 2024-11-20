@@ -226,6 +226,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Danmaku amount"),
         "settings_danmaku_area":
             MessageLookupByLibrary.simpleMessage("Danmaku area"),
+        "settings_danmaku_colour":
+            MessageLookupByLibrary.simpleMessage("Only display color Danmaku"),
         "settings_danmaku_fontBorder":
             MessageLookupByLibrary.simpleMessage("Border width"),
         "settings_danmaku_fontsize":

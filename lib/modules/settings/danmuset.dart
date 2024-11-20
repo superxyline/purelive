@@ -57,6 +57,13 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => controller.hideDanmaku.value = !value,
             )),
+        Obx(() => SwitchListTile(
+          title: Text(S.of(context).settings_danmaku_colour),
+          contentPadding: EdgeInsets.zero,
+          value: controller.showColourDanmaku.value,
+          activeColor: Theme.of(context).colorScheme.primary,
+          onChanged: (bool value) => controller.showColourDanmaku.value = value,
+        )),
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
