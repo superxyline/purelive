@@ -1710,6 +1710,46 @@ class S {
       args: [],
     );
   }
+
+  /// `Cache Manage`
+  String get cache_manage {
+    return Intl.message(
+      'Cache Manage',
+      name: 'cache_manage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear all cache`
+  String get cache_manage_clear_all {
+    return Intl.message(
+      'Clear all cache',
+      name: 'cache_manage_clear_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear image cache`
+  String get cache_manage_clear_image {
+    return Intl.message(
+      'Clear image cache',
+      name: 'cache_manage_clear_image',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear area cache`
+  String get cache_manage_clear_area {
+    return Intl.message(
+      'Clear area cache',
+      name: 'cache_manage_clear_area',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

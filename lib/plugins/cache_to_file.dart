@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:pure_live/plugins/file_util.dart';
 
 class CustomCache {
   static CustomCache get instance {
@@ -37,5 +38,42 @@ class CustomCache {
     var dir = '${baseDir.path}/$cacheDir';
     await Directory(dir).create(recursive: true);
     return File('$dir/$key');
+  }
+
+  /// 缓存目录大小
+  Future<String> getCacheDirectorySize({String partPath = ""}) async {
+    var baseDir = await getTemporaryDirectory();
+    if (partPath.isNotEmpty) {
+      baseDir = Directory("${baseDir.path}/$partPath");
+    }
+    // CoreLog.d("$partPath ${baseDir.path}");
+    var size = await FileUtil.getTotalSizeOfFilesInDir(baseDir);
+    return FileUtil.formatSize(size);
+  }
+
+  Future<Null> deleteCacheDirectory({var partPath = ""}) async {
+    var baseDir = await getTemporaryDirectory();
+    if (partPath.isNotEmpty) {
+      baseDir = Directory("${baseDir.path}/$partPath");
+    }
+    return FileUtil.deleteDirectory(baseDir);
+  }
+
+  /// 图片缓存目录大小
+  Future<String> getImageCacheDirectorySize() async {
+    return getCacheDirectorySize(partPath: "cacheimage");
+  }
+
+  Future<Null> deleteImageCacheDirectory() {
+    return deleteCacheDirectory(partPath: "cacheimage");
+  }
+
+  /// 分区缓存目录大小
+  Future<String> getAreaCacheDirectorySize() async {
+    return getCacheDirectorySize(partPath: "cache_file");
+  }
+
+  Future<Null> deleteAreaCacheDirectory() {
+    return deleteCacheDirectory(partPath: "cache_file");
   }
 }

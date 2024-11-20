@@ -7,6 +7,7 @@ import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/modules/util/time_util.dart';
+import 'package:pure_live/plugins/cache_to_file.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 
@@ -135,7 +136,8 @@ class SettingsPage extends GetView<SettingsService> {
           ListTile(
             title: Text(S.of(context).auto_refresh_time),
             subtitle: Text(S.of(context).auto_refresh_time_subtitle),
-            trailing: Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoRefreshTime.value))),
+            trailing: Obx(() => Text(
+                TimeUtil.minuteValueToStr(controller.autoRefreshTime.value))),
             onTap: showAutoRefreshTimeSetDialog,
           ),
           ListTile(
@@ -180,10 +182,15 @@ class SettingsPage extends GetView<SettingsService> {
             ListTile(
               title: Text(S.of(context).auto_shutdown_time),
               subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
-              trailing:
-                  Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoShutDownTime.value))),
+              trailing: Obx(() => Text(TimeUtil.minuteValueToStr(
+                  controller.autoShutDownTime.value))),
               onTap: showAutoShutDownTimeSetDialog,
             ),
+          ListTile(
+            title: Text(S.of(context).cache_manage),
+            subtitle: Text(S.of(context).cache_manage),
+            onTap: showCacheManageSetDialog,
+          ),
         ],
       ),
     );
@@ -532,5 +539,61 @@ class SettingsPage extends GetView<SettingsService> {
         ),
         barrierDismissible: false);
     return result;
+  }
+
+  /// 缓存管理
+  static Future<void> showCacheManageSetDialog() async {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    var cacheDirectorySize = await CustomCache.instance.getCacheDirectorySize();
+    var imageCacheDirectorySize =
+        await CustomCache.instance.getImageCacheDirectorySize();
+    var areaCacheDirectorySize =
+        await CustomCache.instance.getAreaCacheDirectorySize();
+    Utils.showRightOrBottomSheet(
+      title: S.of(context).cache_manage,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.cleaning_services_outlined),
+            title: Text(S.of(context).cache_manage_clear_all),
+            subtitle: Text(cacheDirectorySize),
+            onTap: () async {
+              var result =
+                  await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              if (result) {
+                CustomCache.instance.deleteCacheDirectory();
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.cleaning_services_outlined),
+            title: Text(S.of(context).cache_manage_clear_image),
+            subtitle: Text(imageCacheDirectorySize),
+            onTap: () async {
+              var result =
+                  await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              if (result) {
+                CustomCache.instance.deleteImageCacheDirectory();
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.cleaning_services_outlined),
+            title: Text(S.of(context).cache_manage_clear_area),
+            // subtitle: Text(areaCacheDirectorySize),
+            subtitle: Text(areaCacheDirectorySize),
+            onTap: () async {
+              var result =
+                  await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              if (result) {
+                CustomCache.instance.deleteAreaCacheDirectory();
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

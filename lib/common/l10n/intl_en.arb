@@ -197,8 +197,14 @@
     "system": "System",
     "dark": "Dark",
     "light": "Light",
+
     "second": "second",
     "minute": "minute",
     "hour": "hour",
-    "day": "day"
+    "day": "day",
+
+    "cache_manage": "Cache Manage",
+    "cache_manage_clear_all": "Clear all cache",
+    "cache_manage_clear_image": "Clear image cache",
+    "cache_manage_clear_area": "Clear area cache"
 }

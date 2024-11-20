@@ -59,6 +59,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Backup &Recover"),
         "backup_recover_subtitle":
             MessageLookupByLibrary.simpleMessage("Create backup and recover"),
+        "cache_manage": MessageLookupByLibrary.simpleMessage("Cache Manage"),
+        "cache_manage_clear_all":
+            MessageLookupByLibrary.simpleMessage("Clear all cache"),
+        "cache_manage_clear_area":
+            MessageLookupByLibrary.simpleMessage("Clear area cache"),
+        "cache_manage_clear_image":
+            MessageLookupByLibrary.simpleMessage("Clear image cache"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "change_language": MessageLookupByLibrary.simpleMessage("Language"),
         "change_language_subtitle": MessageLookupByLibrary.simpleMessage(

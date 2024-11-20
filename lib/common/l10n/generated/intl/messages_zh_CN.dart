@@ -55,6 +55,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "backup_recover": MessageLookupByLibrary.simpleMessage("备份与恢复"),
         "backup_recover_subtitle":
             MessageLookupByLibrary.simpleMessage("创建备份与恢复"),
+        "cache_manage": MessageLookupByLibrary.simpleMessage("缓存管理"),
+        "cache_manage_clear_all":
+            MessageLookupByLibrary.simpleMessage("清理全部缓存"),
+        "cache_manage_clear_area":
+            MessageLookupByLibrary.simpleMessage("清理分区缓存"),
+        "cache_manage_clear_image":
+            MessageLookupByLibrary.simpleMessage("清理图片缓存"),
         "cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "change_language": MessageLookupByLibrary.simpleMessage("切换语言"),
         "change_language_subtitle":

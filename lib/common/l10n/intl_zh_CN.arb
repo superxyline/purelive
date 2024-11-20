@@ -200,5 +200,10 @@
     "second": "秒",
     "minute": "分钟",
     "hour": "小时",
-    "day": "天"
+    "day": "天",
+
+    "cache_manage": "缓存管理",
+    "cache_manage_clear_all": "清理全部缓存",
+    "cache_manage_clear_image": "清理图片缓存",
+    "cache_manage_clear_area": "清理分区缓存"
 }
