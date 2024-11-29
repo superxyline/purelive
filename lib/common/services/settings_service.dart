@@ -134,6 +134,10 @@ class SettingsService extends GetxController {
       PrefUtil.setString('bilibiliCookie', value);
     });
 
+    huyaCookie.listen((value) {
+      PrefUtil.setString('huyaCookie', value);
+    });
+
     mergeDanmuRating.listen((value) {
       PrefUtil.setDouble('mergeDanmuRating', value);
     });
@@ -271,6 +275,9 @@ class SettingsService extends GetxController {
   // cookie
 
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
+
+  final huyaCookie = (PrefUtil.getString('huyaCookie') ?? '').obs;
+
   static const List<BoxFit> videofitList = [
     BoxFit.contain,
     BoxFit.fill,
@@ -523,6 +530,7 @@ class SettingsService extends GetxController {
     playerCompatMode.value = json['playerCompatMode'] ?? false;
     mergeDanmuRating.value = json['mergeDanmuRating'] != null ? double.parse(json['mergeDanmuRating'].toString()) : 0.0;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
+    huyaCookie.value = json['huyaCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     webPort.value = json['webPort'] ?? '8008';
     webPortEnable.value = json['webPortEnable'] ?? false;
@@ -569,6 +577,7 @@ class SettingsService extends GetxController {
     json['enableCodec'] = enableCodec.value;
     json['playerCompatMode'] = playerCompatMode.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
+    json['huyaCookie'] = huyaCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
     json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
 
@@ -609,6 +618,7 @@ class SettingsService extends GetxController {
       'enableCodec': true,
       'playerCompatMode': false,
       'bilibiliCookie': '',
+      'huyaCookie': '',
       'shieldList': [],
       'mergeDanmuRating': 0.0,
       "hotAreasList": [],

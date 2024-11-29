@@ -75,4 +75,6 @@ class RoutePath {
 
   /// kToolbox
   static const kToolbox = "/tool_box";
+
+  static const kHuyaCookie = "/huya_cookie";
 }

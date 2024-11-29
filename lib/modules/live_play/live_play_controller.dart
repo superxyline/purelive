@@ -92,6 +92,8 @@ class LivePlayController extends StateController {
   // 是否是手动切换线路
   var isActive = false.obs;
 
+  bool disposed = false;
+
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
@@ -147,11 +149,13 @@ class LivePlayController extends StateController {
     isLastLine.listen((p0) {
       if (isLastLine.value && hasError.value && isActive.value == false) {
         // 刷新到了最后一路线 并且有错误
-        SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...", displayTime: const Duration(seconds: 2));
-        isLastLine.value = false;
-        isFirstLoad.value = true;
-        restoryQualityAndLines();
-        resetRoom(Sites.of(currentPlayRoom.value.platform!), currentPlayRoom.value.roomId!);
+        if (Get.currentRoute == '/live_play') {
+          SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...", displayTime: const Duration(seconds: 2));
+          isLastLine.value = false;
+          isFirstLoad.value = true;
+          restoryQualityAndLines();
+          resetRoom(Sites.of(currentPlayRoom.value.platform!), currentPlayRoom.value.roomId!);
+        }
       } else {
         if (success.value) {
           isActive.value = false;
@@ -172,9 +176,11 @@ class LivePlayController extends StateController {
     isFirstLoad.value = true;
     getVideoSuccess.value = false;
     loadTimeOut.value = false;
-    Timer(const Duration(milliseconds: 2000), () {
-      log('resetRoom', name: 'LivePlayController');
-      onInitPlayerState(firstLoad: true);
+    Timer(const Duration(milliseconds: 4000), () {
+      if (Get.currentRoute == '/live_play') {
+        log('resetRoom', name: 'LivePlayController');
+        onInitPlayerState(firstLoad: true);
+      }
     });
   }
 
@@ -209,9 +215,11 @@ class LivePlayController extends StateController {
       handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, active: active);
       detail.value = liveRoom;
       if (liveRoom.liveStatus == LiveStatus.unknown) {
-        SmartDialog.showToast("获取直播间信息失败,请按重新获取", displayTime: const Duration(seconds: 2));
-        getVideoSuccess.value = false;
-        isFirstLoad.value = false;
+        if (Get.currentRoute == '/live_play') {
+          SmartDialog.showToast("获取直播间信息失败,请重新获取", displayTime: const Duration(seconds: 2));
+          getVideoSuccess.value = false;
+          isFirstLoad.value = false;
+        }
         return liveRoom;
       }
 
@@ -442,7 +450,8 @@ class LivePlayController extends StateController {
         'Sec-Fetch-Mode': 'cors',
         'Sec-Fetch-Site': 'same-site',
         "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "Cookie": settings.huyaCookie.value,
       };
     }
     videoController = VideoController(
@@ -523,6 +532,7 @@ class LivePlayController extends StateController {
   @override
   void dispose() {
     disPoserPlayer();
+    disposed = true;
     super.dispose();
   }
 }

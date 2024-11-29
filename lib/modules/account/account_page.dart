@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pure_live/common/services/bilibili_account_service.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
+import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class AccountPage extends GetView<AccountController> {
   const AccountPage({super.key});
@@ -14,13 +14,6 @@ class AccountPage extends GetView<AccountController> {
       ),
       body: ListView(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              "哔哩哔哩账号需要登录才能看高清晰度的直播，其他平台暂无此限制。",
-              textAlign: TextAlign.center,
-            ),
-          ),
           Obx(
             () => ListTile(
               leading: Image.asset(
@@ -38,22 +31,24 @@ class AccountPage extends GetView<AccountController> {
           ),
           ListTile(
             leading: Image.asset(
-              'assets/images/douyu.png',
-              width: 36,
-              height: 36,
-            ),
-            title: const Text("斗鱼直播"),
-            subtitle: const Text("尚不支持"),
-            enabled: false,
-            trailing: const Icon(Icons.chevron_right),
-          ),
-          ListTile(
-            leading: Image.asset(
               'assets/images/huya.png',
               width: 36,
               height: 36,
             ),
             title: const Text("虎牙直播"),
+            subtitle: const Text("设置cookie"),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Get.toNamed(RoutePath.kHuyaCookie);
+            },
+          ),
+          ListTile(
+            leading: Image.asset(
+              'assets/images/douyu.png',
+              width: 36,
+              height: 36,
+            ),
+            title: const Text("斗鱼直播"),
             subtitle: const Text("尚不支持"),
             enabled: false,
             trailing: const Icon(Icons.chevron_right),

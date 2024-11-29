@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'dart:developer' as developer;
 import 'package:pure_live/core/sites.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pure_live/model/live_category.dart';
@@ -165,7 +166,9 @@ class KuaishowSite implements LiveSite {
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
     List<LivePlayQuality> qualities = <LivePlayQuality>[];
-    var qulityList = detail.data[0]["adaptationSet"]["representation"];
+    developer.log(detail.data.toString(), name: 'detail.data');
+    var qulityList = detail.data["h264"]["adaptationSet"]["representation"];
+
     for (var quality in qulityList) {
       var qualityItem = LivePlayQuality(
         quality: quality["name"],
@@ -330,9 +333,12 @@ class KuaishowSite implements LiveSite {
       queryParameters: {},
       header: mHeaders,
     );
+
     try {
       var text = RegExp(r"window\.__INITIAL_STATE__=(.*?);", multiLine: false).firstMatch(resultText)?.group(1);
+
       var transferData = text!.replaceAll("undefined", "null");
+
       var jsonObj = jsonDecode(transferData);
       var liveStream = jsonObj["liveroom"]["playList"][0]["liveStream"];
       var author = jsonObj["liveroom"]["playList"][0]["author"];

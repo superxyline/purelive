@@ -82,7 +82,7 @@ dependencies:
   flutter_volume_controller: ^1.2.7
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0
-  window_manager: ^0.4.2
+  window_manager: ^0.4.3
   floating: ^5.0.1
   url_protocol:
     git:
