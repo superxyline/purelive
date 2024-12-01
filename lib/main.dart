@@ -46,8 +46,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WindowListener {
   final settings = Get.find<SettingsService>();
-  late AppLinks _appLinks;
-  StreamSubscription<Uri>? _linkSubscription;
   @override
   void initState() {
     super.initState();
@@ -84,34 +82,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
   @override
   void dispose() {
     windowManager.removeListener(this);
-    _linkSubscription?.cancel();
     super.dispose();
-  }
-
-  Future<void> initDeepLinks() async {
-    _appLinks = AppLinks();
-
-    // Check initial link if app was in cold state (terminated)
-    final appLink = await _appLinks.getInitialLink();
-    if (appLink != null) {
-      openAppLink(appLink);
-    }
-
-    // Handle link when app is in warm state (front or background)
-    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      openAppLink(uri);
-    });
-  }
-
-  void openAppLink(Uri uri) {
-    final AuthController authController = Get.find<AuthController>();
-    if (Platform.isWindows) {
-      authController.shouldGoReset = true;
-      Timer(const Duration(seconds: 2), () {
-        authController.shouldGoReset = false;
-        Get.offAndToNamed(RoutePath.kUpdatePassword);
-      });
-    }
   }
 
   @override
@@ -128,7 +99,6 @@ class _MyAppState extends State<MyApp> with WindowListener {
   void _init() async {
     if (Platform.isWindows) {
       // Add this line to override the default close handler
-      initDeepLinks();
       await WindowUtil.setTitle();
       await WindowUtil.setWindowsPort();
       setState(() {});

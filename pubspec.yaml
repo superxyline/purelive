@@ -90,7 +90,6 @@ dependencies:
       commit: 77a8420
   win32_registry: ^1.1.2
   windows_single_instance: ^1.0.0
-  app_links: ^6.1.4
   protobuf: ^3.1.0
   fixnum: ^1.1.0
   dio: ^5.3.3
