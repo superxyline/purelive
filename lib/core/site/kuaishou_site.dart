@@ -184,7 +184,8 @@ class KuaishowSite extends LiveSite {
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
     List<LivePlayQuality> qualities = <LivePlayQuality>[];
-    var qulityList = detail.data[0]["adaptationSet"]["representation"];
+    CoreLog.d("detail.data: ${jsonEncode(detail.data)}");
+    var qulityList = detail.data["h264"]["adaptationSet"]["representation"];
     for (var quality in qulityList) {
       var qualityItem = LivePlayQuality(
         quality: quality["name"],
