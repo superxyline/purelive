@@ -133,6 +133,7 @@ class HuyaSite implements LiveSite {
       for (var line in urlData.lines) {
         var src = line.line;
         src += "/${line.streamName}.flv";
+        src = src.replaceAll("http://", "https://");
         var parms = urlData.isXingxiu
             ? line.flvAntiCode
             : processAnticode(
@@ -143,7 +144,7 @@ class HuyaSite implements LiveSite {
         if (item.bitRate > 0) {
           src += "&ratio=${item.bitRate}";
         }
-        src = src.replaceAll("http://", "https://");
+
         urls.add(src);
       }
       qualities.add(LivePlayQuality(
@@ -168,6 +169,8 @@ class HuyaSite implements LiveSite {
       header: {
         "user-agent": kUserAgent,
         "Cookie": settings.huyaCookie.value,
+        "Origin": "https://www.huya.com",
+        "Referer": "https://www.huya.com/",
       },
     );
     var result = json.decode(resultText);
@@ -437,8 +440,12 @@ class HuyaSite implements LiveSite {
   String processAnticode(String anticode, String streamName) {
     var query = Uri.splitQueryString(anticode);
     final uid = int.parse(getUUid(settings.huyaCookie.value, streamName));
+    query["ctype"] = "huya_live";
+    query["t"] = "100";
+
     final convertUid = (uid << 8 | uid >> 24) & 0xFFFFFFFF;
     final wsTime = query["wsTime"]!;
+
     final seqId = (DateTime.now().millisecondsSinceEpoch + uid).toString();
     int ct = ((int.parse(wsTime, radix: 16) + Random().nextDouble()) * 1000).toInt();
     final fm = utf8.decode(base64.decode(Uri.decodeComponent(query['fm']!)));
