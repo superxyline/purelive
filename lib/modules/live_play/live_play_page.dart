@@ -90,19 +90,25 @@ class LivePlayPage extends GetView<LivePlayController> {
                           ),
                           borderRadius: BorderRadius.circular(8),
                         )),
-                    onPressed: () {
+                    onPressed: () async {
                       if (controller.detail.value != null &&
                           !controller.detail.value!.area.isNullOrEmpty &&
                           !controller.detail.value!.platform.isNullOrEmpty) {
                         try {
                           /// 平台
                           var site = controller.detail.value!.platform!;
+                          // CoreLog.d("site: $site");
                           var areasListController =
                               Get.findOrNull<AreasListController>(tag: site);
                           if (areasListController == null) {
                             return;
                           }
                           var list = areasListController.list;
+                          // CoreLog.d("list: $list");
+                          if(list.isEmpty) {
+                            CoreLog.d("loading areasList Data ...");
+                            await areasListController.loadData();
+                          }
 
                           /// 类别
                           var area = controller.detail.value!.area!;
