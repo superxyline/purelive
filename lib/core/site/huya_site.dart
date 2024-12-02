@@ -454,8 +454,8 @@ class HuyaSite extends LiveSite {
     // https://github.com/SeaHOH/ykdl/blob/master/ykdl/extractors/huya/live.py
     // 通过ChatGPT转换的Dart代码
     var query = Uri.splitQueryString(anticode);
-    query["t"] = "102";
-    query["ctype"] = "tars_mp";
+    query["t"] = "103";
+    query["ctype"] = "tars_mobile";
 
     final wsTime = (DateTime.now().millisecondsSinceEpoch ~/ 1000 + 21600).toRadixString(16);
     final seqId = (DateTime.now().millisecondsSinceEpoch + int.parse(uid)).toString();
@@ -477,14 +477,18 @@ class HuyaSite extends LiveSite {
       "ctype": query["ctype"]!,
       "ver": "1",
       "fs": query["fs"]!,
-      "sphdcdn": query["sphdcdn"] ?? "",
-      "sphdDC": query["sphdDC"] ?? "",
-      "sphd": query["sphd"] ?? "",
-      "exsphd": query["exsphd"] ?? "",
+      // "sphdcdn": query["sphdcdn"] ?? "",
+      // "sphdDC": query["sphdDC"] ?? "",
+      // "sphd": query["sphd"] ?? "",
+      // "exsphd": query["exsphd"] ?? "",
+      "dMod": "mseh-0",
+      "sdkPcdn": "1_1",
       "uid": uid,
       "uuid": getUUid(),
       "t": query["t"]!,
-      "sv": formatted
+      "sv": "202411221719", // formatted
+      "sdk_sid": "1732862566708",
+      "a_block": "0"
     }).query;
   }
 
