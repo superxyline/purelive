@@ -1,7 +1,7 @@
 {
-  "version": "1.7.6",
+  "version": "1.7.7",
   "version_num": 10507,
-  "version_desc": "-Fix: 修复了一些已知问题",
+  "version_desc": "-Fix: 修复虎牙一起看直播问题",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
