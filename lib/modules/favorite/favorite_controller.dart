@@ -191,7 +191,7 @@ class FavoriteController extends GetxController
   void filterDate(int filterDataListIndex) {
     // CoreLog.d("selectedSite ${selectedSite}");
     String siteId = selectedSiteList[filterDataListIndex];
-    var list = () {
+    var allList = () {
       switch (filterDataListIndex) {
         case onlineRoomsIndex: //
           return onlineRooms.value;
@@ -201,7 +201,11 @@ class FavoriteController extends GetxController
           return <LiveRoom>[];
       }
     }();
-    list = list.where((e) => filterSite(e, siteId)).toList();
+    var list = allList.where((e) => filterSite(e, siteId)).toList();
+    if(list.isEmpty) {
+      list = allList;
+      selectedSiteList[filterDataListIndex] = Sites.allSite;
+    }
     filterDataList[filterDataListIndex].value = list;
   }
 
