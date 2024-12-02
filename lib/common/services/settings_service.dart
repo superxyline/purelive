@@ -335,7 +335,12 @@ class SettingsService extends GetxController {
   static List<String> players = VideoPlayerFactory.getSupportVideoPlayerList().map((e) => e.playerName).toList();
   final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
 
-  List<String> get playerlist => players;
+  List<String> get playerlist {
+    if(videoPlayerIndex.value >= players.length) {
+      videoPlayerIndex.value = 0;
+    }
+    return players;
+  }
   void changePreferPlatform(String name) {
     if (platforms.indexWhere((e) => e == name) != -1) {
       preferPlatform.value = name;
