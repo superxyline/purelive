@@ -145,6 +145,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
     var videoPlayerController2 = VideoPlayerController.networkUrl(
       Uri.parse(datasource),
       videoPlayerOptions: options,
+      httpHeaders: headers,
     );
     videoPlayerController.value = videoPlayerController2;
 
