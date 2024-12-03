@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/main.dart';
+import 'package:pure_live/plugins/cache_to_file.dart';
 import 'package:pure_live/plugins/global.dart';
 import 'package:fvp/fvp.dart' as fvp;
 import 'package:pure_live/core/common/http_client.dart' as my_http_client;
@@ -43,6 +44,9 @@ class FlutterCatchError {
       // 初始化服务
       initService();
       initRefresh();
+
+      // 图片缓存删除
+      CustomCache.instance.deleteImageCacheFile();
 
       ///受保护的代码块
       runApp(app);

@@ -51,12 +51,18 @@ class CustomCache {
     return FileUtil.formatSize(size);
   }
 
-  Future<Null> deleteCacheDirectory({var partPath = ""}) async {
+  /// 获取缓存目录
+  Future<Directory> getCacheDirectory({var partPath = ""}) async {
     var baseDir = await getTemporaryDirectory();
     if (partPath.isNotEmpty) {
       baseDir = Directory("${baseDir.path}/$partPath");
     }
-    return FileUtil.deleteDirectory(baseDir);
+    return baseDir;
+  }
+
+  Future<Null> deleteCacheDirectory({var partPath = ""}) async {
+    return FileUtil.deleteDirectory(
+        await getCacheDirectory(partPath: partPath));
   }
 
   /// 图片缓存目录大小
@@ -66,6 +72,21 @@ class CustomCache {
 
   Future<Null> deleteImageCacheDirectory() {
     return deleteCacheDirectory(partPath: "cacheimage");
+  }
+
+  /// 删除过期缓存文件
+  Future<Null> deleteCacheFile(
+      {var partPath = "", int millisecond = 24 * 60 * 60 * 1000}) async {
+    var dateTime = DateTime.timestamp();
+    var deleteMillisecond = dateTime.millisecondsSinceEpoch - millisecond;
+    return FileUtil.deleteFile(
+        await getCacheDirectory(partPath: partPath), deleteMillisecond);
+  }
+
+  /// 删除过期缓存图片文件
+  Future<Null> deleteImageCacheFile(
+      {int millisecond = 24 * 60 * 60 * 1000}) async {
+    return deleteCacheFile(partPath: "cacheimage", millisecond: millisecond);
   }
 
   /// 分区缓存目录大小

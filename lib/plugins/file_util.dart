@@ -51,4 +51,20 @@ final class FileUtil {
       }
     }
   }
+
+  /// 删除文件夹下的文件，不包括文件夹
+  static Future<Null> deleteFile(FileSystemEntity file, int deleteMillisecond) async {
+    if (file is Directory) {
+      final List<FileSystemEntity> children = file.listSync();
+      for (final FileSystemEntity child in children) {
+        deleteFile(child, deleteMillisecond);
+      }
+    } else if(file is File) {
+      var lastAccessedTime = file.lastAccessedSync();
+      var millisecond = lastAccessedTime.millisecondsSinceEpoch;
+      if(deleteMillisecond >= millisecond) {
+        file.delete();
+      }
+    }
+  }
 }
