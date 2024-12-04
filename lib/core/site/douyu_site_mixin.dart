@@ -7,14 +7,13 @@ import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
 
-mixin DouyuSiteMixin on SiteAccount{
-
+mixin DouyuSiteMixin on SiteAccount {
   /// ------------------ 登录
   @override
   bool isSupportLogin() => false;
 
   @override
-  URLRequest webLoginURLRequest(){
+  URLRequest webLoginURLRequest() {
     // https://passport.douyu.com/member/login?
     return URLRequest(
       url: WebUri("https://passport.douyu.com/h5/loginActivity?"),
@@ -22,7 +21,7 @@ mixin DouyuSiteMixin on SiteAccount{
   }
 
   @override
-  bool webLoginHandle(WebUri? uri){
+  bool webLoginHandle(WebUri? uri) {
     if (uri == null) {
       return false;
     }
@@ -31,18 +30,21 @@ mixin DouyuSiteMixin on SiteAccount{
 
   /// 加载二维码
   @override
-  Future<QRBean> loadQRCode() async{
+  Future<QRBean> loadQRCode() async {
     var qrBean = QRBean();
     try {
       qrBean.qrStatus = QRStatus.loading;
 
-      var result = await HttpClient.instance.postJson(
-        "https://passport.douyu.com/scan/generateCode",
-        data: {
-          "client_id": 1,
-          "isMultiAccount": 0
-        }
-      );
+      var result = await HttpClient.instance
+          .postJson("https://passport.douyu.com/scan/generateCode", data: {
+        "client_id": 1,
+        "isMultiAccount": 0
+      }, header: {
+        "referer": "https://passport.douyu.com/member/login?",
+        "origin": "https://passport.douyu.com",
+        "user-agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      });
       CoreLog.d("result: ${result}");
       if (result["error"] != 0) {
         throw result["msg"];
@@ -60,19 +62,16 @@ mixin DouyuSiteMixin on SiteAccount{
 
   ///  获取二维码扫描状态
   @override
-  Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async{
+  Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async {
     try {
       var milliseconds = DateTime.now().millisecondsSinceEpoch;
-      var response = await HttpClient.instance.get(
-        "https://passport.douyu.com/japi/scan/auth",
-        queryParameters: {
-          "time": milliseconds,
-          "code": qrBean.qrcodeKey,
-        },
-        header: {
-          "referer": "https://www.douyu.com/",
-        }
-      );
+      var response = await HttpClient.instance
+          .get("https://passport.douyu.com/japi/scan/auth", queryParameters: {
+        "time": milliseconds,
+        "code": qrBean.qrcodeKey,
+      }, header: {
+        "referer": "https://www.douyu.com/",
+      });
       // if (response.data["error"] != 0) {
       //   throw response.data["msg"];
       // }
@@ -97,7 +96,7 @@ mixin DouyuSiteMixin on SiteAccount{
         qrBean.qrcodeKey = "";
       } else if (code == 86090) {
         qrBean.qrStatus = QRStatus.scanned;
-      } else{
+      } else {
         qrBean.qrStatus = QRStatus.unscanned;
       }
     } catch (e) {

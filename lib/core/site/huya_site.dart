@@ -22,7 +22,9 @@ import 'package:pure_live/model/live_search_result.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-class HuyaSite extends LiveSite {
+import 'huya_site_mixin.dart';
+
+class HuyaSite extends LiveSite with HuyaSiteMixin {
   @override
   String get id => "huya";
 
