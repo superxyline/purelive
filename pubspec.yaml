@@ -54,42 +54,30 @@ dependencies:
   flex_color_picker: ^3.3.0
   flutter_exit_app: ^1.1.2
   visibility_detector: ^0.4.0+2
+  floating: ^5.0.1
   # database
   supabase_flutter: ^2.0.1
   email_validator: ^3.0.0
   font_awesome_flutter: ^10.6.0
   # video player mobile
-  # 视频播放
-  media_kit:
-    git:
-      url: https://github.com/media-kit/media-kit.git
-      ref: main
-      path: ./media_kit
-  media_kit_video:
-    git:
-      url: https://github.com/media-kit/media-kit.git
-      ref: main
-      path: ./media_kit_video
-  media_kit_libs_video:
-    git:
-      url: https://github.com/media-kit/media-kit.git
-      ref: main
-      path: ./libs/universal/media_kit_libs_video
+  media_kit: ^1.1.1                        # Primary package.
+  media_kit_video: ^1.2.5                        # For video rendering.
+  media_kit_libs_video: ^1.0.5                   # Native video dependencies.
   share_handler: ^0.0.19
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
-  screen_brightness: ^2.0.0+2
+  screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0
-  window_manager: ^0.4.3
-  floating: ^5.0.1
+  window_manager: ^0.4.2
   url_protocol:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
       commit: 77a8420
   win32_registry: ^1.1.2
   windows_single_instance: ^1.0.0
+  app_links: ^6.1.4
   protobuf: ^3.1.0
   fixnum: ^1.1.0
   dio: ^5.3.3
@@ -105,9 +93,9 @@ dependencies:
   shared_preferences: ^2.2.2
   flutter_cache_manager: ^3.3.1
   # utils
-  get: ^5.0.0-release-candidate-9.2.1
+  get: ^5.0.0-release-candidate-9
   intl: ^0.19.0
-  timezone: ^0.10.0
+  timezone: ^0.9.3
   date_format: ^2.0.7
   path: ^1.8.3
   file: ^7.0.0
@@ -137,22 +125,6 @@ dependencies:
   dia_router: ^0.1.7
   dia_cors: ^0.1.2
   mobile_scanner: ^6.0.1 #二维码扫描
-dependency_overrides: 
-  media_kit:
-    git:
-      url: https://github.com/media-kit/media-kit.git
-      ref: main
-      path: ./media_kit
-  media_kit_video:
-    git:
-      url: https://github.com/media-kit/media-kit.git
-      ref: main
-      path: ./media_kit_video
-  media_kit_libs_video:
-    git:
-      url: https://github.com/media-kit/media-kit.git
-      ref: main
-      path: ./libs/universal/media_kit_libs_video
 dev_dependencies:
   flutter_test:
     sdk: flutter
