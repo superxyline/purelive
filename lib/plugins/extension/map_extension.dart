@@ -9,7 +9,7 @@ extension MapExtension on Map? {
     }
     Map<String, String> map = {};
     for (var key in keys2) {
-      map[key.toString()] = keys2.toString();
+      map[key.toString()] = this![key].toString();
     }
     return map;
   }
