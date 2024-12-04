@@ -23,8 +23,9 @@ import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
 import '../../common/utils/js_engine.dart';
+import 'douyu_site_mixin.dart';
 
-class DouyuSite extends LiveSite {
+class DouyuSite extends LiveSite with DouyuSiteMixin {
   @override
   String get id => "douyu";
 
