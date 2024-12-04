@@ -4,6 +4,7 @@ import 'package:pure_live/common/models/bilibili_user_info_page.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
+import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
 
 mixin BilibiliSiteMixin on SiteAccount{
@@ -107,6 +108,8 @@ mixin BilibiliSiteMixin on SiteAccount{
         isLogin.value = flag;
         CoreLog.d("isLogin: ${flag}");
         userCookie.value = cookie;
+        var liveSite = site.liveSite as BiliBiliSite;
+        liveSite.cookie = cookie;
         return flag;
       } else {
         SmartDialog.showToast("${site.name}登录已失效，请重新登录");
