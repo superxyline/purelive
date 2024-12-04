@@ -150,6 +150,7 @@ class SettingsService extends GetxController {
     //   PrefUtil.setBool('webPortEnable', value);
     // });
     siteCookies.listen((value){
+      CoreLog.d("save siteCookies: ${value}");
       PrefUtil.setMap('siteCookies', value);
     });
   }
@@ -663,6 +664,7 @@ class SettingsService extends GetxController {
     json['webPort '] = webPort.value;
     json['webPortEnable'] = webPortEnable.value;
     json['siteCookies'] = siteCookies.value;
+    CoreLog.d("siteCookies: ${siteCookies.value}");
     return json;
   }
 

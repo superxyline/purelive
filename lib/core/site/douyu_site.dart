@@ -244,6 +244,7 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
       required String roomId,
       required String title}) async {
     try {
+      var roomData = getSignByHome(roomId);
       var result = await HttpClient.instance.getJson(
           "https://www.douyu.com/betard/$roomId",
           queryParameters: {},
@@ -273,7 +274,7 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
             roomInfo["show_status"] == 1 ? LiveStatus.live : LiveStatus.offline,
         status: roomInfo["show_status"] == 1,
         danmakuData: roomInfo["room_id"].toString(),
-        data: await getSignByHome(roomInfo["room_id"].toString()),
+        data: await roomData,
         platform: Sites.douyuSite,
         link: "https://www.douyu.com/$roomId",
         isRecord: roomInfo["videoLoop"] == 1,

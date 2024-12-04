@@ -34,8 +34,7 @@ mixin class SiteAccount {
     userName.value = "未登录";
     isLogin.value = false;
     SettingsService settings = Get.find<SettingsService>();
-    var siteCookies = settings.siteCookies.value;
-    siteCookies.remove(site.id);
+    settings.siteCookies.remove(site.id);
     CookieManager cookieManager = CookieManager.instance();
     await cookieManager.deleteAllCookies();
   }

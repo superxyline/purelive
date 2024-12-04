@@ -1,27 +1,28 @@
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart';
 import 'package:pure_live/common/models/bilibili_user_info_page.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
 
-mixin BilibiliSiteMixin on SiteAccount{
-
+mixin BilibiliSiteMixin on SiteAccount {
   /// ------------------ 登录
   @override
   bool isSupportLogin() => true;
 
   @override
-  URLRequest webLoginURLRequest(){
+  URLRequest webLoginURLRequest() {
     return URLRequest(
       url: WebUri("https://passport.bilibili.com/login"),
     );
   }
 
   @override
-  bool webLoginHandle(WebUri? uri){
+  bool webLoginHandle(WebUri? uri) {
     if (uri == null) {
       return false;
     }
@@ -30,7 +31,7 @@ mixin BilibiliSiteMixin on SiteAccount{
 
   /// 加载二维码
   @override
-  Future<QRBean> loadQRCode() async{
+  Future<QRBean> loadQRCode() async {
     var qrBean = QRBean();
     try {
       qrBean.qrStatus = QRStatus.loading;
@@ -54,7 +55,7 @@ mixin BilibiliSiteMixin on SiteAccount{
 
   ///  获取二维码扫描状态
   @override
-  Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async{
+  Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async {
     try {
       var response = await HttpClient.instance.get(
         "https://passport.bilibili.com/x/passport-login/web/qrcode/poll",
@@ -110,6 +111,8 @@ mixin BilibiliSiteMixin on SiteAccount{
         userCookie.value = cookie;
         var liveSite = site.liveSite as BiliBiliSite;
         liveSite.cookie = cookie;
+        SettingsService settings = Get.find<SettingsService>();
+        settings.siteCookies[site.id] = cookie;
         return flag;
       } else {
         SmartDialog.showToast("${site.name}登录已失效，请重新登录");
