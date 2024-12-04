@@ -61,7 +61,7 @@ mixin class SiteAccount {
   }
 
   ///  获取二维码扫描状态
-  Future<QRBean> pollQRStatus(QRBean qrBean) async{
+  Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async{
     return qrBean;
   }
 

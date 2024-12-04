@@ -61,7 +61,7 @@ class SiteQRLoginController extends GetxController {
         ..qrcodeKey=qrcodeKey
         ..qrStatus=qrStatus.value
         ;
-        qrBean = await site.liveSite.pollQRStatus(qrBean);
+        qrBean = await site.liveSite.pollQRStatus(site, qrBean);
 
         qrStatus.value = qrBean.qrStatus;
         qrcodeUrl.value = qrBean.qrcodeUrl;
