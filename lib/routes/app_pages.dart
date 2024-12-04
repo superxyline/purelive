@@ -1,3 +1,9 @@
+import 'package:pure_live/modules/site_account/login/qr_login_page.dart';
+import 'package:pure_live/modules/site_account/login/site_login_binging.dart';
+import 'package:pure_live/modules/site_account/login/web_login_page.dart';
+import 'package:pure_live/modules/site_account/site_account_bing.dart';
+import 'package:pure_live/modules/site_account/site_account_page.dart';
+
 import 'route_path.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/modules/auth/mine_page.dart';
@@ -115,8 +121,8 @@ class AppPages {
     //账号设置
     GetPage(
       name: RoutePath.kSettingsAccount,
-      page: () => const AccountPage(),
-      bindings: [AccountBinding()],
+      page: () => const SiteAccountPage(),
+      bindings: [SiteAccountBinding()],
     ),
     //哔哩哔哩Web登录
     GetPage(
@@ -132,6 +138,22 @@ class AppPages {
       page: () => const BiliBiliQRLoginPage(),
       bindings: [
         BilibiliQrLoginBinding(),
+      ],
+    ),
+    // 站点Web登录
+    GetPage(
+      name: RoutePath.kSiteWebLogin,
+      page: () => SiteWebLoginPage(),
+      bindings: [
+        SiteWebLoginBinding(),
+      ],
+    ),
+    // 站点二维码登录
+    GetPage(
+      name: RoutePath.kSiteQRLogin,
+      page: () => SiteQRLoginPage(),
+      bindings: [
+        SiteQrLoginBinding(),
       ],
     ),
     GetPage(

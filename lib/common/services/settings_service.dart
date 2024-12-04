@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/model/video_player_factory.dart';
+import 'package:pure_live/plugins/extension/map_extension.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 // import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -148,6 +149,9 @@ class SettingsService extends GetxController {
     //   changeWebListen(webPort.value, value);
     //   PrefUtil.setBool('webPortEnable', value);
     // });
+    siteCookies.listen((value){
+      PrefUtil.setMap('siteCookies', value);
+    });
   }
 
   // Theme settings
@@ -278,6 +282,8 @@ class SettingsService extends GetxController {
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '高清', '流畅'];
+
+  final siteCookies = ((PrefUtil.getMap('siteCookies')).toStringMap()).obs;
 
   // cookie
 
@@ -605,6 +611,7 @@ class SettingsService extends GetxController {
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     webPort.value = json['webPort'] ?? '8008';
     webPortEnable.value = json['webPortEnable'] ?? false;
+    siteCookies.value = (json['siteCookies'] ?? {}).toStringMap();
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -655,6 +662,7 @@ class SettingsService extends GetxController {
     json['themeColorSwitch'] = themeColorSwitch.value;
     json['webPort '] = webPort.value;
     json['webPortEnable'] = webPortEnable.value;
+    json['siteCookies'] = siteCookies.value;
     return json;
   }
 
@@ -693,6 +701,7 @@ class SettingsService extends GetxController {
       "hotAreasList": [],
       "webPortEnable": false,
       "webPort": "8008",
+      "siteCookies": {},
     };
     return json;
   }

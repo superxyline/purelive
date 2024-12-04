@@ -8,7 +8,9 @@ import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 
-class LiveSite {
+import 'live_site_mixin.dart';
+
+class LiveSite with SiteAccount {
   /// 站点唯一ID
   String id = "";
 
