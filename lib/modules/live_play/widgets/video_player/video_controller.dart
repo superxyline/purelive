@@ -196,6 +196,9 @@ class VideoController with ChangeNotifier {
     setDataSource(datasource);
     mediaPlayerController.player.stream.playing.listen((bool playing) {
       isPlaying.value = playing;
+      if (playing && mediaPlayerControllerInitialized.value == false) {
+        mediaPlayerControllerInitialized.value = true;
+      }
     });
     mediaPlayerController.player.stream.error.listen((event) {
       if (event.toString().contains('Failed to open')) {
