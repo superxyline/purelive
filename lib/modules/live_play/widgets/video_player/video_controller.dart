@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';
@@ -201,6 +202,7 @@ class VideoController with ChangeNotifier {
       }
     });
     mediaPlayerController.player.stream.error.listen((event) {
+      log('video error: $event', name: 'video_player');
       if (event.toString().contains('Failed to open')) {
         hasError.value = true;
         isPlaying.value = false;
