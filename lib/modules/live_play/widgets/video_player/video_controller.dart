@@ -478,13 +478,6 @@ class VideoController with ChangeNotifier {
   void toggleFullScreen() async {
     // disable locked
     showLocked.value = false;
-    // fix danmaku overlap bug
-    if (!hideDanmaku.value) {
-      hideDanmaku.value = true;
-      Timer(const Duration(milliseconds: 500), () {
-        hideDanmaku.value = false;
-      });
-    }
     // fix obx setstate when build
     showControllerTimer?.cancel();
     Timer(const Duration(milliseconds: 500), () {
@@ -503,13 +496,6 @@ class VideoController with ChangeNotifier {
   void toggleWindowFullScreen() {
     // disable locked
     showLocked.value = false;
-    // fix danmaku overlap bug
-    if (!hideDanmaku.value) {
-      hideDanmaku.value = true;
-      Timer(const Duration(milliseconds: 500), () {
-        hideDanmaku.value = false;
-      });
-    }
     // fix obx setstate when build
     showControllerTimer?.cancel();
     Timer(const Duration(milliseconds: 500), () {
