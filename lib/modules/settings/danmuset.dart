@@ -37,20 +37,6 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => widget.controller.hideDanmaku.value = !value,
             )),
-        Obx(() => ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: const Text('弹幕合并'),
-              subtitle: Text('相似度大于${widget.controller.mergeDanmuRating.value * 100}%的弹幕会被合并'),
-              title: Slider(
-                divisions: 10,
-                min: 0.0,
-                max: 1.0,
-                value: widget.controller.mergeDanmuRating.value,
-                onChanged: (val) => widget.controller.mergeDanmuRating.value = val,
-              ),
-              trailing: Text('${(widget.controller.mergeDanmuRating.value * 100).toInt()}%'),
-            )),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Text(S.of(context).settings_videofit_title),

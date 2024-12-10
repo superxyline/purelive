@@ -1007,23 +1007,6 @@ class DanmakuSetting extends StatelessWidget {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: const Text('弹幕合并', style: label),
-              subtitle: Text('相似度:${controller.mergeDanmuRating.value * 100}%的弹幕会被合并', style: label),
-              title: Slider(
-                divisions: 10,
-                min: 0.0,
-                max: 1.0,
-                value: controller.mergeDanmuRating.value,
-                onChanged: (val) => controller.mergeDanmuRating.value = val,
-              ),
-              trailing: Text(
-                '${(controller.mergeDanmuRating.value * 100).toInt()}%',
-                style: digit,
-              ),
-            ),
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
               leading: Text(S.of(context).settings_danmaku_area, style: label),
               title: Slider(
                 divisions: 10,

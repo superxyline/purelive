@@ -125,7 +125,6 @@ class VideoController with ChangeNotifier {
   final danmakuFontSize = 16.0.obs;
   final danmakuFontBorder = 0.5.obs;
   final danmakuOpacity = 1.0.obs;
-  final mergeDanmuRating = 0.0.obs;
   VideoController({
     required this.playerKey,
     required this.room,
@@ -150,7 +149,6 @@ class VideoController with ChangeNotifier {
     danmakuFontSize.value = settings.danmakuFontSize.value;
     danmakuFontBorder.value = settings.danmakuFontBorder.value;
     danmakuOpacity.value = settings.danmakuOpacity.value;
-    mergeDanmuRating.value = settings.mergeDanmuRating.value;
     initPagesConfig();
     isWindowFullscreen.listen((value) {
       if (value) {
@@ -316,48 +314,53 @@ class VideoController with ChangeNotifier {
   void initDanmaku() {
     hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
     hideDanmaku.listen((data) {
+      if (data) {
+        danmakuController.clear();
+      }
       PrefUtil.setBool('hideDanmaku', data);
+      settings.hideDanmaku.value = data;
     });
     danmakuArea.value = PrefUtil.getDouble('danmakuArea') ?? 1.0;
     danmakuArea.listen((data) {
       PrefUtil.setDouble('danmakuArea', data);
-      updateDanmaku(DanmakuOption(
-        area: data,
-      ));
+      settings.danmakuArea.value = data;
+      updateDanmaku();
     });
     danmakuSpeed.value = PrefUtil.getDouble('danmakuSpeed') ?? 8;
     danmakuSpeed.listen((data) {
       PrefUtil.setDouble('danmakuSpeed', data);
-      updateDanmaku(DanmakuOption(
-        duration: data.toInt(),
-      ));
+      settings.danmakuSpeed.value = data;
+      updateDanmaku();
     });
     danmakuFontSize.value = PrefUtil.getDouble('danmakuFontSize') ?? 16;
     danmakuFontSize.listen((data) {
       PrefUtil.setDouble('danmakuFontSize', data);
-      updateDanmaku(DanmakuOption(
-        fontSize: data,
-      ));
+      settings.danmakuFontSize.value = data;
+      updateDanmaku();
     });
     danmakuFontBorder.value = PrefUtil.getDouble('danmakuFontBorder') ?? 0.5;
     danmakuFontBorder.listen((data) {
       PrefUtil.setDouble('danmakuFontBorder', data);
-      updateDanmaku(DanmakuOption(
-        fontWeight: data.toInt(),
-      ));
+      settings.danmakuFontBorder.value = data;
+      updateDanmaku();
     });
     danmakuOpacity.value = PrefUtil.getDouble('danmakuOpacity') ?? 1.0;
     danmakuOpacity.listen((data) {
       PrefUtil.setDouble('danmakuOpacity', data);
-      updateDanmaku(DanmakuOption(
-        opacity: data,
-      ));
+      settings.danmakuOpacity.value = data;
+      updateDanmaku();
     });
   }
 
-  updateDanmaku(DanmakuOption option) {
+  updateDanmaku() {
     for (var controller in danmakuControllers) {
-      controller.updateOption(option);
+      controller.updateOption(DanmakuOption(
+        fontSize: danmakuFontSize.value,
+        area: danmakuArea.value,
+        duration: danmakuSpeed.value.toInt(),
+        opacity: danmakuOpacity.value,
+        fontWeight: danmakuFontBorder.value.toInt(),
+      ));
     }
   }
 
