@@ -6,7 +6,6 @@ import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';
 import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:date_format/date_format.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:media_kit_video/media_kit_video.dart';
