@@ -5,7 +5,8 @@ import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/barrage.dart';
+import 'package:pure_live/plugins/danmaku/danmaku_screen.dart';
+import 'package:pure_live/plugins/danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
 class VideoControllerPanel extends StatefulWidget {
@@ -414,19 +415,17 @@ class DanmakuViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Opacity(
-          opacity: controller.hideDanmaku.value ? 0 : controller.danmakuOpacity.value,
-          child: controller.danmakuArea.value == 0.0
-              ? Container()
-              : BarrageWall(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * controller.danmakuArea.value,
-                  controller: controller.danmakuController,
-                  speed: controller.danmakuSpeed.value.toInt(),
-                  maxBulletHeight: controller.danmakuFontSize * 1.5,
-                  massiveMode: false, // disabled by default
-                  child: Container(),
-                ),
+    return Obx(() => DanmakuScreen(
+          createdController: (c) {
+            controller.setDanmukuController(c);
+          },
+          option: DanmakuOption(
+            fontSize: controller.danmakuFontSize.value,
+            area: controller.danmakuArea.value,
+            duration: controller.danmakuSpeed.value.toInt(),
+            opacity: controller.danmakuOpacity.value,
+            fontWeight: controller.danmakuFontBorder.value.toInt(),
+          ),
         ));
   }
 }
