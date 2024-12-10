@@ -1,7 +1,7 @@
 {
-  "version": "1.7.9",
-  "version_num": 10507,
-  "version_desc": "-Fix: 修复虎牙线路以及自动全屏",
+  "version": "1.8.0",
+  "version_num": 10180,
+  "version_desc": "-Fix: 修复弹幕问题",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
