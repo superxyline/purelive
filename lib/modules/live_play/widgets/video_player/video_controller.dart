@@ -123,7 +123,7 @@ class VideoController with ChangeNotifier {
   final danmakuArea = 1.0.obs;
   final danmakuSpeed = 8.0.obs;
   final danmakuFontSize = 16.0.obs;
-  final danmakuFontBorder = 0.5.obs;
+  final danmakuFontBorder = 4.0.obs;
   final danmakuOpacity = 1.0.obs;
   VideoController({
     required this.playerKey,
@@ -338,7 +338,7 @@ class VideoController with ChangeNotifier {
       settings.danmakuFontSize.value = data;
       updateDanmaku();
     });
-    danmakuFontBorder.value = PrefUtil.getDouble('danmakuFontBorder') ?? 0.5;
+    danmakuFontBorder.value = PrefUtil.getDouble('danmakuFontBorder') ?? 4.0;
     danmakuFontBorder.listen((data) {
       PrefUtil.setDouble('danmakuFontBorder', data);
       settings.danmakuFontBorder.value = data;

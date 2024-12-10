@@ -1075,7 +1075,7 @@ class DanmakuSetting extends StatelessWidget {
               title: Slider(
                 divisions: 25,
                 min: 0.0,
-                max: 2.5,
+                max: 8.0,
                 value: controller.danmakuFontBorder.value,
                 onChanged: (val) => controller.danmakuFontBorder.value = val,
               ),

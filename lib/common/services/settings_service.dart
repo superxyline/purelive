@@ -250,7 +250,7 @@ class SettingsService extends GetxController {
   final danmakuArea = (PrefUtil.getDouble('danmakuArea') ?? 1.0).obs;
   final danmakuSpeed = (PrefUtil.getDouble('danmakuSpeed') ?? 8.0).obs;
   final danmakuFontSize = (PrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
-  final danmakuFontBorder = (PrefUtil.getDouble('danmakuFontBorder') ?? 0.5).obs;
+  final danmakuFontBorder = (PrefUtil.getDouble('danmakuFontBorder') ?? 4.0).obs;
 
   final danmakuOpacity = (PrefUtil.getDouble('danmakuOpacity') ?? 1.0).obs;
 
@@ -516,7 +516,7 @@ class SettingsService extends GetxController {
     danmakuSpeed.value = json['danmakuSpeed'] != null ? double.parse(json['danmakuSpeed'].toString()) : 8.0;
     danmakuFontSize.value = json['danmakuFontSize'] != null ? double.parse(json['danmakuFontSize'].toString()) : 16.0;
     danmakuFontBorder.value =
-        json['danmakuFontBorder'] != null ? double.parse(json['danmakuFontBorder'].toString()) : 0.5;
+        json['danmakuFontBorder'] != null ? double.parse(json['danmakuFontBorder'].toString()) : 4.0;
     danmakuOpacity.value = json['danmakuOpacity'] != null ? double.parse(json['danmakuOpacity'].toString()) : 1.0;
     doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
@@ -602,7 +602,7 @@ class SettingsService extends GetxController {
       "danmakuArea": 1.0,
       "danmakuSpeed": 8.0,
       "danmakuFontSize": 16.0,
-      "danmakuFontBorder": 0.5,
+      "danmakuFontBorder": 4.0,
       "danmakuOpacity": 1.0,
       'doubleExit': true,
       "videoPlayerIndex": 0,
