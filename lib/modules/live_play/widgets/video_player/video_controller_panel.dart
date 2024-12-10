@@ -1073,7 +1073,7 @@ class DanmakuSetting extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               leading: Text(S.of(context).settings_danmaku_fontBorder, style: label),
               title: Slider(
-                divisions: 25,
+                divisions: 8,
                 min: 0.0,
                 max: 8.0,
                 value: controller.danmakuFontBorder.value,
