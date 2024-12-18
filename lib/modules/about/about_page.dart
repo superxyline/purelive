@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'widgets/version_dialog.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -43,20 +42,6 @@ class _AboutPageState extends State<AboutPage> {
             onTap: showLicenseDialog,
           ),
           SectionTitle(title: S.of(context).project),
-          ListTile(
-            title: const Text("帮助与支持"),
-            onTap: () => Get.toNamed(RoutePath.kDonate),
-          ),
-          ListTile(
-            title: Text(S.of(context).project_page),
-            subtitle: const Text(VersionUtil.projectUrl),
-            onTap: () {
-              launchUrl(
-                Uri.parse(VersionUtil.projectUrl),
-                mode: LaunchMode.externalApplication,
-              );
-            },
-          ),
           ListTile(
             title: Text(S.of(context).project_alert),
             subtitle: Padding(

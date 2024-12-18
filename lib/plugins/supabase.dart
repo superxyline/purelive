@@ -58,7 +58,7 @@ class SupaBaseManager {
       return;
     }
     if (!canUploadConfig) {
-      SmartDialog.showToast('未开放,请与管理员联系');
+      SmartDialog.showToast('暂未开放');
       return;
     }
     final userId = Get.find<AuthController>().userId;
@@ -98,7 +98,7 @@ class SupaBaseManager {
     final FavoriteController favoriteController = Get.find<FavoriteController>();
     if (authController.isLogin) {
       if (!canUploadConfig) {
-        SmartDialog.showToast('未开放,请与管理员联系');
+        SmartDialog.showToast('暂未开放');
         return;
       }
 

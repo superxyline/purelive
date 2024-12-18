@@ -27,9 +27,6 @@ class RoutePath {
   /// 设置
   static const kSettings = "/settings";
 
-  /// 联系
-  static const kContact = "/contact";
-
   /// 本地恢复
   static const kBackup = "/backup";
 

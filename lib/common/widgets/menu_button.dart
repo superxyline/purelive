@@ -5,12 +5,11 @@ class MenuButton extends GetView<AuthController> {
   const MenuButton({super.key});
 
   final menuRoutes = const [
-    RoutePath.kSettings,
-    RoutePath.kAbout,
-    RoutePath.kContact,
-    RoutePath.kHistory,
     RoutePath.kSignIn,
     RoutePath.kSettingsAccount,
+    RoutePath.kSettings,
+    RoutePath.kAbout,
+    RoutePath.kHistory,
   ];
 
   @override
@@ -24,7 +23,7 @@ class MenuButton extends GetView<AuthController> {
       position: PopupMenuPosition.under,
       icon: const Icon(Icons.menu_rounded),
       onSelected: (int index) {
-        if (index == 4) {
+        if (index == 0) {
           if (controller.isLogin) {
             Get.toNamed(RoutePath.kMine);
           } else {
@@ -36,7 +35,7 @@ class MenuButton extends GetView<AuthController> {
       },
       itemBuilder: (context) => [
         PopupMenuItem(
-          value: 4,
+          value: 0,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.account_circle),
@@ -44,7 +43,7 @@ class MenuButton extends GetView<AuthController> {
           ),
         ),
         const PopupMenuItem(
-          value: 5,
+          value: 1,
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: Icon(Icons.assignment_ind_sharp),
@@ -52,7 +51,7 @@ class MenuButton extends GetView<AuthController> {
           ),
         ),
         PopupMenuItem(
-          value: 0,
+          value: 2,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.settings_rounded),
@@ -60,7 +59,7 @@ class MenuButton extends GetView<AuthController> {
           ),
         ),
         PopupMenuItem(
-          value: 1,
+          value: 3,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.info_rounded),
@@ -68,15 +67,7 @@ class MenuButton extends GetView<AuthController> {
           ),
         ),
         PopupMenuItem(
-          value: 2,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: MenuListTile(
-            leading: const Icon(Icons.contact_support),
-            text: S.of(context).contact,
-          ),
-        ),
-        PopupMenuItem(
-          value: 3,
+          value: 4,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.history),

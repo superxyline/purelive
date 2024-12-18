@@ -4,14 +4,12 @@ import 'package:pure_live/modules/auth/mine_page.dart';
 import 'package:pure_live/modules/home/home_page.dart';
 import 'package:pure_live/modules/about/about_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
-import 'package:pure_live/modules/about/donate_page.dart';
 import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/toolbox/toolbox_page.dart';
 import 'package:pure_live/modules/account/account_bing.dart';
 import 'package:pure_live/modules/account/account_page.dart';
-import 'package:pure_live/modules/contact/contact_page.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/history/history_page.dart';
 import 'package:pure_live/modules/about/version_history.dart';
@@ -89,20 +87,12 @@ class AppPages {
       bindings: [SearchBinding()],
     ),
     GetPage(
-      name: RoutePath.kContact,
-      page: ContactPage.new,
-    ),
-    GetPage(
       name: RoutePath.kBackup,
       page: BackupPage.new,
     ),
     GetPage(
       name: RoutePath.kAbout,
       page: AboutPage.new,
-    ),
-    GetPage(
-      name: RoutePath.kDonate,
-      page: DonatePage.new,
     ),
     GetPage(
       name: RoutePath.kAreaRooms,
