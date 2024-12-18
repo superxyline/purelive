@@ -1,6 +1,6 @@
 {
-  "version": "1.8.0",
-  "version_num": 10180,
+  "version": "1.8.1",
+  "version_num": 10181,
   "version_desc": "-Fix: 修复弹幕问题",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
