@@ -235,8 +235,8 @@ class LivePlayController extends StateController {
         // start danmaku server
         List<String> except = ['kuaishou', 'iptv', 'cc'];
         if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {
-          initDanmau();
           liveDanmaku.stop();
+          initDanmau();
           liveDanmaku.start(liveRoom.danmakuData);
         }
       } else {
