@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:get/get.dart';
+import 'dart:developer' as developer;
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -242,6 +243,7 @@ class DouyinSite implements LiveSite {
         data: roomInfo["stream_url"],
       );
     } catch (e) {
+      developer.log(e.toString(), name: "result");
       LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
       liveRoom.liveStatus = LiveStatus.offline;
       liveRoom.status = false;
@@ -272,14 +274,13 @@ class DouyinSite implements LiveSite {
       },
     );
 
-    var renderData = RegExp(r'\{\\"state\\":\{\\"isLiveModal.*?\]\\n').firstMatch(result)?.group(0) ?? "";
-    var str = renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', "");
-    var renderDataJson = json.decode(str);
+    var renderData = RegExp(r'\{\\"state\\":\{\\"appStore.*?\]\\n').firstMatch(result)?.group(0) ?? "";
 
+    developer.log(renderData.toString(), name: "str");
+    var str = renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', "");
+
+    var renderDataJson = json.decode(str);
     return renderDataJson["state"];
-    // return renderDataJson["app"]["initialState"]["roomStore"]["roomInfo"]
-    //         ["room"]["id_str"]
-    //     .toString();
   }
 
   @override
