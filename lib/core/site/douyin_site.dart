@@ -184,6 +184,53 @@ class DouyinSite implements LiveSite {
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 
+  Future<Map> getRoomDataByApi(String webRid) async {
+    var requestHeader = await getRequestHeaders();
+    var result = await HttpClient.instance.getJson(
+      "https://live.douyin.com/webcast/room/web/enter/",
+      queryParameters: {
+        "aid": 6383,
+        "app_name": "douyin_web",
+        "live_id": 1,
+        "device_platform": "web",
+        "enter_from": "web_live",
+        "web_rid": webRid,
+        "room_id_str": "",
+        "enter_source": "",
+        "Room-Enter-User-Login-Ab": 0,
+        "is_need_double_stream": false,
+        "cookie_enabled": true,
+        "screen_width": 1980,
+        "screen_height": 1080,
+        "browser_language": "zh-CN",
+        "browser_platform": "Win32",
+        "browser_name": "Edge",
+        "browser_version": "125.0.0.0"
+      },
+      header: requestHeader,
+    );
+
+    return result["data"];
+  }
+
+  /// 通过roomId获取直播间信息
+  /// - [roomId] 直播间ID
+  Future<Map> getRoomDataByRoomId(String roomId) async {
+    var result = await HttpClient.instance.getJson(
+      'https://webcast.amemv.com/webcast/room/reflow/info/',
+      queryParameters: {
+        "type_id": 0,
+        "live_id": 1,
+        "room_id": roomId,
+        "sec_user_id": "",
+        "version_code": "99.99.99",
+        "app_id": 6383,
+      },
+      header: await getRequestHeaders(),
+    );
+    return result;
+  }
+
   @override
   Future<LiveRoom> getRoomDetail(
       {required String nick, required String platform, required String roomId, required String title}) async {
