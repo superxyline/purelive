@@ -38,6 +38,7 @@ class LiveRoomRx {
 
   // 直播状态
   Rx<LiveStatus?> liveStatus = LiveStatus.offline.obs;
+  Rx<String?> recordWatching = ''.obs;
 
   /// 更新内部数据
   updateByLiveRoom(LiveRoom liveRoom) {
@@ -63,6 +64,7 @@ class LiveRoomRx {
     liveRoomRx.danmakuData = liveRoom.danmakuData;
     liveRoomRx.isRecord.value = liveRoom.isRecord ?? false;
     liveRoomRx.liveStatus.value = liveRoom.liveStatus ?? LiveStatus.offline;
+    liveRoomRx.recordWatching.value = liveRoom.recordWatching ?? "";
   }
 
   /// 转换为 LiveRoom 对象 没有 rx
@@ -86,6 +88,7 @@ class LiveRoomRx {
       ..data = data
       ..danmakuData = danmakuData
       ..isRecord = isRecord.value
+      ..recordWatching = recordWatching.value
       ..liveStatus = liveStatus.value;
     return liveRoom;
   }

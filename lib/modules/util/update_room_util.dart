@@ -1,3 +1,4 @@
+import 'package:pure_live/common/utils/text_util.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
@@ -94,6 +95,17 @@ class UpdateRoomUtil {
       CoreLog.error(e);
       hasError = true;
     }
+
+    /// 重新计算更新录播标志
+    updatedRoomList
+    .where((room) => room.liveStatus == LiveStatus.live && room.recordWatching.isNotNullOrEmpty)
+    .forEach((room){
+      var watching = readableCountStrToNum(room.watching);
+      var recordWatching = readableCountStrToNum(room.recordWatching);
+      if(watching <= recordWatching) {
+        room.liveStatus = LiveStatus.replay;
+      }
+    });
 
     settings.updateRooms(updatedRoomList);
 

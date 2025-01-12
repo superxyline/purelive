@@ -362,7 +362,16 @@ class LivePlayController extends StateController {
           settings.addRoomToHistory(liveRoomRx.toLiveRoom());
         } else {
           settings.addRoomToHistory(liveRoom);
+
+          // 更新录播观看人数信息
+          if(liveRoom.liveStatus == LiveStatus.replay) {
+            liveRoom.recordWatching = liveRoom.watching;
+          }
+          settings.updateRoom(liveRoom);
+          var favoriteController = Get.find<FavoriteController>();
+          favoriteController.syncRooms();
         }
+
         // start danmaku server
         List<String> except = ['iptv'];
         // 重新刷新才重新加载弹幕

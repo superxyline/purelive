@@ -35,6 +35,9 @@ class LiveRoom {
   // 直播状态
   LiveStatus? liveStatus = LiveStatus.offline;
 
+  /// 录播观看人数
+  String? recordWatching = '';
+
   LiveRoom(
       {this.roomId,
       this.userId,
@@ -53,7 +56,8 @@ class LiveRoom {
       this.isRecord = false,
       this.status = false,
       this.notice,
-      this.introduction});
+      this.introduction,
+      this.recordWatching});
 
   LiveRoom.fromJson(Map<String, dynamic> json)
       : roomId = json['roomId'] ?? '',
@@ -71,6 +75,7 @@ class LiveRoom {
         status = json['status'] ?? false,
         notice = json['notice'] ?? '',
         introduction = json['introduction'] ?? '',
+        recordWatching = json['recordWatching'] ?? "",
         isRecord = json['isRecord'] ?? false;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -88,6 +93,7 @@ class LiveRoom {
         'isRecord': isRecord,
         'status': status,
         'notice': notice,
+        'recordWatching': recordWatching,
         'introduction': introduction
       };
 
