@@ -560,18 +560,18 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
         var isLiving = roomInfo["show_status"] == 1;
 
         bool isRecord = false;
-        if (isLiving) {
-          /// 通过图片日期判断是否录播
-          isRecord = true;
-          var roomSrc = roomInfo["room_src"].toString();
-          var allMatches = exp.allMatches(roomSrc);
-          for (var value in allMatches) {
-            var picDate = value.group(1);
-            if (formattedDate == picDate) {
-              isRecord = false;
-            }
-          }
-        }
+        // if (isLiving) {
+        //   /// 通过图片日期判断是否录播
+        //   isRecord = true;
+        //   var roomSrc = roomInfo["room_src"].toString();
+        //   var allMatches = exp.allMatches(roomSrc);
+        //   for (var value in allMatches) {
+        //     var picDate = value.group(1);
+        //     if (formattedDate == picDate) {
+        //       isRecord = false;
+        //     }
+        //   }
+        // }
 
         var tmp = LiveRoom(
           cover: roomInfo["room_src"].toString(),
