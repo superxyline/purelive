@@ -81,7 +81,7 @@ class FavoriteController extends GetxController
     // offlineRooms.clear();
     // onlineRooms.addAll();
     var onlineList = settings.favoriteRooms
-        .where((room) => room.liveStatus == LiveStatus.live)
+        .where((room) => room.liveStatus == LiveStatus.live || room.liveStatus == LiveStatus.replay)
         .map((room) {
       room.watching =
           readableCount(readableCountStrToNum(room.watching).toString());

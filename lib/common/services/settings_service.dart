@@ -449,13 +449,31 @@ class SettingsService extends GetxController {
     return true;
   }
 
+  LiveRoom updateRecordTag(LiveRoom newLiveRoom, LiveRoom oldLiveRoom){
+    if (newLiveRoom.recordWatching.isNullOrEmpty) {
+      newLiveRoom.recordWatching = oldLiveRoom.recordWatching;
+    }
+    if (newLiveRoom.liveStatus == LiveStatus.live &&
+        newLiveRoom.recordWatching.isNotNullOrEmpty) {
+      var watching = readableCountStrToNum(newLiveRoom.watching);
+      var recordWatching = readableCountStrToNum(newLiveRoom.recordWatching);
+      if (watching <= recordWatching) {
+        newLiveRoom.liveStatus = LiveStatus.replay;
+        newLiveRoom.isRecord = true;
+      }
+    }
+    CoreLog.d(jsonEncode(newLiveRoom));
+    CoreLog.d(jsonEncode(oldLiveRoom));
+    return newLiveRoom;
+  }
+
   void innerUpdateRooms(List<LiveRoom> rooms, Map<String,LiveRoom> roomsMap, RxList<LiveRoom> rxList){
     bool flag = false;
     for(var room in rooms) {
       var liveRoomKey = getLiveRoomKey(room);
       if(roomsMap.containsKey(liveRoomKey)) {
         flag = true;
-        roomsMap[liveRoomKey] = room;
+        roomsMap[liveRoomKey] = updateRecordTag(room, roomsMap[liveRoomKey]!);
       }
     }
     if(flag) {

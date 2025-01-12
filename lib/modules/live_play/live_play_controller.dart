@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -364,10 +365,13 @@ class LivePlayController extends StateController {
           settings.addRoomToHistory(liveRoom);
 
           // 更新录播观看人数信息
-          if(liveRoom.liveStatus == LiveStatus.replay) {
+          if((liveRoom.liveStatus == LiveStatus.live && liveRoom.isRecord == true)
+              || liveRoom.liveStatus == LiveStatus.replay) {
+            liveRoom.liveStatus = LiveStatus.replay;
             liveRoom.recordWatching = liveRoom.watching;
           }
           settings.updateRoom(liveRoom);
+          CoreLog.d(jsonEncode(liveRoom));
           var favoriteController = Get.find<FavoriteController>();
           favoriteController.syncRooms();
         }
