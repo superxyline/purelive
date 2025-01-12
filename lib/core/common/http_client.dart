@@ -12,6 +12,7 @@ import 'package:pure_live/core/common/core_log.dart';
 import 'package:rhttp/rhttp.dart' as rhttp;
 
 import '../../plugins/dns4flutter/dns_helper.dart';
+import 'custom_dio_cache_interceptor.dart';
 import 'custom_interceptor.dart';
 import 'custom_io_http_client_adapter.dart';
 
@@ -84,7 +85,7 @@ class HttpClient {
       ),
     );
     dio.interceptors.add(CustomInterceptor());
-    dio.interceptors.add(DioCacheInterceptor(options: cacheOptions));
+    dio.interceptors.add(CustomDioCacheInterceptor(options: cacheOptions));
     dio.httpClientAdapter = CustomIOHttpClientAdapter.instance;
     dio.httpClientAdapter = ConversionLayerAdapter(compatibleClient);
 
