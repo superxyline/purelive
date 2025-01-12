@@ -15,6 +15,11 @@ mixin class SiteAccount {
   /// 用户名
   var userName = "未登录".obs;
 
+  /// 获取用户ID
+  int getUserId() => uid;
+  /// 获取用户Cookie
+  String getUserCookie() => userCookie.value;
+
   /// 是否支持登录
   bool isSupportLogin() => false;
 

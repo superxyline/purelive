@@ -111,6 +111,7 @@ mixin BilibiliSiteMixin on SiteAccount {
         userCookie.value = cookie;
         var liveSite = site.liveSite as BiliBiliSite;
         liveSite.cookie = cookie;
+        liveSite.userId = uid;
         SettingsService settings = Get.find<SettingsService>();
         settings.siteCookies[site.id] = cookie;
         return flag;

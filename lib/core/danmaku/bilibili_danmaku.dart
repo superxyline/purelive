@@ -60,6 +60,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
   @override
   Future start(dynamic args) async {
     danmakuArgs = args as BiliBiliDanmakuArgs;
+    // CoreLog.d("BiliBiliDanmakuArgs : $args");
     webScoketUtils = WebScoketUtils(
       url: "wss://${args.serverHost}/sub",
       headers: args.cookie.isEmpty
