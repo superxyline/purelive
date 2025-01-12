@@ -630,7 +630,8 @@ class SettingsService extends GetxController {
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     webPort.value = json['webPort'] ?? '8008';
     webPortEnable.value = json['webPortEnable'] ?? false;
-    siteCookies.value = (json['siteCookies'] ?? {}).toStringMap();
+    Map siteCookiesMap = (json['siteCookies'] ?? {});
+    siteCookies.value = siteCookiesMap.toStringMap();
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
