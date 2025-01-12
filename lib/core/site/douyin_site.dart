@@ -45,7 +45,7 @@ class DouyinSite extends LiveSite {
       if (headers.containsKey("cookie")) {
         return headers;
       }
-      var head = await HttpClient.instance.get("https://live.douyin.com", header: headers);
+      var head = await HttpClient.instance.head("https://live.douyin.com", header: headers);
       head.headers["set-cookie"]?.forEach((element) {
         var cookie = element.split(";")[0];
         if (cookie.contains("ttwid")) {
@@ -69,7 +69,7 @@ class DouyinSite extends LiveSite {
     );
     var renderData = RegExp(r'\{\\"pathname\\":\\"\/\\",\\"categoryData.*?\]\\n').firstMatch(result)?.group(0) ?? "";
     var renderDataJson =
-        json.decode(renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""));
+    json.decode(renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""));
     for (var item in renderDataJson["categoryData"]) {
       List<LiveArea> subs = [];
       var id = '${item["partition"]["id_str"]},${item["partition"]["type"]}';
@@ -182,6 +182,53 @@ class DouyinSite extends LiveSite {
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 
+  Future<Map> getRoomDataByApi(String webRid) async {
+    var requestHeader = await getRequestHeaders();
+    var result = await HttpClient.instance.getJson(
+      "https://live.douyin.com/webcast/room/web/enter/",
+      queryParameters: {
+        "aid": 6383,
+        "app_name": "douyin_web",
+        "live_id": 1,
+        "device_platform": "web",
+        "enter_from": "web_live",
+        "web_rid": webRid,
+        "room_id_str": "",
+        "enter_source": "",
+        "Room-Enter-User-Login-Ab": 0,
+        "is_need_double_stream": false,
+        "cookie_enabled": true,
+        "screen_width": 1980,
+        "screen_height": 1080,
+        "browser_language": "zh-CN",
+        "browser_platform": "Win32",
+        "browser_name": "Edge",
+        "browser_version": "125.0.0.0"
+      },
+      header: requestHeader,
+    );
+
+    return result["data"];
+  }
+
+  /// 通过roomId获取直播间信息
+  /// - [roomId] 直播间ID
+  Future<Map> getRoomDataByRoomId(String roomId) async {
+    var result = await HttpClient.instance.getJson(
+      'https://webcast.amemv.com/webcast/room/reflow/info/',
+      queryParameters: {
+        "type_id": 0,
+        "live_id": 1,
+        "room_id": roomId,
+        "sec_user_id": "",
+        "version_code": "99.99.99",
+        "app_id": 6383,
+      },
+      header: await getRequestHeaders(),
+    );
+    return result;
+  }
+
   @override
   Future<LiveRoom> getRoomDetail(
       {required String nick, required String platform, required String roomId, required String title}) async {
@@ -189,21 +236,8 @@ class DouyinSite extends LiveSite {
       var detail = await getRoomWebDetail(roomId);
       var requestHeader = await getRequestHeaders();
       var webRid = roomId;
-      // CoreLog.d("${jsonEncode(detail)}");
-      //      "roomId": "7420273996494179123",
-      //             "web_rid": "419548676305",
-      var realRoomId = detail["roomStore"]["roomInfo"]["roomId"].toString();
+      var realRoomId = detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
       var userUniqueId = detail["userStore"]["odin"]["user_unique_id"].toString();
-      var webStreamUrl = detail["roomStore"]["roomInfo"]["web_stream_url"];
-      if(webStreamUrl == null) {
-        // 没有开播
-        // throw Exception("Not living");
-        final SettingsService settings = Get.find<SettingsService>();
-        LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
-        liveRoom.liveStatus = LiveStatus.offline;
-        liveRoom.status = false;
-        return liveRoom;
-      }
       var result = await HttpClient.instance.getJson(
         "https://live.douyin.com/webcast/room/web/enter/",
         queryParameters: {
@@ -227,7 +261,6 @@ class DouyinSite extends LiveSite {
         },
         header: requestHeader,
       );
-      // CoreLog.d("${jsonEncode(result)}");
       var roomInfo = result["data"]["data"][0];
       var userInfo = result["data"]["user"];
       var partition = result["data"]['partition_road_map'];
@@ -287,14 +320,13 @@ class DouyinSite extends LiveSite {
       },
     );
 
-    var renderData = RegExp(r'\{\\"state\\":\{\\"isLiveModal.*?\]\\n').firstMatch(result)?.group(0) ?? "";
-    var str = renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', "");
-    var renderDataJson = json.decode(str);
+    var renderData = RegExp(r'\{\\"state\\":\{\\"appStore.*?\]\\n').firstMatch(result)?.group(0) ?? "";
 
+    CoreLog.d(renderData.toString());
+    var str = renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', "");
+
+    var renderDataJson = json.decode(str);
     return renderDataJson["state"];
-    // return renderDataJson["app"]["initialState"]["roomStore"]["roomInfo"]
-    //         ["room"]["id_str"]
-    //     .toString();
   }
 
   @override
