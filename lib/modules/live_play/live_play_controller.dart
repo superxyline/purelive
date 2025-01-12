@@ -7,6 +7,7 @@ import 'package:floating/floating.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/models/live_room_rx.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
@@ -47,7 +48,9 @@ class LivePlayController extends StateController {
 
   final LiveRoom room;
 
-  Rx<LiveRoom?> detail = Rx<LiveRoom?>(LiveRoom());
+  // Rx<LiveRoom?> detail = Rx<LiveRoom?>(LiveRoom());
+
+  final LiveRoomRx liveRoomRx = LiveRoomRx();
 
   final success = false.obs;
 
@@ -86,7 +89,7 @@ class LivePlayController extends StateController {
   int isNextOrPrev = 0;
 
   // 当前直播间信息 下一个频道或者上一个
-  var currentPlayRoom = LiveRoom().obs;
+  // var currentPlayRoom = LiveRoom().obs;
 
   var getVideoSuccess = true.obs;
 
@@ -111,8 +114,8 @@ class LivePlayController extends StateController {
   /// 是否 关注
   var isFavorite = false.obs;
 
-  /// 在线人数
-  var online = "".obs;
+  // /// 在线人数
+  // var online = "".obs;
 
   /// 是否全屏
   final isFullscreen = false.obs;
@@ -213,9 +216,12 @@ class LivePlayController extends StateController {
     // 发现房间ID 会变化 使用静态列表ID 对比
     CoreLog.d('onInit');
 
-    currentPlayRoom.value = room;
-    online.value = room.watching ?? "0";
-    // detail.value = currentPlayRoom.value;
+    // liveRoomRx = room;
+
+    liveRoomRx.updateByLiveRoom(room);
+
+    liveRoomRx.watching.value = liveRoomRx.watching.value ?? "0";
+    // detail.value = liveRoomRx;
     isFavorite.value = settings.isFavorite(room);
     onInitPlayerState(firstLoad: true);
     subscriptionList.add(isFirstLoad.listen((p0) {
@@ -247,8 +253,8 @@ class LivePlayController extends StateController {
         isLastLine.value = false;
         isFirstLoad.value = true;
         restoryQualityAndLines();
-        resetRoom(Sites.of(currentPlayRoom.value.platform!),
-            currentPlayRoom.value.roomId!);
+        resetRoom(Sites.of(liveRoomRx.platform.value!),
+            liveRoomRx.roomId.value!);
       } else {
         if (success.value) {
           isActive.value = false;
@@ -266,14 +272,17 @@ class LivePlayController extends StateController {
   }
 
   void resetRoom(Site site, String roomId) async {
-    // if (currentPlayRoom.value.platform == site.id && currentPlayRoom.value.roomId == roomId) {
+    // if (liveRoomRx.platform == site.id && liveRoomRx.roomId == roomId) {
     //   return;
     // }
     currentSite = site;
 
-    var liveRoom = currentPlayRoom.value;
-    liveRoom.roomId = roomId;
-    liveRoom.platform = site.id;
+    // var liveRoom = liveRoomRx;
+    // liveRoom.roomId = roomId;
+    // liveRoom.platform = site.id;
+    liveRoomRx
+      ..roomId.value=roomId
+      ..platform.value=site.id;
 
     success.value = false;
     hasError.value = false;
@@ -302,18 +311,19 @@ class LivePlayController extends StateController {
     isActive.value = active;
     isFirstLoad.value = firstLoad;
     isLoadingVideo.value = true;
-    var liveRoom = currentPlayRoom.value;
+    var liveRoom = liveRoomRx.toLiveRoom();
     // 只有第一次需要重新配置信息
     if (isFirstLoad.value) {
       liveRoom = await currentSite.liveSite.getRoomDetail(
-        roomId: currentPlayRoom.value.roomId!,
-        platform: currentPlayRoom.value.platform!,
-        title: currentPlayRoom.value.title!,
-        nick: currentPlayRoom.value.nick!,
+        roomId: liveRoom.roomId!,
+        platform: liveRoom.platform!,
+        title: liveRoom.title!,
+        nick: liveRoom.nick!,
       );
       isFavorite.value = settings.isFavorite(liveRoom);
-      currentPlayRoom.value = liveRoom;
-      currentPlayRoom.value.data = liveRoom.data;
+      liveRoomRx.updateByLiveRoom(liveRoom);
+      // liveRoomRx = liveRoom;
+      // liveRoomRx.data = liveRoom.data;
     }
     isLastLine.value =
         calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
@@ -332,8 +342,8 @@ class LivePlayController extends StateController {
     } else {
       handleCurrentLineAndQuality(
           reloadDataType: reloadDataType, line: line, active: active);
-      detail.value = liveRoom;
-      online.value = liveRoom.watching ?? "0";
+      // detail.value = liveRoom;
+      liveRoomRx.watching.value = liveRoom.watching ?? "0";
       if (liveRoom.liveStatus == LiveStatus.unknown) {
         SmartDialog.showToast("获取直播间信息失败,请按重新获取",
             displayTime: const Duration(seconds: 2));
@@ -343,13 +353,13 @@ class LivePlayController extends StateController {
       }
 
       // 开始播放
-      liveStatus.value = detail.value!.liveStatus != LiveStatus.unknown &&
-          detail.value!.liveStatus != LiveStatus.offline;
+      liveStatus.value = liveRoomRx.liveStatus.value != LiveStatus.unknown &&
+          liveRoomRx.liveStatus.value != LiveStatus.offline;
       if (liveStatus.value) {
         await getPlayQualites();
         getVideoSuccess.value = true;
-        if (currentPlayRoom.value.platform == Sites.iptvSite) {
-          settings.addRoomToHistory(currentPlayRoom.value);
+        if (liveRoomRx.platform.value == Sites.iptvSite) {
+          settings.addRoomToHistory(liveRoomRx.toLiveRoom());
         } else {
           settings.addRoomToHistory(liveRoom);
         }
@@ -365,7 +375,7 @@ class LivePlayController extends StateController {
           } catch (e) {
             CoreLog.error(e);
           }
-          liveDanmaku = Sites.of(currentPlayRoom.value.platform!).liveSite.getDanmaku();
+          liveDanmaku = Sites.of(liveRoomRx.platform.value!).liveSite.getDanmaku();
           initDanmau();
           liveDanmaku.start(liveRoom.danmakuData);
         }
@@ -441,7 +451,7 @@ class LivePlayController extends StateController {
   /// 初始化弹幕接收事件
   void initDanmau() {
     messages.clear();
-    if (detail.value!.isRecord!) {
+    if (liveRoomRx.isRecord.value!) {
       messages.add(
         LiveMessage(
           type: LiveMessageType.chat,
@@ -484,10 +494,10 @@ class LivePlayController extends StateController {
         var onlineNum = msg.data as int;
         var numStr = onlineNum.toString();
         // CoreLog.d(online.toString());
-        if (online.value != numStr) {
-          online.value = onlineNum.toString();
-          // detail.value?.watching = online.toString();
-          // currentPlayRoom.value.watching = online.toString();
+        if (liveRoomRx.watching.value != numStr) {
+          liveRoomRx.watching.value = onlineNum.toString();
+          // liveRoomRx.watching = online.toString();
+          // liveRoomRx.watching = online.toString();
         }
       }
     };
@@ -540,7 +550,7 @@ class LivePlayController extends StateController {
       var playQualites = qualites.value;
       if (isFirstLoad.value) {
         playQualites =
-            await currentSite.liveSite.getPlayQualites(detail: detail.value!);
+            await currentSite.liveSite.getPlayQualites(detail: liveRoomRx.toLiveRoom());
       }
       if (playQualites.isEmpty) {
         SmartDialog.showToast("无法读取视频信息,请重新获取",
@@ -584,7 +594,7 @@ class LivePlayController extends StateController {
     var playUrlList = quality.playUrlList;
     if (playUrlList.isNullOrEmpty) {
       playUrlList = await currentSite.liveSite.getPlayUrls(
-          detail: detail.value!, quality: qualites[currentQuality.value]);
+          detail: liveRoomRx.toLiveRoom(), quality: qualites[currentQuality.value]);
       quality.playUrlList = playUrlList;
     }
     if (playUrlList.isNullOrEmpty) {
@@ -652,7 +662,7 @@ class LivePlayController extends StateController {
     if (videoController == null || videoController!.hasDestory) {
       videoController = VideoController(
         playerKey: playerKey,
-        room: detail.value!,
+        room: liveRoomRx.toLiveRoom(),
         datasourceType: 'network',
         datasource: playUrls.value[currentLineIndex.value],
         allowScreenKeepOn: settings.enableScreenKeepOn.value,
@@ -707,30 +717,30 @@ class LivePlayController extends StateController {
     var naviteUrl = "";
     var webUrl = "";
     if (site == Sites.bilibiliSite) {
-      naviteUrl = "bilibili://live/${detail.value?.roomId}";
-      webUrl = "https://live.bilibili.com/${detail.value?.roomId}";
+      naviteUrl = "bilibili://live/${liveRoomRx.roomId}";
+      webUrl = "https://live.bilibili.com/${liveRoomRx.roomId}";
     } else if (site == Sites.douyinSite) {
-      var args = detail.value?.danmakuData as DouyinDanmakuArgs;
+      var args = liveRoomRx.danmakuData as DouyinDanmakuArgs;
       naviteUrl = "snssdk1128://webcast_room?room_id=${args.roomId}";
       webUrl = "https://live.douyin.com/${args.webRid}";
     } else if (site == Sites.huyaSite) {
-      var args = detail.value?.danmakuData as HuyaDanmakuArgs;
+      var args = liveRoomRx.danmakuData as HuyaDanmakuArgs;
       naviteUrl =
           "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
-      webUrl = "https://www.huya.com/${detail.value?.roomId}";
+      webUrl = "https://www.huya.com/${liveRoomRx.roomId}";
     } else if (site == Sites.douyuSite) {
       naviteUrl =
-          "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${detail.value?.roomId}";
-      webUrl = "https://www.douyu.com/${detail.value?.roomId}";
+          "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${liveRoomRx.roomId}";
+      webUrl = "https://www.douyu.com/${liveRoomRx.roomId}";
     } else if (site == Sites.ccSite) {
-      CoreLog.d("cc_user_id :${detail.value!.userId.toString()}");
+      CoreLog.d("cc_user_id :${liveRoomRx.userId.toString()}");
       naviteUrl =
-          "cc://join-room/${detail.value?.roomId}/${detail.value?.userId}/";
-      webUrl = "https://cc.163.com/${detail.value?.roomId}";
+          "cc://join-room/${liveRoomRx.roomId}/${liveRoomRx.userId}/";
+      webUrl = "https://cc.163.com/${liveRoomRx.roomId}";
     } else if (site == Sites.kuaishouSite) {
       naviteUrl =
-          "kwai://liveaggregatesquare?liveStreamId=${detail.value?.link}&recoStreamId=${detail.value?.link}&recoLiveStreamId=${detail.value?.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
-      webUrl = "https://live.kuaishou.com/u/${detail.value?.roomId}";
+          "kwai://liveaggregatesquare?liveStreamId=${liveRoomRx.link}&recoStreamId=${liveRoomRx.link}&recoLiveStreamId=${liveRoomRx.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
+      webUrl = "https://live.kuaishou.com/u/${liveRoomRx.roomId}";
     }
     try {
       if (Platform.isAndroid) {

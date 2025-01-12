@@ -36,7 +36,7 @@ class LivePlayPage extends GetView<LivePlayController> {
   buildTableTarLeft() {
     return Row(children: [
       /// 头像
-      CacheNetWorkUtils.getCircleAvatar(controller.detail.value?.avatar,
+      CacheNetWorkUtils.getCircleAvatar(controller.liveRoomRx.avatar.value,
           radius: 20),
       const SizedBox(width: 8),
 
@@ -45,11 +45,7 @@ class LivePlayPage extends GetView<LivePlayController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// 名称
-          Text(
-            controller.detail.value == null &&
-                    controller.detail.value!.nick == null
-                ? ''
-                : controller.detail.value!.nick!,
+          Text(controller.liveRoomRx.nick.value.appendTxt(""),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(Get.context!).textTheme.labelSmall,
@@ -60,14 +56,13 @@ class LivePlayPage extends GetView<LivePlayController> {
             /// 横着摆放
             children: [
               /// 站点logo
-              if (controller.detail.value?.platform != null)
+              if (controller.liveRoomRx.platform.value.isNotNullOrEmpty)
                 SiteWidget.getSiteLogeImage(
-                    controller.detail.value!.platform!)!,
+                    controller.liveRoomRx.platform.value!)!,
 
               /// 站点logo
               const SizedBox(width: 5),
-              if (controller.detail.value != null &&
-                  controller.detail.value!.platform != null)
+              if (controller.liveRoomRx.platform.value.isNotNullOrEmpty)
                 TextButton(
                     style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
@@ -91,12 +86,11 @@ class LivePlayPage extends GetView<LivePlayController> {
                           borderRadius: BorderRadius.circular(8),
                         )),
                     onPressed: () async {
-                      if (controller.detail.value != null &&
-                          !controller.detail.value!.area.isNullOrEmpty &&
-                          !controller.detail.value!.platform.isNullOrEmpty) {
+                      if (!controller.liveRoomRx.area.value.isNullOrEmpty &&
+                          !controller.liveRoomRx.platform.value.isNullOrEmpty) {
                         try {
                           /// 平台
-                          var site = controller.detail.value!.platform!;
+                          var site = controller.liveRoomRx.platform.value!;
                           // CoreLog.d("site: $site");
                           var areasListController =
                               Get.findOrNull<AreasListController>(tag: site);
@@ -111,7 +105,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                           }
 
                           /// 类别
-                          var area = controller.detail.value!.area!;
+                          var area = controller.liveRoomRx.area.value!;
                           LiveArea? liveArea;
                           bool flag = false;
                           for (var i = 0; i < list.length && !flag; i++) {
@@ -140,7 +134,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                       }
                     },
                     child: Text(
-                      "${Sites.of(controller.detail.value!.platform!).name}${controller.detail.value!.area == null || controller.detail.value!.area == '' ? '' : "/${controller.detail.value!.area}"}",
+                      "${Sites.of(controller.liveRoomRx.platform.value!).name}${controller.liveRoomRx.area.value.isNullOrEmpty ? '' : "/${controller.liveRoomRx.area.value}"}",
                       style: Theme.of(Get.context!)
                           .textTheme
                           .labelSmall
@@ -229,7 +223,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                             Expanded(
                               child: Obx(() => DanmakuListView(
                                     key: controller.danmakuViewKey,
-                                    room: controller.detail.value!,
+                                    room: controller.liveRoomRx.toLiveRoom(),
                                   )),
                             ),
                           ],
@@ -247,7 +241,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                               Expanded(
                                 child: Obx(() => DanmakuListView(
                                       key: controller.danmakuViewKey,
-                                      room: controller.detail.value!,
+                                      room: controller.liveRoomRx.toLiveRoom(),
                                     )),
                               ),
                             ]),
@@ -258,8 +252,8 @@ class LivePlayPage extends GetView<LivePlayController> {
             },
           ),
           floatingActionButton: Obx(() => controller.getVideoSuccess.value
-              ? FavoriteFloatingButton(room: controller.detail.value!)
-              : FavoriteFloatingButton(room: controller.currentPlayRoom.value)),
+              ? FavoriteFloatingButton(room: controller.liveRoomRx.toLiveRoom())
+              : FavoriteFloatingButton(room: controller.liveRoomRx.toLiveRoom())),
         ),
       );
     });
@@ -366,13 +360,13 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
   LivePlayController get controller => Get.find();
 
   Widget buildInfoCount() {
-    // controller.detail.value! watching or followers
+    // controller.liveRoomRx watching or followers
     return Row(mainAxisSize: MainAxisSize.min, children: [
       const Icon(Icons.whatshot_rounded, size: 14),
       const SizedBox(width: 4),
       Obx(() => Text(
             readableCount(
-                readableCountStrToNum(controller.online.value).toString()),
+                readableCountStrToNum(controller.liveRoomRx.watching.value).toString()),
             style: Get.textTheme.bodySmall,
           )),
     ]);
@@ -543,7 +537,7 @@ class ErrorVideoWidget extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Obx(() => Text(
-                    '${controller.currentPlayRoom.value.platform == Sites.iptvSite ? controller.currentPlayRoom.value.title : controller.currentPlayRoom.value.nick ?? ''}',
+                    '${controller.liveRoomRx.platform.value == Sites.iptvSite ? controller.liveRoomRx.title.value : controller.liveRoomRx.nick.value ?? ''}',
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
@@ -600,7 +594,7 @@ class TimeOutVideoWidget extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Obx(() => Text(
-                    '${controller.currentPlayRoom.value.platform == Sites.iptvSite ? controller.currentPlayRoom.value.title : controller.currentPlayRoom.value.nick ?? ''}',
+                    '${controller.liveRoomRx.platform.value == Sites.iptvSite ? controller.liveRoomRx.title.value : controller.liveRoomRx.nick.value ?? ''}',
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
