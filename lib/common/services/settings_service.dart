@@ -13,6 +13,9 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
+
+  static SettingsService get instance => Get.find<SettingsService>();
+
   SettingsService() {
     enableDynamicTheme.listen((bool value) {
       PrefUtil.setBool('enableDynamicTheme', value);
