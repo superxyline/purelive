@@ -162,6 +162,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Keep Screen On"),
         "enable_screen_keep_on_subtitle": MessageLookupByLibrary.simpleMessage(
             "When in live play, keep screen on"),
+        "error": MessageLookupByLibrary.simpleMessage("Error"),
         "exit_app":
             MessageLookupByLibrary.simpleMessage("Are you sure want to exit?"),
         "exit_no": MessageLookupByLibrary.simpleMessage("No"),
@@ -258,6 +259,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Video Fit"),
         "show_offline_rooms":
             MessageLookupByLibrary.simpleMessage("Show Offline Rooms"),
+        "success": MessageLookupByLibrary.simpleMessage("Success"),
         "supabase_back_sign_in":
             MessageLookupByLibrary.simpleMessage("Back to sign in"),
         "supabase_enter_email":

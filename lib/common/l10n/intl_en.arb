@@ -66,6 +66,8 @@
     "select_recover_file": "Select backup file",
     "recover_backup_success": "Recover backup success, please restart",
     "recover_backup_failed": "Recover backup failed",
+    "success": "Success",
+    "error": "Error",
 
     "enable_dynamic_color": "Dynamic Color",
     "enable_dynamic_color_subtitle": "Enable Monet dynamic color",

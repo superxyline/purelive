@@ -66,6 +66,8 @@
     "select_recover_file": "选择备份文件",
     "recover_backup_success": "恢复备份成功，请重启",
     "recover_backup_failed": "恢复备份失败",
+    "success": "成功",
+    "error": "失败",
 
     "enable_dynamic_color": "动态取色",
     "enable_dynamic_color_subtitle": "启用Monet壁纸动态取色",

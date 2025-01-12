@@ -139,6 +139,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "enable_screen_keep_on": MessageLookupByLibrary.simpleMessage("屏幕常亮"),
         "enable_screen_keep_on_subtitle":
             MessageLookupByLibrary.simpleMessage("当处于直播播放页，屏幕保持常亮"),
+        "error": MessageLookupByLibrary.simpleMessage("失败"),
         "exit_app": MessageLookupByLibrary.simpleMessage("确定退出吗?"),
         "exit_no": MessageLookupByLibrary.simpleMessage("取消"),
         "exit_yes": MessageLookupByLibrary.simpleMessage("确定"),
@@ -214,6 +215,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_title": MessageLookupByLibrary.simpleMessage("设置"),
         "settings_videofit_title": MessageLookupByLibrary.simpleMessage("比例设置"),
         "show_offline_rooms": MessageLookupByLibrary.simpleMessage("显示未直播的直播间"),
+        "success": MessageLookupByLibrary.simpleMessage("成功"),
         "supabase_back_sign_in": MessageLookupByLibrary.simpleMessage("返回登录"),
         "supabase_enter_email": MessageLookupByLibrary.simpleMessage("请输入邮箱地址"),
         "supabase_enter_password":

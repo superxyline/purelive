@@ -621,6 +621,26 @@ class S {
     );
   }
 
+  /// `Success`
+  String get success {
+    return Intl.message(
+      'Success',
+      name: 'success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error`
+  String get error {
+    return Intl.message(
+      'Error',
+      name: 'error',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Dynamic Color`
   String get enable_dynamic_color {
     return Intl.message(
