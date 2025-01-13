@@ -2401,6 +2401,36 @@ class S {
     );
   }
 
+  /// `Player`
+  String get player {
+    return Intl.message(
+      'Player',
+      name: 'player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ali`
+  String get player_ali {
+    return Intl.message(
+      'Ali',
+      name: 'player_ali',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `system`
+  String get player_system {
+    return Intl.message(
+      'system',
+      name: 'player_system',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

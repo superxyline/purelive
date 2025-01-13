@@ -298,6 +298,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "platform_show": MessageLookupByLibrary.simpleMessage("Platform Show"),
         "play_video_failed":
             MessageLookupByLibrary.simpleMessage("Play Video Failed"),
+        "player": MessageLookupByLibrary.simpleMessage("Player"),
+        "player_ali": MessageLookupByLibrary.simpleMessage("Ali"),
+        "player_system": MessageLookupByLibrary.simpleMessage("system"),
         "popular_title": MessageLookupByLibrary.simpleMessage("Popular"),
         "prefer_platform":
             MessageLookupByLibrary.simpleMessage("Platform Preference"),

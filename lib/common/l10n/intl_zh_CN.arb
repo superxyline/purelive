@@ -284,6 +284,10 @@
     "download_address_enter_check":"请输入正确的下载链接",
     "file_name_input":"请输入文件名",
 
+    "player":"播放器",
+    "player_ali":"阿里",
+    "player_system":"系统",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

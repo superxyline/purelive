@@ -284,6 +284,10 @@
     "file_name":"file name",
     "file_name_input":"Please enter a file name",
 
+    "player":"Player",
+    "player_ali":"Ali",
+    "player_system":"system",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",

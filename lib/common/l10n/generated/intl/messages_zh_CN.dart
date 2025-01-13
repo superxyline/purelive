@@ -249,6 +249,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("自定义观看喜爱的平台"),
         "platform_show": MessageLookupByLibrary.simpleMessage("平台显示"),
         "play_video_failed": MessageLookupByLibrary.simpleMessage("无法播放直播"),
+        "player": MessageLookupByLibrary.simpleMessage("播放器"),
+        "player_ali": MessageLookupByLibrary.simpleMessage("阿里"),
+        "player_system": MessageLookupByLibrary.simpleMessage("系统"),
         "popular_title": MessageLookupByLibrary.simpleMessage("热门"),
         "prefer_platform": MessageLookupByLibrary.simpleMessage("首选直播平台"),
         "prefer_platform_subtitle":
