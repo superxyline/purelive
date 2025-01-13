@@ -116,20 +116,20 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                   // width: 36,
                                   alignment: Alignment.center,
                                   // 居中的子Widget
-                                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                                  // padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
                                   margin: EdgeInsets.only(right: 4),
                                   child: Row(children: [
-                                    Padding(padding: EdgeInsets.all(5)),
+                                    Padding(padding: EdgeInsets.all(3)),
                                     Text(
                                       "${danmaku.userLevel}",
                                       textAlign: TextAlign.center, // 居中的子Widget
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 10,
-                                        fontWeight: FontWeight.w100,
+                                        fontWeight: FontWeight.w200,
                                       ),
                                     ),
-                                    Padding(padding: EdgeInsets.all(5)),
+                                    Padding(padding: EdgeInsets.all(3)),
                                   ]),
                                 )),
                               ),
@@ -150,10 +150,11 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                     // width: 80,
                                     alignment: Alignment.center,
                                     // 居中的子Widget
-                                    padding: EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                                    // padding: EdgeInsets.symmetric(vertical: 2, horizontal: 4),
                                     margin: EdgeInsets.only(right: 4),
                                     child: Row(
                                       children: [
+                                        Padding(padding: EdgeInsets.all(1)),
                                         /// 弹幕的粉丝牌
                                         Text(
                                           "${danmaku.fansName}",
@@ -161,7 +162,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 10,
-                                            fontWeight: FontWeight.w100,
+                                            fontWeight: FontWeight.w200,
                                           ),
                                         ),
                                         Padding(padding: EdgeInsets.all(1)),
@@ -177,10 +178,11 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                             style: TextStyle(
                                               color: DanmuUtil.getFansLevelColor(danmaku.fansLevel),
                                               fontSize: 8,
-                                              fontWeight: FontWeight.w100,
+                                              fontWeight: FontWeight.w200,
                                             ),
                                           ),
-                                        ))
+                                        )),
+                                        Padding(padding: EdgeInsets.all(1)),
                                       ],
                                     ),
                                   ),
