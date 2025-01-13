@@ -2621,6 +2621,26 @@ class S {
     );
   }
 
+  /// `Auto-Rotate Screen`
+  String get auto_rotate_screen {
+    return Intl.message(
+      'Auto-Rotate Screen',
+      name: 'auto_rotate_screen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When playing in full screen, the screen will automatically rotate`
+  String get auto_rotate_screen_info {
+    return Intl.message(
+      'When playing in full screen, the screen will automatically rotate',
+      name: 'auto_rotate_screen_info',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

@@ -66,6 +66,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "auto_refresh_time": MessageLookupByLibrary.simpleMessage("定时刷新时间"),
         "auto_refresh_time_subtitle":
             MessageLookupByLibrary.simpleMessage("定时刷新关注直播间状态"),
+        "auto_rotate_screen": MessageLookupByLibrary.simpleMessage("自动旋转屏幕"),
+        "auto_rotate_screen_info":
+            MessageLookupByLibrary.simpleMessage("当全屏播放时,会自动旋转屏幕"),
         "auto_shutdown_time": MessageLookupByLibrary.simpleMessage("定时关闭时间"),
         "auto_shutdown_time_subtitle":
             MessageLookupByLibrary.simpleMessage("定时关闭app"),

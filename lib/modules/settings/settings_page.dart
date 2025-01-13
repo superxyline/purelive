@@ -73,8 +73,8 @@ class SettingsPage extends GetView<SettingsService> {
               )),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
-                  title: const Text("自动旋转屏幕"),
-                  subtitle: const Text("当全屏播放时,会自动旋转屏幕"),
+                  title: Text(S.of(context).auto_rotate_screen),
+                  subtitle: Text(S.of(context).auto_rotate_screen_info),
                   value: controller.enableRotateScreenWithSystem.value,
                   activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.enableRotateScreenWithSystem.value = value,

@@ -310,6 +310,8 @@
     "live_room_link_direct_copied":"The straight chain has been copied",
     "live_room_link_direct_read_failed":"Reading straight chain failed",
 
+    "auto_rotate_screen":"Auto-Rotate Screen",
+    "auto_rotate_screen_info":"When playing in full screen, the screen will automatically rotate",
 
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",

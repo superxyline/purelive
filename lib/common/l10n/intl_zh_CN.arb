@@ -310,6 +310,9 @@
     "live_room_link_direct_copied":"已复制直链",
     "live_room_link_direct_read_failed":"读取直链失败",
 
+    "auto_rotate_screen":"自动旋转屏幕",
+    "auto_rotate_screen_info":"当全屏播放时,会自动旋转屏幕",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

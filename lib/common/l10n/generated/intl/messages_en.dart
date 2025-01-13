@@ -71,6 +71,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Auto Refresh Time"),
         "auto_refresh_time_subtitle": MessageLookupByLibrary.simpleMessage(
             "Auto refresh favorites rooms status"),
+        "auto_rotate_screen":
+            MessageLookupByLibrary.simpleMessage("Auto-Rotate Screen"),
+        "auto_rotate_screen_info": MessageLookupByLibrary.simpleMessage(
+            "When playing in full screen, the screen will automatically rotate"),
         "auto_shutdown_time":
             MessageLookupByLibrary.simpleMessage("Auto ShutDown Time"),
         "auto_shutdown_time_subtitle":
