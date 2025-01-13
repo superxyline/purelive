@@ -20,7 +20,7 @@ class FavoritePage extends GetView<FavoriteController> {
           actions: showAction
               ? [
                   PopupMenuButton(
-                    tooltip: '搜索',
+                    tooltip: S.of(context).search,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -36,20 +36,20 @@ class FavoritePage extends GetView<FavoriteController> {
                     },
                     itemBuilder: (BuildContext context) {
                       return [
-                        const PopupMenuItem(
+                         PopupMenuItem(
                           value: 0,
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(CustomIcons.search),
-                            text: "搜索直播",
+                            text: S.of(context).live_room_search,
                           ),
                         ),
-                        const PopupMenuItem(
+                         PopupMenuItem(
                           value: 1,
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(Icons.link),
-                            text: "链接访问",
+                            text: S.of(context).live_room_link_access,
                           ),
                         ),
                       ];

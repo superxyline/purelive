@@ -237,6 +237,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "live_room_clarity_select":
             MessageLookupByLibrary.simpleMessage("选择清晰度"),
         "live_room_jump": MessageLookupByLibrary.simpleMessage("直播间跳转"),
+        "live_room_link_access": MessageLookupByLibrary.simpleMessage("链接访问"),
         "live_room_link_direct": MessageLookupByLibrary.simpleMessage("获取直链"),
         "live_room_link_direct_copied":
             MessageLookupByLibrary.simpleMessage("已复制直链"),
@@ -247,6 +248,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "live_room_link_parse_failed":
             MessageLookupByLibrary.simpleMessage("无法解析此链接"),
         "live_room_link_parsing": MessageLookupByLibrary.simpleMessage("链接解析"),
+        "live_room_search": MessageLookupByLibrary.simpleMessage("搜索直播"),
         "local_import": MessageLookupByLibrary.simpleMessage("本地导入"),
         "login_account_exit": m7,
         "login_by_cookie_info":
@@ -306,6 +308,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "replay": MessageLookupByLibrary.simpleMessage("录播"),
         "retry": MessageLookupByLibrary.simpleMessage("重试"),
         "room_info_content": m11,
+        "search": MessageLookupByLibrary.simpleMessage("搜索"),
         "search_input_hint": MessageLookupByLibrary.simpleMessage("输入直播关键字"),
         "second": MessageLookupByLibrary.simpleMessage("秒"),
         "select_recover_file": MessageLookupByLibrary.simpleMessage("选择备份文件"),

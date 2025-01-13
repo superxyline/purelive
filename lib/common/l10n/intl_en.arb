@@ -238,7 +238,7 @@
     "unable_to_read_clipboard_contents": "Unable to read clipboard contents",
     "reading_clipboard_content_failed": "Reading clipboard content failed",
 
-    "three_party_authentication":"Third-party Certification",
+    "three_party_authentication":"Third-party",
     "not_supported":"Not supported",
     "live":"live",
     "bilibili_need_login_info":"Bilibili accounts require login to view high-definition live streams, and there is currently no such restriction on other platforms.",
@@ -312,6 +312,10 @@
 
     "auto_rotate_screen":"Auto-Rotate Screen",
     "auto_rotate_screen_info":"When playing in full screen, the screen will automatically rotate",
+
+    "live_room_search":"Search Live",
+    "live_room_link_access":"Link Access",
+    "search":"Search",
 
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",

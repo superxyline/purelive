@@ -2011,10 +2011,10 @@ class S {
     );
   }
 
-  /// `Third-party Certification`
+  /// `Third-party`
   String get three_party_authentication {
     return Intl.message(
-      'Third-party Certification',
+      'Third-party',
       name: 'three_party_authentication',
       desc: '',
       args: [],
@@ -2636,6 +2636,36 @@ class S {
     return Intl.message(
       'When playing in full screen, the screen will automatically rotate',
       name: 'auto_rotate_screen_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search Live`
+  String get live_room_search {
+    return Intl.message(
+      'Search Live',
+      name: 'live_room_search',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link Access`
+  String get live_room_link_access {
+    return Intl.message(
+      'Link Access',
+      name: 'live_room_link_access',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search`
+  String get search {
+    return Intl.message(
+      'Search',
+      name: 'search',
       desc: '',
       args: [],
     );

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'popular_grid_view.dart';
@@ -23,7 +24,7 @@ class PopularPage extends GetView<PopularController> {
           actions: showAction
               ? [
                   PopupMenuButton(
-                    tooltip: '搜索',
+                    tooltip: S.of(context).search,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -39,20 +40,20 @@ class PopularPage extends GetView<PopularController> {
                     },
                     itemBuilder: (BuildContext context) {
                       return [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 0,
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(CustomIcons.search),
-                            text: "搜索直播",
+                            text: S.of(context).live_room_search,
                           ),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 1,
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(Icons.link),
-                            text: "链接访问",
+                            text: S.of(context).live_room_link_access,
                           ),
                         ),
                       ];

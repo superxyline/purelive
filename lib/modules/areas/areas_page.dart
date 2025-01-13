@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
-import 'package:pure_live/modules/util/site_logo_widget.dart';
-import 'areas_grid_view.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
+
+import 'areas_grid_view.dart';
 
 class AreasPage extends GetView<AreasController> {
   const AreasPage({super.key});
@@ -18,7 +19,7 @@ class AreasPage extends GetView<AreasController> {
           actions: showAction
               ? [
                   PopupMenuButton(
-                    tooltip: '搜索',
+                    tooltip: S.of(context).search,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -34,20 +35,20 @@ class AreasPage extends GetView<AreasController> {
                     },
                     itemBuilder: (BuildContext context) {
                       return [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 0,
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(CustomIcons.search),
-                            text: "搜索直播",
+                            text: S.of(context).live_room_search,
                           ),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 1,
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(Icons.link),
-                            text: "链接访问",
+                            text: S.of(context).live_room_link_access,
                           ),
                         ),
                       ];

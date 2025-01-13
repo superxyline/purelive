@@ -172,7 +172,7 @@ class LivePlayPage extends GetView<LivePlayController> {
             title: Obx(() => buildTableTarLeft()),
             actions: [
               PopupMenuButton(
-                tooltip: '搜索',
+                tooltip: S.of(context).search,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

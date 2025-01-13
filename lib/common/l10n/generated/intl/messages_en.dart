@@ -285,6 +285,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Select Clarity"),
         "live_room_jump":
             MessageLookupByLibrary.simpleMessage("Live Room Jump"),
+        "live_room_link_access":
+            MessageLookupByLibrary.simpleMessage("Link Access"),
         "live_room_link_direct":
             MessageLookupByLibrary.simpleMessage("Obtain direct link"),
         "live_room_link_direct_copied": MessageLookupByLibrary.simpleMessage(
@@ -299,6 +301,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Unable to parse this link"),
         "live_room_link_parsing":
             MessageLookupByLibrary.simpleMessage("Link Parse"),
+        "live_room_search": MessageLookupByLibrary.simpleMessage("Search Live"),
         "local_import": MessageLookupByLibrary.simpleMessage("Local Import"),
         "login_account_exit": m7,
         "login_by_cookie_info":
@@ -374,6 +377,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "replay": MessageLookupByLibrary.simpleMessage("REPLAY"),
         "retry": MessageLookupByLibrary.simpleMessage("Retry"),
         "room_info_content": m11,
+        "search": MessageLookupByLibrary.simpleMessage("Search"),
         "search_input_hint":
             MessageLookupByLibrary.simpleMessage("Input live room keyword"),
         "second": MessageLookupByLibrary.simpleMessage("second"),
@@ -460,7 +464,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "theme_color_and_transparency": MessageLookupByLibrary.simpleMessage(
             "Theme Color And Transparency"),
         "three_party_authentication":
-            MessageLookupByLibrary.simpleMessage("Third-party Certification"),
+            MessageLookupByLibrary.simpleMessage("Third-party"),
         "timedclose_time": m13,
         "unable_to_read_clipboard_contents":
             MessageLookupByLibrary.simpleMessage(
