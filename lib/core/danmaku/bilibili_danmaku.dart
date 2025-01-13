@@ -211,7 +211,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
             var medal = userInfo["medal"] ?? {};
             var fansLevel = medal["level"]?.toString() ?? "";
             var fansName = medal["name"]?.toString() ?? "";
-            CoreLog.d(jsonMessage);
+            // CoreLog.d(jsonMessage);
             var liveMsg = LiveMessage(
               type: LiveMessageType.chat,
               userName: username,
