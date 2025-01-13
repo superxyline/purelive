@@ -11,12 +11,12 @@ class ToolBoxController extends GetxController {
 
   void jumpToRoom(String e) async {
     if (e.isEmpty) {
-      SmartDialog.showToast("链接不能为空");
+      SmartDialog.showToast(S.of(Get.context!).link_empty);
       return;
     }
     var parseResult = await parse(e);
     if (parseResult.isEmpty || parseResult.first == "") {
-      SmartDialog.showToast("无法解析此链接");
+      SmartDialog.showToast(S.of(Get.context!).live_room_link_parse_failed);
       return;
     }
     String platform = parseResult[1];
@@ -41,12 +41,12 @@ class ToolBoxController extends GetxController {
 
   void getPlayUrl(String e) async {
     if (e.isEmpty) {
-      SmartDialog.showToast("链接不能为空");
+      SmartDialog.showToast(S.of(Get.context!).link_empty);
       return;
     }
     var parseResult = await parse(e);
     if (parseResult.isEmpty && parseResult.first == "") {
-      SmartDialog.showToast("无法解析此链接");
+      SmartDialog.showToast(S.of(Get.context!).live_room_link_parse_failed);
       return;
     }
     String platform = parseResult[1];
@@ -61,12 +61,12 @@ class ToolBoxController extends GetxController {
       var qualites = await Sites.of(platform).liveSite.getPlayQualites(detail: detail);
       SmartDialog.dismiss(status: SmartStatus.loading);
       if (qualites.isEmpty) {
-        SmartDialog.showToast("读取直链失败,无法读取清晰度");
+        SmartDialog.showToast(S.of(Get.context!).live_room_clarity_parse_failed);
 
         return;
       }
       var result = await Get.dialog(SimpleDialog(
-        title: const Text("选择清晰度"),
+        title: Text(S.of(Get.context!).live_room_clarity_select),
         children: qualites
             .map(
               (e) => ListTile(
@@ -88,12 +88,12 @@ class ToolBoxController extends GetxController {
       var playUrls = await Sites.of(platform).liveSite.getPlayUrls(detail: detail, quality: result);
       SmartDialog.dismiss(status: SmartStatus.loading);
       await Get.dialog(SimpleDialog(
-        title: const Text("选择线路"),
+        title: Text(S.of(Get.context!).live_room_clarity_line_select),
         children: playUrls
             .map(
               (e) => ListTile(
                 title: Text(
-                  "线路${playUrls.indexOf(e) + 1}",
+                  "${S.of(Get.context!).live_room_clarity_line} ${playUrls.indexOf(e) + 1}",
                 ),
                 subtitle: Text(
                   e,
@@ -103,7 +103,7 @@ class ToolBoxController extends GetxController {
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: e));
                   Navigator.of(Get.context!).pop();
-                  SmartDialog.showToast("已复制直链");
+                  SmartDialog.showToast(S.of(Get.context!).live_room_link_direct_copied);
                 },
               ),
             )
@@ -111,7 +111,7 @@ class ToolBoxController extends GetxController {
       ));
     } catch (e) {
       CoreLog.error(e);
-      SmartDialog.showToast("读取直链失败");
+      SmartDialog.showToast(S.of(Get.context!).live_room_link_direct_read_failed);
     } finally {
       SmartDialog.dismiss(status: SmartStatus.loading);
     }

@@ -2491,6 +2491,136 @@ class S {
     );
   }
 
+  /// `Link Parse`
+  String get live_room_link_parsing {
+    return Intl.message(
+      'Link Parse',
+      name: 'live_room_link_parsing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Live Room Jump`
+  String get live_room_jump {
+    return Intl.message(
+      'Live Room Jump',
+      name: 'live_room_jump',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link Jump`
+  String get live_room_link_jump {
+    return Intl.message(
+      'Link Jump',
+      name: 'live_room_link_jump',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Obtain direct link`
+  String get live_room_link_direct {
+    return Intl.message(
+      'Obtain direct link',
+      name: 'live_room_link_direct',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter or paste the link of {site} live broadcast`
+  String live_room_link_input(Object site) {
+    return Intl.message(
+      'Enter or paste the link of $site live broadcast',
+      name: 'live_room_link_input',
+      desc: '',
+      args: [site],
+    );
+  }
+
+  /// `Link cannot be empty`
+  String get link_empty {
+    return Intl.message(
+      'Link cannot be empty',
+      name: 'link_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to parse this link`
+  String get live_room_link_parse_failed {
+    return Intl.message(
+      'Unable to parse this link',
+      name: 'live_room_link_parse_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reading straight chain failed, unable to read clarity`
+  String get live_room_clarity_parse_failed {
+    return Intl.message(
+      'Reading straight chain failed, unable to read clarity',
+      name: 'live_room_clarity_parse_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select Clarity`
+  String get live_room_clarity_select {
+    return Intl.message(
+      'Select Clarity',
+      name: 'live_room_clarity_select',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select Clarity Line`
+  String get live_room_clarity_line_select {
+    return Intl.message(
+      'Select Clarity Line',
+      name: 'live_room_clarity_line_select',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clarity Line`
+  String get live_room_clarity_line {
+    return Intl.message(
+      'Clarity Line',
+      name: 'live_room_clarity_line',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The straight chain has been copied`
+  String get live_room_link_direct_copied {
+    return Intl.message(
+      'The straight chain has been copied',
+      name: 'live_room_link_direct_copied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reading straight chain failed`
+  String get live_room_link_direct_read_failed {
+    return Intl.message(
+      'Reading straight chain failed',
+      name: 'live_room_link_direct_read_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

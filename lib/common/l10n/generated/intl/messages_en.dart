@@ -34,25 +34,27 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m5(name) => "${name} is replaying.";
 
-  static String m6(site) =>
+  static String m6(site) => "Enter or paste the link of ${site} live broadcast";
+
+  static String m7(site) =>
       "Are you sure you want to log out of your ${site} account?";
 
-  static String m7(site) => "Scan the QR code to log in using the ${site} app";
+  static String m8(site) => "Scan the QR code to log in using the ${site} app";
 
-  static String m8(version) => "New version found: v${version}";
+  static String m9(version) => "New version found: v${version}";
 
-  static String m9(number) => "GroupNo.: ${number}";
+  static String m10(number) => "GroupNo.: ${number}";
 
-  static String m10(roomid, platform, nickname, title, livestatus) =>
+  static String m11(roomid, platform, nickname, title, livestatus) =>
       "RoomId: ${roomid}\nPlatform: ${platform}\nName: ${nickname}\nTitle: ${title}\nLiveStatus: ${livestatus}";
 
-  static String m11(error) => "Unexpected error has occurred: ${error}";
+  static String m12(error) => "Unexpected error has occurred: ${error}";
 
-  static String m12(time) => "${time} Min";
+  static String m13(time) => "${time} Min";
 
-  static String m13(name) => "Are you sure to unfollow ${name}?";
+  static String m14(name) => "Are you sure to unfollow ${name}?";
 
-  static String m14(level) =>
+  static String m15(level) =>
       "Barrage from users below level ${level} will be filtered";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -266,13 +268,39 @@ class MessageLookup extends MessageLookupByLibrary {
         "kuaishou": MessageLookupByLibrary.simpleMessage("Kwai"),
         "license": MessageLookupByLibrary.simpleMessage("License"),
         "light": MessageLookupByLibrary.simpleMessage("Light"),
+        "link_empty":
+            MessageLookupByLibrary.simpleMessage("Link cannot be empty"),
         "live": MessageLookupByLibrary.simpleMessage("live"),
+        "live_room_clarity_line":
+            MessageLookupByLibrary.simpleMessage("Clarity Line"),
+        "live_room_clarity_line_select":
+            MessageLookupByLibrary.simpleMessage("Select Clarity Line"),
+        "live_room_clarity_parse_failed": MessageLookupByLibrary.simpleMessage(
+            "Reading straight chain failed, unable to read clarity"),
+        "live_room_clarity_select":
+            MessageLookupByLibrary.simpleMessage("Select Clarity"),
+        "live_room_jump":
+            MessageLookupByLibrary.simpleMessage("Live Room Jump"),
+        "live_room_link_direct":
+            MessageLookupByLibrary.simpleMessage("Obtain direct link"),
+        "live_room_link_direct_copied": MessageLookupByLibrary.simpleMessage(
+            "The straight chain has been copied"),
+        "live_room_link_direct_read_failed":
+            MessageLookupByLibrary.simpleMessage(
+                "Reading straight chain failed"),
+        "live_room_link_input": m6,
+        "live_room_link_jump":
+            MessageLookupByLibrary.simpleMessage("Link Jump"),
+        "live_room_link_parse_failed":
+            MessageLookupByLibrary.simpleMessage("Unable to parse this link"),
+        "live_room_link_parsing":
+            MessageLookupByLibrary.simpleMessage("Link Parse"),
         "local_import": MessageLookupByLibrary.simpleMessage("Local Import"),
-        "login_account_exit": m6,
+        "login_account_exit": m7,
         "login_by_cookie_info":
             MessageLookupByLibrary.simpleMessage("Manually enter cookie login"),
         "login_by_qr": MessageLookupByLibrary.simpleMessage("QR Login"),
-        "login_by_qr_info": m7,
+        "login_by_qr_info": m8,
         "login_by_username_password": MessageLookupByLibrary.simpleMessage(
             "Fill in username and password to log in"),
         "login_expired": MessageLookupByLibrary.simpleMessage(
@@ -285,7 +313,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "network": MessageLookupByLibrary.simpleMessage("Network"),
         "network_import":
             MessageLookupByLibrary.simpleMessage("Network Import"),
-        "new_version_info": m8,
+        "new_version_info": m9,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage(
             "You are using the latest version."),
         "not_supported": MessageLookupByLibrary.simpleMessage("Not supported"),
@@ -317,7 +345,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "project_page":
             MessageLookupByLibrary.simpleMessage("Project Homepage"),
         "qq_group": MessageLookupByLibrary.simpleMessage("QQ Group"),
-        "qq_group_num": m9,
+        "qq_group_num": m10,
         "qr_confirm": MessageLookupByLibrary.simpleMessage(
             "The QR code has been scanned. Please confirm login on your phone"),
         "qr_loading_expired":
@@ -341,7 +369,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "remove": MessageLookupByLibrary.simpleMessage("Remove"),
         "replay": MessageLookupByLibrary.simpleMessage("REPLAY"),
         "retry": MessageLookupByLibrary.simpleMessage("Retry"),
-        "room_info_content": m10,
+        "room_info_content": m11,
         "search_input_hint":
             MessageLookupByLibrary.simpleMessage("Input live room keyword"),
         "second": MessageLookupByLibrary.simpleMessage("second"),
@@ -408,7 +436,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "supabase_sign_success":
             MessageLookupByLibrary.simpleMessage("Sign in successful!"),
         "supabase_sign_up": MessageLookupByLibrary.simpleMessage("Sign Up"),
-        "supabase_unexpected_err": m11,
+        "supabase_unexpected_err": m12,
         "supabase_update_password":
             MessageLookupByLibrary.simpleMessage("Update Password"),
         "support_donate":
@@ -429,15 +457,15 @@ class MessageLookup extends MessageLookupByLibrary {
             "Theme Color And Transparency"),
         "three_party_authentication":
             MessageLookupByLibrary.simpleMessage("Third-party Certification"),
-        "timedclose_time": m12,
+        "timedclose_time": m13,
         "unable_to_read_clipboard_contents":
             MessageLookupByLibrary.simpleMessage(
                 "Unable to read clipboard contents"),
         "unfollow": MessageLookupByLibrary.simpleMessage("Unfollow"),
-        "unfollow_message": m13,
+        "unfollow_message": m14,
         "update": MessageLookupByLibrary.simpleMessage("Update"),
         "user_level": MessageLookupByLibrary.simpleMessage("User Level"),
-        "user_level_danmu_format": m14,
+        "user_level_danmu_format": m15,
         "version": MessageLookupByLibrary.simpleMessage("Version"),
         "version_history":
             MessageLookupByLibrary.simpleMessage("Version History"),

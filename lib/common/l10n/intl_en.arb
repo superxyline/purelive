@@ -296,6 +296,21 @@
     "thank_title":"Thank you for using it!",
     "thank_info":"If you have any better suggestions or opinions, please feel free to contact us.",
 
+    "live_room_link_parsing":"Link Parse",
+    "live_room_jump":"Live Room Jump",
+    "live_room_link_jump":"Link Jump",
+    "live_room_link_direct":"Obtain direct link",
+    "live_room_link_input":"Enter or paste the link of {site} live broadcast",
+    "link_empty":"Link cannot be empty",
+    "live_room_link_parse_failed":"Unable to parse this link",
+    "live_room_clarity_parse_failed":"Reading straight chain failed, unable to read clarity",
+    "live_room_clarity_select":"Select Clarity",
+    "live_room_clarity_line_select":"Select Clarity Line",
+    "live_room_clarity_line":"Clarity Line",
+    "live_room_link_direct_copied":"The straight chain has been copied",
+    "live_room_link_direct_read_failed":"Reading straight chain failed",
+
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",
