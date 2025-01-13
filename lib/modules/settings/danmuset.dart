@@ -64,6 +64,41 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
           activeColor: Theme.of(context).colorScheme.primary,
           onChanged: (bool value) => controller.showColourDanmaku.value = value,
         )),
+
+        Obx(() => ListTile(
+          dense: true,
+          contentPadding: EdgeInsets.zero,
+          leading: const Text('用户等级'),
+          subtitle: Text(
+              '低于${controller.filterDanmuUserLevel.value.toInt() }级的用户弹幕会被过滤'),
+          title: Slider(
+            divisions: 10, //分多少份
+            min: 0.0,
+            max: 50.0,
+            value: controller.filterDanmuUserLevel.value,
+            onChanged: (val) => controller.filterDanmuUserLevel.value = val,
+          ),
+          trailing:
+          Text('${(controller.filterDanmuUserLevel.value).toInt()}'),
+        )),
+
+        Obx(() => ListTile(
+          dense: true,
+          contentPadding: EdgeInsets.zero,
+          leading: const Text('粉丝牌'),
+          subtitle: Text(
+              '低于${controller.filterDanmuFansLevel.value.toInt() }级的粉丝牌的弹幕会被过滤'),
+          title: Slider(
+            divisions: 8, //分多少份
+            min: 0.0,
+            max: 40.0,
+            value: controller.filterDanmuFansLevel.value,
+            onChanged: (val) => controller.filterDanmuFansLevel.value = val,
+          ),
+          trailing:
+          Text('${(controller.filterDanmuFansLevel.value).toInt()}'),
+        )),
+
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,

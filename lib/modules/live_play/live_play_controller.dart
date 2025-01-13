@@ -19,6 +19,7 @@ import 'package:pure_live/modules/live_play/danmu_merge.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -461,6 +462,52 @@ class LivePlayController extends StateController {
     currentQuality.value = 0;
   }
 
+  /// 是否显示弹幕
+  bool isShowDanmau(LiveMessage msg){
+
+    /// 彩色弹幕
+    if(settings.showColourDanmaku.value) {
+      bool isShowColour = msg.color != Colors.white;
+      if(!isShowColour) {
+        return false;
+      }
+    }
+    // CoreLog.d("isShowColour  msg:${msg.fansLevel} ${msg.fansName}");
+
+    /// 用户等级
+    var filterDanmuUserLevel = settings.filterDanmuUserLevel.value.toInt();
+    if(filterDanmuUserLevel > 0 && msg.userLevel.isNotNullOrEmpty) {
+      if(filterDanmuUserLevel > (int.parse(msg.userLevel))) {
+        return false;
+      }
+    }
+    // CoreLog.d("filterDanmuUserLevel  msg:${msg.fansLevel} ${msg.fansName}");
+
+    /// 粉丝等级
+    var filterDanmuFansLevel = settings.filterDanmuFansLevel.value.toInt();
+    if(filterDanmuFansLevel > 0 && msg.fansLevel.isNotNullOrEmpty) {
+      if(filterDanmuFansLevel > (int.parse(msg.fansLevel))) {
+        return false;
+      }
+    }
+
+    // CoreLog.d("filterDanmuFansLevel  msg:${msg.fansLevel} ${msg.fansName}");
+
+    /// 不在黑名单
+    bool isNotInShieldList = settings.shieldList.every((element) => !msg.message.contains(element));
+    if(!isNotInShieldList) {
+      return false;
+    }
+
+    // CoreLog.d("isNotInShieldList  msg:${msg.fansLevel} ${msg.fansName}");
+
+    var repeat = DanmuMerge.getInstance().isRepeat(msg.message);
+
+    // CoreLog.d("repeat $repeat  msg:${msg.fansLevel} ${msg.fansName}");
+
+    return !repeat;
+  }
+
   /// 初始化弹幕接收事件
   void initDanmau() {
     messages.clear();
@@ -485,15 +532,9 @@ class LivePlayController extends StateController {
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
 
-        bool isShow = true;
-        /// 彩色弹幕
-        if(settings.showColourDanmaku.value) {
-          isShow = msg.color != Colors.white;
-        }
-
-        if (isShow && settings.shieldList
-            .every((element) => !msg.message.contains(element))) {
-          if (!DanmuMerge().isRepeat(msg.message)) {
+        var isShow = isShowDanmau(msg);
+        // CoreLog.d("isShow:$isShow  msg:${msg.fansLevel} ${msg.fansName}");
+        if (isShow) {
             DanmuMerge().add(msg.message);
             messages.add(msg);
             if (videoController != null &&
@@ -501,7 +542,7 @@ class LivePlayController extends StateController {
               videoController?.sendDanmaku(msg);
             }
           }
-        }
+
       } else if (msg.type == LiveMessageType.online) {
         /// 在线人数
         var onlineNum = msg.data as int;

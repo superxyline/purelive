@@ -143,6 +143,12 @@ class SettingsService extends GetxController {
     mergeDanmuRating.listen((value) {
       PrefUtil.setDouble('mergeDanmuRating', value);
     });
+    filterDanmuUserLevel.listen((value) {
+      PrefUtil.setDouble('filterDanmuUserLevel', value);
+    });
+    filterDanmuFansLevel.listen((value) {
+      PrefUtil.setDouble('filterDanmuUserLevel', value);
+    });
 
     // webPort.listen((value) {
     //   PrefUtil.setString('webPort', value);
@@ -282,6 +288,9 @@ class SettingsService extends GetxController {
   final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
 
   final mergeDanmuRating = (PrefUtil.getDouble('mergeDanmuRating') ?? 0.0).obs;
+
+  final filterDanmuUserLevel = (PrefUtil.getDouble('filterDanmuUserLevel') ?? 0.0).obs;
+  final filterDanmuFansLevel = (PrefUtil.getDouble('filterDanmuFansLevel') ?? 0.0).obs;
 
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
@@ -629,6 +638,8 @@ class SettingsService extends GetxController {
     videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
     enableCodec.value = json['enableCodec'] ?? true;
     mergeDanmuRating.value = json['mergeDanmuRating'] != null ? double.parse(json['mergeDanmuRating'].toString()) : 0.0;
+    filterDanmuUserLevel.value = json['filterDanmuUserLevel'] != null ? double.parse(json['filterDanmuUserLevel'].toString()) : 0.0;
+    filterDanmuFansLevel.value = json['filterDanmuFansLevel'] != null ? double.parse(json['filterDanmuFansLevel'].toString()) : 0.0;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     webPort.value = json['webPort'] ?? '8008';
@@ -682,6 +693,8 @@ class SettingsService extends GetxController {
     json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
 
     json['mergeDanmuRating'] = mergeDanmuRating.value;
+    json['filterDanmuUserLevel'] = filterDanmuUserLevel.value;
+    json['filterDanmuFansLevel'] = filterDanmuFansLevel.value;
     json['themeColorSwitch'] = themeColorSwitch.value;
     json['webPort '] = webPort.value;
     json['webPortEnable'] = webPortEnable.value;
