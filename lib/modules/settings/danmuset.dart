@@ -89,7 +89,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
           subtitle: Text(
               '低于${controller.filterDanmuFansLevel.value.toInt() }级的粉丝牌的弹幕会被过滤'),
           title: Slider(
-            divisions: 8, //分多少份
+            divisions: 40, //分多少份
             min: 0.0,
             max: 40.0,
             value: controller.filterDanmuFansLevel.value,
