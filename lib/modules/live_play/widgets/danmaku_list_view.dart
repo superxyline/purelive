@@ -125,7 +125,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                       textAlign: TextAlign.center, // 居中的子Widget
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 10,
+                                        fontSize: 8,
                                         fontWeight: FontWeight.w200,
                                       ),
                                     ),
@@ -161,7 +161,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                           textAlign: TextAlign.center, // 居中的子Widget
                                           style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 10,
+                                            fontSize: 8,
                                             fontWeight: FontWeight.w200,
                                           ),
                                         ),
