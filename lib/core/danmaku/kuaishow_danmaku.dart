@@ -173,6 +173,7 @@ class KuaishowDanmaku implements LiveDanmaku {
 
     var online = readableCountStrToNum(displayWatchingCount);
     // CoreLog.d("online num:  $online \t likeCount num:  $likeCount");
+    CoreLog.d("$scWebFeedPush");
 
     onMessage?.call(
       LiveMessage(
@@ -198,11 +199,23 @@ class KuaishowDanmaku implements LiveDanmaku {
       // log("color: $color", name: runtimeType.toString());
       // color: #FF8BA7
       var messageColor = ColorUtil.hexToColor(color);
+
+      var fansLevel="";
+      var fansName = "";
+      var senderState = commentFeed.senderState;
+      var liveFansGroupState = senderState.liveFansGroupState;
+      var intimacyLevel = liveFansGroupState.intimacyLevel;
+      if(intimacyLevel > 0) {
+        fansLevel = intimacyLevel.toString();
+        fansName = "荣誉";
+      }
       onMessage?.call(LiveMessage(
         type: LiveMessageType.chat,
         color: messageColor,
         message: DanmakuMessageUtil.handleMessage(content),
         userName: userName,
+        fansLevel: fansLevel,
+        fansName: fansName,
       ));
     }
   }
