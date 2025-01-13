@@ -77,7 +77,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               dense: true,
               contentPadding: EdgeInsets.zero,
               leading: Text(S.of(Get.context!).user_level),
-              subtitle: Text(S.of(context).fans_level_danmu_format(controller.filterDanmuUserLevel.value)),
+              subtitle: Text(S.of(context).fans_level_danmu_format(controller.filterDanmuUserLevel.value.toInt())),
               title: Slider(
                 divisions: 10, //分多少份
                 min: 0.0,
@@ -100,7 +100,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               dense: true,
               contentPadding: EdgeInsets.zero,
               leading: Text(S.of(context).fans),
-              subtitle: Text(S.of(context).fans_level_danmu_format(controller.filterDanmuFansLevel.value)),
+              subtitle: Text(S.of(context).fans_level_danmu_format(controller.filterDanmuFansLevel.value.toInt())),
               title: Slider(
                 divisions: 40,
                 //分多少份
@@ -117,7 +117,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               dense: true,
               contentPadding: EdgeInsets.zero,
               leading: Text(S.of(context).danmu_merge),
-              subtitle: Text(S.of(context).danmu_merge_format(controller.mergeDanmuRating.value * 100)),
+              subtitle: Text(S.of(context).danmu_merge_format((controller.mergeDanmuRating.value * 100).toInt())),
               title: Slider(
                 divisions: 10,
                 min: 0.0,
