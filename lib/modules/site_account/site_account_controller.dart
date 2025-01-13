@@ -24,7 +24,7 @@ class SiteAccountController extends GetxController {
   /// 跳转至直播平台登录
   Future toSiteLogin(Site site) async {
     Utils.showRightOrBottomSheet(
-      title: "登录${Sites.getSiteName(site.id)}",
+      title: "${S.of(Get.context!).supabase_sign_in} ${Sites.getSiteName(site.id)}",
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -32,8 +32,8 @@ class SiteAccountController extends GetxController {
             visible: site.liveSite.isSupportWebLogin(),
             child: ListTile(
               leading: const Icon(Icons.account_circle_outlined),
-              title: const Text("Web登录"),
-              subtitle: const Text("填写用户名密码登录"),
+              title: Text("Web ${S.of(Get.context!).supabase_sign_in}"),
+              subtitle: Text(S.of(Get.context!).login_by_username_password),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.of(Get.context!).pop();
@@ -45,8 +45,8 @@ class SiteAccountController extends GetxController {
               visible: site.liveSite.isSupportQrLogin(),
               child: ListTile(
                 leading: const Icon(Icons.qr_code),
-                title: const Text("扫码登录"),
-                subtitle: const Text("使用哔哩哔哩APP扫描二维码登录"),
+                title: Text(S.of(Get.context!).login_by_qr),
+                subtitle: Text(S.of(Get.context!).login_by_qr_info(Sites.getSiteName(site.id))),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(Get.context!).pop();
@@ -57,8 +57,8 @@ class SiteAccountController extends GetxController {
               visible: site.liveSite.isSupportCookieLogin(),
               child: ListTile(
                 leading: const Icon(Icons.edit_outlined),
-                title: const Text("Cookie登录"),
-                subtitle: const Text("手动输入Cookie登录"),
+                title: Text("Cookie ${S.of(Get.context!).supabase_sign_in}"),
+                subtitle: Text(S.of(Get.context!).login_by_cookie_info),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(Get.context!).pop();
@@ -74,23 +74,22 @@ class SiteAccountController extends GetxController {
   void doCookieLogin(Site site) async {
     var cookie = await Utils.showEditTextDialog(
       "",
-      title: "请输入Cookie",
-      hintText: "请输入Cookie",
+      title: S.of(Get.context!).input_cookie,
+      hintText: S.of(Get.context!).input_cookie,
     );
     if (cookie == null || cookie.isEmpty) {
       return;
     }
     bool flag = await site.liveSite.loadUserInfo(site, cookie);
     if (!flag) {
-      Utils.showAlertDialog("Cookie校验失败！");
+      Utils.showAlertDialog(S.of(Get.context!).cookie_check_failed);
     }
   }
 
   /// 点击
   void onTap(Site site) async {
     if (site.liveSite.isLogin.value) {
-      var result =
-          await Utils.showAlertDialog("确定要退出 ${Sites.getSiteName(site.id)} 账号吗？", title: "退出登录");
+      var result = await Utils.showAlertDialog(S.of(Get.context!).login_account_exit(Sites.getSiteName(site.id)), title: S.of(Get.context!).supabase_log_out);
       if (result) {
         site.liveSite.logout(site);
       }

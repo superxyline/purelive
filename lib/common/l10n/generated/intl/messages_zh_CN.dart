@@ -32,20 +32,24 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m5(name) => "${name}轮播视频中.";
 
-  static String m6(version) => "发现新版本: v${version}";
+  static String m6(site) => "确定要退出 ${site} 账号吗？";
 
-  static String m7(number) => "群号: ${number}";
+  static String m7(site) => "使用${site}APP扫描二维码登录";
 
-  static String m8(roomid, platform, nickname, title, livestatus) =>
+  static String m8(version) => "发现新版本: v${version}";
+
+  static String m9(number) => "群号: ${number}";
+
+  static String m10(roomid, platform, nickname, title, livestatus) =>
       "房间号: ${roomid}\n平台: ${platform}\n昵称: ${nickname}\n标题: ${title}\n状态: ${livestatus}";
 
-  static String m9(error) => "发生意外错误：${error}";
+  static String m11(error) => "发生意外错误：${error}";
 
-  static String m10(time) => "${time} 分钟";
+  static String m12(time) => "${time} 分钟";
 
-  static String m11(name) => "确定要取消关注${name}吗？";
+  static String m13(name) => "确定要取消关注${name}吗？";
 
-  static String m12(level) => "低于${level}级的用户等级的弹幕会被过滤";
+  static String m14(level) => "低于${level}级的用户等级的弹幕会被过滤";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -97,6 +101,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "check_update_failed": MessageLookupByLibrary.simpleMessage("检查更新失败"),
         "confirm": MessageLookupByLibrary.simpleMessage("确认"),
         "contact": MessageLookupByLibrary.simpleMessage("联系"),
+        "cookie_check_failed":
+            MessageLookupByLibrary.simpleMessage("Cookie校验失败!"),
         "copy_to_clipboard": MessageLookupByLibrary.simpleMessage("已复制到剪贴板"),
         "copy_to_clipboard_failed":
             MessageLookupByLibrary.simpleMessage("复制到剪贴板失败"),
@@ -198,6 +204,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "huya": MessageLookupByLibrary.simpleMessage("虎牙"),
         "info_is_offline": m4,
         "info_is_replay": m5,
+        "input_cookie": MessageLookupByLibrary.simpleMessage("请输入Cookie"),
         "iptv": MessageLookupByLibrary.simpleMessage("网络"),
         "is_new_version": MessageLookupByLibrary.simpleMessage("当前已经是最新版本了"),
         "issue_feedback": MessageLookupByLibrary.simpleMessage("问题反馈"),
@@ -206,13 +213,19 @@ class MessageLookup extends MessageLookupByLibrary {
         "license": MessageLookupByLibrary.simpleMessage("开源许可证"),
         "light": MessageLookupByLibrary.simpleMessage("浅色模式"),
         "live": MessageLookupByLibrary.simpleMessage("直播"),
+        "login_account_exit": m6,
+        "login_by_cookie_info":
+            MessageLookupByLibrary.simpleMessage("手动输入Cookie登录"),
+        "login_by_qr_info": m7,
+        "login_by_username_password":
+            MessageLookupByLibrary.simpleMessage("填写用户名密码登录"),
         "login_expired": MessageLookupByLibrary.simpleMessage("登录已失效，请重新登录"),
         "login_failed":
             MessageLookupByLibrary.simpleMessage("获取用户信息失败，可前往账号管理重试"),
         "login_not": MessageLookupByLibrary.simpleMessage("未登录"),
         "minute": MessageLookupByLibrary.simpleMessage("分钟"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("移到顶部"),
-        "new_version_info": m6,
+        "new_version_info": m8,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage("已在使用最新版本"),
         "not_supported": MessageLookupByLibrary.simpleMessage("尚不支持"),
         "offline": MessageLookupByLibrary.simpleMessage("未直播"),
@@ -235,7 +248,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "project_alert": MessageLookupByLibrary.simpleMessage("项目声明"),
         "project_page": MessageLookupByLibrary.simpleMessage("项目主页"),
         "qq_group": MessageLookupByLibrary.simpleMessage("QQ群"),
-        "qq_group_num": m7,
+        "qq_group_num": m9,
+        "qr_confirm": MessageLookupByLibrary.simpleMessage("已扫描，请在手机上确认登录"),
+        "qr_loading_expired": MessageLookupByLibrary.simpleMessage("二维码已失效"),
+        "qr_loading_failed": MessageLookupByLibrary.simpleMessage("二维码加载失败"),
+        "qr_loading_refresh": MessageLookupByLibrary.simpleMessage("刷新二维码"),
         "read_and_agree": MessageLookupByLibrary.simpleMessage("已阅读并同意"),
         "reading_clipboard_content_failed":
             MessageLookupByLibrary.simpleMessage("读取剪切板内容失败"),
@@ -248,7 +265,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "remove": MessageLookupByLibrary.simpleMessage("删除"),
         "replay": MessageLookupByLibrary.simpleMessage("录播"),
         "retry": MessageLookupByLibrary.simpleMessage("重试"),
-        "room_info_content": m8,
+        "room_info_content": m10,
         "search_input_hint": MessageLookupByLibrary.simpleMessage("输入直播关键字"),
         "second": MessageLookupByLibrary.simpleMessage("秒"),
         "select_recover_file": MessageLookupByLibrary.simpleMessage("选择备份文件"),
@@ -299,7 +316,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "supabase_sign_in": MessageLookupByLibrary.simpleMessage("登录"),
         "supabase_sign_success": MessageLookupByLibrary.simpleMessage("登录成功!"),
         "supabase_sign_up": MessageLookupByLibrary.simpleMessage("注册"),
-        "supabase_unexpected_err": m9,
+        "supabase_unexpected_err": m11,
         "supabase_update_password":
             MessageLookupByLibrary.simpleMessage("更新密码"),
         "support_donate": MessageLookupByLibrary.simpleMessage("捐赠支持"),
@@ -308,14 +325,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
         "three_party_authentication":
             MessageLookupByLibrary.simpleMessage("三方认证"),
-        "timedclose_time": m10,
+        "timedclose_time": m12,
         "unable_to_read_clipboard_contents":
             MessageLookupByLibrary.simpleMessage("无法读取剪贴板内容"),
         "unfollow": MessageLookupByLibrary.simpleMessage("取消关注"),
-        "unfollow_message": m11,
+        "unfollow_message": m13,
         "update": MessageLookupByLibrary.simpleMessage("更新"),
         "user_level": MessageLookupByLibrary.simpleMessage("用户等级"),
-        "user_level_danmu_format": m12,
+        "user_level_danmu_format": m14,
         "version": MessageLookupByLibrary.simpleMessage("版本"),
         "video": MessageLookupByLibrary.simpleMessage("视频"),
         "videofit_contain": MessageLookupByLibrary.simpleMessage("默认比例"),

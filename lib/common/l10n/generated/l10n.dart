@@ -2161,6 +2161,116 @@ class S {
     );
   }
 
+  /// `Fill in username and password to log in`
+  String get login_by_username_password {
+    return Intl.message(
+      'Fill in username and password to log in',
+      name: 'login_by_username_password',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `QR Login`
+  String get login_by_qr {
+    return Intl.message(
+      'QR Login',
+      name: 'login_by_qr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan the QR code to log in using the {site} app`
+  String login_by_qr_info(Object site) {
+    return Intl.message(
+      'Scan the QR code to log in using the $site app',
+      name: 'login_by_qr_info',
+      desc: '',
+      args: [site],
+    );
+  }
+
+  /// `Manually enter cookie login`
+  String get login_by_cookie_info {
+    return Intl.message(
+      'Manually enter cookie login',
+      name: 'login_by_cookie_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Input Cookie`
+  String get input_cookie {
+    return Intl.message(
+      'Input Cookie',
+      name: 'input_cookie',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cookie verification failed!`
+  String get cookie_check_failed {
+    return Intl.message(
+      'Cookie verification failed!',
+      name: 'cookie_check_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to log out of your {site} account?`
+  String login_account_exit(Object site) {
+    return Intl.message(
+      'Are you sure you want to log out of your $site account?',
+      name: 'login_account_exit',
+      desc: '',
+      args: [site],
+    );
+  }
+
+  /// `QR code loading failed`
+  String get qr_loading_failed {
+    return Intl.message(
+      'QR code loading failed',
+      name: 'qr_loading_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The QR code has expired`
+  String get qr_loading_expired {
+    return Intl.message(
+      'The QR code has expired',
+      name: 'qr_loading_expired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Refresh QR code`
+  String get qr_loading_refresh {
+    return Intl.message(
+      'Refresh QR code',
+      name: 'qr_loading_refresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The QR code has been scanned. Please confirm login on your phone`
+  String get qr_confirm {
+    return Intl.message(
+      'The QR code has been scanned. Please confirm login on your phone',
+      name: 'qr_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/site_account/login/qr_login_controller.dart';
@@ -11,7 +12,7 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("${Sites.getSiteName(controller.site.id)}账号登录")),
+      appBar: AppBar(title: Text("${S.of(Get.context!).supabase_sign_in} ${Sites.getSiteName(controller.site.id)}")),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -26,10 +27,10 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("二维码加载失败"),
+                      Text(S.of(Get.context!).qr_loading_failed),
                       TextButton(
                         onPressed: controller.loadQRCode,
-                        child: const Text("重试"),
+                        child: Text(S.of(Get.context!).retry),
                       ),
                     ],
                   );
@@ -38,10 +39,10 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("二维码已失效"),
+                      Text(S.of(Get.context!).qr_loading_expired),
                       TextButton(
                         onPressed: controller.loadQRCode,
-                        child: const Text("刷新二维码"),
+                        child: Text(S.of(Get.context!).qr_loading_refresh),
                       ),
                     ],
                   );
@@ -63,7 +64,7 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
                     ),
                     Visibility(
                       visible: controller.qrStatus.value == QRStatus.scanned,
-                      child: const Text("已扫描，请在手机上确认登录"),
+                      child: Text(S.of(Get.context!).qr_confirm),
                     ),
                   ],
                 );
@@ -73,7 +74,7 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
           Padding(
             padding: EdgeInsets.all(24),
             child: Text(
-              "请使用${Sites.getSiteName(controller.site.id)}手机客户端扫描二维码登录",
+              S.of(Get.context!).login_by_qr_info(Sites.getSiteName(controller.site.id)),
               textAlign: TextAlign.center,
             ),
           ),
