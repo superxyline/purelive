@@ -539,7 +539,7 @@ class SettingsPage extends GetView<SettingsService> {
             title: Text(S.of(Get.context!).cache_manage_clear_all),
             subtitle: Text(cacheDirectorySize),
             onTap: () async {
-              var result = await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_all);
               if (result) {
                 CustomCache.instance.deleteCacheDirectory();
               }
@@ -550,7 +550,7 @@ class SettingsPage extends GetView<SettingsService> {
             title: Text(S.of(Get.context!).cache_manage_clear_image),
             subtitle: Text(imageCacheDirectorySize),
             onTap: () async {
-              var result = await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_image);
               if (result) {
                 CustomCache.instance.deleteImageCacheDirectory();
               }
@@ -562,7 +562,7 @@ class SettingsPage extends GetView<SettingsService> {
             // subtitle: Text(areaCacheDirectorySize),
             subtitle: Text(areaCacheDirectorySize),
             onTap: () async {
-              var result = await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_area);
               if (result) {
                 CustomCache.instance.deleteAreaCacheDirectory();
               }

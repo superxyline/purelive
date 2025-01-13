@@ -28,24 +28,26 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m2(level) =>
       "The barrage of user fan cards below ${level} will be filtered";
 
-  static String m3(name) => "${name} is offline.";
+  static String m3(version) => "Discover a new version: ${version}";
 
-  static String m4(name) => "${name} is replaying.";
+  static String m4(name) => "${name} is offline.";
 
-  static String m5(version) => "New version found: v${version}";
+  static String m5(name) => "${name} is replaying.";
 
-  static String m6(number) => "GroupNo.: ${number}";
+  static String m6(version) => "New version found: v${version}";
 
-  static String m7(roomid, platform, nickname, title, livestatus) =>
+  static String m7(number) => "GroupNo.: ${number}";
+
+  static String m8(roomid, platform, nickname, title, livestatus) =>
       "RoomId: ${roomid}\nPlatform: ${platform}\nName: ${nickname}\nTitle: ${title}\nLiveStatus: ${livestatus}";
 
-  static String m8(error) => "Unexpected error has occurred: ${error}";
+  static String m9(error) => "Unexpected error has occurred: ${error}";
 
-  static String m9(time) => "${time} Min";
+  static String m10(time) => "${time} Min";
 
-  static String m10(name) => "Are you sure to unfollow ${name}?";
+  static String m11(name) => "Are you sure to unfollow ${name}?";
 
-  static String m11(level) =>
+  static String m12(level) =>
       "Barrage from users below level ${level} will be filtered";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -78,6 +80,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Clear area cache"),
         "cache_manage_clear_image":
             MessageLookupByLibrary.simpleMessage("Clear image cache"),
+        "cache_manage_clear_prompt": MessageLookupByLibrary.simpleMessage(
+            "Are you sure you want to clear the cache?"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "change_language": MessageLookupByLibrary.simpleMessage("Language"),
         "change_language_subtitle": MessageLookupByLibrary.simpleMessage(
@@ -115,6 +119,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dark": MessageLookupByLibrary.simpleMessage("Dark"),
         "day": MessageLookupByLibrary.simpleMessage("day"),
         "develop_progress": MessageLookupByLibrary.simpleMessage("Development"),
+        "disclaimer": MessageLookupByLibrary.simpleMessage("Disclaimer"),
         "dlan_button_info":
             MessageLookupByLibrary.simpleMessage("DLNA Broadcast"),
         "dlan_device_not_found":
@@ -183,6 +188,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "enable_screen_keep_on_subtitle": MessageLookupByLibrary.simpleMessage(
             "When in live play, keep screen on"),
         "error": MessageLookupByLibrary.simpleMessage("Error"),
+        "exit": MessageLookupByLibrary.simpleMessage("Exit"),
         "exit_app":
             MessageLookupByLibrary.simpleMessage("Are you sure want to exit?"),
         "exit_no": MessageLookupByLibrary.simpleMessage("No"),
@@ -201,6 +207,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Play by float window"),
         "follow": MessageLookupByLibrary.simpleMessage("Follow"),
         "followed": MessageLookupByLibrary.simpleMessage("Followed"),
+        "found_new_version_format": m3,
         "general": MessageLookupByLibrary.simpleMessage("General"),
         "github": MessageLookupByLibrary.simpleMessage("Github"),
         "help": MessageLookupByLibrary.simpleMessage("Help"),
@@ -208,8 +215,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Hide Offline Rooms"),
         "history": MessageLookupByLibrary.simpleMessage("History"),
         "hour": MessageLookupByLibrary.simpleMessage("hour"),
-        "info_is_offline": m3,
-        "info_is_replay": m4,
+        "info_is_offline": m4,
+        "info_is_replay": m5,
         "issue_feedback":
             MessageLookupByLibrary.simpleMessage("Issue Feedback"),
         "keyword_input":
@@ -218,7 +225,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "light": MessageLookupByLibrary.simpleMessage("Light"),
         "minute": MessageLookupByLibrary.simpleMessage("minute"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("Move To Top"),
-        "new_version_info": m5,
+        "new_version_info": m6,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage(
             "You are using the latest version."),
         "offline": MessageLookupByLibrary.simpleMessage("Offline"),
@@ -246,7 +253,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "project_page":
             MessageLookupByLibrary.simpleMessage("Project Homepage"),
         "qq_group": MessageLookupByLibrary.simpleMessage("QQ Group"),
-        "qq_group_num": m6,
+        "qq_group_num": m7,
+        "read_and_agree":
+            MessageLookupByLibrary.simpleMessage("I have read and agree"),
         "recover_backup": MessageLookupByLibrary.simpleMessage("Recover"),
         "recover_backup_failed":
             MessageLookupByLibrary.simpleMessage("Recover backup failed"),
@@ -257,7 +266,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "remove": MessageLookupByLibrary.simpleMessage("Remove"),
         "replay": MessageLookupByLibrary.simpleMessage("REPLAY"),
         "retry": MessageLookupByLibrary.simpleMessage("Retry"),
-        "room_info_content": m7,
+        "room_info_content": m8,
         "search_input_hint":
             MessageLookupByLibrary.simpleMessage("Input live room keyword"),
         "second": MessageLookupByLibrary.simpleMessage("second"),
@@ -322,7 +331,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "supabase_sign_success":
             MessageLookupByLibrary.simpleMessage("Sign in successful!"),
         "supabase_sign_up": MessageLookupByLibrary.simpleMessage("Sign Up"),
-        "supabase_unexpected_err": m8,
+        "supabase_unexpected_err": m9,
         "supabase_update_password":
             MessageLookupByLibrary.simpleMessage("Update Password"),
         "support_donate":
@@ -331,12 +340,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Switch platform"),
         "system": MessageLookupByLibrary.simpleMessage("System"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
-        "timedclose_time": m9,
+        "timedclose_time": m10,
         "unfollow": MessageLookupByLibrary.simpleMessage("Unfollow"),
-        "unfollow_message": m10,
+        "unfollow_message": m11,
         "update": MessageLookupByLibrary.simpleMessage("Update"),
         "user_level": MessageLookupByLibrary.simpleMessage("User Level"),
-        "user_level_danmu_format": m11,
+        "user_level_danmu_format": m12,
         "version": MessageLookupByLibrary.simpleMessage("Version"),
         "video": MessageLookupByLibrary.simpleMessage("Video"),
         "videofit_contain": MessageLookupByLibrary.simpleMessage("Default"),

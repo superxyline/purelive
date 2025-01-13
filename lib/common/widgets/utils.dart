@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/widgets/right_sheet.dart';
 import 'package:pure_live/core/common/common_request.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -76,11 +77,11 @@ class Utils {
           ...?actions,
           TextButton(
             onPressed: (() => Navigator.of(Get.context!).pop(false)),
-            child: Text(cancel.isEmpty ? "取消" : cancel),
+            child: Text(cancel.isEmpty ? S.of(Get.context!).cancel : cancel),
           ),
           TextButton(
             onPressed: (() => Navigator.of(Get.context!).pop(true)),
-            child: Text(confirm.isEmpty ? "确定" : confirm),
+            child: Text(confirm.isEmpty ? S.of(Get.context!).confirm : confirm),
           ),
         ],
       ),
@@ -104,7 +105,7 @@ class Utils {
         actions: [
           TextButton(
             onPressed: (() => Navigator.of(Get.context!).pop(true)),
-            child: Text(confirm.isEmpty ? "确定" : confirm),
+            child: Text(confirm.isEmpty ? S.of(Get.context!).confirm : confirm),
           ),
         ],
       ),
@@ -333,7 +334,7 @@ class Utils {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(Get.context!).pop(),
-            child: const Text("取消"),
+            child: Text(S.of(Get.context!).cancel),
           ),
           TextButton(
             onPressed: () {
@@ -342,7 +343,7 @@ class Utils {
               }
               Navigator.of(Get.context!).pop(textEditingController.text);
             },
-            child: const Text("确定"),
+            child: Text(S.of(Get.context!).confirm),
           ),
         ],
       ),
@@ -383,9 +384,9 @@ class Utils {
     var result = await showAlertDialog(
       text,
       selectable: true,
-      title: "免责声明",
-      confirm: "已阅读并同意",
-      cancel: "退出",
+      title: S.of(Get.context!).disclaimer,
+      confirm: S.of(Get.context!).read_and_agree,
+      cancel: S.of(Get.context!).exit,
     );
     if (!result) {
       exit(0);
@@ -426,7 +427,7 @@ class Utils {
         Get.dialog(
           AlertDialog(
             title: Text(
-              "发现新版本 ${versionInfo.version}",
+              S.of(Get.context!).found_new_version_format(versionInfo.version),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 18),
             ),
@@ -444,7 +445,7 @@ class Utils {
                       onPressed: () {
                         Navigator.of(Get.context!).pop();
                       },
-                      child: const Text("取消"),
+                      child: Text(S.of(Get.context!).cancel),
                     ),
                   ),
                   AppStyle.hGap12,

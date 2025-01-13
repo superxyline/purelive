@@ -223,7 +223,14 @@
     "platform_settings_info": "自定义观看喜爱的平台",
     "platform_show": "平台显示",
 
+    "disclaimer": "免责声明",
+    "read_and_agree": "已阅读并同意",
+    "exit": "退出",
+
+    "found_new_version_format": "发现新版本: {version}",
+
     "cache_manage": "缓存管理",
+    "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",
     "cache_manage_clear_image": "清理图片缓存",
     "cache_manage_clear_area": "清理分区缓存"

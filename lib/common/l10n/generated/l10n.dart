@@ -1891,11 +1891,61 @@ class S {
     );
   }
 
+  /// `Disclaimer`
+  String get disclaimer {
+    return Intl.message(
+      'Disclaimer',
+      name: 'disclaimer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I have read and agree`
+  String get read_and_agree {
+    return Intl.message(
+      'I have read and agree',
+      name: 'read_and_agree',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exit`
+  String get exit {
+    return Intl.message(
+      'Exit',
+      name: 'exit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Discover a new version: {version}`
+  String found_new_version_format(Object version) {
+    return Intl.message(
+      'Discover a new version: $version',
+      name: 'found_new_version_format',
+      desc: '',
+      args: [version],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(
       'Cache Manage',
       name: 'cache_manage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to clear the cache?`
+  String get cache_manage_clear_prompt {
+    return Intl.message(
+      'Are you sure you want to clear the cache?',
+      name: 'cache_manage_clear_prompt',
       desc: '',
       args: [],
     );

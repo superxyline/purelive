@@ -224,7 +224,14 @@
     "platform_settings_info": "Customize your favorite viewing platforms",
     "platform_show": "Platform Show",
 
+    "disclaimer": "Disclaimer",
+    "read_and_agree": "I have read and agree",
+    "exit": "Exit",
+
+    "found_new_version_format": "Discover a new version: {version}",
+
     "cache_manage": "Cache Manage",
+    "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",
     "cache_manage_clear_image": "Clear image cache",
     "cache_manage_clear_area": "Clear area cache"
