@@ -1,6 +1,7 @@
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/status/app_loadding_widget.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
 import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
@@ -19,10 +20,11 @@ class SearchListView extends StatelessWidget {
       final width = constraint.maxWidth;
       final crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
       return Obx(() => EasyRefresh(
-            controller: controller.easyRefreshController,
-            onRefresh: controller.refreshData,
-            onLoad: controller.loadData,
-            child: controller.list.isNotEmpty
+          controller: controller.easyRefreshController,
+          onRefresh: controller.refreshData,
+          onLoad: controller.loadData,
+          child: Stack(children: [
+            controller.list.isNotEmpty
                 ? MasonryGridView.count(
                     padding: const EdgeInsets.all(8),
                     physics: const BouncingScrollPhysics(),
@@ -38,7 +40,11 @@ class SearchListView extends StatelessWidget {
                     title: S.of(context).empty_search_title,
                     subtitle: S.of(context).empty_search_subtitle,
                   ),
-          ));
+            Visibility(
+              visible: (controller.loadding.value),
+              child: const AppLoaddingWidget(),
+            ),
+          ])));
     });
   }
 }
@@ -77,14 +83,14 @@ class _OwnerCardState extends State<OwnerCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (widget.room.nick != null)
-            Text(
-              widget.room.nick!,
-              maxLines: 1,
-              style: const TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
-            ),
-            if(widget.room.platform != null)
               Text(
-                  "${Sites.of(widget.room.platform!).name}${widget.room.area?.appendLeftTxt(" - ")}",
+                widget.room.nick!,
+                maxLines: 1,
+                style: const TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
+              ),
+            if (widget.room.platform != null)
+              Text(
+                "${Sites.of(widget.room.platform!).name}${widget.room.area?.appendLeftTxt(" - ")}",
                 maxLines: 1,
                 style: const TextStyle(fontWeight: FontWeight.w200, fontSize: 10),
               ),
