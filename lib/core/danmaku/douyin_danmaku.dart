@@ -8,6 +8,7 @@ import 'package:flutter_js/flutter_js.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/common/utils/js_engine.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart' as http;
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/danmaku/util/danmaku_message_util.dart';
@@ -21,12 +22,14 @@ class DouyinDanmakuArgs {
   final String roomId;
   final String userId;
   final String cookie;
+
   DouyinDanmakuArgs({
     required this.webRid,
     required this.roomId,
     required this.userId,
     required this.cookie,
   });
+
   @override
   String toString() {
     return json.encode({
@@ -159,7 +162,16 @@ class DouyinDanmaku implements LiveDanmaku {
     var chatMessage = ChatMessage.fromBuffer(payload);
     var color = chatMessage.fullScreenTextColor;
     // log("chatMessage: $chatMessage", name: runtimeType.toString());
+    // CoreLog.d("chatMessage: $chatMessage");
     // CoreLog.d("color: $color");
+
+    var badgeImageList = chatMessage.user.badgeImageList;
+    var fansLevel = "";
+    var fansName = "";
+    if (badgeImageList.isNotEmpty) {
+      fansLevel = badgeImageList[0].content.level.toString();
+      fansName = "荣誉等级";
+    }
     onMessage?.call(
       LiveMessage(
         type: LiveMessageType.chat,
@@ -170,6 +182,8 @@ class DouyinDanmaku implements LiveDanmaku {
         //     : LiveMessageColor.numberToColor(color),
         message: DanmakuMessageUtil.handleMessage(chatMessage.content),
         userName: chatMessage.user.nickName,
+        fansLevel: fansLevel,
+        fansName: fansName,
       ),
     );
   }
