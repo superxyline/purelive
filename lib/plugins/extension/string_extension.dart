@@ -5,6 +5,14 @@ extension StringExtension on String? {
 
   bool get isNotNullOrEmpty => !isNullOrEmpty;
 
+  /// 获取内容，空值选择默认内容
+  String getNotNullOrEmptyByDefault(String defaultTxt) {
+    if(isNullOrEmpty) {
+      return defaultTxt;
+    }
+    return this!;
+  }
+
   /// 在右边添加 字符串
   String appendTxt(String? txt) {
     if(isNullOrEmpty) {

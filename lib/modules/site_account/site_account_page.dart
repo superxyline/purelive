@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/site_account/site_account_controller.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 
 class SiteAccountPage extends GetView<SiteAccountController> {
   const SiteAccountPage({super.key});
@@ -23,38 +24,33 @@ class SiteAccountPage extends GetView<SiteAccountController> {
               textAlign: TextAlign.center,
             ),
           ),
-          ...Sites.supportSites
-              .where((site) =>
-                  !([Sites.iptvSite, Sites.allSite].contains(site.id)))
-              .map((site) => site.liveSite.isSupportLogin()
-                  ? Obx(
-                      () => ListTile(
-                        leading: ExtendedImage.asset(
-                          site.logo,
-                          width: 36,
-                          height: 36,
-                        ),
-                        title: Text("${Sites.getSiteName(site.id)} ${S.of(Get.context!).live}"),
-                        subtitle: Text(site.liveSite.userName.value),
-                        trailing: site.liveSite.isLogin.value
-                            ? const Icon(Icons.logout)
-                            : const Icon(Icons.chevron_right),
-                        onTap: () {
-                          controller.onTap(site);
-                        },
-                      ),
-                    )
-                  : ListTile(
-                      leading: ExtendedImage.asset(
-                        site.logo,
-                        width: 36,
-                        height: 36,
-                      ),
-                      title: Text("${Sites.getSiteName(site.id)} ${S.of(Get.context!).live}"),
-                      subtitle: Text(S.of(Get.context!).not_supported),
-                      enabled: false,
-                      trailing: const Icon(Icons.chevron_right),
-                    )),
+          ...Sites.supportSites.where((site) => !([Sites.iptvSite, Sites.allSite].contains(site.id))).map((site) => site.liveSite.isSupportLogin()
+              ? Obx(
+                  () => ListTile(
+                    leading: ExtendedImage.asset(
+                      site.logo,
+                      width: 36,
+                      height: 36,
+                    ),
+                    title: Text("${Sites.getSiteName(site.id)} ${S.of(Get.context!).live}"),
+                    subtitle: Text(site.liveSite.userName.value.getNotNullOrEmptyByDefault(S.of(Get.context!).login_not)),
+                    trailing: site.liveSite.isLogin.value ? const Icon(Icons.logout) : const Icon(Icons.chevron_right),
+                    onTap: () {
+                      controller.onTap(site);
+                    },
+                  ),
+                )
+              : ListTile(
+                  leading: ExtendedImage.asset(
+                    site.logo,
+                    width: 36,
+                    height: 36,
+                  ),
+                  title: Text("${Sites.getSiteName(site.id)} ${S.of(Get.context!).live}"),
+                  subtitle: Text(S.of(Get.context!).not_supported),
+                  enabled: false,
+                  trailing: const Icon(Icons.chevron_right),
+                )),
         ],
       ),
     );

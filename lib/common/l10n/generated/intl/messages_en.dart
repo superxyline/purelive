@@ -246,6 +246,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "license": MessageLookupByLibrary.simpleMessage("License"),
         "light": MessageLookupByLibrary.simpleMessage("Light"),
         "live": MessageLookupByLibrary.simpleMessage("live"),
+        "login_expired": MessageLookupByLibrary.simpleMessage(
+            "Login has expired, please log in again"),
+        "login_failed": MessageLookupByLibrary.simpleMessage(
+            "Failed to obtain user information. You can go to account management to retry"),
+        "login_not": MessageLookupByLibrary.simpleMessage("Not Login"),
         "minute": MessageLookupByLibrary.simpleMessage("minute"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("Move To Top"),
         "new_version_info": m6,

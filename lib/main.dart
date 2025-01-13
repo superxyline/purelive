@@ -19,9 +19,10 @@ void main(List<String> args) async {
   // runApp(const MyApp());
 }
 
-void initService() {
-  Get.put(AuthController());
+Future<void> initService() async {
   Get.put(SettingsService());
+  await S.load(SettingsService.languages[SettingsService.instance.languageName.value]!);
+  Get.put(AuthController());
   Get.put(FavoriteController());
   Get.put(PopularController());
   Get.put(AreasController());

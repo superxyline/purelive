@@ -1,6 +1,7 @@
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/models/bilibili_user_info_page.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -103,7 +104,7 @@ mixin BilibiliSiteMixin on SiteAccount {
       );
       if (result["code"] == 0) {
         var info = BiliBiliUserInfoModel.fromJson(result["data"]);
-        userName.value = info.uname ?? "未登录";
+        userName.value = info.uname ?? "";
         uid = info.mid ?? 0;
         var flag = info.uname != null;
         isLogin.value = flag;
@@ -116,12 +117,12 @@ mixin BilibiliSiteMixin on SiteAccount {
         settings.siteCookies[site.id] = cookie;
         return flag;
       } else {
-        SmartDialog.showToast("${Sites.getSiteName(site.id)}登录已失效，请重新登录");
+        SmartDialog.showToast(Sites.getSiteName(site.id) + S.of(Get.context!).login_expired);
         logout(site);
       }
     } catch (e) {
       CoreLog.error(e);
-      SmartDialog.showToast("获取${Sites.getSiteName(site.id)}用户信息失败，可前往账号管理重试");
+      SmartDialog.showToast(Sites.getSiteName(site.id) + S.of(Get.context!).login_failed);
     }
     return false;
   }

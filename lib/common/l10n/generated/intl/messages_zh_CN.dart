@@ -206,6 +206,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "license": MessageLookupByLibrary.simpleMessage("开源许可证"),
         "light": MessageLookupByLibrary.simpleMessage("浅色模式"),
         "live": MessageLookupByLibrary.simpleMessage("直播"),
+        "login_expired": MessageLookupByLibrary.simpleMessage("登录已失效，请重新登录"),
+        "login_failed":
+            MessageLookupByLibrary.simpleMessage("获取用户信息失败，可前往账号管理重试"),
+        "login_not": MessageLookupByLibrary.simpleMessage("未登录"),
         "minute": MessageLookupByLibrary.simpleMessage("分钟"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("移到顶部"),
         "new_version_info": m6,

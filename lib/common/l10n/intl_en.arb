@@ -252,6 +252,10 @@
     "iptv":"IPTV",
     "all":"All",
 
+    "login_not":"Not Login",
+    "login_expired":"Login has expired, please log in again",
+    "login_failed":"Failed to obtain user information. You can go to account management to retry",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
+import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/common/utils/pref_util.dart';
@@ -18,7 +19,7 @@ class BiliBiliAccountService extends GetxController {
 
   var cookie = "".obs;
   var uid = 0;
-  var name = "未登录".obs;
+  var name = "".obs;
   static const String kBilibiliCookie = "bilibiliCookie";
   @override
   void onInit() {
@@ -42,7 +43,7 @@ class BiliBiliAccountService extends GetxController {
         );
         if (result["code"] == 0) {
           var info = BiliBiliUserInfoModel.fromJson(result["data"]);
-          name.value = info.uname ?? "未登录";
+          name.value = info.uname ?? "";
           uid = info.mid ?? 0;
           setSite();
         } else {

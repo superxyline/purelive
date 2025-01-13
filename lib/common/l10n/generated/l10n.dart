@@ -2131,6 +2131,36 @@ class S {
     );
   }
 
+  /// `Not Login`
+  String get login_not {
+    return Intl.message(
+      'Not Login',
+      name: 'login_not',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Login has expired, please log in again`
+  String get login_expired {
+    return Intl.message(
+      'Login has expired, please log in again',
+      name: 'login_expired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to obtain user information. You can go to account management to retry`
+  String get login_failed {
+    return Intl.message(
+      'Failed to obtain user information. You can go to account management to retry',
+      name: 'login_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(
