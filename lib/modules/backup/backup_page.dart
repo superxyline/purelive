@@ -1,9 +1,10 @@
 import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:pure_live/modules/backup/scan_page.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
-import 'package:pure_live/modules/auth/utils/constants.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
@@ -16,6 +17,7 @@ class _BackupPageState extends State<BackupPage> {
   final settings = Get.find<SettingsService>();
   late String backupDirectory = settings.backupDirectory.value;
   late String m3uDirectory = settings.m3uDirectory.value;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,14 +27,14 @@ class _BackupPageState extends State<BackupPage> {
         children: [
           SectionTitle(title: S.of(context).backup_recover),
           ListTile(
-            title: const Text('网络'),
-            subtitle: const Text('导入M3u直播源'),
+            title: Text(S.of(Get.context!).network),
+            subtitle: Text(S.of(Get.context!).import_live_streaming_source),
             onTap: () => showImportSetDialog(),
           ),
           if (Platform.isAndroid || Platform.isIOS)
             ListTile(
-              title: const Text("同步TV数据"),
-              subtitle: const Text("将数据远程同步到TV"),
+              title: Text(S.of(Get.context!).synchronize_tv_data),
+              subtitle: Text(S.of(Get.context!).synchronize_tv_data_info),
               onTap: () async {
                 Get.to(() => const ScanCodePage());
               },
@@ -73,12 +75,12 @@ class _BackupPageState extends State<BackupPage> {
   }
 
   void showImportSetDialog() {
-    List<String> list = ["本地导入", "网络导入"];
+    List<String> list = [S.of(Get.context!).local_import, S.of(Get.context!).network_import];
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('导入M3u直播源'),
+          title: Text(S.of(Get.context!).import_live_streaming_source),
           children: list.map<Widget>((name) {
             return RadioListTile<String>(
               activeColor: Theme.of(context).colorScheme.primary,
@@ -100,7 +102,7 @@ class _BackupPageState extends State<BackupPage> {
     final TextEditingController textEditingController = TextEditingController();
     var result = await Get.dialog(
         AlertDialog(
-          title: const Text('请输入下载地址'),
+          title: Text(S.of(Get.context!).download_address_enter),
           content: SizedBox(
             width: 400.0,
             height: 300.0,
@@ -110,22 +112,22 @@ class _BackupPageState extends State<BackupPage> {
                 children: [
                   TextField(
                     controller: urlEditingController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       //prefixText: title,
                       contentPadding: EdgeInsets.all(12),
-                      hintText: '下载地址',
+                      hintText: S.of(Get.context!).download_address,
                     ),
                     autofocus: true,
                   ),
                   spacer(12.0),
                   TextField(
                     controller: textEditingController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       //prefixText: title,
                       contentPadding: EdgeInsets.all(12),
-                      hintText: '文件名',
+                      hintText: S.of(Get.context!).file_name,
                     ),
                     autofocus: false,
                   ),
@@ -138,28 +140,27 @@ class _BackupPageState extends State<BackupPage> {
               onPressed: () {
                 Navigator.of(Get.context!).pop();
               },
-              child: const Text("取消"),
+              child: Text(S.of(Get.context!).cancel),
             ),
             TextButton(
               onPressed: () async {
                 if (urlEditingController.text.isEmpty) {
-                  SmartDialog.showToast('请输入下载链接');
+                  SmartDialog.showToast(S.of(Get.context!).download_address_enter);
                   return;
                 }
                 bool validate = FileRecoverUtils.isUrl(urlEditingController.text);
                 if (!validate) {
-                  SmartDialog.showToast('请输入正确的下载链接');
+                  SmartDialog.showToast(S.of(Get.context!).download_address_enter_check);
                   return;
                 }
                 if (textEditingController.text.isEmpty) {
-                  SmartDialog.showToast('请输入文件名');
+                  SmartDialog.showToast(S.of(Get.context!).file_name_input);
                   return;
                 }
-                await FileRecoverUtils()
-                    .recoverNetworkM3u8Backup(urlEditingController.text, textEditingController.text);
+                await FileRecoverUtils().recoverNetworkM3u8Backup(urlEditingController.text, textEditingController.text);
                 Navigator.of(Get.context!).pop();
               },
-              child: const Text("确定"),
+              child: Text(S.of(Get.context!).confirm),
             ),
           ],
         ),
@@ -168,7 +169,7 @@ class _BackupPageState extends State<BackupPage> {
   }
 
   importFile(String value) {
-    if (value == '本地导入') {
+    if (value == S.of(Get.context!).local_import) {
       FileRecoverUtils().recoverM3u8Backup();
       Navigator.of(context).pop();
     } else {

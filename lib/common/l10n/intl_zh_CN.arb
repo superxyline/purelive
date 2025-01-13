@@ -270,6 +270,20 @@
     "select_transparency":"选择透明度",
     "theme_color_and_transparency":"主题颜色及透明度",
 
+    "network":"网络",
+    "import_live_streaming_source":"导入M3u直播源",
+    "synchronize_tv_data":"同步TV数据",
+    "synchronize_tv_data_info":"将数据远程同步到TV",
+
+    "local_import":"本地导入",
+    "network_import":"网络导入",
+
+    "download_address_enter":"请输入下载地址",
+    "download_address":"下载地址",
+    "file_name":"文件名",
+    "download_address_enter_check":"请输入正确的下载链接",
+    "file_name_input":"请输入文件名",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

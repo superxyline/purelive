@@ -2291,6 +2291,116 @@ class S {
     );
   }
 
+  /// `Network`
+  String get network {
+    return Intl.message(
+      'Network',
+      name: 'network',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import M3u live streaming source`
+  String get import_live_streaming_source {
+    return Intl.message(
+      'Import M3u live streaming source',
+      name: 'import_live_streaming_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Synchronize TV Data`
+  String get synchronize_tv_data {
+    return Intl.message(
+      'Synchronize TV Data',
+      name: 'synchronize_tv_data',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remote synchronization of data to TV`
+  String get synchronize_tv_data_info {
+    return Intl.message(
+      'Remote synchronization of data to TV',
+      name: 'synchronize_tv_data_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local Import`
+  String get local_import {
+    return Intl.message(
+      'Local Import',
+      name: 'local_import',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Network Import`
+  String get network_import {
+    return Intl.message(
+      'Network Import',
+      name: 'network_import',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter the download address`
+  String get download_address_enter {
+    return Intl.message(
+      'Please enter the download address',
+      name: 'download_address_enter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download link`
+  String get download_address {
+    return Intl.message(
+      'Download link',
+      name: 'download_address',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter the correct download address`
+  String get download_address_enter_check {
+    return Intl.message(
+      'Please enter the correct download address',
+      name: 'download_address_enter_check',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `file name`
+  String get file_name {
+    return Intl.message(
+      'file name',
+      name: 'file_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a file name`
+  String get file_name_input {
+    return Intl.message(
+      'Please enter a file name',
+      name: 'file_name_input',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

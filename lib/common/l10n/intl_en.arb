@@ -270,6 +270,20 @@
     "select_transparency":"Select Transparency",
     "theme_color_and_transparency":"Theme Color And Transparency",
 
+    "network":"Network",
+    "import_live_streaming_source":"Import M3u live streaming source",
+    "synchronize_tv_data":"Synchronize TV Data",
+    "synchronize_tv_data_info":"Remote synchronization of data to TV",
+
+    "local_import":"Local Import",
+    "network_import":"Network Import",
+
+    "download_address_enter":"Please enter the download address",
+    "download_address":"Download link",
+    "download_address_enter_check":"Please enter the correct download address",
+    "file_name":"file name",
+    "file_name_input":"Please enter a file name",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",

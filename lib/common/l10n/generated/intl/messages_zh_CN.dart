@@ -129,6 +129,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "double_click_to_exit": MessageLookupByLibrary.simpleMessage("双击退出"),
         "douyin": MessageLookupByLibrary.simpleMessage("抖音"),
         "douyu": MessageLookupByLibrary.simpleMessage("斗鱼"),
+        "download_address": MessageLookupByLibrary.simpleMessage("下载地址"),
+        "download_address_enter":
+            MessageLookupByLibrary.simpleMessage("请输入下载地址"),
+        "download_address_enter_check":
+            MessageLookupByLibrary.simpleMessage("请输入正确的下载链接"),
         "email": MessageLookupByLibrary.simpleMessage("邮件"),
         "empty_areas_room_subtitle":
             MessageLookupByLibrary.simpleMessage("下滑/上滑刷新数据"),
@@ -186,6 +191,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "fans_level_danmu_format": m2,
         "favorite_areas": MessageLookupByLibrary.simpleMessage("关注分区"),
         "favorites_title": MessageLookupByLibrary.simpleMessage("关注"),
+        "file_name": MessageLookupByLibrary.simpleMessage("文件名"),
+        "file_name_input": MessageLookupByLibrary.simpleMessage("请输入文件名"),
         "float_overlay_ratio": MessageLookupByLibrary.simpleMessage("悬浮窗尺寸"),
         "float_overlay_ratio_subtitle":
             MessageLookupByLibrary.simpleMessage("视频小窗播放时，悬浮窗横向相对比例"),
@@ -202,6 +209,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "history": MessageLookupByLibrary.simpleMessage("历史记录"),
         "hour": MessageLookupByLibrary.simpleMessage("小时"),
         "huya": MessageLookupByLibrary.simpleMessage("虎牙"),
+        "import_live_streaming_source":
+            MessageLookupByLibrary.simpleMessage("导入M3u直播源"),
         "info_is_offline": m4,
         "info_is_replay": m5,
         "input_cookie": MessageLookupByLibrary.simpleMessage("请输入Cookie"),
@@ -213,6 +222,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "license": MessageLookupByLibrary.simpleMessage("开源许可证"),
         "light": MessageLookupByLibrary.simpleMessage("浅色模式"),
         "live": MessageLookupByLibrary.simpleMessage("直播"),
+        "local_import": MessageLookupByLibrary.simpleMessage("本地导入"),
         "login_account_exit": m6,
         "login_by_cookie_info":
             MessageLookupByLibrary.simpleMessage("手动输入Cookie登录"),
@@ -225,6 +235,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "login_not": MessageLookupByLibrary.simpleMessage("未登录"),
         "minute": MessageLookupByLibrary.simpleMessage("分钟"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("移到顶部"),
+        "network": MessageLookupByLibrary.simpleMessage("网络"),
+        "network_import": MessageLookupByLibrary.simpleMessage("网络导入"),
         "new_version_info": m8,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage("已在使用最新版本"),
         "not_supported": MessageLookupByLibrary.simpleMessage("尚不支持"),
@@ -322,6 +334,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("更新密码"),
         "support_donate": MessageLookupByLibrary.simpleMessage("捐赠支持"),
         "switch_platform": MessageLookupByLibrary.simpleMessage("切换直播平台"),
+        "synchronize_tv_data": MessageLookupByLibrary.simpleMessage("同步TV数据"),
+        "synchronize_tv_data_info":
+            MessageLookupByLibrary.simpleMessage("将数据远程同步到TV"),
         "system": MessageLookupByLibrary.simpleMessage("跟随系统"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
         "theme_color_and_transparency":

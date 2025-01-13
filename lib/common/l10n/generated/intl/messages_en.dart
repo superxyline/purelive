@@ -147,6 +147,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Double click to exit"),
         "douyin": MessageLookupByLibrary.simpleMessage("Tiktok"),
         "douyu": MessageLookupByLibrary.simpleMessage("Douyu"),
+        "download_address":
+            MessageLookupByLibrary.simpleMessage("Download link"),
+        "download_address_enter": MessageLookupByLibrary.simpleMessage(
+            "Please enter the download address"),
+        "download_address_enter_check": MessageLookupByLibrary.simpleMessage(
+            "Please enter the correct download address"),
         "email": MessageLookupByLibrary.simpleMessage("Email"),
         "empty_areas_room_subtitle":
             MessageLookupByLibrary.simpleMessage("Pull down to refresh data"),
@@ -219,6 +225,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "favorite_areas":
             MessageLookupByLibrary.simpleMessage("Favorite Areas"),
         "favorites_title": MessageLookupByLibrary.simpleMessage("Favorites"),
+        "file_name": MessageLookupByLibrary.simpleMessage("file name"),
+        "file_name_input":
+            MessageLookupByLibrary.simpleMessage("Please enter a file name"),
         "float_overlay_ratio":
             MessageLookupByLibrary.simpleMessage("Float Video Ratio"),
         "float_overlay_ratio_subtitle": MessageLookupByLibrary.simpleMessage(
@@ -240,6 +249,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "history": MessageLookupByLibrary.simpleMessage("History"),
         "hour": MessageLookupByLibrary.simpleMessage("hour"),
         "huya": MessageLookupByLibrary.simpleMessage("Huya"),
+        "import_live_streaming_source": MessageLookupByLibrary.simpleMessage(
+            "Import M3u live streaming source"),
         "info_is_offline": m4,
         "info_is_replay": m5,
         "input_cookie": MessageLookupByLibrary.simpleMessage("Input Cookie"),
@@ -254,6 +265,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "license": MessageLookupByLibrary.simpleMessage("License"),
         "light": MessageLookupByLibrary.simpleMessage("Light"),
         "live": MessageLookupByLibrary.simpleMessage("live"),
+        "local_import": MessageLookupByLibrary.simpleMessage("Local Import"),
         "login_account_exit": m6,
         "login_by_cookie_info":
             MessageLookupByLibrary.simpleMessage("Manually enter cookie login"),
@@ -268,6 +280,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "login_not": MessageLookupByLibrary.simpleMessage("Not Login"),
         "minute": MessageLookupByLibrary.simpleMessage("minute"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("Move To Top"),
+        "network": MessageLookupByLibrary.simpleMessage("Network"),
+        "network_import":
+            MessageLookupByLibrary.simpleMessage("Network Import"),
         "new_version_info": m8,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage(
             "You are using the latest version."),
@@ -395,6 +410,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Donate Support"),
         "switch_platform":
             MessageLookupByLibrary.simpleMessage("Switch platform"),
+        "synchronize_tv_data":
+            MessageLookupByLibrary.simpleMessage("Synchronize TV Data"),
+        "synchronize_tv_data_info": MessageLookupByLibrary.simpleMessage(
+            "Remote synchronization of data to TV"),
         "system": MessageLookupByLibrary.simpleMessage("System"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
         "theme_color_and_transparency": MessageLookupByLibrary.simpleMessage(
