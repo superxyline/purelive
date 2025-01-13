@@ -145,8 +145,8 @@ class SettingsPage extends GetView<SettingsService> {
             onTap: showDanmuSetDialog,
           ),
           ListTile(
-            title: const Text("弹幕过滤"),
-            subtitle: const Text("自定义关键词过滤弹幕"),
+            title: Text(S.of(context).danmu_filter),
+            subtitle: Text(S.of(context).danmu_filter_info),
             onTap: () => Get.toNamed(RoutePath.kSettingsDanmuShield),
           ),
           ListTile(

@@ -1781,10 +1781,10 @@ class S {
     );
   }
 
-  /// `Danmu merge`
+  /// `Danmu Merge`
   String get danmu_merge {
     return Intl.message(
-      'Danmu merge',
+      'Danmu Merge',
       name: 'danmu_merge',
       desc: '',
       args: [],
@@ -1798,6 +1798,66 @@ class S {
       name: 'danmu_merge_format',
       desc: '',
       args: [level],
+    );
+  }
+
+  /// `Danmu Filter`
+  String get danmu_filter {
+    return Intl.message(
+      'Danmu Filter',
+      name: 'danmu_filter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Customize keyword filtering barrage`
+  String get danmu_filter_info {
+    return Intl.message(
+      'Customize keyword filtering barrage',
+      name: 'danmu_filter_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bullet screen keyword blocking`
+  String get danmu_filter_keyword {
+    return Intl.message(
+      'Bullet screen keyword blocking',
+      name: 'danmu_filter_keyword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter keywords`
+  String get keyword_input {
+    return Intl.message(
+      'Please enter keywords',
+      name: 'keyword_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add`
+  String get add {
+    return Intl.message(
+      'Add',
+      name: 'add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{num} keywords have been added (click to remove)`
+  String danmu_filter_keyword_add_info(Object num) {
+    return Intl.message(
+      '$num keywords have been added (click to remove)',
+      name: 'danmu_filter_keyword_add_info',
+      desc: '',
+      args: [num],
     );
   }
 

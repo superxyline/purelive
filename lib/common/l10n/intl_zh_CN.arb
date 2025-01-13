@@ -212,6 +212,13 @@
     "danmu_merge": "弹幕合并",
     "danmu_merge_format": "相似度大于{level}%的弹幕会被合并",
 
+    "danmu_filter": "弹幕过滤",
+    "danmu_filter_info": "自定义关键词过滤弹幕",
+    "danmu_filter_keyword": "弹幕关键词屏蔽",
+    "keyword_input": "请输入关键词",
+    "add": "添加",
+    "danmu_filter_keyword_add_info": "已添加{num}个关键词（点击移除）",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_all": "清理全部缓存",
     "cache_manage_clear_image": "清理图片缓存",

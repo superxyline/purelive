@@ -210,8 +210,15 @@
     "user_level": "User Level",
     "user_level_danmu_format": "Barrage from users below level {level} will be filtered",
     "fans_level_danmu_format": "The barrage of user fan cards below {level} will be filtered",
-    "danmu_merge": "Danmu merge",
+    "danmu_merge": "Danmu Merge",
     "danmu_merge_format": "The barrage of comments with a similarity greater than {level}% will be merged",
+
+    "danmu_filter": "Danmu Filter",
+    "danmu_filter_info": "Customize keyword filtering barrage",
+    "danmu_filter_keyword": "Bullet screen keyword blocking",
+    "keyword_input": "Please enter keywords",
+    "add": "Add",
+    "danmu_filter_keyword_add_info": "{num} keywords have been added (click to remove)",
 
     "cache_manage": "Cache Manage",
     "cache_manage_clear_all": "Clear all cache",
