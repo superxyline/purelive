@@ -225,6 +225,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "offline_room_title": MessageLookupByLibrary.simpleMessage("Offline"),
         "online_room_title": MessageLookupByLibrary.simpleMessage("Online"),
         "only_living": MessageLookupByLibrary.simpleMessage("Only Living"),
+        "platform_settings":
+            MessageLookupByLibrary.simpleMessage("Platform Settings"),
+        "platform_settings_info": MessageLookupByLibrary.simpleMessage(
+            "Customize your favorite viewing platforms"),
+        "platform_show": MessageLookupByLibrary.simpleMessage("Platform Show"),
         "play_video_failed":
             MessageLookupByLibrary.simpleMessage("Play Video Failed"),
         "popular_title": MessageLookupByLibrary.simpleMessage("Popular"),

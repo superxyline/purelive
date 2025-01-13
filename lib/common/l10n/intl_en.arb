@@ -220,6 +220,10 @@
     "add": "Add",
     "danmu_filter_keyword_add_info": "{num} keywords have been added (click to remove)",
 
+    "platform_settings": "Platform Settings",
+    "platform_settings_info": "Customize your favorite viewing platforms",
+    "platform_show": "Platform Show",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_all": "Clear all cache",
     "cache_manage_clear_image": "Clear image cache",

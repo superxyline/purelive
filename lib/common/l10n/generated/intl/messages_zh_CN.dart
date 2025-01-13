@@ -189,6 +189,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "offline_room_title": MessageLookupByLibrary.simpleMessage("未开播"),
         "online_room_title": MessageLookupByLibrary.simpleMessage("已开播"),
         "only_living": MessageLookupByLibrary.simpleMessage("只搜索直播中"),
+        "platform_settings": MessageLookupByLibrary.simpleMessage("平台设置"),
+        "platform_settings_info":
+            MessageLookupByLibrary.simpleMessage("自定义观看喜爱的平台"),
+        "platform_show": MessageLookupByLibrary.simpleMessage("平台显示"),
         "play_video_failed": MessageLookupByLibrary.simpleMessage("无法播放直播"),
         "popular_title": MessageLookupByLibrary.simpleMessage("热门"),
         "prefer_platform": MessageLookupByLibrary.simpleMessage("首选直播平台"),

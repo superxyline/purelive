@@ -219,6 +219,10 @@
     "add": "添加",
     "danmu_filter_keyword_add_info": "已添加{num}个关键词（点击移除）",
 
+    "platform_settings": "平台设置",
+    "platform_settings_info": "自定义观看喜爱的平台",
+    "platform_show": "平台显示",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_all": "清理全部缓存",
     "cache_manage_clear_image": "清理图片缓存",

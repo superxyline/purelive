@@ -1861,6 +1861,36 @@ class S {
     );
   }
 
+  /// `Platform Settings`
+  String get platform_settings {
+    return Intl.message(
+      'Platform Settings',
+      name: 'platform_settings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Customize your favorite viewing platforms`
+  String get platform_settings_info {
+    return Intl.message(
+      'Customize your favorite viewing platforms',
+      name: 'platform_settings_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Platform Show`
+  String get platform_show {
+    return Intl.message(
+      'Platform Show',
+      name: 'platform_show',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

@@ -1,15 +1,16 @@
 import 'dart:io';
+
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/common/widgets/utils.dart';
-import 'package:pure_live/modules/settings/danmuset.dart';
+import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/modules/util/time_util.dart';
 import 'package:pure_live/plugins/cache_to_file.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
-import 'package:pure_live/modules/auth/utils/constants.dart';
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -68,8 +69,7 @@ class SettingsPage extends GetView<SettingsService> {
                 subtitle: Text(S.of(context).enable_background_play_subtitle),
                 value: controller.enableBackgroundPlay.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableBackgroundPlay.value = value,
+                onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
               )),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
@@ -77,25 +77,21 @@ class SettingsPage extends GetView<SettingsService> {
                   subtitle: const Text("当全屏播放时,会自动旋转屏幕"),
                   value: controller.enableRotateScreenWithSystem.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) =>
-                      controller.enableRotateScreenWithSystem.value = value,
+                  onChanged: (bool value) => controller.enableRotateScreenWithSystem.value = value,
                 )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_screen_keep_on),
                 subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
                 value: controller.enableScreenKeepOn.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableScreenKeepOn.value = value,
+                onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_fullscreen_default),
-                subtitle:
-                    Text(S.of(context).enable_fullscreen_default_subtitle),
+                subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
                 value: controller.enableFullScreenDefault.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableFullScreenDefault.value = value,
+                onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
               )),
           ListTile(
             title: Text(S.of(context).prefer_resolution),
@@ -108,25 +104,21 @@ class SettingsPage extends GetView<SettingsService> {
                 subtitle: Text(S.of(context).enable_dynamic_color_subtitle),
                 value: controller.enableDynamicTheme.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableDynamicTheme.value = value,
+                onChanged: (bool value) => controller.enableDynamicTheme.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_dense_favorites_mode),
-                subtitle:
-                    Text(S.of(context).enable_dense_favorites_mode_subtitle),
+                subtitle: Text(S.of(context).enable_dense_favorites_mode_subtitle),
                 value: controller.enableDenseFavorites.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableDenseFavorites.value = value,
+                onChanged: (bool value) => controller.enableDenseFavorites.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.of(context).enable_auto_check_update),
                 subtitle: Text(S.of(context).enable_auto_check_update_subtitle),
                 value: controller.enableAutoCheckUpdate.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableAutoCheckUpdate.value = value,
+                onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
               )),
           ListTile(
             title: Text(S.of(context).prefer_platform),
@@ -136,8 +128,7 @@ class SettingsPage extends GetView<SettingsService> {
           ListTile(
             title: Text(S.of(context).auto_refresh_time),
             subtitle: Text(S.of(context).auto_refresh_time_subtitle),
-            trailing: Obx(() => Text(
-                TimeUtil.minuteValueToStr(controller.autoRefreshTime.value))),
+            trailing: Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoRefreshTime.value))),
             onTap: showAutoRefreshTimeSetDialog,
           ),
           ListTile(
@@ -150,8 +141,8 @@ class SettingsPage extends GetView<SettingsService> {
             onTap: () => Get.toNamed(RoutePath.kSettingsDanmuShield),
           ),
           ListTile(
-            title: const Text("平台设置"),
-            subtitle: const Text("自定义观看喜爱的平台"),
+            title: Text(S.of(context).platform_settings),
+            subtitle: Text(S.of(context).platform_settings_info),
             onTap: () => Get.toNamed(RoutePath.kSettingsHotAreas),
           ),
           if (Platform.isAndroid)
@@ -159,15 +150,13 @@ class SettingsPage extends GetView<SettingsService> {
                   title: Text(S.of(context).double_click_to_exit),
                   value: controller.doubleExit.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) =>
-                      controller.doubleExit.value = value,
+                  onChanged: (bool value) => controller.doubleExit.value = value,
                 )),
           // if (Platform.isAndroid)
           ListTile(
             title: Text(S.of(context).change_player),
             subtitle: Text(S.of(context).change_player_subtitle),
-            trailing: Obx(() =>
-                Text(controller.playerlist[controller.videoPlayerIndex.value])),
+            trailing: Obx(() => Text(controller.playerlist[controller.videoPlayerIndex.value])),
             onTap: showVideoSetDialog,
           ),
           if (Platform.isAndroid)
@@ -175,15 +164,13 @@ class SettingsPage extends GetView<SettingsService> {
                   title: Text(S.of(context).enable_codec),
                   value: controller.enableCodec.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) =>
-                      controller.enableCodec.value = value,
+                  onChanged: (bool value) => controller.enableCodec.value = value,
                 )),
           if (Platform.isAndroid)
             ListTile(
               title: Text(S.of(context).auto_shutdown_time),
               subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
-              trailing: Obx(() => Text(TimeUtil.minuteValueToStr(
-                  controller.autoShutDownTime.value))),
+              trailing: Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoShutDownTime.value))),
               onTap: showAutoShutDownTimeSetDialog,
             ),
           ListTile(
@@ -274,8 +261,7 @@ class SettingsPage extends GetView<SettingsService> {
     ).showPickerDialog(
       context,
       actionsPadding: const EdgeInsets.all(16),
-      constraints:
-          const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
+      constraints: const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
     );
   }
 
@@ -398,8 +384,7 @@ class SettingsPage extends GetView<SettingsService> {
                 max: 120,
                 label: S.of(context).auto_refresh_time,
                 value: controller.autoRefreshTime.toDouble(),
-                onChanged: (value) =>
-                    controller.autoRefreshTime.value = value.toInt(),
+                onChanged: (value) => controller.autoRefreshTime.value = value.toInt(),
               ),
               Text('${S.of(context).auto_refresh_time}:'
                   ' ${TimeUtil.minuteValueToStr(controller.autoRefreshTime.value)}'),
@@ -445,8 +430,7 @@ class SettingsPage extends GetView<SettingsService> {
                 title: Text(S.of(context).auto_shutdown_time_subtitle),
                 value: controller.enableAutoShutDownTime.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) =>
-                    controller.enableAutoShutDownTime.value = value,
+                onChanged: (bool value) => controller.enableAutoShutDownTime.value = value,
               ),
               Slider(
                 min: 1,
@@ -513,14 +497,12 @@ class SettingsPage extends GetView<SettingsService> {
                   SmartDialog.showToast('请输入端口号');
                   return;
                 }
-                bool validate =
-                    FileRecoverUtils.isPort(textEditingController.text);
+                bool validate = FileRecoverUtils.isPort(textEditingController.text);
                 if (!validate) {
                   SmartDialog.showToast('请输入正确的端口号');
                   return;
                 }
-                if (int.parse(textEditingController.text) < 1 ||
-                    int.parse(textEditingController.text) > 65535) {
+                if (int.parse(textEditingController.text) < 1 || int.parse(textEditingController.text) > 65535) {
                   SmartDialog.showToast('请输入正确的端口号');
                   return;
                 }
@@ -543,12 +525,10 @@ class SettingsPage extends GetView<SettingsService> {
 
   /// 缓存管理
   static Future<void> showCacheManageSetDialog() async {
-    var controller = Get.find<SettingsService>();
+    // var controller = Get.find<SettingsService>();
     var cacheDirectorySize = await CustomCache.instance.getCacheDirectorySize();
-    var imageCacheDirectorySize =
-        await CustomCache.instance.getImageCacheDirectorySize();
-    var areaCacheDirectorySize =
-        await CustomCache.instance.getAreaCacheDirectorySize();
+    var imageCacheDirectorySize = await CustomCache.instance.getImageCacheDirectorySize();
+    var areaCacheDirectorySize = await CustomCache.instance.getAreaCacheDirectorySize();
     Utils.showRightOrBottomSheet(
       title: S.of(Get.context!).cache_manage,
       child: Column(
@@ -559,8 +539,7 @@ class SettingsPage extends GetView<SettingsService> {
             title: Text(S.of(Get.context!).cache_manage_clear_all),
             subtitle: Text(cacheDirectorySize),
             onTap: () async {
-              var result =
-                  await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              var result = await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
               if (result) {
                 CustomCache.instance.deleteCacheDirectory();
               }
@@ -571,8 +550,7 @@ class SettingsPage extends GetView<SettingsService> {
             title: Text(S.of(Get.context!).cache_manage_clear_image),
             subtitle: Text(imageCacheDirectorySize),
             onTap: () async {
-              var result =
-                  await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              var result = await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
               if (result) {
                 CustomCache.instance.deleteImageCacheDirectory();
               }
@@ -584,8 +562,7 @@ class SettingsPage extends GetView<SettingsService> {
             // subtitle: Text(areaCacheDirectorySize),
             subtitle: Text(areaCacheDirectorySize),
             onTap: () async {
-              var result =
-                  await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
+              var result = await Utils.showAlertDialog("确定要清除缓存吗？", title: "清除缓存");
               if (result) {
                 CustomCache.instance.deleteAreaCacheDirectory();
               }
