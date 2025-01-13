@@ -288,6 +288,14 @@
     "player_ali":"阿里",
     "player_system":"系统",
 
+    "version_history":"历史记录",
+    "version_history_info":"历史版本更新记录",
+    "version_history_updates":"版本历史更新",
+
+    "help_and_support":"帮助与支持",
+    "thank_title":"感谢您的使用！",
+    "thank_info":"如果您觉得有更好的建议或者意见，欢迎您联系我们。",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

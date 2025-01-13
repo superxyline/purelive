@@ -1,5 +1,6 @@
-import 'package:pure_live/common/index.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:get/get.dart';
+import 'package:pure_live/common/index.dart';
 
 class DonatePage extends StatelessWidget {
   const DonatePage({super.key});
@@ -12,7 +13,7 @@ class DonatePage extends StatelessWidget {
       final width = constraint.maxWidth;
       final crossAxisCount = width > 640 ? 2 : 1;
       return Scaffold(
-        appBar: AppBar(title: const Text("帮助与支持")),
+        appBar: AppBar(title: Text(S.of(context).help_and_support)),
         body: MasonryGridView.count(
           physics: const BouncingScrollPhysics(),
           crossAxisCount: crossAxisCount,
@@ -29,25 +30,25 @@ class WechatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
           padding: EdgeInsets.all(32.0),
           child: Text(
-            "感谢您的使用！",
+            S.of(Get.context!).thank_title,
           ),
         ),
         Padding(
           padding: EdgeInsets.all(32.0),
           child: Text(
-            "如果您觉得有更好的建议或者意见，欢迎您联系我们。",
+            S.of(Get.context!).thank_info,
           ),
         ),
         Padding(
           padding: EdgeInsets.all(32.0),
           child: Text(
-            "QQ群：920447827",
+            "${S.of(Get.context!).qq_group}：920447827",
           ),
         ),
       ],

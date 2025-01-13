@@ -1,8 +1,9 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
-import 'widgets/version_dialog.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'widgets/version_dialog.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -35,8 +36,8 @@ class _AboutPageState extends State<AboutPage> {
             subtitle: const Text(VersionUtil.version),
           ),
           ListTile(
-            title: const Text('历史记录'),
-            subtitle: const Text('历史版本更新记录'),
+            title: Text(S.of(context).version_history),
+            subtitle: Text(S.of(context).version_history_info),
             onTap: () => Get.toNamed(RoutePath.kVersionHistory),
           ),
           ListTile(
@@ -45,7 +46,7 @@ class _AboutPageState extends State<AboutPage> {
           ),
           SectionTitle(title: S.of(context).project),
           ListTile(
-            title: const Text("帮助与支持"),
+            title: Text(S.of(context).help_and_support),
             onTap: () => Get.toNamed(RoutePath.kDonate),
           ),
           ListTile(

@@ -205,6 +205,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "grant_access_album": MessageLookupByLibrary.simpleMessage("请授予相册访问权限"),
         "grant_access_file": MessageLookupByLibrary.simpleMessage("请授予文件访问权限"),
         "help": MessageLookupByLibrary.simpleMessage("帮助"),
+        "help_and_support": MessageLookupByLibrary.simpleMessage("帮助与支持"),
         "hide_offline_rooms": MessageLookupByLibrary.simpleMessage("隐藏未直播的直播间"),
         "history": MessageLookupByLibrary.simpleMessage("历史记录"),
         "hour": MessageLookupByLibrary.simpleMessage("小时"),
@@ -342,6 +343,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("将数据远程同步到TV"),
         "system": MessageLookupByLibrary.simpleMessage("跟随系统"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "thank_info":
+            MessageLookupByLibrary.simpleMessage("如果您觉得有更好的建议或者意见，欢迎您联系我们。"),
+        "thank_title": MessageLookupByLibrary.simpleMessage("感谢您的使用！"),
         "theme_color_and_transparency":
             MessageLookupByLibrary.simpleMessage("主题颜色及透明度"),
         "three_party_authentication":
@@ -355,6 +359,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "user_level": MessageLookupByLibrary.simpleMessage("用户等级"),
         "user_level_danmu_format": m14,
         "version": MessageLookupByLibrary.simpleMessage("版本"),
+        "version_history": MessageLookupByLibrary.simpleMessage("历史记录"),
+        "version_history_info":
+            MessageLookupByLibrary.simpleMessage("历史版本更新记录"),
+        "version_history_updates":
+            MessageLookupByLibrary.simpleMessage("版本历史更新"),
         "video": MessageLookupByLibrary.simpleMessage("视频"),
         "videofit_contain": MessageLookupByLibrary.simpleMessage("默认比例"),
         "videofit_cover": MessageLookupByLibrary.simpleMessage("居中裁剪"),

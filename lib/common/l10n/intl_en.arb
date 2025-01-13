@@ -288,6 +288,14 @@
     "player_ali":"Ali",
     "player_system":"system",
 
+    "version_history":"Version History",
+    "version_history_info":"Historical version update records",
+    "version_history_updates":"Version history updates",
+
+    "help_and_support":"Help & Support",
+    "thank_title":"Thank you for using it!",
+    "thank_info":"If you have any better suggestions or opinions, please feel free to contact us.",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",

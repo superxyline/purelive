@@ -244,6 +244,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "grant_access_file": MessageLookupByLibrary.simpleMessage(
             "Please grant access to the file"),
         "help": MessageLookupByLibrary.simpleMessage("Help"),
+        "help_and_support":
+            MessageLookupByLibrary.simpleMessage("Help & Support"),
         "hide_offline_rooms":
             MessageLookupByLibrary.simpleMessage("Hide Offline Rooms"),
         "history": MessageLookupByLibrary.simpleMessage("History"),
@@ -419,6 +421,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "Remote synchronization of data to TV"),
         "system": MessageLookupByLibrary.simpleMessage("System"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "thank_info": MessageLookupByLibrary.simpleMessage(
+            "If you have any better suggestions or opinions, please feel free to contact us."),
+        "thank_title":
+            MessageLookupByLibrary.simpleMessage("Thank you for using it!"),
         "theme_color_and_transparency": MessageLookupByLibrary.simpleMessage(
             "Theme Color And Transparency"),
         "three_party_authentication":
@@ -433,6 +439,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "user_level": MessageLookupByLibrary.simpleMessage("User Level"),
         "user_level_danmu_format": m14,
         "version": MessageLookupByLibrary.simpleMessage("Version"),
+        "version_history":
+            MessageLookupByLibrary.simpleMessage("Version History"),
+        "version_history_info": MessageLookupByLibrary.simpleMessage(
+            "Historical version update records"),
+        "version_history_updates":
+            MessageLookupByLibrary.simpleMessage("Version history updates"),
         "video": MessageLookupByLibrary.simpleMessage("Video"),
         "videofit_contain": MessageLookupByLibrary.simpleMessage("Default"),
         "videofit_cover": MessageLookupByLibrary.simpleMessage("Cover"),

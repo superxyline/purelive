@@ -2431,6 +2431,66 @@ class S {
     );
   }
 
+  /// `Version History`
+  String get version_history {
+    return Intl.message(
+      'Version History',
+      name: 'version_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Historical version update records`
+  String get version_history_info {
+    return Intl.message(
+      'Historical version update records',
+      name: 'version_history_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Version history updates`
+  String get version_history_updates {
+    return Intl.message(
+      'Version history updates',
+      name: 'version_history_updates',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Help & Support`
+  String get help_and_support {
+    return Intl.message(
+      'Help & Support',
+      name: 'help_and_support',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thank you for using it!`
+  String get thank_title {
+    return Intl.message(
+      'Thank you for using it!',
+      name: 'thank_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `If you have any better suggestions or opinions, please feel free to contact us.`
+  String get thank_info {
+    return Intl.message(
+      'If you have any better suggestions or opinions, please feel free to contact us.',
+      name: 'thank_info',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(
