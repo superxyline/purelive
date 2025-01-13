@@ -204,10 +204,21 @@ class BiliBiliDanmaku implements LiveDanmaku {
           var color = asT<int?>(obj["info"][0][3]) ?? 0;
           if (obj["info"][2] != null && obj["info"][2].length != 0) {
             var username = obj["info"][2][1].toString();
+            // var fansLevel = obj["info"][3][0].toString();
+            // var fansName = obj["info"][3][1].toString();
+            var dataInfo = obj["info"][0][15];
+            var userInfo = dataInfo["user"] ?? {};
+            var medal = userInfo["medal"] ?? {};
+            var fansLevel = medal["level"]?.toString() ?? "";
+            var fansName = medal["name"]?.toString() ?? "";
+            CoreLog.d(jsonMessage);
             var liveMsg = LiveMessage(
               type: LiveMessageType.chat,
               userName: username,
               message: message,
+              // userLevel: fansLevel, 没有用户等级
+              fansLevel: fansLevel,
+              fansName: fansName,
               color: color == 0
                   ? Colors.white
                   : ColorUtil.numberToColor(color),
