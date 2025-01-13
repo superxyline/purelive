@@ -170,7 +170,7 @@ class DouyinDanmaku implements LiveDanmaku {
     var fansName = "";
     if (badgeImageList.isNotEmpty) {
       fansLevel = badgeImageList[0].content.level.toString();
-      fansName = "荣誉等级";
+      fansName = "荣誉";
     }
     onMessage?.call(
       LiveMessage(
