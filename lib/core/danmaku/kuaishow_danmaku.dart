@@ -205,10 +205,8 @@ class KuaishowDanmaku implements LiveDanmaku {
       var senderState = commentFeed.senderState;
       var liveFansGroupState = senderState.liveFansGroupState;
       var intimacyLevel = liveFansGroupState.intimacyLevel;
-      if(intimacyLevel > 0) {
-        fansLevel = intimacyLevel.toString();
-        fansName = "荣誉";
-      }
+      fansLevel = intimacyLevel.toString();
+      fansName = "荣誉";
       onMessage?.call(LiveMessage(
         type: LiveMessageType.chat,
         color: messageColor,
