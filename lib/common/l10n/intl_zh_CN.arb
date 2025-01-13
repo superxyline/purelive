@@ -228,6 +228,14 @@
     "exit": "退出",
 
     "found_new_version_format": "发现新版本: {version}",
+    "is_new_version": "当前已经是最新版本了",
+    "check_update_failed": "检查更新失败",
+    "grant_access_album": "请授予相册访问权限",
+    "grant_access_file": "请授予文件访问权限",
+    "copy_to_clipboard": "已复制到剪贴板",
+    "copy_to_clipboard_failed": "复制到剪贴板失败",
+    "unable_to_read_clipboard_contents": "无法读取剪贴板内容",
+    "reading_clipboard_content_failed": "读取剪切板内容失败",
 
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",

@@ -98,8 +98,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "change_theme_mode_subtitle": MessageLookupByLibrary.simpleMessage(
             "Change form light / dark / system modes"),
         "check_update": MessageLookupByLibrary.simpleMessage("Check Update"),
+        "check_update_failed":
+            MessageLookupByLibrary.simpleMessage("Check update failed"),
         "confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
         "contact": MessageLookupByLibrary.simpleMessage("Contact"),
+        "copy_to_clipboard":
+            MessageLookupByLibrary.simpleMessage("Copy to clipboard"),
+        "copy_to_clipboard_failed":
+            MessageLookupByLibrary.simpleMessage("Copy to clipboard failed"),
         "create_backup": MessageLookupByLibrary.simpleMessage("Backup"),
         "create_backup_failed":
             MessageLookupByLibrary.simpleMessage("Create backup failed"),
@@ -210,6 +216,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "found_new_version_format": m3,
         "general": MessageLookupByLibrary.simpleMessage("General"),
         "github": MessageLookupByLibrary.simpleMessage("Github"),
+        "grant_access_album": MessageLookupByLibrary.simpleMessage(
+            "Please grant access to the album"),
+        "grant_access_file": MessageLookupByLibrary.simpleMessage(
+            "Please grant access to the file"),
         "help": MessageLookupByLibrary.simpleMessage("Help"),
         "hide_offline_rooms":
             MessageLookupByLibrary.simpleMessage("Hide Offline Rooms"),
@@ -217,6 +227,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "hour": MessageLookupByLibrary.simpleMessage("hour"),
         "info_is_offline": m4,
         "info_is_replay": m5,
+        "is_new_version": MessageLookupByLibrary.simpleMessage(
+            "The current version is already the latest version"),
         "issue_feedback":
             MessageLookupByLibrary.simpleMessage("Issue Feedback"),
         "keyword_input":
@@ -256,6 +268,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "qq_group_num": m7,
         "read_and_agree":
             MessageLookupByLibrary.simpleMessage("I have read and agree"),
+        "reading_clipboard_content_failed":
+            MessageLookupByLibrary.simpleMessage(
+                "Reading clipboard content failed"),
         "recover_backup": MessageLookupByLibrary.simpleMessage("Recover"),
         "recover_backup_failed":
             MessageLookupByLibrary.simpleMessage("Recover backup failed"),
@@ -341,6 +356,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "system": MessageLookupByLibrary.simpleMessage("System"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
         "timedclose_time": m10,
+        "unable_to_read_clipboard_contents":
+            MessageLookupByLibrary.simpleMessage(
+                "Unable to read clipboard contents"),
         "unfollow": MessageLookupByLibrary.simpleMessage("Unfollow"),
         "unfollow_message": m11,
         "update": MessageLookupByLibrary.simpleMessage("Update"),

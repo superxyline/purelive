@@ -89,8 +89,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "change_theme_mode_subtitle":
             MessageLookupByLibrary.simpleMessage("切换系统/亮色/暗色模式"),
         "check_update": MessageLookupByLibrary.simpleMessage("检查更新"),
+        "check_update_failed": MessageLookupByLibrary.simpleMessage("检查更新失败"),
         "confirm": MessageLookupByLibrary.simpleMessage("确认"),
         "contact": MessageLookupByLibrary.simpleMessage("联系"),
+        "copy_to_clipboard": MessageLookupByLibrary.simpleMessage("已复制到剪贴板"),
+        "copy_to_clipboard_failed":
+            MessageLookupByLibrary.simpleMessage("复制到剪贴板失败"),
         "create_backup": MessageLookupByLibrary.simpleMessage("创建备份"),
         "create_backup_failed": MessageLookupByLibrary.simpleMessage("创建备份失败"),
         "create_backup_subtitle":
@@ -178,12 +182,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "found_new_version_format": m3,
         "general": MessageLookupByLibrary.simpleMessage("通用"),
         "github": MessageLookupByLibrary.simpleMessage("Github"),
+        "grant_access_album": MessageLookupByLibrary.simpleMessage("请授予相册访问权限"),
+        "grant_access_file": MessageLookupByLibrary.simpleMessage("请授予文件访问权限"),
         "help": MessageLookupByLibrary.simpleMessage("帮助"),
         "hide_offline_rooms": MessageLookupByLibrary.simpleMessage("隐藏未直播的直播间"),
         "history": MessageLookupByLibrary.simpleMessage("历史记录"),
         "hour": MessageLookupByLibrary.simpleMessage("小时"),
         "info_is_offline": m4,
         "info_is_replay": m5,
+        "is_new_version": MessageLookupByLibrary.simpleMessage("当前已经是最新版本了"),
         "issue_feedback": MessageLookupByLibrary.simpleMessage("问题反馈"),
         "keyword_input": MessageLookupByLibrary.simpleMessage("请输入关键词"),
         "license": MessageLookupByLibrary.simpleMessage("开源许可证"),
@@ -214,6 +221,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "qq_group": MessageLookupByLibrary.simpleMessage("QQ群"),
         "qq_group_num": m7,
         "read_and_agree": MessageLookupByLibrary.simpleMessage("已阅读并同意"),
+        "reading_clipboard_content_failed":
+            MessageLookupByLibrary.simpleMessage("读取剪切板内容失败"),
         "recover_backup": MessageLookupByLibrary.simpleMessage("恢复备份"),
         "recover_backup_failed": MessageLookupByLibrary.simpleMessage("恢复备份失败"),
         "recover_backup_subtitle":
@@ -282,6 +291,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "system": MessageLookupByLibrary.simpleMessage("跟随系统"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
         "timedclose_time": m10,
+        "unable_to_read_clipboard_contents":
+            MessageLookupByLibrary.simpleMessage("无法读取剪贴板内容"),
         "unfollow": MessageLookupByLibrary.simpleMessage("取消关注"),
         "unfollow_message": m11,
         "update": MessageLookupByLibrary.simpleMessage("更新"),

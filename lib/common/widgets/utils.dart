@@ -33,9 +33,7 @@ class Utils {
     }
 
     var dtNow = DateTime.now();
-    if (dt.year == dtNow.year &&
-        dt.month == dtNow.month &&
-        dt.day == dtNow.day) {
+    if (dt.year == dtNow.year && dt.month == dtNow.month && dt.day == dtNow.day) {
       return "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
     }
 
@@ -93,8 +91,7 @@ class Utils {
   /// - `content` 内容
   /// - `title` 弹窗标题
   /// - `confirm` 确认按钮内容，留空为确定
-  static Future<bool> showMessageDialog(String content,
-      {String title = '', String confirm = '', bool selectable = false}) async {
+  static Future<bool> showMessageDialog(String content, {String title = '', String confirm = '', bool selectable = false}) async {
     var result = await Get.dialog(
       AlertDialog(
         title: Text(title),
@@ -207,19 +204,19 @@ class Utils {
       backgroundColor: color,
       builder: (_) => Column(
         children: [
-          if(!title.isNullOrEmpty)
-          ListTile(
-            contentPadding: const EdgeInsets.only(
-              left: 12,
+          if (!title.isNullOrEmpty)
+            ListTile(
+              contentPadding: const EdgeInsets.only(
+                left: 12,
+              ),
+              title: Text(title),
+              trailing: IconButton(
+                onPressed: () {
+                  Navigator.pop(Get.context!);
+                },
+                icon: const Icon(Remix.close_line),
+              ),
             ),
-            title: Text(title),
-            trailing: IconButton(
-              onPressed: () {
-                Navigator.pop(Get.context!);
-              },
-              icon: const Icon(Remix.close_line),
-            ),
-          ),
           Expanded(
             child: child,
           ),
@@ -251,21 +248,21 @@ class Utils {
       backgroundColor: color,
       builder: (context) => Column(
         children: [
-          if(!title.isNullOrEmpty)
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            contentPadding: EdgeInsets.zero,
-            leading: IconButton(
-              onPressed: () {
-                Navigator.pop(Get.context!);
-              },
-              icon: const Icon(Icons.arrow_back),
+          if (!title.isNullOrEmpty)
+            ListTile(
+              visualDensity: VisualDensity.compact,
+              contentPadding: EdgeInsets.zero,
+              leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(Get.context!);
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
+              title: Text(
+                title,
+                style: Get.textTheme.titleMedium,
+              ),
             ),
-            title: Text(
-              title,
-              style: Get.textTheme.titleMedium,
-            ),
-          ),
           Divider(
             height: 1,
             color: Colors.grey.withOpacity(.1),
@@ -290,8 +287,7 @@ class Utils {
     var width = size2.width;
     var height = size2.height;
     if (width <= height) {
-      return showBottomSheet(
-          title: title, child: child, maxWidth: bottomMaxWidth, color: color);
+      return showBottomSheet(title: title, child: child, maxWidth: bottomMaxWidth, color: color);
     }
     rightMaxWidth ??= width / 2;
     return showRightSheet(title: title, child: child, maxWidth: rightMaxWidth, color: color);
@@ -310,8 +306,7 @@ class Utils {
     String cancel = '',
     TextValidate? validate,
   }) async {
-    final TextEditingController textEditingController =
-        TextEditingController(text: content);
+    final TextEditingController textEditingController = TextEditingController(text: content);
     var result = await Get.dialog(
       AlertDialog(
         title: Text(title),
@@ -460,7 +455,7 @@ class Utils {
                           mode: LaunchMode.externalApplication,
                         );
                       },
-                      child: const Text("更新"),
+                      child: Text(S.of(Get.context!).update),
                     ),
                   ),
                 ],
@@ -470,13 +465,13 @@ class Utils {
         );
       } else {
         if (showMsg) {
-          SmartDialog.showToast("当前已经是最新版本了");
+          SmartDialog.showToast(S.of(Get.context!).is_new_version);
         }
       }
     } catch (e) {
       CoreLog.logPrint(e);
       if (showMsg) {
-        SmartDialog.showToast("检查更新失败");
+        SmartDialog.showToast(S.of(Get.context!).check_update_failed);
       }
     }
   }
@@ -512,7 +507,7 @@ class Utils {
         return true;
       } else {
         SmartDialog.showToast(
-          "请授予相册访问权限",
+          S.of(Get.context!).grant_access_album,
         );
         return false;
       }
@@ -544,7 +539,7 @@ class Utils {
         return true;
       } else {
         SmartDialog.showToast(
-          "请授予文件访问权限",
+          S.of(Get.context!).grant_access_file,
         );
         return false;
       }
@@ -582,10 +577,10 @@ class Utils {
   static void copyToClipboard(String text) async {
     try {
       await Clipboard.setData(ClipboardData(text: text));
-      SmartDialog.showToast("已复制到剪贴板");
+      SmartDialog.showToast(S.of(Get.context!).copy_to_clipboard);
     } catch (e) {
       CoreLog.logPrint(e);
-      SmartDialog.showToast("复制到剪贴板失败: $e");
+      SmartDialog.showToast("${S.of(Get.context!).copy_to_clipboard_failed}: $e");
     }
   }
 
@@ -594,21 +589,19 @@ class Utils {
     try {
       var content = await Clipboard.getData(Clipboard.kTextPlain);
       if (content == null) {
-        SmartDialog.showToast("无法读取剪贴板内容");
+        SmartDialog.showToast(S.of(Get.context!).unable_to_read_clipboard_contents);
         return null;
       }
       return content.text;
     } catch (e) {
       CoreLog.logPrint(e);
-      SmartDialog.showToast("读取剪切板内容失败：$e");
+      SmartDialog.showToast("${S.of(Get.context!).reading_clipboard_content_failed}：$e");
     }
     return null;
   }
 
   static bool isRegexFormat(String keyword) {
-    return keyword.startsWith('/') &&
-        keyword.endsWith('/') &&
-        keyword.length > 2;
+    return keyword.startsWith('/') && keyword.endsWith('/') && keyword.length > 2;
   }
 
   static String removeRegexFormat(String keyword) {

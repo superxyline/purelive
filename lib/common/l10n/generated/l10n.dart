@@ -1931,6 +1931,86 @@ class S {
     );
   }
 
+  /// `The current version is already the latest version`
+  String get is_new_version {
+    return Intl.message(
+      'The current version is already the latest version',
+      name: 'is_new_version',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check update failed`
+  String get check_update_failed {
+    return Intl.message(
+      'Check update failed',
+      name: 'check_update_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please grant access to the album`
+  String get grant_access_album {
+    return Intl.message(
+      'Please grant access to the album',
+      name: 'grant_access_album',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please grant access to the file`
+  String get grant_access_file {
+    return Intl.message(
+      'Please grant access to the file',
+      name: 'grant_access_file',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy to clipboard`
+  String get copy_to_clipboard {
+    return Intl.message(
+      'Copy to clipboard',
+      name: 'copy_to_clipboard',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy to clipboard failed`
+  String get copy_to_clipboard_failed {
+    return Intl.message(
+      'Copy to clipboard failed',
+      name: 'copy_to_clipboard_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to read clipboard contents`
+  String get unable_to_read_clipboard_contents {
+    return Intl.message(
+      'Unable to read clipboard contents',
+      name: 'unable_to_read_clipboard_contents',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reading clipboard content failed`
+  String get reading_clipboard_content_failed {
+    return Intl.message(
+      'Reading clipboard content failed',
+      name: 'reading_clipboard_content_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

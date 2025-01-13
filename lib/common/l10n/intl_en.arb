@@ -229,6 +229,14 @@
     "exit": "Exit",
 
     "found_new_version_format": "Discover a new version: {version}",
+    "is_new_version": "The current version is already the latest version",
+    "check_update_failed": "Check update failed",
+    "grant_access_album": "Please grant access to the album",
+    "grant_access_file": "Please grant access to the file",
+    "copy_to_clipboard": "Copy to clipboard",
+    "copy_to_clipboard_failed": "Copy to clipboard failed",
+    "unable_to_read_clipboard_contents": "Unable to read clipboard contents",
+    "reading_clipboard_content_failed": "Reading clipboard content failed",
 
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
