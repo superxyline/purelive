@@ -320,6 +320,10 @@
     "live_room_open_external":"打开直播间",
     "screen_caste":"投屏",
 
+    "menu":"菜单",
+    "clear_history": "清除历史记录",
+    "clear_history_confirm": "确定要清除历史记录吗？",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

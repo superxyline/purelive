@@ -116,6 +116,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "check_update": MessageLookupByLibrary.simpleMessage("Check Update"),
         "check_update_failed":
             MessageLookupByLibrary.simpleMessage("Check update failed"),
+        "clear_history": MessageLookupByLibrary.simpleMessage("Clear History"),
+        "clear_history_confirm": MessageLookupByLibrary.simpleMessage(
+            "Are you sure you want to clear the history?"),
         "confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
         "contact": MessageLookupByLibrary.simpleMessage("Contact"),
         "cookie_check_failed":
@@ -317,6 +320,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "login_failed": MessageLookupByLibrary.simpleMessage(
             "Failed to obtain user information. You can go to account management to retry"),
         "login_not": MessageLookupByLibrary.simpleMessage("Not Login"),
+        "menu": MessageLookupByLibrary.simpleMessage("Menu"),
         "minute": MessageLookupByLibrary.simpleMessage("minute"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("Move To Top"),
         "network": MessageLookupByLibrary.simpleMessage("Network"),

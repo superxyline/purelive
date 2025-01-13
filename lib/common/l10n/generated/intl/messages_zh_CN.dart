@@ -104,6 +104,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("切换系统/亮色/暗色模式"),
         "check_update": MessageLookupByLibrary.simpleMessage("检查更新"),
         "check_update_failed": MessageLookupByLibrary.simpleMessage("检查更新失败"),
+        "clear_history": MessageLookupByLibrary.simpleMessage("清除历史记录"),
+        "clear_history_confirm":
+            MessageLookupByLibrary.simpleMessage("确定要清除历史记录吗？"),
         "confirm": MessageLookupByLibrary.simpleMessage("确认"),
         "contact": MessageLookupByLibrary.simpleMessage("联系"),
         "cookie_check_failed":
@@ -262,6 +265,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "login_failed":
             MessageLookupByLibrary.simpleMessage("获取用户信息失败，可前往账号管理重试"),
         "login_not": MessageLookupByLibrary.simpleMessage("未登录"),
+        "menu": MessageLookupByLibrary.simpleMessage("菜单"),
         "minute": MessageLookupByLibrary.simpleMessage("分钟"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("移到顶部"),
         "network": MessageLookupByLibrary.simpleMessage("网络"),

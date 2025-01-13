@@ -1,6 +1,6 @@
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pure_live/common/widgets/utils.dart';
 
 import '../util/update_room_util.dart';
@@ -15,8 +15,7 @@ class HistoryPage extends GetView {
 
   Future onRefresh() async {
     final SettingsService settings = Get.find<SettingsService>();
-    bool result =
-        await UpdateRoomUtil.updateRoomList(settings.historyRooms, settings);
+    bool result = await UpdateRoomUtil.updateRoomList(settings.historyRooms, settings);
     if (result) {
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();
@@ -31,13 +30,13 @@ class HistoryPage extends GetView {
       appBar: AppBar(
         centerTitle: true,
         scrolledUnderElevation: 0,
-        title: Text('${S.of(context).history}'),
+        title: Text(S.of(context).history),
         actions: [
           IconButton(
-            tooltip: '清除',
+            tooltip: S.of(context).clear_history,
             icon: const Icon(Icons.cleaning_services_outlined),
             onPressed: () async {
-              var result = await Utils.showAlertDialog("确定要清除历史记录吗？", title: "清除历史记录");
+              var result = await Utils.showAlertDialog(S.of(context).clear_history_confirm, title: S.of(context).clear_history);
               if (result) {
                 final SettingsService settings = Get.find<SettingsService>();
                 settings.clearHistory();
@@ -52,11 +51,9 @@ class HistoryPage extends GetView {
         final rooms = settings.historyRooms.toList();
         return LayoutBuilder(builder: (context, constraint) {
           final width = constraint.maxWidth;
-          int crossAxisCount =
-              width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+          int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
           if (dense) {
-            crossAxisCount =
-                width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+            crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
           }
           return EasyRefresh(
             controller: refreshController,

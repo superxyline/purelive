@@ -16,7 +16,7 @@ class MenuButton extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
-      tooltip: 'menu',
+      tooltip: S.of(context).menu,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),

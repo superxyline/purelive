@@ -2691,6 +2691,36 @@ class S {
     );
   }
 
+  /// `Menu`
+  String get menu {
+    return Intl.message(
+      'Menu',
+      name: 'menu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear History`
+  String get clear_history {
+    return Intl.message(
+      'Clear History',
+      name: 'clear_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to clear the history?`
+  String get clear_history_confirm {
+    return Intl.message(
+      'Are you sure you want to clear the history?',
+      name: 'clear_history_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(
