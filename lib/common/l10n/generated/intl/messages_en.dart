@@ -327,6 +327,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "second": MessageLookupByLibrary.simpleMessage("second"),
         "select_recover_file":
             MessageLookupByLibrary.simpleMessage("Select backup file"),
+        "select_transparency":
+            MessageLookupByLibrary.simpleMessage("Select Transparency"),
         "settings_danmaku_amount":
             MessageLookupByLibrary.simpleMessage("Danmaku amount"),
         "settings_danmaku_area":
@@ -395,6 +397,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Switch platform"),
         "system": MessageLookupByLibrary.simpleMessage("System"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "theme_color_and_transparency": MessageLookupByLibrary.simpleMessage(
+            "Theme Color And Transparency"),
         "three_party_authentication":
             MessageLookupByLibrary.simpleMessage("Third-party Certification"),
         "timedclose_time": m12,

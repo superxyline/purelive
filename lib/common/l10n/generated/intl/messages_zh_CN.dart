@@ -269,6 +269,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "search_input_hint": MessageLookupByLibrary.simpleMessage("输入直播关键字"),
         "second": MessageLookupByLibrary.simpleMessage("秒"),
         "select_recover_file": MessageLookupByLibrary.simpleMessage("选择备份文件"),
+        "select_transparency": MessageLookupByLibrary.simpleMessage("选择透明度"),
         "settings_danmaku_amount": MessageLookupByLibrary.simpleMessage("弹幕数量"),
         "settings_danmaku_area": MessageLookupByLibrary.simpleMessage("弹幕区域"),
         "settings_danmaku_colour":
@@ -323,6 +324,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "switch_platform": MessageLookupByLibrary.simpleMessage("切换直播平台"),
         "system": MessageLookupByLibrary.simpleMessage("跟随系统"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "theme_color_and_transparency":
+            MessageLookupByLibrary.simpleMessage("主题颜色及透明度"),
         "three_party_authentication":
             MessageLookupByLibrary.simpleMessage("三方认证"),
         "timedclose_time": m12,

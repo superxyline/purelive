@@ -267,6 +267,9 @@
     "qr_loading_refresh":"刷新二维码",
     "qr_confirm":"已扫描，请在手机上确认登录",
 
+    "select_transparency":"选择透明度",
+    "theme_color_and_transparency":"主题颜色及透明度",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

@@ -2271,6 +2271,26 @@ class S {
     );
   }
 
+  /// `Select Transparency`
+  String get select_transparency {
+    return Intl.message(
+      'Select Transparency',
+      name: 'select_transparency',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Theme Color And Transparency`
+  String get theme_color_and_transparency {
+    return Intl.message(
+      'Theme Color And Transparency',
+      name: 'theme_color_and_transparency',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

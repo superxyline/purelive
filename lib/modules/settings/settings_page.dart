@@ -226,15 +226,15 @@ class SettingsPage extends GetView<SettingsService> {
       runSpacing: 5,
       wheelDiameter: 155,
       heading: Text(
-        '主题颜色',
+        S.of(Get.context!).change_theme_color,
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subheading: Text(
-        '选择透明度',
+        S.of(Get.context!).select_transparency,
         style: Theme.of(context).textTheme.titleMedium,
       ),
       wheelSubheading: Text(
-        '主题颜色及透明度',
+        S.of(Get.context!).theme_color_and_transparency,
         style: Theme.of(context).textTheme.titleMedium,
       ),
       showMaterialName: false,

@@ -267,6 +267,9 @@
     "qr_loading_refresh":"Refresh QR code",
     "qr_confirm":"The QR code has been scanned. Please confirm login on your phone",
 
+    "select_transparency":"Select Transparency",
+    "theme_color_and_transparency":"Theme Color And Transparency",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",
