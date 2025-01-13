@@ -34,12 +34,23 @@ class LiveMessage {
   /// 弹幕颜色
   final Color color;
 
+  /// 用户等级
+  final String userLevel;
+
+  /// 粉丝等级
+  final String fansLevel;
+  /// 粉丝牌子名
+  final String fansName;
+
   LiveMessage({
     required this.type,
     required this.userName,
     required this.message,
     this.data,
     required this.color,
+    this.userLevel = "",
+    this.fansLevel = "",
+    this.fansName = "",
   });
 }
 

@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/models/live_room_rx.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/modules/util/danmu_util.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 
 class DanmakuListView extends StatefulWidget {
   final LiveRoom room;
@@ -108,13 +111,97 @@ class DanmakuListViewState extends State<DanmakuListView>
                   child: Text.rich(
                     TextSpan(
                       children: [
+                        /// 弹幕的用户等级
+                        if(danmaku.userLevel.isNotNullOrEmpty)
+                          WidgetSpan(
+                            child:
+                              // Expanded( child:
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: DanmuUtil.getUserLevelColor(danmaku.userLevel),
+                                  borderRadius: BorderRadius.circular(12.0), // 设置圆角半径
+                                ),
+                                // height: 18,
+                                width: 36,
+                                alignment: Alignment.center, // 居中的子Widget
+                                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                                margin: EdgeInsets.only(right: 4),
+                                child: Text(
+                                  "${danmaku.userLevel}",
+                                  textAlign: TextAlign.center, // 居中的子Widget
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w100,
+                                  ),
+                                ),
+                          ),
+                         ),
+                        // ),
+
+
+                        /// 弹幕的粉丝牌
+                        if(danmaku.fansName.isNotNullOrEmpty && danmaku.fansLevel.isNotNullOrEmpty)
+                          WidgetSpan(
+                            child:
+                            // Expanded( child:
+                            Container(
+                              decoration: BoxDecoration(
+                                color: DanmuUtil.getFansLevelColor(danmaku.fansLevel),
+                                borderRadius: BorderRadius.circular(12.0), // 设置圆角半径
+                              ),
+                              // height: 18,
+                              // width: 36,
+                              // alignment: Alignment.center, // 居中的子Widget
+                              // padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                              // margin: EdgeInsets.only(right: 4),
+                              child: Text(
+                                "${danmaku.fansLevel}",
+                                textAlign: TextAlign.start, // 居中的子Widget
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w100,
+                                ),
+                              ),
+                            ),
+                          ),
+                        // ),
+                        /// 弹幕的粉丝牌
+                        if(danmaku.fansName.isNotNullOrEmpty && danmaku.fansLevel.isNotNullOrEmpty)
+                          WidgetSpan(
+                            child:
+                            // Expanded( child:
+                            Container(
+                              decoration: BoxDecoration(
+                                color: DanmuUtil.getFansLevelColor(danmaku.fansLevel),
+                                borderRadius: BorderRadius.circular(5.0), // 设置圆角半径
+                              ),
+                              // height: 18,
+                              width: 36,
+                              alignment: Alignment.center, // 居中的子Widget
+                              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                              margin: EdgeInsets.only(right: 4),
+                              child: Text(
+                                "${danmaku.fansName}",
+                                textAlign: TextAlign.center, // 居中的子Widget
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w100,
+                                ),
+                              ),
+                            ),
+                          ),
+                        // ),
+
                         /// 弹幕的用户名
                         TextSpan(
                           text: "${danmaku.userName}: ",
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 14,
-                            fontWeight: FontWeight.w300,
+                            fontWeight: FontWeight.w200,
                           ),
                         ),
                         /// 弹幕主体部分
