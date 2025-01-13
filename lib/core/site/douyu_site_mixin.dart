@@ -127,12 +127,12 @@ mixin DouyuSiteMixin on SiteAccount {
         liveSite.cookie = cookie;
         return flag;
       } else {
-        SmartDialog.showToast("${site.name}登录已失效，请重新登录");
+        SmartDialog.showToast("${Sites.getSiteName(site.id)}登录已失效，请重新登录");
         logout(site);
       }
     } catch (e) {
       CoreLog.error(e);
-      SmartDialog.showToast("获取${site.name}用户信息失败，可前往账号管理重试");
+      SmartDialog.showToast("获取${Sites.getSiteName(site.id)}用户信息失败，可前往账号管理重试");
     }
     return false;
   }

@@ -51,6 +51,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "about": MessageLookupByLibrary.simpleMessage("关于"),
         "add": MessageLookupByLibrary.simpleMessage("添加"),
+        "all": MessageLookupByLibrary.simpleMessage("全部"),
         "app_legalese": MessageLookupByLibrary.simpleMessage(
             "本项目是一个纯本地直播转码应用，登录使用第三方SupaBase服务，本人不收集用户信息，应用程序直接请求直播官方接口，所有操作生成的数据由用户本地保留，可选择性使用SupaBase同步数据。"),
         "app_name": MessageLookupByLibrary.simpleMessage("纯粹直播"),
@@ -66,6 +67,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "backup_recover": MessageLookupByLibrary.simpleMessage("备份与恢复"),
         "backup_recover_subtitle":
             MessageLookupByLibrary.simpleMessage("创建备份与恢复"),
+        "bilibili": MessageLookupByLibrary.simpleMessage("哔哩哔哩"),
         "bilibili_need_login_info": MessageLookupByLibrary.simpleMessage(
             "哔哩哔哩账号需要登录才能看高清晰度的直播，其他平台暂无此限制。"),
         "cache_manage": MessageLookupByLibrary.simpleMessage("缓存管理"),
@@ -78,6 +80,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "cache_manage_clear_prompt":
             MessageLookupByLibrary.simpleMessage("确定要清除缓存吗？"),
         "cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "cc": MessageLookupByLibrary.simpleMessage("网易CC"),
         "change_language": MessageLookupByLibrary.simpleMessage("切换语言"),
         "change_language_subtitle":
             MessageLookupByLibrary.simpleMessage("切换软件的显示语言"),
@@ -118,6 +121,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("未发现DLNA设备"),
         "dlan_title": MessageLookupByLibrary.simpleMessage("DLNA投屏"),
         "double_click_to_exit": MessageLookupByLibrary.simpleMessage("双击退出"),
+        "douyin": MessageLookupByLibrary.simpleMessage("抖音"),
+        "douyu": MessageLookupByLibrary.simpleMessage("斗鱼"),
         "email": MessageLookupByLibrary.simpleMessage("邮件"),
         "empty_areas_room_subtitle":
             MessageLookupByLibrary.simpleMessage("下滑/上滑刷新数据"),
@@ -190,11 +195,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "hide_offline_rooms": MessageLookupByLibrary.simpleMessage("隐藏未直播的直播间"),
         "history": MessageLookupByLibrary.simpleMessage("历史记录"),
         "hour": MessageLookupByLibrary.simpleMessage("小时"),
+        "huya": MessageLookupByLibrary.simpleMessage("虎牙"),
         "info_is_offline": m4,
         "info_is_replay": m5,
+        "iptv": MessageLookupByLibrary.simpleMessage("网络"),
         "is_new_version": MessageLookupByLibrary.simpleMessage("当前已经是最新版本了"),
         "issue_feedback": MessageLookupByLibrary.simpleMessage("问题反馈"),
         "keyword_input": MessageLookupByLibrary.simpleMessage("请输入关键词"),
+        "kuaishou": MessageLookupByLibrary.simpleMessage("快手"),
         "license": MessageLookupByLibrary.simpleMessage("开源许可证"),
         "light": MessageLookupByLibrary.simpleMessage("浅色模式"),
         "live": MessageLookupByLibrary.simpleMessage("直播"),

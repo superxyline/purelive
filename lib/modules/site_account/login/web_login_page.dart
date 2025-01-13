@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/site_account/login/web_login_controller.dart';
 
 class SiteWebLoginPage extends GetView<SiteWebLoginController> {
@@ -10,7 +11,7 @@ class SiteWebLoginPage extends GetView<SiteWebLoginController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${controller.site.name}账号登录"),
+        title: Text("${Sites.getSiteName(controller.site.id)}账号登录"),
         actions: [
           TextButton.icon(
             onPressed: controller.toQRLogin,

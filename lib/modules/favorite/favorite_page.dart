@@ -189,7 +189,7 @@ class _RoomGridView extends GetView<FavoriteController> {
               }
               return ListTile(
                 leading: SiteWidget.getSiteLogeImage(site.id),
-                title: Text(site.name),
+                title: Text(Sites.getSiteName(site.id)),
                 onTap: () {
                   var curSiteId = controller.selectedSiteList[selectIndex];
                   if(curSiteId != site.id) {

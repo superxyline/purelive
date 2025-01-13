@@ -33,7 +33,7 @@ class SiteWidget {
   /// 获取站点 Tab
   static Tab getSiteTab(Site site) {
     return Tab(
-      text: site.name,
+      text: Sites.getSiteName(site.id),
       iconMargin: const EdgeInsets.all(0),
       icon: getSiteLogeImage(site.id),
     );

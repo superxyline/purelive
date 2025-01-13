@@ -34,7 +34,7 @@ class SiteAccountPage extends GetView<SiteAccountController> {
                           width: 36,
                           height: 36,
                         ),
-                        title: Text("${site.name} ${S.of(Get.context!).live}"),
+                        title: Text("${Sites.getSiteName(site.id)} ${S.of(Get.context!).live}"),
                         subtitle: Text(site.liveSite.userName.value),
                         trailing: site.liveSite.isLogin.value
                             ? const Icon(Icons.logout)
@@ -50,7 +50,7 @@ class SiteAccountPage extends GetView<SiteAccountController> {
                         width: 36,
                         height: 36,
                       ),
-                      title: Text("${site.name} ${S.of(Get.context!).live}"),
+                      title: Text("${Sites.getSiteName(site.id)} ${S.of(Get.context!).live}"),
                       subtitle: Text(S.of(Get.context!).not_supported),
                       enabled: false,
                       trailing: const Icon(Icons.chevron_right),

@@ -24,7 +24,7 @@ class SiteAccountController extends GetxController {
   /// 跳转至直播平台登录
   Future toSiteLogin(Site site) async {
     Utils.showRightOrBottomSheet(
-      title: "登录${site.name}",
+      title: "登录${Sites.getSiteName(site.id)}",
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -90,7 +90,7 @@ class SiteAccountController extends GetxController {
   void onTap(Site site) async {
     if (site.liveSite.isLogin.value) {
       var result =
-          await Utils.showAlertDialog("确定要退出 ${site.name} 账号吗？", title: "退出登录");
+          await Utils.showAlertDialog("确定要退出 ${Sites.getSiteName(site.id)} 账号吗？", title: "退出登录");
       if (result) {
         site.liveSite.logout(site);
       }

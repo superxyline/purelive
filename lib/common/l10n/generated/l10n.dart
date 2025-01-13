@@ -2011,10 +2011,10 @@ class S {
     );
   }
 
-  /// `Third-party certification`
+  /// `Third-party Certification`
   String get three_party_authentication {
     return Intl.message(
-      'Third-party certification',
+      'Third-party Certification',
       name: 'three_party_authentication',
       desc: '',
       args: [],
@@ -2046,6 +2046,86 @@ class S {
     return Intl.message(
       'Bilibili accounts require login to view high-definition live streams, and there is currently no such restriction on other platforms.',
       name: 'bilibili_need_login_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `BiLiBiLi`
+  String get bilibili {
+    return Intl.message(
+      'BiLiBiLi',
+      name: 'bilibili',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `NetEase CC`
+  String get cc {
+    return Intl.message(
+      'NetEase CC',
+      name: 'cc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tiktok`
+  String get douyin {
+    return Intl.message(
+      'Tiktok',
+      name: 'douyin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Douyu`
+  String get douyu {
+    return Intl.message(
+      'Douyu',
+      name: 'douyu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Huya`
+  String get huya {
+    return Intl.message(
+      'Huya',
+      name: 'huya',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Kwai`
+  String get kuaishou {
+    return Intl.message(
+      'Kwai',
+      name: 'kuaishou',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `IPTV`
+  String get iptv {
+    return Intl.message(
+      'IPTV',
+      name: 'iptv',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get all {
+    return Intl.message(
+      'All',
+      name: 'all',
       desc: '',
       args: [],
     );

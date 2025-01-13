@@ -355,7 +355,7 @@ class SettingsPage extends GetView<SettingsService> {
                 ),
                 Expanded(
                   child: Text(
-                    site.name.toUpperCase(), // 替换为你的文本
+                    Sites.getSiteName(site.id), // 替换为你的文本
                   ),
                 ),
               ],

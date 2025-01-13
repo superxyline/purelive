@@ -1,3 +1,5 @@
+import 'package:pure_live/common/l10n/generated/l10n.dart';
+
 import 'site/huya_site.dart';
 import 'package:get/get.dart';
 import 'site/douyu_site.dart';
@@ -68,6 +70,20 @@ class Sites {
   }
 
   static Site allLiveSite = Site(id: allSite, name: "全部", logo: "assets/images/all.png", liveSite: LiveSite());
+
+  static String getSiteName(String siteId) {
+    switch(siteId) {
+      case allSite: return S.of(Get.context!).all;
+      case bilibiliSite: return S.of(Get.context!).bilibili;
+      case douyuSite: return S.of(Get.context!).douyu;
+      case huyaSite: return S.of(Get.context!).huya;
+      case douyinSite: return S.of(Get.context!).douyin;
+      case kuaishouSite: return S.of(Get.context!).kuaishou;
+      case ccSite: return S.of(Get.context!).cc;
+      case iptvSite: return S.of(Get.context!).iptv;
+    }
+    return S.of(Get.context!).all;
+  }
 
   List<Site> availableSites({containsAll = false}) {
     final SettingsService settingsService = Get.find<SettingsService>();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
+import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/site_account/login/qr_login_controller.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -10,7 +11,7 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("${controller.site.name}账号登录")),
+      appBar: AppBar(title: Text("${Sites.getSiteName(controller.site.id)}账号登录")),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -72,7 +73,7 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
           Padding(
             padding: EdgeInsets.all(24),
             child: Text(
-              "请使用${controller.site.name}手机客户端扫描二维码登录",
+              "请使用${Sites.getSiteName(controller.site.id)}手机客户端扫描二维码登录",
               textAlign: TextAlign.center,
             ),
           ),

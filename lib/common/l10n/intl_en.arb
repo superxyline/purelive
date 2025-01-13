@@ -243,6 +243,15 @@
     "live":"live",
     "bilibili_need_login_info":"Bilibili accounts require login to view high-definition live streams, and there is currently no such restriction on other platforms.",
 
+    "bilibili":"BiLiBiLi",
+    "cc":"NetEase CC",
+    "douyin":"Tiktok",
+    "douyu":"Douyu",
+    "huya":"Huya",
+    "kuaishou":"Kwai",
+    "iptv":"IPTV",
+    "all":"All",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",

@@ -7,18 +7,18 @@ class HotAreasPage extends GetView<HotAreasController> {
   const HotAreasPage({super.key});
 
   _initListData() {
-    return controller.sites.map((e) {
+    return controller.sites.map((site) {
       return SwitchListTile(
           title: Row(
             children: [
-              SiteWidget.getSiteLogeImage(e.id)!,
+              SiteWidget.getSiteLogeImage(site.id)!,
               const SizedBox(width: 5),
-              Text(e.name),
+              Text(Sites.getSiteName(site.id)),
             ],
           ),
-          value: e.show,
+          value: site.show,
           activeColor: Theme.of(Get.context!).colorScheme.primary,
-          onChanged: (bool value) => controller.onChanged(e.id, value));
+          onChanged: (bool value) => controller.onChanged(site.id, value));
     }).toList();
   }
 
