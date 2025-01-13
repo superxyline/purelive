@@ -20,22 +20,28 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_CN';
 
-  static String m0(name) => "${name}未开始直播.";
+  static String m0(level) => "相似度大于${level}%的弹幕会被合并";
 
-  static String m1(name) => "${name}轮播视频中.";
+  static String m1(level) => "低于${level}级的用户粉丝牌的弹幕会被过滤";
 
-  static String m2(version) => "发现新版本: v${version}";
+  static String m2(name) => "${name}未开始直播.";
 
-  static String m3(number) => "群号: ${number}";
+  static String m3(name) => "${name}轮播视频中.";
 
-  static String m4(roomid, platform, nickname, title, livestatus) =>
+  static String m4(version) => "发现新版本: v${version}";
+
+  static String m5(number) => "群号: ${number}";
+
+  static String m6(roomid, platform, nickname, title, livestatus) =>
       "房间号: ${roomid}\n平台: ${platform}\n昵称: ${nickname}\n标题: ${title}\n状态: ${livestatus}";
 
-  static String m5(error) => "发生意外错误：${error}";
+  static String m7(error) => "发生意外错误：${error}";
 
-  static String m6(time) => "${time} 分钟";
+  static String m8(time) => "${time} 分钟";
 
-  static String m7(name) => "确定要取消关注${name}吗？";
+  static String m9(name) => "确定要取消关注${name}吗？";
+
+  static String m10(level) => "低于${level}级的用户等级的弹幕会被过滤";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -84,6 +90,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("可用于恢复当前数据"),
         "create_backup_success": MessageLookupByLibrary.simpleMessage("创建备份成功"),
         "custom": MessageLookupByLibrary.simpleMessage("定制"),
+        "danmu_merge": MessageLookupByLibrary.simpleMessage("弹幕合并"),
+        "danmu_merge_format": m0,
         "dark": MessageLookupByLibrary.simpleMessage("深色模式"),
         "day": MessageLookupByLibrary.simpleMessage("天"),
         "develop_progress": MessageLookupByLibrary.simpleMessage("开发进度"),
@@ -144,6 +152,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "exit_no": MessageLookupByLibrary.simpleMessage("取消"),
         "exit_yes": MessageLookupByLibrary.simpleMessage("确定"),
         "experiment": MessageLookupByLibrary.simpleMessage("实验"),
+        "fans": MessageLookupByLibrary.simpleMessage("粉丝牌"),
+        "fans_level_danmu_format": m1,
         "favorite_areas": MessageLookupByLibrary.simpleMessage("关注分区"),
         "favorites_title": MessageLookupByLibrary.simpleMessage("关注"),
         "float_overlay_ratio": MessageLookupByLibrary.simpleMessage("悬浮窗尺寸"),
@@ -158,14 +168,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "hide_offline_rooms": MessageLookupByLibrary.simpleMessage("隐藏未直播的直播间"),
         "history": MessageLookupByLibrary.simpleMessage("历史记录"),
         "hour": MessageLookupByLibrary.simpleMessage("小时"),
-        "info_is_offline": m0,
-        "info_is_replay": m1,
+        "info_is_offline": m2,
+        "info_is_replay": m3,
         "issue_feedback": MessageLookupByLibrary.simpleMessage("问题反馈"),
         "license": MessageLookupByLibrary.simpleMessage("开源许可证"),
         "light": MessageLookupByLibrary.simpleMessage("浅色模式"),
         "minute": MessageLookupByLibrary.simpleMessage("分钟"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("移到顶部"),
-        "new_version_info": m2,
+        "new_version_info": m4,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage("已在使用最新版本"),
         "offline": MessageLookupByLibrary.simpleMessage("未直播"),
         "offline_room_title": MessageLookupByLibrary.simpleMessage("未开播"),
@@ -183,7 +193,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "project_alert": MessageLookupByLibrary.simpleMessage("项目声明"),
         "project_page": MessageLookupByLibrary.simpleMessage("项目主页"),
         "qq_group": MessageLookupByLibrary.simpleMessage("QQ群"),
-        "qq_group_num": m3,
+        "qq_group_num": m5,
         "recover_backup": MessageLookupByLibrary.simpleMessage("恢复备份"),
         "recover_backup_failed": MessageLookupByLibrary.simpleMessage("恢复备份失败"),
         "recover_backup_subtitle":
@@ -193,7 +203,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "remove": MessageLookupByLibrary.simpleMessage("删除"),
         "replay": MessageLookupByLibrary.simpleMessage("录播"),
         "retry": MessageLookupByLibrary.simpleMessage("重试"),
-        "room_info_content": m4,
+        "room_info_content": m6,
         "search_input_hint": MessageLookupByLibrary.simpleMessage("输入直播关键字"),
         "second": MessageLookupByLibrary.simpleMessage("秒"),
         "select_recover_file": MessageLookupByLibrary.simpleMessage("选择备份文件"),
@@ -214,6 +224,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("定时关闭"),
         "settings_title": MessageLookupByLibrary.simpleMessage("设置"),
         "settings_videofit_title": MessageLookupByLibrary.simpleMessage("比例设置"),
+        "show": MessageLookupByLibrary.simpleMessage("显示"),
         "show_offline_rooms": MessageLookupByLibrary.simpleMessage("显示未直播的直播间"),
         "success": MessageLookupByLibrary.simpleMessage("成功"),
         "supabase_back_sign_in": MessageLookupByLibrary.simpleMessage("返回登录"),
@@ -243,17 +254,19 @@ class MessageLookup extends MessageLookupByLibrary {
         "supabase_sign_in": MessageLookupByLibrary.simpleMessage("登录"),
         "supabase_sign_success": MessageLookupByLibrary.simpleMessage("登录成功!"),
         "supabase_sign_up": MessageLookupByLibrary.simpleMessage("注册"),
-        "supabase_unexpected_err": m5,
+        "supabase_unexpected_err": m7,
         "supabase_update_password":
             MessageLookupByLibrary.simpleMessage("更新密码"),
         "support_donate": MessageLookupByLibrary.simpleMessage("捐赠支持"),
         "switch_platform": MessageLookupByLibrary.simpleMessage("切换直播平台"),
         "system": MessageLookupByLibrary.simpleMessage("跟随系统"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
-        "timedclose_time": m6,
+        "timedclose_time": m8,
         "unfollow": MessageLookupByLibrary.simpleMessage("取消关注"),
-        "unfollow_message": m7,
+        "unfollow_message": m9,
         "update": MessageLookupByLibrary.simpleMessage("更新"),
+        "user_level": MessageLookupByLibrary.simpleMessage("用户等级"),
+        "user_level_danmu_format": m10,
         "version": MessageLookupByLibrary.simpleMessage("版本"),
         "video": MessageLookupByLibrary.simpleMessage("视频"),
         "videofit_contain": MessageLookupByLibrary.simpleMessage("默认比例"),

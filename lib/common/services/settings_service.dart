@@ -6,6 +6,7 @@ import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/model/video_player_factory.dart';
 import 'package:pure_live/plugins/extension/map_extension.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
+
 // import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
@@ -13,7 +14,6 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
-
   static SettingsService get instance => Get.find<SettingsService>();
 
   SettingsService() {
@@ -147,7 +147,13 @@ class SettingsService extends GetxController {
       PrefUtil.setDouble('filterDanmuUserLevel', value);
     });
     filterDanmuFansLevel.listen((value) {
-      PrefUtil.setDouble('filterDanmuUserLevel', value);
+      PrefUtil.setDouble('filterDanmuFansLevel', value);
+    });
+    showDanmuFans.listen((value) {
+      PrefUtil.setBool('showDanmuFans', value);
+    });
+    showDanmuUserLevel.listen((value) {
+      PrefUtil.setBool('showDanmuUserLevel', value);
     });
 
     // webPort.listen((value) {
@@ -158,7 +164,7 @@ class SettingsService extends GetxController {
     //   changeWebListen(webPort.value, value);
     //   PrefUtil.setBool('webPortEnable', value);
     // });
-    siteCookies.listen((value){
+    siteCookies.listen((value) {
       CoreLog.d("save siteCookies: ${value}");
       PrefUtil.setMap('siteCookies', value);
     });
@@ -171,15 +177,19 @@ class SettingsService extends GetxController {
     "Light": ThemeMode.light,
   };
 
-  static String getThemeTitle(String themeModeName){
-    switch(themeModeName) {
-      case "System" :  return S.of(Get.context!).system;
-      case "Dark" :  return S.of(Get.context!).dark;
-      case "Light" :  return S.of(Get.context!).light;
-      default: return S.of(Get.context!).system;
+  static String getThemeTitle(String themeModeName) {
+    switch (themeModeName) {
+      case "System":
+        return S.of(Get.context!).system;
+      case "Dark":
+        return S.of(Get.context!).dark;
+      case "Light":
+        return S.of(Get.context!).light;
+      default:
+        return S.of(Get.context!).system;
     }
-
   }
+
   final themeModeName = (PrefUtil.getString('themeMode') ?? "System").obs;
 
   get themeMode => SettingsService.themeModes[themeModeName.value]!;
@@ -223,8 +233,7 @@ class SettingsService extends GetxController {
   };
 
   // Make a custom ColorSwatch to name map from the above custom colors.
-  final Map<ColorSwatch<Object>, String> colorsNameMap =
-      themeColors.map((key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key));
+  final Map<ColorSwatch<Object>, String> colorsNameMap = themeColors.map((key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key));
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
 
@@ -291,6 +300,8 @@ class SettingsService extends GetxController {
 
   final filterDanmuUserLevel = (PrefUtil.getDouble('filterDanmuUserLevel') ?? 0.0).obs;
   final filterDanmuFansLevel = (PrefUtil.getDouble('filterDanmuFansLevel') ?? 0.0).obs;
+  final showDanmuFans = (PrefUtil.getBool('showDanmuFans') ?? true).obs;
+  final showDanmuUserLevel = (PrefUtil.getBool('showDanmuUserLevel') ?? true).obs;
 
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
@@ -301,13 +312,7 @@ class SettingsService extends GetxController {
   // cookie
 
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
-  static const List<BoxFit> videofitList = [
-    BoxFit.contain,
-    BoxFit.fill,
-    BoxFit.cover,
-    BoxFit.fitWidth,
-    BoxFit.fitHeight
-  ];
+  static const List<BoxFit> videofitList = [BoxFit.contain, BoxFit.fill, BoxFit.cover, BoxFit.fitWidth, BoxFit.fitHeight];
 
   final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
 
@@ -348,18 +353,19 @@ class SettingsService extends GetxController {
     PrefUtil.setInt('autoRefreshTime', minutes);
   }
 
-  static List<String> platforms = Sites.supportSites.map((site)=>site.id).toList();
+  static List<String> platforms = Sites.supportSites.map((site) => site.id).toList();
 
   // static const List<String> players = ['Exo播放器', '系统播放器', 'IJK播放器', '阿里播放器', 'MpvPlayer'];
   static List<String> players = VideoPlayerFactory.getSupportVideoPlayerList().map((e) => e.playerName).toList();
   final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
 
   List<String> get playerlist {
-    if(videoPlayerIndex.value >= players.length) {
+    if (videoPlayerIndex.value >= players.length) {
       videoPlayerIndex.value = 0;
     }
     return players;
   }
+
   void changePreferPlatform(String name) {
     if (platforms.indexWhere((e) => e == name) != -1) {
       preferPlatform.value = name;
@@ -368,7 +374,7 @@ class SettingsService extends GetxController {
     }
   }
 
-  static List<String> supportSites = Sites.supportSites.map((site)=>site.id).toList();
+  static List<String> supportSites = Sites.supportSites.map((site) => site.id).toList();
 
   final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
 
@@ -376,30 +382,30 @@ class SettingsService extends GetxController {
 
   // 用于标志 关注房间列表长度 是否变化,
   final favoriteRoomsLengthChangeFlag = false.obs;
+
   // Favorite rooms storage
-  final favoriteRooms =
-      ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e)))
-          .where( (room)=> !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty ).toList()).obs;
+  final favoriteRooms = ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).where((room) => !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList()).obs;
+
   // 存储关注，用于优化遍历
   late Map<String, LiveRoom> favoriteRoomsMap = toRoomMap(favoriteRooms.value);
 
-  Map<String, LiveRoom> toRoomMap(List<LiveRoom> list) => Map.fromEntries(list.map((e)=>MapEntry(getLiveRoomKey(e),e)));
+  Map<String, LiveRoom> toRoomMap(List<LiveRoom> list) => Map.fromEntries(list.map((e) => MapEntry(getLiveRoomKey(e), e)));
 
-  final historyRooms =
-      ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e)))
-          .where( (room)=> !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty ).toList()).obs;
+  final historyRooms = ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).where((room) => !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList()).obs;
+
   // 存储历史，用于优化遍历
   late Map<String, LiveRoom> historyRoomsMap = toRoomMap(historyRooms.value);
-  String getLiveRoomKey(LiveRoom room){
+
+  String getLiveRoomKey(LiveRoom room) {
     return toLiveRoomKey(room.platform, room.roomId);
   }
 
-  String toLiveRoomKey(String? platform, String? roomId){
+  String toLiveRoomKey(String? platform, String? roomId) {
     return "${platform ?? ''}__${roomId ?? ''}";
   }
 
   bool isFavorite(LiveRoom room) {
-    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+    if (room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return false;
     }
     return favoriteRoomsMap.containsKey(getLiveRoomKey(room));
@@ -407,15 +413,17 @@ class SettingsService extends GetxController {
 
   LiveRoom getLiveRoomByRoomId(String roomId, String platform) {
     var liveRoomKey = toLiveRoomKey(platform, roomId);
-    return favoriteRoomsMap[liveRoomKey] ??  historyRoomsMap[liveRoomKey] ?? LiveRoom(
-      roomId: roomId,
-      platform: platform,
-      liveStatus: LiveStatus.unknown,
-    );
+    return favoriteRoomsMap[liveRoomKey] ??
+        historyRoomsMap[liveRoomKey] ??
+        LiveRoom(
+          roomId: roomId,
+          platform: platform,
+          liveStatus: LiveStatus.unknown,
+        );
   }
 
   bool addRoom(LiveRoom room) {
-    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+    if (room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return false;
     }
     var liveRoomKey = getLiveRoomKey(room);
@@ -448,7 +456,7 @@ class SettingsService extends GetxController {
   }
 
   bool updateRoom(LiveRoom room) {
-    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+    if (room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return false;
     }
     updateRoomInHistory(room);
@@ -461,12 +469,11 @@ class SettingsService extends GetxController {
     return true;
   }
 
-  LiveRoom updateRecordTag(LiveRoom newLiveRoom, LiveRoom oldLiveRoom){
+  LiveRoom updateRecordTag(LiveRoom newLiveRoom, LiveRoom oldLiveRoom) {
     if (newLiveRoom.recordWatching.isNullOrEmpty) {
       newLiveRoom.recordWatching = oldLiveRoom.recordWatching;
     }
-    if (newLiveRoom.liveStatus == LiveStatus.live &&
-        newLiveRoom.recordWatching.isNotNullOrEmpty) {
+    if (newLiveRoom.liveStatus == LiveStatus.live && newLiveRoom.recordWatching.isNotNullOrEmpty) {
       var watching = readableCountStrToNum(newLiveRoom.watching);
       var recordWatching = readableCountStrToNum(newLiveRoom.recordWatching);
       if (watching <= recordWatching) {
@@ -479,16 +486,16 @@ class SettingsService extends GetxController {
     return newLiveRoom;
   }
 
-  void innerUpdateRooms(List<LiveRoom> rooms, Map<String,LiveRoom> roomsMap, RxList<LiveRoom> rxList){
+  void innerUpdateRooms(List<LiveRoom> rooms, Map<String, LiveRoom> roomsMap, RxList<LiveRoom> rxList) {
     bool flag = false;
-    for(var room in rooms) {
+    for (var room in rooms) {
       var liveRoomKey = getLiveRoomKey(room);
-      if(roomsMap.containsKey(liveRoomKey)) {
+      if (roomsMap.containsKey(liveRoomKey)) {
         flag = true;
         roomsMap[liveRoomKey] = updateRecordTag(room, roomsMap[liveRoomKey]!);
       }
     }
-    if(flag) {
+    if (flag) {
       rxList.value = roomsMap.values.toList();
     }
   }
@@ -499,25 +506,25 @@ class SettingsService extends GetxController {
   }
 
   bool updateRoomInHistory(LiveRoom room) {
-    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+    if (room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return false;
     }
     var liveRoomKey = getLiveRoomKey(room);
     var containsKey = historyRoomsMap.containsKey(liveRoomKey);
-    if(!containsKey) return false;
+    if (!containsKey) return false;
     historyRoomsMap[liveRoomKey] = room;
     historyRooms.value = historyRoomsMap.values.toList();
     return true;
   }
 
   /// 清除历史记录
-  void clearHistory(){
+  void clearHistory() {
     historyRoomsMap.clear();
     historyRooms.clear();
   }
 
   void addRoomToHistory(LiveRoom room) {
-    if(room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
+    if (room.roomId.isNullOrEmpty || room.platform.isNullOrEmpty) {
       return;
     }
     var liveRoomKey = getLiveRoomKey(room);
@@ -533,24 +540,21 @@ class SettingsService extends GetxController {
     historyRoomsMap[liveRoomKey] = room;
     var keys = historyRoomsMap.keys.toList();
     var length2 = keys.length;
-    for(var i=0; i< length2 - 50;i++){
+    for (var i = 0; i < length2 - 50; i++) {
       historyRoomsMap.remove(keys[i]);
     }
     historyRooms.value = historyRoomsMap.values.toList();
   }
 
   // Favorite areas storage
-  final favoriteAreas =
-      ((PrefUtil.getStringList('favoriteAreas') ?? []).map((e) => LiveArea.fromJson(jsonDecode(e))).toList()).obs;
+  final favoriteAreas = ((PrefUtil.getStringList('favoriteAreas') ?? []).map((e) => LiveArea.fromJson(jsonDecode(e))).toList()).obs;
 
   bool isFavoriteArea(LiveArea area) {
-    return favoriteAreas.any((element) =>
-        element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType);
+    return favoriteAreas.any((element) => element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType);
   }
 
   bool addArea(LiveArea area) {
-    if (favoriteAreas.any((element) =>
-        element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType)) {
+    if (favoriteAreas.any((element) => element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType)) {
       return false;
     }
     favoriteAreas.add(area);
@@ -558,8 +562,7 @@ class SettingsService extends GetxController {
   }
 
   bool removeArea(LiveArea area) {
-    if (!favoriteAreas.any((element) =>
-        element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType)) {
+    if (!favoriteAreas.any((element) => element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType)) {
       return false;
     }
     favoriteAreas.remove(area);
@@ -602,15 +605,10 @@ class SettingsService extends GetxController {
   }
 
   void fromJson(Map<String, dynamic> json) {
-    favoriteRooms.value = json['favoriteRooms'] != null
-        ? (json['favoriteRooms'] as List).map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e))).toList()
-        : [];
-    favoriteAreas.value = json['favoriteAreas'] != null
-        ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList()
-        : [];
+    favoriteRooms.value = json['favoriteRooms'] != null ? (json['favoriteRooms'] as List).map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e))).toList() : [];
+    favoriteAreas.value = json['favoriteAreas'] != null ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList() : [];
     shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
-    hotAreasList.value =
-        json['hotAreasList'] != null ? (json['hotAreasList'] as List).map((e) => e.toString()).toList() : [];
+    hotAreasList.value = json['hotAreasList'] != null ? (json['hotAreasList'] as List).map((e) => e.toString()).toList() : [];
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 3;
     themeModeName.value = json['themeMode'] ?? "System";
@@ -631,8 +629,7 @@ class SettingsService extends GetxController {
     danmakuArea.value = json['danmakuArea'] != null ? double.parse(json['danmakuArea'].toString()) : 1.0;
     danmakuSpeed.value = json['danmakuSpeed'] != null ? double.parse(json['danmakuSpeed'].toString()) : 8.0;
     danmakuFontSize.value = json['danmakuFontSize'] != null ? double.parse(json['danmakuFontSize'].toString()) : 16.0;
-    danmakuFontBorder.value =
-        json['danmakuFontBorder'] != null ? double.parse(json['danmakuFontBorder'].toString()) : 0.5;
+    danmakuFontBorder.value = json['danmakuFontBorder'] != null ? double.parse(json['danmakuFontBorder'].toString()) : 0.5;
     danmakuOpacity.value = json['danmakuOpacity'] != null ? double.parse(json['danmakuOpacity'].toString()) : 1.0;
     doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
@@ -640,6 +637,8 @@ class SettingsService extends GetxController {
     mergeDanmuRating.value = json['mergeDanmuRating'] != null ? double.parse(json['mergeDanmuRating'].toString()) : 0.0;
     filterDanmuUserLevel.value = json['filterDanmuUserLevel'] != null ? double.parse(json['filterDanmuUserLevel'].toString()) : 0.0;
     filterDanmuFansLevel.value = json['filterDanmuFansLevel'] != null ? double.parse(json['filterDanmuFansLevel'].toString()) : 0.0;
+    showDanmuFans.value = json['showDanmuFans'] != null ? bool.parse(json['showDanmuFans']) : true;
+    showDanmuUserLevel.value = json['showDanmuUserLevel'] != null ? bool.parse(json['showDanmuUserLevel']) : true;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     webPort.value = json['webPort'] ?? '8008';
@@ -695,6 +694,8 @@ class SettingsService extends GetxController {
     json['mergeDanmuRating'] = mergeDanmuRating.value;
     json['filterDanmuUserLevel'] = filterDanmuUserLevel.value;
     json['filterDanmuFansLevel'] = filterDanmuFansLevel.value;
+    json['showDanmuFans'] = showDanmuFans.value;
+    json['showDanmuUserLevel'] = showDanmuUserLevel.value;
     json['themeColorSwitch'] = themeColorSwitch.value;
     json['webPort '] = webPort.value;
     json['webPortEnable'] = webPortEnable.value;
@@ -739,6 +740,10 @@ class SettingsService extends GetxController {
       "webPortEnable": false,
       "webPort": "8008",
       "siteCookies": {},
+      "filterDanmuUserLevel": 0.0,
+      "filterDanmuFansLevel": 0.0,
+      "showDanmuFans": true,
+      "showDanmuUserLevel": true,
     };
     return json;
   }

@@ -204,6 +204,14 @@
     "hour": "小时",
     "day": "天",
 
+    "show": "显示",
+    "fans": "粉丝牌",
+    "user_level": "用户等级",
+    "user_level_danmu_format": "低于{level}级的用户等级的弹幕会被过滤",
+    "fans_level_danmu_format": "低于{level}级的用户粉丝牌的弹幕会被过滤",
+    "danmu_merge": "弹幕合并",
+    "danmu_merge_format": "相似度大于{level}%的弹幕会被合并",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_all": "清理全部缓存",
     "cache_manage_clear_image": "清理图片缓存",

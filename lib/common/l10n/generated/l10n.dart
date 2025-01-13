@@ -1731,6 +1731,76 @@ class S {
     );
   }
 
+  /// `Show`
+  String get show {
+    return Intl.message(
+      'Show',
+      name: 'show',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fans`
+  String get fans {
+    return Intl.message(
+      'Fans',
+      name: 'fans',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `User Level`
+  String get user_level {
+    return Intl.message(
+      'User Level',
+      name: 'user_level',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Barrage from users below level {level} will be filtered`
+  String user_level_danmu_format(Object level) {
+    return Intl.message(
+      'Barrage from users below level $level will be filtered',
+      name: 'user_level_danmu_format',
+      desc: '',
+      args: [level],
+    );
+  }
+
+  /// `The barrage of user fan cards below {level} will be filtered`
+  String fans_level_danmu_format(Object level) {
+    return Intl.message(
+      'The barrage of user fan cards below $level will be filtered',
+      name: 'fans_level_danmu_format',
+      desc: '',
+      args: [level],
+    );
+  }
+
+  /// `Danmu merge`
+  String get danmu_merge {
+    return Intl.message(
+      'Danmu merge',
+      name: 'danmu_merge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The barrage of comments with a similarity greater than {level}% will be merged`
+  String danmu_merge_format(Object level) {
+    return Intl.message(
+      'The barrage of comments with a similarity greater than $level% will be merged',
+      name: 'danmu_merge_format',
+      desc: '',
+      args: [level],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

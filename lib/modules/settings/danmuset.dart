@@ -26,10 +26,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
   };
 
   _VideoFitSettingState(this.controller) {
-    tabController = TabController(
-        initialIndex: controller.videoFitIndex.value,
-        length: fitmodes.length,
-        vsync: TmpTabController());
+    tabController = TabController(initialIndex: controller.videoFitIndex.value, length: fitmodes.length, vsync: TmpTabController());
     tabController.addListener(tabControllerListener);
   }
 
@@ -50,6 +47,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        /// 是否在播放页面显示 弹幕
         Obx(() => SwitchListTile(
               title: Text(S.of(context).settings_danmaku_open),
               contentPadding: EdgeInsets.zero,
@@ -57,54 +55,69 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => controller.hideDanmaku.value = !value,
             )),
+
+        /// 是否 过滤 彩色 弹幕
         Obx(() => SwitchListTile(
-          title: Text(S.of(context).settings_danmaku_colour),
-          contentPadding: EdgeInsets.zero,
-          value: controller.showColourDanmaku.value,
-          activeColor: Theme.of(context).colorScheme.primary,
-          onChanged: (bool value) => controller.showColourDanmaku.value = value,
-        )),
+              title: Text(S.of(context).settings_danmaku_colour),
+              contentPadding: EdgeInsets.zero,
+              value: controller.showColourDanmaku.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.showColourDanmaku.value = value,
+            )),
 
-        Obx(() => ListTile(
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-          leading: const Text('用户等级'),
-          subtitle: Text(
-              '低于${controller.filterDanmuUserLevel.value.toInt() }级的用户弹幕会被过滤'),
-          title: Slider(
-            divisions: 10, //分多少份
-            min: 0.0,
-            max: 50.0,
-            value: controller.filterDanmuUserLevel.value,
-            onChanged: (val) => controller.filterDanmuUserLevel.value = val,
-          ),
-          trailing:
-          Text('${(controller.filterDanmuUserLevel.value).toInt()}'),
-        )),
-
-        Obx(() => ListTile(
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-          leading: const Text('粉丝牌'),
-          subtitle: Text(
-              '低于${controller.filterDanmuFansLevel.value.toInt() }级的粉丝牌的弹幕会被过滤'),
-          title: Slider(
-            divisions: 40, //分多少份
-            min: 0.0,
-            max: 40.0,
-            value: controller.filterDanmuFansLevel.value,
-            onChanged: (val) => controller.filterDanmuFansLevel.value = val,
-          ),
-          trailing:
-          Text('${(controller.filterDanmuFansLevel.value).toInt()}'),
-        )),
-
+        /// 是否显示 用户等级
+        Obx(() => SwitchListTile(
+              title: Text(S.of(context).show + S.of(context).user_level),
+              contentPadding: EdgeInsets.zero,
+              value: controller.showDanmuUserLevel.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.showDanmuUserLevel.value = value,
+            )),
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: const Text('弹幕合并'),
-              subtitle: Text(
-                  '相似度大于${controller.mergeDanmuRating.value * 100}%的弹幕会被合并'),
+              leading: Text(S.of(Get.context!).user_level),
+              subtitle: Text(S.of(context).fans_level_danmu_format(controller.filterDanmuUserLevel.value)),
+              title: Slider(
+                divisions: 10, //分多少份
+                min: 0.0,
+                max: 50.0,
+                value: controller.filterDanmuUserLevel.value,
+                onChanged: (val) => controller.filterDanmuUserLevel.value = val,
+              ),
+              trailing: Text('${(controller.filterDanmuUserLevel.value).toInt()}'),
+            )),
+
+        /// 是否显示 粉丝牌
+        Obx(() => SwitchListTile(
+              title: Text(S.of(context).show + S.of(context).fans),
+              contentPadding: EdgeInsets.zero,
+              value: controller.showDanmuFans.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.showDanmuFans.value = value,
+            )),
+        Obx(() => ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Text(S.of(context).fans),
+              subtitle: Text(S.of(context).fans_level_danmu_format(controller.filterDanmuFansLevel.value)),
+              title: Slider(
+                divisions: 40,
+                //分多少份
+                min: 0.0,
+                max: 40.0,
+                value: controller.filterDanmuFansLevel.value,
+                onChanged: (val) => controller.filterDanmuFansLevel.value = val,
+              ),
+              trailing: Text('${(controller.filterDanmuFansLevel.value).toInt()}'),
+            )),
+
+        /// 弹幕合并
+        Obx(() => ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Text(S.of(context).danmu_merge),
+              subtitle: Text(S.of(context).danmu_merge_format(controller.mergeDanmuRating.value * 100)),
               title: Slider(
                 divisions: 10,
                 min: 0.0,
@@ -112,8 +125,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
                 value: controller.mergeDanmuRating.value,
                 onChanged: (val) => controller.mergeDanmuRating.value = val,
               ),
-              trailing:
-                  Text('${(controller.mergeDanmuRating.value * 100).toInt()}%'),
+              trailing: Text('${(controller.mergeDanmuRating.value * 100).toInt()}%'),
             )),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
@@ -123,8 +135,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
           controller: tabController,
           padding: EdgeInsets.zero,
           tabAlignment: TabAlignment.center,
-          labelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           tabs: fitmodes.keys.map<Widget>((e) => Tab(text: e)).toList(),
           isScrollable: true,
           indicatorSize: TabBarIndicatorSize.tab,
@@ -225,8 +236,7 @@ class DanmakuSetting extends StatelessWidget {
                 value: controller.danmakuOpacity.value,
                 onChanged: (val) => controller.danmakuOpacity.value = val,
               ),
-              trailing:
-                  Text('${(controller.danmakuOpacity.value * 100).toInt()}%'),
+              trailing: Text('${(controller.danmakuOpacity.value * 100).toInt()}%'),
             )),
         Obx(() => ListTile(
               dense: true,
