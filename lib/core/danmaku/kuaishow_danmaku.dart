@@ -173,7 +173,7 @@ class KuaishowDanmaku implements LiveDanmaku {
 
     var online = readableCountStrToNum(displayWatchingCount);
     // CoreLog.d("online num:  $online \t likeCount num:  $likeCount");
-    CoreLog.d("$scWebFeedPush");
+    // CoreLog.d("$scWebFeedPush");
 
     onMessage?.call(
       LiveMessage(
