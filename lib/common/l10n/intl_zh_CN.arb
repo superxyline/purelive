@@ -237,6 +237,11 @@
     "unable_to_read_clipboard_contents": "无法读取剪贴板内容",
     "reading_clipboard_content_failed": "读取剪切板内容失败",
 
+    "three_party_authentication":"三方认证",
+    "not_supported":"尚不支持",
+    "live":"直播",
+    "bilibili_need_login_info":"哔哩哔哩账号需要登录才能看高清晰度的直播，其他平台暂无此限制。",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

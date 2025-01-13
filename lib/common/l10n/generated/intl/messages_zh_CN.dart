@@ -66,6 +66,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "backup_recover": MessageLookupByLibrary.simpleMessage("备份与恢复"),
         "backup_recover_subtitle":
             MessageLookupByLibrary.simpleMessage("创建备份与恢复"),
+        "bilibili_need_login_info": MessageLookupByLibrary.simpleMessage(
+            "哔哩哔哩账号需要登录才能看高清晰度的直播，其他平台暂无此限制。"),
         "cache_manage": MessageLookupByLibrary.simpleMessage("缓存管理"),
         "cache_manage_clear_all":
             MessageLookupByLibrary.simpleMessage("清理全部缓存"),
@@ -195,10 +197,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "keyword_input": MessageLookupByLibrary.simpleMessage("请输入关键词"),
         "license": MessageLookupByLibrary.simpleMessage("开源许可证"),
         "light": MessageLookupByLibrary.simpleMessage("浅色模式"),
+        "live": MessageLookupByLibrary.simpleMessage("直播"),
         "minute": MessageLookupByLibrary.simpleMessage("分钟"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("移到顶部"),
         "new_version_info": m6,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage("已在使用最新版本"),
+        "not_supported": MessageLookupByLibrary.simpleMessage("尚不支持"),
         "offline": MessageLookupByLibrary.simpleMessage("未直播"),
         "offline_room_title": MessageLookupByLibrary.simpleMessage("未开播"),
         "online_room_title": MessageLookupByLibrary.simpleMessage("已开播"),
@@ -290,6 +294,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "switch_platform": MessageLookupByLibrary.simpleMessage("切换直播平台"),
         "system": MessageLookupByLibrary.simpleMessage("跟随系统"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "three_party_authentication":
+            MessageLookupByLibrary.simpleMessage("三方认证"),
         "timedclose_time": m10,
         "unable_to_read_clipboard_contents":
             MessageLookupByLibrary.simpleMessage("无法读取剪贴板内容"),

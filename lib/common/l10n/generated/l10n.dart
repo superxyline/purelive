@@ -2011,6 +2011,46 @@ class S {
     );
   }
 
+  /// `Third-party certification`
+  String get three_party_authentication {
+    return Intl.message(
+      'Third-party certification',
+      name: 'three_party_authentication',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not supported`
+  String get not_supported {
+    return Intl.message(
+      'Not supported',
+      name: 'not_supported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `live`
+  String get live {
+    return Intl.message(
+      'live',
+      name: 'live',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bilibili accounts require login to view high-definition live streams, and there is currently no such restriction on other platforms.`
+  String get bilibili_need_login_info {
+    return Intl.message(
+      'Bilibili accounts require login to view high-definition live streams, and there is currently no such restriction on other platforms.',
+      name: 'bilibili_need_login_info',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

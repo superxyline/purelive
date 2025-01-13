@@ -43,12 +43,12 @@ class MenuButton extends GetView<AuthController> {
             text: controller.isLogin ? S.of(context).supabase_mine : S.of(context).supabase_sign_in,
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 5,
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: Icon(Icons.assignment_ind_sharp),
-            text: '三方认证',
+            text: S.of(Get.context!).three_party_authentication,
           ),
         ),
         PopupMenuItem(

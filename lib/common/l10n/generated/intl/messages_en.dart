@@ -73,6 +73,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Backup &Recover"),
         "backup_recover_subtitle":
             MessageLookupByLibrary.simpleMessage("Create backup and recover"),
+        "bilibili_need_login_info": MessageLookupByLibrary.simpleMessage(
+            "Bilibili accounts require login to view high-definition live streams, and there is currently no such restriction on other platforms."),
         "cache_manage": MessageLookupByLibrary.simpleMessage("Cache Manage"),
         "cache_manage_clear_all":
             MessageLookupByLibrary.simpleMessage("Clear all cache"),
@@ -235,11 +237,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Please enter keywords"),
         "license": MessageLookupByLibrary.simpleMessage("License"),
         "light": MessageLookupByLibrary.simpleMessage("Light"),
+        "live": MessageLookupByLibrary.simpleMessage("live"),
         "minute": MessageLookupByLibrary.simpleMessage("minute"),
         "move_to_top": MessageLookupByLibrary.simpleMessage("Move To Top"),
         "new_version_info": m6,
         "no_new_version_info": MessageLookupByLibrary.simpleMessage(
             "You are using the latest version."),
+        "not_supported": MessageLookupByLibrary.simpleMessage("Not supported"),
         "offline": MessageLookupByLibrary.simpleMessage("Offline"),
         "offline_room_title": MessageLookupByLibrary.simpleMessage("Offline"),
         "online_room_title": MessageLookupByLibrary.simpleMessage("Online"),
@@ -355,6 +359,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Switch platform"),
         "system": MessageLookupByLibrary.simpleMessage("System"),
         "telegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "three_party_authentication":
+            MessageLookupByLibrary.simpleMessage("Third-party certification"),
         "timedclose_time": m10,
         "unable_to_read_clipboard_contents":
             MessageLookupByLibrary.simpleMessage(

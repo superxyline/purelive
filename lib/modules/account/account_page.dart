@@ -1,6 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
@@ -12,14 +13,14 @@ class AccountPage extends GetView<AccountController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("三方认证"),
+        title: Text(S.of(Get.context!).three_party_authentication),
       ),
       body: ListView(
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              "哔哩哔哩账号需要登录才能看高清晰度的直播，其他平台暂无此限制。",
+              S.of(Get.context!).bilibili_need_login_info,
               textAlign: TextAlign.center,
             ),
           ),
@@ -32,26 +33,21 @@ class AccountPage extends GetView<AccountController> {
               ),
               title: const Text("哔哩哔哩"),
               subtitle: Text(BiliBiliAccountService.instance.name.value),
-              trailing: BiliBiliAccountService.instance.logined.value
-                  ? const Icon(Icons.logout)
-                  : const Icon(Icons.chevron_right),
+              trailing: BiliBiliAccountService.instance.logined.value ? const Icon(Icons.logout) : const Icon(Icons.chevron_right),
               onTap: controller.bilibiliTap,
             ),
           ),
-          ...Sites.supportSites
-              .where((site) =>
-                  !([Sites.bilibiliSite, Sites.allSite].contains(site.id)))
-              .map((site) => ListTile(
-                    leading: ExtendedImage.asset(
-                      site.logo,
-                      width: 36,
-                      height: 36,
-                    ),
-                    title: Text("${site.name} 直播"),
-                    subtitle: const Text("尚不支持"),
-                    enabled: false,
-                    trailing: const Icon(Icons.chevron_right),
-                  )),
+          ...Sites.supportSites.where((site) => !([Sites.bilibiliSite, Sites.allSite].contains(site.id))).map((site) => ListTile(
+                leading: ExtendedImage.asset(
+                  site.logo,
+                  width: 36,
+                  height: 36,
+                ),
+                title: Text("${site.name} ${S.of(Get.context!).live}"),
+                subtitle: Text(S.of(Get.context!).not_supported),
+                enabled: false,
+                trailing: const Icon(Icons.chevron_right),
+              )),
         ],
       ),
     );

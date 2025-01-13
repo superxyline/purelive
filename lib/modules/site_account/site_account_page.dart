@@ -1,6 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/site_account/site_account_controller.dart';
 
@@ -11,14 +12,14 @@ class SiteAccountPage extends GetView<SiteAccountController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("三方认证"),
+        title: Text(S.of(Get.context!).three_party_authentication),
       ),
       body: ListView(
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              "哔哩哔哩账号需要登录才能看高清晰度的直播，其他平台暂无此限制。",
+              S.of(Get.context!).bilibili_need_login_info,
               textAlign: TextAlign.center,
             ),
           ),
@@ -33,7 +34,7 @@ class SiteAccountPage extends GetView<SiteAccountController> {
                           width: 36,
                           height: 36,
                         ),
-                        title: Text("${site.name} 直播"),
+                        title: Text("${site.name} ${S.of(Get.context!).live}"),
                         subtitle: Text(site.liveSite.userName.value),
                         trailing: site.liveSite.isLogin.value
                             ? const Icon(Icons.logout)
@@ -49,8 +50,8 @@ class SiteAccountPage extends GetView<SiteAccountController> {
                         width: 36,
                         height: 36,
                       ),
-                      title: Text("${site.name} 直播"),
-                      subtitle: const Text("尚不支持"),
+                      title: Text("${site.name} ${S.of(Get.context!).live}"),
+                      subtitle: Text(S.of(Get.context!).not_supported),
                       enabled: false,
                       trailing: const Icon(Icons.chevron_right),
                     )),
