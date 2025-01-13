@@ -2671,6 +2671,26 @@ class S {
     );
   }
 
+  /// `Externally Open Live`
+  String get live_room_open_external {
+    return Intl.message(
+      'Externally Open Live',
+      name: 'live_room_open_external',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Screen Caste`
+  String get screen_caste {
+    return Intl.message(
+      'Screen Caste',
+      name: 'screen_caste',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

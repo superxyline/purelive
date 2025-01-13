@@ -36,8 +36,7 @@ class LivePlayPage extends GetView<LivePlayController> {
   buildTableTarLeft() {
     return Row(children: [
       /// 头像
-      CacheNetWorkUtils.getCircleAvatar(controller.liveRoomRx.avatar.value,
-          radius: 20),
+      CacheNetWorkUtils.getCircleAvatar(controller.liveRoomRx.avatar.value, radius: 20),
       const SizedBox(width: 8),
 
       /// 右边
@@ -45,7 +44,8 @@ class LivePlayPage extends GetView<LivePlayController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// 名称
-          Text(controller.liveRoomRx.nick.value.appendTxt(""),
+          Text(
+            controller.liveRoomRx.nick.value.appendTxt(""),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(Get.context!).textTheme.labelSmall,
@@ -56,9 +56,7 @@ class LivePlayPage extends GetView<LivePlayController> {
             /// 横着摆放
             children: [
               /// 站点logo
-              if (controller.liveRoomRx.platform.value.isNotNullOrEmpty)
-                SiteWidget.getSiteLogeImage(
-                    controller.liveRoomRx.platform.value!)!,
+              if (controller.liveRoomRx.platform.value.isNotNullOrEmpty) SiteWidget.getSiteLogeImage(controller.liveRoomRx.platform.value!)!,
 
               /// 站点logo
               const SizedBox(width: 5),
@@ -86,20 +84,18 @@ class LivePlayPage extends GetView<LivePlayController> {
                           borderRadius: BorderRadius.circular(8),
                         )),
                     onPressed: () async {
-                      if (!controller.liveRoomRx.area.value.isNullOrEmpty &&
-                          !controller.liveRoomRx.platform.value.isNullOrEmpty) {
+                      if (!controller.liveRoomRx.area.value.isNullOrEmpty && !controller.liveRoomRx.platform.value.isNullOrEmpty) {
                         try {
                           /// 平台
                           var site = controller.liveRoomRx.platform.value!;
                           // CoreLog.d("site: $site");
-                          var areasListController =
-                              Get.findOrNull<AreasListController>(tag: site);
+                          var areasListController = Get.findOrNull<AreasListController>(tag: site);
                           if (areasListController == null) {
                             return;
                           }
                           var list = areasListController.list;
                           // CoreLog.d("list: $list");
-                          if(list.isEmpty) {
+                          if (list.isEmpty) {
                             CoreLog.d("loading areasList Data ...");
                             await areasListController.loadData();
                           }
@@ -110,9 +106,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                           bool flag = false;
                           for (var i = 0; i < list.length && !flag; i++) {
                             var liveCategory = list[i];
-                            for (var j = 0;
-                                j < liveCategory.children.length && !flag;
-                                j++) {
+                            for (var j = 0; j < liveCategory.children.length && !flag; j++) {
                               var tmpLiveArea = liveCategory.children[j];
                               if (tmpLiveArea.areaName == area) {
                                 liveArea = tmpLiveArea;
@@ -126,8 +120,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                             return;
                           }
                           Navigator.pop(Get.context!);
-                          AppNavigator.toCategoryDetail(
-                              site: Sites.of(site), category: liveArea);
+                          AppNavigator.toCategoryDetail(site: Sites.of(site), category: liveArea);
                         } catch (e) {
                           CoreLog.error(e);
                         }
@@ -135,10 +128,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                     },
                     child: Text(
                       "${Sites.of(controller.liveRoomRx.platform.value!).name}${controller.liveRoomRx.area.value.isNullOrEmpty ? '' : "/${controller.liveRoomRx.area.value}"}",
-                      style: Theme.of(Get.context!)
-                          .textTheme
-                          .labelSmall
-                          ,
+                      style: Theme.of(Get.context!).textTheme.labelSmall,
                     )),
             ],
           ),
@@ -188,20 +178,20 @@ class LivePlayPage extends GetView<LivePlayController> {
                 },
                 itemBuilder: (BuildContext context) {
                   return [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 0,
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: MenuListTile(
                         leading: Icon(Icons.open_in_new_rounded),
-                        text: "打开直播间",
+                        text: S.of(context).live_room_open_external,
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 1,
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: MenuListTile(
                         leading: Icon(Icons.live_tv_rounded),
-                        text: "投屏",
+                        text: S.of(context).screen_caste,
                       ),
                     ),
                   ];
@@ -251,9 +241,7 @@ class LivePlayPage extends GetView<LivePlayController> {
               });
             },
           ),
-          floatingActionButton: Obx(() => controller.getVideoSuccess.value
-              ? FavoriteFloatingButton(room: controller.liveRoomRx.toLiveRoom())
-              : FavoriteFloatingButton(room: controller.liveRoomRx.toLiveRoom())),
+          floatingActionButton: Obx(() => controller.getVideoSuccess.value ? FavoriteFloatingButton(room: controller.liveRoomRx.toLiveRoom()) : FavoriteFloatingButton(room: controller.liveRoomRx.toLiveRoom())),
         ),
       );
     });
@@ -268,8 +256,7 @@ class LivePlayPage extends GetView<LivePlayController> {
   }
 
   void showDlnaCastDialog() {
-    Get.dialog(LiveDlnaPage(
-        datasource: controller.playUrls[controller.currentLineIndex.value]));
+    Get.dialog(LiveDlnaPage(datasource: controller.playUrls[controller.currentLineIndex.value]));
   }
 
   /// 播放器主页UI
@@ -294,16 +281,14 @@ class LivePlayPage extends GetView<LivePlayController> {
               :*/
             controller.success.value
                 ? VideoPlayer(controller: controller.videoController!)
-                : controller.hasError.value &&
-                        controller.isActive.value == false
+                : controller.hasError.value && controller.isActive.value == false
                     ? ErrorVideoWidget(controller: controller)
                     : !controller.getVideoSuccess.value
                         ? ErrorVideoWidget(controller: controller)
                         : Card(
                             elevation: 0,
                             margin: const EdgeInsets.all(0),
-                            shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero),
+                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                             clipBehavior: Clip.antiAlias,
                             color: Get.theme.focusColor,
                             child: Obx(() => controller.isLoadingVideo.value
@@ -314,28 +299,20 @@ class LivePlayPage extends GetView<LivePlayController> {
                                 : controller.loadTimeOut.value
                                     ? const Center(
                                         child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Icon(Icons.live_tv_rounded,
-                                                size: 48),
+                                            Icon(Icons.live_tv_rounded, size: 48),
                                             Text(
                                               "无法获取播放信息",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18),
+                                              style: TextStyle(color: Colors.white, fontSize: 18),
                                             ),
                                             Text(
                                               "当前房间未开播或无法观看",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18),
+                                              style: TextStyle(color: Colors.white, fontSize: 18),
                                             ),
                                             Text(
                                               "请按确定按钮刷新重试",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18),
+                                              style: TextStyle(color: Colors.white, fontSize: 18),
                                             ),
                                           ],
                                         ),
@@ -365,8 +342,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
       const Icon(Icons.whatshot_rounded, size: 14),
       const SizedBox(width: 4),
       Obx(() => Text(
-            readableCount(
-                readableCountStrToNum(controller.liveRoomRx.watching.value).toString()),
+            readableCount(readableCountStrToNum(controller.liveRoomRx.watching.value).toString()),
             style: Get.textTheme.bodySmall,
           )),
     ]);
@@ -385,11 +361,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               icon: Text(
                 rate.quality,
                 style: Get.theme.textTheme.labelSmall?.copyWith(
-                  color: rate.quality ==
-                          controller
-                              .qualites[controller.currentQuality.value].quality
-                      ? Get.theme.colorScheme.primary
-                      : null,
+                  color: rate.quality == controller.qualites[controller.currentQuality.value].quality ? Get.theme.colorScheme.primary : null,
                 ),
               ),
               onSelected: (String index) {
@@ -404,11 +376,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
                     child: Text(
                       '线路${i + 1}\t${urls[i].contains(".flv") ? "FLV" : "HLS"}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: urls[i] ==
-                                    controller.playUrls[
-                                        controller.currentLineIndex.value]
-                                ? Get.theme.colorScheme.primary
-                                : null,
+                            color: urls[i] == controller.playUrls[controller.currentLineIndex.value] ? Get.theme.colorScheme.primary : null,
                           ),
                     ),
                   ));
@@ -465,8 +433,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               Get.dialog(
                 AlertDialog(
                   title: Text(S.of(context).unfollow),
-                  content:
-                      Text(S.of(context).unfollow_message(widget.room.nick!)),
+                  content: Text(S.of(context).unfollow_message(widget.room.nick!)),
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -490,8 +457,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                 }
               });
             },
-            child: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar,
-                radius: 18),
+            child: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar, radius: 18),
           )
         : FloatingActionButton.extended(
             elevation: 2,
@@ -501,8 +467,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               // setState(() => controller.isFavorite.toggle);
               settings.addRoom(widget.room);
             },
-            icon: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar,
-                radius: 18),
+            icon: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar, radius: 18),
             label: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -553,8 +518,7 @@ class ErrorVideoWidget extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         S.of(context).play_video_failed,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 16),
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                     const Text(
@@ -610,8 +574,7 @@ class TimeOutVideoWidget extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         S.of(context).play_video_failed,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 16),
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                     const Text(

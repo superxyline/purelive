@@ -248,6 +248,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "live_room_link_parse_failed":
             MessageLookupByLibrary.simpleMessage("无法解析此链接"),
         "live_room_link_parsing": MessageLookupByLibrary.simpleMessage("链接解析"),
+        "live_room_open_external":
+            MessageLookupByLibrary.simpleMessage("打开直播间"),
         "live_room_search": MessageLookupByLibrary.simpleMessage("搜索直播"),
         "local_import": MessageLookupByLibrary.simpleMessage("本地导入"),
         "login_account_exit": m7,
@@ -308,6 +310,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "replay": MessageLookupByLibrary.simpleMessage("录播"),
         "retry": MessageLookupByLibrary.simpleMessage("重试"),
         "room_info_content": m11,
+        "screen_caste": MessageLookupByLibrary.simpleMessage("投屏"),
         "search": MessageLookupByLibrary.simpleMessage("搜索"),
         "search_input_hint": MessageLookupByLibrary.simpleMessage("输入直播关键字"),
         "second": MessageLookupByLibrary.simpleMessage("秒"),

@@ -317,6 +317,9 @@
     "live_room_link_access":"Link Access",
     "search":"Search",
 
+    "live_room_open_external":"Externally Open Live",
+    "screen_caste":"Screen Caste",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",

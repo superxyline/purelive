@@ -301,6 +301,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Unable to parse this link"),
         "live_room_link_parsing":
             MessageLookupByLibrary.simpleMessage("Link Parse"),
+        "live_room_open_external":
+            MessageLookupByLibrary.simpleMessage("Externally Open Live"),
         "live_room_search": MessageLookupByLibrary.simpleMessage("Search Live"),
         "local_import": MessageLookupByLibrary.simpleMessage("Local Import"),
         "login_account_exit": m7,
@@ -377,6 +379,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "replay": MessageLookupByLibrary.simpleMessage("REPLAY"),
         "retry": MessageLookupByLibrary.simpleMessage("Retry"),
         "room_info_content": m11,
+        "screen_caste": MessageLookupByLibrary.simpleMessage("Screen Caste"),
         "search": MessageLookupByLibrary.simpleMessage("Search"),
         "search_input_hint":
             MessageLookupByLibrary.simpleMessage("Input live room keyword"),
