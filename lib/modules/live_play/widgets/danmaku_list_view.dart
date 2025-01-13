@@ -104,7 +104,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                         TextSpan(
                           children: [
                             /// 弹幕的用户等级
-                            if (danmaku.userLevel.isNotNullOrEmpty)
+                            if (danmaku.userLevel.isNotNullOrEmpty && danmaku.userLevel != "0")
                               WidgetSpan(
                                 child: IntrinsicWidth(
                                     child: Container(
@@ -136,7 +136,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                             // ),
 
                             /// 弹幕的粉丝牌
-                            if (danmaku.fansName.isNotNullOrEmpty && danmaku.fansLevel.isNotNullOrEmpty)
+                            if (danmaku.fansName.isNotNullOrEmpty && danmaku.fansLevel.isNotNullOrEmpty && danmaku.fansLevel != "0")
                               WidgetSpan(
                                 child:
                                     // Expanded( child:
