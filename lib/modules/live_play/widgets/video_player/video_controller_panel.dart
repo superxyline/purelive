@@ -204,7 +204,7 @@ class ErrorWidget extends StatelessWidget {
             onPressed: () => controller.refresh(),
             style: ElevatedButton.styleFrom(
               elevation: 0,
-              backgroundColor: Colors.white.withOpacity(0.2),
+              backgroundColor: Colors.white.withValues(alpha: 0.2),
             ),
             child: Text(
               S.of(context).retry,
@@ -345,7 +345,7 @@ class _BatteryInfoState extends State<BatteryInfo> {
         width: 35,
         height: 15,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.4),
+          color: Colors.white.withValues(alpha: 0.4),
           border: Border.all(color: Colors.white),
           borderRadius: BorderRadius.circular(4),
         ),
@@ -893,7 +893,7 @@ class SettingsPanel extends StatelessWidget {
           width: width,
           duration: const Duration(milliseconds: 500),
           child: Card(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             child: SizedBox(
               width: width,
               child: ListView(
@@ -932,7 +932,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
   late int fitIndex = fitmodes.values.toList().indexWhere((e) => e == widget.controller.videoFit.value);
   @override
   Widget build(BuildContext context) {
-    final Color color = Theme.of(context).colorScheme.primary.withOpacity(0.8);
+    final Color color = Theme.of(context).colorScheme.primary.withValues(alpha: 0.8);
     final isSelected = [false, false, false, false, false];
     int fitIndex = widget.controller.videoFitIndex.value;
     isSelected[fitIndex] = true;

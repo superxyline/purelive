@@ -36,7 +36,7 @@ class HuyaCookiePage extends GetView<HuyaCookieController> {
                     contentPadding: const EdgeInsets.all(12.0),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Colors.grey.withOpacity(.2),
+                        color: Colors.grey.withValues(alpha: .2),
                       ),
                     ),
                   ),
@@ -71,7 +71,7 @@ class HuyaCookiePage extends GetView<HuyaCookieController> {
             : [
                 BoxShadow(
                   blurRadius: 8,
-                  color: Colors.grey.withOpacity(.2),
+                  color: Colors.grey.withValues(alpha: .2),
                 )
               ],
       ),

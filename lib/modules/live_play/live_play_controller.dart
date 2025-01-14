@@ -440,7 +440,7 @@ class LivePlayController extends StateController {
       };
     } else if (currentSite.id == Sites.huyaSite) {
       headers = {
-        "user-agent": "HYSDK(Windows, 20000308)",
+        "user-agent": "HYSDK(Windows, 21000308)",
         "cookie": settings.huyaCookie.value,
       };
     }

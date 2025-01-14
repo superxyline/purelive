@@ -1,7 +1,7 @@
 {
-  "version": "1.8.2",
+  "version": "1.8.3",
   "version_num": 10182,
-  "version_desc": "-Fix: 修复弹幕问题. \n-Fix: 修复抖音直播",
+  "version_desc": "-Fix: 修复弹幕问题. \n-Fix: 修复虎牙直播断流",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

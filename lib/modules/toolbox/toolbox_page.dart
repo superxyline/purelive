@@ -32,7 +32,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
                     contentPadding: const EdgeInsets.all(12.0),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Colors.grey.withOpacity(.2),
+                        color: Colors.grey.withValues(alpha: .2),
                       ),
                     ),
                   ),
@@ -69,7 +69,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
                     contentPadding: const EdgeInsets.all(12.0),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Colors.grey.withOpacity(.2),
+                        color: Colors.grey.withValues(alpha: .2),
                       ),
                     ),
                   ),
@@ -104,7 +104,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
             : [
                 BoxShadow(
                   blurRadius: 8,
-                  color: Colors.grey.withOpacity(.2),
+                  color: Colors.grey.withValues(alpha: .2),
                 )
               ],
       ),

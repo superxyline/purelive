@@ -123,7 +123,7 @@ class Utils {
                 ),
                 Divider(
                   height: 1,
-                  color: Colors.grey.withOpacity(.1),
+                  color: Colors.grey.withValues(alpha: .1),
                 ),
                 Expanded(
                   child: child,
@@ -183,7 +183,7 @@ class Utils {
         ],
       ),
       // barrierColor:
-      //     Get.isDarkMode ? Colors.grey.withOpacity(.3) : Colors.black38,
+      //     Get.isDarkMode ? Colors.grey.withValues(alpha:.3) : Colors.black38,
     );
     return result;
   }

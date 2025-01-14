@@ -23,7 +23,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
       S.of(context).videofit_fitwidth: BoxFit.fitWidth,
       S.of(context).videofit_fitheight: BoxFit.fitHeight,
     };
-    final Color color = Theme.of(context).colorScheme.primary.withOpacity(0.9);
+    final Color color = Theme.of(context).colorScheme.primary.withValues(alpha: 0.9);
     final isSelected = [false, false, false, false, false];
     isSelected[widget.controller.videoFitIndex.value] = true;
     return Column(
