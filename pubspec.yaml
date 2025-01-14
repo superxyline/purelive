@@ -59,9 +59,9 @@ dependencies:
   email_validator: ^3.0.0
   font_awesome_flutter: ^10.8.0
   # video player mobile
-  media_kit: ^1.1.11                          # Primary package.
-  media_kit_video: ^1.2.5                        # For video rendering.
-  media_kit_libs_video: ^1.0.5                   # Native video dependencies.
+#  media_kit: ^1.1.11                          # Primary package.
+#  media_kit_video: ^1.2.5                        # For video rendering.
+#  media_kit_libs_video: ^1.0.5                   # Native video dependencies.
   gsy_video_player: ^0.0.6
 #    git: https://github.com/liuchuancong/gsy_video_player.git
   fvp: ^0.29.0                              # FVP 视频播放器
@@ -70,8 +70,8 @@ dependencies:
   share_handler: ^0.0.19
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
-  screen_brightness: ^0.2.2+1 # 屏幕亮度
-  screen_brightness_linux: ^0.1.0-dev.1 # 屏幕亮度
+#  screen_brightness: ^0.2.2+1 # 屏幕亮度
+#  screen_brightness_linux: ^0.1.0-dev.1 # 屏幕亮度
   flutter_volume_controller: ^1.3.3  # 声音
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0
@@ -145,6 +145,67 @@ dependencies:
   auto_orientation: ^2.3.1 #屏幕方向
   device_info_plus: ^11.2.0 #设备信息
   floating: ^2.0.2 #PIP画中画
+
+ #  MPV 播放器
+  media_kit:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit
+  media_kit_video:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit_video
+  media_kit_libs_video:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/universal/media_kit_libs_video
+
+dependency_overrides:
+  media_kit:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit
+  media_kit_video:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit_video
+  media_kit_libs_video:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/universal/media_kit_libs_video
+  media_kit_libs_linux:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/linux/media_kit_libs_linux
+  media_kit_libs_ios_video:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/ios/media_kit_libs_ios_video
+  media_kit_libs_android_video:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/android/media_kit_libs_android_video
+  media_kit_libs_windows_video:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/windows/media_kit_libs_windows_video
+  media_kit_libs_macos_video:
+    git:
+      url: https://ghfast.top/https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/macos/media_kit_libs_macos_video
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
