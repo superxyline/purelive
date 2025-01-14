@@ -271,57 +271,59 @@ class LivePlayPage extends GetView<LivePlayController> {
   Widget buildVideoPlayerBody() {
     return Container(
       color: Colors.black,
-      child: Obx(
-        () => /*controller.isLoadingVideo.value
-              ? const Center(
-                /// 加载动画
-                child: CircularProgressIndicator(
-                color: Colors.white,
-              ))
-              :*/
-            controller.success.value
-                ? VideoPlayer(controller: controller.videoController!)
-                : controller.hasError.value && controller.isActive.value == false
-                    ? ErrorVideoWidget(controller: controller)
-                    : !controller.getVideoSuccess.value
-                        ? ErrorVideoWidget(controller: controller)
-                        : Card(
-                            elevation: 0,
-                            margin: const EdgeInsets.all(0),
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                            clipBehavior: Clip.antiAlias,
-                            color: Get.theme.focusColor,
-                            child: Obx(() => controller.isLoadingVideo.value
-                                ? const Center(
-                                    child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ))
-                                : controller.loadTimeOut.value
-                                    ? const Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.live_tv_rounded, size: 48),
-                                            Text(
-                                              "无法获取播放信息",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
-                                            ),
-                                            Text(
-                                              "当前房间未开播或无法观看",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
-                                            ),
-                                            Text(
-                                              "请按确定按钮刷新重试",
-                                              style: TextStyle(color: Colors.white, fontSize: 18),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : TimeOutVideoWidget(
-                                        controller: controller,
-                                      )),
-                          ),
-      ),
+      child: Obx(() {
+        if (controller.success.value && controller.videoController != null) {
+          return VideoPlayer(controller: controller.videoController!);
+        }
+
+        if (controller.hasError.value && controller.isActive.value == false) {
+          return ErrorVideoWidget(controller: controller);
+        }
+
+        if (!controller.getVideoSuccess.value) {
+          return ErrorVideoWidget(controller: controller);
+        }
+
+        if (controller.getVideoSuccess.value && !controller.success.value && !controller.isFirstLoad.value && !controller.isLoadingVideo.value) {
+          return Center(
+              child: Text(
+            "未开播",
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ));
+        }
+
+        if (controller.isLoadingVideo.value) {
+          return const Center(
+              child: CircularProgressIndicator(
+            color: Colors.white,
+          ));
+        }
+        if (controller.loadTimeOut.value) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.live_tv_rounded, size: 48),
+                Text(
+                  "无法获取播放信息",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                Text(
+                  "当前房间未开播或无法观看",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                Text(
+                  "请按确定按钮刷新重试",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ],
+            ),
+          );
+        }
+        return TimeOutVideoWidget(
+          controller: controller,
+        );
+      }),
     );
   }
 }

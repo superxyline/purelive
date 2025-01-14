@@ -12,6 +12,7 @@ import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/danmaku_text.dart';
+import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:pure_live/plugins/barrage.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -90,9 +91,9 @@ class VideoController with ChangeNotifier {
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
-      showController.value = false;
+      showController.updateValueNotEquate(false);
     });
-    showController.value = true;
+    showController.updateValueNotEquate(true);
   }
 
   // Danmaku player control
@@ -156,10 +157,10 @@ class VideoController with ChangeNotifier {
 
   void initBattery() {
     if (Platform.isAndroid || Platform.isIOS) {
-      _battery.batteryLevel.then((value) => batteryLevel.value = value);
+      _battery.batteryLevel.then((value) => batteryLevel.updateValueNotEquate(value));
       otherStreamSubscriptionList.add(
           _battery.onBatteryStateChanged.listen((BatteryState state) async {
-        batteryLevel.value = await _battery.batteryLevel;
+        batteryLevel.updateValueNotEquate(await _battery.batteryLevel);
       }));
     }
   }
@@ -204,7 +205,7 @@ class VideoController with ChangeNotifier {
         if (videoPlayer.isPlaying.value) {
           // 取消手动暂停
 
-          isActivePause.value = false;
+          isActivePause.updateValueNotEquate(false);
         }
       }
       if (videoPlayer.isPlaying.value) {
@@ -216,21 +217,21 @@ class VideoController with ChangeNotifier {
       // 代表手动暂停了
       if (!videoPlayer.isPlaying.value) {
         if (showController.value) {
-          isActivePause.value = true;
+          isActivePause.updateValueNotEquate(true);
           hasActivePause?.cancel();
         } else {
           if (isActivePause.value) {
             hasActivePause = Timer(const Duration(seconds: 20), () {
               // 暂停了
               SmartDialog.showToast("系统监测视频已停止播放,正在为您刷新视频");
-              isActivePause.value = false;
+              isActivePause.updateValueNotEquate(false);
               refresh();
             });
           }
         }
       } else {
         hasActivePause?.cancel();
-        isActivePause.value = false;
+        isActivePause.updateValueNotEquate(false);
       }
     }));
 
@@ -254,11 +255,11 @@ class VideoController with ChangeNotifier {
   }
 
   refreshView() {
-    refreshCompleted.value = false;
+    refreshCompleted.updateValueNotEquate(false);
     Timer(const Duration(microseconds: 200), () async {
       await resetScreenBrightness();
       brightnessKey = GlobalKey<BrightnessVolumeDargAreaState>();
-      refreshCompleted.value = true;
+      refreshCompleted.updateValueNotEquate(true);
     });
   }
 
@@ -359,13 +360,13 @@ class VideoController with ChangeNotifier {
     disposeAllStream();
     danmakuController.disable();
     await danmakuController.dispose();
-    videoPlayer.isPlaying.value = false;
-    videoPlayer.hasError.value = false;
+    videoPlayer.isPlaying.updateValueNotEquate(false);
+    videoPlayer.hasError.updateValueNotEquate(false);
     try {
       LivePlayController? livePlayController =
           Get.findOrNull<LivePlayController?>();
       if (livePlayController != null) {
-        livePlayController.success.value = false;
+        livePlayController.success.updateValueNotEquate(false);
       }
     } catch (e) {
       CoreLog.error(e);
@@ -385,10 +386,10 @@ class VideoController with ChangeNotifier {
     datasource = url;
     // fix datasource empty error
     if (datasource.isEmpty) {
-      videoPlayer.hasError.value = true;
+      videoPlayer.hasError.updateValueNotEquate(true);
       return;
     } else {
-      videoPlayer.hasError.value = false;
+      videoPlayer.hasError.updateValueNotEquate(false);
     }
     await videoPlayer.openVideo(url, headers);
     notifyListeners();
@@ -438,7 +439,7 @@ class VideoController with ChangeNotifier {
 
   Future<void> exitFullScreen() async {
     videoPlayer.exitFullScreen();
-    showSettting.value = false;
+    showSettting.updateValueNotEquate(false);
   }
 
   /// 设置横屏
@@ -478,12 +479,12 @@ class VideoController with ChangeNotifier {
   void toggleFullScreen() async {
     CoreLog.d("toggleFullScreen");
     // disable locked
-    showLocked.value = false;
+    showLocked.updateValueNotEquate(false);
     // fix danmaku overlap bug
     if (!settings.hideDanmaku.value) {
-      settings.hideDanmaku.value = true;
+      settings.hideDanmaku.updateValueNotEquate(true);
       Timer(const Duration(milliseconds: 500), () {
-        settings.hideDanmaku.value = false;
+        settings.hideDanmaku.updateValueNotEquate(false);
       });
     }
     // fix obx setstate when build
@@ -503,7 +504,7 @@ class VideoController with ChangeNotifier {
 
   /// 进入全屏
   void enterFullScreen() {
-    videoPlayer.isFullscreen.value = true;
+    videoPlayer.isFullscreen.updateValueNotEquate(true);
     if (Platform.isAndroid || Platform.isIOS) {
       //全屏
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
@@ -526,20 +527,20 @@ class VideoController with ChangeNotifier {
     } else {
       windowManager.setFullScreen(false);
     }
-    showSettting.value = false;
-    videoPlayer.isFullscreen.value = false;
+    showSettting.updateValueNotEquate(false);
+    videoPlayer.isFullscreen.updateValueNotEquate(false);
 
     //danmakuController?.clear();
   }
 
   void toggleWindowFullScreen() {
     // disable locked
-    showLocked.value = false;
+    showLocked.updateValueNotEquate(false);
     // fix danmaku overlap bug
     if (!settings.hideDanmaku.value) {
-      settings.hideDanmaku.value = true;
+      settings.hideDanmaku.updateValueNotEquate(true);
       Timer(const Duration(milliseconds: 500), () {
-        settings.hideDanmaku.value = false;
+        settings.hideDanmaku.updateValueNotEquate(false);
       });
     }
     // fix obx setstate when build

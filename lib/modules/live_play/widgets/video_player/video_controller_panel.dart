@@ -491,20 +491,22 @@ class _BatteryInfoState extends State<BatteryInfo> {
       child: Container(
         width: 35,
         height: 15,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.4),
           border: Border.all(color: Colors.white),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Center(
-          child: Obx(() => Text(
+        child: /*Center(
+          child:*/ Obx(() => Text(
                 '${widget.controller.batteryLevel.value}',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 9,
                     decoration: TextDecoration.none),
               )),
-        ),
+        // ),
       ),
     );
   }

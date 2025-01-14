@@ -85,7 +85,7 @@ class LivePlayController extends StateController {
   var isFirstLoad = true.obs;
 
   /// 是否在加载视频
-  var isLoadingVideo = true.obs;
+  var isLoadingVideo = false.obs;
 
   // 0 代表向上 1 代表向下
   int isNextOrPrev = 0;
@@ -142,7 +142,7 @@ class LivePlayController extends StateController {
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       // 亮度重置,桌面平台可能会报错,暂时不处理桌面平台的亮度
       try {
-        await videoController?.brightnessController.resetScreenBrightness();
+        await videoController?.brightnessController.resetApplicationScreenBrightness();
       } catch (e) {
         CoreLog.error(e);
       }
@@ -162,11 +162,11 @@ class LivePlayController extends StateController {
 
     //关闭并清除弹幕
     if (videoController?.videoPlayer.isPipMode.value == true) {
-      videoController?.settings.hideDanmaku.value = true;
+      videoController?.settings.hideDanmaku.updateValueNotEquate(true);
     }
     videoController?.danmakuController.reset(0);
     // //关闭控制器
-    // showControlsState.value = false;
+    // showControlsState.updateValueNotEquate(false);
 
     //监听事件
     var isVertical = videoController?.videoPlayer.isVertical.value ?? false;
@@ -182,7 +182,7 @@ class LivePlayController extends StateController {
     subscriptionList.add(pip.pipStatus$.listen((event) {
       if (event == PiPStatus.disabled) {
         // danmakuController?.clear();
-        // showDanmakuState.value = danmakuStateBeforePIP;
+        // showDanmakuState.updateValueNotEquate(danmakuStateBeforePIP;
       }
       CoreLog.w(event.toString());
     }));
@@ -222,26 +222,26 @@ class LivePlayController extends StateController {
 
     liveRoomRx.updateByLiveRoom(room);
 
-    liveRoomRx.watching.value = liveRoomRx.watching.value ?? "0";
-    // detail.value = liveRoomRx;
-    isFavorite.value = settings.isFavorite(room);
+    liveRoomRx.watching.updateValueNotEquate(liveRoomRx.watching.value ?? "0");
+    // detail.updateValueNotEquate(liveRoomRx;
+    isFavorite.updateValueNotEquate(settings.isFavorite(room));
     onInitPlayerState(firstLoad: true);
     subscriptionList.add(isFirstLoad.listen((p0) {
       if (isFirstLoad.value) {
-        loadTimeOut.value = true;
+        loadTimeOut.updateValueNotEquate(true);
         Timer(const Duration(seconds: 8), () {
-          isFirstLoad.value = false;
-          loadTimeOut.value = false;
+          isFirstLoad.updateValueNotEquate(false);
+          loadTimeOut.updateValueNotEquate(false);
           Timer(const Duration(seconds: 5), () {
-            loadTimeOut.value = true;
+            loadTimeOut.updateValueNotEquate(true);
           });
         });
       } else {
         // 防止闪屏
         Timer(const Duration(seconds: 2), () {
-          loadTimeOut.value = false;
+          loadTimeOut.updateValueNotEquate(false);
           Timer(const Duration(seconds: 5), () {
-            loadTimeOut.value = true;
+            loadTimeOut.updateValueNotEquate(true);
           });
         });
       }
@@ -250,25 +250,23 @@ class LivePlayController extends StateController {
     subscriptionList.add(isLastLine.listen((p0) {
       if (isLastLine.value && hasError.value && isActive.value == false) {
         // 刷新到了最后一路线 并且有错误
-        SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...",
-            displayTime: const Duration(seconds: 1));
-        isLastLine.value = false;
-        isFirstLoad.value = true;
+        SmartDialog.showToast("当前房间无法播放,正在为您刷新直播间信息...", displayTime: const Duration(seconds: 1));
+        isLastLine.updateValueNotEquate(false);
+        isFirstLoad.updateValueNotEquate(true);
         restoryQualityAndLines();
-        resetRoom(Sites.of(liveRoomRx.platform.value!),
-            liveRoomRx.roomId.value!);
+        resetRoom(Sites.of(liveRoomRx.platform.value!), liveRoomRx.roomId.value!);
       } else {
         if (success.value) {
-          isActive.value = false;
+          isActive.updateValueNotEquate(false);
           loadRefreshRoomTimer?.cancel();
         }
       }
     }));
 
     subscriptionList.add(getVideoSuccess.listen((p0) {
-      isLoadingVideo.value = true;
+      isLoadingVideo.updateValueNotEquate(true);
       if (p0) {
-        isLoadingVideo.value = false;
+        isLoadingVideo.updateValueNotEquate(false);
       }
     }));
   }
@@ -283,20 +281,20 @@ class LivePlayController extends StateController {
     // liveRoom.roomId = roomId;
     // liveRoom.platform = site.id;
     liveRoomRx
-      ..roomId.value=roomId
-      ..platform.value=site.id;
+      ..roomId.value = roomId
+      ..platform.value = site.id;
 
-    success.value = false;
-    hasError.value = false;
+    success.updateValueNotEquate(false);
+    hasError.updateValueNotEquate(false);
     if (videoController != null && !videoController!.hasDestory) {
       await videoController?.destory();
       videoController = null;
     }
 
-    isFirstLoad.value = true;
-    getVideoSuccess.value = false;
-    loadTimeOut.value = false;
-    isLoadingVideo.value = true;
+    isFirstLoad.updateValueNotEquate(true);
+    getVideoSuccess.updateValueNotEquate(false);
+    loadTimeOut.updateValueNotEquate(false);
+    isLoadingVideo.updateValueNotEquate(true);
     Timer(const Duration(milliseconds: 100), () {
       // log('resetRoom', name: 'LivePlayController');
       CoreLog.d('resetRoom');
@@ -310,9 +308,9 @@ class LivePlayController extends StateController {
     bool active = false,
     bool firstLoad = false,
   }) async {
-    isActive.value = active;
-    isFirstLoad.value = firstLoad;
-    isLoadingVideo.value = true;
+    isActive.updateValueNotEquate(active);
+    isFirstLoad.updateValueNotEquate(firstLoad);
+    isLoadingVideo.updateValueNotEquate(true);
     var liveRoom = liveRoomRx.toLiveRoom();
     // 只有第一次需要重新配置信息
     if (isFirstLoad.value) {
@@ -322,52 +320,47 @@ class LivePlayController extends StateController {
         title: liveRoom.title!,
         nick: liveRoom.nick!,
       );
-      isFavorite.value = settings.isFavorite(liveRoom);
+      isFavorite.updateValueNotEquate(settings.isFavorite(liveRoom));
       liveRoomRx.updateByLiveRoom(liveRoom);
       // liveRoomRx = liveRoom;
       // liveRoomRx.data = liveRoom.data;
     }
-    isLastLine.value =
-        calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
+    isLastLine.updateValueNotEquate(calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine);
     if (isLastLine.value) {
-      hasError.value = true;
+      hasError.updateValueNotEquate(true);
     } else {
-      hasError.value = false;
+      hasError.updateValueNotEquate(false);
     }
     // active 代表用户是否手动切换路线 只有不是手动自动切换才会显示路线错误信息
     if (isLastLine.value && hasError.value && active == false) {
       restoryQualityAndLines();
-      getVideoSuccess.value = false;
-      isFirstLoad.value = false;
-      success.value = false;
+      getVideoSuccess.updateValueNotEquate(false);
+      isFirstLoad.updateValueNotEquate(false);
+      success.updateValueNotEquate(false);
       return liveRoom;
     } else {
-      handleCurrentLineAndQuality(
-          reloadDataType: reloadDataType, line: line, active: active);
-      // detail.value = liveRoom;
-      liveRoomRx.watching.value = liveRoom.watching ?? "0";
+      handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, active: active);
+      // detail.updateValueNotEquate(liveRoom;
+      liveRoomRx.watching.updateValueNotEquate(liveRoom.watching ?? "0");
       if (liveRoom.liveStatus == LiveStatus.unknown) {
-        SmartDialog.showToast("获取直播间信息失败,请按重新获取",
-            displayTime: const Duration(seconds: 2));
-        getVideoSuccess.value = false;
-        isFirstLoad.value = false;
+        SmartDialog.showToast("获取直播间信息失败,请按重新获取", displayTime: const Duration(seconds: 2));
+        getVideoSuccess.updateValueNotEquate(false);
+        isFirstLoad.updateValueNotEquate(false);
         return liveRoom;
       }
 
       // 开始播放
-      liveStatus.value = liveRoomRx.liveStatus.value != LiveStatus.unknown &&
-          liveRoomRx.liveStatus.value != LiveStatus.offline;
+      liveStatus.updateValueNotEquate(liveRoomRx.liveStatus.value != LiveStatus.unknown && liveRoomRx.liveStatus.value != LiveStatus.offline);
       if (liveStatus.value) {
         await getPlayQualites();
-        getVideoSuccess.value = true;
+        getVideoSuccess.updateValueNotEquate(true);
         if (liveRoomRx.platform.value == Sites.iptvSite) {
           settings.addRoomToHistory(liveRoomRx.toLiveRoom());
         } else {
           settings.addRoomToHistory(liveRoom);
 
           // 更新录播观看人数信息
-          if((liveRoom.liveStatus == LiveStatus.live && liveRoom.isRecord == true)
-              || liveRoom.liveStatus == LiveStatus.replay) {
+          if ((liveRoom.liveStatus == LiveStatus.live && liveRoom.isRecord == true) || liveRoom.liveStatus == LiveStatus.replay) {
             liveRoom.liveStatus = LiveStatus.replay;
             liveRoom.recordWatching = liveRoom.watching;
           }
@@ -380,10 +373,7 @@ class LivePlayController extends StateController {
         // start danmaku server
         List<String> except = ['iptv'];
         // 重新刷新才重新加载弹幕
-        if (firstLoad &&
-            except.indexWhere((element) => element == liveRoom.platform!) ==
-                -1 &&
-            liveRoom.danmakuData != null) {
+        if (firstLoad && except.indexWhere((element) => element == liveRoom.platform!) == -1 && liveRoom.danmakuData != null) {
           try {
             liveDanmaku.stop();
           } catch (e) {
@@ -394,11 +384,11 @@ class LivePlayController extends StateController {
           liveDanmaku.start(liveRoom.danmakuData);
         }
       } else {
-        isFirstLoad.value = false;
-        success.value = false;
-        getVideoSuccess.value = true;
-        SmartDialog.showToast("当前主播未开播或主播已下播",
-            displayTime: const Duration(seconds: 2));
+        isFirstLoad.updateValueNotEquate(false);
+        success.updateValueNotEquate(false);
+        getVideoSuccess.updateValueNotEquate(true);
+        isLoadingVideo.updateValueNotEquate(false);
+        SmartDialog.showToast("当前主播未开播或主播已下播", displayTime: const Duration(seconds: 2));
         messages.add(
           LiveMessage(
             type: LiveMessageType.chat,
@@ -429,12 +419,11 @@ class LivePlayController extends StateController {
   }
 
   disPoserPlayer() {
-    ListenListUtil.clearStreamSubscriptionList(
-        subscriptionList.where((e) => e != null).map((e) => e!).toList());
+    ListenListUtil.clearStreamSubscriptionList(subscriptionList.where((e) => e != null).map((e) => e!).toList());
     videoController?.dispose();
     videoController = null;
     liveDanmaku.stop();
-    success.value = false;
+    success.updateValueNotEquate(false);
     resetSystem();
   }
 
@@ -445,30 +434,29 @@ class LivePlayController extends StateController {
   }) {
     if (reloadDataType == ReloadDataType.changeLine && active == false) {
       if (line == playUrls.length - 1) {
-        currentLineIndex.value = 0;
+        currentLineIndex.updateValueNotEquate(0);
       } else {
-        currentLineIndex.value = currentLineIndex.value + 1;
+        currentLineIndex.updateValueNotEquate(currentLineIndex.value + 1);
       }
       loopCount++;
-      isFirstLoad.value = false;
+      isFirstLoad.updateValueNotEquate(false);
     }
   }
 
   restoryQualityAndLines() {
-    // playUrls.value = [];
-    currentLineIndex.value = 0;
-    // qualites.value = [];
+    // playUrls.updateValueNotEquate([];
+    currentLineIndex.updateValueNotEquate(0);
+    // qualites.updateValueNotEquate([];
     loopCount = 0;
-    currentQuality.value = 0;
+    currentQuality.updateValueNotEquate(0);
   }
 
   /// 是否显示弹幕
-  bool isShowDanmau(LiveMessage msg){
-
+  bool isShowDanmau(LiveMessage msg) {
     /// 彩色弹幕
-    if(settings.showColourDanmaku.value) {
+    if (settings.showColourDanmaku.value) {
       bool isShowColour = msg.color != Colors.white;
-      if(!isShowColour) {
+      if (!isShowColour) {
         return false;
       }
     }
@@ -476,8 +464,8 @@ class LivePlayController extends StateController {
 
     /// 用户等级
     var filterDanmuUserLevel = settings.filterDanmuUserLevel.value.toInt();
-    if(filterDanmuUserLevel > 0 && msg.userLevel.isNotNullOrEmpty) {
-      if(filterDanmuUserLevel > (int.parse(msg.userLevel))) {
+    if (filterDanmuUserLevel > 0 && msg.userLevel.isNotNullOrEmpty) {
+      if (filterDanmuUserLevel > (int.parse(msg.userLevel))) {
         return false;
       }
     }
@@ -485,8 +473,8 @@ class LivePlayController extends StateController {
 
     /// 粉丝等级
     var filterDanmuFansLevel = settings.filterDanmuFansLevel.value.toInt();
-    if(filterDanmuFansLevel > 0 && msg.fansLevel.isNotNullOrEmpty) {
-      if(filterDanmuFansLevel > (int.parse(msg.fansLevel))) {
+    if (filterDanmuFansLevel > 0 && msg.fansLevel.isNotNullOrEmpty) {
+      if (filterDanmuFansLevel > (int.parse(msg.fansLevel))) {
         return false;
       }
     }
@@ -495,7 +483,7 @@ class LivePlayController extends StateController {
 
     /// 不在黑名单
     bool isNotInShieldList = settings.shieldList.every((element) => !msg.message.contains(element));
-    if(!isNotInShieldList) {
+    if (!isNotInShieldList) {
       return false;
     }
 
@@ -531,25 +519,22 @@ class LivePlayController extends StateController {
     );
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
-
         var isShow = isShowDanmau(msg);
         // CoreLog.d("isShow:$isShow  msg:${msg.fansLevel} ${msg.fansName}");
         if (isShow) {
-            DanmuMerge().add(msg.message);
-            messages.add(msg);
-            if (videoController != null &&
-                videoController!.hasDestory == false) {
-              videoController?.sendDanmaku(msg);
-            }
+          DanmuMerge().add(msg.message);
+          messages.add(msg);
+          if (videoController != null && videoController!.hasDestory == false) {
+            videoController?.sendDanmaku(msg);
           }
-
+        }
       } else if (msg.type == LiveMessageType.online) {
         /// 在线人数
         var onlineNum = msg.data as int;
         var numStr = onlineNum.toString();
         // CoreLog.d(online.toString());
         if (liveRoomRx.watching.value != numStr) {
-          liveRoomRx.watching.value = onlineNum.toString();
+          liveRoomRx.watching.updateValueNotEquate(onlineNum.toString());
           // liveRoomRx.watching = online.toString();
           // liveRoomRx.watching = online.toString();
         }
@@ -581,15 +566,14 @@ class LivePlayController extends StateController {
   void setResolution(String quality, String index) {
     CoreLog.d("setResolution");
     CoreLog.d("quality: $quality \t index: $index");
-    isLoadingVideo.value = true;
+    isLoadingVideo.updateValueNotEquate(true);
     if (videoController != null && videoController!.hasDestory == false) {
       // videoController!.destory();
       videoController!.pause();
     }
 
-    currentQuality.value =
-        qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
-    currentLineIndex.value = int.tryParse(index) ?? 0;
+    currentQuality.updateValueNotEquate(qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality));
+    currentLineIndex.updateValueNotEquate(int.tryParse(index) ?? 0);
     onInitPlayerState(
       reloadDataType: ReloadDataType.changeLine,
       line: currentLineIndex.value,
@@ -603,22 +587,19 @@ class LivePlayController extends StateController {
     try {
       var playQualites = qualites.value;
       if (isFirstLoad.value) {
-        playQualites =
-            await currentSite.liveSite.getPlayQualites(detail: liveRoomRx.toLiveRoom());
+        playQualites = await currentSite.liveSite.getPlayQualites(detail: liveRoomRx.toLiveRoom());
       }
       if (playQualites.isEmpty) {
-        SmartDialog.showToast("无法读取视频信息,请重新获取",
-            displayTime: const Duration(seconds: 2));
-        getVideoSuccess.value = false;
-        isFirstLoad.value = false;
-        success.value = false;
+        SmartDialog.showToast("无法读取视频信息,请重新获取", displayTime: const Duration(seconds: 2));
+        getVideoSuccess.updateValueNotEquate(false);
+        isFirstLoad.updateValueNotEquate(false);
+        success.updateValueNotEquate(false);
         return;
       }
       qualites.value = playQualites;
       // 第一次加载 使用系统默认线路
       if (isFirstLoad.value) {
-        int qualityLevel =
-            settings.resolutionsList.indexOf(settings.preferResolution.value);
+        int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
         qualityLevel = math.max(0, qualityLevel);
         qualityLevel = math.min(playQualites.length - 1, qualityLevel);
 
@@ -630,16 +611,16 @@ class LivePlayController extends StateController {
             break;
           }
         }
-        currentQuality.value = qualityLevel;
+        currentQuality.updateValueNotEquate(qualityLevel);
       }
-      isFirstLoad.value = false;
+      isFirstLoad.updateValueNotEquate(false);
       getPlayUrl();
     } catch (e) {
       CoreLog.error(e);
       SmartDialog.showToast("无法读取视频信息,请重新获取");
-      getVideoSuccess.value = false;
-      isFirstLoad.value = false;
-      success.value = false;
+      getVideoSuccess.updateValueNotEquate(false);
+      isFirstLoad.updateValueNotEquate(false);
+      success.updateValueNotEquate(false);
     }
   }
 
@@ -647,16 +628,14 @@ class LivePlayController extends StateController {
     var quality = qualites[currentQuality.value];
     var playUrlList = quality.playUrlList;
     if (playUrlList.isNullOrEmpty) {
-      playUrlList = await currentSite.liveSite.getPlayUrls(
-          detail: liveRoomRx.toLiveRoom(), quality: qualites[currentQuality.value]);
+      playUrlList = await currentSite.liveSite.getPlayUrls(detail: liveRoomRx.toLiveRoom(), quality: qualites[currentQuality.value]);
       quality.playUrlList = playUrlList;
     }
     if (playUrlList.isNullOrEmpty) {
-      SmartDialog.showToast("无法读取播放地址,请重新获取",
-          displayTime: const Duration(seconds: 2));
-      getVideoSuccess.value = false;
-      isFirstLoad.value = false;
-      success.value = false;
+      SmartDialog.showToast("无法读取播放地址,请重新获取", displayTime: const Duration(seconds: 2));
+      getVideoSuccess.updateValueNotEquate(false);
+      isFirstLoad.updateValueNotEquate(false);
+      success.updateValueNotEquate(false);
       return;
     }
     playUrls.value = playUrlList;
@@ -667,34 +646,9 @@ class LivePlayController extends StateController {
   Map<String, String> getUrlHeaders() {
     Map<String, String> headers = {};
     if (currentSite.id == Sites.bilibiliSite) {
-      headers = {
-        "cookie": settings.bilibiliCookie.value,
-        "authority": "api.bilibili.com",
-        "accept":
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "accept-language": "zh-CN,zh;q=0.9",
-        "cache-control": "no-cache",
-        "dnt": "1",
-        "pragma": "no-cache",
-        "sec-ch-ua":
-            '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"macOS"',
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "none",
-        "sec-fetch-user": "?1",
-        "upgrade-insecure-requests": "1",
-        "user-agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "referer": "https://live.bilibili.com"
-      };
+      headers = {"cookie": settings.bilibiliCookie.value, "authority": "api.bilibili.com", "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", "accept-language": "zh-CN,zh;q=0.9", "cache-control": "no-cache", "dnt": "1", "pragma": "no-cache", "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"', "sec-ch-ua-mobile": "?0", "sec-ch-ua-platform": '"macOS"', "sec-fetch-dest": "document", "sec-fetch-mode": "navigate", "sec-fetch-site": "none", "sec-fetch-user": "?1", "upgrade-insecure-requests": "1", "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36", "referer": "https://live.bilibili.com"};
     } else if (currentSite.id == Sites.huyaSite) {
-      headers = {
-        "Referer": "https://m.huya.com",
-        "User-Agent":
-          "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/130.0.0.0"
-      };
+      headers = {"Referer": "https://m.huya.com", "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/130.0.0.0"};
     }
     return headers;
   }
@@ -728,8 +682,7 @@ class LivePlayController extends StateController {
         currentLineIndex: currentLineIndex.value,
         currentQuality: currentQuality.value,
       );
-      subscriptionList
-          .add(videoController?.videoPlayer.isFullscreen.listen((e) {
+      subscriptionList.add(videoController?.videoPlayer.isFullscreen.listen((e) {
         isFullscreen.updateValueNotEquate(e);
       }));
     } else {
@@ -737,8 +690,7 @@ class LivePlayController extends StateController {
       videoController?.qualiteName = qualites[currentQuality.value].quality;
       videoController?.currentLineIndex = currentLineIndex.value;
       videoController?.currentQuality = currentQuality.value;
-      videoController?.setDataSource(
-          playUrls.value[currentLineIndex.value], headers);
+      videoController?.setDataSource(playUrls.value[currentLineIndex.value], headers);
       // videoController?.initVideoController();
       // videoController?.play();
     }
@@ -747,18 +699,16 @@ class LivePlayController extends StateController {
     videoController?.qualiteName = qualites[currentQuality.value].quality;
     videoController?.currentLineIndex = currentLineIndex.value;
     videoController?.currentQuality = currentQuality.value;
-    videoController?.setDataSource(
-        playUrls.value[currentLineIndex.value], headers);
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value], headers);
 
-    success.value = true;
+    success.updateValueNotEquate(true);
 
     networkTimer?.cancel();
     networkTimer = Timer(const Duration(seconds: 10), () async {
       if (videoController != null && videoController!.hasDestory == false) {
         final connectivityResults = await Connectivity().checkConnectivity();
         if (!connectivityResults.contains(ConnectivityResult.none)) {
-          if (videoController?.isActivePause.value != true &&
-              videoController?.videoPlayer.isPlaying.value != true) {
+          if (videoController?.isActivePause.value != true && videoController?.videoPlayer.isPlaying.value != true) {
             CoreLog.d("videoController refresh");
             videoController!.refresh();
           }
@@ -779,21 +729,17 @@ class LivePlayController extends StateController {
       webUrl = "https://live.douyin.com/${args.webRid}";
     } else if (site == Sites.huyaSite) {
       var args = liveRoomRx.danmakuData as HuyaDanmakuArgs;
-      naviteUrl =
-          "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
+      naviteUrl = "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
       webUrl = "https://www.huya.com/${liveRoomRx.roomId}";
     } else if (site == Sites.douyuSite) {
-      naviteUrl =
-          "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${liveRoomRx.roomId}";
+      naviteUrl = "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${liveRoomRx.roomId}";
       webUrl = "https://www.douyu.com/${liveRoomRx.roomId}";
     } else if (site == Sites.ccSite) {
       CoreLog.d("cc_user_id :${liveRoomRx.userId.toString()}");
-      naviteUrl =
-          "cc://join-room/${liveRoomRx.roomId}/${liveRoomRx.userId}/";
+      naviteUrl = "cc://join-room/${liveRoomRx.roomId}/${liveRoomRx.userId}/";
       webUrl = "https://cc.163.com/${liveRoomRx.roomId}";
     } else if (site == Sites.kuaishouSite) {
-      naviteUrl =
-          "kwai://liveaggregatesquare?liveStreamId=${liveRoomRx.link}&recoStreamId=${liveRoomRx.link}&recoLiveStreamId=${liveRoomRx.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
+      naviteUrl = "kwai://liveaggregatesquare?liveStreamId=${liveRoomRx.link}&recoStreamId=${liveRoomRx.link}&recoLiveStreamId=${liveRoomRx.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
       webUrl = "https://live.kuaishou.com/u/${liveRoomRx.roomId}";
     }
     try {
