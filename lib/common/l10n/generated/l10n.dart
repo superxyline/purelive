@@ -1851,13 +1851,13 @@ class S {
     );
   }
 
-  /// `{num} keywords have been added (click to remove)`
-  String danmu_filter_keyword_add_info(Object num) {
+  /// `{number} keywords have been added (click to remove)`
+  String danmu_filter_keyword_add_info(Object number) {
     return Intl.message(
-      '$num keywords have been added (click to remove)',
+      '$number keywords have been added (click to remove)',
       name: 'danmu_filter_keyword_add_info',
       desc: '',
-      args: [num],
+      args: [number],
     );
   }
 

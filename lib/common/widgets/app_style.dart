@@ -45,7 +45,7 @@ class AppStyle {
     //   unselectedLabelColor: Colors.white70,
     //   indicatorSize: TabBarIndicatorSize.tab,
     //   indicator: RectangularIndicator(
-    //     color: Colors.white.withOpacity(.8),
+    //     color: Colors.white.withValues(alpha: .8),
     //     topLeftRadius: 24,
     //     bottomLeftRadius: 24,
     //     topRightRadius: 24,
@@ -82,7 +82,7 @@ class AppStyle {
     //   labelColor: AppColors.darkColorScheme.primary,
     //   unselectedLabelColor: Colors.white70,
     //   indicator: RectangularIndicator(
-    //     color: Colors.white.withOpacity(.2),
+    //     color: Colors.white.withValues(alpha: .2),
     //     topLeftRadius: 24,
     //     bottomLeftRadius: 24,
     //     topRightRadius: 24,
@@ -196,6 +196,6 @@ class AppStyle {
         thickness: 1,
         indent: 16,
         endIndent: 16,
-        color: Colors.grey.withOpacity(.1),
+        color: Colors.grey.withValues(alpha: .1),
       );
 }

@@ -107,7 +107,7 @@ class CacheNetWorkUtils {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
             return ExtendedImage.asset(
-              enableMemoryCache: true,
+              clearMemoryCacheWhenDispose: true,
               "assets/images/loading.gif",
               fit: BoxFit.fitWidth,
             );

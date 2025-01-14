@@ -217,7 +217,7 @@
     "danmu_filter_keyword": "弹幕关键词屏蔽",
     "keyword_input": "请输入关键词",
     "add": "添加",
-    "danmu_filter_keyword_add_info": "已添加{num}个关键词（点击移除）",
+    "danmu_filter_keyword_add_info": "已添加{number}个关键词（点击移除）",
 
     "platform_settings": "平台设置",
     "platform_settings_info": "自定义观看喜爱的平台",
@@ -245,7 +245,6 @@
     "bilibili":"哔哩哔哩",
     "cc":"网易CC",
     "douyin":"抖音",
-    "douyu":"斗鱼",
     "douyu":"斗鱼",
     "huya":"虎牙",
     "kuaishou":"快手",

@@ -218,7 +218,7 @@
     "danmu_filter_keyword": "Bullet screen keyword blocking",
     "keyword_input": "Please enter keywords",
     "add": "Add",
-    "danmu_filter_keyword_add_info": "{num} keywords have been added (click to remove)",
+    "danmu_filter_keyword_add_info": "{number} keywords have been added (click to remove)",
 
     "platform_settings": "Platform Settings",
     "platform_settings_info": "Customize your favorite viewing platforms",

@@ -12,7 +12,7 @@ class SiteWidget {
               e.logo,
               width: 22,
               cacheRawData: true,
-              enableMemoryCache: true,
+              clearMemoryCacheWhenDispose: true,
             )))
         .toList();
     var map = Map.fromEntries(list);
@@ -20,7 +20,7 @@ class SiteWidget {
       Sites.allLiveSite.logo,
       width: 22,
       cacheRawData: true,
-      enableMemoryCache: true,
+      clearMemoryCacheWhenDispose: true,
     );
     return map;
   }

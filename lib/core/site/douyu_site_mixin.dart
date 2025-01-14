@@ -77,8 +77,8 @@ mixin DouyuSiteMixin on SiteAccount {
       // }
       /// error -2 msg "客户端还未扫码"
       /// error -1 msg "code不存在或者是已经过期"
-      CoreLog.d("response: ${response}");
-      var data = response.data["data"];
+      CoreLog.d("response: $response");
+      // var data = response.data["data"];
       var code = response.data["error"];
       if (code == 0) {
         var cookies = <String>[];

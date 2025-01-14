@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:html_unescape/html_unescape.dart';
-import 'package:intl/intl.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
@@ -548,13 +547,13 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
       }
 
       List<LiveRoom> rsList = [];
-      DateTime now = DateTime.now();
+      // DateTime now = DateTime.now();
 
       // 格式化日期为 "年月日" 240917
-      String formattedDate = DateFormat('yyMMdd').format(now);
+      // String formattedDate = DateFormat('yyMMdd').format(now);
 
       /// https://rpic.douyucdn.cn/asrpic/240917/9999_src_1453.avif/dy1
-      RegExp exp = RegExp(r'/asrpic/(\d{6})/');
+      // RegExp exp = RegExp(r'/asrpic/(\d{6})/');
 
       for (var roomInfo in roomList) {
         var isLiving = roomInfo["show_status"] == 1;

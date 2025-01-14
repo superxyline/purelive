@@ -85,7 +85,7 @@ mixin HuyaSiteMixin on SiteAccount {
   @override
   Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async {
     try {
-      var milliseconds = DateTime.now().millisecondsSinceEpoch;
+      // var milliseconds = DateTime.now().millisecondsSinceEpoch;
       var response = await HttpClient.instance
           .postJson("https://udblgn.huya.com/qrLgn/tryQrLogin",
            queryParameters: {"uri":"70003","version":"2.6","context":"WB-58916e5b37344847bb1e992697fab1d0-CAEA8C3B19D00001867416302D4D1A06-0a7db71f78dff9667001473048303f3d","appId":"5002","appSign":"1ce3bf682483d03f146f58232ec10635","authId":"","sdid":"0UnHUgv0_qmfD4KAKlwzhqZsHXvm4vLFryBc-n8pgX2AFXa8OP8eAbEAn4uaK4tX6xLV5iPDs18bgLfmm9W7t7aaP-ya6EOTIx0jAeaKPRUXWVkn9LtfFJw_Qo4kgKr8OZHDqNnuwg612sGyflFn1dlDml87FNjrVrYPzfR4qgh-nojBVXkQR-6PcXF4Egs16","lcid":"2052","byPass":"3","requestId":"54449589","data":{"qrId":"doOvYRrvpvvuYqDVEa","remember":"1","domainList":"","behavior":"%7B%22furl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fkasha233%22%2C%22curl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fg%22%2C%22user_action%22%3A%5B%5D%7D","page":"https%3A%2F%2Fwww.huya.com%2"}},
@@ -97,7 +97,7 @@ mixin HuyaSiteMixin on SiteAccount {
       // }
       /// error -2 msg "客户端还未扫码"
       /// error -1 msg "code不存在或者是已经过期"
-      CoreLog.d("response: ${response}");
+      CoreLog.d("response: $response");
       /// {
       //     "uri": 70004,
       //     "version": null,
@@ -113,9 +113,9 @@ mixin HuyaSiteMixin on SiteAccount {
       //         "domainUrlList": null
       //     }
       // }
-      var data = response.data["data"];
+      // var data = response.data["data"];
       var code = response.data["returnCode"];
-      var message = response.data["message"];
+      // var message = response.data["message"];
       if (code == 0) {
         var cookies = <String>[];
         response.headers["set-cookie"]?.forEach((element) {

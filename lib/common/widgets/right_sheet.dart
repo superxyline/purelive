@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:pure_live/core/common/core_log.dart';
 
 Future<T?> showModalRightSheet<T>({
   required BuildContext context,

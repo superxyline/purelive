@@ -69,7 +69,7 @@ class HorizontalListState<T> extends State<HorizontalList<T>> {
       isScrollable: true,
       indicatorSize: TabBarIndicatorSize.tab,
       indicator: BoxDecoration(
-        color: Colors.white.withOpacity(0.4),
+        color: Colors.white.withValues(alpha: 0.4),
         border: Border.all(color: Colors.black26),
         borderRadius: BorderRadius.circular(4),
         gradient: LinearGradient(

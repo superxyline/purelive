@@ -481,8 +481,8 @@ class SettingsService extends GetxController {
         newLiveRoom.isRecord = true;
       }
     }
-    CoreLog.d(jsonEncode(newLiveRoom));
-    CoreLog.d(jsonEncode(oldLiveRoom));
+    // CoreLog.d(jsonEncode(newLiveRoom));
+    // CoreLog.d(jsonEncode(oldLiveRoom));
     return newLiveRoom;
   }
 

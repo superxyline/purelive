@@ -20,7 +20,7 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_CN';
 
-  static String m0(num) => "已添加${num}个关键词（点击移除）";
+  static String m0(number) => "已添加${number}个关键词（点击移除）";
 
   static String m1(level) => "相似度大于${level}%的弹幕会被合并";
 

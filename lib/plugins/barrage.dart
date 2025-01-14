@@ -324,7 +324,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
       return Stack(fit: StackFit.expand, children: <Widget>[
         widget.debug
             ? Container(
-                color: Colors.lightBlueAccent.withOpacity(0.7),
+                color: Colors.lightBlueAccent.withValues(alpha: 0.7),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,

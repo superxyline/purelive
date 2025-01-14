@@ -71,7 +71,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                           width: 0,
                           style: BorderStyle.none,
                           strokeAlign: 0,
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                         ),
                         textStyle: Theme.of(Get.context!).textTheme.labelSmall,
                         shape: RoundedRectangleBorder(
@@ -79,7 +79,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                             width: 0,
                             style: BorderStyle.none,
                             strokeAlign: 0,
-                            color: Colors.grey.withOpacity(0.1),
+                            color: Colors.grey.withValues(alpha: 0.1),
                           ),
                           borderRadius: BorderRadius.circular(8),
                         )),

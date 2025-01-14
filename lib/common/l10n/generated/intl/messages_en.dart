@@ -20,7 +20,8 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(num) => "${num} keywords have been added (click to remove)";
+  static String m0(number) =>
+      "${number} keywords have been added (click to remove)";
 
   static String m1(level) =>
       "The barrage of comments with a similarity greater than ${level}% will be merged";

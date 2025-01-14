@@ -98,7 +98,7 @@ class PageGridView extends StatelessWidget {
               child: Center(
                 child: IconButton(
                   style: IconButton.styleFrom(
-                    backgroundColor: Get.theme.cardColor.withOpacity(.8),
+                    backgroundColor: Get.theme.cardColor.withValues(alpha: .8),
                     elevation: 4,
                   ),
                   onPressed: () {
