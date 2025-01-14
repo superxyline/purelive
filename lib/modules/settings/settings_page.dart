@@ -7,6 +7,7 @@ import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/settings/danmuset.dart';
+import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/modules/util/time_util.dart';
 import 'package:pure_live/plugins/cache_to_file.dart';
@@ -526,9 +527,13 @@ class SettingsPage extends GetView<SettingsService> {
   /// 缓存管理
   static Future<void> showCacheManageSetDialog() async {
     // var controller = Get.find<SettingsService>();
-    var cacheDirectorySize = await CustomCache.instance.getCacheDirectorySize();
-    var imageCacheDirectorySize = await CustomCache.instance.getImageCacheDirectorySize();
-    var areaCacheDirectorySize = await CustomCache.instance.getAreaCacheDirectorySize();
+    var cacheDirectorySize = "0 B".obs;
+    CustomCache.instance.getCacheDirectorySize().then((value) => cacheDirectorySize.updateValueNotEquate(value));
+    var imageCacheDirectorySize = "0 B".obs;
+    CustomCache.instance.getImageCacheDirectorySize().then((value) => imageCacheDirectorySize.updateValueNotEquate(value));
+    var areaCacheDirectorySize = "0 B".obs;
+    CustomCache.instance.getAreaCacheDirectorySize().then((value) => areaCacheDirectorySize.updateValueNotEquate(value));
+
     Utils.showRightOrBottomSheet(
       title: S.of(Get.context!).cache_manage,
       child: Column(
@@ -537,7 +542,7 @@ class SettingsPage extends GetView<SettingsService> {
           ListTile(
             leading: const Icon(Icons.cleaning_services_outlined),
             title: Text(S.of(Get.context!).cache_manage_clear_all),
-            subtitle: Text(cacheDirectorySize),
+            subtitle: Obx(() => Text(cacheDirectorySize.value)),
             onTap: () async {
               var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_all);
               if (result) {
@@ -548,7 +553,7 @@ class SettingsPage extends GetView<SettingsService> {
           ListTile(
             leading: const Icon(Icons.cleaning_services_outlined),
             title: Text(S.of(Get.context!).cache_manage_clear_image),
-            subtitle: Text(imageCacheDirectorySize),
+            subtitle: Obx(() => Text(imageCacheDirectorySize.value)),
             onTap: () async {
               var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_image);
               if (result) {
@@ -560,7 +565,7 @@ class SettingsPage extends GetView<SettingsService> {
             leading: const Icon(Icons.cleaning_services_outlined),
             title: Text(S.of(Get.context!).cache_manage_clear_area),
             // subtitle: Text(areaCacheDirectorySize),
-            subtitle: Text(areaCacheDirectorySize),
+            subtitle: Obx(() => Text(areaCacheDirectorySize.value)),
             onTap: () async {
               var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_area);
               if (result) {

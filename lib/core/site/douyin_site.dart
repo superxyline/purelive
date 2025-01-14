@@ -45,7 +45,7 @@ class DouyinSite extends LiveSite {
       if (headers.containsKey("cookie")) {
         return headers;
       }
-      var head = await HttpClient.instance.head("https://live.douyin.com", header: headers);
+      var head = await HttpClient.instance.get("https://live.douyin.com", header: headers);
       head.headers["set-cookie"]?.forEach((element) {
         var cookie = element.split(";")[0];
         if (cookie.contains("ttwid")) {
