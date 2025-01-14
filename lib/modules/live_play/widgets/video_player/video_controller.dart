@@ -266,7 +266,7 @@ class VideoController with ChangeNotifier {
   /// 重置屏幕亮度
   Future<void> resetScreenBrightness() async {
     try {
-      await brightnessController.resetScreenBrightness();
+      await brightnessController.resetApplicationScreenBrightness();
     }catch(e){
       // CoreLog.error(e);
     }
@@ -534,6 +534,7 @@ class VideoController with ChangeNotifier {
   }
 
   void toggleWindowFullScreen() {
+    windowManager.setAlwaysOnTop(!videoPlayer.isWindowFullscreen.value);
     // disable locked
     showLocked.updateValueNotEquate(false);
     // fix danmaku overlap bug
@@ -548,7 +549,7 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(milliseconds: 500), () {
       enableController();
     });
-
+    /// 是否 窗口全屏
     videoPlayer.toggleWindowFullScreen();
     enableController();
     refreshView();
@@ -580,7 +581,7 @@ class VideoController with ChangeNotifier {
 
   /// 获取亮度
   Future<double> brightness() async {
-    return await brightnessController.current;
+    return await brightnessController.application;
   }
 
   /// 设置亮度

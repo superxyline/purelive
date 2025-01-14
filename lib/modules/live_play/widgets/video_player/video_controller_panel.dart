@@ -648,8 +648,8 @@ class BrightnessVolumeDargAreaState extends State<BrightnessVolumeDargArea> {
     // fix darg left change to switch bug
     final width = MediaQuery.of(context).size.width;
     final dargLeft = (position.dx > (width / 2)) ? false : true;
-    // disable windows brightness
-    if (Platform.isWindows && dargLeft) return;
+    // disable linux brightness
+    // if ((Platform.isLinux || Platform.isFuchsia) && dargLeft) return;
     if (_hideBVStuff || _isDargLeft != dargLeft) {
       _isDargLeft = dargLeft;
       if (_isDargLeft) {
@@ -718,7 +718,7 @@ class BrightnessVolumeDargAreaState extends State<BrightnessVolumeDargArea> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Icon(iconData, color: Colors.white),
+                    Icon(iconData, textDirection: TextDirection.ltr, color: Colors.white),
                     Padding(
                       padding: const EdgeInsets.only(left: 8, right: 4),
                       child: ClipRRect(

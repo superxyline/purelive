@@ -283,11 +283,6 @@ class FvpVideoPlay extends VideoPlayerInterFace {
   }
 
   @override
-  Future<void> toggleWindowFullScreen() async {
-    return toggleFullScreen();
-  }
-
-  @override
   Future<void> togglePlayPause() async {
     chewieController.value.togglePause();
   }

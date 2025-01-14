@@ -128,7 +128,7 @@ class _RoomGridView extends GetView<FavoriteController> {
         controller: refreshController,
         onRefresh: onRefresh,
         onLoad: () {
-          refreshController.finishLoad(IndicatorResult.success);
+          refreshController.finishLoad(IndicatorResult.none);
         },
         child: () {
           // CoreLog.d("rebuild dataList");

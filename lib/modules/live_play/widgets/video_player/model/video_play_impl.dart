@@ -28,7 +28,21 @@ abstract class VideoPlayerInterFace {
 
   Future<void> toggleFullScreen();
 
-  Future<void> toggleWindowFullScreen();
+  Future<void> toggleWindowFullScreen() async {
+    if (Platform.isWindows || Platform.isLinux) {
+      if (!isWindowFullscreen.value) {
+        Get.to(() => DesktopFullscreen(
+          key: UniqueKey(),
+          widget: getVideoPlayerWidget(),
+        ));
+      } else {
+        Navigator.of(Get.context!).pop();
+      }
+      isWindowFullscreen.toggle();
+    } else {
+      throw UnimplementedError('Unsupported Platform');
+    }
+  }
 
   /// 设置视频填充
   void setVideoFit(BoxFit fit);
@@ -113,4 +127,26 @@ abstract class VideoPlayerInterFace {
 
   /// 获取 播放器全屏视图
   Widget getDesktopFullscreenWidget() => getVideoPlayerWidget();
+}
+
+class DesktopFullscreen extends StatelessWidget {
+  const DesktopFullscreen(
+      {super.key,
+        required this.widget});
+
+  final Widget widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          children: [
+            widget
+          ],
+        ),
+      ),
+    );
+  }
 }

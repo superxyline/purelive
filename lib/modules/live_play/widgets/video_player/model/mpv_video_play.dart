@@ -20,7 +20,7 @@ import 'video_play_impl.dart';
 class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
-  late final GlobalKey<media_kit_video.VideoState> key =
+  late GlobalKey<media_kit_video.VideoState> key =
       GlobalKey<media_kit_video.VideoState>();
 
   // Create a [Player] to control playback.
@@ -144,24 +144,6 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   }
 
   @override
-  Future<void> toggleWindowFullScreen() async {
-    if (Platform.isWindows || Platform.isLinux) {
-      if (!isWindowFullscreen.value) {
-        Get.to(() => DesktopFullscreen(
-              controller: controller,
-              key: UniqueKey(),
-              mediaPlayerController: mediaPlayerController,
-            ));
-      } else {
-        Navigator.of(Get.context!).pop();
-      }
-      isWindowFullscreen.toggle();
-    } else {
-      throw UnimplementedError('Unsupported Platform');
-    }
-  }
-
-  @override
   Future<void> openVideo(String datasource, Map<String, String> headers) async {
     CoreLog.d("play url: $datasource");
     // fix datasource empty error
@@ -205,8 +187,9 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
 
   @override
   Widget getVideoPlayerWidget() {
+    key = GlobalKey<media_kit_video.VideoState>();
     return Obx(() => media_kit_video.Video(
-          key: key,
+          key: (){ key = GlobalKey<media_kit_video.VideoState>(); return key; }(),
           controller: mediaPlayerController,
           pauseUponEnteringBackgroundMode: !settings.enableBackgroundPlay.value,
           // 进入背景模式时暂停
