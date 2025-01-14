@@ -177,6 +177,9 @@ jobs:
           channel: 'stable'
           cache: "true"
 
+      - name: Setup Rust
+        uses: Swatinem/rust-cache@v2
+
       # 打开MAC Desktop支持
       - name: Enable Flutter MAC Desktop
         if: startsWith(matrix.platform,'macos')
