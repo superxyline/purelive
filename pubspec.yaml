@@ -39,7 +39,7 @@ dependencies:
   flutter_js: 0.8.1
   html: ^0.15.5
   http: ^1.1.0
-  url_launcher: ^6.1.12
+  url_launcher: ^6.3.1
   web_socket_channel: ^3.0.1
 # cached_network_image: ^3.3.0
   
@@ -55,7 +55,7 @@ dependencies:
   flutter_exit_app: ^1.1.2
   visibility_detector: ^0.4.0+2
   # database
-  supabase_flutter: ^2.7.0
+  supabase_flutter: ^2.8.3
   email_validator: ^3.0.0
   font_awesome_flutter: ^10.8.0
   # video player mobile
@@ -67,7 +67,7 @@ dependencies:
   fvp: ^0.29.0                              # FVP 视频播放器
   video_player: 2.9.2                      #  视频播放器
   chewie: ^1.9.0                      #  视频播放器
-  share_handler: ^0.0.19
+  share_handler: ^0.0.22
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
 #  screen_brightness: ^0.2.2+1 # 屏幕亮度
@@ -76,12 +76,12 @@ dependencies:
   flutter_volume_controller: ^1.3.3  # 声音
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0
-  window_manager: ^0.4.2
+  window_manager: ^0.4.3
 #  url_protocol:
 #    git:
 #      url: https://github.com/LucasXu0/flutter_url_protocol
 #      commit: 77a8420
-  win32_registry: ^1.1.2
+  win32_registry: ^1.1.5
   windows_single_instance: ^1.0.0
   app_links: ^6.3.3
   protobuf: ^3.1.0
@@ -99,18 +99,18 @@ dependencies:
   flutter_cache_manager_dio: ^4.0.0
   cookie_jar: ^4.0.8
   # system hardware utils
-  wakelock_plus: ^1.2.5 #屏幕常亮
+  wakelock_plus: ^1.2.10 #屏幕常亮
   battery_plus: ^6.2.1
   stop_watch_timer: ^3.2.1
   # storage
   file_picker: ^8.1.7
   permission_handler: ^11.3.1
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.3.5
   flutter_cache_manager: ^3.3.1
   # utils
   get: 5.0.0-release-candidate-9.2.1
   intl: ^0.19.0
-  timezone: ^0.9.3
+  timezone: ^0.10.0
   date_format: ^2.0.7
   path: ^1.8.3
   file: ^7.0.0
