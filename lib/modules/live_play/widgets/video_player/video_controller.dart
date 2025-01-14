@@ -521,6 +521,8 @@ class VideoController with ChangeNotifier {
 
   void enterPipMode(BuildContext context) async {
     if ((Platform.isAndroid || Platform.isIOS)) {
+      danmakuController.onClear();
+      danmakuController.resume();
       await pip.enable(ImmediatePiP());
     }
   }
