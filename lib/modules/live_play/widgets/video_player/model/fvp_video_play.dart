@@ -261,11 +261,6 @@ class FvpVideoPlay extends VideoPlayerInterFace {
   bool get supportPip => true;
 
   @override
-  Future<void> enterPipMode(BuildContext context) async {
-    // await chewieController.value.();
-  }
-
-  @override
   List<String> get supportPlatformList =>
       ["linux", "macos", "windows", "android", "ios"];
 

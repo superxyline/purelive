@@ -153,6 +153,7 @@ class LivePlayController extends StateController {
 
   Future enablePIP() async {
     if (!Platform.isAndroid) {
+      videoController?.videoPlayer.enterPipMode();
       return;
     }
     if (await pip.isPipAvailable == false) {

@@ -78,7 +78,21 @@ abstract class VideoPlayerInterFace {
   bool get supportPip =>
       Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
-  void enterPipMode(BuildContext context) async {}
+  void enterPipMode() async {
+    if (Platform.isWindows || Platform.isLinux|| Platform.isMacOS) {
+      if (!isPipMode.value) {
+        Get.to(() => DesktopPip(
+          key: UniqueKey(),
+          widget: getVideoPlayerWidget(),
+        ));
+      } else {
+        Navigator.of(Get.context!).pop();
+      }
+      isPipMode.toggle();
+    } else {
+      throw UnimplementedError('Unsupported Platform');
+    }
+  }
 
   /// 是否 支持 窗口全屏
   bool get supportWindowFull =>
@@ -147,6 +161,28 @@ class DesktopFullscreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class DesktopPip extends StatelessWidget {
+  const DesktopPip(
+      {super.key,
+        required this.widget});
+
+  final Widget widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.fromSize(
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          body: Stack(
+            children: [
+              widget
+            ],
+          ),
+        ),
     );
   }
 }

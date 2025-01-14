@@ -197,7 +197,7 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   bool get supportPip => true;
 
   @override
-  Future<void> enterPipMode(BuildContext context) async {
+  Future<void> enterPipMode() async {
     await gsyVideoPlayerController.enablePictureInPicture();
   }
 
