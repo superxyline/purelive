@@ -733,7 +733,8 @@ class LivePlayController extends StateController {
       naviteUrl = "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
       webUrl = "https://www.huya.com/${liveRoomRx.roomId}";
     } else if (site == Sites.douyuSite) {
-      naviteUrl = "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${liveRoomRx.roomId}";
+      // naviteUrl = "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${liveRoomRx.roomId}";
+      naviteUrl = "dydeeplink://platformapi/startApp?room_id=${liveRoomRx.roomId}";
       webUrl = "https://www.douyu.com/${liveRoomRx.roomId}";
     } else if (site == Sites.ccSite) {
       CoreLog.d("cc_user_id :${liveRoomRx.userId.toString()}");
