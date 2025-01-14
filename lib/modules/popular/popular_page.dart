@@ -24,7 +24,7 @@ class PopularPage extends GetView<PopularController> {
           actions: showAction
               ? [
                   PopupMenuButton(
-                    tooltip: S.of(context).search,
+                    tooltip: S.current.search,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -45,7 +45,7 @@ class PopularPage extends GetView<PopularController> {
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(CustomIcons.search),
-                            text: S.of(context).live_room_search,
+                            text: S.current.live_room_search,
                           ),
                         ),
                         PopupMenuItem(
@@ -53,7 +53,7 @@ class PopularPage extends GetView<PopularController> {
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(Icons.link),
-                            text: S.of(context).live_room_link_access,
+                            text: S.current.live_room_link_access,
                           ),
                         ),
                       ];

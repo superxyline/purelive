@@ -25,23 +25,23 @@ class _BackupPageState extends State<BackupPage> {
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
-          SectionTitle(title: S.of(context).backup_recover),
+          SectionTitle(title: S.current.backup_recover),
           ListTile(
-            title: Text(S.of(Get.context!).network),
-            subtitle: Text(S.of(Get.context!).import_live_streaming_source),
+            title: Text(S.current.network),
+            subtitle: Text(S.current.import_live_streaming_source),
             onTap: () => showImportSetDialog(),
           ),
           if (Platform.isAndroid || Platform.isIOS)
             ListTile(
-              title: Text(S.of(Get.context!).synchronize_tv_data),
-              subtitle: Text(S.of(Get.context!).synchronize_tv_data_info),
+              title: Text(S.current.synchronize_tv_data),
+              subtitle: Text(S.current.synchronize_tv_data_info),
               onTap: () async {
                 Get.to(() => const ScanCodePage());
               },
             ),
           ListTile(
-            title: Text(S.of(context).create_backup),
-            subtitle: Text(S.of(context).create_backup_subtitle),
+            title: Text(S.current.create_backup),
+            subtitle: Text(S.current.create_backup_subtitle),
             onTap: () async {
               final selectedDirectory = await FileRecoverUtils().createBackup(backupDirectory);
               if (selectedDirectory != null) {
@@ -52,13 +52,13 @@ class _BackupPageState extends State<BackupPage> {
             },
           ),
           ListTile(
-            title: Text(S.of(context).recover_backup),
-            subtitle: Text(S.of(context).recover_backup_subtitle),
+            title: Text(S.current.recover_backup),
+            subtitle: Text(S.current.recover_backup_subtitle),
             onTap: () => FileRecoverUtils().recoverBackup(),
           ),
-          SectionTitle(title: S.of(context).auto_backup),
+          SectionTitle(title: S.current.auto_backup),
           ListTile(
-            title: Text(S.of(context).backup_directory),
+            title: Text(S.current.backup_directory),
             subtitle: Text(backupDirectory),
             onTap: () async {
               final selectedDirectory = await FileRecoverUtils().selectBackupDirectory(backupDirectory);
@@ -75,12 +75,12 @@ class _BackupPageState extends State<BackupPage> {
   }
 
   void showImportSetDialog() {
-    List<String> list = [S.of(Get.context!).local_import, S.of(Get.context!).network_import];
+    List<String> list = [S.current.local_import, S.current.network_import];
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: Text(S.of(Get.context!).import_live_streaming_source),
+          title: Text(S.current.import_live_streaming_source),
           children: list.map<Widget>((name) {
             return RadioListTile<String>(
               activeColor: Theme.of(context).colorScheme.primary,
@@ -102,7 +102,7 @@ class _BackupPageState extends State<BackupPage> {
     final TextEditingController textEditingController = TextEditingController();
     var result = await Get.dialog(
         AlertDialog(
-          title: Text(S.of(Get.context!).download_address_enter),
+          title: Text(S.current.download_address_enter),
           content: SizedBox(
             width: 400.0,
             height: 300.0,
@@ -116,7 +116,7 @@ class _BackupPageState extends State<BackupPage> {
                       border: OutlineInputBorder(),
                       //prefixText: title,
                       contentPadding: EdgeInsets.all(12),
-                      hintText: S.of(Get.context!).download_address,
+                      hintText: S.current.download_address,
                     ),
                     autofocus: true,
                   ),
@@ -127,7 +127,7 @@ class _BackupPageState extends State<BackupPage> {
                       border: OutlineInputBorder(),
                       //prefixText: title,
                       contentPadding: EdgeInsets.all(12),
-                      hintText: S.of(Get.context!).file_name,
+                      hintText: S.current.file_name,
                     ),
                     autofocus: false,
                   ),
@@ -140,27 +140,27 @@ class _BackupPageState extends State<BackupPage> {
               onPressed: () {
                 Navigator.of(Get.context!).pop();
               },
-              child: Text(S.of(Get.context!).cancel),
+              child: Text(S.current.cancel),
             ),
             TextButton(
               onPressed: () async {
                 if (urlEditingController.text.isEmpty) {
-                  SmartDialog.showToast(S.of(Get.context!).download_address_enter);
+                  SmartDialog.showToast(S.current.download_address_enter);
                   return;
                 }
                 bool validate = FileRecoverUtils.isUrl(urlEditingController.text);
                 if (!validate) {
-                  SmartDialog.showToast(S.of(Get.context!).download_address_enter_check);
+                  SmartDialog.showToast(S.current.download_address_enter_check);
                   return;
                 }
                 if (textEditingController.text.isEmpty) {
-                  SmartDialog.showToast(S.of(Get.context!).file_name_input);
+                  SmartDialog.showToast(S.current.file_name_input);
                   return;
                 }
                 await FileRecoverUtils().recoverNetworkM3u8Backup(urlEditingController.text, textEditingController.text);
                 Navigator.of(Get.context!).pop();
               },
-              child: Text(S.of(Get.context!).confirm),
+              child: Text(S.current.confirm),
             ),
           ],
         ),
@@ -169,7 +169,7 @@ class _BackupPageState extends State<BackupPage> {
   }
 
   importFile(String value) {
-    if (value == S.of(Get.context!).local_import) {
+    if (value == S.current.local_import) {
       FileRecoverUtils().recoverM3u8Backup();
       Navigator.of(context).pop();
     } else {

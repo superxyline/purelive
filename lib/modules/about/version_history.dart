@@ -39,7 +39,7 @@ class _VersionHistoryPageState extends State<VersionHistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).version_history_updates),
+        title: Text(S.current.version_history_updates),
       ),
       body: ListView(
         scrollDirection: Axis.vertical,

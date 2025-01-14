@@ -4,7 +4,7 @@ import 'package:pure_live/common/l10n/generated/l10n.dart';
 class SnackBarUtil {
   static void success(String text) {
     Get.snackbar(
-      S.of(Get.context!).success,
+      S.current.success,
       text,
       duration: const Duration(seconds: 2),
       backgroundColor: Get.theme.colorScheme.surfaceContainerHighest,
@@ -15,7 +15,7 @@ class SnackBarUtil {
 
   static void error(String text) {
     Get.snackbar(
-      S.of(Get.context!).error,
+      S.current.error,
       text,
       duration: const Duration(seconds: 2),
       backgroundColor: Get.theme.colorScheme.errorContainer,

@@ -11,7 +11,7 @@ class DanmuShieldPage extends GetView<DanmuShieldController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).danmu_filter_keyword),
+        title: Text(S.current.danmu_filter_keyword),
       ),
       body: ListView(
         padding: const EdgeInsets.all(12.0),
@@ -22,11 +22,11 @@ class DanmuShieldPage extends GetView<DanmuShieldController> {
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.all(12.0),
               border: OutlineInputBorder(borderSide: BorderSide(color: controller.themeColor)),
-              hintText: S.of(context).keyword_input,
+              hintText: S.current.keyword_input,
               suffixIcon: TextButton.icon(
                 onPressed: controller.add,
                 icon: const Icon(Icons.add),
-                label: Text(S.of(context).add),
+                label: Text(S.current.add),
               ),
             ),
             onSubmitted: (e) {
@@ -36,7 +36,7 @@ class DanmuShieldPage extends GetView<DanmuShieldController> {
           spacer(12.0),
           Obx(
             () => Text(
-              S.of(context).danmu_filter_keyword_add_info(controller.settingsController.shieldList.length),
+              S.current.danmu_filter_keyword_add_info(controller.settingsController.shieldList.length),
               style: Get.textTheme.titleMedium,
             ),
           ),

@@ -180,13 +180,13 @@ class SettingsService extends GetxController {
   static String getThemeTitle(String themeModeName) {
     switch (themeModeName) {
       case "System":
-        return S.of(Get.context!).system;
+        return S.current.system;
       case "Dark":
-        return S.of(Get.context!).dark;
+        return S.current.dark;
       case "Light":
-        return S.of(Get.context!).light;
+        return S.current.light;
       default:
-        return S.of(Get.context!).system;
+        return S.current.system;
     }
   }
 
@@ -253,10 +253,11 @@ class SettingsService extends GetxController {
 
   get language => SettingsService.languages[languageName.value]!;
 
-  void changeLanguage(String value) {
+  Future<void> changeLanguage(String value) async {
     languageName.value = value;
     PrefUtil.setString('language', value);
     Get.updateLocale(language);
+    await S.load(SettingsService.languages[SettingsService.instance.languageName.value]!);
   }
 
   void changePlayer(int value) {

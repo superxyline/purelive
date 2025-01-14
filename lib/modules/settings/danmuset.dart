@@ -18,11 +18,11 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
   final SettingsService controller;
   late final TabController tabController;
   late final fitmodes = {
-    S.of(Get.context!).videofit_contain: BoxFit.contain,
-    S.of(Get.context!).videofit_fill: BoxFit.fill,
-    S.of(Get.context!).videofit_cover: BoxFit.cover,
-    S.of(Get.context!).videofit_fitwidth: BoxFit.fitWidth,
-    S.of(Get.context!).videofit_fitheight: BoxFit.fitHeight,
+    S.current.videofit_contain: BoxFit.contain,
+    S.current.videofit_fill: BoxFit.fill,
+    S.current.videofit_cover: BoxFit.cover,
+    S.current.videofit_fitwidth: BoxFit.fitWidth,
+    S.current.videofit_fitheight: BoxFit.fitHeight,
   };
 
   _VideoFitSettingState(this.controller) {
@@ -49,7 +49,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
       children: [
         /// 是否在播放页面显示 弹幕
         Obx(() => SwitchListTile(
-              title: Text(S.of(context).settings_danmaku_open),
+              title: Text(S.current.settings_danmaku_open),
               contentPadding: EdgeInsets.zero,
               value: !controller.hideDanmaku.value,
               activeColor: Theme.of(context).colorScheme.primary,
@@ -58,7 +58,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
 
         /// 是否 过滤 彩色 弹幕
         Obx(() => SwitchListTile(
-              title: Text(S.of(context).settings_danmaku_colour),
+              title: Text(S.current.settings_danmaku_colour),
               contentPadding: EdgeInsets.zero,
               value: controller.showColourDanmaku.value,
               activeColor: Theme.of(context).colorScheme.primary,
@@ -67,7 +67,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
 
         /// 是否显示 用户等级
         Obx(() => SwitchListTile(
-              title: Text(S.of(context).show + S.of(context).user_level),
+              title: Text(S.current.show + S.current.user_level),
               contentPadding: EdgeInsets.zero,
               value: controller.showDanmuUserLevel.value,
               activeColor: Theme.of(context).colorScheme.primary,
@@ -76,8 +76,8 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(Get.context!).user_level),
-              subtitle: Text(S.of(context).fans_level_danmu_format(controller.filterDanmuUserLevel.value.toInt())),
+              leading: Text(S.current.user_level),
+              subtitle: Text(S.current.fans_level_danmu_format(controller.filterDanmuUserLevel.value.toInt())),
               title: Slider(
                 divisions: 10, //分多少份
                 min: 0.0,
@@ -90,7 +90,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
 
         /// 是否显示 粉丝牌
         Obx(() => SwitchListTile(
-              title: Text(S.of(context).show + S.of(context).fans),
+              title: Text(S.current.show + S.current.fans),
               contentPadding: EdgeInsets.zero,
               value: controller.showDanmuFans.value,
               activeColor: Theme.of(context).colorScheme.primary,
@@ -99,8 +99,8 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).fans),
-              subtitle: Text(S.of(context).fans_level_danmu_format(controller.filterDanmuFansLevel.value.toInt())),
+              leading: Text(S.current.fans),
+              subtitle: Text(S.current.fans_level_danmu_format(controller.filterDanmuFansLevel.value.toInt())),
               title: Slider(
                 divisions: 40,
                 //分多少份
@@ -116,8 +116,8 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).danmu_merge),
-              subtitle: Text(S.of(context).danmu_merge_format((controller.mergeDanmuRating.value * 100).toInt())),
+              leading: Text(S.current.danmu_merge),
+              subtitle: Text(S.current.danmu_merge_format((controller.mergeDanmuRating.value * 100).toInt())),
               title: Slider(
                 divisions: 10,
                 min: 0.0,
@@ -129,7 +129,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
             )),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: Text(S.of(context).settings_videofit_title),
+          child: Text(S.current.settings_videofit_title),
         ),
         TabBar(
           controller: tabController,
@@ -213,7 +213,7 @@ class DanmakuSetting extends StatelessWidget {
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_area),
+              leading: Text(S.current.settings_danmaku_area),
               title: Slider(
                 divisions: 10,
                 min: 0.0,
@@ -228,7 +228,7 @@ class DanmakuSetting extends StatelessWidget {
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_opacity),
+              leading: Text(S.current.settings_danmaku_opacity),
               title: Slider(
                 divisions: 10,
                 min: 0.0,
@@ -241,7 +241,7 @@ class DanmakuSetting extends StatelessWidget {
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_speed),
+              leading: Text(S.current.settings_danmaku_speed),
               title: Slider(
                 divisions: 15,
                 min: 5.0,
@@ -254,7 +254,7 @@ class DanmakuSetting extends StatelessWidget {
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_fontsize),
+              leading: Text(S.current.settings_danmaku_fontsize),
               title: Slider(
                 divisions: 20,
                 min: 10.0,
@@ -269,7 +269,7 @@ class DanmakuSetting extends StatelessWidget {
         Obx(() => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_fontBorder),
+              leading: Text(S.current.settings_danmaku_fontBorder),
               title: Slider(
                 divisions: 25,
                 min: 0.0,

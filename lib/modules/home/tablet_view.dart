@@ -56,15 +56,15 @@ class HomeTabletView extends StatelessWidget {
                 destinations: [
                   NavigationRailDestination(
                     icon: const Icon(Icons.favorite_rounded),
-                    label: Text(S.of(context).favorites_title),
+                    label: Text(S.current.favorites_title),
                   ),
                   NavigationRailDestination(
                     icon: const Icon(CustomIcons.popular),
-                    label: Text(S.of(context).popular_title),
+                    label: Text(S.current.popular_title),
                   ),
                   NavigationRailDestination(
                     icon: const Icon(Icons.area_chart_rounded),
-                    label: Text(S.of(context).areas_title),
+                    label: Text(S.current.areas_title),
                   ),
                 ],
                 selectedIndex: index > 2 ? 0 : index,

@@ -76,8 +76,8 @@ class _AreaGridViewState extends State<AreaGridView>
               )
             : EmptyView(
                 icon: Icons.area_chart_outlined,
-                title: S.of(context).empty_areas_title,
-                subtitle: S.of(context).empty_areas_subtitle,
+                title: S.current.empty_areas_title,
+                subtitle: S.current.empty_areas_subtitle,
               ),
         Visibility(
           visible: (widget.controller.loadding.value),

@@ -13,14 +13,14 @@ class SiteAccountPage extends GetView<SiteAccountController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(Get.context!).three_party_authentication),
+        title: Text(S.current.three_party_authentication),
       ),
       body: ListView(
         children: [
           Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              S.of(Get.context!).bilibili_need_login_info,
+              S.current.bilibili_need_login_info,
               textAlign: TextAlign.center,
             ),
           ),
@@ -32,8 +32,8 @@ class SiteAccountPage extends GetView<SiteAccountController> {
                       width: 36,
                       height: 36,
                     ),
-                    title: Text("${Sites.getSiteName(site.id)} ${S.of(Get.context!).live}"),
-                    subtitle: Text(site.liveSite.userName.value.getNotNullOrEmptyByDefault(S.of(Get.context!).login_not)),
+                    title: Text("${Sites.getSiteName(site.id)} ${S.current.live}"),
+                    subtitle: Text(site.liveSite.userName.value.getNotNullOrEmptyByDefault(S.current.login_not)),
                     trailing: site.liveSite.isLogin.value ? const Icon(Icons.logout) : const Icon(Icons.chevron_right),
                     onTap: () {
                       controller.onTap(site);
@@ -46,8 +46,8 @@ class SiteAccountPage extends GetView<SiteAccountController> {
                     width: 36,
                     height: 36,
                   ),
-                  title: Text("${Sites.getSiteName(site.id)} ${S.of(Get.context!).live}"),
-                  subtitle: Text(S.of(Get.context!).not_supported),
+                  title: Text("${Sites.getSiteName(site.id)} ${S.current.live}"),
+                  subtitle: Text(S.current.not_supported),
                   enabled: false,
                   trailing: const Icon(Icons.chevron_right),
                 )),

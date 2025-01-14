@@ -162,7 +162,7 @@ class LivePlayPage extends GetView<LivePlayController> {
             title: Obx(() => buildTableTarLeft()),
             actions: [
               PopupMenuButton(
-                tooltip: S.of(context).search,
+                tooltip: S.current.search,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -183,7 +183,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: MenuListTile(
                         leading: Icon(Icons.open_in_new_rounded),
-                        text: S.of(context).live_room_open_external,
+                        text: S.current.live_room_open_external,
                       ),
                     ),
                     PopupMenuItem(
@@ -191,7 +191,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: MenuListTile(
                         leading: Icon(Icons.live_tv_rounded),
-                        text: S.of(context).screen_caste,
+                        text: S.current.screen_caste,
                       ),
                     ),
                   ];
@@ -430,24 +430,24 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
         ? FloatingActionButton(
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
-            tooltip: S.of(context).unfollow,
+            tooltip: S.current.unfollow,
             onPressed: () {
               Get.dialog(
                 AlertDialog(
-                  title: Text(S.of(context).unfollow),
-                  content: Text(S.of(context).unfollow_message(widget.room.nick!)),
+                  title: Text(S.current.unfollow),
+                  content: Text(S.current.unfollow_message(widget.room.nick!)),
                   actions: [
                     TextButton(
                       onPressed: () {
                         Navigator.of(Get.context!).pop(false);
                       },
-                      child: Text(S.of(context).cancel),
+                      child: Text(S.current.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(Get.context!).pop(true);
                       },
-                      child: Text(S.of(context).confirm),
+                      child: Text(S.current.confirm),
                     ),
                   ],
                 ),
@@ -474,7 +474,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  S.of(context).follow,
+                  S.current.follow,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(
@@ -519,7 +519,7 @@ class ErrorVideoWidget extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        S.of(context).play_video_failed,
+                        S.current.play_video_failed,
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
@@ -575,7 +575,7 @@ class TimeOutVideoWidget extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        S.of(context).play_video_failed,
+                        S.current.play_video_failed,
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),

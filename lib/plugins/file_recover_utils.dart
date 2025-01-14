@@ -78,11 +78,11 @@ class FileRecoverUtils {
       }
 
       categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
-      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+      SnackBarUtil.success(S.current.recover_backup_success);
       return true;
     } catch (e) {
       CoreLog.error(e);
-      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+      SnackBarUtil.error(S.current.recover_backup_failed);
       return false;
     }
   }
@@ -116,14 +116,14 @@ class FileRecoverUtils {
     );
     final file = File('$selectedDirectory/purelive_$dateStr.txt');
     if (settings.backup(file)) {
-      SnackBarUtil.success(S.of(Get.context!).create_backup_success);
+      SnackBarUtil.success(S.current.create_backup_success);
       // 首次同步备份目录
       if (settings.backupDirectory.isEmpty) {
         settings.backupDirectory.value = selectedDirectory;
       }
       return selectedDirectory;
     } else {
-      SnackBarUtil.error(S.of(Get.context!).create_backup_failed);
+      SnackBarUtil.error(S.current.create_backup_failed);
       return null;
     }
   }
@@ -131,7 +131,7 @@ class FileRecoverUtils {
   void recoverBackup() async {
     final settings = Get.find<SettingsService>();
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: S.of(Get.context!).select_recover_file,
+      dialogTitle: S.current.select_recover_file,
       type: FileType.custom,
       allowedExtensions: ['txt'],
     );
@@ -139,9 +139,9 @@ class FileRecoverUtils {
 
     final file = File(result.files.single.path!);
     if (settings.recover(file)) {
-      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+      SnackBarUtil.success(S.current.recover_backup_success);
     } else {
-      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+      SnackBarUtil.error(S.current.recover_backup_failed);
     }
   }
 
@@ -172,18 +172,18 @@ class FileRecoverUtils {
             id: getUUid(), name: getName(m3ufile.path).replaceAll(RegExp(r'.m3u'), ''), path: m3ufile.path));
       }
       categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
-      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+      SnackBarUtil.success(S.current.recover_backup_success);
       return true;
     } catch (e) {
       CoreLog.error(e);
-      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+      SnackBarUtil.error(S.current.recover_backup_failed);
       return false;
     }
   }
 
   Future<bool> recoverM3u8Backup() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: S.of(Get.context!).select_recover_file,
+      dialogTitle: S.current.select_recover_file,
       type: FileType.custom,
       allowedExtensions: ['m3u'],
     );
@@ -208,11 +208,11 @@ class FileRecoverUtils {
 
       categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
       file.copySync(m3ufile.path);
-      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+      SnackBarUtil.success(S.current.recover_backup_success);
       return true;
     } catch (e) {
       CoreLog.error(e);
-      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+      SnackBarUtil.error(S.current.recover_backup_failed);
       return false;
     }
   }
@@ -248,11 +248,11 @@ class FileRecoverUtils {
       }
       categories.writeAsStringSync(jsonEncode(categoriesArr.map((e) => e.toJson()).toList()));
       file.copySync(m3ufile.path);
-      SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+      SnackBarUtil.success(S.current.recover_backup_success);
       return true;
     } catch (e) {
       CoreLog.error(e);
-      SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+      SnackBarUtil.error(S.current.recover_backup_failed);
       return false;
     }
   }

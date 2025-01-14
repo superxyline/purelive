@@ -15,7 +15,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
       final width = constraint.maxWidth;
       final crossAxisCount = width > 1280 ? 9 : (width > 960 ? 7 : (width > 640 ? 5 : 3));
       return Scaffold(
-        appBar: AppBar(title: Text(S.of(context).favorite_areas)),
+        appBar: AppBar(title: Text(S.current.favorite_areas)),
         body: Column(
           children: [
             TabBar(
@@ -60,7 +60,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
                       : controller.favoriteAreas.where((e) => e.platform == siteId).toList()[index]))
           : EmptyView(
               icon: Icons.area_chart_outlined,
-              title: S.of(context).empty_areas_title,
+              title: S.current.empty_areas_title,
               subtitle: '',
             ),
     );

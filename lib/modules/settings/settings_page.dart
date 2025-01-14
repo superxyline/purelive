@@ -24,22 +24,22 @@ class SettingsPage extends GetView<SettingsService> {
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: screenWidth > 640 ? 0 : null,
-        title: Text(S.of(context).settings_title),
+        title: Text(S.current.settings_title),
       ),
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: <Widget>[
-          SectionTitle(title: S.of(context).general),
+          SectionTitle(title: S.current.general),
           ListTile(
             leading: const Icon(Icons.dark_mode_rounded, size: 32),
-            title: Text(S.of(context).change_theme_mode),
-            subtitle: Text(S.of(context).change_theme_mode_subtitle),
+            title: Text(S.current.change_theme_mode),
+            subtitle: Text(S.current.change_theme_mode_subtitle),
             onTap: showThemeModeSelectorDialog,
           ),
           ListTile(
             leading: const Icon(Icons.color_lens, size: 32),
-            title: Text(S.of(context).change_theme_color),
-            subtitle: Text(S.of(context).change_theme_color_subtitle),
+            title: Text(S.current.change_theme_color),
+            subtitle: Text(S.current.change_theme_color_subtitle),
             trailing: ColorIndicator(
               width: 44,
               height: 44,
@@ -51,132 +51,132 @@ class SettingsPage extends GetView<SettingsService> {
           ),
           ListTile(
             leading: const Icon(Icons.translate_rounded, size: 32),
-            title: Text(S.of(context).change_language),
-            subtitle: Text(S.of(context).change_language_subtitle),
+            title: Text(S.current.change_language),
+            subtitle: Text(S.current.change_language_subtitle),
             onTap: showLanguageSelecterDialog,
           ),
           ListTile(
             leading: const Icon(Icons.backup_rounded, size: 32),
-            title: Text(S.of(context).backup_recover),
-            subtitle: Text(S.of(context).backup_recover_subtitle),
+            title: Text(S.current.backup_recover),
+            subtitle: Text(S.current.backup_recover_subtitle),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BackupPage()),
             ),
           ),
-          SectionTitle(title: S.of(context).video),
+          SectionTitle(title: S.current.video),
           Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_background_play),
-                subtitle: Text(S.of(context).enable_background_play_subtitle),
+                title: Text(S.current.enable_background_play),
+                subtitle: Text(S.current.enable_background_play_subtitle),
                 value: controller.enableBackgroundPlay.value,
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
               )),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
-                  title: Text(S.of(context).auto_rotate_screen),
-                  subtitle: Text(S.of(context).auto_rotate_screen_info),
+                  title: Text(S.current.auto_rotate_screen),
+                  subtitle: Text(S.current.auto_rotate_screen_info),
                   value: controller.enableRotateScreenWithSystem.value,
                   activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.enableRotateScreenWithSystem.value = value,
                 )),
           Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_screen_keep_on),
-                subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
+                title: Text(S.current.enable_screen_keep_on),
+                subtitle: Text(S.current.enable_screen_keep_on_subtitle),
                 value: controller.enableScreenKeepOn.value,
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               )),
           Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_fullscreen_default),
-                subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
+                title: Text(S.current.enable_fullscreen_default),
+                subtitle: Text(S.current.enable_fullscreen_default_subtitle),
                 value: controller.enableFullScreenDefault.value,
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
               )),
           ListTile(
-            title: Text(S.of(context).prefer_resolution),
-            subtitle: Text(S.of(context).prefer_resolution_subtitle),
+            title: Text(S.current.prefer_resolution),
+            subtitle: Text(S.current.prefer_resolution_subtitle),
             onTap: showPreferResolutionSelectorDialog,
           ),
-          SectionTitle(title: S.of(context).custom),
+          SectionTitle(title: S.current.custom),
           Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_dynamic_color),
-                subtitle: Text(S.of(context).enable_dynamic_color_subtitle),
+                title: Text(S.current.enable_dynamic_color),
+                subtitle: Text(S.current.enable_dynamic_color_subtitle),
                 value: controller.enableDynamicTheme.value,
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableDynamicTheme.value = value,
               )),
           Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_dense_favorites_mode),
-                subtitle: Text(S.of(context).enable_dense_favorites_mode_subtitle),
+                title: Text(S.current.enable_dense_favorites_mode),
+                subtitle: Text(S.current.enable_dense_favorites_mode_subtitle),
                 value: controller.enableDenseFavorites.value,
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableDenseFavorites.value = value,
               )),
           Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_auto_check_update),
-                subtitle: Text(S.of(context).enable_auto_check_update_subtitle),
+                title: Text(S.current.enable_auto_check_update),
+                subtitle: Text(S.current.enable_auto_check_update_subtitle),
                 value: controller.enableAutoCheckUpdate.value,
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
               )),
           ListTile(
-            title: Text(S.of(context).prefer_platform),
-            subtitle: Text(S.of(context).prefer_platform_subtitle),
+            title: Text(S.current.prefer_platform),
+            subtitle: Text(S.current.prefer_platform_subtitle),
             onTap: showPreferPlatformSelectorDialog,
           ),
           ListTile(
-            title: Text(S.of(context).auto_refresh_time),
-            subtitle: Text(S.of(context).auto_refresh_time_subtitle),
+            title: Text(S.current.auto_refresh_time),
+            subtitle: Text(S.current.auto_refresh_time_subtitle),
             trailing: Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoRefreshTime.value))),
             onTap: showAutoRefreshTimeSetDialog,
           ),
           ListTile(
-            title: Text(S.of(context).settings_danmaku_title),
+            title: Text(S.current.settings_danmaku_title),
             onTap: showDanmuSetDialog,
           ),
           ListTile(
-            title: Text(S.of(context).danmu_filter),
-            subtitle: Text(S.of(context).danmu_filter_info),
+            title: Text(S.current.danmu_filter),
+            subtitle: Text(S.current.danmu_filter_info),
             onTap: () => Get.toNamed(RoutePath.kSettingsDanmuShield),
           ),
           ListTile(
-            title: Text(S.of(context).platform_settings),
-            subtitle: Text(S.of(context).platform_settings_info),
+            title: Text(S.current.platform_settings),
+            subtitle: Text(S.current.platform_settings_info),
             onTap: () => Get.toNamed(RoutePath.kSettingsHotAreas),
           ),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
-                  title: Text(S.of(context).double_click_to_exit),
+                  title: Text(S.current.double_click_to_exit),
                   value: controller.doubleExit.value,
                   activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.doubleExit.value = value,
                 )),
           // if (Platform.isAndroid)
           ListTile(
-            title: Text(S.of(context).change_player),
-            subtitle: Text(S.of(context).change_player_subtitle),
+            title: Text(S.current.change_player),
+            subtitle: Text(S.current.change_player_subtitle),
             trailing: Obx(() => Text(controller.playerlist[controller.videoPlayerIndex.value])),
             onTap: showVideoSetDialog,
           ),
           if (Platform.isAndroid)
             Obx(() => SwitchListTile(
-                  title: Text(S.of(context).enable_codec),
+                  title: Text(S.current.enable_codec),
                   value: controller.enableCodec.value,
                   activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.enableCodec.value = value,
                 )),
           if (Platform.isAndroid)
             ListTile(
-              title: Text(S.of(context).auto_shutdown_time),
-              subtitle: Text(S.of(context).auto_shutdown_time_subtitle),
+              title: Text(S.current.auto_shutdown_time),
+              subtitle: Text(S.current.auto_shutdown_time_subtitle),
               trailing: Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoShutDownTime.value))),
               onTap: showAutoShutDownTimeSetDialog,
             ),
           ListTile(
-            title: Text(S.of(context).cache_manage),
-            subtitle: Text(S.of(context).cache_manage),
+            title: Text(S.current.cache_manage),
+            subtitle: Text(S.current.cache_manage),
             onTap: showCacheManageSetDialog,
           ),
         ],
@@ -189,7 +189,7 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-        title: S.of(Get.context!).change_theme_mode,
+        title: S.current.change_theme_mode,
         child: ListView(
           children: SettingsService.themeModes.keys.map<Widget>((name) {
             return RadioListTile<String>(
@@ -227,15 +227,15 @@ class SettingsPage extends GetView<SettingsService> {
       runSpacing: 5,
       wheelDiameter: 155,
       heading: Text(
-        S.of(Get.context!).change_theme_color,
+        S.current.change_theme_color,
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subheading: Text(
-        S.of(Get.context!).select_transparency,
+        S.current.select_transparency,
         style: Theme.of(context).textTheme.titleMedium,
       ),
       wheelSubheading: Text(
-        S.of(Get.context!).theme_color_and_transparency,
+        S.current.theme_color_and_transparency,
         style: Theme.of(context).textTheme.titleMedium,
       ),
       showMaterialName: false,
@@ -271,7 +271,7 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-      title: S.of(context).change_language,
+      title: S.current.change_language,
       child: ListView(
         children: SettingsService.languages.keys.map<Widget>((name) {
           return RadioListTile<String>(
@@ -295,7 +295,7 @@ class SettingsPage extends GetView<SettingsService> {
     var context = Get.context!;
     List<String> playerList = controller.playerlist;
     Utils.showRightOrBottomSheet(
-      title: S.of(context).change_player,
+      title: S.current.change_player,
       child: ListView(
         children: playerList.map<Widget>((name) {
           return RadioListTile<String>(
@@ -318,7 +318,7 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-      title: S.of(context).prefer_resolution,
+      title: S.current.prefer_resolution,
       child: ListView(
         children: SettingsService.resolutions.map<Widget>((name) {
           return RadioListTile<String>(
@@ -341,7 +341,7 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-      title: S.of(context).prefer_platform,
+      title: S.current.prefer_platform,
       child: ListView(
         children: Sites.supportSites.map<Widget>((site) {
           return RadioListTile<String>(
@@ -376,18 +376,18 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-      title: S.of(context).auto_refresh_time,
+      title: S.current.auto_refresh_time,
       child: Obx(() => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Slider(
                 min: 0,
                 max: 120,
-                label: S.of(context).auto_refresh_time,
+                label: S.current.auto_refresh_time,
                 value: controller.autoRefreshTime.toDouble(),
                 onChanged: (value) => controller.autoRefreshTime.value = value.toInt(),
               ),
-              Text('${S.of(context).auto_refresh_time}:'
+              Text('${S.current.auto_refresh_time}:'
                   ' ${TimeUtil.minuteValueToStr(controller.autoRefreshTime.value)}'),
             ],
           )),
@@ -399,7 +399,7 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-      title: S.of(context).settings_danmaku_title,
+      title: S.current.settings_danmaku_title,
       child: ListView(
         // shrinkWrap: true,
         padding: const EdgeInsets.all(16),
@@ -423,12 +423,12 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-      title: S.of(context).auto_refresh_time,
+      title: S.current.auto_refresh_time,
       child: Obx(() => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               SwitchListTile(
-                title: Text(S.of(context).auto_shutdown_time_subtitle),
+                title: Text(S.current.auto_shutdown_time_subtitle),
                 value: controller.enableAutoShutDownTime.value,
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableAutoShutDownTime.value = value,
@@ -436,13 +436,13 @@ class SettingsPage extends GetView<SettingsService> {
               Slider(
                 min: 1,
                 max: 1200,
-                label: S.of(context).auto_refresh_time,
+                label: S.current.auto_refresh_time,
                 value: controller.autoShutDownTime.toDouble(),
                 onChanged: (value) {
                   controller.autoShutDownTime.value = value.toInt();
                 },
               ),
-              Text('${S.of(context).auto_shutdown_time}:'
+              Text('${S.current.auto_shutdown_time}:'
                   ' ${TimeUtil.minuteValueToStr(controller.autoShutDownTime.value)}'),
             ],
           )),
@@ -535,16 +535,16 @@ class SettingsPage extends GetView<SettingsService> {
     CustomCache.instance.getAreaCacheDirectorySize().then((value) => areaCacheDirectorySize.updateValueNotEquate(value));
 
     Utils.showRightOrBottomSheet(
-      title: S.of(Get.context!).cache_manage,
+      title: S.current.cache_manage,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.of(Get.context!).cache_manage_clear_all),
+            title: Text(S.current.cache_manage_clear_all),
             subtitle: Obx(() => Text(cacheDirectorySize.value)),
             onTap: () async {
-              var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_all);
+              var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_all);
               if (result) {
                 CustomCache.instance.deleteCacheDirectory();
               }
@@ -552,10 +552,10 @@ class SettingsPage extends GetView<SettingsService> {
           ),
           ListTile(
             leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.of(Get.context!).cache_manage_clear_image),
+            title: Text(S.current.cache_manage_clear_image),
             subtitle: Obx(() => Text(imageCacheDirectorySize.value)),
             onTap: () async {
-              var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_image);
+              var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_image);
               if (result) {
                 CustomCache.instance.deleteImageCacheDirectory();
               }
@@ -563,11 +563,11 @@ class SettingsPage extends GetView<SettingsService> {
           ),
           ListTile(
             leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.of(Get.context!).cache_manage_clear_area),
+            title: Text(S.current.cache_manage_clear_area),
             // subtitle: Text(areaCacheDirectorySize),
             subtitle: Obx(() => Text(areaCacheDirectorySize.value)),
             onTap: () async {
-              var result = await Utils.showAlertDialog(S.of(Get.context!).cache_manage_clear_prompt, title: S.of(Get.context!).cache_manage_clear_area);
+              var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_area);
               if (result) {
                 CustomCache.instance.deleteAreaCacheDirectory();
               }

@@ -20,7 +20,7 @@ class FavoritePage extends GetView<FavoriteController> {
           actions: showAction
               ? [
                   PopupMenuButton(
-                    tooltip: S.of(context).search,
+                    tooltip: S.current.search,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -41,7 +41,7 @@ class FavoritePage extends GetView<FavoriteController> {
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(CustomIcons.search),
-                            text: S.of(context).live_room_search,
+                            text: S.current.live_room_search,
                           ),
                         ),
                          PopupMenuItem(
@@ -49,7 +49,7 @@ class FavoritePage extends GetView<FavoriteController> {
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
                             leading: Icon(Icons.link),
-                            text: S.of(context).live_room_link_access,
+                            text: S.current.live_room_link_access,
                           ),
                         ),
                       ];
@@ -66,8 +66,8 @@ class FavoritePage extends GetView<FavoriteController> {
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
             tabs: [
-              Tab(text: S.of(context).online_room_title),
-              Tab(text: S.of(context).offline_room_title),
+              Tab(text: S.current.online_room_title),
+              Tab(text: S.current.offline_room_title),
             ],
           ),
         ),
@@ -159,8 +159,8 @@ class _RoomGridView extends GetView<FavoriteController> {
                       child: const Icon(Icons.local_offer)))
               : EmptyView(
                   icon: Icons.favorite_rounded,
-                  title: S.of(context).empty_favorite_online_title,
-                  subtitle: S.of(context).empty_favorite_online_subtitle,
+                  title: S.current.empty_favorite_online_title,
+                  subtitle: S.current.empty_favorite_online_subtitle,
                 ));
         }(),
       );

@@ -12,12 +12,12 @@ class SiteWebLoginPage extends GetView<SiteWebLoginController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${S.of(Get.context!).supabase_sign_in} ${Sites.getSiteName(controller.site.id)}"),
+        title: Text("${S.current.supabase_sign_in} ${Sites.getSiteName(controller.site.id)}"),
         actions: [
           TextButton.icon(
             onPressed: controller.toQRLogin,
             icon: const Icon(Icons.qr_code),
-            label: Text(S.of(Get.context!).login_by_qr),
+            label: Text(S.current.login_by_qr),
           ),
         ],
       ),

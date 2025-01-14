@@ -12,7 +12,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).live_room_link_parsing),
+        title: Text(S.current.live_room_link_parsing),
       ),
       body: ListView(
         padding: const EdgeInsets.all(12.0),
@@ -20,7 +20,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
           buildCard(
             context: context,
             child: ExpansionTile(
-              title: Text(S.of(context).live_room_jump),
+              title: Text(S.current.live_room_jump),
               childrenPadding: const EdgeInsets.symmetric(horizontal: 16.0),
               initiallyExpanded: true,
               children: [
@@ -30,7 +30,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
                   controller: controller.roomJumpToController,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    hintText: S.of(context).live_room_link_input(Sites.supportSites.where((site) => site.id != Sites.iptvSite).map((site) => Sites.getSiteName(site.id)).toList().join("/")),
+                    hintText: S.current.live_room_link_input(Sites.supportSites.where((site) => site.id != Sites.iptvSite).map((site) => Sites.getSiteName(site.id)).toList().join("/")),
                     contentPadding: const EdgeInsets.all(12.0),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -48,7 +48,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
                       controller.jumpToRoom(controller.roomJumpToController.text);
                     },
                     icon: const Icon(Remix.play_circle_line),
-                    label: Text(S.of(context).live_room_link_jump),
+                    label: Text(S.current.live_room_link_jump),
                   ),
                 ),
               ],
@@ -57,7 +57,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
           buildCard(
             context: context,
             child: ExpansionTile(
-              title: Text(S.of(context).live_room_link_direct),
+              title: Text(S.current.live_room_link_direct),
               childrenPadding: const EdgeInsets.symmetric(horizontal: 16.0),
               initiallyExpanded: true,
               children: [
@@ -67,7 +67,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
                   controller: controller.getUrlController,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    hintText: S.of(context).live_room_link_input(Sites.supportSites.where((site) => site.id != Sites.iptvSite).map((site) => Sites.getSiteName(site.id)).toList().join("/")),
+                    hintText: S.current.live_room_link_input(Sites.supportSites.where((site) => site.id != Sites.iptvSite).map((site) => Sites.getSiteName(site.id)).toList().join("/")),
                     contentPadding: const EdgeInsets.all(12.0),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -85,7 +85,7 @@ class ToolBoxPage extends GetView<ToolBoxController> {
                       controller.getPlayUrl(controller.getUrlController.text);
                     },
                     icon: const Icon(Remix.link),
-                    label: Text(S.of(context).live_room_link_direct),
+                    label: Text(S.current.live_room_link_direct),
                   ),
                 ),
               ],

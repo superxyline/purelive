@@ -11,12 +11,12 @@ class ToolBoxController extends GetxController {
 
   void jumpToRoom(String e) async {
     if (e.isEmpty) {
-      SmartDialog.showToast(S.of(Get.context!).link_empty);
+      SmartDialog.showToast(S.current.link_empty);
       return;
     }
     var parseResult = await parse(e);
     if (parseResult.isEmpty || parseResult.first == "") {
-      SmartDialog.showToast(S.of(Get.context!).live_room_link_parse_failed);
+      SmartDialog.showToast(S.current.live_room_link_parse_failed);
       return;
     }
     String platform = parseResult[1];
@@ -41,12 +41,12 @@ class ToolBoxController extends GetxController {
 
   void getPlayUrl(String e) async {
     if (e.isEmpty) {
-      SmartDialog.showToast(S.of(Get.context!).link_empty);
+      SmartDialog.showToast(S.current.link_empty);
       return;
     }
     var parseResult = await parse(e);
     if (parseResult.isEmpty && parseResult.first == "") {
-      SmartDialog.showToast(S.of(Get.context!).live_room_link_parse_failed);
+      SmartDialog.showToast(S.current.live_room_link_parse_failed);
       return;
     }
     String platform = parseResult[1];
@@ -61,12 +61,12 @@ class ToolBoxController extends GetxController {
       var qualites = await Sites.of(platform).liveSite.getPlayQualites(detail: detail);
       SmartDialog.dismiss(status: SmartStatus.loading);
       if (qualites.isEmpty) {
-        SmartDialog.showToast(S.of(Get.context!).live_room_clarity_parse_failed);
+        SmartDialog.showToast(S.current.live_room_clarity_parse_failed);
 
         return;
       }
       var result = await Get.dialog(SimpleDialog(
-        title: Text(S.of(Get.context!).live_room_clarity_select),
+        title: Text(S.current.live_room_clarity_select),
         children: qualites
             .map(
               (e) => ListTile(
@@ -88,12 +88,12 @@ class ToolBoxController extends GetxController {
       var playUrls = await Sites.of(platform).liveSite.getPlayUrls(detail: detail, quality: result);
       SmartDialog.dismiss(status: SmartStatus.loading);
       await Get.dialog(SimpleDialog(
-        title: Text(S.of(Get.context!).live_room_clarity_line_select),
+        title: Text(S.current.live_room_clarity_line_select),
         children: playUrls
             .map(
               (e) => ListTile(
                 title: Text(
-                  "${S.of(Get.context!).live_room_clarity_line} ${playUrls.indexOf(e) + 1}",
+                  "${S.current.live_room_clarity_line} ${playUrls.indexOf(e) + 1}",
                 ),
                 subtitle: Text(
                   e,
@@ -103,7 +103,7 @@ class ToolBoxController extends GetxController {
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: e));
                   Navigator.of(Get.context!).pop();
-                  SmartDialog.showToast(S.of(Get.context!).live_room_link_direct_copied);
+                  SmartDialog.showToast(S.current.live_room_link_direct_copied);
                 },
               ),
             )
@@ -111,7 +111,7 @@ class ToolBoxController extends GetxController {
       ));
     } catch (e) {
       CoreLog.error(e);
-      SmartDialog.showToast(S.of(Get.context!).live_room_link_direct_read_failed);
+      SmartDialog.showToast(S.current.live_room_link_direct_read_failed);
     } finally {
       SmartDialog.dismiss(status: SmartStatus.loading);
     }

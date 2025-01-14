@@ -16,7 +16,7 @@ class MenuButton extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
-      tooltip: S.of(context).menu,
+      tooltip: S.current.menu,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
@@ -40,7 +40,7 @@ class MenuButton extends GetView<AuthController> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.account_circle),
-            text: controller.isLogin ? S.of(context).supabase_mine : S.of(context).supabase_sign_in,
+            text: controller.isLogin ? S.current.supabase_mine : S.current.supabase_sign_in,
           ),
         ),
         PopupMenuItem(
@@ -48,7 +48,7 @@ class MenuButton extends GetView<AuthController> {
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: Icon(Icons.assignment_ind_sharp),
-            text: S.of(Get.context!).three_party_authentication,
+            text: S.current.three_party_authentication,
           ),
         ),
         PopupMenuItem(
@@ -56,7 +56,7 @@ class MenuButton extends GetView<AuthController> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.settings_rounded),
-            text: S.of(context).settings_title,
+            text: S.current.settings_title,
           ),
         ),
         PopupMenuItem(
@@ -64,7 +64,7 @@ class MenuButton extends GetView<AuthController> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.info_rounded),
-            text: S.of(context).about,
+            text: S.current.about,
           ),
         ),
         PopupMenuItem(
@@ -72,7 +72,7 @@ class MenuButton extends GetView<AuthController> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.contact_support),
-            text: S.of(context).contact,
+            text: S.current.contact,
           ),
         ),
         PopupMenuItem(
@@ -80,7 +80,7 @@ class MenuButton extends GetView<AuthController> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
             leading: const Icon(Icons.history),
-            text: S.of(context).history,
+            text: S.current.history,
           ),
         ),
       ],

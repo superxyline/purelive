@@ -22,35 +22,35 @@ class _AboutPageState extends State<AboutPage> {
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: <Widget>[
-          SectionTitle(title: S.of(context).about),
+          SectionTitle(title: S.current.about),
           ListTile(
-            title: Text(S.of(context).what_is_new),
+            title: Text(S.current.what_is_new),
             onTap: showNewFeaturesDialog,
           ),
           ListTile(
-            title: Text(S.of(context).check_update),
+            title: Text(S.current.check_update),
             onTap: () => showCheckUpdateDialog(context),
           ),
           ListTile(
-            title: Text(S.of(context).version),
+            title: Text(S.current.version),
             subtitle: const Text(VersionUtil.version),
           ),
           ListTile(
-            title: Text(S.of(context).version_history),
-            subtitle: Text(S.of(context).version_history_info),
+            title: Text(S.current.version_history),
+            subtitle: Text(S.current.version_history_info),
             onTap: () => Get.toNamed(RoutePath.kVersionHistory),
           ),
           ListTile(
-            title: Text(S.of(context).license),
+            title: Text(S.current.license),
             onTap: showLicenseDialog,
           ),
-          SectionTitle(title: S.of(context).project),
+          SectionTitle(title: S.current.project),
           ListTile(
-            title: Text(S.of(context).help_and_support),
+            title: Text(S.current.help_and_support),
             onTap: () => Get.toNamed(RoutePath.kDonate),
           ),
           ListTile(
-            title: Text(S.of(context).project_page),
+            title: Text(S.current.project_page),
             subtitle: const Text(VersionUtil.projectUrl),
             onTap: () {
               launchUrl(
@@ -60,10 +60,10 @@ class _AboutPageState extends State<AboutPage> {
             },
           ),
           ListTile(
-            title: Text(S.of(context).project_alert),
+            title: Text(S.current.project_alert),
             subtitle: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Text(S.of(context).app_legalese),
+              child: Text(S.current.app_legalese),
             ),
           ),
         ],
@@ -81,7 +81,7 @@ class _AboutPageState extends State<AboutPage> {
   void showLicenseDialog() {
     showLicensePage(
       context: context,
-      applicationName: S.of(context).app_name,
+      applicationName: S.current.app_name,
       applicationVersion: VersionUtil.version,
       applicationIcon: SizedBox(
         width: 60,
@@ -94,7 +94,7 @@ class _AboutPageState extends State<AboutPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(S.of(context).what_is_new),
+        title: Text(S.current.what_is_new),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,

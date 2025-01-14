@@ -12,7 +12,7 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("${S.of(Get.context!).supabase_sign_in} ${Sites.getSiteName(controller.site.id)}")),
+      appBar: AppBar(title: Text("${S.current.supabase_sign_in} ${Sites.getSiteName(controller.site.id)}")),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -27,10 +27,10 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(S.of(Get.context!).qr_loading_failed),
+                      Text(S.current.qr_loading_failed),
                       TextButton(
                         onPressed: controller.loadQRCode,
-                        child: Text(S.of(Get.context!).retry),
+                        child: Text(S.current.retry),
                       ),
                     ],
                   );
@@ -39,10 +39,10 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(S.of(Get.context!).qr_loading_expired),
+                      Text(S.current.qr_loading_expired),
                       TextButton(
                         onPressed: controller.loadQRCode,
-                        child: Text(S.of(Get.context!).qr_loading_refresh),
+                        child: Text(S.current.qr_loading_refresh),
                       ),
                     ],
                   );
@@ -64,7 +64,7 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
                     ),
                     Visibility(
                       visible: controller.qrStatus.value == QRStatus.scanned,
-                      child: Text(S.of(Get.context!).qr_confirm),
+                      child: Text(S.current.qr_confirm),
                     ),
                   ],
                 );
@@ -74,7 +74,7 @@ class SiteQRLoginPage extends GetView<SiteQRLoginController> {
           Padding(
             padding: EdgeInsets.all(24),
             child: Text(
-              S.of(Get.context!).login_by_qr_info(Sites.getSiteName(controller.site.id)),
+              S.current.login_by_qr_info(Sites.getSiteName(controller.site.id)),
               textAlign: TextAlign.center,
             ),
           ),

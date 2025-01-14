@@ -13,7 +13,7 @@ class DonatePage extends StatelessWidget {
       final width = constraint.maxWidth;
       final crossAxisCount = width > 640 ? 2 : 1;
       return Scaffold(
-        appBar: AppBar(title: Text(S.of(context).help_and_support)),
+        appBar: AppBar(title: Text(S.current.help_and_support)),
         body: MasonryGridView.count(
           physics: const BouncingScrollPhysics(),
           crossAxisCount: crossAxisCount,
@@ -36,19 +36,19 @@ class WechatItem extends StatelessWidget {
         Padding(
           padding: EdgeInsets.all(32.0),
           child: Text(
-            S.of(Get.context!).thank_title,
+            S.current.thank_title,
           ),
         ),
         Padding(
           padding: EdgeInsets.all(32.0),
           child: Text(
-            S.of(Get.context!).thank_info,
+            S.current.thank_info,
           ),
         ),
         Padding(
           padding: EdgeInsets.all(32.0),
           child: Text(
-            "${S.of(Get.context!).qq_group}：920447827",
+            "${S.current.qq_group}：920447827",
           ),
         ),
       ],

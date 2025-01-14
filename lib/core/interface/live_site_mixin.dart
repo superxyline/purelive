@@ -36,7 +36,7 @@ mixin class SiteAccount {
   Future<void> logout(Site site) async {
     userCookie.value = "";
     uid = 0;
-    userName.value = S.of(Get.context!).login_not;
+    userName.value = S.current.login_not;
     isLogin.value = false;
     SettingsService settings = Get.find<SettingsService>();
     settings.siteCookies.remove(site.id);
@@ -48,7 +48,7 @@ mixin class SiteAccount {
   Future<bool> loadUserInfo(Site site, String cookie) async {
     userCookie.value = "";
     uid = 0;
-    userName.value = S.of(Get.context!).login_not;
+    userName.value = S.current.login_not;
     isLogin.value = false;
     return false;
   }

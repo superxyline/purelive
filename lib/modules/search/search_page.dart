@@ -18,7 +18,7 @@ class SearchPage extends GetView<pure_live.SearchController> {
           controller: controller.searchController,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: S.of(context).search_input_hint,
+            hintText: S.current.search_input_hint,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
             prefixIcon: IconButton(

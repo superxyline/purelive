@@ -585,7 +585,7 @@ class VideoController with ChangeNotifier {
 
   /// 设置亮度
   void setBrightness(double value) async {
-    await brightnessController.setScreenBrightness(value);
+    await brightnessController.setApplicationScreenBrightness(value);
   }
 }
 

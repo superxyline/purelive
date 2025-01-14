@@ -47,8 +47,8 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
                       )
                     : EmptyView(
                         icon: Icons.live_tv_rounded,
-                        title: S.of(context).empty_areas_room_title,
-                        subtitle: S.of(context).empty_areas_room_subtitle,
+                        title: S.current.empty_areas_room_title,
+                        subtitle: S.current.empty_areas_room_subtitle,
                       ),
                 Visibility(
                   visible: (controller.loadding.value),
@@ -88,21 +88,21 @@ class _FavoriteAreaFloatingButtonState
         ? FloatingActionButton(
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
-            tooltip: S.of(context).unfollow,
+            tooltip: S.current.unfollow,
             onPressed: () {
               Get.dialog(
                 AlertDialog(
-                  title: Text(S.of(context).unfollow),
+                  title: Text(S.current.unfollow),
                   content: Text(
-                      S.of(context).unfollow_message(widget.area.areaName!)),
+                      S.current.unfollow_message(widget.area.areaName!)),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(Get.context!).pop(false),
-                      child: Text(S.of(context).cancel),
+                      child: Text(S.current.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.of(Get.context!).pop(true),
-                      child: Text(S.of(context).confirm),
+                      child: Text(S.current.confirm),
                     ),
                   ],
                 ),
@@ -129,7 +129,7 @@ class _FavoriteAreaFloatingButtonState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  S.of(context).follow,
+                  S.current.follow,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(

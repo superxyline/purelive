@@ -211,7 +211,7 @@ class ErrorWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              S.of(context).play_video_failed,
+              S.current.play_video_failed,
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
@@ -222,7 +222,7 @@ class ErrorWidget extends StatelessWidget {
               backgroundColor: Colors.white.withValues(alpha: 0.2),
             ),
             child: Text(
-              S.of(context).retry,
+              S.current.retry,
               style: const TextStyle(color: Colors.white),
             ),
           ),
@@ -291,7 +291,7 @@ class TopActionBar extends StatelessWidget {
                 // showFavorite(controller);
                 showDialogList(
                     controller, Get.find<FavoriteController>().onlineRooms,
-                    isReverse: false, title: S.of(context).favorites_title);
+                    isReverse: false, title: S.current.favorites_title);
               },
               icon: const Icon(
                 Icons.featured_play_list_outlined,
@@ -305,7 +305,7 @@ class TopActionBar extends StatelessWidget {
                 // showHistory(controller);
                 showDialogList(
                     controller, Get.find<SettingsService>().historyRooms,
-                    isReverse: true, title: S.of(context).history);
+                    isReverse: true, title: S.current.history);
               },
               icon: const Icon(
                 Icons.history,
@@ -396,7 +396,7 @@ Widget showDialogListBody(RxList<LiveRoom> rooms,
       () => rooms.isEmpty
           ? EmptyView(
               icon: Icons.history_rounded,
-              title: S.of(context).empty_history,
+              title: S.current.empty_history,
               subtitle: '',
             )
           : MasonryGridView.count(

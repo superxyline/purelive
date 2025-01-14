@@ -73,16 +73,16 @@ class Sites {
 
   static String getSiteName(String siteId) {
     switch(siteId) {
-      case allSite: return S.of(Get.context!).all;
-      case bilibiliSite: return S.of(Get.context!).bilibili;
-      case douyuSite: return S.of(Get.context!).douyu;
-      case huyaSite: return S.of(Get.context!).huya;
-      case douyinSite: return S.of(Get.context!).douyin;
-      case kuaishouSite: return S.of(Get.context!).kuaishou;
-      case ccSite: return S.of(Get.context!).cc;
-      case iptvSite: return S.of(Get.context!).iptv;
+      case allSite: return S.current.all;
+      case bilibiliSite: return S.current.bilibili;
+      case douyuSite: return S.current.douyu;
+      case huyaSite: return S.current.huya;
+      case douyinSite: return S.current.douyin;
+      case kuaishouSite: return S.current.kuaishou;
+      case ccSite: return S.current.cc;
+      case iptvSite: return S.current.iptv;
     }
-    return S.of(Get.context!).all;
+    return S.current.all;
   }
 
   List<Site> availableSites({containsAll = false}) {

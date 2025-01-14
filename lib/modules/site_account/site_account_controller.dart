@@ -24,7 +24,7 @@ class SiteAccountController extends GetxController {
   /// 跳转至直播平台登录
   Future toSiteLogin(Site site) async {
     Utils.showRightOrBottomSheet(
-      title: "${S.of(Get.context!).supabase_sign_in} ${Sites.getSiteName(site.id)}",
+      title: "${S.current.supabase_sign_in} ${Sites.getSiteName(site.id)}",
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -32,8 +32,8 @@ class SiteAccountController extends GetxController {
             visible: site.liveSite.isSupportWebLogin(),
             child: ListTile(
               leading: const Icon(Icons.account_circle_outlined),
-              title: Text("Web ${S.of(Get.context!).supabase_sign_in}"),
-              subtitle: Text(S.of(Get.context!).login_by_username_password),
+              title: Text("Web ${S.current.supabase_sign_in}"),
+              subtitle: Text(S.current.login_by_username_password),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.of(Get.context!).pop();
@@ -45,8 +45,8 @@ class SiteAccountController extends GetxController {
               visible: site.liveSite.isSupportQrLogin(),
               child: ListTile(
                 leading: const Icon(Icons.qr_code),
-                title: Text(S.of(Get.context!).login_by_qr),
-                subtitle: Text(S.of(Get.context!).login_by_qr_info(Sites.getSiteName(site.id))),
+                title: Text(S.current.login_by_qr),
+                subtitle: Text(S.current.login_by_qr_info(Sites.getSiteName(site.id))),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(Get.context!).pop();
@@ -57,8 +57,8 @@ class SiteAccountController extends GetxController {
               visible: site.liveSite.isSupportCookieLogin(),
               child: ListTile(
                 leading: const Icon(Icons.edit_outlined),
-                title: Text("Cookie ${S.of(Get.context!).supabase_sign_in}"),
-                subtitle: Text(S.of(Get.context!).login_by_cookie_info),
+                title: Text("Cookie ${S.current.supabase_sign_in}"),
+                subtitle: Text(S.current.login_by_cookie_info),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(Get.context!).pop();
@@ -74,22 +74,22 @@ class SiteAccountController extends GetxController {
   void doCookieLogin(Site site) async {
     var cookie = await Utils.showEditTextDialog(
       "",
-      title: S.of(Get.context!).input_cookie,
-      hintText: S.of(Get.context!).input_cookie,
+      title: S.current.input_cookie,
+      hintText: S.current.input_cookie,
     );
     if (cookie == null || cookie.isEmpty) {
       return;
     }
     bool flag = await site.liveSite.loadUserInfo(site, cookie);
     if (!flag) {
-      Utils.showAlertDialog(S.of(Get.context!).cookie_check_failed);
+      Utils.showAlertDialog(S.current.cookie_check_failed);
     }
   }
 
   /// 点击
   void onTap(Site site) async {
     if (site.liveSite.isLogin.value) {
-      var result = await Utils.showAlertDialog(S.of(Get.context!).login_account_exit(Sites.getSiteName(site.id)), title: S.of(Get.context!).supabase_log_out);
+      var result = await Utils.showAlertDialog(S.current.login_account_exit(Sites.getSiteName(site.id)), title: S.current.supabase_log_out);
       if (result) {
         site.liveSite.logout(site);
       }

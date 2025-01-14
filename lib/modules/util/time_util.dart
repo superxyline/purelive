@@ -9,10 +9,10 @@ final class TimeUtil {
     var minute = allMinute % part;
     var str = "";
     if (hour > 0) {
-      str = "$str$hour${S.of(Get.context!).hour}";
+      str = "$str$hour${S.current.hour}";
     }
     if (!(minute == 0 && hour > 0)) {
-      str = "$str$minute${S.of(Get.context!).minute}";
+      str = "$str$minute${S.current.minute}";
     }
     return str;
   }

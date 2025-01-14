@@ -37,8 +37,8 @@ class SearchListView extends StatelessWidget {
                     })
                 : EmptyView(
                     icon: Icons.live_tv_rounded,
-                    title: S.of(context).empty_search_title,
-                    subtitle: S.of(context).empty_search_subtitle,
+                    title: S.current.empty_search_title,
+                    subtitle: S.current.empty_search_subtitle,
                   ),
             Visibility(
               visible: (controller.loadding.value),
@@ -107,7 +107,7 @@ class _OwnerCardState extends State<OwnerCard> {
           },
           style: isFavorite ? null : FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
           child: Text(
-            isFavorite ? S.of(context).unfollow : S.of(context).follow,
+            isFavorite ? S.current.unfollow : S.current.follow,
           ),
         ),
       ),

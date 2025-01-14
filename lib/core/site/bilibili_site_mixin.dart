@@ -117,12 +117,12 @@ mixin BilibiliSiteMixin on SiteAccount {
         settings.siteCookies[site.id] = cookie;
         return flag;
       } else {
-        SmartDialog.showToast(Sites.getSiteName(site.id) + S.of(Get.context!).login_expired);
+        SmartDialog.showToast(Sites.getSiteName(site.id) + S.current.login_expired);
         logout(site);
       }
     } catch (e) {
       CoreLog.error(e);
-      SmartDialog.showToast(Sites.getSiteName(site.id) + S.of(Get.context!).login_failed);
+      SmartDialog.showToast(Sites.getSiteName(site.id) + S.current.login_failed);
     }
     return false;
   }

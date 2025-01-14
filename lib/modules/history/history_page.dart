@@ -30,13 +30,13 @@ class HistoryPage extends GetView {
       appBar: AppBar(
         centerTitle: true,
         scrolledUnderElevation: 0,
-        title: Text(S.of(context).history),
+        title: Text(S.current.history),
         actions: [
           IconButton(
-            tooltip: S.of(context).clear_history,
+            tooltip: S.current.clear_history,
             icon: const Icon(Icons.cleaning_services_outlined),
             onPressed: () async {
-              var result = await Utils.showAlertDialog(S.of(context).clear_history_confirm, title: S.of(context).clear_history);
+              var result = await Utils.showAlertDialog(S.current.clear_history_confirm, title: S.current.clear_history);
               if (result) {
                 final SettingsService settings = Get.find<SettingsService>();
                 settings.clearHistory();
@@ -64,7 +64,7 @@ class HistoryPage extends GetView {
             child: rooms.isEmpty
                 ? EmptyView(
                     icon: Icons.history_rounded,
-                    title: S.of(context).empty_history,
+                    title: S.current.empty_history,
                     subtitle: '',
                   )
                 : MasonryGridView.count(

@@ -75,11 +75,11 @@ class Utils {
           ...?actions,
           TextButton(
             onPressed: (() => Navigator.of(Get.context!).pop(false)),
-            child: Text(cancel.isEmpty ? S.of(Get.context!).cancel : cancel),
+            child: Text(cancel.isEmpty ? S.current.cancel : cancel),
           ),
           TextButton(
             onPressed: (() => Navigator.of(Get.context!).pop(true)),
-            child: Text(confirm.isEmpty ? S.of(Get.context!).confirm : confirm),
+            child: Text(confirm.isEmpty ? S.current.confirm : confirm),
           ),
         ],
       ),
@@ -102,7 +102,7 @@ class Utils {
         actions: [
           TextButton(
             onPressed: (() => Navigator.of(Get.context!).pop(true)),
-            child: Text(confirm.isEmpty ? S.of(Get.context!).confirm : confirm),
+            child: Text(confirm.isEmpty ? S.current.confirm : confirm),
           ),
         ],
       ),
@@ -329,7 +329,7 @@ class Utils {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(Get.context!).pop(),
-            child: Text(S.of(Get.context!).cancel),
+            child: Text(S.current.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -338,7 +338,7 @@ class Utils {
               }
               Navigator.of(Get.context!).pop(textEditingController.text);
             },
-            child: Text(S.of(Get.context!).confirm),
+            child: Text(S.current.confirm),
           ),
         ],
       ),
@@ -379,9 +379,9 @@ class Utils {
     var result = await showAlertDialog(
       text,
       selectable: true,
-      title: S.of(Get.context!).disclaimer,
-      confirm: S.of(Get.context!).read_and_agree,
-      cancel: S.of(Get.context!).exit,
+      title: S.current.disclaimer,
+      confirm: S.current.read_and_agree,
+      cancel: S.current.exit,
     );
     if (!result) {
       exit(0);
@@ -422,7 +422,7 @@ class Utils {
         Get.dialog(
           AlertDialog(
             title: Text(
-              S.of(Get.context!).found_new_version_format(versionInfo.version),
+              S.current.found_new_version_format(versionInfo.version),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 18),
             ),
@@ -440,7 +440,7 @@ class Utils {
                       onPressed: () {
                         Navigator.of(Get.context!).pop();
                       },
-                      child: Text(S.of(Get.context!).cancel),
+                      child: Text(S.current.cancel),
                     ),
                   ),
                   AppStyle.hGap12,
@@ -455,7 +455,7 @@ class Utils {
                           mode: LaunchMode.externalApplication,
                         );
                       },
-                      child: Text(S.of(Get.context!).update),
+                      child: Text(S.current.update),
                     ),
                   ),
                 ],
@@ -465,13 +465,13 @@ class Utils {
         );
       } else {
         if (showMsg) {
-          SmartDialog.showToast(S.of(Get.context!).is_new_version);
+          SmartDialog.showToast(S.current.is_new_version);
         }
       }
     } catch (e) {
       CoreLog.logPrint(e);
       if (showMsg) {
-        SmartDialog.showToast(S.of(Get.context!).check_update_failed);
+        SmartDialog.showToast(S.current.check_update_failed);
       }
     }
   }
@@ -507,7 +507,7 @@ class Utils {
         return true;
       } else {
         SmartDialog.showToast(
-          S.of(Get.context!).grant_access_album,
+          S.current.grant_access_album,
         );
         return false;
       }
@@ -539,7 +539,7 @@ class Utils {
         return true;
       } else {
         SmartDialog.showToast(
-          S.of(Get.context!).grant_access_file,
+          S.current.grant_access_file,
         );
         return false;
       }
@@ -577,10 +577,10 @@ class Utils {
   static void copyToClipboard(String text) async {
     try {
       await Clipboard.setData(ClipboardData(text: text));
-      SmartDialog.showToast(S.of(Get.context!).copy_to_clipboard);
+      SmartDialog.showToast(S.current.copy_to_clipboard);
     } catch (e) {
       CoreLog.logPrint(e);
-      SmartDialog.showToast("${S.of(Get.context!).copy_to_clipboard_failed}: $e");
+      SmartDialog.showToast("${S.current.copy_to_clipboard_failed}: $e");
     }
   }
 
@@ -589,13 +589,13 @@ class Utils {
     try {
       var content = await Clipboard.getData(Clipboard.kTextPlain);
       if (content == null) {
-        SmartDialog.showToast(S.of(Get.context!).unable_to_read_clipboard_contents);
+        SmartDialog.showToast(S.current.unable_to_read_clipboard_contents);
         return null;
       }
       return content.text;
     } catch (e) {
       CoreLog.logPrint(e);
-      SmartDialog.showToast("${S.of(Get.context!).reading_clipboard_content_failed}：$e");
+      SmartDialog.showToast("${S.current.reading_clipboard_content_failed}：$e");
     }
     return null;
   }

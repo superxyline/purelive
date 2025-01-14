@@ -371,9 +371,9 @@
 //             final file = File('${dir.path}${Platform.pathSeparator}${ctx.parsed['name']}');
 //             file.writeAsStringSync(ctx.parsed['file']);
 //             if (settings.recover(file)) {
-//               SnackBarUtil.success(S.of(Get.context!).recover_backup_success);
+//               SnackBarUtil.success(S.current.recover_backup_success);
 //             } else {
-//               SnackBarUtil.error(S.of(Get.context!).recover_backup_failed);
+//               SnackBarUtil.error(S.current.recover_backup_failed);
 //             }
 //           } else {
 //             next();

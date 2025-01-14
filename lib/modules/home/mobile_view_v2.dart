@@ -23,15 +23,15 @@ class HomeMobileViewV2 extends GetView<HomeController> {
         tabs: [
           Tab(
             icon: const Icon(Icons.favorite_rounded),
-            text: S.of(context).favorites_title,
+            text: S.current.favorites_title,
           ),
           Tab(
             icon: const Icon(CustomIcons.popular),
-            text: S.of(context).popular_title,
+            text: S.current.popular_title,
           ),
           Tab(
             icon: const Icon(Icons.area_chart_rounded),
-            text: S.of(context).areas_title,
+            text: S.current.areas_title,
           ),
         ],
       ),

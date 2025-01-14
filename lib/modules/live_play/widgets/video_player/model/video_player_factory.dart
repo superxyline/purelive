@@ -13,12 +13,12 @@ import 'video_play_impl.dart';
 final class VideoPlayerFactory{
   static List<VideoPlayerInterFace> allVideoPlayerList() {
     var list = <VideoPlayerInterFace>[
-      GsyVideoPlay(playerName: "Exo ${S.of(Get.context!).player}", playerType: GsyVideoPlayerType.exo),
-      GsyVideoPlay(playerName: "${S.of(Get.context!).player_system} ${S.of(Get.context!).player}", playerType: GsyVideoPlayerType.sysytem),
-      GsyVideoPlay(playerName: "IJK ${S.of(Get.context!).player}", playerType: GsyVideoPlayerType.ijk),
-      GsyVideoPlay(playerName: "${S.of(Get.context!).player_ali} ${S.of(Get.context!).player}", playerType: GsyVideoPlayerType.ali),
-      MpvVideoPlay(playerName: "MPV ${S.of(Get.context!).player}",),
-      FvpVideoPlay(playerName: "FVP ${S.of(Get.context!).player}",),
+      GsyVideoPlay(playerName: "Exo ${S.current.player}", playerType: GsyVideoPlayerType.exo),
+      GsyVideoPlay(playerName: "${S.current.player_system} ${S.current.player}", playerType: GsyVideoPlayerType.sysytem),
+      GsyVideoPlay(playerName: "IJK ${S.current.player}", playerType: GsyVideoPlayerType.ijk),
+      GsyVideoPlay(playerName: "${S.current.player_ali} ${S.current.player}", playerType: GsyVideoPlayerType.ali),
+      MpvVideoPlay(playerName: "MPV ${S.current.player}",),
+      FvpVideoPlay(playerName: "FVP ${S.current.player}",),
     ];
     return list;
   }
