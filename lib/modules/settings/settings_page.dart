@@ -422,6 +422,9 @@ class SettingsPage extends GetView<SettingsService> {
           VideoFitSetting(
             controller: controller,
           ),
+          const SizedBox(
+            height: 10,
+          ),
           DanmakuSetting(
             controller: controller,
           ),

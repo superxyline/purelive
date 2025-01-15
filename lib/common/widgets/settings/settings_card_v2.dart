@@ -5,12 +5,13 @@ import 'package:pure_live/plugins/extension/list_extension.dart';
 class SettingsCardV2 extends StatelessWidget {
   final List<Widget> children;
 
-  const SettingsCardV2({required this.children, super.key});
+  final EdgeInsetsGeometry? padding;
+  const SettingsCardV2({required this.children, super.key, this.padding});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: AppStyle.edgeInsetsA12,
+        padding: padding ?? AppStyle.edgeInsetsA12,
         decoration: BoxDecoration(
           borderRadius: AppStyle.radius8,
         ),
