@@ -477,7 +477,7 @@ class SettingsService extends GetxController {
     if (newLiveRoom.liveStatus == LiveStatus.live && newLiveRoom.recordWatching.isNotNullOrEmpty) {
       var watching = readableCountStrToNum(newLiveRoom.watching);
       var recordWatching = readableCountStrToNum(newLiveRoom.recordWatching);
-      if (watching <= recordWatching) {
+      if (watching <= recordWatching * 1.2) {
         newLiveRoom.liveStatus = LiveStatus.replay;
         newLiveRoom.isRecord = true;
       }
