@@ -638,8 +638,8 @@ class SettingsService extends GetxController {
     mergeDanmuRating.value = json['mergeDanmuRating'] != null ? double.parse(json['mergeDanmuRating'].toString()) : 0.0;
     filterDanmuUserLevel.value = json['filterDanmuUserLevel'] != null ? double.parse(json['filterDanmuUserLevel'].toString()) : 0.0;
     filterDanmuFansLevel.value = json['filterDanmuFansLevel'] != null ? double.parse(json['filterDanmuFansLevel'].toString()) : 0.0;
-    showDanmuFans.value = json['showDanmuFans'] != null ? bool.parse(json['showDanmuFans']) : true;
-    showDanmuUserLevel.value = json['showDanmuUserLevel'] != null ? bool.parse(json['showDanmuUserLevel']) : true;
+    showDanmuFans.value = json['showDanmuFans'] ?? true;
+    showDanmuUserLevel.value = json['showDanmuUserLevel'] ?? true;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     webPort.value = json['webPort'] ?? '8008';
