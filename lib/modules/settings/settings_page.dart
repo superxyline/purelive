@@ -417,7 +417,7 @@ class SettingsPage extends GetView<SettingsService> {
       title: S.current.settings_danmaku_title,
       child: ListView(
         // shrinkWrap: true,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         children: [
           VideoFitSetting(
             controller: controller,
