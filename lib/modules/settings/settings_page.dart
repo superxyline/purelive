@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/utils.dart';
@@ -524,15 +525,34 @@ class SettingsPage extends GetView<SettingsService> {
     return result;
   }
 
+
+
   /// 缓存管理
   static Future<void> showCacheManageSetDialog() async {
     // var controller = Get.find<SettingsService>();
     var cacheDirectorySize = "0 B".obs;
-    CustomCache.instance.getCacheDirectorySize().then((value) => cacheDirectorySize.updateValueNotEquate(value));
+    void getCacheDirectorySize() {
+      Future.delayed(const Duration(seconds: 1)).then((value) {
+        CustomCache.instance.getCacheDirectorySize().then((value) => cacheDirectorySize.updateValueNotEquate(value));
+      });
+    }
+    getCacheDirectorySize();
+
     var imageCacheDirectorySize = "0 B".obs;
-    CustomCache.instance.getImageCacheDirectorySize().then((value) => imageCacheDirectorySize.updateValueNotEquate(value));
+    void getImageCacheDirectorySize() {
+      Future.delayed(const Duration(seconds: 1)).then((value) {
+        CustomCache.instance.getImageCacheDirectorySize().then((value) => imageCacheDirectorySize.updateValueNotEquate(value));
+      });
+    }
+    getImageCacheDirectorySize();
+
     var areaCacheDirectorySize = "0 B".obs;
-    CustomCache.instance.getAreaCacheDirectorySize().then((value) => areaCacheDirectorySize.updateValueNotEquate(value));
+    void getAreaCacheDirectorySize() {
+      Future.delayed(const Duration(seconds: 1)).then((value) {
+        CustomCache.instance.getAreaCacheDirectorySize().then((value) => areaCacheDirectorySize.updateValueNotEquate(value));
+      });
+    }
+    getAreaCacheDirectorySize();
 
     Utils.showRightOrBottomSheet(
       title: S.current.cache_manage,
@@ -547,6 +567,9 @@ class SettingsPage extends GetView<SettingsService> {
               var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_all);
               if (result) {
                 CustomCache.instance.deleteCacheDirectory();
+                getCacheDirectorySize();
+                getImageCacheDirectorySize();
+                getAreaCacheDirectorySize();
               }
             },
           ),
@@ -558,6 +581,8 @@ class SettingsPage extends GetView<SettingsService> {
               var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_image);
               if (result) {
                 CustomCache.instance.deleteImageCacheDirectory();
+                getCacheDirectorySize();
+                getImageCacheDirectorySize();
               }
             },
           ),
@@ -570,6 +595,8 @@ class SettingsPage extends GetView<SettingsService> {
               var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_area);
               if (result) {
                 CustomCache.instance.deleteAreaCacheDirectory();
+                getCacheDirectorySize();
+                getAreaCacheDirectorySize();
               }
             },
           ),
