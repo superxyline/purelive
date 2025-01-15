@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/settings/settings_card_v2.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_controller.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 
@@ -29,8 +30,11 @@ class HotAreasPage extends GetView<HotAreasController> {
         title: Text(S.current.platform_show),
       ),
       body: Obx(() => ListView(
-            padding: const EdgeInsets.all(12.0),
-            children: _initListData(),
+            children: [
+              SettingsCardV2(
+                children: _initListData(),
+              )
+            ],
           )),
     );
   }

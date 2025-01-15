@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/settings/settings_card_v2.dart';
 import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
@@ -191,20 +191,22 @@ class SettingsPage extends GetView<SettingsService> {
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
         title: S.current.change_theme_mode,
-        child: ListView(
-          children: SettingsService.themeModes.keys.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
-              groupValue: controller.themeModeName.value,
-              value: name,
-              title: Text(SettingsService.getThemeTitle(name)),
-              onChanged: (value) {
-                controller.changeThemeMode(value!);
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
-        ));
+        child: ListView(children: [
+          SettingsCardV2(
+            children: SettingsService.themeModes.keys.map<Widget>((name) {
+              return RadioListTile<String>(
+                activeColor: Theme.of(context).colorScheme.primary,
+                groupValue: controller.themeModeName.value,
+                value: name,
+                title: Text(SettingsService.getThemeTitle(name)),
+                onChanged: (value) {
+                  controller.changeThemeMode(value!);
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+          )
+        ]));
   }
 
   /// 主题颜色
@@ -274,18 +276,21 @@ class SettingsPage extends GetView<SettingsService> {
     Utils.showRightOrBottomSheet(
       title: S.current.change_language,
       child: ListView(
-        children: SettingsService.languages.keys.map<Widget>((name) {
-          return RadioListTile<String>(
-            activeColor: Theme.of(context).colorScheme.primary,
-            groupValue: controller.languageName.value,
-            value: name,
-            title: Text(name),
-            onChanged: (value) {
-              controller.changeLanguage(value!);
-              Navigator.of(context).pop();
-            },
-          );
-        }).toList(),
+        children: [
+          SettingsCardV2(
+              children: SettingsService.languages.keys.map<Widget>((name) {
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.languageName.value,
+              value: name,
+              title: Text(name),
+              onChanged: (value) {
+                controller.changeLanguage(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList())
+        ],
       ),
     );
   }
@@ -298,18 +303,21 @@ class SettingsPage extends GetView<SettingsService> {
     Utils.showRightOrBottomSheet(
       title: S.current.change_player,
       child: ListView(
-        children: playerList.map<Widget>((name) {
-          return RadioListTile<String>(
-            activeColor: Theme.of(context).colorScheme.primary,
-            groupValue: playerList[controller.videoPlayerIndex.value],
-            value: name,
-            title: Text(name),
-            onChanged: (value) {
-              controller.changePlayer(playerList.indexOf(name));
-              Navigator.of(context).pop();
-            },
-          );
-        }).toList(),
+        children: [
+          SettingsCardV2(
+              children: playerList.map<Widget>((name) {
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: playerList[controller.videoPlayerIndex.value],
+              value: name,
+              title: Text(name),
+              onChanged: (value) {
+                controller.changePlayer(playerList.indexOf(name));
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList())
+        ],
       ),
     );
   }
@@ -321,18 +329,21 @@ class SettingsPage extends GetView<SettingsService> {
     Utils.showRightOrBottomSheet(
       title: S.current.prefer_resolution,
       child: ListView(
-        children: SettingsService.resolutions.map<Widget>((name) {
-          return RadioListTile<String>(
-            activeColor: Theme.of(context).colorScheme.primary,
-            groupValue: controller.preferResolution.value,
-            value: name,
-            title: Text(name),
-            onChanged: (value) {
-              controller.changePreferResolution(value!);
-              Navigator.of(context).pop();
-            },
-          );
-        }).toList(),
+        children: [
+          SettingsCardV2(
+              children: SettingsService.resolutions.map<Widget>((name) {
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.preferResolution.value,
+              value: name,
+              title: Text(name),
+              onChanged: (value) {
+                controller.changePreferResolution(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList())
+        ],
       ),
     );
   }
@@ -344,30 +355,33 @@ class SettingsPage extends GetView<SettingsService> {
     Utils.showRightOrBottomSheet(
       title: S.current.prefer_platform,
       child: ListView(
-        children: Sites.supportSites.map<Widget>((site) {
-          return RadioListTile<String>(
-            activeColor: Theme.of(context).colorScheme.primary,
-            groupValue: controller.preferPlatform.value,
-            value: site.id,
-            title: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: SiteWidget.getSiteLogeImage(site.id), // 替换为你的图片路径
-                ),
-                Expanded(
-                  child: Text(
-                    Sites.getSiteName(site.id), // 替换为你的文本
+        children: [
+          SettingsCardV2(
+              children: Sites.supportSites.map<Widget>((site) {
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.preferPlatform.value,
+              value: site.id,
+              title: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: SiteWidget.getSiteLogeImage(site.id), // 替换为你的图片路径
                   ),
-                ),
-              ],
-            ),
-            onChanged: (value) {
-              controller.changePreferPlatform(value!);
-              Navigator.of(context).pop();
-            },
-          );
-        }).toList(),
+                  Expanded(
+                    child: Text(
+                      Sites.getSiteName(site.id), // 替换为你的文本
+                    ),
+                  ),
+                ],
+              ),
+              onChanged: (value) {
+                controller.changePreferPlatform(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList())
+        ],
       ),
     );
   }
@@ -525,8 +539,6 @@ class SettingsPage extends GetView<SettingsService> {
     return result;
   }
 
-
-
   /// 缓存管理
   static Future<void> showCacheManageSetDialog() async {
     // var controller = Get.find<SettingsService>();
@@ -536,6 +548,7 @@ class SettingsPage extends GetView<SettingsService> {
         CustomCache.instance.getCacheDirectorySize().then((value) => cacheDirectorySize.updateValueNotEquate(value));
       });
     }
+
     getCacheDirectorySize();
 
     var imageCacheDirectorySize = "0 B".obs;
@@ -544,6 +557,7 @@ class SettingsPage extends GetView<SettingsService> {
         CustomCache.instance.getImageCacheDirectorySize().then((value) => imageCacheDirectorySize.updateValueNotEquate(value));
       });
     }
+
     getImageCacheDirectorySize();
 
     var areaCacheDirectorySize = "0 B".obs;
@@ -552,56 +566,57 @@ class SettingsPage extends GetView<SettingsService> {
         CustomCache.instance.getAreaCacheDirectorySize().then((value) => areaCacheDirectorySize.updateValueNotEquate(value));
       });
     }
+
     getAreaCacheDirectorySize();
 
     Utils.showRightOrBottomSheet(
-      title: S.current.cache_manage,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.current.cache_manage_clear_all),
-            subtitle: Obx(() => Text(cacheDirectorySize.value)),
-            onTap: () async {
-              var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_all);
-              if (result) {
-                CustomCache.instance.deleteCacheDirectory();
-                getCacheDirectorySize();
-                getImageCacheDirectorySize();
-                getAreaCacheDirectorySize();
-              }
-            },
+        title: S.current.cache_manage,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          SettingsCardV2(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.cleaning_services_outlined),
+                title: Text(S.current.cache_manage_clear_all),
+                subtitle: Obx(() => Text(cacheDirectorySize.value)),
+                onTap: () async {
+                  var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_all);
+                  if (result) {
+                    CustomCache.instance.deleteCacheDirectory();
+                    getCacheDirectorySize();
+                    getImageCacheDirectorySize();
+                    getAreaCacheDirectorySize();
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.cleaning_services_outlined),
+                title: Text(S.current.cache_manage_clear_image),
+                subtitle: Obx(() => Text(imageCacheDirectorySize.value)),
+                onTap: () async {
+                  var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_image);
+                  if (result) {
+                    CustomCache.instance.deleteImageCacheDirectory();
+                    getCacheDirectorySize();
+                    getImageCacheDirectorySize();
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.cleaning_services_outlined),
+                title: Text(S.current.cache_manage_clear_area),
+                // subtitle: Text(areaCacheDirectorySize),
+                subtitle: Obx(() => Text(areaCacheDirectorySize.value)),
+                onTap: () async {
+                  var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_area);
+                  if (result) {
+                    CustomCache.instance.deleteAreaCacheDirectory();
+                    getCacheDirectorySize();
+                    getAreaCacheDirectorySize();
+                  }
+                },
+              ),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.current.cache_manage_clear_image),
-            subtitle: Obx(() => Text(imageCacheDirectorySize.value)),
-            onTap: () async {
-              var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_image);
-              if (result) {
-                CustomCache.instance.deleteImageCacheDirectory();
-                getCacheDirectorySize();
-                getImageCacheDirectorySize();
-              }
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(S.current.cache_manage_clear_area),
-            // subtitle: Text(areaCacheDirectorySize),
-            subtitle: Obx(() => Text(areaCacheDirectorySize.value)),
-            onTap: () async {
-              var result = await Utils.showAlertDialog(S.current.cache_manage_clear_prompt, title: S.current.cache_manage_clear_area);
-              if (result) {
-                CustomCache.instance.deleteAreaCacheDirectory();
-                getCacheDirectorySize();
-                getAreaCacheDirectorySize();
-              }
-            },
-          ),
-        ],
-      ),
-    );
+        ]));
   }
 }
