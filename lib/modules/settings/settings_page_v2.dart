@@ -3,13 +3,18 @@ import 'dart:io';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/app_style.dart';
 import 'package:pure_live/common/widgets/settings/settings_card_v2.dart';
 import 'package:pure_live/common/widgets/settings/settings_list_item.dart';
 import 'package:pure_live/common/widgets/settings/settings_switch.dart';
 import 'package:pure_live/common/widgets/utils.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/hot_areas/hot_areas_controller.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
+import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/modules/util/time_util.dart';
+import 'package:pure_live/plugins/extension/list_extension.dart';
 import 'package:remixicon/remixicon.dart';
 
 class SettingsPageV2 extends GetView<SettingsService> {
@@ -111,6 +116,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
               settingOtherInfoSheet();
             },
           ),
+
           /// 缓存设置
           SettingsListItem(
             leading: const Icon(Icons.delete_outline),
@@ -205,7 +211,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                     onChanged: (bool value) => controller.enableDenseFavorites.value = value,
                   )),
 
-              ///
+              /// 首选平台
               SettingsListItem(
                 leading: const Icon(Icons.favorite),
                 title: Text(S.current.prefer_platform),
@@ -219,12 +225,15 @@ class SettingsPageV2 extends GetView<SettingsService> {
                 ),
               ),
 
-              ///
+              /// 平台设置 平台显示
               SettingsListItem(
                 leading: const Icon(Icons.show_chart_outlined),
                 title: Text(S.current.platform_settings),
                 subtitle: Text(S.current.platform_settings_info),
-                onTap: () => Get.toNamed(RoutePath.kSettingsHotAreas),
+                onTap: () {
+                  // SettingsPage.showPreferPlatformSelectorDialog();
+                  showPlatformDialog();
+                },
                 trailing: const Icon(
                   Icons.chevron_right,
                   color: Colors.grey,
@@ -235,6 +244,43 @@ class SettingsPageV2 extends GetView<SettingsService> {
             ])
           ]),
     );
+  }
+
+  static void showPlatformDialog() async {
+    await Utils.showRightOrBottomSheet(
+        title: S.current.platform_settings_info,
+        child: Obx(() => ListView(
+                // shrinkWrap: true,
+                children: [
+                  SettingsCardV2(children: [
+                    ///
+                    ...Sites.supportSites
+                        .map((site) {
+                          var show = SettingsService.instance.hotAreasList.value.contains(site.id);
+                          var area = HotAreasModel(id: site.id, name: site.name, show: show);
+                          return area;
+                        })
+                        .map((site) {
+                          return SettingsSwitch(
+                              leading: SiteWidget.getSiteLogeImage(site.id)!,
+                              title: Text(Sites.getSiteName(site.id)),
+                              value: site.show,
+                              onChanged: (bool value) {
+                                var data = site.id.toString();
+                                if (value) {
+                                  if (!SettingsService.instance.hotAreasList.contains(data)) {
+                                    SettingsService.instance.hotAreasList.add(data);
+                                  }
+                                } else {
+                                  SettingsService.instance.hotAreasList.remove(data);
+                                }
+                                SmartDialog.showToast('重启后生效');
+                              }) as StatelessWidget;
+                        })
+                        .toList()
+                        .joinItem(AppStyle.divider)
+                  ])
+                ])));
   }
 
   /// 弹幕设置
@@ -308,7 +354,6 @@ class SettingsPageV2 extends GetView<SettingsService> {
           // shrinkWrap: true,
           children: [
             SettingsCardV2(children: [
-
               // 定时关闭设置
               if (Platform.isAndroid)
                 SettingsListItem(
