@@ -101,7 +101,7 @@ class CoreLog {
   }
 
   static Future<File> getLogsPath() async {
-    String dir = (await getApplicationDocumentsDirectory()).path;
+    String dir = (await getApplicationCacheDirectory()).path;
     final String filename = p.join(dir, "1._logs");
     d("log file: $filename");
     final File file = File(filename);
