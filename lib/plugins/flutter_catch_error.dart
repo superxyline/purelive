@@ -50,6 +50,7 @@ class FlutterCatchError {
       releaseConfig: releaseConfig,
       runAppFunction: () async {
         await appInit(app, args);
+        runApp(app);
       },
     );
 
@@ -81,7 +82,7 @@ class FlutterCatchError {
     CustomCache.instance.deleteImageCacheFile();
 
     ///受保护的代码块
-    runApp(app);
+    // runApp(app);
   }
 
   ///对搜集的 异常进行处理  上报等等
