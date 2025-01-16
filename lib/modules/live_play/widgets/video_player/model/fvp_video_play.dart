@@ -266,10 +266,15 @@ class FvpVideoPlay extends VideoPlayerInterFace {
 
   @override
   Widget getVideoPlayerWidget() {
-    return Obx(() => Chewie(
-          key: UniqueKey(),
-          controller: chewieController.value,
-        ));
+    try{
+      return Obx(() => Chewie(
+        key: UniqueKey(),
+        controller: chewieController.value,
+      ));
+    }catch(e) {
+      CoreLog.error(e);
+      return Container();
+    }
   }
 
   @override
