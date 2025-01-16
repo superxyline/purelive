@@ -372,10 +372,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                 onTap: () {
                   SettingsPage.showPreferResolutionSelectorDialog();
                 },
-                trailing: const Icon(
-                  Icons.chevron_right,
-                  color: Colors.grey,
-                ),
+                trailing: Obx(() => Text(controller.preferResolution.value)),
               ),
 
               if (Platform.isAndroid)
