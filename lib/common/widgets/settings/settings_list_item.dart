@@ -6,13 +6,13 @@ class SettingsListItem extends StatelessWidget {
   final Widget? subtitle;
   final Widget? leading;
   final Widget? trailing;
-  final Function() onTap;
+  final Function()? onTap;
   const SettingsListItem({
     required this.title,
     this.subtitle,
     this.leading,
     this.trailing,
-    required this.onTap,
+    this.onTap,
     super.key,
   });
 
@@ -29,7 +29,7 @@ class SettingsListItem extends StatelessWidget {
         .copyWith(color: Theme.of(context).colorScheme.outline);
     return ListTile(
       enableFeedback: true,
-      onTap: () => onTap(),
+      onTap: onTap,
       shape: RoundedRectangleBorder(
         borderRadius: AppStyle.radius8,
       ),

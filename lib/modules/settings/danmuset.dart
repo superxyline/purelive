@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/settings/settings_card_v2.dart';
+import 'package:pure_live/common/widgets/settings/settings_list_item.dart';
 import 'package:pure_live/common/widgets/settings/settings_switch.dart';
 import 'package:pure_live/modules/settings/tmp_tab_controller.dart';
 
@@ -45,10 +46,6 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
 
   @override
   Widget build(BuildContext context) {
-    var contentPadding = const EdgeInsets.only(
-      left: 10,
-      right: 10,
-    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -78,9 +75,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
                 value: controller.showDanmuUserLevel.value,
                 onChanged: (bool value) => controller.showDanmuUserLevel.value = value,
               )),
-          Obx(() => ListTile(
-                dense: true,
-                contentPadding: contentPadding,
+          Obx(() => SettingsListItem(
                 leading: Text(S.current.user_level),
                 subtitle: Text(S.current.fans_level_danmu_format(controller.filterDanmuUserLevel.value.toInt())),
                 title: Slider(
@@ -104,9 +99,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
                 value: controller.showDanmuFans.value,
                 onChanged: (bool value) => controller.showDanmuFans.value = value,
               )),
-          Obx(() => ListTile(
-                dense: true,
-                contentPadding: contentPadding,
+          Obx(() => SettingsListItem(
                 leading: Text(S.current.fans),
                 subtitle: Text(S.current.fans_level_danmu_format(controller.filterDanmuFansLevel.value.toInt())),
                 title: Slider(
@@ -125,11 +118,8 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
         ),
         SettingsCardV2(children: [
           /// 弹幕合并
-          Obx(() => ListTile(
-                dense: true,
-                contentPadding: contentPadding,
+          Obx(() => SettingsListItem(
                 leading: Text(S.current.danmu_merge),
-                subtitleTextStyle: TextStyle(),
                 subtitle: Text(S.current.danmu_merge_format((controller.mergeDanmuRating.value * 100).toInt())),
                 title: Slider(
                   divisions: 10,
@@ -147,9 +137,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
 
         /// 比例设置
         SettingsCardV2(children: [
-          ListTile(
-            dense: true,
-            contentPadding: contentPadding,
+          SettingsListItem(
             leading: Text(S.current.settings_videofit_title),
             // subtitle: Text(S.current.fans_level_danmu_format(controller.filterDanmuFansLevel.value.toInt())),
             title: TabBar(
@@ -232,19 +220,13 @@ class DanmakuSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var contentPadding = const EdgeInsets.only(
-      left: 10,
-      right: 10,
-    );
     return SettingsCardV2(
         padding: const EdgeInsets.only(
           left: 10,
           right: 10,
         ),
         children: [
-          Obx(() => ListTile(
-                dense: true,
-                contentPadding: contentPadding,
+          Obx(() => SettingsListItem(
                 leading: Text(S.current.settings_danmaku_area),
                 title: Slider(
                   divisions: 10,
@@ -257,9 +239,7 @@ class DanmakuSetting extends StatelessWidget {
                   '${(controller.danmakuArea.value * 100).toInt()}%',
                 ),
               )),
-          Obx(() => ListTile(
-                dense: true,
-                contentPadding: contentPadding,
+          Obx(() => SettingsListItem(
                 leading: Text(S.current.settings_danmaku_opacity),
                 title: Slider(
                   divisions: 10,
@@ -270,9 +250,7 @@ class DanmakuSetting extends StatelessWidget {
                 ),
                 trailing: Text('${(controller.danmakuOpacity.value * 100).toInt()}%'),
               )),
-          Obx(() => ListTile(
-                dense: true,
-                contentPadding: contentPadding,
+          Obx(() => SettingsListItem(
                 leading: Text(S.current.settings_danmaku_speed),
                 title: Slider(
                   divisions: 15,
@@ -283,9 +261,7 @@ class DanmakuSetting extends StatelessWidget {
                 ),
                 trailing: Text(controller.danmakuSpeed.value.toInt().toString()),
               )),
-          Obx(() => ListTile(
-                dense: true,
-                contentPadding: contentPadding,
+          Obx(() => SettingsListItem(
                 leading: Text(S.current.settings_danmaku_fontsize),
                 title: Slider(
                   divisions: 20,
@@ -298,9 +274,7 @@ class DanmakuSetting extends StatelessWidget {
                   controller.danmakuFontSize.value.toInt().toString(),
                 ),
               )),
-          Obx(() => ListTile(
-                dense: true,
-                contentPadding: contentPadding,
+          Obx(() => SettingsListItem(
                 leading: Text(S.current.settings_danmaku_fontBorder),
                 title: Slider(
                   divisions: 25,
