@@ -48,8 +48,8 @@ class FlutterCatchError {
     Catcher2(
       debugConfig: debugConfig,
       releaseConfig: releaseConfig,
-      runAppFunction: () {
-        appInit(app, args);
+      runAppFunction: () async {
+        await appInit(app, args);
       },
     );
 
