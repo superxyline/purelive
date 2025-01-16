@@ -7,12 +7,14 @@ class SettingsListItem extends StatelessWidget {
   final Widget? leading;
   final Widget? trailing;
   final Function()? onTap;
+  final bool selected;
   const SettingsListItem({
     required this.title,
     this.subtitle,
     this.leading,
     this.trailing,
     this.onTap,
+    this.selected = false,
     super.key,
   });
 
@@ -30,6 +32,7 @@ class SettingsListItem extends StatelessWidget {
     return ListTile(
       enableFeedback: true,
       onTap: onTap,
+      selected: selected,
       shape: RoundedRectangleBorder(
         borderRadius: AppStyle.radius8,
       ),

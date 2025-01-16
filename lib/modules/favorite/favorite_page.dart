@@ -2,6 +2,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
+import 'package:pure_live/common/widgets/settings/settings_list_item.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 
@@ -187,7 +188,7 @@ class _RoomGridView extends GetView<FavoriteController> {
               if (siteId != Sites.allSite) {
                 site = Sites.of(siteId);
               }
-              return ListTile(
+              return SettingsListItem(
                 leading: SiteWidget.getSiteLogeImage(site.id),
                 title: Text(Sites.getSiteName(site.id)),
                 onTap: () {
