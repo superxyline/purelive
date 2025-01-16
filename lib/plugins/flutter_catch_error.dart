@@ -27,6 +27,7 @@ class FlutterCatchError {
 
     setCustomErrorPage();
 
+    await appInit(app, args);
 
     // 异常捕获 logo记录
     final Catcher2Options debugConfig = Catcher2Options(
@@ -45,7 +46,6 @@ class FlutterCatchError {
       [FileHandler(await CoreLog.getLogsPath())],
     );
 
-    await appInit(app, args);
     Catcher2(
       debugConfig: debugConfig,
       releaseConfig: releaseConfig,
