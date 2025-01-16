@@ -329,7 +329,6 @@ class SettingsPageV2 extends GetView<SettingsService> {
   /// 直播设置
   static void settingPlayerInfoSheet() async {
     var controller = SettingsService.instance;
-    var context = Get.context!;
     await Utils.showRightOrBottomSheet(
       title: S.current.settings_player,
       child: ListView(
