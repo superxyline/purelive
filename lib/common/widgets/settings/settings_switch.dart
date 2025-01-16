@@ -18,7 +18,11 @@ class SettingsSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    TextStyle titleStyle = Theme.of(context).textTheme.titleMedium!;
+    TextStyle subTitleStyle = Theme.of(context)
+        .textTheme
+        .labelMedium!
+        .copyWith(color: Theme.of(context).colorScheme.outline);
     return ListTile(
       enableFeedback: true,
       onTap: () => onChanged(!value),
@@ -28,7 +32,9 @@ class SettingsSwitch extends StatelessWidget {
       //visualDensity: VisualDensity.compact,
       contentPadding: AppStyle.edgeInsetsL16.copyWith(right: 8),
       title: title,
+      titleTextStyle: titleStyle,
       subtitle: subtitle,
+      subtitleTextStyle: subTitleStyle,
       leading: leading,
       trailing: Transform.scale(
         alignment: Alignment.centerRight, // 缩放Switch的大小后保持右侧对齐, 避免右侧空隙过大
