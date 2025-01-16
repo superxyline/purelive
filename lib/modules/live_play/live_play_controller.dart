@@ -19,10 +19,12 @@ import 'package:pure_live/modules/live_play/danmu_merge.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
+import 'package:pure_live/plugins/barrage.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import 'widgets/video_player/danmaku_text.dart';
 import 'widgets/video_player/video_controller.dart';
 
 class LivePlayController extends StateController {
@@ -165,7 +167,7 @@ class LivePlayController extends StateController {
     if (videoController?.videoPlayer.isPipMode.value == true) {
       videoController?.settings.hideDanmaku.updateValueNotEquate(true);
     }
-    videoController?.danmakuController.reset(0);
+    danmakuController.reset(0);
     // //关闭控制器
     // showControlsState.updateValueNotEquate(false);
 
@@ -526,7 +528,7 @@ class LivePlayController extends StateController {
           DanmuMerge().add(msg.message);
           messages.add(msg);
           if (videoController != null && videoController!.hasDestory == false) {
-            videoController?.sendDanmaku(msg);
+            sendDanmaku(msg);
           }
         }
       } else if (msg.type == LiveMessageType.online) {
@@ -589,7 +591,7 @@ class LivePlayController extends StateController {
       var playQualites = qualites.value;
       if (isFirstLoad.value) {
         playQualites = await currentSite.liveSite.getPlayQualites(detail: liveRoomRx.toLiveRoom());
-        playQualites.forEach((playQuality){
+        for (var playQuality in playQualites) {
           var quality = playQuality.quality;
           quality = quality.replaceAll(" ", "");
           quality = quality.replaceAll("质臻", "8M");
@@ -597,7 +599,7 @@ class LivePlayController extends StateController {
             quality = "蓝光4M";
           }
           playQuality.quality = quality;
-        });
+        }
 
       }
       if (playQualites.isEmpty) {
@@ -782,5 +784,22 @@ class LivePlayController extends StateController {
   void dispose() {
     disPoserPlayer();
     super.dispose();
+  }
+
+  /// 弹幕
+  BarrageWallController danmakuController = BarrageWallController();
+  void sendDanmaku(LiveMessage msg) {
+    if (settings.hideDanmaku.value) return;
+
+    danmakuController.send([
+      Bullet(
+        child: DanmakuText(
+          msg.message,
+          fontSize: settings.danmakuFontSize.value,
+          strokeWidth: settings.danmakuFontBorder.value,
+          color: msg.color,
+        ),
+      ),
+    ]);
   }
 }

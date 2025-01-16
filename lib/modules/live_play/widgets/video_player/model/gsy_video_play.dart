@@ -14,7 +14,7 @@ import 'package:pure_live/modules/util/rx_util.dart';
 
 import 'video_play_impl.dart';
 
-class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
+class GsyVideoPlay extends VideoPlayerInterFace {
   // Video player control
   late GsyVideoPlayerController gsyVideoPlayerController;
 
@@ -99,7 +99,6 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     }));
     gsyVideoPlayerController.addEventsListener(gsyEventsListener);
     chewieController.addListener(chewieControllerListener);
-    notifyListeners();
   }
 
   void chewieControllerListener() {
@@ -145,7 +144,6 @@ class GsyVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
     disposeGSYVideoPlayerListener();
     gsyVideoPlayerController.dispose();
     chewieController.dispose();
-    super.dispose();
   }
 
   @override

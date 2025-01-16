@@ -97,7 +97,7 @@ class VideoController with ChangeNotifier {
   }
 
   // Danmaku player control
-  BarrageWallController danmakuController = BarrageWallController();
+  // BarrageWallController danmakuController = BarrageWallController();
   // final hideDanmaku = false.obs;
   // final danmakuArea = 1.0.obs;
   // final danmakuSpeed = 8.0.obs;
@@ -299,20 +299,20 @@ class VideoController with ChangeNotifier {
     }));*/
   }
 
-  void sendDanmaku(LiveMessage msg) {
-    if (settings.hideDanmaku.value) return;
-
-    danmakuController.send([
-      Bullet(
-        child: DanmakuText(
-          msg.message,
-          fontSize: settings.danmakuFontSize.value,
-          strokeWidth: settings.danmakuFontBorder.value,
-          color: msg.color,
-        ),
-      ),
-    ]);
-  }
+  // void sendDanmaku(LiveMessage msg) {
+  //   if (settings.hideDanmaku.value) return;
+  //
+  //   danmakuController.send([
+  //     Bullet(
+  //       child: DanmakuText(
+  //         msg.message,
+  //         fontSize: settings.danmakuFontSize.value,
+  //         strokeWidth: settings.danmakuFontBorder.value,
+  //         color: msg.color,
+  //       ),
+  //     ),
+  //   ]);
+  // }
 
   @override
   void dispose() async {
@@ -358,8 +358,8 @@ class VideoController with ChangeNotifier {
   destory() async {
     resetScreenBrightness();
     disposeAllStream();
-    danmakuController.disable();
-    await danmakuController.dispose();
+    // danmakuController.disable();
+    // await danmakuController.dispose();
     videoPlayer.isPlaying.updateValueNotEquate(false);
     videoPlayer.hasError.updateValueNotEquate(false);
     try {
@@ -581,7 +581,13 @@ class VideoController with ChangeNotifier {
 
   /// 获取亮度
   Future<double> brightness() async {
-    return await brightnessController.application;
+    try {
+      return await brightnessController.application;
+    }catch(e) {
+      CoreLog.d("$e");
+      return 100;
+    }
+
   }
 
   /// 设置亮度

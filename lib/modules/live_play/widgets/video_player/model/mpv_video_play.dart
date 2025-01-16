@@ -17,7 +17,7 @@ import 'package:pure_live/modules/util/rx_util.dart';
 
 import 'video_play_impl.dart';
 
-class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
+class MpvVideoPlay extends VideoPlayerInterFace{
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
   late GlobalKey<media_kit_video.VideoState> key =
@@ -111,8 +111,6 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
       key.currentState?.exitFullscreen();
     }
     player.dispose();
-
-    super.dispose();
   }
 
   @override
@@ -188,22 +186,32 @@ class MpvVideoPlay extends VideoPlayerInterFace with ChangeNotifier {
   @override
   Widget getVideoPlayerWidget() {
     key = GlobalKey<media_kit_video.VideoState>();
-    return Obx(() => media_kit_video.Video(
-          key: (){ key = GlobalKey<media_kit_video.VideoState>(); return key; }(),
-          controller: mediaPlayerController,
-          pauseUponEnteringBackgroundMode: !settings.enableBackgroundPlay.value,
-          // 进入背景模式时暂停
-          resumeUponEnteringForegroundMode: true,
-          // 进入前景模式后恢复
-          fit: controller
-              .settings.videofitArrary[controller.videoFitIndex.value],
-          controls: "" == Sites.iptvSite
-              ? media_kit_video.MaterialVideoControls
-              : (state) => VideoControllerPanel(
-                    controller: controller,
-                  ),
-          onEnterFullscreen: enterNativeFullscreen,
-        ));
+    try {
+      return Obx(() =>
+          media_kit_video.Video(
+            key: () {
+              key = GlobalKey<media_kit_video.VideoState>();
+              return key;
+            }(),
+            controller: mediaPlayerController,
+            pauseUponEnteringBackgroundMode: !settings.enableBackgroundPlay.value,
+            // 进入背景模式时暂停
+            resumeUponEnteringForegroundMode: true,
+            // 进入前景模式后恢复
+            fit: controller
+                .settings.videofitArrary[controller.videoFitIndex.value],
+            controls: "" == Sites.iptvSite
+                ? media_kit_video.MaterialVideoControls
+                : (state) =>
+                VideoControllerPanel(
+                  controller: controller,
+                ),
+            onEnterFullscreen: enterNativeFullscreen,
+          ));
+    }catch(e) {
+      CoreLog.error(e);
+      return Container();
+    }
   }
 
   @override

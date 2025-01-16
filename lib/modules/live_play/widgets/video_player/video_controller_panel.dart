@@ -156,7 +156,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                         ),
                       ),
                     ),
-                    DanmakuViewer(controller: controller),
+                    DanmakuViewer(danmakuController: Get.find<LivePlayController>().danmakuController),
                     GestureDetector(
                         onTap: () {
                           if (controller.showSettting.value) {
@@ -561,28 +561,28 @@ class PIPButton extends StatelessWidget {
 class DanmakuViewer extends StatelessWidget {
   const DanmakuViewer({
     super.key,
-    required this.controller,
+    required this.danmakuController,
   });
 
-  final VideoController controller;
+  final BarrageWallController danmakuController;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() => Opacity(
-          opacity: controller.settings.hideDanmaku.value
+          opacity: SettingsService.instance.hideDanmaku.value
               ? 0
-              : controller.settings.danmakuOpacity.value,
-          child: controller.settings.danmakuArea.value == 0.0
+              : SettingsService.instance.danmakuOpacity.value,
+          child: SettingsService.instance.danmakuArea.value == 0.0
               ? Container()
               : LayoutBuilder(builder: (context, constraint) {
             final width = constraint.maxWidth;
             final height = constraint.maxHeight;
             return BarrageWall(
               width: width,
-              height: height * controller.settings.danmakuArea.value,
-              controller: controller.danmakuController,
-              speed: controller.settings.danmakuSpeed.value.toInt(),
-              maxBulletHeight: controller.settings.danmakuFontSize * 1.5,
+              height: height * SettingsService.instance.danmakuArea.value,
+              controller: danmakuController,
+              speed: SettingsService.instance.danmakuSpeed.value.toInt(),
+              maxBulletHeight: SettingsService.instance.danmakuFontSize * 1.5,
               massiveMode: false,
               // disabled by default
               child: Container(),
@@ -935,12 +935,12 @@ class DanmakuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => controller.settings.hideDanmaku.toggle(),
+      onTap: () => SettingsService.instance.hideDanmaku.toggle(),
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: Obx(() => Icon(
-              controller.settings.hideDanmaku.value
+              SettingsService.instance.hideDanmaku.value
                   ? CustomIcons.danmaku_close
                   : CustomIcons.danmaku_open,
               color: Colors.white,
