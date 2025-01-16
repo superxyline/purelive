@@ -1,5 +1,8 @@
-import 'package:logger/logger.dart';
+import 'dart:io';
 
+import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 enum RequestLogType {
   /// 输出所有请求信息
@@ -61,13 +64,25 @@ class CoreLog {
     return functionName;
   }
 
-  static void error(e) {
+  static const String splitToken =
+      '======================================================================';
+  static Future<void> error(e) async {
     onPrintLog?.call(Level.error, e.toString());
     logger.e(
       "${DateTime.now().toString()} - ${getFunctionName()}\n${e.toString()}",
       error: e?.toString(),
       stackTrace: (e is Error) ? e.stackTrace : StackTrace.current,
     );
+    if(e is Error) {
+      // 添加至文件末尾
+      File logFile = await getLogsPath();
+
+      logFile.writeAsString(
+        "$splitToken\n**${DateTime.now()}** \n ${e.toString()} \n ${e.stackTrace}",
+        mode: FileMode.writeOnlyAppend,
+      );
+    }
+
   }
 
   static void w(String message) {
@@ -84,4 +99,27 @@ class CoreLog {
       return;
     }
   }
+
+  static Future<File> getLogsPath() async {
+    String dir = (await getApplicationDocumentsDirectory()).path;
+    final String filename = p.join(dir, "1._logs");
+    d("log file: $filename");
+    final File file = File(filename);
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+    }
+    return file;
+  }
+
+  static Future<bool> clearLogs() async {
+    final File file = await getLogsPath();
+    try {
+      await file.writeAsString('');
+    } catch (e) {
+      w('Error clearing file: $e');
+      return false;
+    }
+    return true;
+  }
+
 }

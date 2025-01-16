@@ -129,6 +129,18 @@ class SettingsPageV2 extends GetView<SettingsService> {
               SettingsPage.showCacheManageSetDialog();
             },
           ),
+          /// 日志设置
+          SettingsListItem(
+            leading: const Icon(Remix.bug_line),
+            title: Text(S.current.settings_log),
+            trailing: const Icon(
+              Icons.chevron_right,
+              color: Colors.grey,
+            ),
+            onTap: () {
+              Get.toNamed(RoutePath.kLog);
+            },
+          ),
         ]),
       ]),
     );

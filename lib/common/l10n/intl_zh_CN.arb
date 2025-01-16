@@ -333,6 +333,8 @@
     "prefer_resolution_mobile": "移动网络清晰度",
     "prefer_resolution_mobile_subtitle": "当进入直播播放页，移动网络首选的视频清晰度",
 
+    "settings_log": "日志管理",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

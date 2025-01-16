@@ -340,6 +340,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_danmaku_title": MessageLookupByLibrary.simpleMessage("弹幕设置"),
         "settings_favorite": MessageLookupByLibrary.simpleMessage("关注设置"),
         "settings_home": MessageLookupByLibrary.simpleMessage("主页设置"),
+        "settings_log": MessageLookupByLibrary.simpleMessage("日志管理"),
         "settings_other": MessageLookupByLibrary.simpleMessage("其他设置"),
         "settings_player": MessageLookupByLibrary.simpleMessage("直播设置"),
         "settings_time_close": MessageLookupByLibrary.simpleMessage("定时关闭"),

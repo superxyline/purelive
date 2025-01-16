@@ -26,6 +26,7 @@ import 'package:pure_live/modules/live_play/live_play_page.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/search/search_page.dart';
+import 'package:pure_live/modules/settings/logs.dart';
 import 'package:pure_live/modules/settings/settings_binding.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
 import 'package:pure_live/modules/settings/settings_page_v2.dart';
@@ -188,5 +189,7 @@ class AppPages {
         FavoriteAreasBinding(),
       ],
     ),
+    // 日志
+    GetPage(name: RoutePath.kLog, page: () => const LogsPage()),
   ];
 }

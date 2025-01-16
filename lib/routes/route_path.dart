@@ -81,4 +81,5 @@ class RoutePath {
   static const kSiteQRLogin = "/site_qr_login";
   /// 站点web登录
   static const kSiteWebLogin = "/site_web_login";
+  static const kLog = "/log";
 }

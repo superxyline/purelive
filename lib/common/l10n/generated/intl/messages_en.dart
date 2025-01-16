@@ -418,6 +418,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Danmaku Setting"),
         "settings_favorite": MessageLookupByLibrary.simpleMessage("Favorite"),
         "settings_home": MessageLookupByLibrary.simpleMessage("Home"),
+        "settings_log": MessageLookupByLibrary.simpleMessage("Log"),
         "settings_other": MessageLookupByLibrary.simpleMessage("Other"),
         "settings_player": MessageLookupByLibrary.simpleMessage("Player"),
         "settings_time_close":

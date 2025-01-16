@@ -2801,6 +2801,16 @@ class S {
     );
   }
 
+  /// `Log`
+  String get settings_log {
+    return Intl.message(
+      'Log',
+      name: 'settings_log',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(
