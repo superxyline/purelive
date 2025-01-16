@@ -246,7 +246,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
             SettingsCardV2(children: [
               /// 弹幕设置
               ListTile(
-                  leading: const Icon(Icons.text_fields_outlined),
+                  leading: const Icon(Remix.text_wrap),
                   title: Text(S.current.settings_danmaku_title),
                   trailing: const Icon(
                     Icons.chevron_right,
@@ -258,7 +258,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
 
               /// 弹幕过滤
               ListTile(
-                  leading: const Icon(Icons.filter_alt_off),
+                  leading: const Icon(Remix.filter_off_line),
                   title: Text(S.current.danmu_filter),
                   trailing: const Icon(
                     Icons.chevron_right,

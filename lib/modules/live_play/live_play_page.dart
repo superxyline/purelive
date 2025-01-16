@@ -3,13 +3,17 @@ import 'dart:io';
 import 'package:floating/floating.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/app_style.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/modules/settings/settings_page_v2.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/plugins/cache_network.dart';
+import 'package:pure_live/plugins/extension/list_extension.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/routes/app_navigation.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'widgets/index.dart';
@@ -169,14 +173,15 @@ class LivePlayPage extends GetView<LivePlayController> {
                 offset: const Offset(12, 0),
                 position: PopupMenuPosition.under,
                 icon: const Icon(Icons.more_vert_rounded),
-                onSelected: (int index) {
-                  if (index == 0) {
-                    controller.openNaviteAPP();
-                  } else {
-                    showDlnaCastDialog();
-                  }
-                },
+                // onSelected: (int index) {
+                //   if (index == 0) {
+                //     controller.openNaviteAPP();
+                //   } else {
+                //     showDlnaCastDialog();
+                //   }
+                // },
                 itemBuilder: (BuildContext context) {
+                  /// 右边的列表
                   return [
                     PopupMenuItem(
                       value: 0,
@@ -185,14 +190,36 @@ class LivePlayPage extends GetView<LivePlayController> {
                         leading: Icon(Icons.open_in_new_rounded),
                         text: S.current.live_room_open_external,
                       ),
+                      onTap: (){
+                        controller.openNaviteAPP();
+                      },
                     ),
                     PopupMenuItem(
                       value: 1,
                       padding: EdgeInsets.symmetric(horizontal: 12),
+                      onTap: showDlnaCastDialog,
                       child: MenuListTile(
                         leading: Icon(Icons.live_tv_rounded),
                         text: S.current.screen_caste,
                       ),
+                    ),
+                    PopupMenuItem(
+                      value: 2,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: MenuListTile(
+                        leading: Icon(Remix.play_circle_line),
+                        text: S.current.settings_player,
+                      ),
+                        onTap: (){ SettingsPageV2.settingPlayerInfoSheet();},
+                    ),
+                    PopupMenuItem(
+                      value: 3,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: MenuListTile(
+                        leading: Icon(Remix.filter_off_line),
+                        text: S.current.danmu_filter,
+                      ),
+                      onTap: (){ Get.toNamed(RoutePath.kSettingsDanmuShield);},
                     ),
                   ];
                 },
