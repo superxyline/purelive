@@ -414,6 +414,7 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
+      isFull: true,
       title: S.current.settings_danmaku_title,
       child: ListView(
         // shrinkWrap: true,

@@ -189,12 +189,14 @@ class Utils {
     required Widget child,
     double maxWidth = 600,
     Color? color,
+    bool isFull = false,
   }) async {
     var result = await showModalBottomSheet(
       context: Get.context!,
       constraints: BoxConstraints(
         maxWidth: maxWidth,
       ),
+      isScrollControlled: isFull,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12),
@@ -206,15 +208,23 @@ class Utils {
         children: [
           if (!title.isNullOrEmpty)
             ListTile(
-              contentPadding: const EdgeInsets.only(
-                left: 12,
+              visualDensity: VisualDensity.compact,
+              contentPadding: EdgeInsets.zero,
+              leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(Get.context!);
+                },
+                icon: const Icon(Icons.arrow_back),
               ),
-              title: Text(title),
+              title: Text(
+                title,
+                style: Get.textTheme.titleMedium,
+              ),
               trailing: IconButton(
                 onPressed: () {
                   Navigator.pop(Get.context!);
                 },
-                icon: const Icon(Remix.close_line),
+                icon: const Icon(Icons.close),
               ),
             ),
           Expanded(
@@ -282,12 +292,17 @@ class Utils {
     double bottomMaxWidth = 600,
     double? rightMaxWidth,
     Color? color,
+    bool isFull = false,
   }) async {
     var size2 = MediaQuery.of(Get.context!).size;
     var width = size2.width;
     var height = size2.height;
+    if(isFull) {
+      bottomMaxWidth = width;
+      rightMaxWidth = width;
+    }
     if (width <= height) {
-      return showBottomSheet(title: title, child: child, maxWidth: bottomMaxWidth, color: color);
+      return showBottomSheet(title: title, child: child, maxWidth: bottomMaxWidth, color: color, isFull: isFull);
     }
     rightMaxWidth ??= width / 2;
     return showRightSheet(title: title, child: child, maxWidth: rightMaxWidth, color: color);
