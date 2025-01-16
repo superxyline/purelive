@@ -649,7 +649,7 @@ class BrightnessVolumeDargAreaState extends State<BrightnessVolumeDargArea> {
     final width = MediaQuery.of(context).size.width;
     final dargLeft = (position.dx > (width / 2)) ? false : true;
     // disable linux brightness
-    // if ((Platform.isLinux || Platform.isFuchsia) && dargLeft) return;
+    if ((Platform.isWindows || Platform.isLinux || Platform.isFuchsia) && dargLeft) return;
     if (_hideBVStuff || _isDargLeft != dargLeft) {
       _isDargLeft = dargLeft;
       if (_isDargLeft) {
