@@ -589,6 +589,16 @@ class LivePlayController extends StateController {
       var playQualites = qualites.value;
       if (isFirstLoad.value) {
         playQualites = await currentSite.liveSite.getPlayQualites(detail: liveRoomRx.toLiveRoom());
+        playQualites.forEach((playQuality){
+          var quality = playQuality.quality;
+          quality = quality.replaceAll(" ", "");
+          quality = quality.replaceAll("质臻", "8M");
+          if(quality == "蓝光") {
+            quality = "蓝光4M";
+          }
+          playQuality.quality = quality;
+        });
+
       }
       if (playQualites.isEmpty) {
         SmartDialog.showToast("无法读取视频信息,请重新获取", displayTime: const Duration(seconds: 2));
