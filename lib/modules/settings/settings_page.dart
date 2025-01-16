@@ -4,6 +4,7 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/settings/settings_card_v2.dart';
+import 'package:pure_live/common/widgets/settings/settings_list_item.dart';
 import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
@@ -31,13 +32,13 @@ class SettingsPage extends GetView<SettingsService> {
         physics: const BouncingScrollPhysics(),
         children: <Widget>[
           SectionTitle(title: S.current.general),
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Icons.dark_mode_rounded, size: 32),
             title: Text(S.current.change_theme_mode),
             subtitle: Text(S.current.change_theme_mode_subtitle),
             onTap: showThemeModeSelectorDialog,
           ),
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Icons.color_lens, size: 32),
             title: Text(S.current.change_theme_color),
             subtitle: Text(S.current.change_theme_color_subtitle),
@@ -50,13 +51,13 @@ class SettingsPage extends GetView<SettingsService> {
             ),
             onTap: colorPickerDialog,
           ),
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Icons.translate_rounded, size: 32),
             title: Text(S.current.change_language),
             subtitle: Text(S.current.change_language_subtitle),
             onTap: showLanguageSelecterDialog,
           ),
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Icons.backup_rounded, size: 32),
             title: Text(S.current.backup_recover),
             subtitle: Text(S.current.backup_recover_subtitle),
@@ -95,7 +96,7 @@ class SettingsPage extends GetView<SettingsService> {
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
               )),
-          ListTile(
+          SettingsListItem(
             title: Text(S.current.prefer_resolution),
             subtitle: Text(S.current.prefer_resolution_subtitle),
             onTap: showPreferResolutionSelectorDialog,
@@ -122,27 +123,27 @@ class SettingsPage extends GetView<SettingsService> {
                 activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
               )),
-          ListTile(
+          SettingsListItem(
             title: Text(S.current.prefer_platform),
             subtitle: Text(S.current.prefer_platform_subtitle),
             onTap: showPreferPlatformSelectorDialog,
           ),
-          ListTile(
+          SettingsListItem(
             title: Text(S.current.auto_refresh_time),
             subtitle: Text(S.current.auto_refresh_time_subtitle),
             trailing: Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoRefreshTime.value))),
             onTap: showAutoRefreshTimeSetDialog,
           ),
-          ListTile(
+          SettingsListItem(
             title: Text(S.current.settings_danmaku_title),
             onTap: showDanmuSetDialog,
           ),
-          ListTile(
+          SettingsListItem(
             title: Text(S.current.danmu_filter),
             subtitle: Text(S.current.danmu_filter_info),
             onTap: () => Get.toNamed(RoutePath.kSettingsDanmuShield),
           ),
-          ListTile(
+          SettingsListItem(
             title: Text(S.current.platform_settings),
             subtitle: Text(S.current.platform_settings_info),
             onTap: () => Get.toNamed(RoutePath.kSettingsHotAreas),
@@ -155,7 +156,7 @@ class SettingsPage extends GetView<SettingsService> {
                   onChanged: (bool value) => controller.doubleExit.value = value,
                 )),
           // if (Platform.isAndroid)
-          ListTile(
+          SettingsListItem(
             title: Text(S.current.change_player),
             subtitle: Text(S.current.change_player_subtitle),
             trailing: Obx(() => Text(controller.playerlist[controller.videoPlayerIndex.value])),
@@ -169,13 +170,13 @@ class SettingsPage extends GetView<SettingsService> {
                   onChanged: (bool value) => controller.enableCodec.value = value,
                 )),
           if (Platform.isAndroid)
-            ListTile(
+            SettingsListItem(
               title: Text(S.current.auto_shutdown_time),
               subtitle: Text(S.current.auto_shutdown_time_subtitle),
               trailing: Obx(() => Text(TimeUtil.minuteValueToStr(controller.autoShutDownTime.value))),
               onTap: showAutoShutDownTimeSetDialog,
             ),
-          ListTile(
+          SettingsListItem(
             title: Text(S.current.cache_manage),
             subtitle: Text(S.current.cache_manage),
             onTap: showCacheManageSetDialog,
@@ -578,7 +579,7 @@ class SettingsPage extends GetView<SettingsService> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           SettingsCardV2(
             children: [
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.cleaning_services_outlined),
                 title: Text(S.current.cache_manage_clear_all),
                 subtitle: Obx(() => Text(cacheDirectorySize.value)),
@@ -592,7 +593,7 @@ class SettingsPage extends GetView<SettingsService> {
                   }
                 },
               ),
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.cleaning_services_outlined),
                 title: Text(S.current.cache_manage_clear_image),
                 subtitle: Obx(() => Text(imageCacheDirectorySize.value)),
@@ -605,7 +606,7 @@ class SettingsPage extends GetView<SettingsService> {
                   }
                 },
               ),
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.cleaning_services_outlined),
                 title: Text(S.current.cache_manage_clear_area),
                 // subtitle: Text(areaCacheDirectorySize),

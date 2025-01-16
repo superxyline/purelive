@@ -4,6 +4,7 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/settings/settings_card_v2.dart';
+import 'package:pure_live/common/widgets/settings/settings_list_item.dart';
 import 'package:pure_live/common/widgets/settings/settings_switch.dart';
 import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
@@ -27,7 +28,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
       body: ListView(physics: const BouncingScrollPhysics(), children: [
         SettingsCardV2(children: [
           // 外观设置
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Remix.moon_line),
             title: Text(S.current.settings_app),
             trailing: const Icon(
@@ -40,7 +41,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
           ),
 
           /// 主页设置
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Remix.home_2_line),
             title: Text(S.current.settings_home),
             trailing: const Icon(
@@ -51,7 +52,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
               settingHomeInfoSheet();
             },
           ),
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Remix.play_circle_line),
             title: Text(S.current.settings_player),
             trailing: const Icon(
@@ -64,7 +65,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
           ),
 
           /// 弹幕设置
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Remix.text),
             title: Text(S.current.settings_danmaku_title),
             trailing: const Icon(
@@ -75,7 +76,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
               settingDanmakuInfoSheet();
             },
           ),
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Remix.heart_line),
             title: Text(S.current.settings_favorite),
             trailing: const Icon(
@@ -86,7 +87,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
               settingFavoriteInfoSheet();
             },
           ),
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Remix.timer_2_line),
             title: Text(S.current.settings_time_close),
             trailing: const Icon(
@@ -99,7 +100,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
           ),
 
           /// 其他设置
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Remix.apps_line),
             title: Text(S.current.settings_other),
             trailing: const Icon(
@@ -111,7 +112,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
             },
           ),
           /// 缓存设置
-          ListTile(
+          SettingsListItem(
             leading: const Icon(Icons.delete_outline),
             title: Text(S.current.cache_manage),
             trailing: const Icon(
@@ -137,7 +138,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
           children: [
             SettingsCardV2(children: [
               /// 外观主题设置
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.dark_mode_rounded),
                 title: Text(S.current.change_theme_mode),
                 subtitle: Text(S.current.change_theme_mode_subtitle),
@@ -147,7 +148,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
               ),
 
               /// 外观主题颜色
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.color_lens),
                 title: Text(S.current.change_theme_color),
                 subtitle: Text(S.current.change_theme_color_subtitle),
@@ -164,7 +165,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
               ),
 
               /// 外观 语言
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.translate_rounded),
                 title: Text(S.current.change_language),
                 subtitle: Text(S.current.change_language_subtitle),
@@ -205,7 +206,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                   )),
 
               ///
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.favorite),
                 title: Text(S.current.prefer_platform),
                 subtitle: Text(S.current.prefer_platform_subtitle),
@@ -219,7 +220,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
               ),
 
               ///
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.show_chart_outlined),
                 title: Text(S.current.platform_settings),
                 subtitle: Text(S.current.platform_settings_info),
@@ -245,7 +246,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
           children: [
             SettingsCardV2(children: [
               /// 弹幕设置
-              ListTile(
+              SettingsListItem(
                   leading: const Icon(Remix.text_wrap),
                   title: Text(S.current.settings_danmaku_title),
                   trailing: const Icon(
@@ -257,7 +258,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                   }),
 
               /// 弹幕过滤
-              ListTile(
+              SettingsListItem(
                   leading: const Icon(Remix.filter_off_line),
                   title: Text(S.current.danmu_filter),
                   trailing: const Icon(
@@ -282,7 +283,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
           children: [
             SettingsCardV2(children: [
               // 定时关闭设置
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Remix.timer_2_line),
                 title: Text(S.current.auto_refresh_time),
                 subtitle: Text(S.current.auto_refresh_time_subtitle),
@@ -310,7 +311,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
 
               // 定时关闭设置
               if (Platform.isAndroid)
-                ListTile(
+                SettingsListItem(
                   leading: const Icon(Remix.timer_2_line),
                   title: Text(S.current.auto_shutdown_time),
                   subtitle: Text(S.current.auto_shutdown_time_subtitle),
@@ -364,7 +365,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                     value: controller.enableFullScreenDefault.value,
                     onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
                   )),
-              ListTile(
+              SettingsListItem(
                 leading: Icon(Icons.video_camera_back_outlined),
                 title: Text(S.current.prefer_resolution),
                 subtitle: Text(S.current.prefer_resolution_subtitle),
@@ -385,7 +386,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                       onChanged: (bool value) => controller.doubleExit.value = value,
                     )),
               // if (Platform.isAndroid)
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.play_circle_outline_outlined),
                 title: Text(S.current.change_player),
                 subtitle: Text(S.current.change_player_subtitle),
@@ -418,7 +419,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
           children: [
             SettingsCardV2(children: [
               // 备份与恢复
-              ListTile(
+              SettingsListItem(
                 leading: const Icon(Icons.backup_rounded),
                 title: Text(S.current.backup_recover),
                 subtitle: Text(S.current.backup_recover_subtitle),
