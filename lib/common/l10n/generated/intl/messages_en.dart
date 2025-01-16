@@ -393,6 +393,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Select backup file"),
         "select_transparency":
             MessageLookupByLibrary.simpleMessage("Select Transparency"),
+        "settings_app": MessageLookupByLibrary.simpleMessage("Appearance"),
         "settings_danmaku_amount":
             MessageLookupByLibrary.simpleMessage("Danmaku amount"),
         "settings_danmaku_area":
@@ -411,6 +412,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Danmaku speed"),
         "settings_danmaku_title":
             MessageLookupByLibrary.simpleMessage("Danmaku Setting"),
+        "settings_favorite": MessageLookupByLibrary.simpleMessage("Favorite"),
+        "settings_home": MessageLookupByLibrary.simpleMessage("Home"),
+        "settings_other": MessageLookupByLibrary.simpleMessage("Other"),
+        "settings_player": MessageLookupByLibrary.simpleMessage("Player"),
+        "settings_time_close":
+            MessageLookupByLibrary.simpleMessage("Timing Closure"),
         "settings_timedclose_title":
             MessageLookupByLibrary.simpleMessage("Timed Close"),
         "settings_title": MessageLookupByLibrary.simpleMessage("Settings"),

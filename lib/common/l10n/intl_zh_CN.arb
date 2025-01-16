@@ -323,6 +323,13 @@
     "clear_history": "清除历史记录",
     "clear_history_confirm": "确定要清除历史记录吗？",
 
+    "settings_app": "外观设置",
+    "settings_home": "主页设置",
+    "settings_player": "直播设置",
+    "settings_favorite": "关注设置",
+    "settings_time_close": "定时关闭",
+    "settings_other": "其他设置",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

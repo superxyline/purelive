@@ -28,6 +28,7 @@ import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/settings/settings_binding.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
+import 'package:pure_live/modules/settings/settings_page_v2.dart';
 import 'package:pure_live/modules/shield/danmu_shield_binding.dart';
 import 'package:pure_live/modules/shield/danmu_shield_page.dart';
 import 'package:pure_live/modules/site_account/login/qr_login_page.dart';
@@ -78,7 +79,7 @@ class AppPages {
     ),
     GetPage(
       name: RoutePath.kSettings,
-      page: SettingsPage.new,
+      page: SettingsPageV2.new,
       bindings: [SettingsBinding()],
     ),
     GetPage(

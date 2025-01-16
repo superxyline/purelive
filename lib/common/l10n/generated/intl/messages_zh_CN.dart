@@ -320,6 +320,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "second": MessageLookupByLibrary.simpleMessage("秒"),
         "select_recover_file": MessageLookupByLibrary.simpleMessage("选择备份文件"),
         "select_transparency": MessageLookupByLibrary.simpleMessage("选择透明度"),
+        "settings_app": MessageLookupByLibrary.simpleMessage("外观设置"),
         "settings_danmaku_amount": MessageLookupByLibrary.simpleMessage("弹幕数量"),
         "settings_danmaku_area": MessageLookupByLibrary.simpleMessage("弹幕区域"),
         "settings_danmaku_colour":
@@ -333,6 +334,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_danmaku_open": MessageLookupByLibrary.simpleMessage("弹幕开关"),
         "settings_danmaku_speed": MessageLookupByLibrary.simpleMessage("弹幕速度"),
         "settings_danmaku_title": MessageLookupByLibrary.simpleMessage("弹幕设置"),
+        "settings_favorite": MessageLookupByLibrary.simpleMessage("关注设置"),
+        "settings_home": MessageLookupByLibrary.simpleMessage("主页设置"),
+        "settings_other": MessageLookupByLibrary.simpleMessage("其他设置"),
+        "settings_player": MessageLookupByLibrary.simpleMessage("直播设置"),
+        "settings_time_close": MessageLookupByLibrary.simpleMessage("定时关闭"),
         "settings_timedclose_title":
             MessageLookupByLibrary.simpleMessage("定时关闭"),
         "settings_title": MessageLookupByLibrary.simpleMessage("设置"),

@@ -2721,6 +2721,66 @@ class S {
     );
   }
 
+  /// `Appearance`
+  String get settings_app {
+    return Intl.message(
+      'Appearance',
+      name: 'settings_app',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Home`
+  String get settings_home {
+    return Intl.message(
+      'Home',
+      name: 'settings_home',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Player`
+  String get settings_player {
+    return Intl.message(
+      'Player',
+      name: 'settings_player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Favorite`
+  String get settings_favorite {
+    return Intl.message(
+      'Favorite',
+      name: 'settings_favorite',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Timing Closure`
+  String get settings_time_close {
+    return Intl.message(
+      'Timing Closure',
+      name: 'settings_time_close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Other`
+  String get settings_other {
+    return Intl.message(
+      'Other',
+      name: 'settings_other',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(
