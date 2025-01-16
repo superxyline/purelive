@@ -410,11 +410,11 @@ class SettingsPage extends GetView<SettingsService> {
   }
 
   /// 弹幕设置
-  static void showDanmuSetDialog() {
+  static void showDanmuSetDialog({bool isFull = true}) {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-      isFull: true,
+      isFull: isFull,
       title: S.current.settings_danmaku_title,
       child: ListView(
         // shrinkWrap: true,

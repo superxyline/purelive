@@ -960,7 +960,7 @@ class SettingsButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         controller.showSettting.toggle();
-        SettingsPage.showDanmuSetDialog();
+        SettingsPage.showDanmuSetDialog(isFull: false);
       },
       child: Container(
         alignment: Alignment.center,
