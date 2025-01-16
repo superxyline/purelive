@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:catcher_2/catcher_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -9,9 +10,10 @@ import 'package:pure_live/plugins/cache_to_file.dart';
 import 'package:pure_live/plugins/global.dart';
 import 'package:fvp/fvp.dart' as fvp;
 import 'package:pure_live/core/common/http_client.dart' as my_http_client;
+
 ///全局异常的捕捉
 class FlutterCatchError {
-  static run(Widget app, List<String> args) {
+  static run(Widget app, List<String> args) async {
     ///Flutter 框架异常
     FlutterError.onError = (FlutterErrorDetails details) async {
       ///TODO 线上环境
@@ -25,37 +27,66 @@ class FlutterCatchError {
 
     setCustomErrorPage();
 
-    runZonedGuarded(() async {
 
-      /// 初始化 http
-      await my_http_client.HttpClient.initHttp();
-      WidgetsFlutterBinding.ensureInitialized();
-      PrefUtil.prefs = await SharedPreferences.getInstance();
-      MediaKit.ensureInitialized();
-      fvp.registerWith();
-      if (Platform.isWindows) {
-        register(kWindowsScheme);
-        await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
-        await windowManager.ensureInitialized();
-        await WindowUtil.init(width: 1280, height: 720);
-      }
-      // 先初始化supdatabase
-      await SupaBaseManager.getInstance().initial();
-      // 初始化服务
-      initService();
-      initRefresh();
+    // 异常捕获 logo记录
+    final Catcher2Options debugConfig = Catcher2Options(
+      SilentReportMode(),
+      [
+        FileHandler(await CoreLog.getLogsPath()),
+        ConsoleHandler(
+          enableDeviceParameters: false,
+          enableApplicationParameters: false,
+        )
+      ],
+    );
 
-      // 图片缓存删除
-      CustomCache.instance.deleteImageCacheFile();
+    final Catcher2Options releaseConfig = Catcher2Options(
+      SilentReportMode(),
+      [FileHandler(await CoreLog.getLogsPath())],
+    );
 
-      ///受保护的代码块
-      runApp(app);
-    }, (error, stack) => catchError(error, stack));
+    Catcher2(
+      debugConfig: debugConfig,
+      releaseConfig: releaseConfig,
+      runAppFunction: () {
+        appInit(app, args);
+      },
+    );
+
+    // runZonedGuarded(() async {
+    //   appInit(app, args);
+    // }, (error, stack) => catchError(error, stack));
+  }
+
+  static Future<void> appInit(Widget app, List<String> args) async {
+    /// 初始化 http
+    await my_http_client.HttpClient.initHttp();
+    WidgetsFlutterBinding.ensureInitialized();
+    PrefUtil.prefs = await SharedPreferences.getInstance();
+    MediaKit.ensureInitialized();
+    fvp.registerWith();
+    if (Platform.isWindows) {
+      register(kWindowsScheme);
+      await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
+      await windowManager.ensureInitialized();
+      await WindowUtil.init(width: 1280, height: 720);
+    }
+    // 先初始化supdatabase
+    await SupaBaseManager.getInstance().initial();
+    // 初始化服务
+    initService();
+    initRefresh();
+
+    // 图片缓存删除
+    CustomCache.instance.deleteImageCacheFile();
+
+    ///受保护的代码块
+    runApp(app);
   }
 
   ///对搜集的 异常进行处理  上报等等
   static catchError(Object error, StackTrace stack) {
-    if(kDebugMode){
+    if (kDebugMode) {
       print("AppCatchError>>>>>>>>>>: $kReleaseMode"); //是否是 Release版本
       print('APP出现异常  message:$error,stackTrace：$stack');
       CoreLog.error(stack);
@@ -72,18 +103,23 @@ class FlutterCatchError {
         child: SafeArea(
           child: Container(
               color: Colors.white,
-              padding:  const EdgeInsets.all(15),
+              padding: const EdgeInsets.all(15),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Center(
-                      child: Icon(Icons.error,size: 55,color: Colors.orange,),
+                      child: Icon(
+                        Icons.error,
+                        size: 55,
+                        color: Colors.orange,
+                      ),
                     ),
-                    Text("Current module exception${'，System diagnosis as：${stError.split(':').isNotEmpty?stError.split(':')[0]:''}'}，Please contact the administrator！",
+                    Text(
+                      "Current module exception${'，System diagnosis as：${stError.split(':').isNotEmpty ? stError.split(':')[0] : ''}'}，Please contact the administrator！",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 14,fontWeight: FontWeight.w500,letterSpacing: 0.4),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0.4),
                     ),
                     Text(
                       flutterErrorDetails.exceptionAsString(),
@@ -92,8 +128,7 @@ class FlutterCatchError {
                     )
                   ],
                 ),
-              )
-          ),
+              )),
         ),
       );
     };
