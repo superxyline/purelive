@@ -170,7 +170,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
   void initChewieController() {
     try {
       chewieController.value.removeListener(chewieControllerListener);
-      chewieController.value.dispose();
+      // chewieController.value.dispose();
     } catch (e) {
       CoreLog.error(e);
     }
@@ -267,6 +267,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
   @override
   Widget getVideoPlayerWidget() {
     return Obx(() => Chewie(
+          key: UniqueKey(),
           controller: chewieController.value,
         ));
   }
