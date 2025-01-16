@@ -331,6 +331,9 @@
     "settings_time_close": "Timing Closure",
     "settings_other": "Other",
 
+    "prefer_resolution_mobile": "Mobile Resolution Preference",
+    "prefer_resolution_mobile_subtitle": " When entering the live streaming page, the preferred video clarity for mobile networks",
+
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",
     "cache_manage_clear_all": "Clear all cache",

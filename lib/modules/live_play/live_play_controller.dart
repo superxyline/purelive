@@ -600,14 +600,20 @@ class LivePlayController extends StateController {
       qualites.value = playQualites;
       // 第一次加载 使用系统默认线路
       if (isFirstLoad.value) {
-        int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
+        var resolution = settings.preferResolution.value;
+        final connectivityResult = await (Connectivity().checkConnectivity());
+        if (connectivityResult.contains(ConnectivityResult.mobile)) {
+          /// 移动网络
+          resolution = settings.preferResolutionMobile.value;
+        }
+          int qualityLevel = settings.resolutionsList.indexOf(resolution);
         qualityLevel = math.max(0, qualityLevel);
         qualityLevel = math.min(playQualites.length - 1, qualityLevel);
 
         // fix 清晰度判断逻辑, 根据名字匹配
         for (var i = 0; i < playQualites.length; i++) {
           var playQuality = playQualites[i];
-          if (playQuality.quality.contains(settings.preferResolution.value)) {
+          if (playQuality.quality.contains(resolution)) {
             qualityLevel = i;
             break;
           }

@@ -2781,6 +2781,26 @@ class S {
     );
   }
 
+  /// `Mobile Resolution Preference`
+  String get prefer_resolution_mobile {
+    return Intl.message(
+      'Mobile Resolution Preference',
+      name: 'prefer_resolution_mobile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` When entering the live streaming page, the preferred video clarity for mobile networks`
+  String get prefer_resolution_mobile_subtitle {
+    return Intl.message(
+      ' When entering the live streaming page, the preferred video clarity for mobile networks',
+      name: 'prefer_resolution_mobile_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

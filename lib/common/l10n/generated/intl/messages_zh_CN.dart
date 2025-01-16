@@ -290,6 +290,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "prefer_platform_subtitle":
             MessageLookupByLibrary.simpleMessage("当进入热门/分区，首选的直播平台"),
         "prefer_resolution": MessageLookupByLibrary.simpleMessage("首选清晰度"),
+        "prefer_resolution_mobile":
+            MessageLookupByLibrary.simpleMessage("移动网络清晰度"),
+        "prefer_resolution_mobile_subtitle":
+            MessageLookupByLibrary.simpleMessage("当进入直播播放页，移动网络首选的视频清晰度"),
         "prefer_resolution_subtitle":
             MessageLookupByLibrary.simpleMessage("当进入直播播放页，首选的视频清晰度"),
         "project": MessageLookupByLibrary.simpleMessage("项目"),

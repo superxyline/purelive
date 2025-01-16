@@ -352,6 +352,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "When enter popular/areas, first platform choice"),
         "prefer_resolution":
             MessageLookupByLibrary.simpleMessage("Resolution Preference"),
+        "prefer_resolution_mobile": MessageLookupByLibrary.simpleMessage(
+            "Mobile Resolution Preference"),
+        "prefer_resolution_mobile_subtitle": MessageLookupByLibrary.simpleMessage(
+            " When entering the live streaming page, the preferred video clarity for mobile networks"),
         "prefer_resolution_subtitle": MessageLookupByLibrary.simpleMessage(
             "When enter live play, first resolution choice"),
         "project": MessageLookupByLibrary.simpleMessage("Project"),

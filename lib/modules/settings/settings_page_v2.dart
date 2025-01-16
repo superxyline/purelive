@@ -410,6 +410,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                     value: controller.enableFullScreenDefault.value,
                     onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
                   )),
+              /// 清晰度
               SettingsListItem(
                 leading: Icon(Icons.video_camera_back_outlined),
                 title: Text(S.current.prefer_resolution),
@@ -418,6 +419,16 @@ class SettingsPageV2 extends GetView<SettingsService> {
                   SettingsPage.showPreferResolutionSelectorDialog();
                 },
                 trailing: Obx(() => Text(controller.preferResolution.value)),
+              ),
+              /// 移动网络清晰度
+              SettingsListItem(
+                leading: Icon(Icons.video_camera_back_outlined),
+                title: Text(S.current.prefer_resolution_mobile),
+                subtitle: Text(S.current.prefer_resolution_mobile_subtitle),
+                onTap: () {
+                  showPreferResolutionMobileSelectorDialog();
+                },
+                trailing: Obx(() => Text(controller.preferResolutionMobile.value)),
               ),
 
               if (Platform.isAndroid)
@@ -428,6 +439,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                       onChanged: (bool value) => controller.doubleExit.value = value,
                     )),
               // if (Platform.isAndroid)
+              /// 清晰度
               SettingsListItem(
                 leading: const Icon(Icons.play_circle_outline_outlined),
                 title: Text(S.current.change_player),
@@ -486,6 +498,32 @@ class SettingsPageV2 extends GetView<SettingsService> {
               /////
             ])
           ]),
+    );
+  }
+
+  /// 直播 移动网络 清晰度
+  static void showPreferResolutionMobileSelectorDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.current.prefer_resolution_mobile,
+      child: ListView(
+        children: [
+          SettingsCardV2(
+              children: SettingsService.resolutions.map<Widget>((name) {
+                return RadioListTile<String>(
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  groupValue: controller.preferResolutionMobile.value,
+                  value: name,
+                  title: Text(name),
+                  onChanged: (value) {
+                    controller.changePreferResolutionMobile(value!);
+                    Navigator.of(context).pop();
+                  },
+                );
+              }).toList())
+        ],
+      ),
     );
   }
 }

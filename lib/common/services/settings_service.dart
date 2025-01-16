@@ -316,11 +316,19 @@ class SettingsService extends GetxController {
   static const List<BoxFit> videofitList = [BoxFit.contain, BoxFit.fill, BoxFit.cover, BoxFit.fitWidth, BoxFit.fitHeight];
 
   final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
+  final preferResolutionMobile = (PrefUtil.getString('preferResolutionMobile') ?? resolutions[resolutions.length-1]).obs;
 
   void changePreferResolution(String name) {
     if (resolutions.indexWhere((e) => e == name) != -1) {
       preferResolution.value = name;
       PrefUtil.setString('preferResolution', name);
+    }
+  }
+
+  void changePreferResolutionMobile(String name) {
+    if (resolutions.indexWhere((e) => e == name) != -1) {
+      preferResolutionMobile.value = name;
+      PrefUtil.setString('preferResolutionMobile', name);
     }
   }
 
@@ -623,6 +631,7 @@ class SettingsService extends GetxController {
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
     languageName.value = json['languageName'] ?? "简体中文";
     preferResolution.value = json['preferResolution'] ?? resolutions[0];
+    preferResolutionMobile.value = json['preferResolutionMobile'] ?? resolutions[resolutions.length-1];
     preferPlatform.value = json['preferPlatform'] ?? platforms[0];
     videoFitIndex.value = json['videoFitIndex'] ?? 0;
     hideDanmaku.value = json['hideDanmaku'] ?? false;
@@ -651,6 +660,7 @@ class SettingsService extends GetxController {
     setBilibiliCookit(bilibiliCookie.value);
     changeLanguage(languageName.value);
     changePreferResolution(preferResolution.value);
+    changePreferResolutionMobile(preferResolutionMobile.value);
     changePreferPlatform(preferPlatform.value);
     changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     changeAutoRefreshConfig(autoRefreshTime.value);
@@ -674,6 +684,7 @@ class SettingsService extends GetxController {
     json['enableAutoCheckUpdate'] = enableAutoCheckUpdate.value;
     json['enableFullScreenDefault'] = enableFullScreenDefault.value;
     json['preferResolution'] = preferResolution.value;
+    json['preferResolutionMobile'] = preferResolutionMobile.value;
     json['preferPlatform'] = preferPlatform.value;
     json['languageName'] = languageName.value;
 
