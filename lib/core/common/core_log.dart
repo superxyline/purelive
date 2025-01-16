@@ -101,10 +101,9 @@ class CoreLog {
   }
 
   static Future<File> getLogsPath() async {
-    String dir = (await getApplicationCacheDirectory()).path;
-    final String filename = p.join(dir, "1._logs");
-    d("log file: $filename");
-    final File file = File(filename);
+    var dir = await getApplicationCacheDirectory();
+    final File file = File('${dir.path}${Platform.pathSeparator}1._logs');
+    d("log file: ${file.path}");
     if (!await file.exists()) {
       await file.create(recursive: true);
     }
