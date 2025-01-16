@@ -45,11 +45,11 @@ class FlutterCatchError {
       [FileHandler(await CoreLog.getLogsPath())],
     );
 
+    await appInit(app, args);
     Catcher2(
       debugConfig: debugConfig,
       releaseConfig: releaseConfig,
-      runAppFunction: () async {
-        await appInit(app, args);
+      runAppFunction: () {
         runApp(app);
       },
     );
