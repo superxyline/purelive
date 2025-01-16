@@ -162,6 +162,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
                 ),
               ),
             ),
+            trailing: SizedBox(),
           ),
         ]),
         /*Obx(() => Visibility(
