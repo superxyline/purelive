@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/settings/settings_card_v2.dart';
+import 'package:pure_live/common/widgets/settings/settings_switch.dart';
 import 'package:pure_live/modules/settings/tmp_tab_controller.dart';
 
 class VideoFitSetting extends StatefulWidget {
@@ -54,20 +55,16 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
       children: [
         SettingsCardV2(children: [
           /// 是否在播放页面显示 弹幕
-          Obx(() => SwitchListTile(
+          Obx(() => SettingsSwitch(
                 title: Text(S.current.settings_danmaku_open),
-                contentPadding: contentPadding,
                 value: !controller.hideDanmaku.value,
-                activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.hideDanmaku.value = !value,
               )),
 
           /// 是否 过滤 彩色 弹幕
-          Obx(() => SwitchListTile(
+          Obx(() => SettingsSwitch(
                 title: Text(S.current.settings_danmaku_colour),
-                contentPadding: contentPadding,
                 value: controller.showColourDanmaku.value,
-                activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.showColourDanmaku.value = value,
               )),
         ]),
@@ -76,11 +73,9 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
         ),
         SettingsCardV2(children: [
           /// 是否显示 用户等级
-          Obx(() => SwitchListTile(
+          Obx(() => SettingsSwitch(
                 title: Text(S.current.show + S.current.user_level),
-                contentPadding: contentPadding,
                 value: controller.showDanmuUserLevel.value,
-                activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.showDanmuUserLevel.value = value,
               )),
           Obx(() => ListTile(
@@ -104,11 +99,9 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
         ),
         SettingsCardV2(children: [
           /// 是否显示 粉丝牌
-          Obx(() => SwitchListTile(
+          Obx(() => SettingsSwitch(
                 title: Text(S.current.show + S.current.fans),
-                contentPadding: contentPadding,
                 value: controller.showDanmuFans.value,
-                activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.showDanmuFans.value = value,
               )),
           Obx(() => ListTile(
