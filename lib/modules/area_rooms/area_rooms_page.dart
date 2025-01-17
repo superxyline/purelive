@@ -86,6 +86,7 @@ class _FavoriteAreaFloatingButtonState
   Widget build(BuildContext context) {
     return isFavorite
         ? FloatingActionButton(
+            key: UniqueKey(),
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
             tooltip: S.current.unfollow,

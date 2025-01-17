@@ -42,7 +42,7 @@ class HomeTabletView extends StatelessWidget {
                                 icon: const Icon(Icons.link)),
                           ),
                           FloatingActionButton(
-                            heroTag: 'heroTag',
+                            heroTag: UniqueKey(),
                             elevation: 0,
                             onPressed: () {
                               Get.put(pure_live.SearchController());

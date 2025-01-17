@@ -72,6 +72,7 @@ class AreasPage extends GetView<AreasController> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: FloatingActionButton(
+          heroTag: UniqueKey(),
           onPressed: () {
             Get.toNamed(RoutePath.kFavoriteAreas);
           },

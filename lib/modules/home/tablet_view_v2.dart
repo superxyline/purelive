@@ -36,7 +36,7 @@ class HomeTabletViewV2 extends GetView<HomeController> {
                           icon: const Icon(Icons.link)),
                     ),
                     FloatingActionButton(
-                      heroTag: 'heroTag2',
+                      heroTag: UniqueKey(),
                       elevation: 0,
                       onPressed: () {
                         // Get.put(pure_live.SearchController());
