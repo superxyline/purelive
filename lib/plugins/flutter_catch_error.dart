@@ -8,6 +8,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/main.dart';
 import 'package:pure_live/plugins/cache_to_file.dart';
+import 'package:pure_live/plugins/catcher/file_handler.dart';
 import 'package:pure_live/plugins/global.dart';
 import 'package:fvp/fvp.dart' as fvp;
 import 'package:pure_live/core/common/http_client.dart' as my_http_client;
@@ -53,17 +54,18 @@ class FlutterCatchError {
         final Catcher2Options debugConfig = Catcher2Options(
           SilentReportMode(),
           [
-            FileHandler(await CoreLog.getLogsPath()),
+            CustomizeFileHandler(await CoreLog.getLogsPath()),
             ConsoleHandler(
               enableDeviceParameters: false,
               enableApplicationParameters: false,
+              enableCustomParameters: false,
             )
           ],
         );
 
         final Catcher2Options releaseConfig = Catcher2Options(
           SilentReportMode(),
-          [FileHandler(await CoreLog.getLogsPath())],
+          [CustomizeFileHandler(await CoreLog.getLogsPath(), enableCustomParameters: false)],
         );
         catcher2!.updateConfig(debugConfig: debugConfig, releaseConfig: releaseConfig);
         CoreLog.i("catcher update config ok");

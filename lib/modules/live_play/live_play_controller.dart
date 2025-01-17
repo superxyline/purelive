@@ -192,6 +192,9 @@ class LivePlayController extends StateController {
   }
 
   Future<bool> onBackPressed() async {
+    if(videoController == null) {
+      return true;
+    }
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
       return await Future.value(false);
