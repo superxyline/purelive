@@ -154,9 +154,10 @@ class _LogsPageState extends State<LogsPage> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            log['date'].toString(),
+                          child: RichText(text: TextSpan(
+                            text: log['date'].toString(),
                             style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           ),
                         ),
                         TextButton.icon(
