@@ -10,3 +10,14 @@ extension RxValueExtension<T> on Rx<T> {
     }
   }
 }
+
+extension RxListExtension<T> on RxList<T> {
+
+  void updateValueNotEquate(List<T> newValue) {
+    var listEquality = ListEquality<T>();
+    if (value != newValue && listEquality.equals(value, newValue)) {
+      value = newValue;
+    }
+  }
+}
+

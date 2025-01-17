@@ -302,6 +302,11 @@ class LivePlayController extends StateController {
     getVideoSuccess.updateValueNotEquate(false);
     loadTimeOut.updateValueNotEquate(false);
     isLoadingVideo.updateValueNotEquate(true);
+
+    currentLineIndex.updateValueNotEquate(0);
+    currentQuality.updateValueNotEquate(0);
+    playUrls.updateValueNotEquate([]);
+
     Timer(const Duration(milliseconds: 100), () {
       // log('resetRoom', name: 'LivePlayController');
       CoreLog.d('resetRoom');
@@ -675,7 +680,7 @@ class LivePlayController extends StateController {
       success.updateValueNotEquate(false);
       return;
     }
-    playUrls.value = playUrlList;
+    playUrls.updateValueNotEquate(playUrlList);
     // log("playUrlList : ${playUrlList}", name: runtimeType.toString());
     setPlayer();
   }
