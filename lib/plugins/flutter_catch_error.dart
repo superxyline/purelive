@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:catcher_2/catcher_2.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/main.dart';
@@ -36,7 +37,8 @@ class FlutterCatchError {
         runApp(app);
       },
     );
-    compute(updateCatcherConf,"");
+    // compute(updateCatcherConf,"");
+    Future.delayed(Duration(seconds: 1), () => updateCatcherConf(""));
 
     // runZonedGuarded(() async {
     //   appInit(app, args);
@@ -45,30 +47,31 @@ class FlutterCatchError {
 
   /// 更新 Catcher 配置
   static void updateCatcherConf(String msg) async {
-    while(true){
-    try {
-      // 异常捕获 logo记录
-      final Catcher2Options debugConfig = Catcher2Options(
-        SilentReportMode(),
-        [
-          FileHandler(await CoreLog.getLogsPath()),
-          ConsoleHandler(
-            enableDeviceParameters: false,
-            enableApplicationParameters: false,
-          )
-        ],
-      );
+    while (true) {
+      try {
+        // 异常捕获 logo记录
+        final Catcher2Options debugConfig = Catcher2Options(
+          SilentReportMode(),
+          [
+            FileHandler(await CoreLog.getLogsPath()),
+            ConsoleHandler(
+              enableDeviceParameters: false,
+              enableApplicationParameters: false,
+            )
+          ],
+        );
 
-      final Catcher2Options releaseConfig = Catcher2Options(
-        SilentReportMode(),
-        [FileHandler(await CoreLog.getLogsPath())],
-      );
-      catcher2!.updateConfig(debugConfig: debugConfig, releaseConfig: releaseConfig);
-      return;
-    } catch(e) {
-      CoreLog.w("catcher update config error: $e");
-      sleep(const Duration(seconds: 1));
-     }
+        final Catcher2Options releaseConfig = Catcher2Options(
+          SilentReportMode(),
+          [FileHandler(await CoreLog.getLogsPath())],
+        );
+        catcher2!.updateConfig(debugConfig: debugConfig, releaseConfig: releaseConfig);
+        CoreLog.i("catcher update config ok");
+        return;
+      } catch (e) {
+        CoreLog.w("catcher update config error: $e");
+        sleep(const Duration(seconds: 1));
+      }
     }
   }
 
