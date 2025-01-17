@@ -36,6 +36,7 @@ class FlutterCatchError {
         runApp(app);
       },
     );
+    compute(updateCatcherConf,"");
 
     // runZonedGuarded(() async {
     //   appInit(app, args);
@@ -43,24 +44,32 @@ class FlutterCatchError {
   }
 
   /// 更新 Catcher 配置
-  static Future<void> updateCatcherConf() async {
-    // 异常捕获 logo记录
-    final Catcher2Options debugConfig = Catcher2Options(
-      SilentReportMode(),
-      [
-        FileHandler(await CoreLog.getLogsPath()),
-        ConsoleHandler(
-          enableDeviceParameters: false,
-          enableApplicationParameters: false,
-        )
-      ],
-    );
+  static void updateCatcherConf(String msg) async {
+    while(true){
+    try {
+      // 异常捕获 logo记录
+      final Catcher2Options debugConfig = Catcher2Options(
+        SilentReportMode(),
+        [
+          FileHandler(await CoreLog.getLogsPath()),
+          ConsoleHandler(
+            enableDeviceParameters: false,
+            enableApplicationParameters: false,
+          )
+        ],
+      );
 
-    final Catcher2Options releaseConfig = Catcher2Options(
-      SilentReportMode(),
-      [FileHandler(await CoreLog.getLogsPath())],
-    );
-    catcher2?.updateConfig(debugConfig: debugConfig, releaseConfig: releaseConfig);
+      final Catcher2Options releaseConfig = Catcher2Options(
+        SilentReportMode(),
+        [FileHandler(await CoreLog.getLogsPath())],
+      );
+      catcher2!.updateConfig(debugConfig: debugConfig, releaseConfig: releaseConfig);
+      return;
+    } catch(e) {
+      CoreLog.w("catcher update config error: $e");
+      sleep(const Duration(seconds: 1));
+     }
+    }
   }
 
   static Future<void> appInit(Widget app, List<String> args) async {

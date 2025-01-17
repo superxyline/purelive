@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:pure_live/plugins/file_util.dart';
-import 'package:pure_live/plugins/flutter_catch_error.dart';
 
 class CustomCache {
   static CustomCache get instance {
@@ -62,8 +61,7 @@ class CustomCache {
   }
 
   Future<Null> deleteCacheDirectory({var partPath = ""}) async {
-    return FileUtil.deleteDirectory(
-        await getCacheDirectory(partPath: partPath));
+    return FileUtil.deleteDirectory(await getCacheDirectory(partPath: partPath));
   }
 
   /// 图片缓存目录大小
@@ -76,19 +74,16 @@ class CustomCache {
   }
 
   /// 删除过期缓存文件
-  Future<Null> deleteCacheFile(
-      {var partPath = "", int millisecond = 24 * 60 * 60 * 1000}) async {
+  Future<Null> deleteCacheFile({var partPath = "", int millisecond = 24 * 60 * 60 * 1000}) async {
     var dateTime = DateTime.timestamp();
     var deleteMillisecond = dateTime.millisecondsSinceEpoch - millisecond;
-    return FileUtil.deleteFile(
-        await getCacheDirectory(partPath: partPath), deleteMillisecond);
+    return FileUtil.deleteFile(await getCacheDirectory(partPath: partPath), deleteMillisecond);
   }
 
   /// 删除过期缓存图片文件
-  Future<Null> deleteImageCacheFile(
-      {int millisecond = 24 * 60 * 60 * 1000}) async {
+  Future<Null> deleteImageCacheFile({int millisecond = 24 * 60 * 60 * 1000}) async {
     deleteCacheFile(partPath: "cacheimage", millisecond: millisecond);
-    FlutterCatchError.updateCatcherConf();
+    // FlutterCatchError.updateCatcherConf();
   }
 
   /// 分区缓存目录大小
