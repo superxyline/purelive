@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:pure_live/plugins/catcher/file_handler.dart';
 
 enum RequestLogType {
   /// 输出所有请求信息
@@ -78,7 +79,7 @@ class CoreLog {
       File logFile = await getLogsPath();
 
       logFile.writeAsString(
-        "$splitToken\nCrash occurred on ${DateTime.now()}\n ${e.toString()} \n ${e.stackTrace}",
+        "$splitToken\nCrash occurred on ${DateTime.now()}\n ${e.toString()} \n ${e.stackTrace}".replaceAll("\n", CustomizeFileHandler.lineSeparator),
         mode: FileMode.writeOnlyAppend,
       );
     }

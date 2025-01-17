@@ -116,12 +116,15 @@ class VideoController with ChangeNotifier {
   // 其他类型 监听流
   final otherStreamSubscriptionList = <StreamSubscription>[];
 
+  LivePlayController livePlayController;
+
   VideoController({
     required this.playerKey,
     required this.room,
     required this.datasourceType,
     required this.datasource,
     required this.headers,
+    required this.livePlayController,
     this.allowBackgroundPlay = false,
     this.allowScreenKeepOn = false,
     this.allowFullScreen = true,
@@ -178,7 +181,6 @@ class VideoController with ChangeNotifier {
 
     otherStreamSubscriptionList.add(videoPlayer.hasError.listen((p0) {
       try {
-        LivePlayController livePlayController = Get.find<LivePlayController>();
         if (videoPlayer.hasError.value &&
             !livePlayController.isLastLine.value) {
           SmartDialog.showToast("视频播放失败,正在为您切换线路");
@@ -190,7 +192,6 @@ class VideoController with ChangeNotifier {
     }));
     /*debounce(hasError, (callback) {
       try {
-        LivePlayController livePlayController = Get.find<LivePlayController>();
         if (hasError.value && !livePlayController.isLastLine.value) {
           SmartDialog.showToast("视频播放失败,正在为您切换线路");
           changeLine();
@@ -327,7 +328,6 @@ class VideoController with ChangeNotifier {
     destory();
     Timer(const Duration(seconds: 2), () {
       try {
-        LivePlayController livePlayController = Get.find<LivePlayController>();
         livePlayController.playUrls.value = [];
         livePlayController.qualites.value = [];
         livePlayController.onInitPlayerState(
@@ -343,7 +343,6 @@ class VideoController with ChangeNotifier {
     await destory();
     Timer(const Duration(seconds: 2), () {
       try {
-        LivePlayController livePlayController = Get.find<LivePlayController>();
         livePlayController.onInitPlayerState(
           reloadDataType: ReloadDataType.changeLine,
           line: currentLineIndex,
@@ -556,16 +555,20 @@ class VideoController with ChangeNotifier {
   }
 
   void enterPipMode(BuildContext context) async {
+    if(Platform.isAndroid) {
+      try {
+        LivePlayController? livePlayController =
+        Get.findOrNull<LivePlayController?>();
+        if (livePlayController != null) {
+          livePlayController.enablePIP();
+        }
+      } catch (e) {
+        CoreLog.error(e);
+      }
+      return;
+    }
     videoPlayer.enterPipMode();
-    // try {
-    //   LivePlayController? livePlayController =
-    //   Get.findOrNull<LivePlayController?>();
-    //   if (livePlayController != null) {
-    //     livePlayController.enablePIP();
-    //   }
-    // } catch (e) {
-    //   CoreLog.error(e);
-    // }
+
   }
 
   /////////// 音量 & 亮度

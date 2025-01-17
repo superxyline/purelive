@@ -9,20 +9,22 @@ import 'package:pure_live/plugins/extension/string_extension.dart';
 
 class DanmakuListView extends StatefulWidget {
   final LiveRoom room;
+  final LivePlayController controller;
 
-  const DanmakuListView({super.key, required this.room});
+  const DanmakuListView({super.key, required this.room, required this.controller});
 
   @override
-  State<DanmakuListView> createState() => DanmakuListViewState();
+  State<DanmakuListView> createState() => DanmakuListViewState(controller: controller);
 }
 
 class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliveClientMixin<DanmakuListView> {
   final ScrollController _scrollController = ScrollController();
   bool _scrollHappen = false;
 
-  LivePlayController get controller => Get.find<LivePlayController>();
+  final LivePlayController controller;
   final List<StreamSubscription> listenList = [];
   final List<Worker> workerList = [];
+  DanmakuListViewState({required this.controller});
 
   // final Lock lock = Lock();
   @override

@@ -125,7 +125,7 @@ class LivePlayController extends StateController {
   final isFullscreen = false.obs;
 
   /// PIP画中画
-  final pip = Floating();
+  Floating? pip;
   StreamSubscription? _pipSubscription;
 
   /// StreamSubscription
@@ -134,7 +134,11 @@ class LivePlayController extends StateController {
   /// 释放一些系统状态
   Future resetSystem() async {
     _pipSubscription?.cancel();
-    pip.dispose();
+    try {
+      pip?.cancelOnLeavePiP();
+    } catch (e) {
+      CoreLog.error(e);
+    }
     await SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: SystemUiOverlay.values,
@@ -154,11 +158,7 @@ class LivePlayController extends StateController {
   }
 
   Future enablePIP() async {
-    if (!Platform.isAndroid) {
-      videoController?.videoPlayer.enterPipMode();
-      return;
-    }
-    if (await pip.isPipAvailable == false) {
+    if (!((Platform.isAndroid || Platform.isIOS) && await pip?.isPipAvailable == true)) {
       SmartDialog.showToast("设备不支持小窗播放");
       return;
     }
@@ -180,9 +180,9 @@ class LivePlayController extends StateController {
       ratio = const Rational.landscape();
     }
     CoreLog.d("$ratio");
-    await pip.enable(aspectRatio: ratio);
+    await pip?.enable(ImmediatePiP());
 
-    subscriptionList.add(pip.pipStatus$.listen((event) {
+    subscriptionList.add(pip?.pipStatusStream.listen((event) {
       if (event == PiPStatus.disabled) {
         // danmakuController?.clear();
         // showDanmakuState.updateValueNotEquate(danmakuStateBeforePIP;
@@ -192,7 +192,7 @@ class LivePlayController extends StateController {
   }
 
   Future<bool> onBackPressed() async {
-    if(videoController == null) {
+    if (videoController == null) {
       return true;
     }
     if (videoController!.showSettting.value) {
@@ -223,6 +223,7 @@ class LivePlayController extends StateController {
     super.onInit();
     // 发现房间ID 会变化 使用静态列表ID 对比
     CoreLog.d('onInit');
+    initPip();
 
     // liveRoomRx = room;
 
@@ -502,6 +503,21 @@ class LivePlayController extends StateController {
     return !repeat;
   }
 
+  void initPip() {
+    if (Platform.isAndroid) {
+      pip = Floating();
+      subscriptionList.add(pip?.pipStatusStream.listen((status) {
+        // if (status == PiPStatus.enabled) {
+        //   isPipMode.value = true;
+        //   key.currentState?.enterFullscreen();
+        // } else {
+        //   isPipMode.value = false;
+        //   key.currentState?.exitFullscreen();
+        // }
+      }));
+    }
+  }
+
   /// 初始化弹幕接收事件
   void initDanmau() {
     messages.clear();
@@ -598,12 +614,11 @@ class LivePlayController extends StateController {
           var quality = playQuality.quality;
           quality = quality.replaceAll(" ", "");
           quality = quality.replaceAll("质臻", "8M");
-          if(quality == "蓝光") {
+          if (quality == "蓝光") {
             quality = "蓝光4M";
           }
           playQuality.quality = quality;
         }
-
       }
       if (playQualites.isEmpty) {
         SmartDialog.showToast("无法读取视频信息,请重新获取", displayTime: const Duration(seconds: 2));
@@ -621,7 +636,7 @@ class LivePlayController extends StateController {
           /// 移动网络
           resolution = settings.preferResolutionMobile.value;
         }
-          int qualityLevel = settings.resolutionsList.indexOf(resolution);
+        int qualityLevel = settings.resolutionsList.indexOf(resolution);
         qualityLevel = math.max(0, qualityLevel);
         qualityLevel = math.min(playQualites.length - 1, qualityLevel);
 
@@ -668,9 +683,30 @@ class LivePlayController extends StateController {
   Map<String, String> getUrlHeaders() {
     Map<String, String> headers = {};
     if (currentSite.id == Sites.bilibiliSite) {
-      headers = {"cookie": settings.bilibiliCookie.value, "authority": "api.bilibili.com", "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", "accept-language": "zh-CN,zh;q=0.9", "cache-control": "no-cache", "dnt": "1", "pragma": "no-cache", "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"', "sec-ch-ua-mobile": "?0", "sec-ch-ua-platform": '"macOS"', "sec-fetch-dest": "document", "sec-fetch-mode": "navigate", "sec-fetch-site": "none", "sec-fetch-user": "?1", "upgrade-insecure-requests": "1", "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36", "referer": "https://live.bilibili.com"};
+      headers = {
+        "cookie": settings.bilibiliCookie.value,
+        "authority": "api.bilibili.com",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "accept-language": "zh-CN,zh;q=0.9",
+        "cache-control": "no-cache",
+        "dnt": "1",
+        "pragma": "no-cache",
+        "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"macOS"',
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "none",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "referer": "https://live.bilibili.com"
+      };
     } else if (currentSite.id == Sites.huyaSite) {
-      headers = {"Referer": "https://m.huya.com", "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/130.0.0.0"};
+      headers = {
+        "Referer": "https://m.huya.com",
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/130.0.0.0"
+      };
     }
     return headers;
   }
@@ -691,6 +727,7 @@ class LivePlayController extends StateController {
     // log("current play url : ${playUrls.value[currentLineIndex.value]}", name: runtimeType.toString());
     if (videoController == null || videoController!.hasDestory) {
       videoController = VideoController(
+        livePlayController: this,
         playerKey: playerKey,
         room: liveRoomRx.toLiveRoom(),
         datasourceType: 'network',
@@ -751,7 +788,8 @@ class LivePlayController extends StateController {
       webUrl = "https://live.douyin.com/${args.webRid}";
     } else if (site == Sites.huyaSite) {
       var args = liveRoomRx.danmakuData as HuyaDanmakuArgs;
-      naviteUrl = "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
+      naviteUrl =
+          "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
       webUrl = "https://www.huya.com/${liveRoomRx.roomId}";
     } else if (site == Sites.douyuSite) {
       // naviteUrl = "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${liveRoomRx.roomId}";
@@ -762,7 +800,8 @@ class LivePlayController extends StateController {
       naviteUrl = "cc://join-room/${liveRoomRx.roomId}/${liveRoomRx.userId}/";
       webUrl = "https://cc.163.com/${liveRoomRx.roomId}";
     } else if (site == Sites.kuaishouSite) {
-      naviteUrl = "kwai://liveaggregatesquare?liveStreamId=${liveRoomRx.link}&recoStreamId=${liveRoomRx.link}&recoLiveStreamId=${liveRoomRx.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
+      naviteUrl =
+          "kwai://liveaggregatesquare?liveStreamId=${liveRoomRx.link}&recoStreamId=${liveRoomRx.link}&recoLiveStreamId=${liveRoomRx.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
       webUrl = "https://live.kuaishou.com/u/${liveRoomRx.roomId}";
     }
     try {
@@ -791,6 +830,7 @@ class LivePlayController extends StateController {
 
   /// 弹幕
   BarrageWallController danmakuController = BarrageWallController();
+
   void sendDanmaku(LiveMessage msg) {
     if (settings.hideDanmaku.value) return;
 

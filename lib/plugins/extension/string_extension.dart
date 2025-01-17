@@ -3,7 +3,7 @@ extension StringExtension on String? {
   bool get isNull => this == null;
   bool get isNullOrEmpty => this == null || this?.trim() == "";
 
-  bool get isNotNullOrEmpty => !isNullOrEmpty;
+  bool get isNotNullOrEmpty => this != null && this?.trim() != "";
 
   /// 获取内容，空值选择默认内容
   String getNotNullOrEmptyByDefault(String defaultTxt) {

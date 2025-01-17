@@ -60,7 +60,8 @@ class LivePlayPage extends GetView<LivePlayController> {
             /// 横着摆放
             children: [
               /// 站点logo
-              if (controller.liveRoomRx.platform.value.isNotNullOrEmpty) SiteWidget.getSiteLogeImage(controller.liveRoomRx.platform.value!)!,
+              if (controller.liveRoomRx.platform.value.isNotNullOrEmpty)
+                SiteWidget.getSiteLogeImage(controller.liveRoomRx.platform.value!) ?? Container(),
 
               /// 站点logo
               const SizedBox(width: 5),
@@ -241,6 +242,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                               child: Obx(() => DanmakuListView(
                                     key: controller.danmakuViewKey,
                                     room: controller.liveRoomRx.toLiveRoom(),
+                                     controller: controller,
                                   )),
                             ),
                           ],
@@ -259,6 +261,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                                 child: Obx(() => DanmakuListView(
                                       key: controller.danmakuViewKey,
                                       room: controller.liveRoomRx.toLiveRoom(),
+                                      controller: controller,
                                     )),
                               ),
                             ]),

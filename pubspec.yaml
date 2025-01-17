@@ -145,7 +145,7 @@ dependencies:
   uuid: ^4.4.2   # 用于生成 UUID
   auto_orientation: ^2.3.1 #屏幕方向
   device_info_plus: ^11.2.0 #设备信息
-  floating: ^2.0.2 #PIP画中画
+  floating: ^5.0.1 #PIP画中画
   catcher_2: ^2.1.0 #异常日志捕获
  #  MPV 播放器
   media_kit:

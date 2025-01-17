@@ -66,21 +66,29 @@ class Sites {
   ];
 
   static Site of(String id) {
-    return supportSites.firstWhere((e) => id == e.id);
+    return supportSites.firstWhereOrNull((e) => id == e.id) ?? supportSites[supportSites.length - 1];
   }
 
   static Site allLiveSite = Site(id: allSite, name: "全部", logo: "assets/images/all.png", liveSite: LiveSite());
 
   static String getSiteName(String siteId) {
-    switch(siteId) {
-      case allSite: return S.current.all;
-      case bilibiliSite: return S.current.bilibili;
-      case douyuSite: return S.current.douyu;
-      case huyaSite: return S.current.huya;
-      case douyinSite: return S.current.douyin;
-      case kuaishouSite: return S.current.kuaishou;
-      case ccSite: return S.current.cc;
-      case iptvSite: return S.current.iptv;
+    switch (siteId) {
+      case allSite:
+        return S.current.all;
+      case bilibiliSite:
+        return S.current.bilibili;
+      case douyuSite:
+        return S.current.douyu;
+      case huyaSite:
+        return S.current.huya;
+      case douyinSite:
+        return S.current.douyin;
+      case kuaishouSite:
+        return S.current.kuaishou;
+      case ccSite:
+        return S.current.cc;
+      case iptvSite:
+        return S.current.iptv;
     }
     return S.current.all;
   }
@@ -101,6 +109,7 @@ class Site {
   final String name;
   final String logo;
   final LiveSite liveSite;
+
   Site({
     required this.id,
     required this.liveSite,
