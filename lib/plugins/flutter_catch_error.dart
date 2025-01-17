@@ -13,6 +13,8 @@ import 'package:pure_live/core/common/http_client.dart' as my_http_client;
 
 ///全局异常的捕捉
 class FlutterCatchError {
+  static Catcher2? catcher2;
+
   static run(Widget app, List<String> args) async {
     ///Flutter 框架异常
     FlutterError.onError = (FlutterErrorDetails details) async {
@@ -29,6 +31,19 @@ class FlutterCatchError {
 
     await appInit(app, args);
 
+    catcher2 = Catcher2(
+      runAppFunction: () {
+        runApp(app);
+      },
+    );
+
+    // runZonedGuarded(() async {
+    //   appInit(app, args);
+    // }, (error, stack) => catchError(error, stack));
+  }
+
+  /// 更新 Catcher 配置
+  static Future<void> updateCatcherConf() async {
     // 异常捕获 logo记录
     final Catcher2Options debugConfig = Catcher2Options(
       SilentReportMode(),
@@ -45,18 +60,7 @@ class FlutterCatchError {
       SilentReportMode(),
       [FileHandler(await CoreLog.getLogsPath())],
     );
-
-    Catcher2(
-      debugConfig: debugConfig,
-      releaseConfig: releaseConfig,
-      runAppFunction: () {
-        runApp(app);
-      },
-    );
-
-    // runZonedGuarded(() async {
-    //   appInit(app, args);
-    // }, (error, stack) => catchError(error, stack));
+    catcher2?.updateConfig(debugConfig: debugConfig, releaseConfig: releaseConfig);
   }
 
   static Future<void> appInit(Widget app, List<String> args) async {

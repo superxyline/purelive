@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:pure_live/plugins/file_util.dart';
+import 'package:pure_live/plugins/flutter_catch_error.dart';
 
 class CustomCache {
   static CustomCache get instance {
@@ -86,7 +87,8 @@ class CustomCache {
   /// 删除过期缓存图片文件
   Future<Null> deleteImageCacheFile(
       {int millisecond = 24 * 60 * 60 * 1000}) async {
-    return deleteCacheFile(partPath: "cacheimage", millisecond: millisecond);
+    deleteCacheFile(partPath: "cacheimage", millisecond: millisecond);
+    FlutterCatchError.updateCatcherConf();
   }
 
   /// 分区缓存目录大小
