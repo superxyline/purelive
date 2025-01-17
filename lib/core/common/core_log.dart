@@ -78,7 +78,7 @@ class CoreLog {
       File logFile = await getLogsPath();
 
       logFile.writeAsString(
-        "$splitToken\n**${DateTime.now()}** \n ${e.toString()} \n ${e.stackTrace}",
+        "$splitToken\nCrash occurred on ${DateTime.now()}\n ${e.toString()} \n ${e.stackTrace}",
         mode: FileMode.writeOnlyAppend,
       );
     }

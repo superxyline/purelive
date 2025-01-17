@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LogsPage extends StatefulWidget {
@@ -45,7 +46,7 @@ class _LogsPageState extends State<LogsPage> {
     }).toList();
     List<Map<String, dynamic>> result = [];
     for (String i in contentList) {
-      dynamic date;
+      String date = "";
       String body = i
           .split("\n")
           .map((l) {
@@ -53,7 +54,7 @@ class _LogsPageState extends State<LogsPage> {
           try {
             date = DateTime.parse(
               l.split("Crash occurred on")[1].trim(),//.split('.')[0],
-            );
+            ).toString();
           } catch (e) {
             debugPrint(e.toString());
             date = l.toString();
@@ -64,7 +65,7 @@ class _LogsPageState extends State<LogsPage> {
       })
           .where((dynamic l) => l.replaceAll("\n", "").trim().isNotEmpty)
           .join("\n");
-      if (date != null || body != '') {
+      if (date.isNotEmpty && body.isNotEmpty) {
         result.add({'date': date, 'body': body, 'expand': false});
       }
     }
