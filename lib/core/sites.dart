@@ -66,6 +66,7 @@ class Sites {
   ];
 
   static Site of(String id) {
+    return supportSites.firstWhere((e) => id == e.id) ?? supportSites[supportSites.length - 1];
     return supportSites.firstWhereOrNull((e) => id == e.id) ?? supportSites[supportSites.length - 1];
   }
 

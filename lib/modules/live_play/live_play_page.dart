@@ -1,16 +1,14 @@
 import 'dart:io';
 
-import 'package:floating/floating.dart';
+// import 'package:floating/floating.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/widgets/app_style.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/settings/settings_page_v2.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/plugins/cache_network.dart';
-import 'package:pure_live/plugins/extension/list_extension.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:remixicon/remixicon.dart';
@@ -278,11 +276,12 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (!Platform.isAndroid) {
       return page;
     }
-    return PiPSwitcher(
-      floating: controller.pip,
-      childWhenDisabled: page,
-      childWhenEnabled: buildVideoPlayer(),
-    );
+    // return PiPSwitcher(
+    //   floating: controller.pip,
+    //   childWhenDisabled: page,
+    //   childWhenEnabled: buildVideoPlayer(),
+    // );
+    return page;
   }
 
   void showDlnaCastDialog() {

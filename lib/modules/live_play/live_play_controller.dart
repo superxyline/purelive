@@ -4,7 +4,8 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:floating/floating.dart';
+import 'package:fl_pip/fl_pip.dart';
+// import 'package:floating/floating.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
@@ -125,7 +126,7 @@ class LivePlayController extends StateController {
   final isFullscreen = false.obs;
 
   /// PIP画中画
-  Floating? pip;
+  // Floating? pip;
   StreamSubscription? _pipSubscription;
 
   /// StreamSubscription
@@ -135,7 +136,7 @@ class LivePlayController extends StateController {
   Future resetSystem() async {
     _pipSubscription?.cancel();
     try {
-      pip?.cancelOnLeavePiP();
+      // pip?.cancelOnLeavePiP();
     } catch (e) {
       CoreLog.error(e);
     }
@@ -158,7 +159,7 @@ class LivePlayController extends StateController {
   }
 
   Future enablePIP() async {
-    if (!((Platform.isAndroid || Platform.isIOS) && await pip?.isPipAvailable == true)) {
+    if (!((Platform.isAndroid || Platform.isIOS) && (await FlPiP().isAvailable) == true)) {
       SmartDialog.showToast("设备不支持小窗播放");
       return;
     }
@@ -180,15 +181,21 @@ class LivePlayController extends StateController {
       ratio = const Rational.landscape();
     }
     CoreLog.d("$ratio");
-    await pip?.enable(ImmediatePiP());
+    // await pip?.enable(ImmediatePiP());
 
-    subscriptionList.add(pip?.pipStatusStream.listen((event) {
-      if (event == PiPStatus.disabled) {
-        // danmakuController?.clear();
-        // showDanmakuState.updateValueNotEquate(danmakuStateBeforePIP;
-      }
-      CoreLog.w(event.toString());
-    }));
+    // subscriptionList.add(pip?.pipStatusStream.listen((event) {
+    //   if (event == PiPStatus.disabled) {
+    //     // danmakuController?.clear();
+    //     // showDanmakuState.updateValueNotEquate(danmakuStateBeforePIP;
+    //   }
+    //   CoreLog.w(event.toString());
+    // }));
+    FlPiP().enable(
+      ios: FlPiPiOSConfig(videoPath: "", audioPath: "", packageName: null),
+      android: FlPiPAndroidConfig(
+        aspectRatio: const Rational.maxLandscape(),
+      ),
+    );
   }
 
   Future<bool> onBackPressed() async {
@@ -510,16 +517,16 @@ class LivePlayController extends StateController {
 
   void initPip() {
     if (Platform.isAndroid) {
-      pip = Floating();
-      subscriptionList.add(pip?.pipStatusStream.listen((status) {
-        // if (status == PiPStatus.enabled) {
-        //   isPipMode.value = true;
-        //   key.currentState?.enterFullscreen();
-        // } else {
-        //   isPipMode.value = false;
-        //   key.currentState?.exitFullscreen();
-        // }
-      }));
+      // pip = Floating();
+      // subscriptionList.add(pip?.pipStatusStream.listen((status) {
+      //   // if (status == PiPStatus.enabled) {
+      //   //   isPipMode.value = true;
+      //   //   key.currentState?.enterFullscreen();
+      //   // } else {
+      //   //   isPipMode.value = false;
+      //   //   key.currentState?.exitFullscreen();
+      //   // }
+      // }));
     }
   }
 
