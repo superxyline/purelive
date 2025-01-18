@@ -159,7 +159,7 @@ class LivePlayController extends StateController {
   }
 
   Future enablePIP() async {
-    if (!((Platform.isAndroid || Platform.isIOS) && (await FlPiP().isAvailable) == true)) {
+    if (!((Platform.isAndroid || Platform.isIOS))) {
       SmartDialog.showToast("设备不支持小窗播放");
       return;
     }

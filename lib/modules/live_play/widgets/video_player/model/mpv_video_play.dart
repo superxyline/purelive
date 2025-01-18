@@ -177,7 +177,7 @@ class MpvVideoPlay extends VideoPlayerInterFace{
   }
 
   @override
-  bool get supportPip => false;
+  bool get supportPip => true;
 
   @override
   List<String> get supportPlatformList =>

@@ -11,9 +11,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
-import 'package:pure_live/modules/live_play/widgets/video_player/danmaku_text.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
-import 'package:pure_live/plugins/barrage.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -57,8 +55,7 @@ class VideoController with ChangeNotifier {
 
   final playerRefresh = false.obs;
 
-  GlobalKey<BrightnessVolumeDargAreaState> brightnessKey =
-      GlobalKey<BrightnessVolumeDargAreaState>();
+  GlobalKey<BrightnessVolumeDargAreaState> brightnessKey = GlobalKey<BrightnessVolumeDargAreaState>();
 
   // LivePlayController livePlayController = Get.find<LivePlayController>();
 
@@ -161,8 +158,7 @@ class VideoController with ChangeNotifier {
   void initBattery() {
     if (Platform.isAndroid || Platform.isIOS) {
       _battery.batteryLevel.then((value) => batteryLevel.updateValueNotEquate(value));
-      otherStreamSubscriptionList.add(
-          _battery.onBatteryStateChanged.listen((BatteryState state) async {
+      otherStreamSubscriptionList.add(_battery.onBatteryStateChanged.listen((BatteryState state) async {
         batteryLevel.updateValueNotEquate(await _battery.batteryLevel);
       }));
     }
@@ -175,14 +171,12 @@ class VideoController with ChangeNotifier {
     videoPlayerIndex = settings.videoPlayerIndex.value;
     enableCodec = settings.enableCodec.value;
 
-    videoPlayer =
-        VideoPlayerFactory.getSupportVideoPlayerList()[videoPlayerIndex];
+    videoPlayer = VideoPlayerFactory.getSupportVideoPlayerList()[videoPlayerIndex];
     videoPlayer.init(controller: this);
 
     otherStreamSubscriptionList.add(videoPlayer.hasError.listen((p0) {
       try {
-        if (videoPlayer.hasError.value &&
-            !livePlayController.isLastLine.value) {
+        if (videoPlayer.hasError.value && !livePlayController.isLastLine.value) {
           SmartDialog.showToast("视频播放失败,正在为您切换线路");
           changeLine();
         }
@@ -236,8 +230,7 @@ class VideoController with ChangeNotifier {
       }
     }));
 
-    otherStreamSubscriptionList
-        .add(mediaPlayerControllerInitialized.listen((value) {
+    otherStreamSubscriptionList.add(mediaPlayerControllerInitialized.listen((value) {
       // fix auto fullscreen
       if (fullScreenByDefault && datasource.isNotEmpty && value) {
         Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
@@ -268,7 +261,7 @@ class VideoController with ChangeNotifier {
   Future<void> resetScreenBrightness() async {
     try {
       await brightnessController.resetApplicationScreenBrightness();
-    }catch(e){
+    } catch (e) {
       // CoreLog.error(e);
     }
   }
@@ -330,8 +323,7 @@ class VideoController with ChangeNotifier {
       try {
         livePlayController.playUrls.value = [];
         livePlayController.qualites.value = [];
-        livePlayController.onInitPlayerState(
-            reloadDataType: ReloadDataType.refreash, firstLoad: true);
+        livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.refreash, firstLoad: true);
       } catch (e) {
         CoreLog.error(e);
       }
@@ -362,11 +354,7 @@ class VideoController with ChangeNotifier {
     videoPlayer.isPlaying.updateValueNotEquate(false);
     videoPlayer.hasError.updateValueNotEquate(false);
     try {
-      LivePlayController? livePlayController =
-          Get.findOrNull<LivePlayController?>();
-      if (livePlayController != null) {
-        livePlayController.success.updateValueNotEquate(false);
-      }
+      livePlayController.success.updateValueNotEquate(false);
     } catch (e) {
       CoreLog.error(e);
     }
@@ -493,7 +481,7 @@ class VideoController with ChangeNotifier {
     });
 
     videoPlayer.isFullscreen.toggle();
-    if(videoPlayer.isFullscreen.value){
+    if (videoPlayer.isFullscreen.value) {
       enterFullScreen();
     } else {
       exitFull();
@@ -520,8 +508,7 @@ class VideoController with ChangeNotifier {
   /// 退出全屏
   void exitFull() {
     if (Platform.isAndroid || Platform.isIOS) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
-          overlays: SystemUiOverlay.values);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: SystemUiOverlay.values);
       setPortraitOrientation();
     } else {
       windowManager.setFullScreen(false);
@@ -548,6 +535,7 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(milliseconds: 500), () {
       enableController();
     });
+
     /// 是否 窗口全屏
     videoPlayer.toggleWindowFullScreen();
     enableController();
@@ -555,20 +543,15 @@ class VideoController with ChangeNotifier {
   }
 
   void enterPipMode(BuildContext context) async {
-    if(Platform.isAndroid) {
+    if (Platform.isAndroid) {
       try {
-        LivePlayController? livePlayController =
-        Get.findOrNull<LivePlayController?>();
-        if (livePlayController != null) {
-          livePlayController.enablePIP();
-        }
+        livePlayController.enablePIP();
       } catch (e) {
         CoreLog.error(e);
       }
       return;
     }
     videoPlayer.enterPipMode();
-
   }
 
   /////////// 音量 & 亮度
@@ -586,11 +569,10 @@ class VideoController with ChangeNotifier {
   Future<double> brightness() async {
     try {
       return await brightnessController.application;
-    }catch(e) {
+    } catch (e) {
       CoreLog.d("$e");
       return 100;
     }
-
   }
 
   /// 设置亮度
