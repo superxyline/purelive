@@ -90,7 +90,7 @@ class GsyVideoPlay extends VideoPlayerInterFace {
       var size = e.size;
       var isBuffering2 = e.isBuffering;
       if (isBuffering2 != null) {
-        isBuffering.updateValueNotEquate(isBuffering2);
+        isBuffering.updateValueNotEquate(!isBuffering2);
       }
       if (size != null) {
         // isVertical.value = (size.height) > (size.width);
