@@ -294,7 +294,7 @@ class TopActionBar extends StatelessWidget {
             ],
 
             /// 画中画
-            if (!controller.videoPlayer.fullscreenUI && controller.videoPlayer.supportPip && controller.videoPlayerIndex != 4) PIPButton(controller: controller),
+            if (!controller.videoPlayer.fullscreenUI && controller.videoPlayer.supportPip) PIPButton(controller: controller),
           ]),
         ),
       ),

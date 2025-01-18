@@ -76,7 +76,8 @@ abstract class VideoPlayerInterFace {
 
   /// 是否 支持画中画
   bool get supportPip =>
-      Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+      Platform.isWindows || Platform.isLinux || Platform.isMacOS || Platform.isAndroid || Platform.isIOS;
+
 
   void enterPipMode() async {
     if (Platform.isWindows || Platform.isLinux|| Platform.isMacOS) {

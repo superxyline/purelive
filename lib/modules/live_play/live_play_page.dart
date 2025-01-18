@@ -147,7 +147,7 @@ class LivePlayPage extends GetView<LivePlayController> {
     }
     final page = Obx(() {
       CoreLog.d("isFullscreen.value ${controller.isFullscreen.value}");
-      if (controller.isFullscreen.value == true) {
+      if (controller.isFullscreen.value || controller.isPiP.value) {
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, result) {

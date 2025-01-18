@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fl_pip/fl_pip.dart';
+
 // import 'package:floating/floating.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -125,6 +126,9 @@ class LivePlayController extends StateController {
   /// 是否全屏
   final isFullscreen = false.obs;
 
+  /// 画质状态
+  final isPiP = false.obs;
+
   /// PIP画中画
   // Floating? pip;
   StreamSubscription? _pipSubscription;
@@ -136,7 +140,9 @@ class LivePlayController extends StateController {
   Future resetSystem() async {
     _pipSubscription?.cancel();
     try {
-      // pip?.cancelOnLeavePiP();
+      if (Platform.isAndroid || Platform.isIOS) {
+        FlPiP().status.removeListener(flPiPListener);
+      }
     } catch (e) {
       CoreLog.error(e);
     }
@@ -167,6 +173,7 @@ class LivePlayController extends StateController {
     //关闭并清除弹幕
     if (videoController?.videoPlayer.isPipMode.value == true) {
       videoController?.settings.hideDanmaku.updateValueNotEquate(true);
+      videoController?.showController.updateValueNotEquate(false);
     }
     danmakuController.reset(0);
     // //关闭控制器
@@ -196,6 +203,19 @@ class LivePlayController extends StateController {
         aspectRatio: const Rational.maxLandscape(),
       ),
     );
+  }
+
+  /// flPiP android 画中画状态
+  Future<void> flPiPListener() async {
+    var statusInfo = await FlPiP().isActive;
+    switch (statusInfo?.status) {
+      case PiPStatus.enabled:
+        isPiP.updateValueNotEquate(true);
+        break;
+      default:
+        isPiP.updateValueNotEquate(false);
+        break;
+    }
   }
 
   Future<bool> onBackPressed() async {
@@ -516,7 +536,7 @@ class LivePlayController extends StateController {
   }
 
   void initPip() {
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid || Platform.isIOS) {
       // pip = Floating();
       // subscriptionList.add(pip?.pipStatusStream.listen((status) {
       //   // if (status == PiPStatus.enabled) {
@@ -527,6 +547,7 @@ class LivePlayController extends StateController {
       //   //   key.currentState?.exitFullscreen();
       //   // }
       // }));
+      FlPiP().status.addListener(flPiPListener);
     }
   }
 
