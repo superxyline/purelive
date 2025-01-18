@@ -813,6 +813,7 @@ class LivePlayController extends StateController {
   openNaviteAPP() async {
     var naviteUrl = "";
     var webUrl = "";
+    var site = liveRoomRx.platform.value;
     if (site == Sites.bilibiliSite) {
       naviteUrl = "bilibili://live/${liveRoomRx.roomId}";
       webUrl = "https://live.bilibili.com/${liveRoomRx.roomId}";
