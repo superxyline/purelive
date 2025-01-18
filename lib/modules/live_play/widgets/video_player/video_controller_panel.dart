@@ -65,6 +65,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
 
   @override
   Widget build(BuildContext context) {
+    /// pip 模式不显示控制器
+    if(controller.livePlayController.isPiP.value) {
+      return Container();
+    }
     IconData iconData;
     iconData = currentVolume <= 0
         ? Icons.volume_mute

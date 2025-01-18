@@ -176,6 +176,7 @@ class LivePlayController extends StateController {
       videoController?.showController.updateValueNotEquate(false);
     }
     danmakuController.reset(0);
+    videoController?.showController.updateValueNotEquate(false);
     // //关闭控制器
     // showControlsState.updateValueNotEquate(false);
 
@@ -200,8 +201,8 @@ class LivePlayController extends StateController {
     FlPiP().enable(
       ios: FlPiPiOSConfig(videoPath: "", audioPath: "", packageName: null),
       android: FlPiPAndroidConfig(
-        aspectRatio: const Rational.maxLandscape(),
-      ),
+        aspectRatio: ratio,
+      )
     );
   }
 
