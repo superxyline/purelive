@@ -72,15 +72,13 @@ class KuaishowDanmaku implements LiveDanmaku {
     var mHeaders = kuaishowSite.headers;
     var fakeUseragent = FakeUserAgent.getRandomUserAgent();
     mHeaders['User-Agent'] = fakeUseragent['userAgent'];
-    mHeaders['sec-ch-ua'] =
-        'Google Chrome;v=${fakeUseragent['v']}, Chromium;v=${fakeUseragent['v']}, Not=A?Brand;v=24';
+    mHeaders['sec-ch-ua'] = 'Google Chrome;v=${fakeUseragent['v']}, Chromium;v=${fakeUseragent['v']}, Not=A?Brand;v=24';
     mHeaders['sec-ch-ua-platform'] = fakeUseragent['device'];
     mHeaders['sec-fetch-dest'] = 'document';
     mHeaders['sec-fetch-mode'] = 'navigate';
     mHeaders['sec-fetch-site'] = 'same-origin';
     mHeaders['sec-fetch-user'] = '?1';
-    mHeaders['accept'] =
-        'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
+    mHeaders['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
     webScoketUtils = WebScoketUtils(
       url: danmakuArgs.url,
       heartBeatTime: heartbeatTime,
@@ -114,8 +112,7 @@ class KuaishowDanmaku implements LiveDanmaku {
     payload.expTag = danmakuArgs.expTag;
 
     /// 设置 pageId
-    var charset =
-        "bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz";
+    var charset = "bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz";
     var splits = charset.split("");
     var pageId = "";
     for (var i = 0; i < 16; i++) {
@@ -125,8 +122,7 @@ class KuaishowDanmaku implements LiveDanmaku {
     pageId += "_$dateTime";
 
     payload.pageId = pageId;
-    csWebEnterRoom.payloadType =
-        Int64.parseInt(PayloadType.CS_ENTER_ROOM.value.toString());
+    csWebEnterRoom.payloadType = Int64.parseInt(PayloadType.CS_ENTER_ROOM.value.toString());
     csWebEnterRoom.payload = payload;
     webScoketUtils?.sendMessage(csWebEnterRoom.writeToBuffer());
   }
@@ -135,10 +131,8 @@ class KuaishowDanmaku implements LiveDanmaku {
   void heartbeat() {
     var csWebHeartbeat = CSWebHeartbeat();
     var csWebHeartbeatPayload = CSWebHeartbeat_Payload();
-    csWebHeartbeatPayload.timestamp =
-        Int64.parseInt(DateTime.now().millisecondsSinceEpoch.toString());
-    csWebHeartbeat.payloadType =
-        Int64.parseInt(PayloadType.CS_HEARTBEAT.value.toString());
+    csWebHeartbeatPayload.timestamp = Int64.parseInt(DateTime.now().millisecondsSinceEpoch.toString());
+    csWebHeartbeat.payloadType = Int64.parseInt(PayloadType.CS_HEARTBEAT.value.toString());
     csWebHeartbeat.payload = csWebHeartbeatPayload;
     webScoketUtils?.sendMessage(csWebHeartbeat.writeToBuffer());
   }
@@ -200,13 +194,37 @@ class KuaishowDanmaku implements LiveDanmaku {
       // color: #FF8BA7
       var messageColor = ColorUtil.hexToColor(color);
 
-      var fansLevel="";
+      var fansLevel = "";
       var fansName = "";
       var senderState = commentFeed.senderState;
       var liveFansGroupState = senderState.liveFansGroupState;
       var intimacyLevel = liveFansGroupState.intimacyLevel;
       fansLevel = intimacyLevel.toString();
       fansName = "荣誉";
+      // CoreLog.d("liveAudienceState11 ${commentFeed.senderState.liveAudienceState11}");
+      var liveAudienceStateList = commentFeed.senderState.liveAudienceState11;
+      for (var liveAudienceState in liveAudienceStateList) {
+        try {
+          var liveAudienceState111 = liveAudienceState.liveAudienceState111;
+          // CoreLog.d("liveAudienceState111: ${liveAudienceState111}");
+          var badgeIcon = liveAudienceState111.badgeIcon;
+          // CoreLog.d("badgeIcon: ${badgeIcon} hasfans: ${badgeIcon.contains("fans")}");
+          if (badgeIcon.contains("fans")) {
+            var badgeName = liveAudienceState111.badgeName;
+            fansName = badgeName;
+            // CoreLog.d("fansName: ${fansName}");
+          } else if (badgeIcon.contains("level")) {
+            var text = RegExp(r"/level_(\d+).png;", multiLine: false).firstMatch(badgeIcon)?.group(1);
+            if (text != null) {
+              fansLevel = text;
+              // CoreLog.d("fansLevel: ${fansLevel}");
+            }
+          }
+        } catch (e) {
+          CoreLog.w("$e");
+        }
+      }
+
       onMessage?.call(LiveMessage(
         type: LiveMessageType.chat,
         color: messageColor,

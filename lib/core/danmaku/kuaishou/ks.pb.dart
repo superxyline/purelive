@@ -972,6 +972,124 @@ class WebCommentFeed extends $pb.GeneratedMessage {
   LiveAudienceState ensureSenderState() => $_ensure(7);
 }
 
+class LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 extends $pb.GeneratedMessage {
+  factory LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1({
+    $core.String? badgeIcon,
+    $core.String? badgeName,
+  }) {
+    final $result = create();
+    if (badgeIcon != null) {
+      $result.badgeIcon = badgeIcon;
+    }
+    if (badgeName != null) {
+      $result.badgeName = badgeName;
+    }
+    return $result;
+  }
+  LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1._() : super();
+  factory LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LiveAudienceState.LiveAudienceState_11.LiveAudienceState_11_1', package: const $pb.PackageName(_omitMessageNames ? '' : 'kuaishouPubf'), createEmptyInstance: create)
+    ..aOS(2, _omitFieldNames ? '' : 'badgeIcon', protoName: 'badgeIcon')
+    ..aOS(4, _omitFieldNames ? '' : 'badgeName', protoName: 'badgeName')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 clone() => LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 copyWith(void Function(LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1) updates) => super.copyWith((message) => updates(message as LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1)) as LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 create() => LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1._();
+  LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 createEmptyInstance() => create();
+  static $pb.PbList<LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1> createRepeated() => $pb.PbList<LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1>();
+  @$core.pragma('dart2js:noInline')
+  static LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1>(create);
+  static LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1? _defaultInstance;
+
+  /// string s1 = 1;
+  @$pb.TagNumber(2)
+  $core.String get badgeIcon => $_getSZ(0);
+  @$pb.TagNumber(2)
+  set badgeIcon($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasBadgeIcon() => $_has(0);
+  @$pb.TagNumber(2)
+  void clearBadgeIcon() => clearField(2);
+
+  /// uint32 int3 = 3;
+  @$pb.TagNumber(4)
+  $core.String get badgeName => $_getSZ(1);
+  @$pb.TagNumber(4)
+  set badgeName($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasBadgeName() => $_has(1);
+  @$pb.TagNumber(4)
+  void clearBadgeName() => clearField(4);
+}
+
+class LiveAudienceState_LiveAudienceState_11 extends $pb.GeneratedMessage {
+  factory LiveAudienceState_LiveAudienceState_11({
+    LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1? liveAudienceState111,
+  }) {
+    final $result = create();
+    if (liveAudienceState111 != null) {
+      $result.liveAudienceState111 = liveAudienceState111;
+    }
+    return $result;
+  }
+  LiveAudienceState_LiveAudienceState_11._() : super();
+  factory LiveAudienceState_LiveAudienceState_11.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LiveAudienceState_LiveAudienceState_11.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LiveAudienceState.LiveAudienceState_11', package: const $pb.PackageName(_omitMessageNames ? '' : 'kuaishouPubf'), createEmptyInstance: create)
+    ..aOM<LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1>(1, _omitFieldNames ? '' : 'liveAudienceState111', protoName: 'liveAudienceState_11_1', subBuilder: LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LiveAudienceState_LiveAudienceState_11 clone() => LiveAudienceState_LiveAudienceState_11()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LiveAudienceState_LiveAudienceState_11 copyWith(void Function(LiveAudienceState_LiveAudienceState_11) updates) => super.copyWith((message) => updates(message as LiveAudienceState_LiveAudienceState_11)) as LiveAudienceState_LiveAudienceState_11;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static LiveAudienceState_LiveAudienceState_11 create() => LiveAudienceState_LiveAudienceState_11._();
+  LiveAudienceState_LiveAudienceState_11 createEmptyInstance() => create();
+  static $pb.PbList<LiveAudienceState_LiveAudienceState_11> createRepeated() => $pb.PbList<LiveAudienceState_LiveAudienceState_11>();
+  @$core.pragma('dart2js:noInline')
+  static LiveAudienceState_LiveAudienceState_11 getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LiveAudienceState_LiveAudienceState_11>(create);
+  static LiveAudienceState_LiveAudienceState_11? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 get liveAudienceState111 => $_getN(0);
+  @$pb.TagNumber(1)
+  set liveAudienceState111(LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasLiveAudienceState111() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearLiveAudienceState111() => clearField(1);
+  @$pb.TagNumber(1)
+  LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1 ensureLiveAudienceState111() => $_ensure(0);
+}
+
 class LiveAudienceState extends $pb.GeneratedMessage {
   factory LiveAudienceState({
     $core.bool? isFromFansTop,
@@ -982,6 +1100,7 @@ class LiveAudienceState extends $pb.GeneratedMessage {
     LiveFansGroupState? liveFansGroupState,
     $core.int? wealthGrade,
     $core.String? badgeKey,
+    $core.Iterable<LiveAudienceState_LiveAudienceState_11>? liveAudienceState11,
   }) {
     final $result = create();
     if (isFromFansTop != null) {
@@ -1008,6 +1127,9 @@ class LiveAudienceState extends $pb.GeneratedMessage {
     if (badgeKey != null) {
       $result.badgeKey = badgeKey;
     }
+    if (liveAudienceState11 != null) {
+      $result.liveAudienceState11.addAll(liveAudienceState11);
+    }
     return $result;
   }
   LiveAudienceState._() : super();
@@ -1023,6 +1145,7 @@ class LiveAudienceState extends $pb.GeneratedMessage {
     ..aOM<LiveFansGroupState>(6, _omitFieldNames ? '' : 'liveFansGroupState', protoName: 'liveFansGroupState', subBuilder: LiveFansGroupState.create)
     ..a<$core.int>(7, _omitFieldNames ? '' : 'wealthGrade', $pb.PbFieldType.OU3, protoName: 'wealthGrade')
     ..aOS(8, _omitFieldNames ? '' : 'badgeKey', protoName: 'badgeKey')
+    ..pc<LiveAudienceState_LiveAudienceState_11>(11, _omitFieldNames ? '' : 'liveAudienceState11', $pb.PbFieldType.PM, protoName: 'liveAudienceState_11', subBuilder: LiveAudienceState_LiveAudienceState_11.create)
     ..hasRequiredFields = false
   ;
 
@@ -1122,6 +1245,9 @@ class LiveAudienceState extends $pb.GeneratedMessage {
   $core.bool hasBadgeKey() => $_has(7);
   @$pb.TagNumber(8)
   void clearBadgeKey() => clearField(8);
+
+  @$pb.TagNumber(11)
+  $core.List<LiveAudienceState_LiveAudienceState_11> get liveAudienceState11 => $_getList(8);
 }
 
 class LiveFansGroupState extends $pb.GeneratedMessage {

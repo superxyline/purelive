@@ -398,6 +398,26 @@ const LiveAudienceState$json = {
     {'1': 'liveFansGroupState', '3': 6, '4': 1, '5': 11, '6': '.kuaishouPubf.LiveFansGroupState', '10': 'liveFansGroupState'},
     {'1': 'wealthGrade', '3': 7, '4': 1, '5': 13, '10': 'wealthGrade'},
     {'1': 'badgeKey', '3': 8, '4': 1, '5': 9, '10': 'badgeKey'},
+    {'1': 'liveAudienceState_11', '3': 11, '4': 3, '5': 11, '6': '.kuaishouPubf.LiveAudienceState.LiveAudienceState_11', '10': 'liveAudienceState11'},
+  ],
+  '3': [LiveAudienceState_LiveAudienceState_11$json],
+};
+
+@$core.Deprecated('Use liveAudienceStateDescriptor instead')
+const LiveAudienceState_LiveAudienceState_11$json = {
+  '1': 'LiveAudienceState_11',
+  '2': [
+    {'1': 'liveAudienceState_11_1', '3': 1, '4': 1, '5': 11, '6': '.kuaishouPubf.LiveAudienceState.LiveAudienceState_11.LiveAudienceState_11_1', '10': 'liveAudienceState111'},
+  ],
+  '3': [LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1$json],
+};
+
+@$core.Deprecated('Use liveAudienceStateDescriptor instead')
+const LiveAudienceState_LiveAudienceState_11_LiveAudienceState_11_1$json = {
+  '1': 'LiveAudienceState_11_1',
+  '2': [
+    {'1': 'badgeIcon', '3': 2, '4': 1, '5': 9, '10': 'badgeIcon'},
+    {'1': 'badgeName', '3': 4, '4': 1, '5': 9, '10': 'badgeName'},
   ],
 };
 
@@ -410,7 +430,13 @@ final $typed_data.Uint8List liveAudienceStateDescriptor = $convert.base64Decode(
     'HC5rdWFpc2hvdVB1YmYuR3pvbmVOYW1lcGxhdGVSCW5hbWVwbGF0ZRJQChJsaXZlRmFuc0dyb3'
     'VwU3RhdGUYBiABKAsyIC5rdWFpc2hvdVB1YmYuTGl2ZUZhbnNHcm91cFN0YXRlUhJsaXZlRmFu'
     'c0dyb3VwU3RhdGUSIAoLd2VhbHRoR3JhZGUYByABKA1SC3dlYWx0aEdyYWRlEhoKCGJhZGdlS2'
-    'V5GAggASgJUghiYWRnZUtleQ==');
+    'V5GAggASgJUghiYWRnZUtleRJnChRsaXZlQXVkaWVuY2VTdGF0ZV8xMRgLIAMoCzI0Lmt1YWlz'
+    'aG91UHViZi5MaXZlQXVkaWVuY2VTdGF0ZS5MaXZlQXVkaWVuY2VTdGF0ZV8xMVITbGl2ZUF1ZG'
+    'llbmNlU3RhdGUxMRrwAQoUTGl2ZUF1ZGllbmNlU3RhdGVfMTESgQEKFmxpdmVBdWRpZW5jZVN0'
+    'YXRlXzExXzEYASABKAsySy5rdWFpc2hvdVB1YmYuTGl2ZUF1ZGllbmNlU3RhdGUuTGl2ZUF1ZG'
+    'llbmNlU3RhdGVfMTEuTGl2ZUF1ZGllbmNlU3RhdGVfMTFfMVIUbGl2ZUF1ZGllbmNlU3RhdGUx'
+    'MTEaVAoWTGl2ZUF1ZGllbmNlU3RhdGVfMTFfMRIcCgliYWRnZUljb24YAiABKAlSCWJhZGdlSW'
+    'NvbhIcCgliYWRnZU5hbWUYBCABKAlSCWJhZGdlTmFtZQ==');
 
 @$core.Deprecated('Use liveFansGroupStateDescriptor instead')
 const LiveFansGroupState$json = {
