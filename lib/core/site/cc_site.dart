@@ -19,7 +19,9 @@ import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
-class CCSite extends LiveSite {
+import 'cc_site_mixin.dart';
+
+class CCSite extends LiveSite with CCSiteMixin {
   @override
   String get id => "cc";
 

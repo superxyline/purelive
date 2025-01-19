@@ -1,13 +1,14 @@
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:pure_live/common/models/bilibili_user_info_page.dart';
+import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
 
-mixin DouyuSiteMixin on SiteAccount {
+mixin DouyuSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
   /// ------------------ 登录
   @override
   bool isSupportLogin() => false;
@@ -35,15 +36,13 @@ mixin DouyuSiteMixin on SiteAccount {
     try {
       qrBean.qrStatus = QRStatus.loading;
 
-      var result = await HttpClient.instance
-          .postJson("https://passport.douyu.com/scan/generateCode", data: {
+      var result = await HttpClient.instance.postJson("https://passport.douyu.com/scan/generateCode", data: {
         "client_id": 1,
         "isMultiAccount": 0
       }, header: {
         "referer": "https://passport.douyu.com/member/login?",
         "origin": "https://passport.douyu.com",
-        "user-agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
       });
       CoreLog.d("result: ${result}");
       if (result["error"] != 0) {
@@ -65,8 +64,7 @@ mixin DouyuSiteMixin on SiteAccount {
   Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async {
     try {
       var milliseconds = DateTime.now().millisecondsSinceEpoch;
-      var response = await HttpClient.instance
-          .get("https://passport.douyu.com/japi/scan/auth", queryParameters: {
+      var response = await HttpClient.instance.get("https://passport.douyu.com/japi/scan/auth", queryParameters: {
         "time": milliseconds,
         "code": qrBean.qrcodeKey,
       }, header: {
@@ -135,5 +133,24 @@ mixin DouyuSiteMixin on SiteAccount {
       SmartDialog.showToast("获取${Sites.getSiteName(site.id)}用户信息失败，可前往账号管理重试");
     }
     return false;
+  }
+
+  @override
+  String getJumpToNativeUrl(LiveRoom liveRoom) {
+    try {
+      // naviteUrl = "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${liveRoomRx.roomId}";
+      return "dydeeplink://platformapi/startApp?room_id=${liveRoom.roomId}";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  @override
+  String getJumpToWebUrl(LiveRoom liveRoom) {
+    try {
+      return "https://www.douyu.com/${liveRoom.roomId}";
+    } catch (e) {
+      return "";
+    }
   }
 }

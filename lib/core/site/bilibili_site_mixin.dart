@@ -3,6 +3,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/models/bilibili_user_info_page.dart';
+import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
@@ -10,7 +11,7 @@ import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
 
-mixin BilibiliSiteMixin on SiteAccount {
+mixin BilibiliSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
   /// ------------------ 登录
   @override
   bool isSupportLogin() => true;
@@ -126,4 +127,34 @@ mixin BilibiliSiteMixin on SiteAccount {
     }
     return false;
   }
+
+  /// 获取视频播放 http head
+  @override
+  Map<String, String> getVideoHeaders() {
+    return {
+      "cookie": userCookie.value,
+      "authority": "api.bilibili.com",
+      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "referer": "https://live.bilibili.com"
+    };
+  }
+
+  @override
+  String getJumpToNativeUrl(LiveRoom liveRoom) => "bilibili://live/${liveRoom.roomId}";
+
+  @override
+  String getJumpToWebUrl(LiveRoom liveRoom) => "https://live.bilibili.com/${liveRoom.roomId}";
 }

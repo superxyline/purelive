@@ -1,23 +1,26 @@
 import 'dart:convert';
 import 'dart:math' as math;
+
 import 'package:get/get.dart';
-import 'package:pure_live/core/sites.dart';
-import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/model/live_play_quality.dart';
-import 'package:pure_live/core/interface/live_site.dart';
-import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/convert_helper.dart';
-import 'package:pure_live/model/live_category_result.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/interface/live_site.dart';
+import 'package:pure_live/core/sites.dart';
+import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/model/live_category_result.dart';
+import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_search_result.dart';
 
-class DouyinSite extends LiveSite {
+import 'douyin_site_mixin.dart';
+
+class DouyinSite extends LiveSite with DouyinSiteMixin {
   @override
   String get id => "douyin";
 
@@ -27,8 +30,7 @@ class DouyinSite extends LiveSite {
   @override
   LiveDanmaku getDanmaku() => DouyinDanmaku();
 
-  static const String kDefaultUserAgent =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0";
+  static const String kDefaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0";
 
   static const String kDefaultReferer = "https://live.douyin.com";
 
@@ -68,8 +70,7 @@ class DouyinSite extends LiveSite {
       header: await getRequestHeaders(),
     );
     var renderData = RegExp(r'\{\\"pathname\\":\\"\/\\",\\"categoryData.*?\]\\n').firstMatch(result)?.group(0) ?? "";
-    var renderDataJson =
-    json.decode(renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""));
+    var renderDataJson = json.decode(renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""));
     for (var item in renderDataJson["categoryData"]) {
       List<LiveArea> subs = [];
       var id = '${item["partition"]["id_str"]},${item["partition"]["type"]}';
@@ -230,8 +231,7 @@ class DouyinSite extends LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail(
-      {required String nick, required String platform, required String roomId, required String title}) async {
+  Future<LiveRoom> getRoomDetail({required String nick, required String platform, required String roomId, required String title}) async {
     try {
       var detail = await getRoomWebDetail(roomId);
       var requestHeader = await getRequestHeaders();
@@ -494,8 +494,7 @@ class DouyinSite extends LiveSite {
   }
 
   @override
-  Future<bool> getLiveStatus(
-      {required String nick, required String platform, required String roomId, required String title}) async {
+  Future<bool> getLiveStatus({required String nick, required String platform, required String roomId, required String title}) async {
     var result = await getRoomDetail(roomId: roomId, platform: platform, title: title, nick: nick);
     return result.status!;
   }

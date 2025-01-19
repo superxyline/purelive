@@ -96,3 +96,15 @@ class QRBean{
   /// 二维码验证秘钥
   var qrcodeKey = "";
 }
+
+mixin class SiteVideoHeaders {
+  /// 获取视频播放 http head
+  Map<String, String> getVideoHeaders() => {};
+}
+
+mixin class SiteOpen {
+  /// 跳转 APP url
+  String getJumpToNativeUrl(LiveRoom liveRoom) => "";
+  /// 跳转 Web url
+  String getJumpToWebUrl(LiveRoom liveRoom) => "";
+}

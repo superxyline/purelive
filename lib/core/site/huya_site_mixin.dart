@@ -1,15 +1,16 @@
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/models/bilibili_user_info_page.dart';
+import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
+import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
 
-mixin HuyaSiteMixin on SiteAccount {
+mixin HuyaSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
   /// ------------------ 登录
   @override
   bool isSupportLogin() => false;
@@ -37,13 +38,10 @@ mixin HuyaSiteMixin on SiteAccount {
     try {
       qrBean.qrStatus = QRStatus.loading;
 
-      var result = await HttpClient.instance
-          .postJson("https://udblgn.huya.com/qrLgn/getQrId"
-          , data: {
+      var result = await HttpClient.instance.postJson("https://udblgn.huya.com/qrLgn/getQrId", data: {
         "uri": "70001",
         "version": "2.6",
-        "context":
-            "WB-58916e5b37344847bb1e992697fab1d0-CAEA8C3B19D00001867416302D4D1A06-0a7db71f78dff9667001473048303f3d",
+        "context": "WB-58916e5b37344847bb1e992697fab1d0-CAEA8C3B19D00001867416302D4D1A06-0a7db71f78dff9667001473048303f3d",
         "appId": "5002",
         "appSign": "1ce3bf682483d03f146f58232ec10635",
         "authId": "",
@@ -53,8 +51,7 @@ mixin HuyaSiteMixin on SiteAccount {
         "byPass": "3",
         "requestId": "54445967",
         "data": {
-          "behavior":
-              "%7B%22furl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fkasha233%22%2C%22curl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fg%22%2C%22user_action%22%3A%5B%5D%7D",
+          "behavior": "%7B%22furl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fkasha233%22%2C%22curl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fg%22%2C%22user_action%22%3A%5B%5D%7D",
           "type": "",
           "domainList": "",
           "page": "https%3A%2F%2Fwww.huya.com%2F"
@@ -64,11 +61,12 @@ mixin HuyaSiteMixin on SiteAccount {
       if (result["returnCode"] != 0) {
         throw result["message"];
       }
+
       /// 验证码链接
       /// https://udblgn.huya.com/qrLgn/getQrImg?k=doOvYRrvpvvuYqDVEa&appId=5002
       var qrCode = result["data"]["qrId"];
       var appId = "5002";
-      var qrcodeUrl="https://udblgn.huya.com/qrLgn/getQrImg?k=${qrCode}&appId=${appId}";
+      var qrcodeUrl = "https://udblgn.huya.com/qrLgn/getQrImg?k=${qrCode}&appId=${appId}";
       var qrcodeImageResp = await HttpClient.instance.get(qrcodeUrl);
       qrBean.qrcodeKey = qrCode;
       qrBean.qrcodeUrl = qrcodeImageResp.data;
@@ -86,10 +84,26 @@ mixin HuyaSiteMixin on SiteAccount {
   Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async {
     try {
       // var milliseconds = DateTime.now().millisecondsSinceEpoch;
-      var response = await HttpClient.instance
-          .postJson("https://udblgn.huya.com/qrLgn/tryQrLogin",
-           queryParameters: {"uri":"70003","version":"2.6","context":"WB-58916e5b37344847bb1e992697fab1d0-CAEA8C3B19D00001867416302D4D1A06-0a7db71f78dff9667001473048303f3d","appId":"5002","appSign":"1ce3bf682483d03f146f58232ec10635","authId":"","sdid":"0UnHUgv0_qmfD4KAKlwzhqZsHXvm4vLFryBc-n8pgX2AFXa8OP8eAbEAn4uaK4tX6xLV5iPDs18bgLfmm9W7t7aaP-ya6EOTIx0jAeaKPRUXWVkn9LtfFJw_Qo4kgKr8OZHDqNnuwg612sGyflFn1dlDml87FNjrVrYPzfR4qgh-nojBVXkQR-6PcXF4Egs16","lcid":"2052","byPass":"3","requestId":"54449589","data":{"qrId":"doOvYRrvpvvuYqDVEa","remember":"1","domainList":"","behavior":"%7B%22furl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fkasha233%22%2C%22curl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fg%22%2C%22user_action%22%3A%5B%5D%7D","page":"https%3A%2F%2Fwww.huya.com%2"}},
-           header: {
+      var response = await HttpClient.instance.postJson("https://udblgn.huya.com/qrLgn/tryQrLogin", queryParameters: {
+        "uri": "70003",
+        "version": "2.6",
+        "context": "WB-58916e5b37344847bb1e992697fab1d0-CAEA8C3B19D00001867416302D4D1A06-0a7db71f78dff9667001473048303f3d",
+        "appId": "5002",
+        "appSign": "1ce3bf682483d03f146f58232ec10635",
+        "authId": "",
+        "sdid":
+            "0UnHUgv0_qmfD4KAKlwzhqZsHXvm4vLFryBc-n8pgX2AFXa8OP8eAbEAn4uaK4tX6xLV5iPDs18bgLfmm9W7t7aaP-ya6EOTIx0jAeaKPRUXWVkn9LtfFJw_Qo4kgKr8OZHDqNnuwg612sGyflFn1dlDml87FNjrVrYPzfR4qgh-nojBVXkQR-6PcXF4Egs16",
+        "lcid": "2052",
+        "byPass": "3",
+        "requestId": "54449589",
+        "data": {
+          "qrId": "doOvYRrvpvvuYqDVEa",
+          "remember": "1",
+          "domainList": "",
+          "behavior": "%7B%22furl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fkasha233%22%2C%22curl%22%3A%22https%3A%2F%2Fwww.huya.com%2Fg%22%2C%22user_action%22%3A%5B%5D%7D",
+          "page": "https%3A%2F%2Fwww.huya.com%2"
+        }
+      }, header: {
         "referer": "https://www.huya.com/",
       });
       // if (response.data["error"] != 0) {
@@ -98,6 +112,7 @@ mixin HuyaSiteMixin on SiteAccount {
       /// error -2 msg "客户端还未扫码"
       /// error -1 msg "code不存在或者是已经过期"
       CoreLog.d("response: $response");
+
       /// {
       //     "uri": 70004,
       //     "version": null,
@@ -172,4 +187,26 @@ mixin HuyaSiteMixin on SiteAccount {
     }
     return false;
   }
+
+  @override
+  Map<String, String> getVideoHeaders() {
+    return {
+      // "Referer": "https://m.huya.com",
+      // "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/130.0.0.0"
+      "User-Agent": "HYSDK(Windows, 21000308)",
+    };
+  }
+
+  @override
+  String getJumpToNativeUrl(LiveRoom liveRoom) {
+    try {
+      var args = liveRoom.data as HuyaDanmakuArgs;
+      return "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  @override
+  String getJumpToWebUrl(LiveRoom liveRoom) => "https://www.huya.com/${liveRoom.roomId}";
 }

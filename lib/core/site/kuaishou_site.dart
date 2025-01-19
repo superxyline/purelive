@@ -21,7 +21,9 @@ import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/plugins/fake_useragent.dart';
 
-class KuaishowSite extends LiveSite {
+import 'kuaishou_site_mixin.dart';
+
+class KuaishowSite extends LiveSite with KuaishouSiteMixin {
   @override
   String get id => "kuaishou";
 

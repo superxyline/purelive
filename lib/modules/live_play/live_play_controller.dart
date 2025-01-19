@@ -5,15 +5,12 @@ import 'dart:math' as math;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fl_pip/fl_pip.dart';
-
 // import 'package:floating/floating.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/models/live_room_rx.dart';
 import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
-import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/model/live_play_quality.dart';
@@ -714,40 +711,8 @@ class LivePlayController extends StateController {
     setPlayer();
   }
 
-  Map<String, String> getUrlHeaders() {
-    Map<String, String> headers = {};
-    if (currentSite.id == Sites.bilibiliSite) {
-      headers = {
-        "cookie": settings.bilibiliCookie.value,
-        "authority": "api.bilibili.com",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "accept-language": "zh-CN,zh;q=0.9",
-        "cache-control": "no-cache",
-        "dnt": "1",
-        "pragma": "no-cache",
-        "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"macOS"',
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "none",
-        "sec-fetch-user": "?1",
-        "upgrade-insecure-requests": "1",
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "referer": "https://live.bilibili.com"
-      };
-    } else if (currentSite.id == Sites.huyaSite) {
-      headers = {
-        // "Referer": "https://m.huya.com",
-        // "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/130.0.0.0"
-        "User-Agent": "HYSDK(Windows, 21000308)"
-      };
-    }
-    return headers;
-  }
-
   void setPlayer() async {
-    var headers = getUrlHeaders();
+    var headers = currentSite.liveSite.getVideoHeaders();
     try {
       // await videoController?.pause();
     } catch (e) {
@@ -812,43 +777,21 @@ class LivePlayController extends StateController {
   }
 
   openNaviteAPP() async {
-    var naviteUrl = "";
-    var webUrl = "";
-    var site = liveRoomRx.platform.value;
-    if (site == Sites.bilibiliSite) {
-      naviteUrl = "bilibili://live/${liveRoomRx.roomId}";
-      webUrl = "https://live.bilibili.com/${liveRoomRx.roomId}";
-    } else if (site == Sites.douyinSite) {
-      var args = liveRoomRx.danmakuData as DouyinDanmakuArgs;
-      naviteUrl = "snssdk1128://webcast_room?room_id=${args.roomId}";
-      webUrl = "https://live.douyin.com/${args.webRid}";
-    } else if (site == Sites.huyaSite) {
-      var args = liveRoomRx.danmakuData as HuyaDanmakuArgs;
-      naviteUrl =
-          "yykiwi://homepage/index.html?banneraction=https%3A%2F%2Fdiy-front.cdn.huya.com%2Fzt%2Ffrontpage%2Fcc%2Fupdate.html%3Fhyaction%3Dlive%26channelid%3D${args.subSid}%26subid%3D${args.subSid}%26liveuid%3D${args.subSid}%26screentype%3D1%26sourcetype%3D0%26fromapp%3Dhuya_wap%252Fclick%252Fopen_app_guide%26&fromapp=huya_wap/click/open_app_guide";
-      webUrl = "https://www.huya.com/${liveRoomRx.roomId}";
-    } else if (site == Sites.douyuSite) {
-      // naviteUrl = "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${liveRoomRx.roomId}";
-      naviteUrl = "dydeeplink://platformapi/startApp?room_id=${liveRoomRx.roomId}";
-      webUrl = "https://www.douyu.com/${liveRoomRx.roomId}";
-    } else if (site == Sites.ccSite) {
-      CoreLog.d("cc_user_id :${liveRoomRx.userId.toString()}");
-      naviteUrl = "cc://join-room/${liveRoomRx.roomId}/${liveRoomRx.userId}/";
-      webUrl = "https://cc.163.com/${liveRoomRx.roomId}";
-    } else if (site == Sites.kuaishouSite) {
-      naviteUrl =
-          "kwai://liveaggregatesquare?liveStreamId=${liveRoomRx.link}&recoStreamId=${liveRoomRx.link}&recoLiveStreamId=${liveRoomRx.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
-      webUrl = "https://live.kuaishou.com/u/${liveRoomRx.roomId}";
+    var liveRoom = liveRoomRx.toLiveRoom();
+    var jumpToNativeUrl = currentSite.liveSite.getJumpToNativeUrl(liveRoom);
+    var jumpToWebUrl = currentSite.liveSite.getJumpToWebUrl(liveRoom);
+    if(jumpToNativeUrl =="" && jumpToWebUrl =="") {
+      return;
     }
     try {
       if (Platform.isAndroid) {
-        await launchUrlString(naviteUrl, mode: LaunchMode.externalApplication);
+        await launchUrlString(jumpToNativeUrl, mode: LaunchMode.externalApplication);
       } else {
-        await launchUrlString(webUrl, mode: LaunchMode.externalApplication);
+        await launchUrlString(jumpToWebUrl, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
       SmartDialog.showToast("无法打开APP，将使用浏览器打开");
-      await launchUrlString(webUrl, mode: LaunchMode.externalApplication);
+      await launchUrlString(jumpToWebUrl, mode: LaunchMode.externalApplication);
     }
   }
 
