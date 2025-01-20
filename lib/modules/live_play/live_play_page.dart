@@ -220,6 +220,15 @@ class LivePlayPage extends GetView<LivePlayController> {
                       ),
                       onTap: (){ Get.toNamed(RoutePath.kSettingsDanmuShield);},
                     ),
+                    PopupMenuItem(
+                      value: 4,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: MenuListTile(
+                        leading: const Icon(Remix.bug_line),
+                        text: S.current.settings_log,
+                      ),
+                      onTap: (){ Get.toNamed(RoutePath.kLog);},
+                    ),
                   ];
                 },
               )

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:remixicon/remixicon.dart';
 
 class MenuButton extends GetView<AuthController> {
   const MenuButton({super.key});
@@ -11,6 +12,7 @@ class MenuButton extends GetView<AuthController> {
     RoutePath.kHistory,
     RoutePath.kSignIn,
     RoutePath.kSettingsAccount,
+    RoutePath.kLog,
   ];
 
   @override
@@ -81,6 +83,14 @@ class MenuButton extends GetView<AuthController> {
           child: MenuListTile(
             leading: const Icon(Icons.history),
             text: S.current.history,
+          ),
+        ),
+        PopupMenuItem(
+          value: 6,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: MenuListTile(
+            leading: const Icon(Remix.bug_line),
+            text: S.current.settings_log,
           ),
         ),
       ],
