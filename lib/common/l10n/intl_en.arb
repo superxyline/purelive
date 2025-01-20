@@ -335,6 +335,8 @@
     "prefer_resolution_mobile_subtitle": " When entering the live streaming page, the preferred video clarity for mobile networks",
 
     "settings_log": "Log",
+    "settings_danmuku_controller": "Danmuku Controller",
+    "settings_danmuku_controller_info": "Change Danmuku Controller",
 
 
     "cache_manage": "Cache Manage",

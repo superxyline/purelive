@@ -416,6 +416,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Danmaku speed"),
         "settings_danmaku_title":
             MessageLookupByLibrary.simpleMessage("Danmaku Setting"),
+        "settings_danmuku_controller":
+            MessageLookupByLibrary.simpleMessage("Danmuku Controller"),
+        "settings_danmuku_controller_info":
+            MessageLookupByLibrary.simpleMessage("Change Danmuku Controller"),
         "settings_favorite": MessageLookupByLibrary.simpleMessage("Favorite"),
         "settings_home": MessageLookupByLibrary.simpleMessage("Home"),
         "settings_log": MessageLookupByLibrary.simpleMessage("Log"),

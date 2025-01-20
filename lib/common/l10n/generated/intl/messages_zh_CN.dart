@@ -338,6 +338,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_danmaku_open": MessageLookupByLibrary.simpleMessage("弹幕开关"),
         "settings_danmaku_speed": MessageLookupByLibrary.simpleMessage("弹幕速度"),
         "settings_danmaku_title": MessageLookupByLibrary.simpleMessage("弹幕设置"),
+        "settings_danmuku_controller":
+            MessageLookupByLibrary.simpleMessage("弹幕控制器"),
+        "settings_danmuku_controller_info":
+            MessageLookupByLibrary.simpleMessage("切换直播间弹幕控制器"),
         "settings_favorite": MessageLookupByLibrary.simpleMessage("关注设置"),
         "settings_home": MessageLookupByLibrary.simpleMessage("主页设置"),
         "settings_log": MessageLookupByLibrary.simpleMessage("日志管理"),

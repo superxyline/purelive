@@ -334,6 +334,8 @@
     "prefer_resolution_mobile_subtitle": "当进入直播播放页，移动网络首选的视频清晰度",
 
     "settings_log": "日志管理",
+    "settings_danmuku_controller": "弹幕控制器",
+    "settings_danmuku_controller_info": "切换直播间弹幕控制器",
 
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",

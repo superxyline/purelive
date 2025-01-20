@@ -145,6 +145,7 @@ dependencies:
   uuid: ^4.4.2   # 用于生成 UUID
   auto_orientation: ^2.3.1 #屏幕方向
   device_info_plus: ^11.2.0 #设备信息
+  canvas_danmaku: ^0.2.6    #弹幕
 #  floating: ^5.0.1 #PIP画中画
   # PIP画中画
   fl_pip:

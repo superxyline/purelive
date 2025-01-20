@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fl_pip/fl_pip.dart';
+
 // import 'package:floating/floating.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -14,16 +15,16 @@ import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_base.dart';
+import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_factory.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
-import 'package:pure_live/plugins/barrage.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'widgets/video_player/danmaku_text.dart';
 import 'widgets/video_player/video_controller.dart';
 
 class LivePlayController extends StateController {
@@ -172,7 +173,8 @@ class LivePlayController extends StateController {
       videoController?.settings.hideDanmaku.updateValueNotEquate(true);
       videoController?.showController.updateValueNotEquate(false);
     }
-    danmakuController.reset(0);
+    danmakuController.clear();
+    danmakuController.pause();
     videoController?.showController.updateValueNotEquate(false);
     // //关闭控制器
     // showControlsState.updateValueNotEquate(false);
@@ -196,11 +198,10 @@ class LivePlayController extends StateController {
     //   CoreLog.w(event.toString());
     // }));
     FlPiP().enable(
-      ios: FlPiPiOSConfig(videoPath: "", audioPath: "", packageName: null),
-      android: FlPiPAndroidConfig(
-        aspectRatio: ratio,
-      )
-    );
+        ios: FlPiPiOSConfig(videoPath: "", audioPath: "", packageName: null),
+        android: FlPiPAndroidConfig(
+          aspectRatio: ratio,
+        ));
   }
 
   /// flPiP android 画中画状态
@@ -243,12 +244,50 @@ class LivePlayController extends StateController {
     return await Future.value(true);
   }
 
+  DanmakuSettingOption danmakuSettingOption = DanmakuSettingOption();
+
+  /// 弹幕控制器 初始化
+  void initDanmakuController() {
+    var danmakuControllerType = "";
+    danmakuController = DanmakuControllerfactory.getDanmakuController(danmakuControllerType);
+    var danmakuArea = settings.danmakuArea.value;
+    danmakuSettingOption = DanmakuSettingOption(
+      opacity: settings.danmakuOpacity.value,
+      fontSize: settings.danmakuFontSize.value,
+      fontWeight: 4,
+      duration: settings.danmakuSpeed.value.toInt(),
+      showStroke: settings.danmakuFontBorder.value > 0,
+      massiveMode: false,
+      hideScroll: false,
+      hideTop: false,
+      hideBottom: danmakuArea < 0.70,
+      safeArea: true,
+    );
+    danmakuController.updateOption(danmakuSettingOption);
+    subscriptionList.add(settings.danmakuArea.listen((data) {
+      danmakuSettingOption.hideBottom = data < 0.70;
+    }));
+    subscriptionList.add(settings.danmakuOpacity.listen((data) {
+      danmakuSettingOption.opacity = data;
+    }));
+    subscriptionList.add(settings.danmakuFontSize.listen((data) {
+      danmakuSettingOption.fontSize = data;
+    }));
+    subscriptionList.add(settings.danmakuSpeed.listen((data) {
+      danmakuSettingOption.duration = data.toInt();
+    }));
+    subscriptionList.add(settings.danmakuFontBorder.listen((data) {
+      danmakuSettingOption.showStroke = data > 0;
+    }));
+  }
+
   @override
   void onInit() {
     super.onInit();
     // 发现房间ID 会变化 使用静态列表ID 对比
     CoreLog.d('onInit');
     initPip();
+    initDanmakuController();
 
     // liveRoomRx = room;
 
@@ -780,7 +819,7 @@ class LivePlayController extends StateController {
     var liveRoom = liveRoomRx.toLiveRoom();
     var jumpToNativeUrl = currentSite.liveSite.getJumpToNativeUrl(liveRoom);
     var jumpToWebUrl = currentSite.liveSite.getJumpToWebUrl(liveRoom);
-    if(jumpToNativeUrl =="" && jumpToWebUrl =="") {
+    if (jumpToNativeUrl == "" && jumpToWebUrl == "") {
       return;
     }
     try {
@@ -808,20 +847,12 @@ class LivePlayController extends StateController {
   }
 
   /// 弹幕
-  BarrageWallController danmakuController = BarrageWallController();
+  late DanmakuControllerBase danmakuController;
 
   void sendDanmaku(LiveMessage msg) {
     if (settings.hideDanmaku.value) return;
-
-    danmakuController.send([
-      Bullet(
-        child: DanmakuText(
-          msg.message,
-          fontSize: settings.danmakuFontSize.value,
-          strokeWidth: settings.danmakuFontBorder.value,
-          color: msg.color,
-        ),
-      ),
-    ]);
+    danmakuController.addDanmaku(
+      IDanmakuContentItem(msg.message, color: msg.color),
+    );
   }
 }

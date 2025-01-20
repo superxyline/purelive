@@ -1,17 +1,18 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/services/bilibili_account_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_factory.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/model/video_player_factory.dart';
 import 'package:pure_live/plugins/extension/map_extension.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
-
 // import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
-import 'package:flutter_exit_app/flutter_exit_app.dart';
-import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
   static SettingsService get instance => Get.find<SettingsService>();
@@ -134,6 +135,10 @@ class SettingsService extends GetxController {
 
     videoPlayerIndex.listen((value) {
       PrefUtil.setInt('videoPlayerIndex', value);
+    });
+
+    danmakuControllerType.listen((value) {
+      PrefUtil.setString('danmakuControllerType', value);
     });
 
     bilibiliCookie.listen((value) {
@@ -294,6 +299,7 @@ class SettingsService extends GetxController {
   final enableFullScreenDefault = (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
 
   final videoPlayerIndex = (PrefUtil.getInt('videoPlayerIndex') ?? 0).obs;
+  final danmakuControllerType = (PrefUtil.getString('danmakuControllerType') ?? DanmakuControllerfactory.getDanmakuControllerTypeList()[0]).obs;
 
   final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
 
@@ -306,7 +312,7 @@ class SettingsService extends GetxController {
 
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
-  static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '高清','标清','流畅'];
+  static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '高清', '标清', '流畅'];
 
   final siteCookies = ((PrefUtil.getMap('siteCookies')).toStringMap()).obs;
 
@@ -316,7 +322,7 @@ class SettingsService extends GetxController {
   static const List<BoxFit> videofitList = [BoxFit.contain, BoxFit.fill, BoxFit.cover, BoxFit.fitWidth, BoxFit.fitHeight];
 
   final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
-  final preferResolutionMobile = (PrefUtil.getString('preferResolutionMobile') ?? resolutions[resolutions.length-1]).obs;
+  final preferResolutionMobile = (PrefUtil.getString('preferResolutionMobile') ?? resolutions[resolutions.length - 1]).obs;
 
   void changePreferResolution(String name) {
     if (resolutions.indexWhere((e) => e == name) != -1) {
@@ -329,6 +335,13 @@ class SettingsService extends GetxController {
     if (resolutions.indexWhere((e) => e == name) != -1) {
       preferResolutionMobile.value = name;
       PrefUtil.setString('preferResolutionMobile', name);
+    }
+  }
+
+  void changeDanmakuController(String name) {
+    if (DanmakuControllerfactory.getDanmakuControllerTypeList().indexWhere((e) => e == name) != -1) {
+      danmakuControllerType.value = name;
+      PrefUtil.setString('danmakuControllerType', name);
     }
   }
 
@@ -393,14 +406,16 @@ class SettingsService extends GetxController {
   final favoriteRoomsLengthChangeFlag = false.obs;
 
   // Favorite rooms storage
-  final favoriteRooms = ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).where((room) => !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList()).obs;
+  final favoriteRooms =
+      ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).where((room) => !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList()).obs;
 
   // 存储关注，用于优化遍历
   late Map<String, LiveRoom> favoriteRoomsMap = toRoomMap(favoriteRooms.value);
 
   Map<String, LiveRoom> toRoomMap(List<LiveRoom> list) => Map.fromEntries(list.map((e) => MapEntry(getLiveRoomKey(e), e)));
 
-  final historyRooms = ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).where((room) => !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList()).obs;
+  final historyRooms =
+      ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).where((room) => !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList()).obs;
 
   // 存储历史，用于优化遍历
   late Map<String, LiveRoom> historyRoomsMap = toRoomMap(historyRooms.value);
@@ -631,11 +646,12 @@ class SettingsService extends GetxController {
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
     languageName.value = json['languageName'] ?? "简体中文";
     preferResolution.value = json['preferResolution'] ?? resolutions[0];
-    preferResolutionMobile.value = json['preferResolutionMobile'] ?? resolutions[resolutions.length-1];
+    preferResolutionMobile.value = json['preferResolutionMobile'] ?? resolutions[resolutions.length - 1];
     preferPlatform.value = json['preferPlatform'] ?? platforms[0];
     videoFitIndex.value = json['videoFitIndex'] ?? 0;
     hideDanmaku.value = json['hideDanmaku'] ?? false;
     showColourDanmaku.value = json['showColourDanmaku'] ?? false;
+    danmakuControllerType.value = json['danmakuControllerType'] ?? DanmakuControllerfactory.getDanmakuControllerTypeList()[0];
     danmakuArea.value = json['danmakuArea'] != null ? double.parse(json['danmakuArea'].toString()) : 1.0;
     danmakuSpeed.value = json['danmakuSpeed'] != null ? double.parse(json['danmakuSpeed'].toString()) : 8.0;
     danmakuFontSize.value = json['danmakuFontSize'] != null ? double.parse(json['danmakuFontSize'].toString()) : 16.0;
@@ -756,6 +772,7 @@ class SettingsService extends GetxController {
       "filterDanmuFansLevel": 0.0,
       "showDanmuFans": true,
       "showDanmuUserLevel": true,
+      "danmakuControllerType": 0,
     };
     return json;
   }

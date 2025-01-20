@@ -2811,6 +2811,26 @@ class S {
     );
   }
 
+  /// `Danmuku Controller`
+  String get settings_danmuku_controller {
+    return Intl.message(
+      'Danmuku Controller',
+      name: 'settings_danmuku_controller',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change Danmuku Controller`
+  String get settings_danmuku_controller_info {
+    return Intl.message(
+      'Change Danmuku Controller',
+      name: 'settings_danmuku_controller_info',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

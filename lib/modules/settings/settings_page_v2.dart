@@ -11,6 +11,7 @@ import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_controller.dart';
+import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_factory.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/modules/util/time_util.dart';
@@ -469,6 +470,16 @@ class SettingsPageV2 extends GetView<SettingsService> {
                       onChanged: (bool value) => controller.enableCodec.value = value,
                     )),
 
+              /// 弹幕控制器
+              SettingsListItem(
+                leading: const Icon(CustomIcons.danmaku_open),
+                title: Text(S.current.settings_danmuku_controller),
+                subtitle: Text(S.current.settings_danmuku_controller_info),
+                trailing: Obx(() => Text(controller.danmakuControllerType.value)),
+                onTap: () {
+                  showDanmakuControllerSelectorDialog();
+                },
+              ),
               /////
             ])
           ]),
@@ -530,6 +541,32 @@ class SettingsPageV2 extends GetView<SettingsService> {
                   title: Text(name),
                   onChanged: (value) {
                     controller.changePreferResolutionMobile(value!);
+                    Navigator.of(context).pop();
+                  },
+                );
+              }).toList())
+        ],
+      ),
+    );
+  }
+
+  /// 弹幕控制器
+  static void showDanmakuControllerSelectorDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.current.settings_danmuku_controller,
+      child: ListView(
+        children: [
+          SettingsCardV2(
+              children: DanmakuControllerfactory.getDanmakuControllerTypeList().map<Widget>((name) {
+                return RadioListTile<String>(
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  groupValue: controller.danmakuControllerType.value,
+                  value: name,
+                  title: Text(name),
+                  onChanged: (value) {
+                    controller.changeDanmakuController(value!);
                     Navigator.of(context).pop();
                   },
                 );
