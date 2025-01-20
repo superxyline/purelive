@@ -5,7 +5,6 @@ import 'dart:math' as math;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fl_pip/fl_pip.dart';
-
 // import 'package:floating/floating.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -278,6 +277,18 @@ class LivePlayController extends StateController {
     }));
     subscriptionList.add(settings.danmakuFontBorder.listen((data) {
       danmakuSettingOption.showStroke = data > 0;
+    }));
+    if (settings.hideDanmaku.value) {
+      danmakuController.clear();
+      danmakuController.pause();
+    }
+    subscriptionList.add(settings.hideDanmaku.listen((data) {
+      if (data) {
+        danmakuController.clear();
+        danmakuController.pause();
+      } else {
+        danmakuController.resume();
+      }
     }));
   }
 
