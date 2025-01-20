@@ -247,7 +247,7 @@ class LivePlayController extends StateController {
 
   /// 弹幕控制器 初始化
   void initDanmakuController() {
-    var danmakuControllerType = "";
+    var danmakuControllerType = settings.danmakuControllerType.value;
     danmakuController = DanmakuControllerfactory.getDanmakuController(danmakuControllerType);
     var danmakuArea = settings.danmakuArea.value;
     danmakuSettingOption = DanmakuSettingOption(
