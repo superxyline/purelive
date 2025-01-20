@@ -3,15 +3,16 @@ import 'dart:io';
 
 import 'package:catcher_2/catcher_2.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:fvp/fvp.dart' as fvp;
+import 'package:fvp/mdk.dart' as mdk;
+import 'package:logging/logging.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/common/http_client.dart' as my_http_client;
 import 'package:pure_live/main.dart';
 import 'package:pure_live/plugins/cache_to_file.dart';
 import 'package:pure_live/plugins/catcher/file_handler.dart';
 import 'package:pure_live/plugins/global.dart';
-import 'package:fvp/fvp.dart' as fvp;
-import 'package:pure_live/core/common/http_client.dart' as my_http_client;
 
 ///全局异常的捕捉
 class FlutterCatchError {
@@ -83,6 +84,9 @@ class FlutterCatchError {
     WidgetsFlutterBinding.ensureInitialized();
     PrefUtil.prefs = await SharedPreferences.getInstance();
     MediaKit.ensureInitialized();
+
+    mdk.setGlobalOption("log", "warning");
+    Logger.root.level = Level.WARNING;
     fvp.registerWith();
     if (Platform.isWindows) {
       register(kWindowsScheme);

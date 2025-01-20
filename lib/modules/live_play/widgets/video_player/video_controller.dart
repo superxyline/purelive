@@ -41,7 +41,7 @@ class VideoController with ChangeNotifier {
     return videoPlayer.isVertical;
   }
 
-  ScreenBrightness brightnessController = ScreenBrightness();
+  late ScreenBrightness brightnessController;
 
   String qualiteName;
 
@@ -167,6 +167,11 @@ class VideoController with ChangeNotifier {
   late VideoPlayerInterFace videoPlayer;
 
   void initVideoController() async {
+    try {
+      brightnessController = ScreenBrightness();
+    } catch (e) {
+      CoreLog.w("e");
+    }
     FlutterVolumeController.updateShowSystemUI(false);
     videoPlayerIndex = settings.videoPlayerIndex.value;
     enableCodec = settings.enableCodec.value;
