@@ -41,7 +41,7 @@ class MenuButton extends GetView<AuthController> {
           value: 4,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: const Icon(Icons.account_circle),
+            leading: const Icon(Icons.account_circle_outlined),
             text: controller.isLogin ? S.current.supabase_mine : S.current.supabase_sign_in,
           ),
         ),
@@ -49,7 +49,7 @@ class MenuButton extends GetView<AuthController> {
           value: 5,
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: Icon(Icons.assignment_ind_sharp),
+            leading: Icon(Icons.assignment_ind_outlined),
             text: S.current.three_party_authentication,
           ),
         ),
@@ -57,7 +57,7 @@ class MenuButton extends GetView<AuthController> {
           value: 0,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: const Icon(Icons.settings_rounded),
+            leading: const Icon(Icons.settings_outlined),
             text: S.current.settings_title,
           ),
         ),
@@ -65,7 +65,7 @@ class MenuButton extends GetView<AuthController> {
           value: 1,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: const Icon(Icons.info_rounded),
+            leading: const Icon(Icons.info_outlined),
             text: S.current.about,
           ),
         ),
@@ -73,7 +73,7 @@ class MenuButton extends GetView<AuthController> {
           value: 2,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: const Icon(Icons.contact_support),
+            leading: const Icon(Icons.contact_support_outlined),
             text: S.current.contact,
           ),
         ),
@@ -81,7 +81,7 @@ class MenuButton extends GetView<AuthController> {
           value: 3,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: const Icon(Icons.history),
+            leading: const Icon(Icons.history_outlined),
             text: S.current.history,
           ),
         ),
