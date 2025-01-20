@@ -501,6 +501,7 @@ class LivePlayController extends StateController {
     liveDanmaku.stop();
     success.updateValueNotEquate(false);
     resetSystem();
+    danmakuController.dispose();
   }
 
   handleCurrentLineAndQuality({
