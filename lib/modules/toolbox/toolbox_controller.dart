@@ -175,6 +175,15 @@ class ToolBoxController extends GetxController {
       id = regExp.firstMatch(realUrl)?.group(1) ?? "";
       return [id, Sites.kuaishouSite];
     }
+    if (realUrl.contains("live.kuaishou.cn")) {
+      var regExp = RegExp(r"live\.kuaishou\.cn/u/([a-zA-Z0-9]+)$");
+      if (realUrl.endsWith('/')) {
+        realUrl = realUrl.substring(0, realUrl.length - 1);
+      }
+      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
+      return [id, Sites.kuaishouSite];
+    }
+
     if (realUrl.contains("cc.163.com")) {
       var regExp = RegExp(r"cc\.163\.com/([a-zA-Z0-9]+)$");
       if (realUrl.endsWith('/')) {
