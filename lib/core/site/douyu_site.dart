@@ -107,7 +107,7 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
       var avatar = item['av'].toString();
       if (avatar.isNotEmpty) {
         if (!avatar.contains("https://")) {
-          avatar = "https://apic.douyucdn.cn/upload/${avatar}_middle.jpg";
+          avatar = "https://apic.douyucdn.cn/upload/${avatar}_big.jpg";
         }
       } else {
         avatar = "";
@@ -213,7 +213,7 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
       var avatar = item['av'].toString();
       if (avatar.isNotEmpty) {
         if (!avatar.contains("https://")) {
-          avatar = "https://apic.douyucdn.cn/upload/${avatar}_middle.jpg";
+          avatar = "https://apic.douyucdn.cn/upload/${avatar}_big.jpg";
         }
       } else {
         avatar = "";
