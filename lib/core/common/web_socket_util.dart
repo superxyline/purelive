@@ -130,7 +130,11 @@ class WebScoketUtils {
 
   void sendMessage(dynamic message) {
     if (status == SocketStatus.connected) {
-      webSocket?.sink.add(message);
+      try{
+        webSocket?.sink.add(message);
+      }catch(e) {
+        CoreLog.error(e);
+      }
     }
   }
 

@@ -506,13 +506,17 @@ class LivePlayController extends StateController {
   }
 
   disPoserPlayer() {
-    ListenListUtil.clearStreamSubscriptionList(subscriptionList.where((e) => e != null).map((e) => e!).toList());
-    videoController?.dispose();
-    videoController = null;
-    liveDanmaku.stop();
-    success.updateValueNotEquate(false);
-    resetSystem();
-    danmakuController.dispose();
+    try {
+      ListenListUtil.clearStreamSubscriptionList(subscriptionList.where((e) => e != null).map((e) => e!).toList());
+      videoController?.dispose();
+      videoController = null;
+      liveDanmaku.stop();
+      success.updateValueNotEquate(false);
+      resetSystem();
+      danmakuController.dispose();
+    }catch(e) {
+      CoreLog.error(e);
+    }
   }
 
   handleCurrentLineAndQuality({
