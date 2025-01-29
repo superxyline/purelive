@@ -11,6 +11,7 @@ import 'package:pure_live/modules/search/search_controller.dart' as pure_live;
 import 'package:pure_live/modules/site_account/site_account_controller.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/plugins/flutter_catch_error.dart';
+import 'package:pure_live/plugins/route_history_observer.dart';
 
 const kWindowsScheme = 'purelive://signin';
 
@@ -152,7 +153,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
               theme: lightTheme,
               darkTheme: darkTheme,
               locale: SettingsService.languages[settings.languageName.value]!,
-              navigatorObservers: [FlutterSmartDialog.observer],
+              navigatorObservers: [FlutterSmartDialog.observer, RouteHistoryObserver()],
               builder: FlutterSmartDialog.init(),
               supportedLocales: S.delegate.supportedLocales,
               localizationsDelegates: const [

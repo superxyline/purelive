@@ -21,6 +21,7 @@ import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
+import 'package:pure_live/plugins/route_history_observer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -218,6 +219,14 @@ class LivePlayController extends StateController {
 
   Future<bool> onBackPressed() async {
     if (videoController == null) {
+      return true;
+    }
+    // 通过静态变量访问历史,判断是否真正退出
+    List<Route<dynamic>> routes = RouteHistoryObserver.routeHistory;
+    var lastRoute = routes.last;
+    var lastRouteName = lastRoute.settings.name;
+    CoreLog.d("lastRoute: $lastRouteName");
+    if(lastRouteName != RoutePath.kLivePlay) {
       return true;
     }
     if (videoController!.showSettting.value) {
