@@ -57,7 +57,7 @@ class _AreaCardState extends State<AreaCard> {
                     borderRadius: BorderRadius.circular(15.0),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  color: Colors.white,
+                  // color: Colors.white,
                   elevation: 0,
                   child: CacheNetWorkUtils.getCacheImageV2(
                       widget.category.areaPic!),
