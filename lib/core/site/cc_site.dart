@@ -29,7 +29,7 @@ class CCSite extends LiveSite with CCSiteMixin {
   String get name => "网易CC直播";
 
   @override
-  LiveDanmaku getDanmaku() => EmptyDanmaku();
+  LiveDanmaku getDanmaku() => CCDanmaku();
 
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
@@ -192,6 +192,7 @@ class CCSite extends LiveSite with CCSiteMixin {
       // var roomInfo = resultReal["data"][0];
       String ccUrl = "https://cc.163.com/live/userlive/?ccids=$roomId";
       Map ccResult = await HttpClient.instance.getJson(ccUrl, queryParameters: {});
+      CoreLog.d("ccResult: ${jsonEncode(ccResult)}");
       var values = ccResult.values.toList();
       var roomInfo = values[0];
       var gameType = roomInfo["gametype"];
