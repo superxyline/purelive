@@ -166,8 +166,10 @@ class GsyVideoPlay extends VideoPlayerInterFace {
     } else {
       hasError.value = false;
     }
-    isBuffering.updateValueNotEquate(true);
+    // isBuffering.updateValueNotEquate(true);
     isPlaying.updateValueNotEquate(false);
+    // fix bug
+    isBuffering.updateValueNotEquate(false);
     return gsyVideoPlayerController.setDataSourceBuilder(
       datasource,
       mapHeadData: headers,
