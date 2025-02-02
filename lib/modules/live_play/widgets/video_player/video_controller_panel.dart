@@ -66,7 +66,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
   @override
   Widget build(BuildContext context) {
     /// pip 模式不显示控制器
-    if(controller.livePlayController.isPiP.value) {
+    if (controller.livePlayController.isPiP.value) {
       return Container();
     }
     IconData iconData;
@@ -307,7 +307,7 @@ class TopActionBar extends StatelessWidget {
 }
 
 /// 重置直播间
-void resetRoomInDialog(VideoController controller,LiveRoom item, {isBottomSheet = false}) {
+void resetRoomInDialog(VideoController controller, LiveRoom item, {isBottomSheet = false}) {
   // if (isBottomSheet) {
   //   var curContext = Get.context!;
   //   Navigator.pop(curContext);
@@ -367,6 +367,7 @@ Widget showDialogListBody(VideoController controller, RxList<LiveRoom> rooms, {i
               icon: Icons.history_rounded,
               title: S.current.empty_history,
               subtitle: '',
+              boxConstraints: constraint,
             )
           : MasonryGridView.count(
               padding: const EdgeInsets.all(5),
@@ -951,7 +952,7 @@ class FavoriteButton extends StatelessWidget {
   FavoriteButton({
     super.key,
     required this.controller,
-  }){
+  }) {
     isFavorite = controller.livePlayController.isFavorite;
   }
 

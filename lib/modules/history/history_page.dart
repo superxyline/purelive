@@ -66,6 +66,7 @@ class HistoryPage extends GetView {
                     icon: Icons.history_rounded,
                     title: S.current.empty_history,
                     subtitle: '',
+                    boxConstraints: constraint,
                   )
                 : MasonryGridView.count(
                     padding: const EdgeInsets.all(5),

@@ -11,7 +11,7 @@ class FavoritePage extends GetView<FavoriteController> {
 
   @override
   Widget build(BuildContext context) {
-    return KeepAliveWrapper( child: LayoutBuilder(builder: (context, constraint) {
+    return KeepAliveWrapper(child: LayoutBuilder(builder: (context, constraint) {
       bool showAction = Get.width <= 680;
       return Scaffold(
         appBar: AppBar(
@@ -37,7 +37,7 @@ class FavoritePage extends GetView<FavoriteController> {
                     },
                     itemBuilder: (BuildContext context) {
                       return [
-                         PopupMenuItem(
+                        PopupMenuItem(
                           value: 0,
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
@@ -45,7 +45,7 @@ class FavoritePage extends GetView<FavoriteController> {
                             text: S.current.live_room_search,
                           ),
                         ),
-                         PopupMenuItem(
+                        PopupMenuItem(
                           value: 1,
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: MenuListTile(
@@ -62,8 +62,7 @@ class FavoritePage extends GetView<FavoriteController> {
             controller: controller.tabController,
             isScrollable: true,
             tabAlignment: TabAlignment.center,
-            labelStyle:
-                const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             indicatorSize: TabBarIndicatorSize.label,
             tabs: [
@@ -119,11 +118,9 @@ class _RoomGridView extends GetView<FavoriteController> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
       final width = constraint.maxWidth;
-      int crossAxisCount =
-          width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
       if (dense) {
-        crossAxisCount =
-            width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+        crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
       }
       return EasyRefresh(
         controller: refreshController,
@@ -142,17 +139,16 @@ class _RoomGridView extends GetView<FavoriteController> {
                       padding: const EdgeInsets.all(5),
                       controller: ScrollController(),
                       crossAxisCount: crossAxisCount,
-                      itemCount:  controller.filterDataList[selectIndex].length,
+                      itemCount: controller.filterDataList[selectIndex].length,
                       itemBuilder: (context, index) => RoomCard(
-                        room:  controller.filterDataList[selectIndex][index],
+                        room: controller.filterDataList[selectIndex][index],
                         dense: dense,
                       ),
                     );
                   }(),
 
                   // 浮动按钮
-                  floatingActionButtonLocation:
-                      FloatingActionButtonLocation.endFloat,
+                  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
                   floatingActionButton: FloatingActionButton(
                       onPressed: () {
                         showFilter();
@@ -162,6 +158,7 @@ class _RoomGridView extends GetView<FavoriteController> {
                   icon: Icons.favorite_rounded,
                   title: S.current.empty_favorite_online_title,
                   subtitle: S.current.empty_favorite_online_subtitle,
+                  boxConstraints: constraint,
                 ));
         }(),
       );
@@ -193,7 +190,7 @@ class _RoomGridView extends GetView<FavoriteController> {
                 title: Text(Sites.getSiteName(site.id)),
                 onTap: () {
                   var curSiteId = controller.selectedSiteList[selectIndex];
-                  if(curSiteId != site.id) {
+                  if (curSiteId != site.id) {
                     controller.selectedSiteList[selectIndex] = site.id;
                     controller.filterDate(selectIndex);
                   }

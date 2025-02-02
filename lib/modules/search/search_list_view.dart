@@ -39,6 +39,7 @@ class SearchListView extends StatelessWidget {
                     icon: Icons.live_tv_rounded,
                     title: S.current.empty_search_title,
                     subtitle: S.current.empty_search_subtitle,
+                    boxConstraints: constraint,
                   ),
             Visibility(
               visible: (controller.loadding.value),

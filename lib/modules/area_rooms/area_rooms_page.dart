@@ -49,6 +49,7 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
                         icon: Icons.live_tv_rounded,
                         title: S.current.empty_areas_room_title,
                         subtitle: S.current.empty_areas_room_subtitle,
+                        boxConstraints: constraint,
                       ),
                 Visibility(
                   visible: (controller.loadding.value),

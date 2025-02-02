@@ -34,7 +34,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
                         .availableSites(containsAll: true)
                         .map((e) => e.id)
                         .toList()
-                        .map((e) => KeepAliveWrapper(child: buildTabView(context, crossAxisCount, e)))
+                        .map((e) => KeepAliveWrapper(child: buildTabView(context, crossAxisCount, e, constraint)))
                         .toList());
               }),
             )
@@ -44,7 +44,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
     });
   }
 
-  Widget buildTabView(BuildContext context, int crossAxisCount, String siteId) {
+  Widget buildTabView(BuildContext context, int crossAxisCount, String siteId, BoxConstraints constraint) {
     return Obx(
       () => controller.favoriteAreas.isNotEmpty
           ? MasonryGridView.count(
@@ -62,6 +62,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
               icon: Icons.area_chart_outlined,
               title: S.current.empty_areas_title,
               subtitle: '',
+              boxConstraints: constraint,
             ),
     );
   }
