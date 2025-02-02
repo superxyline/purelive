@@ -205,16 +205,44 @@ class CCDanmaku implements LiveDanmaku {
     // 先注册信息
     webScoketUtils?.sendMessage(getReg());
 
+
+    // n.onMessage(2, 2, T),
+    // n.onMessage(6144, 20, O),
+    // n.onMessage(6144, 2, n._joinRoom),
+    // n.onMessage(512, 2, n._joinRoom)
+
     var args2 = args as CCDanmakuArgs;
     var sid = 512;
     var cid = 1;
     // channel_id, gametype, roomId
     var data = {
+      // 'ccsid': 512,
+      // 'cccid': 1,
       'cid': args2.channelId,
       'gametype': args2.gameType,
       'roomId': args2.roomId,
+      // 'hall_version': 1,
+      // 'motive': '',
+      // 'account_id': '',
+      // 'recom_token': '',
+      // 'client_type': 4000,
+      // 'client_source': "",
+      // 'room_sessid': "",
     };
+    /// ccsid: 512,
+//                                         cccid: 1,
+//                                         roomId: parseInt(b.a.roomId, 10),
+//                                         cid: parseInt(b.a.subcId, 10),
+//                                         gametype: b.a.gameType,
+//                                         hall_version: 1,
+//                                         motive: n,
+//                                         account_id: c(),
+//                                         recom_token: Object(g.e)(1),
+//                                         client_type: 4e3,
+//                                         client_source: a,
+//                                         room_sessid: s
 
+    CoreLog.d("data: $data");
     var writer = BinaryWriter(128);
     writer.writeUint16LE(sid);
     writer.writeUint16LE(cid);
