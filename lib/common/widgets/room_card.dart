@@ -211,19 +211,21 @@ class CountChip extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(dense ? 4 : 6),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
+          textDirection: TextDirection.ltr,
           children: [
             Icon(
               icon,
               color: Colors.white.withValues(alpha: 0.8),
-              size: dense ? 18 : 20,
+              size: Theme.of(context).textTheme.bodySmall!.fontSize! * 1.2,
             ),
+
             Text(
               count,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: dense ? 15 : 18,
+                    fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
                   ),
             ),
           ],
