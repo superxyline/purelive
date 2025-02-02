@@ -1,6 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:pure_live/core/common/core_log.dart';
 
 class CacheNetWorkUtils {
@@ -106,10 +107,17 @@ class CacheNetWorkUtils {
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
-            return ExtendedImage.asset(
-              clearMemoryCacheWhenDispose: true,
-              "assets/images/loading.gif",
-              fit: BoxFit.fitWidth,
+            // return ExtendedImage.asset(
+            //   clearMemoryCacheWhenDispose: true,
+            //   "assets/images/loading.gif",
+            //   fit: BoxFit.fitWidth,
+            // );
+            return LoadingIndicator(
+                indicatorType: Indicator.ballPulse, /// 必须, loading的类型
+                // colors: const [Colors.white],       /// 可选, 颜色集合
+                // strokeWidth: 2,                     /// 可选, 线条宽度，只对含有线条的组件有效
+                // backgroundColor: Colors.black,      /// 可选, 组件背景色
+                // pathBackgroundColor: Colors.black   /// 可选, 线条背景色
             );
 
           ///if you don't want override completed widget

@@ -154,6 +154,7 @@ dependencies:
       ref: main
 
   catcher_2: ^2.1.0 #异常日志捕获
+  loading_indicator: ^3.1.1 #加载中样式
  #  MPV 播放器
   media_kit:
     git:
