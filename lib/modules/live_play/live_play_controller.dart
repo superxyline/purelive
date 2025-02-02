@@ -217,6 +217,7 @@ class LivePlayController extends StateController {
     }
   }
 
+  /// 监听返回键
   Future<bool> onBackPressed() async {
     if (videoController == null) {
       return true;
@@ -226,30 +227,30 @@ class LivePlayController extends StateController {
     var lastRoute = routes.last;
     var lastRouteName = lastRoute.settings.name;
     CoreLog.d("lastRoute: $lastRouteName");
-    if(lastRouteName != RoutePath.kLivePlay) {
+    if (lastRouteName != RoutePath.kLivePlay) {
       return true;
     }
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
-      return await Future.value(false);
+      return false;
     }
     if (videoController!.videoPlayer.isFullscreen.value) {
       videoController?.exitFull();
-      return await Future.value(false);
+      return false;
     }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
     if (!doubleExit) {
       disPoserPlayer();
-      return Future.value(true);
+      return true;
     }
     int nowExitTime = DateTime.now().millisecondsSinceEpoch;
     if (nowExitTime - lastExitTime > 1000) {
       lastExitTime = nowExitTime;
       SmartDialog.showToast(S.current.double_click_to_exit);
-      return await Future.value(false);
+      return false;
     }
     disPoserPlayer();
-    return await Future.value(true);
+    return true;
   }
 
   DanmakuSettingOption danmakuSettingOption = DanmakuSettingOption();
@@ -523,7 +524,7 @@ class LivePlayController extends StateController {
       success.updateValueNotEquate(false);
       resetSystem();
       danmakuController.dispose();
-    }catch(e) {
+    } catch (e) {
       CoreLog.error(e);
     }
   }

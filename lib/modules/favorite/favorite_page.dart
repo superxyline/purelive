@@ -150,6 +150,7 @@ class _RoomGridView extends GetView<FavoriteController> {
                   // 浮动按钮
                   floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
                   floatingActionButton: FloatingActionButton(
+                      key: UniqueKey(),
                       onPressed: () {
                         showFilter();
                       },

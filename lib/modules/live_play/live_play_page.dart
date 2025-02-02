@@ -58,8 +58,7 @@ class LivePlayPage extends GetView<LivePlayController> {
             /// 横着摆放
             children: [
               /// 站点logo
-              if (controller.liveRoomRx.platform.value.isNotNullOrEmpty)
-                SiteWidget.getSiteLogeImage(controller.liveRoomRx.platform.value!) ?? Container(),
+              if (controller.liveRoomRx.platform.value.isNotNullOrEmpty) SiteWidget.getSiteLogeImage(controller.liveRoomRx.platform.value!) ?? Container(),
 
               /// 站点logo
               const SizedBox(width: 5),
@@ -189,7 +188,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                         leading: Icon(Icons.open_in_new_rounded),
                         text: S.current.live_room_open_external,
                       ),
-                      onTap: (){
+                      onTap: () {
                         controller.openNaviteAPP();
                       },
                     ),
@@ -209,7 +208,9 @@ class LivePlayPage extends GetView<LivePlayController> {
                         leading: Icon(Remix.play_circle_line),
                         text: S.current.settings_player,
                       ),
-                        onTap: (){ SettingsPageV2.settingPlayerInfoSheet();},
+                      onTap: () {
+                        SettingsPageV2.settingPlayerInfoSheet();
+                      },
                     ),
                     PopupMenuItem(
                       value: 3,
@@ -218,7 +219,9 @@ class LivePlayPage extends GetView<LivePlayController> {
                         leading: Icon(Remix.filter_off_line),
                         text: S.current.danmu_filter,
                       ),
-                      onTap: (){ Get.toNamed(RoutePath.kSettingsDanmuShield);},
+                      onTap: () {
+                        Get.toNamed(RoutePath.kSettingsDanmuShield);
+                      },
                     ),
                     PopupMenuItem(
                       value: 4,
@@ -227,7 +230,9 @@ class LivePlayPage extends GetView<LivePlayController> {
                         leading: const Icon(Remix.bug_line),
                         text: S.current.settings_log,
                       ),
-                      onTap: (){ Get.toNamed(RoutePath.kLog);},
+                      onTap: () {
+                        Get.toNamed(RoutePath.kLog);
+                      },
                     ),
                   ];
                 },
@@ -249,7 +254,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                               child: Obx(() => DanmakuListView(
                                     key: controller.danmakuViewKey,
                                     room: controller.liveRoomRx.toLiveRoom(),
-                                     controller: controller,
+                                    controller: controller,
                                   )),
                             ),
                           ],
@@ -278,7 +283,9 @@ class LivePlayPage extends GetView<LivePlayController> {
               });
             },
           ),
-          floatingActionButton: Obx(() => controller.getVideoSuccess.value ? FavoriteFloatingButton(room: controller.liveRoomRx.toLiveRoom()) : FavoriteFloatingButton(room: controller.liveRoomRx.toLiveRoom())),
+          floatingActionButton: Obx(() => controller.getVideoSuccess.value
+              ? FavoriteFloatingButton(key: UniqueKey(), room: controller.liveRoomRx.toLiveRoom())
+              : FavoriteFloatingButton(key: UniqueKey(), room: controller.liveRoomRx.toLiveRoom())),
         ),
       );
     });
@@ -466,6 +473,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
     // late bool isFavorite = settings.isFavorite(widget.room);
     return Obx(() => controller.isFavorite.value
         ? FloatingActionButton(
+            key: UniqueKey(),
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
             tooltip: S.current.unfollow,
@@ -500,6 +508,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
             child: CacheNetWorkUtils.getCircleAvatar(widget.room.avatar, radius: 18),
           )
         : FloatingActionButton.extended(
+            key: UniqueKey(),
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
             onPressed: () {
