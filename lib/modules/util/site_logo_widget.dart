@@ -3,26 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:pure_live/core/sites.dart';
 
 class SiteWidget {
+  /// logo 宽度
+  static double logoWidth = 25;
+
   /// 所有站点的 logo
   static Map<String, Widget> get siteLogeImageMap {
-    var list = Sites.supportSites
-        .map((e) => MapEntry(
-            e.id,
-            ExtendedImage.asset(
-              e.logo,
-              width: 22,
-              cacheRawData: true,
-              clearMemoryCacheWhenDispose: false,
-            )))
-        .toList();
+    var list = Sites.supportSites.map((e) => MapEntry(e.id, getSiteLogo(e))).toList();
     var map = Map.fromEntries(list);
-    map[Sites.allLiveSite.id] = ExtendedImage.asset(
-      Sites.allLiveSite.logo,
-      width: 22,
+    map[Sites.allLiveSite.id] = getSiteLogo(Sites.allLiveSite);
+    return map;
+  }
+
+  /// 获取站点 logo Image
+  static Widget getSiteLogo(Site site) {
+    return ExtendedImage.asset(
+      site.logo,
+      width: logoWidth,
+      cacheWidth: logoWidth.toInt(),
       cacheRawData: true,
       clearMemoryCacheWhenDispose: false,
     );
-    return map;
   }
 
   /// 获取站点 logo Image
@@ -41,10 +41,7 @@ class SiteWidget {
 
   /// 获取 可用站点的 tab 包含一个所有站点的标志
   static List<Widget> get availableSitesWithAllTabList {
-    return Sites()
-        .availableSites(containsAll: true)
-        .map((site) => getSiteTab(site))
-        .toList();
+    return Sites().availableSites(containsAll: true).map((site) => getSiteTab(site)).toList();
   }
 
   /// 获取 可用站点的 tab
