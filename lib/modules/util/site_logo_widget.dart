@@ -19,7 +19,7 @@ class SiteWidget {
     return ExtendedImage.asset(
       site.logo,
       width: logoWidth,
-      cacheWidth: logoWidth.toInt(),
+      // cacheWidth: logoWidth.toInt(),
       cacheRawData: true,
       clearMemoryCacheWhenDispose: false,
     );
