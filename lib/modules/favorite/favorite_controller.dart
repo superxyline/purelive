@@ -56,52 +56,38 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
   }
 
   Future<bool> onRefresh() async {
-    // 自动刷新时间为0关闭。不是手动刷新并且不是第一次刷新
-    if (isFirstLoad) {
-      await const Duration(seconds: 1).delay();
-    }
-    bool hasError = false;
-    List<Future<LiveRoom>> futures = [];
-    if (settings.favoriteRooms.value.isEmpty) {
-      return false;
-    }
-    var currentRooms = settings.favoriteRooms.value;
-    if (tabSiteIndex.value != 0) {
-      currentRooms = settings.favoriteRooms.value
-          .where((element) => element.platform == Sites().availableSites(containsAll: true)[tabSiteIndex.value].id)
-          .toList();
-    }
-    for (final room in currentRooms) {
-      futures.add(Sites.of(room.platform!)
-          .liveSite
-          .getRoomDetail(roomId: room.roomId!, platform: room.platform!, title: room.title!, nick: room.nick!));
-    }
-    List<List<Future<LiveRoom>>> groupedList = [];
+    // 如果是首次加载，则等待一秒
+    if (isFirstLoad) await Future.delayed(Duration(seconds: 1));
 
-    // 每次循环处理四个元素
-    for (int i = 0; i < futures.length; i += 3) {
-      // 获取当前循环开始到下一个四个元素的位置（但不超过原列表长度）
-      int end = i + 3;
-      if (end > futures.length) {
-        end = futures.length;
-      }
-      // 截取当前四个元素的子列表
-      List<Future<LiveRoom>> subList = futures.sublist(i, end);
-      // 将子列表添加到结果列表中
-      groupedList.add(subList);
-    }
+    if (settings.favoriteRooms.value.isEmpty) return false;
+
+    var futures = settings.favoriteRooms.value
+        .where((room) =>
+            tabSiteIndex.value == 0 ||
+            room.platform == Sites().availableSites(containsAll: true)[tabSiteIndex.value].id)
+        .map((room) => Sites.of(room.platform!)
+            .liveSite
+            .getRoomDetail(roomId: room.roomId!, platform: room.platform!, title: room.title!, nick: room.nick!))
+        .toList();
+
     try {
-      for (var i = 0; i < groupedList.length; i++) {
-        final rooms = await Future.wait(groupedList[i]);
+      // 控制并发数量为3
+      for (int i = 0; i < futures.length; i += 3) {
+        List<LiveRoom> rooms = await Future.wait(futures.sublist(i, i + 3 > futures.length ? futures.length : i + 3));
         for (var room in rooms) {
-          settings.updateRoom(room);
+          try {
+            settings.updateRoom(room);
+          } catch (e) {
+            debugPrint('Error during refresh for a single request: $e');
+          }
         }
       }
       syncRooms();
     } catch (e) {
-      hasError = true;
+      debugPrint('Error during refresh: $e');
     }
+
     isFirstLoad = false;
-    return hasError;
+    return false;
   }
 }
