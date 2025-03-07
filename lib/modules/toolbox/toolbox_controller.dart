@@ -163,6 +163,14 @@ class ToolBoxController extends GetxController {
       id = regExp.firstMatch(realUrl)?.group(1) ?? "";
       return [id, Sites.douyinSite];
     }
+    if (realUrl.contains("www.douyin.com")) {
+      realUrl = realUrl.split("?")[0];
+      if (realUrl.endsWith('/')) {
+        realUrl = realUrl.substring(0, realUrl.length - 1);
+      }
+      Uri uri = Uri.parse(realUrl);
+      return [uri.pathSegments.last, Sites.douyinSite];
+    }
     if (realUrl.contains("v.douyin.com")) {
       final id = await getRealDouyinUrl(realUrl);
       return [id, Sites.douyinSite];
