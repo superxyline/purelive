@@ -8,7 +8,7 @@ on:
   schedule:
     - cron: '0 10 * * *'
 jobs:
-  build-mac-ios-android:
+  build-android:
     runs-on: macos-latest
     permissions:
       contents: write
