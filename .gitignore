@@ -48,6 +48,6 @@ key.properties
 **/*.keystore
 **/*.jks
 
-/assets/keystore/
+# /assets/keystore/
 /assets/pure_live_web/
 pubspec.lock
