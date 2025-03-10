@@ -174,7 +174,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/keystore/
-    - assets/pure_live_web/
     - assets/js/webmssdk.js
     - assets/version.json
 
