@@ -1,0 +1,11 @@
+name: Manually Triggered Workflow
+
+on:
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message
+        run: echo "This workflow was manually triggered"
