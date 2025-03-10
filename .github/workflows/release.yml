@@ -124,7 +124,7 @@ jobs:
         run: dart pub global activate flutter_distributor
       # build Windows ZIP\MSIX
       - name: Build Windows
-        run: flutter_distributor package --platform windows --targets msix,zip 
+        run: flutter_distributor package --platform windows --targets msix,zip,exe 
       # 上传Windows至Artifacts
       - name: Upload Windows APP to Artifacts
         uses: actions/upload-artifact@v4
@@ -133,5 +133,6 @@ jobs:
           path: |
             build/dist/*/*.msix
             build/dist/*/*.zip
+            build/dist/*/*.exe
         #完成
       - run: echo "🍏 Windows job's status is ${{ job.status }}."
