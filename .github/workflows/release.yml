@@ -124,35 +124,13 @@ jobs:
         run: dart pub global activate flutter_distributor
       # build Windows ZIP\MSIX
       - name: Build Windows
-        run: flutter_distributor package --platform windows --targets msix,zip --skip-clean
+        run: flutter_distributor package --platform windows --targets msix,zip 
       # 上传Windows至Artifacts
       - name: Upload Windows APP to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows
           path: |
-            build/dist/*/*.msix
-            build/dist/*/*.zip
-      #读取版本信息
-      - name: Read version
-        id: version
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: assets/version.json
-      - name: Echo version
-        run: echo "${{ fromJson(steps.version.outputs.content).version }}"
-      - name: Echo version content
-        run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
-
-      # 上传至Release
-      - name: Upload Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: "${{ fromJson(steps.version.outputs.content).version }}"
-          body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
-          prerelease: ${{ fromJson(steps.version.outputs.content).prerelease }}
-          token: ${{ secrets.TOKEN }}
-          files: |
             build/dist/*/*.msix
             build/dist/*/*.zip
         #完成
