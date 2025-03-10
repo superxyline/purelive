@@ -124,7 +124,7 @@ jobs:
         run: dart pub global activate flutter_distributor
       # build Windows ZIP\MSIX
       - name: Build Windows
-        run: flutter_distributor package --platform windows --targets msix,zip,exe
+        run: flutter_distributor package --platform windows --targets msix,zip,exe --skip-clean
 
       # 上传Windows至Artifacts
       - name: Upload Windows APP to Artifacts
