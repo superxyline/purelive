@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
@@ -137,15 +136,6 @@ class SettingsService extends GetxController {
     huyaCookie.listen((value) {
       PrefUtil.setString('huyaCookie', value);
     });
-
-    webPort.listen((value) {
-      PrefUtil.setString('webPort', value);
-    });
-
-    webPortEnable.listen((value) {
-      changeWebListen(webPort.value, value);
-      PrefUtil.setBool('webPortEnable', value);
-    });
   }
 
   // Theme settings
@@ -211,10 +201,6 @@ class SettingsService extends GetxController {
     "简体中文": const Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
   };
   final languageName = (PrefUtil.getString('language') ?? "简体中文").obs;
-
-  final webPort = (PrefUtil.getString('webPort') ?? "8008").obs;
-
-  final webPortEnable = (PrefUtil.getBool('webPortEnable') ?? false).obs;
 
   get language => SettingsService.languages[languageName.value]!;
 
@@ -286,18 +272,6 @@ class SettingsService extends GetxController {
     if (resolutions.indexWhere((e) => e == name) != -1) {
       preferResolution.value = name;
       PrefUtil.setString('preferResolution', name);
-    }
-  }
-
-  void changeWebListen(port, enable) {
-    try {
-      if (enable) {
-        LocalHttpServer().startServer(port);
-      } else {
-        LocalHttpServer().closeServer();
-      }
-    } catch (e) {
-      SmartDialog.showToast('打开故障,请稍后重试');
     }
   }
 
@@ -525,8 +499,6 @@ class SettingsService extends GetxController {
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     huyaCookie.value = json['huyaCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
-    webPort.value = json['webPort'] ?? '8008';
-    webPortEnable.value = json['webPortEnable'] ?? false;
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -574,8 +546,6 @@ class SettingsService extends GetxController {
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
     json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
     json['themeColorSwitch'] = themeColorSwitch.value;
-    json['webPort '] = webPort.value;
-    json['webPortEnable'] = webPortEnable.value;
     return json;
   }
 
@@ -611,9 +581,7 @@ class SettingsService extends GetxController {
       'bilibiliCookie': '',
       'huyaCookie': '',
       'shieldList': [],
-      "hotAreasList": [],
-      "webPortEnable": false,
-      "webPort": "8008",
+      "hotAreasList": []
     };
     return json;
   }

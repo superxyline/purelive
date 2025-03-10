@@ -4,8 +4,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
-import 'package:pure_live/plugins/file_recover_utils.dart';
-import 'package:pure_live/modules/auth/utils/constants.dart';
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -419,77 +417,5 @@ class SettingsPage extends GetView<SettingsService> {
             )),
       ),
     );
-  }
-
-  Future<String?> showWebPortDialog() async {
-    final TextEditingController textEditingController = TextEditingController();
-    textEditingController.text = controller.webPort.value;
-    var result = await Get.dialog(
-        AlertDialog(
-          title: const Text('请输入端口号'),
-          content: SizedBox(
-            width: 400.0,
-            height: 140.0,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: textEditingController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.all(12),
-                      hintText: '端口地址(1-65535)',
-                    ),
-                  ),
-                  spacer(20.0),
-                  Obx(() => SwitchListTile(
-                        title: const Text('是否开启web服务'),
-                        value: controller.webPortEnable.value,
-                        activeColor: Theme.of(context).colorScheme.primary,
-                        onChanged: (bool value) {
-                          controller.webPortEnable.value = value;
-                        },
-                      )),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                if (controller.webPortEnable.value) {
-                  SmartDialog.showToast('请先关闭web服务');
-                  return;
-                }
-                if (textEditingController.text.isEmpty) {
-                  SmartDialog.showToast('请输入端口号');
-                  return;
-                }
-                bool validate = FileRecoverUtils.isPort(textEditingController.text);
-                if (!validate) {
-                  SmartDialog.showToast('请输入正确的端口号');
-                  return;
-                }
-                if (int.parse(textEditingController.text) < 1 || int.parse(textEditingController.text) > 65535) {
-                  SmartDialog.showToast('请输入正确的端口号');
-                  return;
-                }
-                controller.webPort.value = textEditingController.text;
-                SmartDialog.showToast('设置成功');
-              },
-              child: const Text("确定"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(Get.context!).pop();
-              },
-              child: const Text("关闭弹窗"),
-            ),
-          ],
-        ),
-        barrierDismissible: false);
-    return result;
   }
 }

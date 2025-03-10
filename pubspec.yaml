@@ -176,17 +176,7 @@ flutter:
     - assets/keystore/
     - assets/pure_live_web/
     - assets/js/webmssdk.js
-    - assets/pure_live_web/assets/
-    - assets/pure_live_web/assets/assets/icons/
-    - assets/pure_live_web/assets/assets/images/
-    - assets/pure_live_web/assets/fonts/
-    - assets/pure_live_web/assets/packages/flex_color_picker/assets/
-    - assets/pure_live_web/assets/packages/flutter_js/assets/js/
-    - assets/pure_live_web/assets/packages/font_awesome_flutter/lib/fonts/
-    - assets/pure_live_web/assets/shaders/
-    - assets/pure_live_web/canvaskit/
-    - assets/pure_live_web/canvaskit/chromium/
-    - assets/pure_live_web/icons/
+    - assets/version.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
