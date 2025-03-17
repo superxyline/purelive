@@ -86,6 +86,94 @@ jobs:
       - name: Read version
         id: version
         uses: juliangruber/read-file-action@v1
+        with:name: app-build-action
+
+# 推送Tag时触发 或者 手动触发
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release'
+        required: true
+        default: 'v1.0.0'
+  push:
+    tags:
+      - "v*"
+  schedule:
+    - cron: '0 10 * * *'
+
+jobs:
+  build-android:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      # 签出代码
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag_name }}
+
+      # APK签名设置
+      - name: Download Android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: key.jks
+          encodedString: ${{ secrets.KEYSTORE_BASE64 }}
+      - name: Create key.properties
+        run: |
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > android/key.properties
+          echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+
+      # 设置JAVA环境
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: "17"
+          cache: 'gradle'
+
+      # 设置Flutter
+      - name: Flutter action
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.x'
+          cache: true 
+
+      # 更新Flutter的packages
+      - name: Restore packages
+        run: flutter pub get
+
+      # 打包APK
+      - name: Build APK
+        run: flutter build apk --release --split-per-abi
+      
+      # 上传APK至Artifacts
+      - name: Upload APK to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: |
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-x86_64-release.apk
+
+      - name: Get latest release version
+        id: latest_release
+        shell: pwsh
+        run: |
+          $LatestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases/latest"
+          echo "::set-output name=latest_tag::$($LatestRelease.tag_name)"
+
+      # 使用获取到的最新标签名（可选）
+      - name: Use the latest tag
+        run: echo "The latest release tag is ${{ steps.latest_release.outputs.latest_tag }}"
+
+      # 读取版本信息
+      - name: Read version
+        id: version
+        uses: juliangruber/read-file-action@v1
         with:
           path: assets/version.json
       - name: Echo version
@@ -174,7 +262,108 @@ jobs:
 
       # 上传至Release
       - name: Upload Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          name: "${{ github.event.inputs.tag_name }}"
+          body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
+          prerelease: false
+          token: ${{ secrets.TOKEN }}
+          files: |
+            build/dist/*/*.msix
+            build/dist/*/*.zip
+            build/dist/*/*.exe
+
+      # 完成
+      - run: echo "🍏 Windows job's status is ${{ job.status }}."
+
+          path: assets/version.json
+      - name: Echo version
+        run: echo "${{ fromJson(steps.version.outputs.content).version }}"
+      - name: Echo version content
+        run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
+
+      # 上传至Release
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          name: "${{ github.event.inputs.tag_name }}"
+          body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
+          prerelease: false
+          token: ${{ secrets.TOKEN }}
+          files: |
+            build/app/outputs/flutter-apk/app-x86_64-release.apk
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+
+      # 完成
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+
+  # 打包Windows
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      # 签出代码
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag_name }}
+
+      # 设置Flutter环境
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.x"
+          cache: true
+      - name: Enable Flutter Desktop
+        run: flutter config --enable-windows-desktop
+      - name: Restore Packages
+        run: flutter pub get
+
+      # 设置flutter_distributor环境
+      - name: Install flutter_distributor
+        run: dart pub global activate flutter_distributor
+
+      # build Windows ZIP\MSIX
+      - name: Build Windows
+        run: flutter_distributor package --platform windows --targets msix,zip,exe --skip-clean
+
+      # 上传Windows至Artifacts
+      - name: Upload Windows APP to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            build/dist/*/*.msix
+            build/dist/*/*.zip
+            build/dist/*/*.exe
+
+      # 获取最新Release版本（可选）
+      - name: Get latest release version
+        id: latest_release
+        shell: pwsh
+        run: |
+          $LatestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases/latest"
+          echo "::set-output name=latest_tag::$($LatestRelease.tag_name)"
+
+      # 使用获取到的最新标签名（可选）
+      - name: Use the latest tag
+        run: echo "The latest release tag is ${{ steps.latest_release.outputs.latest_tag }}"
+
+      # 读取版本信息
+      - name: Read version
+        id: version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: assets/version.json
+      - name: Echo version
+        run: echo "${{ fromJson(steps.version.outputs.content).version }}"
+      - name: Echo version content
+        run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
+
+      # 上传至Release
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2.0.8
         with:
           name: "${{ github.event.inputs.tag_name }}"
           body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
