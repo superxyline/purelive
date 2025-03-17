@@ -71,13 +71,12 @@ jobs:
             build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
             build/app/outputs/flutter-apk/app-x86_64-release.apk
 
-      # 获取最新Release版本（可选）
       - name: Get latest release version
         id: latest_release
+        shell: pwsh
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/liuchuancong/pure_live/releases/latest)
-          LATEST_TAG_NAME=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
-          echo "::set-output name=latest_tag::$LATEST_TAG_NAME"
+          $LatestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases/latest"
+          echo "::set-output name=latest_tag::$($LatestRelease.tag_name)"
 
       # 使用获取到的最新标签名（可选）
       - name: Use the latest tag
@@ -153,10 +152,10 @@ jobs:
       # 获取最新Release版本（可选）
       - name: Get latest release version
         id: latest_release
+        shell: pwsh
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/liuchuancong/pure_live/releases/latest)
-          LATEST_TAG_NAME=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
-          echo "::set-output name=latest_tag::$LATEST_TAG_NAME"
+          $LatestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases/latest"
+          echo "::set-output name=latest_tag::$($LatestRelease.tag_name)"
 
       # 使用获取到的最新标签名（可选）
       - name: Use the latest tag
