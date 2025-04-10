@@ -62,9 +62,7 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     if (settings.favoriteRooms.value.isEmpty) return false;
 
     var futures = settings.favoriteRooms.value
-        .where((room) =>
-            tabSiteIndex.value == 0 ||
-            room.platform == Sites().availableSites(containsAll: true)[tabSiteIndex.value].id)
+        .where((room) => room.platform!.isNotEmpty)
         .map((room) => Sites.of(room.platform!)
             .liveSite
             .getRoomDetail(roomId: room.roomId!, platform: room.platform!, title: room.title!, nick: room.nick!))
@@ -72,8 +70,8 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
 
     try {
       // 控制并发数量为3
-      for (int i = 0; i < futures.length; i += 3) {
-        List<LiveRoom> rooms = await Future.wait(futures.sublist(i, i + 3 > futures.length ? futures.length : i + 3));
+      for (int i = 0; i < futures.length; i += 5) {
+        List<LiveRoom> rooms = await Future.wait(futures.sublist(i, i + 5 > futures.length ? futures.length : i + 5));
         for (var room in rooms) {
           try {
             settings.updateRoom(room);
