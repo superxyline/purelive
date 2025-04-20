@@ -85,15 +85,15 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
 
   @override
   Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
+    rrrr
+    const baseUrl =
+      "https://api.live.bilibili.com/xlive/web-interface/v1/second/getList";
+    var url =
+      "$baseUrl?platform=web&parent_area_id=${category.areaType}&area_id=${category.areaId}&sort_type=&page=$page";
+    var queryParams = await getWbiSign(url);
     var result = await HttpClient.instance.getJson(
-      "https://api.live.bilibili.com/xlive/web-interface/v1/second/getList",
-      queryParameters: {
-        "platform": "web",
-        "parent_area_id": category.areaType,
-        "area_id": category.areaId,
-        "sort_type": "",
-        "page": page
-      },
+      baseUrl,
+      queryParameters: queryParams,
       header: getHeader(),
     );
 
@@ -197,9 +197,13 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
 
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
+    const baseUrl =
+         "https://api.live.bilibili.com/xlive/web-interface/v1/second/getListByArea";
+    var url = "$baseUrl?platform=web&sort=online&page_size=30&page=$page";
+    var queryParams = await getWbiSign(url);
     var result = await HttpClient.instance.getJson(
-      "https://api.live.bilibili.com/xlive/web-interface/v1/second/getListByArea",
-      queryParameters: {"platform": "web", "sort": "online", "page_size": 30, "page": page},
+      baseUrl,
+      queryParameters: queryParams,
       header: getHeader(),
     );
 
