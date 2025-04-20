@@ -85,7 +85,6 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
 
   @override
   Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
-    rrrr
     const baseUrl =
       "https://api.live.bilibili.com/xlive/web-interface/v1/second/getList";
     var url =
