@@ -1,7 +1,7 @@
 {
-  "version": "1.8.5",
-  "version_num": 10184,
-  "version_desc": "-Fix: 修复刷新失败. \n-Fix: bilibili直播间加载失败",
+  "version": "1.8.6",
+  "version_num": 10186,
+  "version_desc": "-Fix: 修复虎牙断流",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
