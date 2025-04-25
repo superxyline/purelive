@@ -80,6 +80,13 @@ class DouyuDanmaku implements LiveDanmaku {
       //有些直播间存在阴间弹幕，不知道什么情况
       // CoreLog.d(jsonEncode(jsonData));
       if (type == "chatmsg") {
+      // 屏蔽阴间弹幕
+
+        if (jsonData["dms"] == null) {
+
+          return;
+        }
+
         // {"type":"chatmsg","rid":"9999","uid":"2000454","nn":"大沙河旁种柚子","txt":"煤气罐","cid":"c85cd4f3ebfb4558b4ba7a0000000000","ic":"avatar_v3/202302/6d3d5056ecd94f36b5848f23949bd1fb","level":"40","sahf":"0","col":"1","cst":"1736688217372","bnn":"小僵尸","bl":"25","brid":"9999","hc":"8ccfd113d28375263b0964c7221773bf","hl":"1","ifs":"1","lk":"","fl":"25","dms":"4","pdg":"52","pdk":"5","ext":"","if":"1"}
         // bnn 粉丝牌 bl 牌子等级 brid 牌子对应的直播间
         var col = int.tryParse(jsonData["col"].toString()) ?? 0;
