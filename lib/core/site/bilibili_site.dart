@@ -381,7 +381,7 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
         },
         header: await getHeader(),
       );
-      var buvid = await getBuvid();
+      var buvid = buvid3;
       List<String> serverHosts =
           (roomDanmakuResult["data"]["host_list"] as List).map<String>((e) => e["host"].toString()).toList();
       return LiveRoom(
@@ -578,7 +578,7 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
       data: {
         "uids" : urlPart
       },
-      header: getHeader(),
+      header: await getHeader(),
     );
 
     var items = <LiveRoom>[];
