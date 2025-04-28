@@ -1,7 +1,7 @@
 {
-  "version": "1.8.7",
-  "version_num": 10187,
-  "version_desc": "-Fix: 修复bilibili",
+  "version": "1.8.8",
+  "version_num": 10188,
+  "version_desc": "-Fix: 修复虎牙断流",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

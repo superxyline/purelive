@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "纯粹直播"
-#define MyAppVersion "1.0.0.79"
+#define MyAppVersion "1.0.0.80"
 #define MyAppPublisher "My Company, Inc."
 #define MyAppExeName "pure_live.exe"
 #define MyAppAssocName MyAppName + " File"
@@ -112,6 +112,7 @@ Source: "D:\flutter\pure_live\build\windows\x64\runner\Release\vccorlib140.dll";
 Source: "D:\flutter\pure_live\build\windows\x64\runner\Release\vccorlib140d.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\flutter\pure_live\build\windows\x64\runner\Release\vcruntime140_1d.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\flutter\pure_live\build\windows\x64\runner\Release\vcruntime140d.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\flutter\pure_live\build\windows\x64\runner\Release\volume_controller_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\flutter\pure_live\build\windows\x64\runner\Release\vk_swiftshader.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\flutter\pure_live\build\windows\x64\runner\Release\vulkan-1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\flutter\pure_live\build\windows\x64\runner\Release\WebView2Loader.dll"; DestDir: "{app}"; Flags: ignoreversion
