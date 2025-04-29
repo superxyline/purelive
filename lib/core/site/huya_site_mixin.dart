@@ -191,14 +191,13 @@ mixin HuyaSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
   @override
   Map<String, String> getVideoHeaders() {
     var validTs = 20000308;
-    var currentTs = (DateTime.now().millisecondsSinceEpoch ~/ 1000) % 10^9;
-    if(currentTs < validTs) {
-      currentTs += DateTime.now().millisecondsSinceEpoch ~/ 1000 ~/ 100;
-    }
+    var sysTs = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    var last8 = sysTs % 10 ^ 8;
+    var currentTs = last8 > validTs ? last8 : (validTs + sysTs ~/ 100);
     return {
       // "Referer": "https://m.huya.com",
       // "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/130.0.0.0"
-      "User-Agent": "HYSDK(Windows, $validTs)",
+      "User-Agent": "HYSDK(Windows, $currentTs)",
       // "Referer": "https://www.huya.com/",
       "Origin": "https://www.huya.com",
     };
