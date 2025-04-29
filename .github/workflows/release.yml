@@ -11,8 +11,6 @@ on:
   push:
     tags:
       - "v*"
-  schedule:
-    - cron: '0 10 * * *'
 
 jobs:
   build-android:
