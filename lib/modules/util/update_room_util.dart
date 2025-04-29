@@ -1,5 +1,7 @@
-import 'package:pure_live/common/utils/text_util.dart';
+import 'dart:io';
+
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
 import '../../common/models/live_room.dart';
@@ -7,20 +9,39 @@ import '../../common/services/settings_service.dart';
 import '../../core/sites.dart';
 
 class UpdateRoomUtil {
+  /// 判断网络是否连接
+  static Future<bool> testNetwork() async {
+    // 通过请求 百度 判断网络是否连接
+    var testCount = 2;
+    var isOk = false;
+    for (var i = 0; i < testCount; i++) {
+      try {
+        await HttpClient.instance.get("https://m.baidu.com/favicon.ico");
+        isOk = true;
+        break;
+      } catch (e) {
+        CoreLog.w("${e}");
+        await HttpClient.resetHttpClient();
+        sleep(const Duration(milliseconds: 200));
+      }
+    }
+    return isOk;
+  }
+
   ///  更新房间
-  static Future<bool> updateRoomList(
-      List<LiveRoom> roomList, SettingsService settings) async {
+  static Future<bool> updateRoomList(List<LiveRoom> roomList, SettingsService settings) async {
+    var isTestNetworkOk = await testNetwork();
+    if (!isTestNetworkOk) {
+      return isTestNetworkOk;
+    }
     // 过滤非法数据
-    roomList = roomList.where((room)=> !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList();
+    roomList = roomList.where((room) => !room.roomId.isNullOrEmpty && !room.platform.isNullOrEmpty).toList();
 
     // 已经更新的数据
     List<LiveRoom> updatedRoomList = [];
 
     // 批量更新
-    var tmp = Sites.supportSites
-        .where((site) => site.liveSite.isSupportBatchUpdateLiveStatus())
-        .map((site) => MapEntry(site.liveSite, <LiveRoom>[]))
-        .toList();
+    var tmp = Sites.supportSites.where((site) => site.liveSite.isSupportBatchUpdateLiveStatus()).map((site) => MapEntry(site.liveSite, <LiveRoom>[])).toList();
     var batchUpdateSiteMap = Map.fromEntries(tmp);
     var unBatchUpdateRooms = roomList;
     bool hasError = false;
@@ -63,11 +84,7 @@ class UpdateRoomUtil {
       if (room.roomId == "") {
         continue;
       }
-      futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(
-          roomId: room.roomId!,
-          platform: room.platform!,
-          title: room.title!,
-          nick: room.nick!));
+      futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!, platform: room.platform!, title: room.title!, nick: room.nick!));
     }
     List<List<Future<LiveRoom>>> groupedList = [];
 

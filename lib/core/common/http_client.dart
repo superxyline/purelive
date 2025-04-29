@@ -9,7 +9,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pure_live/core/common/core_error.dart';
 import 'package:pure_live/core/common/core_log.dart';
-import 'package:rhttp/rhttp.dart' as rhttp;
+// import 'package:rhttp/rhttp.dart' as rhttp;
 
 import '../../plugins/dns4flutter/dns_helper.dart';
 import 'custom_dio_cache_interceptor.dart';
@@ -21,6 +21,13 @@ class HttpClient {
 
   static HttpClient get instance {
     _httpUtil ??= HttpClient();
+    return _httpUtil!;
+  }
+
+  ///  重置 HttpClient
+  static Future<HttpClient> resetHttpClient() async {
+    // await initHttpExt();
+    _httpUtil = HttpClient();
     return _httpUtil!;
   }
 
@@ -60,20 +67,24 @@ class HttpClient {
   );
 
   late Dio dio;
-  static late rhttp.RhttpCompatibleClient compatibleClient;
+  // static late rhttp.RhttpCompatibleClient compatibleClient;
 
   static initHttp() async {
-    await rhttp.Rhttp.init();
-    compatibleClient = await rhttp.RhttpCompatibleClient.create(
-        settings: rhttp.ClientSettings(
-      dnsSettings: rhttp.DnsSettings.dynamic(resolver: (String host) async {
-        return await DnsHelper.lookupARecords(host);
-      }),
-      redirectSettings: rhttp.RedirectSettings.limited(20),
-      tlsSettings: rhttp.TlsSettings(
-        verifyCertificates: false,
-      ),
-    ));
+    // await rhttp.Rhttp.init();
+    // await initHttpExt();
+  }
+
+  static initHttpExt() async {
+    // compatibleClient = await rhttp.RhttpCompatibleClient.create(
+    //     settings: rhttp.ClientSettings(
+    //   dnsSettings: rhttp.DnsSettings.dynamic(resolver: (String host) async {
+    //     return await DnsHelper.lookupARecords(host);
+    //   }),
+    //   redirectSettings: rhttp.RedirectSettings.limited(20),
+    //   tlsSettings: rhttp.TlsSettings(
+    //     verifyCertificates: false,
+    //   ),
+    // ));
   }
 
   HttpClient() {
@@ -87,7 +98,7 @@ class HttpClient {
     dio.interceptors.add(CustomInterceptor());
     dio.interceptors.add(CustomDioCacheInterceptor(options: cacheOptions));
     dio.httpClientAdapter = CustomIOHttpClientAdapter.instance;
-    dio.httpClientAdapter = ConversionLayerAdapter(compatibleClient);
+    // dio.httpClientAdapter = ConversionLayerAdapter(compatibleClient);
 
     HttpOverrides.global = GlobalHttpOverrides();
   }
@@ -162,8 +173,7 @@ class HttpClient {
     } catch (e) {
       CoreLog.error(e);
       if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "",
-            statusCode: e.response?.statusCode ?? 0);
+        throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
         throw CoreError("发送GET请求失败");
       }
@@ -202,8 +212,7 @@ class HttpClient {
     } catch (e) {
       CoreLog.error(e);
       if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "",
-            statusCode: e.response?.statusCode ?? 0);
+        throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
         throw CoreError("发送GET请求失败");
       }
@@ -240,8 +249,7 @@ class HttpClient {
         options: Options(
           responseType: ResponseType.json,
           headers: header,
-          contentType:
-              formUrlEncoded ? Headers.formUrlEncodedContentType : null,
+          contentType: formUrlEncoded ? Headers.formUrlEncodedContentType : null,
         ),
         cancelToken: cancelToken,
       );
@@ -250,8 +258,7 @@ class HttpClient {
       CoreLog.error(e);
       SmartDialog.showToast(e.toString());
       if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "",
-            statusCode: e.response?.statusCode ?? 0);
+        throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
         throw CoreError("发送POST请求失败");
       }
