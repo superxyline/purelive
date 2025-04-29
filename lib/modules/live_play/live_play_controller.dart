@@ -772,6 +772,9 @@ class LivePlayController extends StateController {
       success.updateValueNotEquate(false);
       return;
     }
+    if(currentLineIndex.value >= quality.playUrlList.length) {
+      currentLineIndex.updateValueNotEquate(quality.playUrlList.length - 1);
+    }
     playUrls.updateValueNotEquate(playUrlList);
     // log("playUrlList : ${playUrlList}", name: runtimeType.toString());
     setPlayer();
