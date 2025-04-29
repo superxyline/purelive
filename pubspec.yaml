@@ -118,8 +118,8 @@ dependencies:
   logger: ^2.0.2+1
   crypto: ^3.0.3
   brotli: ^0.6.0
-  flutter_restart: 
-    git: https://ghfast.top/https://github.com/liuchuancong/flutterRestartPluginWip
+#  flutter_restart:
+#    git: https://ghfast.top/https://github.com/liuchuancong/flutterRestartPluginWip
   move_to_desktop: ^0.0.2
   dlna_dart: ^0.0.8
 #  dart_tars_protocol:

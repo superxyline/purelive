@@ -31,6 +31,7 @@ subprojects {
                         project.plugins.hasPlugin("com.android.library")) {
                     project.android {
                         compileSdkVersion 34
+                        ndkVersion flutter.ndkVersion
                     }
                 }
                 compileOptions {
