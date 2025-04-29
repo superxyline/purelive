@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:pure_live/model/live_category.dart';
@@ -150,17 +152,19 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
   }
 
   @override
-  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
-    var ls = <String>[];
-    for (var element in quality.data["urls"]) {
+  Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
+    var ls = <LivePlayQualityPlayUrlInfo>[];
+
+    var futureList = <Future<LivePlayQualityPlayUrlInfo>>[];
+    for(var element in quality.data["urls"]) {
       var line = element as HuyaLineModel;
-      var url = await getPlayUrl(line, quality.data["bitRate"]);
-      ls.add(url);
+      futureList.add(getPlayUrl(line, quality.data["bitRate"]));
     }
+    ls.addAll((await Future.wait(futureList)));
     return ls;
   }
 
-  Future<String> getPlayUrl(HuyaLineModel line, int bitRate) async {
+  Future<LivePlayQualityPlayUrlInfo> getPlayUrl(HuyaLineModel line, int bitRate) async {
     var req = GetCdnTokenReq();
     req.cdnType = line.cdnType;
     req.streamName = line.streamName;
@@ -169,7 +173,14 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
     if (bitRate > 0) {
       url += "&ratio=$bitRate";
     }
-    return url;
+    // CoreLog.d("line ${line}");
+    // CoreLog.d("line ${line.cdnType}");
+    var info = "";
+    var cdnType = line.cdnType;
+    if(cdnType != "" && cdnType != "null") {
+      info = "(${cdnType})";
+    }
+    return LivePlayQualityPlayUrlInfo(playUrl: url, info: info);
   }
 
   @override
@@ -228,6 +239,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
       "Cookie": SettingsService.instance.siteCookies[id],
     });
     var result = json.decode(resultText);
+    // CoreLog.d("resultText ${resultText}");
     if (result['status'] == 200 && result['data']['stream'] != null) {
       dynamic data = result['data'];
       var topSid = 0;
@@ -235,7 +247,17 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
       var huyaLines = <HuyaLineModel>[];
       var huyaBiterates = <HuyaBitRateModel>[];
       //读取可用线路
-      var lines = data['stream']['flv']['multiLine'];
+      var lines = [];
+      var values = data['stream'].values.toList();
+      var keys = data['stream'].keys.toList();
+      for(var key in keys) {
+        if(key == 'baseSteamInfoList') continue;
+        var item = data['stream'][key];
+        var multiLine = item['multiLine'];
+        if(multiLine == null) continue;
+        // CoreLog.d("sss ${key} ${jsonEncode(multiLine)}");
+        lines.addAll(multiLine);
+      }
       var baseSteamInfoList = data['stream']['baseSteamInfoList'] as List<dynamic>;
       for (var item in lines) {
         if ((item["url"]?.toString() ?? "").isNotEmpty) {
@@ -250,7 +272,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
               flvAntiCode: currentStream["sFlvAntiCode"].toString(),
               hlsAntiCode: currentStream["sHlsAntiCode"].toString(),
               streamName: currentStream["sStreamName"].toString(),
-              cdnType: item["sCdnType"].toString(),
+              cdnType: item["sCdnType"] ?? item["cdnType"].toString(),
             ));
           }
         }

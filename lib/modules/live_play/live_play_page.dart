@@ -301,7 +301,7 @@ class LivePlayPage extends GetView<LivePlayController> {
   }
 
   void showDlnaCastDialog() {
-    Get.dialog(LiveDlnaPage(datasource: controller.playUrls[controller.currentLineIndex.value]));
+    Get.dialog(LiveDlnaPage(datasource: controller.playUrls[controller.currentLineIndex.value].playUrl));
   }
 
   /// 播放器主页UI
@@ -421,7 +421,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
                   items.add(PopupMenuItem<String>(
                     value: i.toString(),
                     child: Text(
-                      '线路${i + 1}\t${urls[i].contains(".flv") ? "FLV" : "HLS"}',
+                      '线路${i + 1}\t${urls[i].info}\t${urls[i].playUrl.contains(".flv") ? "FLV" : "HLS"}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: urls[i] == controller.playUrls[controller.currentLineIndex.value] ? Get.theme.colorScheme.primary : null,
                           ),

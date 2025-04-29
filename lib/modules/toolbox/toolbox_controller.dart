@@ -96,12 +96,12 @@ class ToolBoxController extends GetxController {
                   "${S.current.live_room_clarity_line} ${playUrls.indexOf(e) + 1}",
                 ),
                 subtitle: Text(
-                  e,
+                  e.playUrl,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 onTap: () {
-                  Clipboard.setData(ClipboardData(text: e));
+                  Clipboard.setData(ClipboardData(text: e.playUrl));
                   Navigator.of(Get.context!).pop();
                   SmartDialog.showToast(S.current.live_room_link_direct_copied);
                 },

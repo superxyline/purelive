@@ -17,6 +17,7 @@ import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
 import 'bilibili_site_mixin.dart';
@@ -157,15 +158,15 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
   }
 
   @override
-  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
-    List<String> urls = [];
+  Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
+    List<LivePlayQualityPlayUrlInfo> urls = [];
     var result = await HttpClient.instance.getJson(
       "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo",
       queryParameters: {
         "room_id": detail.roomId,
-        "protocol": "0,1",
-        "format": "0,1,2",
-        "codec": "0,1",
+        "protocol": "0,1,",
+        "format": "0,1,2,3,4",
+        "codec": "0,1,2,3,4",
         "platform": "html5",
         "dolby": "5",
         "qn": quality.data,
@@ -174,28 +175,30 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
     );
 
     var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
-
+    // CoreLog.d("streamList ${jsonEncode(result["data"]["playurl_info"])}");
     for (var streamItem in streamList) {
       var formatList = streamItem["format"];
       for (var formatItem in formatList) {
-        // var formatName = formatItem["format_name"];
+        var formatName = formatItem["format_name"];
         var codecList = formatItem["codec"];
         // if (formatName != 'flv') {
-          for (var codecItem in codecList) {
-            var urlList = codecItem["url_info"];
-            var baseUrl = codecItem["base_url"].toString();
-            for (var urlItem in urlList) {
-              urls.add(
-                "${urlItem["host"]}$baseUrl${urlItem["extra"]}",
-              );
-            }
+        for (var codecItem in codecList) {
+          var urlList = codecItem["url_info"];
+          var baseUrl = codecItem["base_url"].toString();
+          var codecName = codecItem["codec_name"].toString();
+          for (var urlItem in urlList) {
+            urls.add(LivePlayQualityPlayUrlInfo(
+              playUrl: "${urlItem["host"]}$baseUrl${urlItem["extra"]}",
+              info: "($formatName-$codecName)"
+            ));
           }
+        }
         // }
       }
     }
     // 对链接进行排序，包含mcdn的在后
     urls.sort((a, b) {
-      if (a.contains("mcdn")) {
+      if (a.playUrl.contains("mcdn")) {
         return 1;
       } else {
         return -1;

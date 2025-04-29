@@ -16,6 +16,7 @@ import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
 import 'douyin_site_mixin.dart';
@@ -322,7 +323,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
 
     var renderData = RegExp(r'\{\\"state\\":\{\\"appStore.*?\]\\n').firstMatch(result)?.group(0) ?? "";
 
-    CoreLog.d(renderData.toString());
+    // CoreLog.d(renderData.toString());
     var str = renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', "");
 
     var renderDataJson = json.decode(str);
@@ -356,6 +357,9 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
           data: urls,
         );
         if (urls.isNotEmpty) {
+          for (var url in urls) {
+            qualityItem.playUrlList.add(LivePlayQualityPlayUrlInfo(playUrl: url));
+          }
           qualities.add(qualityItem);
         }
       }
@@ -378,6 +382,9 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
           data: urls,
         );
         if (urls.isNotEmpty) {
+          for (var url in urls) {
+            qualityItem.playUrlList.add(LivePlayQualityPlayUrlInfo(playUrl: url));
+          }
           qualities.add(qualityItem);
         }
       }
@@ -390,8 +397,8 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
   }
 
   @override
-  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
-    return quality.data;
+  Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
+    return quality.playUrlList;
   }
 
   @override

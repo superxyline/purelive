@@ -19,6 +19,7 @@ import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/plugins/fake_useragent.dart';
 
@@ -206,6 +207,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
         var livePlayQuality = qualityMap[key]!;
         var playUrlList = livePlayQuality.data as List<String>;
         playUrlList.add(quality["url"]);
+        livePlayQuality.playUrlList.add(LivePlayQualityPlayUrlInfo(playUrl: quality["url"], info: "(${codeKey})"));
 
       }
     }
@@ -215,9 +217,9 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
   }
 
   @override
-  Future<List<String>> getPlayUrls(
+  Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls(
       {required LiveRoom detail, required LivePlayQuality quality}) async {
-    return quality.data as List<String>;
+    return quality.playUrlList;
   }
 
   @override

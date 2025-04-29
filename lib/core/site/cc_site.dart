@@ -16,6 +16,7 @@ import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
@@ -117,6 +118,8 @@ class CCSite extends LiveSite with CCSiteMixin {
       'ultra': '蓝光',
     };
 
+    List<LivePlayQualityPlayUrlInfo> playUrlList = [];
+
     var priority = ['hs', 'ks', 'ali', 'fws', 'wy'];
     bool isLiveStream = detail.data['resolution'] == null;
     Map qulityList = isLiveStream ? detail.data : detail.data['resolution'];
@@ -124,12 +127,15 @@ class CCSite extends LiveSite with CCSiteMixin {
       Map cdn = isLiveStream ? value['CDN_FMT'] : value['cdn'];
       List<String> lines = [];
       cdn.forEach((line, lineValue) {
-        if (priority.contains(line)) {
+        if (priority.contains(line) || true) {
+          var url = lineValue.toString();
           if (isLiveStream) {
-            lines.add('${detail.link!}&$lineValue');
+            url = '${detail.link!}&$lineValue';
           } else {
             lines.add(lineValue.toString());
           }
+          lines.add(url);
+          playUrlList.add(LivePlayQualityPlayUrlInfo(playUrl: url, info: "($line)"));
         }
       });
       var qualityItem = LivePlayQuality(
@@ -137,6 +143,9 @@ class CCSite extends LiveSite with CCSiteMixin {
         sort: value['vbr'],
         data: lines,
       );
+
+      qualityItem.playUrlList = playUrlList;
+
       qualities.add(qualityItem);
     });
     qualities.sort((a, b) => b.sort.compareTo(a.sort));
@@ -145,8 +154,8 @@ class CCSite extends LiveSite with CCSiteMixin {
   }
 
   @override
-  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
-    return Future.value(quality.data as List<String>);
+  Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
+    return quality.playUrlList;
   }
 
   @override

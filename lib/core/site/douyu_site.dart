@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -19,6 +20,7 @@ import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
 import '../../common/utils/js_engine.dart';
@@ -165,22 +167,26 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
   }
 
   @override
-  Future<List<String>> getPlayUrls(
+  Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls(
       {required LiveRoom detail, required LivePlayQuality quality}) async {
     var args = detail.data.toString();
     var data = quality.data as DouyuPlayData;
 
-    List<String> urls = [];
+    List<LivePlayQualityPlayUrlInfo> urls = [];
+    var futureList = <Future<LivePlayQualityPlayUrlInfo>>[];
     for (var item in data.cdns) {
-      var url = await getPlayUrl(detail.roomId!, args, data.rate, item);
-      if (url.isNotEmpty) {
+      futureList.add(getPlayUrl(detail.roomId!, args, data.rate, item));
+    }
+    var waits = await Future.wait(futureList);
+    for (var url in waits) {
+      if (url.playUrl.isNotEmpty) {
         urls.add(url);
       }
     }
     return urls;
   }
 
-  Future<String> getPlayUrl(
+  Future<LivePlayQualityPlayUrlInfo> getPlayUrl(
       String roomId, String args, int rate, String cdn) async {
     args += "&cdn=$cdn&rate=$rate";
     var result = await HttpClient.instance.postJson(
@@ -193,8 +199,11 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
       },
       formUrlEncoded: true,
     );
-
-    return "${result["data"]["rtmp_url"]}/${HtmlUnescape().convert(result["data"]["rtmp_live"].toString())}";
+    //CoreLog.d("getPlayUrl ${jsonEncode(result)}");
+    return LivePlayQualityPlayUrlInfo(
+        playUrl: "${result["data"]["rtmp_url"]}/${HtmlUnescape().convert(result["data"]["rtmp_live"].toString())}",
+        info: "(${cdn})"
+    );
   }
 
   @override

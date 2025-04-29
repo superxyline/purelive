@@ -3,6 +3,7 @@ import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/model/live_category_result.dart';
@@ -73,8 +74,8 @@ class LiveSite with SiteAccount, SiteVideoHeaders, SiteOpen {
   }
 
   /// 读取播放链接
-  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) {
-    return Future.value(<String>[]);
+  Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) {
+    return Future.value(<LivePlayQualityPlayUrlInfo>[]);
   }
 
   /// 查询直播状态

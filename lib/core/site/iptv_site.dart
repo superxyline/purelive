@@ -1,3 +1,5 @@
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
+
 import '../iptv/m3u_parser_nullsafe.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/model/live_category.dart';
@@ -88,13 +90,14 @@ class IptvSite extends LiveSite {
       sort: 1,
       data: <String>[detail.data],
     );
+    qualityItem.playUrlList = [LivePlayQualityPlayUrlInfo(playUrl: detail.data)];
     qualities.add(qualityItem);
     return Future.value(qualities);
   }
 
   @override
-  Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
-    return quality.data as List<String>;
+  Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
+    return quality.playUrlList;
   }
 
   @override

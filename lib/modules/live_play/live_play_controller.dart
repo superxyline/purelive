@@ -18,6 +18,7 @@ import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_base.dart
 import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_factory.dart';
 import 'package:pure_live/modules/live_play/danmu_merge.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
@@ -25,7 +26,7 @@ import 'package:pure_live/plugins/route_history_observer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'widgets/video_player/video_controller.dart';
+import '../../model/live_play_quality_play_url_info.dart';
 
 class LivePlayController extends StateController {
   LivePlayController({
@@ -69,7 +70,7 @@ class LivePlayController extends StateController {
   final currentQuality = 0.obs;
 
   /// 线路数据
-  RxList<String> playUrls = RxList<String>();
+  var playUrls = RxList<LivePlayQualityPlayUrlInfo>();
 
   /// 当前线路
   final currentLineIndex = 0.obs;
@@ -796,7 +797,7 @@ class LivePlayController extends StateController {
         playerKey: playerKey,
         room: liveRoomRx.toLiveRoom(),
         datasourceType: 'network',
-        datasource: playUrls.value[currentLineIndex.value],
+        datasource: playUrls.value[currentLineIndex.value].playUrl,
         allowScreenKeepOn: settings.enableScreenKeepOn.value,
         allowBackgroundPlay: settings.enableBackgroundPlay.value,
         fullScreenByDefault: settings.enableFullScreenDefault.value,
@@ -810,20 +811,20 @@ class LivePlayController extends StateController {
         isFullscreen.updateValueNotEquate(e);
       }));
     } else {
-      videoController?.datasource = playUrls.value[currentLineIndex.value];
+      videoController?.datasource = playUrls.value[currentLineIndex.value].playUrl;
       videoController?.qualiteName = qualites[currentQuality.value].quality;
       videoController?.currentLineIndex = currentLineIndex.value;
       videoController?.currentQuality = currentQuality.value;
-      videoController?.setDataSource(playUrls.value[currentLineIndex.value], headers);
+      videoController?.setDataSource(playUrls.value[currentLineIndex.value].playUrl, headers);
       // videoController?.initVideoController();
       // videoController?.play();
     }
 
-    videoController?.datasource = playUrls.value[currentLineIndex.value];
+    videoController?.datasource = playUrls.value[currentLineIndex.value].playUrl;
     videoController?.qualiteName = qualites[currentQuality.value].quality;
     videoController?.currentLineIndex = currentLineIndex.value;
     videoController?.currentQuality = currentQuality.value;
-    videoController?.setDataSource(playUrls.value[currentLineIndex.value], headers);
+    videoController?.setDataSource(playUrls.value[currentLineIndex.value].playUrl, headers);
 
     success.updateValueNotEquate(true);
 

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'live_play_quality_play_url_info.dart';
+
 class LivePlayQuality {
   /// 清晰度
   String quality;
@@ -10,7 +12,7 @@ class LivePlayQuality {
   final int sort;
 
   /// 播放链接
-  List<String> playUrlList = List.empty();
+  List<LivePlayQualityPlayUrlInfo> playUrlList = [];
 
   LivePlayQuality({
     required this.quality,
