@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -186,16 +187,29 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
     List<LivePlayQuality> qualities = <LivePlayQuality>[];
+    Map<String, LivePlayQuality> qualityMap = HashMap();
     CoreLog.d("detail.data: ${jsonEncode(detail.data)}");
-    var qulityList = detail.data["h264"]["adaptationSet"]["representation"];
-    for (var quality in qulityList) {
-      var qualityItem = LivePlayQuality(
-        quality: quality["name"],
-        sort: quality["level"],
-        data: <String>[quality["url"]],
-      );
-      qualities.add(qualityItem);
+    var data = (detail.data as Map);
+    for(var codeKey in data.keys){
+      var obj = data[codeKey];
+      var qualityList = obj["adaptationSet"]["representation"];
+      for (var quality in qualityList) {
+        var key = quality["name"];
+        qualityMap.putIfAbsent(key, (){
+          return LivePlayQuality(
+            quality: quality["name"],
+            sort: quality["level"],
+            data: <String>[],
+          );
+        });
+
+        var livePlayQuality = qualityMap[key]!;
+        var playUrlList = livePlayQuality.data as List<String>;
+        playUrlList.add(quality["url"]);
+
+      }
     }
+    qualities = qualityMap.values.toList();
     qualities.sort((a, b) => b.sort.compareTo(a.sort));
     return Future.value(qualities);
   }
@@ -340,6 +354,26 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
     }
   }
 
+  Future<Map?> getWebsocketInfo(Object roomId, String? liveStreamId) async {
+    if(liveStreamId == null) {
+      return null;
+    }
+    headers['cookie'] = cookie;
+    var url = "https://live.kuaishou.com/u/$roomId";
+    var mHeaders = headers;
+    mHeaders["Referer"] = "https://live.kuaishou.com/u/$roomId";
+    mHeaders["Kww"] = cookieObj["kwfv1"];
+    var resultText = await HttpClient.instance.getText(
+      "https://live.kuaishou.com/live_api/liveroom/websocketinfo",
+      queryParameters: {
+        "liveStreamId": liveStreamId,
+      },
+      header: mHeaders,
+    );
+    CoreLog.d("mHeaders: ${jsonEncode(mHeaders)}");
+    return jsonDecode(resultText);
+  }
+
   @override
   Future<LiveRoom> getRoomDetail(
       {required String nick,
@@ -362,6 +396,8 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
         'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
     await getCookie(url);
     await registerDid();
+    headers['Kww'] = cookieObj["kwfv1"];
+    mHeaders["Kww"] = cookieObj["kwfv1"];
     var resultText = await HttpClient.instance.getText(
       url,
       queryParameters: {},
@@ -377,11 +413,13 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
       var author = jsonObj["liveroom"]["playList"][0]["author"];
       var gameInfo = jsonObj["liveroom"]["playList"][0]["gameInfo"];
       var liveStreamId = liveStream["id"];
-      KuaishowDanmakuArgs? tmpArgs = () {
+      CoreLog.d(jsonEncode(jsonObj));
+      KuaishowDanmakuArgs? tmpArgs = await () async {
         try {
           var expTag = liveStream["expTag"];
-          var websocketInfo =
-              jsonObj["liveroom"]["playList"][0]["websocketInfo"];
+          // var websocketInfo = jsonObj["liveroom"]["playList"][0]["websocketInfo"];
+          var websocketInfo = await getWebsocketInfo(roomId, liveStreamId);
+          CoreLog.d("websocketInfo: ${jsonEncode(websocketInfo)}");
           if(websocketInfo == null) return null;
           var websocketInfo2 = websocketInfo["webSocketAddresses"];
           if (websocketInfo2 == null) {
