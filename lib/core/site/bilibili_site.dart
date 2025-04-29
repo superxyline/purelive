@@ -165,8 +165,8 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
       queryParameters: {
         "room_id": detail.roomId,
         "protocol": "0,1,",
-        "format": "0,1,2,3,4",
-        "codec": "0,1,2,3,4",
+        "format": "0,1,2",
+        "codec": "0,1,2,3",
         "platform": "html5",
         "dolby": "5",
         "qn": quality.data,
@@ -174,6 +174,7 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
       header: await getHeader(),
     );
 
+    CoreLog.d("result ${jsonEncode(result)}");
     var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
     // CoreLog.d("streamList ${jsonEncode(result["data"]["playurl_info"])}");
     for (var streamItem in streamList) {
