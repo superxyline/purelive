@@ -9,7 +9,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pure_live/core/common/core_error.dart';
 import 'package:pure_live/core/common/core_log.dart';
-// import 'package:rhttp/rhttp.dart' as rhttp;
+import 'package:rhttp/rhttp.dart' as rhttp;
 
 import '../../plugins/dns4flutter/dns_helper.dart';
 import 'custom_dio_cache_interceptor.dart';
@@ -26,7 +26,7 @@ class HttpClient {
 
   ///  重置 HttpClient
   static Future<HttpClient> resetHttpClient() async {
-    // await initHttpExt();
+    await initHttpExt();
     _httpUtil = HttpClient();
     return _httpUtil!;
   }
@@ -67,24 +67,24 @@ class HttpClient {
   );
 
   late Dio dio;
-  // static late rhttp.RhttpCompatibleClient compatibleClient;
+  static late rhttp.RhttpCompatibleClient compatibleClient;
 
   static initHttp() async {
-    // await rhttp.Rhttp.init();
-    // await initHttpExt();
+    await rhttp.Rhttp.init();
+    await initHttpExt();
   }
 
   static initHttpExt() async {
-    // compatibleClient = await rhttp.RhttpCompatibleClient.create(
-    //     settings: rhttp.ClientSettings(
-    //   dnsSettings: rhttp.DnsSettings.dynamic(resolver: (String host) async {
-    //     return await DnsHelper.lookupARecords(host);
-    //   }),
-    //   redirectSettings: rhttp.RedirectSettings.limited(20),
-    //   tlsSettings: rhttp.TlsSettings(
-    //     verifyCertificates: false,
-    //   ),
-    // ));
+    compatibleClient = await rhttp.RhttpCompatibleClient.create(
+        settings: rhttp.ClientSettings(
+      dnsSettings: rhttp.DnsSettings.dynamic(resolver: (String host) async {
+        return await DnsHelper.lookupARecords(host);
+      }),
+      redirectSettings: rhttp.RedirectSettings.limited(20),
+      tlsSettings: rhttp.TlsSettings(
+        verifyCertificates: false,
+      ),
+    ));
   }
 
   HttpClient() {
@@ -98,7 +98,7 @@ class HttpClient {
     dio.interceptors.add(CustomInterceptor());
     dio.interceptors.add(CustomDioCacheInterceptor(options: cacheOptions));
     dio.httpClientAdapter = CustomIOHttpClientAdapter.instance;
-    // dio.httpClientAdapter = ConversionLayerAdapter(compatibleClient);
+    dio.httpClientAdapter = ConversionLayerAdapter(compatibleClient);
 
     HttpOverrides.global = GlobalHttpOverrides();
   }
