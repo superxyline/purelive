@@ -23,6 +23,7 @@ import 'package:pure_live/modules/util/listen_list_util.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/plugins/route_history_observer.dart';
+import 'package:pure_live/plugins/utils.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -362,6 +363,7 @@ class LivePlayController extends StateController {
         isLoadingVideo.updateValueNotEquate(false);
       }
     }));
+    initAutoShutDown();
   }
 
   void resetRoom(Site site, String roomId) async {
@@ -525,6 +527,14 @@ class LivePlayController extends StateController {
       success.updateValueNotEquate(false);
       resetSystem();
       danmakuController.dispose();
+
+
+      channelTimer?.cancel();
+      loadRefreshRoomTimer?.cancel();
+      networkTimer?.cancel();
+      doubleClickTimer?.cancel();
+      autoExitTimer?.cancel();
+
     } catch (e) {
       CoreLog.error(e);
     }
@@ -772,7 +782,7 @@ class LivePlayController extends StateController {
       success.updateValueNotEquate(false);
       return;
     }
-    if(currentLineIndex.value >= quality.playUrlList.length) {
+    if (currentLineIndex.value >= quality.playUrlList.length) {
       currentLineIndex.updateValueNotEquate(quality.playUrlList.length - 1);
     }
     playUrls.updateValueNotEquate(playUrlList);
@@ -885,4 +895,53 @@ class LivePlayController extends StateController {
       IDanmakuContentItem(msg.message, color: msg.color),
     );
   }
+
+  /// ------------------------- 定时关闭
+  void initAutoShutDown() {
+    subscriptionList.add(settings.autoRefreshTime.listen((value) {
+      setAutoExit();
+    }));
+  }
+
+  int getCurrentMinute() {
+    return DateTime.now().millisecondsSinceEpoch ~/ 1000 ~/ 60;
+  }
+
+
+  Timer? autoExitTimer;
+  var countdown = 0.obs;
+  var delayAutoExit = false.obs;
+  void setAutoExit() {
+    if (!settings.enableAutoShutDownTime.value) {
+      autoExitTimer?.cancel();
+      return;
+    }
+    autoExitTimer?.cancel();
+    countdown.value = settings.autoShutDownTime.value * 60;
+    autoExitTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      countdown.value -= 1;
+      if (countdown.value <= 0) {
+        countdown.value = 0;
+        timer = Timer(const Duration(seconds: 10), () async {
+          await WakelockPlus.disable();
+          doubleClickExit;
+          exit(0);
+        });
+        autoExitTimer?.cancel();
+        var delay = await Utils.showAlertDialog(S.current.settings_delay_close_info,
+            title: S.current.settings_delay_close, confirm: S.current.settings_delay, cancel: S.current.settings_close, selectable: true);
+        if (delay) {
+          timer.cancel();
+          delayAutoExit.value = true;
+          setAutoExit();
+        } else {
+          delayAutoExit.value = false;
+          await WakelockPlus.disable();
+          exit(0);
+        }
+      }
+    });
+  }
+
+
 }

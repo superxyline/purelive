@@ -16,4 +16,22 @@ final class TimeUtil {
     }
     return str;
   }
+
+  static String secondValueToStr(int allSecond) {
+    int part = 60;
+    var hour = allSecond ~/ part ~/ part;
+    var minute = allSecond ~/ part % part;
+    var second = allSecond % part;
+    var str = "";
+    if (hour > 0) {
+      str = "$str$hour${S.current.hour}";
+    }
+    if (!(minute == 0 && hour > 0)) {
+      str = "$str$minute${S.current.minute}";
+    }
+    if (!(second == 0 && (hour > 0 || minute > 0))) {
+      str = "$str$second${S.current.second}";
+    }
+    return str;
+  }
 }

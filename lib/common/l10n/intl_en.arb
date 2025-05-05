@@ -338,6 +338,11 @@
     "settings_danmuku_controller": "Danmuku Controller",
     "settings_danmuku_controller_info": "Change Danmuku Controller",
 
+    "settings_close": "Close",
+    "settings_delay": "Delay",
+    "settings_delay_close": "Delay Close",
+    "settings_delay_close_info": "The scheduled shutdown has expired. Would you like to delay the shutdown?",
+
 
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",

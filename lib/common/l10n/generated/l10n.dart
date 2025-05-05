@@ -2831,6 +2831,46 @@ class S {
     );
   }
 
+  /// `Close`
+  String get settings_close {
+    return Intl.message(
+      'Close',
+      name: 'settings_close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delay`
+  String get settings_delay {
+    return Intl.message(
+      'Delay',
+      name: 'settings_delay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delay Close`
+  String get settings_delay_close {
+    return Intl.message(
+      'Delay Close',
+      name: 'settings_delay_close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The scheduled shutdown has expired. Would you like to delay the shutdown?`
+  String get settings_delay_close_info {
+    return Intl.message(
+      'The scheduled shutdown has expired. Would you like to delay the shutdown?',
+      name: 'settings_delay_close_info',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

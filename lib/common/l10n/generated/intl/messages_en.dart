@@ -398,6 +398,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "select_transparency":
             MessageLookupByLibrary.simpleMessage("Select Transparency"),
         "settings_app": MessageLookupByLibrary.simpleMessage("Appearance"),
+        "settings_close": MessageLookupByLibrary.simpleMessage("Close"),
         "settings_danmaku_amount":
             MessageLookupByLibrary.simpleMessage("Danmaku amount"),
         "settings_danmaku_area":
@@ -420,6 +421,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Danmuku Controller"),
         "settings_danmuku_controller_info":
             MessageLookupByLibrary.simpleMessage("Change Danmuku Controller"),
+        "settings_delay": MessageLookupByLibrary.simpleMessage("Delay"),
+        "settings_delay_close":
+            MessageLookupByLibrary.simpleMessage("Delay Close"),
+        "settings_delay_close_info": MessageLookupByLibrary.simpleMessage(
+            "The scheduled shutdown has expired. Would you like to delay the shutdown?"),
         "settings_favorite": MessageLookupByLibrary.simpleMessage("Favorite"),
         "settings_home": MessageLookupByLibrary.simpleMessage("Home"),
         "settings_log": MessageLookupByLibrary.simpleMessage("Log"),

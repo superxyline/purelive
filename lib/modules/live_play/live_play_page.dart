@@ -6,8 +6,10 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/modules/settings/settings_page.dart';
 import 'package:pure_live/modules/settings/settings_page_v2.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
+import 'package:pure_live/modules/util/time_util.dart';
 import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/routes/app_navigation.dart';
@@ -233,6 +235,28 @@ class LivePlayPage extends GetView<LivePlayController> {
                       onTap: () {
                         Get.toNamed(RoutePath.kLog);
                       },
+                    ),
+                    PopupMenuItem(
+                      value: 5,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: MenuListTile(
+                        leading: Icon(Icons.timer_outlined),
+                        text: S.current.auto_shutdown_time,
+                      ),
+                      onTap: () {
+                        SettingsPage.showAutoShutDownTimeSetDialog();
+                      },
+                    ),
+                    PopupMenuItem(
+                      value: 6,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Obx(
+                        () => Visibility(
+                      visible: settings.enableAutoShutDownTime.value,
+                      child: MenuListTile(
+                            leading: Icon(Icons.share_arrival_time_outlined),
+                            text: "${S.current.auto_refresh_time}：${TimeUtil.secondValueToStr(controller.countdown.value)}"
+                      )))
                     ),
                   ];
                 },

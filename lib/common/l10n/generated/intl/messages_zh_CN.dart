@@ -325,6 +325,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "select_recover_file": MessageLookupByLibrary.simpleMessage("选择备份文件"),
         "select_transparency": MessageLookupByLibrary.simpleMessage("选择透明度"),
         "settings_app": MessageLookupByLibrary.simpleMessage("外观设置"),
+        "settings_close": MessageLookupByLibrary.simpleMessage("关闭"),
         "settings_danmaku_amount": MessageLookupByLibrary.simpleMessage("弹幕数量"),
         "settings_danmaku_area": MessageLookupByLibrary.simpleMessage("弹幕区域"),
         "settings_danmaku_colour":
@@ -342,6 +343,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("弹幕控制器"),
         "settings_danmuku_controller_info":
             MessageLookupByLibrary.simpleMessage("切换直播间弹幕控制器"),
+        "settings_delay": MessageLookupByLibrary.simpleMessage("延迟"),
+        "settings_delay_close": MessageLookupByLibrary.simpleMessage("延迟关闭"),
+        "settings_delay_close_info":
+            MessageLookupByLibrary.simpleMessage("定时关闭已到时,是否延迟关闭?"),
         "settings_favorite": MessageLookupByLibrary.simpleMessage("关注设置"),
         "settings_home": MessageLookupByLibrary.simpleMessage("主页设置"),
         "settings_log": MessageLookupByLibrary.simpleMessage("日志管理"),

@@ -443,7 +443,7 @@ class SettingsPage extends GetView<SettingsService> {
     var controller = Get.find<SettingsService>();
     var context = Get.context!;
     Utils.showRightOrBottomSheet(
-      title: S.current.auto_refresh_time,
+      title: S.current.auto_shutdown_time,
       child: Obx(() => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -456,7 +456,7 @@ class SettingsPage extends GetView<SettingsService> {
               Slider(
                 min: 1,
                 max: 1200,
-                label: S.current.auto_refresh_time,
+                label: S.current.auto_shutdown_time,
                 value: controller.autoShutDownTime.toDouble(),
                 onChanged: (value) {
                   controller.autoShutDownTime.value = value.toInt();
