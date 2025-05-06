@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:pure_live/core/common/core_log.dart';
 
 import './models/danmaku_content_item.dart';
 import './utils/utils.dart';
@@ -102,7 +103,21 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
       duration: Duration(seconds: _option.duration),
     );
 
+    _animationController.addListener(animationControllerListener);
+    // 先暂停
+    autoStop = true;
+    pause();
+
     WidgetsBinding.instance.addObserver(this);
+  }
+  var autoStop = true;
+
+  void animationControllerListener(){
+    // CoreLog.d("_scrollDanmakuItems: ${_scrollDanmakuItems.length}");
+    if(_scrollDanmakuItems.isEmpty) {
+      autoStop = true;
+      pause();
+    }
   }
 
   /// 处理 Android/iOS 应用后台或熄屏导致的动画问题
@@ -125,6 +140,10 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
 
   /// 添加弹幕
   void addDanmaku(DanmakuContentItem content) {
+    if(autoStop) {
+      autoStop = false;
+      resume();
+    }
     if (!_running || !mounted) {
       return;
     }
@@ -431,8 +450,12 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
       // 移除高级弹幕
       _specialDanmakuItems.removeWhere((item) => (_tick - item.creationTime) >= (item.content as SpecialDanmakuContentItem).duration);
       // 暂停动画
-      if (_scrollDanmakuItems.isEmpty && _specialDanmakuItems.isEmpty && _animationController.isAnimating) {
-        _animationController.stop();
+      // CoreLog.d("isEmpty: ${_scrollDanmakuItems.isEmpty} ${ _specialDanmakuItems.isEmpty} isAnimating:${_animationController.isAnimating}");
+      // _scrollDanmakuItems.isEmpty && _specialDanmakuItems.isEmpty && _animationController.isAnimating
+      if (_scrollDanmakuItems.isEmpty && _specialDanmakuItems.isEmpty) {
+        // _animationController.stop();
+        autoStop = true;
+        pause();
       }
 
       /// 重绘静态弹幕
