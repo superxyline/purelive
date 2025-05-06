@@ -1,6 +1,7 @@
-import 'package:canvas_danmaku/canvas_danmaku.dart';
+// import 'package:canvas_danmaku/canvas_danmaku.dart' as canvas_danmaku;
 import 'package:flutter/material.dart';
 import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/plugins/canvas_danmaku/lib/canvas_danmaku.dart';
 
 import 'danmaku_controller_base.dart';
 
