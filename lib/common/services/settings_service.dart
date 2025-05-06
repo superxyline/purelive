@@ -6,6 +6,8 @@ import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
+import 'package:pure_live/common/services/setting_mixin/auto_shut_down.dart';
+import 'package:pure_live/common/services/setting_mixin/setting_part.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_factory.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/model/video_player_factory.dart';
@@ -14,7 +16,7 @@ import 'package:pure_live/plugins/extension/string_extension.dart';
 // import 'package:pure_live/plugins/local_http.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
-class SettingsService extends GetxController {
+class SettingsService  extends GetxController with AutoShutDownMixin {
   static SettingsService get instance => Get.find<SettingsService>();
 
   SettingsService() {
@@ -32,16 +34,10 @@ class SettingsService extends GetxController {
     autoRefreshTime.listen((value) {
       PrefUtil.setInt('autoRefreshTime', value);
     });
-    debounce(autoShutDownTime, (callback) {
-      PrefUtil.setInt('autoShutDownTime', autoShutDownTime.value);
-      if (enableAutoShutDownTime.isTrue) {
-        _stopWatchTimer.onStopTimer();
-        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
-        _stopWatchTimer.onStartTimer();
-      } else {
-        _stopWatchTimer.onStopTimer();
-      }
-    }, time: 1.seconds);
+
+    // debounce(autoShutDownTime, (callback) {
+    //
+    // }, time: 1.seconds);
     enableBackgroundPlay.listen((value) {
       PrefUtil.setBool('enableBackgroundPlay', value);
     });
@@ -51,16 +47,7 @@ class SettingsService extends GetxController {
     enableScreenKeepOn.listen((value) {
       PrefUtil.setBool('enableScreenKeepOn', value);
     });
-    debounce(enableAutoShutDownTime, (callback) {
-      PrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
-      if (enableAutoShutDownTime.value == true) {
-        _stopWatchTimer.onStopTimer();
-        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
-        _stopWatchTimer.onStartTimer();
-      } else {
-        _stopWatchTimer.onStopTimer();
-      }
-    }, time: 1.seconds);
+
     enableAutoCheckUpdate.listen((value) {
       PrefUtil.setBool('enableAutoCheckUpdate', value);
     });
@@ -90,10 +77,6 @@ class SettingsService extends GetxController {
       PrefUtil.setString('backupDirectory', value);
     });
     onInitShutDown();
-    _stopWatchTimer.fetchEnded.listen((value) {
-      _stopWatchTimer.onStopTimer();
-      FlutterExitApp.exitApp();
-    });
 
     videoFitIndex.listen((value) {
       PrefUtil.setInt('videoFitIndex', value);
@@ -173,6 +156,11 @@ class SettingsService extends GetxController {
       CoreLog.d("save siteCookies: ${value}");
       PrefUtil.setMap('siteCookies', value);
     });
+    init();
+  }
+
+  void init(){
+    initAutoShutDown(settingPartList);
   }
 
   // Theme settings
@@ -213,12 +201,7 @@ class SettingsService extends GetxController {
     Get.changeTheme(darkTheme);
   }
 
-  void onInitShutDown() {
-    if (enableAutoShutDownTime.isTrue) {
-      _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
-      _stopWatchTimer.onStartTimer();
-    }
-  }
+
 
   static Map<String, Color> themeColors = {
     "Crimson": const Color.fromARGB(255, 220, 20, 60),
@@ -240,11 +223,9 @@ class SettingsService extends GetxController {
   // Make a custom ColorSwatch to name map from the above custom colors.
   final Map<ColorSwatch<Object>, String> colorsNameMap = themeColors.map((key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key));
 
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
 
   final themeColorSwitch = (PrefUtil.getString('themeColorSwitch') ?? Colors.blue.hex).obs;
 
-  StopWatchTimer get stopWatchTimer => _stopWatchTimer;
 
   static Map<String, Locale> languages = {
     "English": const Locale.fromSubtags(languageCode: 'en'),
@@ -275,7 +256,7 @@ class SettingsService extends GetxController {
   // Custom settings
   final autoRefreshTime = (PrefUtil.getInt('autoRefreshTime') ?? 3).obs;
 
-  final autoShutDownTime = (PrefUtil.getInt('autoShutDownTime') ?? 120).obs;
+
 
   final enableDenseFavorites = (PrefUtil.getBool('enableDenseFavorites') ?? false).obs;
 
@@ -310,11 +291,12 @@ class SettingsService extends GetxController {
   final showDanmuFans = (PrefUtil.getBool('showDanmuFans') ?? true).obs;
   final showDanmuUserLevel = (PrefUtil.getBool('showDanmuUserLevel') ?? true).obs;
 
-  final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '高清', '标清', '流畅'];
 
   final siteCookies = ((PrefUtil.getMap('siteCookies')).toStringMap()).obs;
+
+  final SettingPartList settingPartList = SettingPartList();
 
   // cookie
 
@@ -361,14 +343,6 @@ class SettingsService extends GetxController {
   List<String> get resolutionsList => resolutions;
 
   List<BoxFit> get videofitArrary => videofitList;
-
-  void changeShutDownConfig(int minutes, bool isAutoShutDown) {
-    autoShutDownTime.value = minutes;
-    enableAutoShutDownTime.value = isAutoShutDown;
-    PrefUtil.setInt('autoShutDownTime', minutes);
-    PrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
-    onInitShutDown();
-  }
 
   void changeAutoRefreshConfig(int minutes) {
     autoRefreshTime.value = minutes;
@@ -633,10 +607,8 @@ class SettingsService extends GetxController {
     favoriteAreas.value = json['favoriteAreas'] != null ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList() : [];
     shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
     hotAreasList.value = json['hotAreasList'] != null ? (json['hotAreasList'] as List).map((e) => e.toString()).toList() : [];
-    autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 3;
     themeModeName.value = json['themeMode'] ?? "System";
-    enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
     enableDenseFavorites.value = json['enableDenseFavorites'] ?? false;
     enableBackgroundPlay.value = json['enableBackgroundPlay'] ?? false;
@@ -678,8 +650,13 @@ class SettingsService extends GetxController {
     changePreferResolution(preferResolution.value);
     changePreferResolutionMobile(preferResolutionMobile.value);
     changePreferPlatform(preferPlatform.value);
-    changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
+    // changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     changeAutoRefreshConfig(autoRefreshTime.value);
+
+    for (var f in settingPartList.fromJsonList) {
+      f.call(json);
+    }
+
   }
 
   Map<String, dynamic> toJson() {
@@ -689,8 +666,6 @@ class SettingsService extends GetxController {
     json['themeMode'] = themeModeName.value;
 
     json['autoRefreshTime'] = autoRefreshTime.value;
-    json['autoShutDownTime'] = autoShutDownTime.value;
-    json['enableAutoShutDownTime'] = enableAutoShutDownTime.value;
 
     json['enableDynamicTheme'] = enableDynamicTheme.value;
     json['enableDenseFavorites'] = enableDenseFavorites.value;
@@ -729,6 +704,11 @@ class SettingsService extends GetxController {
     json['webPortEnable'] = webPortEnable.value;
     json['siteCookies'] = siteCookies.value;
     CoreLog.d("siteCookies: ${siteCookies.value}");
+
+    for (var f in settingPartList.toJsonList) {
+      f.call(json);
+    }
+
     return json;
   }
 
@@ -774,6 +754,9 @@ class SettingsService extends GetxController {
       "showDanmuUserLevel": true,
       "danmakuControllerType": 0,
     };
+    for (var f in settingPartList.defaultConfigList) {
+      f.call(json);
+    }
     return json;
   }
 }

@@ -28,15 +28,28 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
   DanmakuListViewState({required this.controller});
 
   // final Lock lock = Lock();
+  var milliseconds = 1300;
+  var curMilliseconds = DateTime.now().millisecondsSinceEpoch;
+  Timer? _scrollTimer;
   @override
   void initState() {
     super.initState();
-    workerList.add(debounce(controller.messages, (callback) async {
-      await _scrollToBottom();
-    }, time: 1300.milliseconds));
-    // listenList.add(controller.messages.listen((p0) {
-    //   _scrollToBottom();
-    // }));
+    // workerList.add(debounce(controller.messages, (callback) async {
+    //   await _scrollToBottom();
+    // }, time: 1300.milliseconds));
+    var milliseconds = 1300;
+    listenList.add(controller.messages.listen((p0) {
+      var tmpMilliseconds = DateTime.now().millisecondsSinceEpoch;
+      if(curMilliseconds < tmpMilliseconds - milliseconds) {
+        _scrollTimer?.cancel();
+        _scrollToBottom();
+      } else {
+        _scrollTimer?.cancel();
+        _scrollTimer = Timer(milliseconds.milliseconds, (){
+          _scrollToBottom();
+        });
+      }
+    }));
   }
 
   @override
@@ -47,6 +60,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
     workerList.clear();
     _scrollController.dispose();
     super.dispose();
+    _scrollTimer?.cancel();
   }
 
   Future<void> _scrollToBottom() async {
