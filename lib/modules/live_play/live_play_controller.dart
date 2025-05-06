@@ -899,7 +899,10 @@ class LivePlayController extends StateController {
   /// ------------------------- 定时关闭
   void initAutoShutDown() {
     setAutoExit();
-    subscriptionList.add(settings.autoRefreshTime.listen((value) {
+    subscriptionList.add(settings.autoShutDownTime.listen((value) {
+      setAutoExit();
+    }));
+    subscriptionList.add(settings.enableAutoShutDownTime.listen((value) {
       setAutoExit();
     }));
   }
