@@ -1,15 +1,15 @@
-import 'package:pure_live/common/l10n/generated/l10n.dart';
-
-import 'site/huya_site.dart';
 import 'package:get/get.dart';
-import 'site/douyu_site.dart';
-import 'site/douyin_site.dart';
-import 'interface/live_site.dart';
+import 'package:pure_live/common/l10n/generated/l10n.dart';
+import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/site/cc_site.dart';
 import 'package:pure_live/core/site/iptv_site.dart';
-import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
-import 'package:pure_live/common/services/settings_service.dart';
+
+import 'interface/live_site.dart';
+import 'site/douyin_site.dart';
+import 'site/douyu_site.dart';
+import 'site/huya_site.dart';
 
 class Sites {
   static const String allSite = "all";
@@ -71,11 +71,16 @@ class Sites {
     return siteMap[id] ?? supportSites[supportSites.length - 1];
   }
 
+  static Map<String, Site>? _map;
+
   static Map<String, Site> get siteMap {
-    var list = Sites.supportSites.map((e) => MapEntry(e.id, e)).toList();
-    var map = Map.fromEntries(list);
-    map[Sites.allLiveSite.id] = Sites.allLiveSite;
-    return map;
+    if (_map == null) {
+      var list = Sites.supportSites.map((e) => MapEntry(e.id, e)).toList();
+      var map = Map.fromEntries(list);
+      map[Sites.allLiveSite.id] = Sites.allLiveSite;
+      _map = map;
+    }
+    return _map!;
   }
 
   static Site allLiveSite = Site(id: allSite, name: "全部", logo: "assets/images/all.png", liveSite: LiveSite());
