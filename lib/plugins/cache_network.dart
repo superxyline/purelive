@@ -32,7 +32,7 @@ class CacheNetWorkUtils {
         return null;
       }
       return ExtendedNetworkImageProvider(
-        avatar,
+        proxyImageUrl(avatar),
         cache: true,
         retries: 3,
         timeLimit: const Duration(milliseconds: 5000),
@@ -56,9 +56,7 @@ class CacheNetWorkUtils {
     double radius = 17,
   }) {
     return CircleAvatar(
-      foregroundImage: avatar != null && avatar.isNotEmpty
-          ? CacheNetWorkUtils.getNetworkImageProvider(avatar)
-          : null,
+      foregroundImage: avatar != null && avatar.isNotEmpty ? CacheNetWorkUtils.getNetworkImageProvider(avatar) : null,
       radius: radius,
       backgroundColor: Theme.of(Get.context!).disabledColor,
     );
@@ -72,10 +70,7 @@ class CacheNetWorkUtils {
     if (avatar == null) {
       return null;
     }
-    return CircleAvatar(
-        radius: radius,
-        child: getCacheImageV2(avatar,
-            radius: radius, fit: BoxFit.fitWidth, shape: BoxShape.circle, cacheWidth: 60));
+    return CircleAvatar(radius: radius, child: getCacheImageV2(avatar, radius: radius, fit: BoxFit.fitWidth, shape: BoxShape.circle, cacheWidth: 60));
   }
 
   static Widget getCacheImageV2(
@@ -95,7 +90,7 @@ class CacheNetWorkUtils {
       );
     }
     return ExtendedImage.network(
-      imageUrl,
+      proxyImageUrl(imageUrl),
       cache: true,
       fit: fit,
       borderRadius: BorderRadius.all(Radius.circular(radius)),
@@ -113,11 +108,13 @@ class CacheNetWorkUtils {
             //   fit: BoxFit.fitWidth,
             // );
             return LoadingIndicator(
-                indicatorType: Indicator.ballPulse, /// 必须, loading的类型
-                // colors: const [Colors.white],       /// 可选, 颜色集合
-                // strokeWidth: 2,                     /// 可选, 线条宽度，只对含有线条的组件有效
-                // backgroundColor: Colors.black,      /// 可选, 组件背景色
-                // pathBackgroundColor: Colors.black   /// 可选, 线条背景色
+              indicatorType: Indicator.ballPulse,
+
+              /// 必须, loading的类型
+              // colors: const [Colors.white],       /// 可选, 颜色集合
+              // strokeWidth: 2,                     /// 可选, 线条宽度，只对含有线条的组件有效
+              // backgroundColor: Colors.black,      /// 可选, 组件背景色
+              // pathBackgroundColor: Colors.black   /// 可选, 线条背景色
             );
 
           ///if you don't want override completed widget
@@ -147,5 +144,11 @@ class CacheNetWorkUtils {
         }
       },
     );
+  }
+
+  static String proxyImageUrl(String imageUrl) {
+    var encodeUrl = Uri.encodeComponent(imageUrl);
+    var proxyUrl = "https://gimg0.baidu.com/gimg/src=${encodeUrl}&app=2001&n=0&g=0n&q=80&fmt=webp";
+    return proxyUrl;
   }
 }
