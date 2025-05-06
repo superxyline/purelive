@@ -7,11 +7,16 @@ class SiteWidget {
   static double logoWidth = 25;
 
   /// 所有站点的 logo
+  static Map<String, Widget>? _siteLogeImageMap;
   static Map<String, Widget> get siteLogeImageMap {
-    var list = Sites.supportSites.map((e) => MapEntry(e.id, getSiteLogo(e))).toList();
-    var map = Map.fromEntries(list);
-    map[Sites.allLiveSite.id] = getSiteLogo(Sites.allLiveSite);
-    return map;
+    if(_siteLogeImageMap == null) {
+      var list = Sites.supportSites.map((e) => MapEntry(e.id, getSiteLogo(e))).toList();
+      var map = Map.fromEntries(list);
+      map[Sites.allLiveSite.id] = getSiteLogo(Sites.allLiveSite);
+      _siteLogeImageMap = map;
+    }
+
+    return _siteLogeImageMap!;
   }
 
   /// 获取站点 logo Image
