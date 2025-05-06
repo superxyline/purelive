@@ -41,6 +41,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
     listenList.add(controller.messages.listen((p0) {
       var tmpMilliseconds = DateTime.now().millisecondsSinceEpoch;
       if(curMilliseconds < tmpMilliseconds - milliseconds) {
+        curMilliseconds = tmpMilliseconds;
         _scrollTimer?.cancel();
         _scrollToBottom();
       } else {
