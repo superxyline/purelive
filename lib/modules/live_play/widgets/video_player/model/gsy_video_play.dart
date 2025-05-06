@@ -124,7 +124,7 @@ class GsyVideoPlay extends VideoPlayerInterFace {
     var tmpIsPlaying = gsyVideoPlayerController.value.isPlaying;
     isPlaying.updateValueNotEquate(tmpIsPlaying);
     if (tmpIsPlaying) {
-      isBuffering.updateValueNotEquate(tmpIsPlaying);
+      isBuffering.updateValueNotEquate(!tmpIsPlaying);
     }
     // isBuffering.updateValueNotEquate(gsyVideoPlayerController.value.isBuffering);
     isVertical.updateValueNotEquate(gsyVideoPlayerController.value.size.width <
