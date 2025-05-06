@@ -136,6 +136,10 @@ class LivePlayController extends StateController {
   /// StreamSubscription
   final List<StreamSubscription?> subscriptionList = [];
 
+  final StreamController<bool> streamController = StreamController<bool>();
+  Stream<bool> get streamState => streamController.stream; // 获取流。
+
+
   /// 释放一些系统状态
   Future resetSystem() async {
     _pipSubscription?.cancel();
@@ -535,6 +539,8 @@ class LivePlayController extends StateController {
       doubleClickTimer?.cancel();
       autoExitTimer?.cancel();
 
+      streamController.close();
+
     } catch (e) {
       CoreLog.error(e);
     }
@@ -623,6 +629,9 @@ class LivePlayController extends StateController {
       // }));
       FlPiP().status.addListener(flPiPListener);
     }
+    subscriptionList.add(isPiP.listen((e) {
+      streamController.add(e);
+    }));
   }
 
   /// 初始化弹幕接收事件
@@ -822,6 +831,7 @@ class LivePlayController extends StateController {
       );
       subscriptionList.add(videoController?.videoPlayer.isFullscreen.listen((e) {
         isFullscreen.updateValueNotEquate(e);
+        streamController.add(e);
       }));
     } else {
       videoController?.datasource = playUrls.value[currentLineIndex.value].playUrl;
@@ -926,6 +936,7 @@ class LivePlayController extends StateController {
     var refreshTimeSecond = 5;
     autoExitTimer = Timer.periodic(Duration(seconds: refreshTimeSecond), (timer) async {
       countdown.value -= refreshTimeSecond;
+      CoreLog.d("countdown: ${countdown}");
       if (countdown.value <= 0) {
         countdown.value = 0;
         timer = Timer(const Duration(seconds: 10), () async {
