@@ -898,6 +898,7 @@ class LivePlayController extends StateController {
 
   /// ------------------------- 定时关闭
   void initAutoShutDown() {
+    setAutoExit();
     subscriptionList.add(settings.autoRefreshTime.listen((value) {
       setAutoExit();
     }));
@@ -918,6 +919,7 @@ class LivePlayController extends StateController {
     }
     autoExitTimer?.cancel();
     countdown.value = settings.autoShutDownTime.value * 60;
+    CoreLog.d("countdown: ${countdown}");
     autoExitTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       countdown.value -= 1;
       if (countdown.value <= 0) {

@@ -247,6 +247,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                         SettingsPage.showAutoShutDownTimeSetDialog();
                       },
                     ),
+                    if(settings.enableAutoShutDownTime.value)
                     PopupMenuItem(
                       value: 6,
                       padding: EdgeInsets.symmetric(horizontal: 12),
