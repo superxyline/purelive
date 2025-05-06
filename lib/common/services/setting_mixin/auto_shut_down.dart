@@ -32,10 +32,12 @@ mixin AutoShutDownMixin {
 
   void initAutoShutDown(SettingPartList settingPartList) {
     autoShutDownTime.listen((value) {
+      PrefUtil.setInt(autoShutDownTimeKey, value);
       handleWatchTimer();
     });
 
     enableAutoShutDownTime.listen((value) {
+      PrefUtil.setBool(enableAutoShutDownTimeKey, value);
       handleWatchTimer();
     });
 
