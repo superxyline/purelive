@@ -8,6 +8,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/utils.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
 import 'package:pure_live/plugins/barrage.dart';
@@ -106,7 +107,11 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
         },
         child: Focus(
           autofocus: true,
-          child: Obx(() => controller.videoPlayer.hasError.value
+          child: StreamBuilder(
+              initialData: false,
+              stream: controller.videoPlayer.hasError.stream,
+              builder: (c, d){
+          return controller.videoPlayer.hasError.value
               ? ErrorWidget(controller: controller)
               : MouseRegion(
                   onHover: (event) => controller.enableController(),
@@ -152,7 +157,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                         ),
                       ),
                     ),
-                    controller.livePlayController.danmakuController.getWidget(key:  controller.livePlayController.danmakuViewKey),
+                    (){
+                    CoreLog.d("danmakuController.getWidget ....");
+                    return controller.livePlayController.danmakuController.getWidget(key:  controller.livePlayController.danmakuViewKey);
+                    }(),
                     GestureDetector(
                         onTap: () {
                           if (controller.showSettting.value) {
@@ -178,7 +186,8 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                       barHeight: barHeight,
                     ),
                   ]),
-                )),
+                );
+              })
         ),
       ),
     );
