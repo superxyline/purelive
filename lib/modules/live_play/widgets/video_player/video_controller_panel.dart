@@ -106,89 +106,88 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
           const SingleActivator(LogicalKeyboardKey.escape): () => controller.toggleFullScreen(),
         },
         child: Focus(
-          autofocus: true,
-          child: StreamBuilder(
-              initialData: false,
-              stream: controller.videoPlayer.hasError.stream,
-              builder: (c, d){
-          return controller.videoPlayer.hasError.value
-              ? ErrorWidget(controller: controller)
-              : MouseRegion(
-                  onHover: (event) => controller.enableController(),
-                  onExit: (event) {
-                    controller.showControllerTimer?.cancel();
-                    controller.showController.toggle();
-                  },
-                  child: Stack(children: [
-                    Container(
-                      color: Colors.transparent,
-                      alignment: Alignment.center,
-                      child: AnimatedOpacity(
-                        opacity: !showVolume ? 0.8 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Card(
-                          color: Colors.black,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(iconData, color: Colors.white),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8, right: 4),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: SizedBox(
-                                      width: 100,
-                                      height: 20,
-                                      child: LinearProgressIndicator(
-                                        value: currentVolume,
-                                        backgroundColor: Colors.white38,
-                                        valueColor: AlwaysStoppedAnimation(
-                                          Theme.of(context).indicatorColor,
+            autofocus: true,
+            child: StreamBuilder(
+                initialData: false,
+                stream: controller.videoPlayer.hasError.stream,
+                builder: (c, d) {
+                  return controller.videoPlayer.hasError.value
+                      ? ErrorWidget(controller: controller)
+                      : MouseRegion(
+                          onHover: (event) => controller.enableController(),
+                          onExit: (event) {
+                            controller.showControllerTimer?.cancel();
+                            controller.showController.toggle();
+                          },
+                          child: Stack(children: [
+                            Container(
+                              color: Colors.transparent,
+                              alignment: Alignment.center,
+                              child: AnimatedOpacity(
+                                opacity: !showVolume ? 0.8 : 0.0,
+                                duration: const Duration(milliseconds: 300),
+                                child: Card(
+                                  color: Colors.black,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Icon(iconData, color: Colors.white),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 8, right: 4),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: SizedBox(
+                                              width: 100,
+                                              height: 20,
+                                              child: LinearProgressIndicator(
+                                                value: currentVolume,
+                                                backgroundColor: Colors.white38,
+                                                valueColor: AlwaysStoppedAnimation(
+                                                  Theme.of(context).indicatorColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    (){
-                    CoreLog.d("danmakuController.getWidget ....");
-                    return controller.livePlayController.danmakuController.getWidget(key:  controller.livePlayController.danmakuViewKey);
-                    }(),
-                    GestureDetector(
-                        onTap: () {
-                          if (controller.showSettting.value) {
-                            controller.showSettting.toggle();
-                          } else {
-                            controller.videoPlayer.isPlaying.value ? controller.enableController() : controller.togglePlayPause();
-                          }
-                        },
-                        onDoubleTap: () => controller.videoPlayer.isWindowFullscreen.value ? controller.toggleWindowFullScreen() : controller.toggleFullScreen(),
-                        child: BrightnessVolumeDargArea(
-                          controller: controller,
-                        )),
-                    // SettingsPanel(
-                    //   controller: controller,
-                    // ),
-                    LockButton(controller: controller),
-                    TopActionBar(
-                      controller: controller,
-                      barHeight: barHeight,
-                    ),
-                    BottomActionBar(
-                      controller: controller,
-                      barHeight: barHeight,
-                    ),
-                  ]),
-                );
-              })
-        ),
+                            () {
+                              CoreLog.d("danmakuController.getWidget ....");
+                              return controller.livePlayController.danmakuController.getWidget(key: UniqueKey());
+                            }(),
+                            GestureDetector(
+                                onTap: () {
+                                  if (controller.showSettting.value) {
+                                    controller.showSettting.toggle();
+                                  } else {
+                                    controller.videoPlayer.isPlaying.value ? controller.enableController() : controller.togglePlayPause();
+                                  }
+                                },
+                                onDoubleTap: () => controller.videoPlayer.isWindowFullscreen.value ? controller.toggleWindowFullScreen() : controller.toggleFullScreen(),
+                                child: BrightnessVolumeDargArea(
+                                  controller: controller,
+                                )),
+                            // SettingsPanel(
+                            //   controller: controller,
+                            // ),
+                            LockButton(controller: controller),
+                            TopActionBar(
+                              controller: controller,
+                              barHeight: barHeight,
+                            ),
+                            BottomActionBar(
+                              controller: controller,
+                              barHeight: barHeight,
+                            ),
+                          ]),
+                        );
+                })),
       ),
     );
   }

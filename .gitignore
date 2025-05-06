@@ -52,3 +52,6 @@ key.properties
 # /assets/pure_live_web/
 # pubspec.lock
 /devtools_options.yaml
+
+# git
+.git
