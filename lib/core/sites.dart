@@ -66,8 +66,16 @@ class Sites {
   ];
 
   static Site of(String id) {
-    return supportSites.firstWhere((e) => id == e.id) ?? supportSites[supportSites.length - 1];
-    return supportSites.firstWhereOrNull((e) => id == e.id) ?? supportSites[supportSites.length - 1];
+    // return supportSites.firstWhere((e) => id == e.id) ?? supportSites[supportSites.length - 1];
+    // return supportSites.firstWhereOrNull((e) => id == e.id) ?? supportSites[supportSites.length - 1];
+    return siteMap[id] ?? supportSites[supportSites.length - 1];
+  }
+
+  static Map<String, Site> get siteMap {
+    var list = Sites.supportSites.map((e) => MapEntry(e.id, e)).toList();
+    var map = Map.fromEntries(list);
+    map[Sites.allLiveSite.id] = Sites.allLiveSite;
+    return map;
   }
 
   static Site allLiveSite = Site(id: allSite, name: "全部", logo: "assets/images/all.png", liveSite: LiveSite());
