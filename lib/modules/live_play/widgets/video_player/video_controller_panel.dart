@@ -152,7 +152,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                         ),
                       ),
                     ),
-                    controller.livePlayController.danmakuController.getWidget(),
+                    controller.livePlayController.danmakuController.getWidget(key:  controller.livePlayController.danmakuViewKey),
                     GestureDetector(
                         onTap: () {
                           if (controller.showSettting.value) {

@@ -57,9 +57,9 @@ class BarrageDanmakuController extends DanmakuControllerBase {
   }
 
   @override
-  Widget getWidget() {
+  Widget getWidget({Key? key}) {
     return DanmakuViewer(
-      key: UniqueKey(),
+      key: key,
       danmakuController: danmakuController,
     );
   }

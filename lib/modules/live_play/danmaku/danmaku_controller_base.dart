@@ -40,7 +40,7 @@ abstract class DanmakuControllerBase {
   void dispose();
 
   /// 获取弹幕视图
-  Widget getWidget();
+  Widget getWidget({Key? key});
 }
 
 class DanmakuSettingOption {

@@ -64,9 +64,9 @@ class CanvasDanmakuController extends DanmakuControllerBase {
   }
 
   @override
-  Widget getWidget() {
+  Widget getWidget({Key? key}) {
     return DanmakuScreen(
-      key: UniqueKey(),
+      key: key,
       createdController: (DanmakuController e) {
         danmakuController = e;
       },
