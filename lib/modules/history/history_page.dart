@@ -26,6 +26,7 @@ class HistoryPage extends GetView<HistoryController> {
               if (result) {
                 final SettingsService settings = Get.find<SettingsService>();
                 settings.clearHistory();
+                controller.refreshData();
               }
             },
           ),

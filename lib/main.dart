@@ -33,7 +33,7 @@ Future<void> initService() async {
   Get.put(pure_live.SearchController());
   Get.put(HomeController());
   Get.put(SiteAccountController());
-  Get.put(HistoryController());
+  Get.put(HistoryController.instance);
 }
 
 class MyApp extends StatefulWidget {
