@@ -146,6 +146,8 @@ dependencies:
   auto_orientation: ^2.3.1 #屏幕方向
   device_info_plus: ^11.2.0 #设备信息
   canvas_danmaku: ^0.2.7    #弹幕
+  # 防抖节流
+  easy_debounce: ^2.0.3
 #  floating: ^5.0.1 #PIP画中画
   # PIP画中画
   fl_pip:
