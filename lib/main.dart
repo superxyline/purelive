@@ -13,6 +13,8 @@ import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/plugins/flutter_catch_error.dart';
 import 'package:pure_live/plugins/route_history_observer.dart';
 
+import 'modules/history/history_controller.dart';
+
 const kWindowsScheme = 'purelive://signin';
 
 void main(List<String> args) async {
@@ -31,6 +33,7 @@ Future<void> initService() async {
   Get.put(pure_live.SearchController());
   Get.put(HomeController());
   Get.put(SiteAccountController());
+  Get.put(HistoryController());
 }
 
 class MyApp extends StatefulWidget {
