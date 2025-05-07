@@ -72,7 +72,7 @@ class BasePageController<T> extends BaseController {
 
   Future refreshData() async {
     currentPage = 1;
-    list.value = [];
+    // list.value = [];
     await loadData();
   }
 
@@ -84,6 +84,8 @@ class BasePageController<T> extends BaseController {
       pageEmpty.value = false;
       notLogin.value = false;
       pageLoadding.value = currentPage == 1;
+
+      var tmpPage = currentPage;
 
       var result = await getData(currentPage, pageSize);
       //是否可以加载更多
@@ -98,7 +100,7 @@ class BasePageController<T> extends BaseController {
         }
       }
       // 赋值数据
-      if (currentPage == 1) {
+      if (tmpPage == 1 || currentPage == 1) {
         list.value = result;
       } else {
         list.addAll(result);

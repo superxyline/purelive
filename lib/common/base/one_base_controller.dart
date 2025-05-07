@@ -11,6 +11,11 @@ import 'base_controller.dart';
 class OneBaseController<T> extends BasePageController<T> {
 
   @override
+  void onInit() {
+    refreshData();
+  }
+
+  @override
   Future loadData() async {
     try {
       if (loadding.value) return;
