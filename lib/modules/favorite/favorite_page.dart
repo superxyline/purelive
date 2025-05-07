@@ -4,7 +4,11 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/common/widgets/settings/settings_list_item.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/favorite/favorite_grid_view.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
+
+import '../../common/widgets/refresh_grid_util.dart';
+import 'favorite_grid_controller.dart';
 
 class FavoritePage extends GetView<FavoriteController> {
   const FavoritePage({super.key});
@@ -97,74 +101,28 @@ class _RoomGridView extends GetView<FavoriteController> {
 
   final int selectIndex;
 
-  final refreshController = EasyRefreshController(
-    controlFinishRefresh: true,
-    controlFinishLoad: true,
-  );
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
-  Future onRefresh() async {
-    bool result = await controller.onRefresh();
-    CoreLog.d("onRefresh favorite ...");
-    if (!result) {
-      refreshController.finishRefresh(IndicatorResult.success);
-      refreshController.resetFooter();
-    } else {
-      refreshController.finishRefresh(IndicatorResult.fail);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraint) {
-      final width = constraint.maxWidth;
-      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      if (dense) {
-        crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-      }
-      return EasyRefresh(
-        controller: refreshController,
-        onRefresh: onRefresh,
-        onLoad: () {
-          refreshController.finishLoad(IndicatorResult.none);
-        },
-        child: () {
-          // CoreLog.d("rebuild dataList");
-          // CoreLog.d("dataList \n ${jsonEncode(dataList.value)}");
-          return Obx(() => controller.filterDataList[selectIndex].isNotEmpty
-              ? Scaffold(
-                  body: () {
-                    CoreLog.d("MasonryGridView.count change ");
-                    return MasonryGridView.count(
-                      cacheExtent: 3500,
-                      padding: const EdgeInsets.all(5),
-                      controller: ScrollController(),
-                      crossAxisCount: crossAxisCount,
-                      itemCount: controller.filterDataList[selectIndex].length,
-                      itemBuilder: (context, index) => RoomCard(
-                        room: controller.filterDataList[selectIndex][index],
-                        dense: dense,
-                      ),
-                    );
-                  }(),
 
-                  // 浮动按钮
-                  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-                  floatingActionButton: FloatingActionButton(
-                      key: UniqueKey(),
-                      onPressed: () {
-                        showFilter();
-                      },
-                      child: const Icon(Icons.local_offer)))
-              : EmptyView(
-                  icon: Icons.favorite_rounded,
-                  title: S.current.empty_favorite_online_title,
-                  subtitle: S.current.empty_favorite_online_subtitle,
-                  boxConstraints: constraint,
-                ));
+    return Scaffold(
+        body: (){
+          var controller = Get.put(FavoriteGridController(selectIndex), tag: selectIndex.toString());
+          if (controller.list.isEmpty) {
+            controller.loadData();
+          }
+          return FavoriteGridView(selectIndex.toString());
         }(),
-      );
-    });
+        // 浮动按钮
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: FloatingActionButton(
+            key: UniqueKey(),
+            onPressed: () {
+              showFilter();
+            },
+            child: const Icon(Icons.local_offer)));
   }
 
   void showFilter({BuildContext? context}) {

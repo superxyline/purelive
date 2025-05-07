@@ -5,6 +5,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 
 import '../util/update_room_util.dart';
+import 'favorite_grid_controller.dart';
 
 class FavoriteController extends GetxController
     with GetTickerProviderStateMixin {
@@ -15,6 +16,8 @@ class FavoriteController extends GetxController
   final tabSiteIndex = 0.obs;
   final tabOnlineIndex = 0.obs;
   bool isFirstLoad = true;
+
+  static FavoriteController get instance => Get.find<FavoriteController>();
 
   FavoriteController() {
     tabController = TabController(length: 2, vsync: this);
@@ -69,6 +72,7 @@ class FavoriteController extends GetxController
     }
 
     CoreLog.d("onInit");
+    await initFavoriteData();
   }
 
   final onlineRooms = <LiveRoom>[].obs;
@@ -139,6 +143,7 @@ class FavoriteController extends GetxController
   /// 索引
   static const int onlineRoomsIndex = 0;
   static const int offlineRoomsIndex = 1;
+  static const  roomsIndexList = [onlineRoomsIndex, offlineRoomsIndex];
 
   /// 索引长度
   final int indexLength = 2;
@@ -221,4 +226,22 @@ class FavoriteController extends GetxController
     listenList.clear();
     super.dispose();
   }
+
+  /// 初始化数据
+  Future<void> initFavoriteData() async {
+      List<Future> futures = [];
+      for (var i = 0; i < roomsIndexList.length; i++) {
+        var roomIndex = roomsIndexList[i];
+        var tag = roomIndex.toString();
+        futures.add(Future(() async {
+          Get.put(FavoriteGridController(roomIndex), tag: tag);
+          var controller = Get.find<FavoriteGridController>(tag: tag);
+          if (controller.list.isEmpty) {
+            controller.loadData();
+          }
+        }));
+      }
+      await Future.wait(futures);
+    }
+
 }
