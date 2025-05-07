@@ -3,26 +3,12 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/utils.dart';
 
+import '../../common/widgets/refresh_grid_util.dart';
 import '../util/update_room_util.dart';
+import 'history_controller.dart';
 
-class HistoryPage extends GetView {
-  HistoryPage({super.key});
-
-  final refreshController = EasyRefreshController(
-    controlFinishRefresh: true,
-    controlFinishLoad: true,
-  );
-
-  Future onRefresh() async {
-    final SettingsService settings = Get.find<SettingsService>();
-    bool result = await UpdateRoomUtil.updateRoomList(settings.historyRooms, settings);
-    if (result) {
-      refreshController.finishRefresh(IndicatorResult.success);
-      refreshController.resetFooter();
-    } else {
-      refreshController.finishRefresh(IndicatorResult.fail);
-    }
-  }
+class HistoryPage extends GetView<HistoryController> {
+  const HistoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,42 +31,7 @@ class HistoryPage extends GetView {
           ),
         ],
       ),
-      body: Obx(() {
-        final SettingsService settings = Get.find<SettingsService>();
-        const dense = true;
-        final rooms = settings.historyRooms.toList();
-        return LayoutBuilder(builder: (context, constraint) {
-          final width = constraint.maxWidth;
-          int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-          if (dense) {
-            crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-          }
-          return EasyRefresh(
-            controller: refreshController,
-            onRefresh: onRefresh,
-            onLoad: () {
-              refreshController.finishLoad(IndicatorResult.noMore);
-            },
-            child: rooms.isEmpty
-                ? EmptyView(
-                    icon: Icons.history_rounded,
-                    title: S.current.empty_history,
-                    subtitle: '',
-                    boxConstraints: constraint,
-                  )
-                : MasonryGridView.count(
-                    padding: const EdgeInsets.all(5),
-                    controller: ScrollController(),
-                    crossAxisCount: crossAxisCount,
-                    itemCount: rooms.length,
-                    itemBuilder: (context, index) => RoomCard(
-                      room: rooms[rooms.length - 1 - index],
-                      dense: dense,
-                    ),
-                  ),
-          );
-        });
-      }),
+      body: RefreshGridUtil.buildRoomCard(controller)
     );
   }
 }

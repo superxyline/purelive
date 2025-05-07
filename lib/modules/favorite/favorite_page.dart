@@ -136,6 +136,7 @@ class _RoomGridView extends GetView<FavoriteController> {
                   body: () {
                     CoreLog.d("MasonryGridView.count change ");
                     return MasonryGridView.count(
+                      cacheExtent: 3500,
                       padding: const EdgeInsets.all(5),
                       controller: ScrollController(),
                       crossAxisCount: crossAxisCount,

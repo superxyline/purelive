@@ -5,7 +5,8 @@ import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/common/widgets/status/app_loadding_widget.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
-import 'package:pure_live/modules/areas/widgets/area_card.dart';
+
+import 'widgets/area_card.dart';
 
 class AreaGridView extends StatefulWidget {
   final String tag;
@@ -59,6 +60,7 @@ class _AreaGridViewState extends State<AreaGridView> with SingleTickerProviderSt
       return Stack(children: [
         widget.controller.list.isNotEmpty
             ? MasonryGridView.count(
+                cacheExtent: 3500,
                 padding: const EdgeInsets.all(5),
                 controller: ScrollController(),
                 crossAxisCount: crossAxisCount,

@@ -1,6 +1,7 @@
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/widgets/refresh_grid_util.dart';
 import 'package:pure_live/common/widgets/status/app_loadding_widget.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
 import 'package:pure_live/plugins/cache_network.dart';
@@ -16,37 +17,7 @@ class SearchListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraint) {
-      final width = constraint.maxWidth;
-      final crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      return Obx(() => EasyRefresh(
-          controller: controller.easyRefreshController,
-          onRefresh: controller.refreshData,
-          onLoad: controller.loadData,
-          child: Stack(children: [
-            controller.list.isNotEmpty
-                ? MasonryGridView.count(
-                    padding: const EdgeInsets.all(8),
-                    physics: const BouncingScrollPhysics(),
-                    controller: controller.scrollController,
-                    crossAxisCount: crossAxisCount,
-                    itemCount: controller.list.length,
-                    itemBuilder: (context, index) {
-                      final room = controller.list[index];
-                      return OwnerCard(room: room);
-                    })
-                : EmptyView(
-                    icon: Icons.live_tv_rounded,
-                    title: S.current.empty_search_title,
-                    subtitle: S.current.empty_search_subtitle,
-                    boxConstraints: constraint,
-                  ),
-            Visibility(
-              visible: (controller.loadding.value),
-              child: const AppLoaddingWidget(),
-            ),
-          ])));
-    });
+    return RefreshGridUtil.buildRoomCard(controller, itemBuilder: (context, index) => OwnerCard(room: controller.list[index]));
   }
 }
 

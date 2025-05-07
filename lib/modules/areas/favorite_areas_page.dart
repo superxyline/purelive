@@ -48,6 +48,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
     return Obx(
       () => controller.favoriteAreas.isNotEmpty
           ? MasonryGridView.count(
+              cacheExtent: 3500,
               padding: const EdgeInsets.all(5),
               controller: ScrollController(),
               crossAxisCount: crossAxisCount,

@@ -48,8 +48,8 @@ class BaseController extends GetxController {
 }
 
 class BasePageController<T> extends BaseController {
-  final ScrollController scrollController = ScrollController();
-  final EasyRefreshController easyRefreshController = EasyRefreshController();
+  ScrollController scrollController = ScrollController();
+  EasyRefreshController easyRefreshController = EasyRefreshController();
   int currentPage = 1;
   int count = 0;
   int maxPage = 0;
