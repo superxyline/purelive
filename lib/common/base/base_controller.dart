@@ -103,7 +103,9 @@ class BasePageController<T> extends BaseController {
       if (tmpPage == 1 || currentPage == 1) {
         list.value = result;
       } else {
-        list.addAll(result);
+        if(result.isNotEmpty) {
+          list.addAll(result);
+        }
       }
     } catch (e) {
       CoreLog.error(e);
