@@ -9,6 +9,8 @@ import 'package:pure_live/common/widgets/room_card.dart';
 import 'package:pure_live/common/widgets/status/app_loadding_widget.dart';
 
 import 'empty_view.dart';
+import 'grid_util.dart';
+import 'refresh_my.dart';
 
 final class RefreshGridUtil {
   /// 每行多少个
@@ -19,6 +21,11 @@ final class RefreshGridUtil {
   }
 
   static Widget buildRoomCard(BasePageController controller, {IndexedWidgetBuilder? itemBuilder}) {
+    return buildRoomCardV2(controller, itemBuilder: itemBuilder);
+  }
+
+
+  static Widget buildRoomCardV1(BasePageController controller, {IndexedWidgetBuilder? itemBuilder}) {
     itemBuilder ??= (context, index) => RoomCard(room: controller.list[index], dense: true);
     return LayoutBuilder(
       builder: (context, constraint) {
@@ -52,5 +59,9 @@ final class RefreshGridUtil {
             ])));
       },
     );
+  }
+
+  static Widget buildRoomCardV2(BasePageController controller, {IndexedWidgetBuilder? itemBuilder}) {
+    return RefreshMy(pageController: controller,itemBuilder: itemBuilder,);
   }
 }

@@ -11,7 +11,7 @@ class HistoryController extends OneBaseController<LiveRoom> {
 
   HistoryController();
 
-  static HistoryController instance = HistoryController();
+  static HistoryController get instance => Get.find<HistoryController>();
 
   @override
   Future refreshData() async {

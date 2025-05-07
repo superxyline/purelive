@@ -40,6 +40,7 @@ import 'package:pure_live/modules/site_account/site_account_page.dart';
 import 'package:pure_live/modules/toolbox/boolbox_binding.dart';
 import 'package:pure_live/modules/toolbox/toolbox_page.dart';
 
+import '../modules/history/history_binding.dart';
 import 'route_path.dart';
 
 // auth
@@ -86,6 +87,7 @@ class AppPages {
     GetPage(
       name: RoutePath.kHistory,
       page: HistoryPage.new,
+      bindings: [HistoryBinding()],
     ),
     GetPage(
       name: RoutePath.kSearch,
