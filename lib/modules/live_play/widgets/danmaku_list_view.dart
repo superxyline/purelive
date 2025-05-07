@@ -99,9 +99,12 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
             visible: controller.videoController?.videoPlayer.isFullscreen.value != true,
             child: NotificationListener<UserScrollNotification>(
               onNotification: _userScrollAction,
-              child: Obx(
-                () => ListView.builder(
+              child: StreamBuilder(
+                initialData: [],
+                stream: controller.messages.stream,
+                builder: (s,d) => ListView.builder(
                   controller: _scrollController,
+                  cacheExtent: 3500,
 
                   /// 只显示 100 条弹幕
                   itemCount: (controller.messages.length > 100 ? 100 : controller.messages.length),
