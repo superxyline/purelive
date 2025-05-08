@@ -933,7 +933,7 @@ class LivePlayController extends StateController {
     autoExitTimer?.cancel();
     countdown.value = settings.autoShutDownTime.value * 60;
     CoreLog.d("countdown: ${countdown}");
-    var refreshTimeSecond = 5;
+    var refreshTimeSecond = 1;
     autoExitTimer = Timer.periodic(Duration(seconds: refreshTimeSecond), (timer) async {
       countdown.value -= refreshTimeSecond;
       CoreLog.d("countdown: ${countdown}");
