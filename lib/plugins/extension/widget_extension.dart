@@ -26,4 +26,14 @@ extension WidgetExtension on Widget {
       child: this,
     );
   }
+
+  /// 监听数据
+  Widget  listenValue<T extends Rx>(T data) {
+    return StreamBuilder(
+        initialData: data.value,
+        stream: data.stream,
+        builder: (s, d) {
+          return this;
+        });
+  }
 }

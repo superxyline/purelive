@@ -62,14 +62,15 @@ final class GradUtil {
     ScrollController? controller,
   }) {
     return SliverGrid(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithExtentAndRatio(
         // 行间距
-        // mainAxisSpacing: mainAxisSpacing,
+        // mainAxisSpacing: StyleString.cardSpace,
         // 列间距
-        // crossAxisSpacing: crossAxisSpacing,
-        // 列数
-        crossAxisCount: crossAxisCount,
-        // mainAxisExtent: MediaQuery.of(Get.context!).size.width / crossAxisCount / 0.65 + MediaQuery.textScalerOf(Get.context!).scale(32.0),
+        // crossAxisSpacing: StyleString.cardSpace,
+        // 最大宽度
+        maxCrossAxisExtent: Grid.maxRowWidth,
+        childAspectRatio: StyleString.aspectRatio,
+        mainAxisExtent: MediaQuery.textScalerOf(Get.context!).scale(60),
       ),
       delegate: SliverChildBuilderDelegate(
         itemBuilder,
@@ -77,4 +78,12 @@ final class GradUtil {
       ),
     );
   }
+}
+
+class StyleString {
+  static const double cardSpace = 8;
+  static const double safeSpace = 12;
+  static BorderRadius mdRadius = BorderRadius.circular(10);
+  static const Radius imgRadius = Radius.circular(10);
+  static const double aspectRatio = 16 / 10;
 }
