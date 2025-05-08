@@ -26,7 +26,7 @@ final class TimeUtil {
     if (hour > 0) {
       str = "$str$hour${S.current.hour}";
     }
-    if (!(minute == 0 && hour > 0)) {
+    if (minute > 0) {
       str = "$str$minute${S.current.minute}";
     }
     if (!(second == 0 && (hour > 0 || minute > 0))) {
