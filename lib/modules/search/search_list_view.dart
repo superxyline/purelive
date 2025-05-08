@@ -8,6 +8,8 @@ import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 
+import '../util/site_logo_widget.dart';
+
 class SearchListView extends StatelessWidget {
   final String tag;
 
@@ -17,7 +19,7 @@ class SearchListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshGridUtil.buildRoomCard(controller, itemBuilder: (context, index) => OwnerCard(room: controller.list[index]));
+    return RefreshGridUtil.buildRoomCard(controller, itemBuilder: (context, index) => RoomCard(room: controller.list[index], dense: true,));
   }
 }
 
