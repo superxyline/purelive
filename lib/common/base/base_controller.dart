@@ -72,6 +72,10 @@ class BasePageController<T> extends BaseController {
 
   Future refreshData() async {
     currentPage = 1;
+    canLoadMore.value = true;
+    pageError.value = false;
+    pageEmpty.value = false;
+    notLogin.value = false;
     // list.value = [];
     await loadData();
   }
@@ -79,6 +83,7 @@ class BasePageController<T> extends BaseController {
   Future loadData() async {
     try {
       if (loadding.value) return;
+      if (canLoadMore.isFalse) return;
       loadding.value = true;
       pageError.value = false;
       pageEmpty.value = false;
