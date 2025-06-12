@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/site/huya_site.dart';
 import 'widgets/video_player/video_controller.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pure_live/model/live_play_quality.dart';
@@ -439,12 +440,9 @@ class LivePlayController extends StateController {
         "referer": "https://live.bilibili.com"
       };
     } else if (currentSite.id == Sites.huyaSite) {
-      var validTs = 20000308;
-      var sysTs = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      var last8 = sysTs % 100000000;
-      var currentTs = last8 > validTs ? last8 : (validTs + sysTs ~/ 100);
+      var ua = await HuyaSite().getHuYaUA();
       headers = {
-        "user-agent": "HYSDK(Windows, $currentTs)",
+        "user-agent": ua,
         "origin": "https://www.huya.com",
         "cookie": settings.huyaCookie.value,
       };
