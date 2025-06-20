@@ -15,7 +15,6 @@ void main(List<String> args) async {
   PrefUtil.prefs = await SharedPreferences.getInstance();
   MediaKit.ensureInitialized();
   if (Platform.isWindows) {
-    register(kWindowsScheme);
     await WindowsSingleInstance.ensureSingleInstance(args, "pure_live_instance_checker");
     await windowManager.ensureInitialized();
     await WindowUtil.init(width: 1280, height: 720);

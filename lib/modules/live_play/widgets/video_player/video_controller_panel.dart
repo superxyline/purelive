@@ -132,7 +132,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                                         value: currentVolumn,
                                         backgroundColor: Colors.white38,
                                         valueColor: AlwaysStoppedAnimation(
-                                          Theme.of(context).indicatorColor,
+                                          Theme.of(context).tabBarTheme.indicatorColor,
                                         ),
                                       ),
                                     ),
@@ -565,7 +565,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
                             value: _updateDargVarVal,
                             backgroundColor: Colors.white38,
                             valueColor: AlwaysStoppedAnimation(
-                              Theme.of(context).indicatorColor,
+                              Theme.of(context).tabBarTheme.indicatorColor,
                             ),
                           ),
                         ),

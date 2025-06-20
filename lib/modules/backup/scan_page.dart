@@ -59,11 +59,10 @@ class _ScanCodePageState extends State<ScanCodePage> {
                   icon: ValueListenableBuilder(
                     valueListenable: cameraController,
                     builder: (context, state, child) {
-                      switch (state.cameraDirection) {
-                        case CameraFacing.front:
-                          return const Icon(Icons.camera_front);
-                        case CameraFacing.back:
-                          return const Icon(Icons.camera_rear);
+                      if (state.cameraDirection == CameraFacing.back) {
+                        return const Icon(Icons.camera_rear);
+                      } else {
+                        return const Icon(Icons.camera_front);
                       }
                     },
                   ),
