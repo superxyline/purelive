@@ -98,6 +98,8 @@ dependencies:
   dia_router: ^0.1.7
   dia_cors: ^0.1.2
   mobile_scanner: ^7.0.1 #二维码扫描
+  webdav_client: ^1.2.2
+  mime: ^1.0.6
 dev_dependencies:
   flutter_test:
     sdk: flutter

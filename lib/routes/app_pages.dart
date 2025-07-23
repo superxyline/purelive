@@ -7,6 +7,7 @@ import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/web_dav/web_dav_page.dart';
 import 'package:pure_live/modules/toolbox/toolbox_page.dart';
 import 'package:pure_live/modules/account/account_bing.dart';
 import 'package:pure_live/modules/account/account_page.dart';
@@ -17,6 +18,7 @@ import 'package:pure_live/modules/auth/user_manage_page.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
+import 'package:pure_live/modules/web_dav/web_dav_binding.dart';
 import 'package:pure_live/modules/toolbox/boolbox_binding.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_page.dart';
 import 'package:pure_live/modules/live_play/live_play_page.dart';
@@ -42,63 +44,19 @@ class AppPages {
   AppPages._();
 
   static final routes = [
-    GetPage(
-      name: RoutePath.kInitial,
-      page: HomePage.new,
-      participatesInRootNavigator: true,
-      preventDuplicates: true,
-    ),
-    GetPage(
-      name: RoutePath.kSignIn,
-      page: SignInPage.new,
-    ),
-    GetPage(
-      name: RoutePath.kUpdatePassword,
-      page: UpdatePassword.new,
-    ),
-    GetPage(
-      name: RoutePath.kMine,
-      page: MinePage.new,
-    ),
-    GetPage(
-      name: RoutePath.kFavorite,
-      page: FavoritePage.new,
-    ),
-    GetPage(
-      name: RoutePath.kPopular,
-      page: PopularPage.new,
-    ),
-    GetPage(
-      name: RoutePath.kAreas,
-      page: AreasPage.new,
-    ),
-    GetPage(
-      name: RoutePath.kSettings,
-      page: SettingsPage.new,
-      bindings: [SettingsBinding()],
-    ),
-    GetPage(
-      name: RoutePath.kHistory,
-      page: HistoryPage.new,
-    ),
-    GetPage(
-      name: RoutePath.kSearch,
-      page: SearchPage.new,
-      bindings: [SearchBinding()],
-    ),
-    GetPage(
-      name: RoutePath.kBackup,
-      page: BackupPage.new,
-    ),
-    GetPage(
-      name: RoutePath.kAbout,
-      page: AboutPage.new,
-    ),
-    GetPage(
-      name: RoutePath.kAreaRooms,
-      page: AreasRoomPage.new,
-      bindings: [AreaRoomsBinding()],
-    ),
+    GetPage(name: RoutePath.kInitial, page: HomePage.new, participatesInRootNavigator: true, preventDuplicates: true),
+    GetPage(name: RoutePath.kSignIn, page: SignInPage.new),
+    GetPage(name: RoutePath.kUpdatePassword, page: UpdatePassword.new),
+    GetPage(name: RoutePath.kMine, page: MinePage.new),
+    GetPage(name: RoutePath.kFavorite, page: FavoritePage.new),
+    GetPage(name: RoutePath.kPopular, page: PopularPage.new),
+    GetPage(name: RoutePath.kAreas, page: AreasPage.new),
+    GetPage(name: RoutePath.kSettings, page: SettingsPage.new, bindings: [SettingsBinding()]),
+    GetPage(name: RoutePath.kHistory, page: HistoryPage.new),
+    GetPage(name: RoutePath.kSearch, page: SearchPage.new, bindings: [SearchBinding()]),
+    GetPage(name: RoutePath.kBackup, page: BackupPage.new),
+    GetPage(name: RoutePath.kAbout, page: AboutPage.new),
+    GetPage(name: RoutePath.kAreaRooms, page: AreasRoomPage.new, bindings: [AreaRoomsBinding()]),
     GetPage(
       name: RoutePath.kLivePlay,
       page: () => LivePlayPage(),
@@ -106,67 +64,35 @@ class AppPages {
       bindings: [LivePlayBinding()],
     ),
     //账号设置
-    GetPage(
-      name: RoutePath.kSettingsAccount,
-      page: () => const AccountPage(),
-      bindings: [AccountBinding()],
-    ),
+    GetPage(name: RoutePath.kSettingsAccount, page: () => const AccountPage(), bindings: [AccountBinding()]),
     //哔哩哔哩Web登录
     GetPage(
       name: RoutePath.kBiliBiliWebLogin,
       page: () => const BiliBiliWebLoginPage(),
-      bindings: [
-        BilibiliWebLoginBinding(),
-      ],
+      bindings: [BilibiliWebLoginBinding()],
     ),
     //哔哩哔哩二维码登录
     GetPage(
       name: RoutePath.kBiliBiliQRLogin,
       page: () => const BiliBiliQRLoginPage(),
-      bindings: [
-        BilibiliQrLoginBinding(),
-      ],
+      bindings: [BilibiliQrLoginBinding()],
     ),
     GetPage(
       name: RoutePath.kSettingsDanmuShield,
       page: () => const DanmuShieldPage(),
-      bindings: [
-        DanmuShieldBinding(),
-      ],
+      bindings: [DanmuShieldBinding()],
     ),
-    GetPage(
-      name: RoutePath.kSettingsHotAreas,
-      page: () => const HotAreasPage(),
-      bindings: [
-        HotAreasBinding(),
-      ],
-    ),
+    GetPage(name: RoutePath.kSettingsHotAreas, page: () => const HotAreasPage(), bindings: [HotAreasBinding()]),
     GetPage(name: RoutePath.kUserManage, page: () => const UserManager()),
 
     GetPage(name: RoutePath.kVersionHistory, page: () => const VersionHistoryPage()),
 
-    GetPage(
-      name: RoutePath.kToolbox,
-      page: () => const ToolBoxPage(),
-      bindings: [
-        ToolBoxBinding(),
-      ],
-    ),
+    GetPage(name: RoutePath.kToolbox, page: () => const ToolBoxPage(), bindings: [ToolBoxBinding()]),
 
-    GetPage(
-      name: RoutePath.kFavoriteAreas,
-      page: () => const FavoriteAreasPage(),
-      bindings: [
-        FavoriteAreasBinding(),
-      ],
-    ),
+    GetPage(name: RoutePath.kFavoriteAreas, page: () => const FavoriteAreasPage(), bindings: [FavoriteAreasBinding()]),
 
-    GetPage(
-      name: RoutePath.kHuyaCookie,
-      page: () => const HuyaCookiePage(),
-      bindings: [
-        HuyaCookieBinding(),
-      ],
-    ),
+    GetPage(name: RoutePath.kHuyaCookie, page: () => const HuyaCookiePage(), bindings: [HuyaCookieBinding()]),
+
+    GetPage(name: RoutePath.kWebDavPage, page: () => WebDavPage(), bindings: [WebDavBinding()]),
   ];
 }

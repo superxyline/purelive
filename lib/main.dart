@@ -50,7 +50,6 @@ class _MyAppState extends State<MyApp> with WindowListener {
     super.initState();
     windowManager.addListener(this);
     _init();
-    initShareM3uState();
   }
 
   String getName(String fullName) {
@@ -107,9 +106,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
-      },
+      shortcuts: {LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent()},
       child: DynamicColorBuilder(
         builder: (lightDynamic, darkDynamic) {
           return Obx(() {
