@@ -124,21 +124,12 @@ class LivePlayController extends StateController {
     onInitPlayerState(firstLoad: true);
     isFirstLoad.listen((p0) {
       if (isFirstLoad.value) {
-        loadTimeOut.value = true;
         Timer(const Duration(seconds: 8), () {
           isFirstLoad.value = false;
-          loadTimeOut.value = false;
-          Timer(const Duration(seconds: 5), () {
+          if (getVideoSuccess.value == false) {
             loadTimeOut.value = true;
-          });
-        });
-      } else {
-        // 防止闪屏
-        Timer(const Duration(seconds: 2), () {
-          loadTimeOut.value = false;
-          Timer(const Duration(seconds: 5), () {
-            loadTimeOut.value = true;
-          });
+            SmartDialog.showToast("获取直播间信息失败,请重新获取", displayTime: const Duration(seconds: 2));
+          }
         });
       }
     });
@@ -171,7 +162,7 @@ class LivePlayController extends StateController {
     }
 
     isFirstLoad.value = true;
-    getVideoSuccess.value = false;
+    getVideoSuccess.value = true;
     loadTimeOut.value = false;
     Timer(const Duration(milliseconds: 4000), () {
       if (Get.currentRoute == '/live_play') {
