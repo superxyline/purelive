@@ -167,7 +167,7 @@ class _BackupPageState extends State<BackupPage> {
     return result;
   }
 
-  importFile(String value) {
+  void importFile(String value) {
     if (value == '本地导入') {
       FileRecoverUtils().recoverM3u8Backup();
       Navigator.of(context).pop();

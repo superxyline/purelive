@@ -5,17 +5,14 @@ import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/danmaku/danmaku_screen.dart';
-import 'package:pure_live/plugins/danmaku/models/danmaku_option.dart';
+import 'package:canvas_danmaku/danmaku_screen.dart';
+import 'package:canvas_danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
 class VideoControllerPanel extends StatefulWidget {
   final VideoController controller;
 
-  const VideoControllerPanel({
-    super.key,
-    required this.controller,
-  });
+  const VideoControllerPanel({super.key, required this.controller});
 
   @override
   State<StatefulWidget> createState() => _VideoControllerPanelState();
@@ -64,8 +61,8 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
     iconData = currentVolumn <= 0
         ? Icons.volume_mute
         : currentVolumn < 0.5
-            ? Icons.volume_down
-            : Icons.volume_up;
+        ? Icons.volume_down
+        : Icons.volume_up;
     return Material(
       type: MaterialType.transparency,
       child: CallbackShortcuts(
@@ -98,81 +95,76 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
         },
         child: Focus(
           autofocus: true,
-          child: Obx(() => controller.hasError.value
-              ? ErrorWidget(controller: controller)
-              : MouseRegion(
-                  onHover: (event) => controller.enableController(),
-                  onExit: (event) {
-                    controller.showControllerTimer?.cancel();
-                    controller.showController.toggle();
-                  },
-                  child: Stack(children: [
-                    Container(
-                      color: Colors.transparent,
-                      alignment: Alignment.center,
-                      child: AnimatedOpacity(
-                        opacity: !showVolumn ? 0.8 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Card(
-                          color: Colors.black,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(iconData, color: Colors.white),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8, right: 4),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: SizedBox(
-                                      width: 100,
-                                      height: 20,
-                                      child: LinearProgressIndicator(
-                                        value: currentVolumn,
-                                        backgroundColor: Colors.white38,
-                                        valueColor: AlwaysStoppedAnimation(
-                                          Theme.of(context).tabBarTheme.indicatorColor,
+          child: Obx(
+            () => controller.hasError.value
+                ? ErrorWidget(controller: controller)
+                : MouseRegion(
+                    onHover: (event) => controller.enableController(),
+                    onExit: (event) {
+                      controller.showControllerTimer?.cancel();
+                      controller.showController.toggle();
+                    },
+                    child: Stack(
+                      children: [
+                        Container(
+                          color: Colors.transparent,
+                          alignment: Alignment.center,
+                          child: AnimatedOpacity(
+                            opacity: !showVolumn ? 0.8 : 0.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: Card(
+                              color: Colors.black,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    Icon(iconData, color: Colors.white),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8, right: 4),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SizedBox(
+                                          width: 100,
+                                          height: 20,
+                                          child: LinearProgressIndicator(
+                                            value: currentVolumn,
+                                            backgroundColor: Colors.white38,
+                                            valueColor: AlwaysStoppedAnimation(
+                                              Theme.of(context).tabBarTheme.indicatorColor,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                        DanmakuViewer(controller: controller),
+                        GestureDetector(
+                          onTap: () {
+                            if (controller.showSettting.value) {
+                              controller.showSettting.toggle();
+                            } else {
+                              controller.isPlaying.value ? controller.enableController() : controller.togglePlayPause();
+                            }
+                          },
+                          onDoubleTap: () => controller.isWindowFullscreen.value
+                              ? controller.toggleWindowFullScreen()
+                              : controller.toggleFullScreen(),
+                          child: BrightnessVolumnDargArea(controller: controller),
+                        ),
+                        SettingsPanel(controller: controller),
+                        LockButton(controller: controller),
+                        TopActionBar(controller: controller, barHeight: barHeight),
+                        BottomActionBar(controller: controller, barHeight: barHeight),
+                      ],
                     ),
-                    DanmakuViewer(controller: controller),
-                    GestureDetector(
-                        onTap: () {
-                          if (controller.showSettting.value) {
-                            controller.showSettting.toggle();
-                          } else {
-                            controller.isPlaying.value ? controller.enableController() : controller.togglePlayPause();
-                          }
-                        },
-                        onDoubleTap: () => controller.isWindowFullscreen.value
-                            ? controller.toggleWindowFullScreen()
-                            : controller.toggleFullScreen(),
-                        child: BrightnessVolumnDargArea(
-                          controller: controller,
-                        )),
-                    SettingsPanel(
-                      controller: controller,
-                    ),
-                    LockButton(controller: controller),
-                    TopActionBar(
-                      controller: controller,
-                      barHeight: barHeight,
-                    ),
-                    BottomActionBar(
-                      controller: controller,
-                      barHeight: barHeight,
-                    ),
-                  ]),
-                )),
+                  ),
+          ),
         ),
       ),
     );
@@ -180,10 +172,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
 }
 
 class ErrorWidget extends StatelessWidget {
-  const ErrorWidget({
-    super.key,
-    required this.controller,
-  });
+  const ErrorWidget({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -195,21 +184,12 @@ class ErrorWidget extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(
-              S.of(context).play_video_failed,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
+            child: Text(S.of(context).play_video_failed, style: const TextStyle(color: Colors.white, fontSize: 16)),
           ),
           ElevatedButton(
             onPressed: () => controller.refresh(),
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
-            ),
-            child: Text(
-              S.of(context).retry,
-              style: const TextStyle(color: Colors.white),
-            ),
+            style: ElevatedButton.styleFrom(elevation: 0, backgroundColor: Colors.white.withValues(alpha: 0.2)),
+            child: Text(S.of(context).retry, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -219,11 +199,7 @@ class ErrorWidget extends StatelessWidget {
 
 // Top action bar widgets
 class TopActionBar extends StatelessWidget {
-  const TopActionBar({
-    super.key,
-    required this.controller,
-    required this.barHeight,
-  });
+  const TopActionBar({super.key, required this.controller, required this.barHeight});
 
   final VideoController controller;
   final double barHeight;
@@ -232,7 +208,8 @@ class TopActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => AnimatedPositioned(
-        top: (!controller.isPipMode.value &&
+        top:
+            (!controller.isPipMode.value &&
                 !controller.showSettting.value &&
                 controller.showController.value &&
                 !controller.showLocked.value)
@@ -253,24 +230,23 @@ class TopActionBar extends StatelessWidget {
               colors: [Colors.transparent, Colors.black45],
             ),
           ),
-          child: Row(children: [
-            if (controller.fullscreenUI) BackButton(controller: controller),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  controller.room.title!,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, decoration: TextDecoration.none),
+          child: Row(
+            children: [
+              if (controller.fullscreenUI) BackButton(controller: controller),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    controller.room.title!,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 16, decoration: TextDecoration.none),
+                  ),
                 ),
               ),
-            ),
-            if (controller.fullscreenUI) ...[
-              const DatetimeInfo(),
-              BatteryInfo(controller: controller),
+              if (controller.fullscreenUI) ...[const DatetimeInfo(), BatteryInfo(controller: controller)],
+              if (!controller.fullscreenUI && controller.supportPip) PIPButton(controller: controller),
             ],
-            if (!controller.fullscreenUI && controller.supportPip) PIPButton(controller: controller),
-          ]),
+          ),
         ),
       ),
     );
@@ -350,10 +326,12 @@ class _BatteryInfoState extends State<BatteryInfo> {
           borderRadius: BorderRadius.circular(4),
         ),
         child: Center(
-          child: Obx(() => Text(
-                '${widget.controller.batteryLevel.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 9, decoration: TextDecoration.none),
-              )),
+          child: Obx(
+            () => Text(
+              '${widget.controller.batteryLevel.value}',
+              style: const TextStyle(color: Colors.white, fontSize: 9, decoration: TextDecoration.none),
+            ),
+          ),
         ),
       ),
     );
@@ -373,10 +351,7 @@ class BackButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
-        child: const Icon(
-          Icons.arrow_back_rounded,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
       ),
     );
   }
@@ -394,47 +369,39 @@ class PIPButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
-        child: const Icon(
-          CustomIcons.float_window,
-          color: Colors.white,
-        ),
+        child: const Icon(CustomIcons.float_window, color: Colors.white),
       ),
     );
   }
 }
 
 // Center widgets
-// Center widgets
 class DanmakuViewer extends StatelessWidget {
-  const DanmakuViewer({
-    super.key,
-    required this.controller,
-  });
+  const DanmakuViewer({super.key, required this.controller});
 
   final VideoController controller;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => DanmakuScreen(
-          createdController: (c) {
-            controller.setDanmukuController(c);
-          },
-          option: DanmakuOption(
-            fontSize: controller.danmakuFontSize.value,
-            area: controller.danmakuArea.value,
-            duration: controller.danmakuSpeed.value.toInt(),
-            opacity: controller.danmakuOpacity.value,
-            fontWeight: controller.danmakuFontBorder.value.toInt(),
-          ),
-        ));
+    return Obx(
+      () => DanmakuScreen(
+        createdController: (c) {
+          controller.setDanmukuController(c);
+        },
+        option: DanmakuOption(
+          fontSize: controller.danmakuFontSize.value,
+          area: controller.danmakuArea.value,
+          duration: controller.danmakuSpeed.value.toInt(),
+          opacity: controller.danmakuOpacity.value,
+          fontWeight: controller.danmakuFontBorder.value.toInt(),
+        ),
+      ),
+    );
   }
 }
 
 class BrightnessVolumnDargArea extends StatefulWidget {
-  const BrightnessVolumnDargArea({
-    super.key,
-    required this.controller,
-  });
+  const BrightnessVolumnDargArea({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -501,8 +468,9 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
     }
     _cancelAndRestartHideBVTimer();
 
-    double dragRange =
-        (delta.direction < 0 || delta.direction > pi) ? _updateDargVarVal + 0.01 : _updateDargVarVal - 0.01;
+    double dragRange = (delta.direction < 0 || delta.direction > pi)
+        ? _updateDargVarVal + 0.01
+        : _updateDargVarVal - 0.01;
     // 是否溢出
     dragRange = min(dragRange, 1.0);
     dragRange = max(dragRange, 0.0);
@@ -522,14 +490,14 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
       iconData = _updateDargVarVal <= 0
           ? Icons.brightness_low
           : _updateDargVarVal < 0.5
-              ? Icons.brightness_medium
-              : Icons.brightness_high;
+          ? Icons.brightness_medium
+          : Icons.brightness_high;
     } else {
       iconData = _updateDargVarVal <= 0
           ? Icons.volume_mute
           : _updateDargVarVal < 0.5
-              ? Icons.volume_down
-              : Icons.volume_up;
+          ? Icons.volume_down
+          : Icons.volume_up;
     }
 
     return Listener(
@@ -564,9 +532,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
                           child: LinearProgressIndicator(
                             value: _updateDargVarVal,
                             backgroundColor: Colors.white38,
-                            valueColor: AlwaysStoppedAnimation(
-                              Theme.of(context).tabBarTheme.indicatorColor,
-                            ),
+                            valueColor: AlwaysStoppedAnimation(Theme.of(context).tabBarTheme.indicatorColor),
                           ),
                         ),
                       ),
@@ -589,92 +555,89 @@ class LockButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => AnimatedOpacity(
-          opacity: (!controller.isPipMode.value &&
-                  !controller.showSettting.value &&
-                  controller.fullscreenUI &&
-                  controller.showController.value)
-              ? 0.9
-              : 0.0,
-          duration: const Duration(milliseconds: 300),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: AbsorbPointer(
-              absorbing: !controller.showController.value,
-              child: Container(
-                margin: const EdgeInsets.only(right: 20.0),
-                child: IconButton(
-                  onPressed: () => {
-                    controller.showLocked.toggle(),
-                  },
-                  icon: Icon(
-                    controller.showLocked.value ? Icons.lock_rounded : Icons.lock_open_rounded,
-                    size: 28,
-                  ),
-                  color: Colors.white,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.black38,
-                    shape: const StadiumBorder(),
-                    minimumSize: const Size(50, 50),
-                  ),
+    return Obx(
+      () => AnimatedOpacity(
+        opacity:
+            (!controller.isPipMode.value &&
+                !controller.showSettting.value &&
+                controller.fullscreenUI &&
+                controller.showController.value)
+            ? 0.9
+            : 0.0,
+        duration: const Duration(milliseconds: 300),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: AbsorbPointer(
+            absorbing: !controller.showController.value,
+            child: Container(
+              margin: const EdgeInsets.only(right: 20.0),
+              child: IconButton(
+                onPressed: () => {controller.showLocked.toggle()},
+                icon: Icon(controller.showLocked.value ? Icons.lock_rounded : Icons.lock_open_rounded, size: 28),
+                color: Colors.white,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black38,
+                  shape: const StadiumBorder(),
+                  minimumSize: const Size(50, 50),
                 ),
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
 // Bottom action bar widgets
 class BottomActionBar extends StatelessWidget {
-  const BottomActionBar({
-    super.key,
-    required this.controller,
-    required this.barHeight,
-  });
+  const BottomActionBar({super.key, required this.controller, required this.barHeight});
 
   final VideoController controller;
   final double barHeight;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => AnimatedPositioned(
-          bottom: (!controller.isPipMode.value &&
-                  !controller.showSettting.value &&
-                  controller.showController.value &&
-                  !controller.showLocked.value)
-              ? 0
-              : -barHeight,
-          left: 0,
-          right: 0,
+    return Obx(
+      () => AnimatedPositioned(
+        bottom:
+            (!controller.isPipMode.value &&
+                !controller.showSettting.value &&
+                controller.showController.value &&
+                !controller.showLocked.value)
+            ? 0
+            : -barHeight,
+        left: 0,
+        right: 0,
+        height: barHeight,
+        duration: const Duration(milliseconds: 300),
+        child: Container(
           height: barHeight,
-          duration: const Duration(milliseconds: 300),
-          child: Container(
-            height: barHeight,
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Colors.black45],
-              ),
-            ),
-            child: Row(
-              children: <Widget>[
-                PlayPauseButton(controller: controller),
-                RefreshButton(controller: controller),
-                DanmakuButton(controller: controller),
-                FavoriteButton(controller: controller),
-                if (controller.isFullscreen.value) SettingsButton(controller: controller),
-                const Spacer(),
-                if (controller.supportWindowFull && !controller.isFullscreen.value)
-                  ExpandWindowButton(controller: controller),
-                if (!controller.isWindowFullscreen.value) ExpandButton(controller: controller),
-              ],
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.transparent, Colors.black45],
             ),
           ),
-        ));
+          child: Row(
+            children: <Widget>[
+              PlayPauseButton(controller: controller),
+              RefreshButton(controller: controller),
+              DanmakuButton(controller: controller),
+              FavoriteButton(controller: controller),
+              if (controller.isFullscreen.value) SettingsButton(controller: controller),
+              const Spacer(),
+              if (controller.supportWindowFull && !controller.isFullscreen.value)
+                ExpandWindowButton(controller: controller),
+              if (!controller.isWindowFullscreen.value) ExpandButton(controller: controller),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -687,14 +650,13 @@ class PlayPauseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => controller.togglePlayPause(),
-      child: Obx(() => Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(12),
-            child: Icon(
-              controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
-              color: Colors.white,
-            ),
-          )),
+      child: Obx(
+        () => Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(12),
+          child: Icon(controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.white),
+        ),
+      ),
     );
   }
 }
@@ -711,10 +673,7 @@ class RefreshButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
-        child: const Icon(
-          Icons.refresh_rounded,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.refresh_rounded, color: Colors.white),
       ),
     );
   }
@@ -727,26 +686,22 @@ class ScreenToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => GestureDetector(
-          onTap: () =>
-              controller.isVertical.value ? controller.setLandscapeOrientation() : controller.setPortraitOrientation(),
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(12),
-            child: Icon(
-              controller.isVertical.value ? Icons.crop_landscape : Icons.crop_portrait,
-              color: Colors.white,
-            ),
-          ),
-        ));
+    return Obx(
+      () => GestureDetector(
+        onTap: () =>
+            controller.isVertical.value ? controller.setLandscapeOrientation() : controller.setPortraitOrientation(),
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(12),
+          child: Icon(controller.isVertical.value ? Icons.crop_landscape : Icons.crop_portrait, color: Colors.white),
+        ),
+      ),
+    );
   }
 }
 
 class DanmakuButton extends StatelessWidget {
-  const DanmakuButton({
-    super.key,
-    required this.controller,
-  });
+  const DanmakuButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -757,10 +712,12 @@ class DanmakuButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
-        child: Obx(() => Icon(
-              controller.hideDanmaku.value ? CustomIcons.danmaku_close : CustomIcons.danmaku_open,
-              color: Colors.white,
-            )),
+        child: Obx(
+          () => Icon(
+            controller.hideDanmaku.value ? CustomIcons.danmaku_close : CustomIcons.danmaku_open,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
@@ -778,10 +735,7 @@ class SettingsButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
-        child: const Icon(
-          CustomIcons.danmaku_setting,
-          color: Colors.white,
-        ),
+        child: const Icon(CustomIcons.danmaku_setting, color: Colors.white),
       ),
     );
   }
@@ -801,11 +755,13 @@ class ExpandWindowButton extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: RotatedBox(
           quarterTurns: 1,
-          child: Obx(() => Icon(
-                controller.isWindowFullscreen.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
-                color: Colors.white,
-                size: 26,
-              )),
+          child: Obx(
+            () => Icon(
+              controller.isWindowFullscreen.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
+              color: Colors.white,
+              size: 26,
+            ),
+          ),
         ),
       ),
     );
@@ -824,21 +780,20 @@ class ExpandButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
-        child: Obx(() => Icon(
-              controller.isFullscreen.value ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
-              color: Colors.white,
-              size: 26,
-            )),
+        child: Obx(
+          () => Icon(
+            controller.isFullscreen.value ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+            color: Colors.white,
+            size: 26,
+          ),
+        ),
       ),
     );
   }
 }
 
 class FavoriteButton extends StatefulWidget {
-  const FavoriteButton({
-    super.key,
-    required this.controller,
-  });
+  const FavoriteButton({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -864,10 +819,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
-        child: Icon(
-          !isFavorite ? Icons.favorite_outline_outlined : Icons.favorite_rounded,
-          color: Colors.white,
-        ),
+        child: Icon(!isFavorite ? Icons.favorite_outline_outlined : Icons.favorite_rounded, color: Colors.white),
       ),
     );
   }
@@ -875,10 +827,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
 
 // Settings panel widgets
 class SettingsPanel extends StatelessWidget {
-  const SettingsPanel({
-    super.key,
-    required this.controller,
-  });
+  const SettingsPanel({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -886,34 +835,33 @@ class SettingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => AnimatedPositioned(
-          top: 0,
-          bottom: 0,
-          right: controller.showSettting.value ? 0 : -width,
-          width: width,
-          duration: const Duration(milliseconds: 500),
-          child: Card(
-            color: Colors.black.withValues(alpha: 0.8),
-            child: SizedBox(
-              width: width,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  VideoFitSetting(controller: controller),
-                  DanmakuSetting(controller: controller),
-                ],
-              ),
+    return Obx(
+      () => AnimatedPositioned(
+        top: 0,
+        bottom: 0,
+        right: controller.showSettting.value ? 0 : -width,
+        width: width,
+        duration: const Duration(milliseconds: 500),
+        child: Card(
+          color: Colors.black.withValues(alpha: 0.8),
+          child: SizedBox(
+            width: width,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                VideoFitSetting(controller: controller),
+                DanmakuSetting(controller: controller),
+              ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
 class VideoFitSetting extends StatefulWidget {
-  const VideoFitSetting({
-    super.key,
-    required this.controller,
-  });
+  const VideoFitSetting({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -964,14 +912,12 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
               });
             },
             children: fitmodes.keys
-                .map<Widget>((e) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(e,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                          )),
-                    ))
+                .map<Widget>(
+                  (e) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(e, style: const TextStyle(fontSize: 12, color: Colors.white)),
+                  ),
+                )
                 .toList(),
           ),
         ),
@@ -981,10 +927,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
 }
 
 class DanmakuSetting extends StatelessWidget {
-  const DanmakuSetting({
-    super.key,
-    required this.controller,
-  });
+  const DanmakuSetting({super.key, required this.controller});
 
   final VideoController controller;
 
@@ -993,98 +936,85 @@ class DanmakuSetting extends StatelessWidget {
     const TextStyle label = TextStyle(color: Colors.white);
     const TextStyle digit = TextStyle(color: Colors.white);
 
-    return Obx(() => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Text(
-                S.of(context).settings_danmaku_title,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
-              ),
+    return Obx(
+      () => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              S.of(context).settings_danmaku_title,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
             ),
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_area, style: label),
-              title: Slider(
-                divisions: 10,
-                min: 0.0,
-                max: 1.0,
-                value: controller.danmakuArea.value,
-                onChanged: (val) => controller.danmakuArea.value = val,
-              ),
-              trailing: Text(
-                '${(controller.danmakuArea.value * 100).toInt()}%',
-                style: digit,
-              ),
+          ),
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Text(S.of(context).settings_danmaku_area, style: label),
+            title: Slider(
+              divisions: 10,
+              min: 0.0,
+              max: 1.0,
+              value: controller.danmakuArea.value,
+              onChanged: (val) => controller.danmakuArea.value = val,
             ),
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_opacity, style: label),
-              title: Slider(
-                divisions: 10,
-                min: 0.0,
-                max: 1.0,
-                value: controller.danmakuOpacity.value,
-                onChanged: (val) => controller.danmakuOpacity.value = val,
-              ),
-              trailing: Text(
-                '${(controller.danmakuOpacity.value * 100).toInt()}%',
-                style: digit,
-              ),
+            trailing: Text('${(controller.danmakuArea.value * 100).toInt()}%', style: digit),
+          ),
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Text(S.of(context).settings_danmaku_opacity, style: label),
+            title: Slider(
+              divisions: 10,
+              min: 0.0,
+              max: 1.0,
+              value: controller.danmakuOpacity.value,
+              onChanged: (val) => controller.danmakuOpacity.value = val,
             ),
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_speed, style: label),
-              title: Slider(
-                divisions: 15,
-                min: 5.0,
-                max: 20.0,
-                value: controller.danmakuSpeed.value,
-                onChanged: (val) => controller.danmakuSpeed.value = val,
-              ),
-              trailing: Text(
-                controller.danmakuSpeed.value.toInt().toString(),
-                style: digit,
-              ),
+            trailing: Text('${(controller.danmakuOpacity.value * 100).toInt()}%', style: digit),
+          ),
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Text(S.of(context).settings_danmaku_speed, style: label),
+            title: Slider(
+              divisions: 15,
+              min: 5.0,
+              max: 20.0,
+              value: controller.danmakuSpeed.value,
+              onChanged: (val) => controller.danmakuSpeed.value = val,
             ),
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_fontsize, style: label),
-              title: Slider(
-                divisions: 20,
-                min: 10.0,
-                max: 30.0,
-                value: controller.danmakuFontSize.value,
-                onChanged: (val) => controller.danmakuFontSize.value = val,
-              ),
-              trailing: Text(
-                controller.danmakuFontSize.value.toInt().toString(),
-                style: digit,
-              ),
+            trailing: Text(controller.danmakuSpeed.value.toInt().toString(), style: digit),
+          ),
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Text(S.of(context).settings_danmaku_fontsize, style: label),
+            title: Slider(
+              divisions: 20,
+              min: 10.0,
+              max: 30.0,
+              value: controller.danmakuFontSize.value,
+              onChanged: (val) => controller.danmakuFontSize.value = val,
             ),
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Text(S.of(context).settings_danmaku_fontBorder, style: label),
-              title: Slider(
-                divisions: 8,
-                min: 0.0,
-                max: 8.0,
-                value: controller.danmakuFontBorder.value,
-                onChanged: (val) => controller.danmakuFontBorder.value = val,
-              ),
-              trailing: Text(
-                controller.danmakuFontBorder.value.toStringAsFixed(2),
-                style: digit,
-              ),
+            trailing: Text(controller.danmakuFontSize.value.toInt().toString(), style: digit),
+          ),
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Text(S.of(context).settings_danmaku_fontBorder, style: label),
+            title: Slider(
+              divisions: 8,
+              min: 0.0,
+              max: 8.0,
+              value: controller.danmakuFontBorder.value,
+              onChanged: (val) => controller.danmakuFontBorder.value = val,
             ),
-          ],
-        ));
+            trailing: Text(controller.danmakuFontBorder.value.toStringAsFixed(2), style: digit),
+          ),
+        ],
+      ),
+    );
   }
 }

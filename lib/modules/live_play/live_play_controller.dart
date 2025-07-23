@@ -266,14 +266,14 @@ class LivePlayController extends StateController {
     return false;
   }
 
-  disPoserPlayer() {
+  void disPoserPlayer() {
     videoController?.dispose();
     videoController = null;
     liveDanmaku.stop();
     success.value = false;
   }
 
-  handleCurrentLineAndQuality({
+  void handleCurrentLineAndQuality({
     ReloadDataType reloadDataType = ReloadDataType.refreash,
     int line = 0,
     bool active = false,
@@ -289,7 +289,7 @@ class LivePlayController extends StateController {
     }
   }
 
-  restoryQualityAndLines() {
+  void restoryQualityAndLines() {
     playUrls.value = [];
     currentLineIndex.value = 0;
     qualites.value = [];
@@ -476,7 +476,7 @@ class LivePlayController extends StateController {
     });
   }
 
-  openNaviteAPP() async {
+  Future<void> openNaviteAPP() async {
     var naviteUrl = "";
     var webUrl = "";
     if (site == Sites.bilibiliSite) {

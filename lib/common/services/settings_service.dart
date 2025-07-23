@@ -146,7 +146,7 @@ class SettingsService extends GetxController {
   };
   final themeModeName = (PrefUtil.getString('themeMode') ?? "System").obs;
 
-  get themeMode => SettingsService.themeModes[themeModeName.value]!;
+  ThemeMode get themeMode => SettingsService.themeModes[themeModeName.value]!;
 
   void changeThemeMode(String mode) {
     themeModeName.value = mode;
@@ -187,8 +187,9 @@ class SettingsService extends GetxController {
   };
 
   // Make a custom ColorSwatch to name map from the above custom colors.
-  final Map<ColorSwatch<Object>, String> colorsNameMap =
-      themeColors.map((key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key));
+  final Map<ColorSwatch<Object>, String> colorsNameMap = themeColors.map(
+    (key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key),
+  );
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
 
@@ -202,7 +203,7 @@ class SettingsService extends GetxController {
   };
   final languageName = (PrefUtil.getString('language') ?? "简体中文").obs;
 
-  get language => SettingsService.languages[languageName.value]!;
+  Locale get language => SettingsService.languages[languageName.value]!;
 
   void changeLanguage(String value) {
     languageName.value = value;
@@ -263,7 +264,7 @@ class SettingsService extends GetxController {
     BoxFit.fill,
     BoxFit.cover,
     BoxFit.fitWidth,
-    BoxFit.fitHeight
+    BoxFit.fitHeight,
   ];
 
   final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
@@ -313,7 +314,7 @@ class SettingsService extends GetxController {
     Sites.douyinSite,
     Sites.kuaishouSite,
     Sites.ccSite,
-    Sites.iptvSite
+    Sites.iptvSite,
   ];
 
   final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
@@ -331,17 +332,15 @@ class SettingsService extends GetxController {
     return favoriteRooms.any((element) => element.roomId == room.roomId);
   }
 
-  LiveRoom getLiveRoomByRoomId(roomId, String platform) {
+  LiveRoom getLiveRoomByRoomId(String roomId, String platform) {
     if (!favoriteRooms.any((element) => element.roomId == roomId) &&
         !historyRooms.any((element) => element.roomId == roomId)) {
-      return LiveRoom(
-        roomId: roomId,
-        platform: platform,
-        liveStatus: LiveStatus.unknown,
-      );
+      return LiveRoom(roomId: roomId, platform: platform, liveStatus: LiveStatus.unknown);
     }
-    return favoriteRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform,
-        orElse: () => historyRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform));
+    return favoriteRooms.firstWhere(
+      (element) => element.roomId == roomId && element.platform == platform,
+      orElse: () => historyRooms.firstWhere((element) => element.roomId == roomId && element.platform == platform),
+    );
   }
 
   bool addRoom(LiveRoom room) {
@@ -376,7 +375,7 @@ class SettingsService extends GetxController {
     return true;
   }
 
-  updateRooms(List<LiveRoom> rooms) {
+  void updateRooms(List<LiveRoom> rooms) {
     favoriteRooms.value = rooms;
   }
 
@@ -405,13 +404,17 @@ class SettingsService extends GetxController {
       ((PrefUtil.getStringList('favoriteAreas') ?? []).map((e) => LiveArea.fromJson(jsonDecode(e))).toList()).obs;
 
   bool isFavoriteArea(LiveArea area) {
-    return favoriteAreas.any((element) =>
-        element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType);
+    return favoriteAreas.any(
+      (element) =>
+          element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType,
+    );
   }
 
   bool addArea(LiveArea area) {
-    if (favoriteAreas.any((element) =>
-        element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType)) {
+    if (favoriteAreas.any(
+      (element) =>
+          element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType,
+    )) {
       return false;
     }
     favoriteAreas.add(area);
@@ -419,8 +422,10 @@ class SettingsService extends GetxController {
   }
 
   bool removeArea(LiveArea area) {
-    if (!favoriteAreas.any((element) =>
-        element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType)) {
+    if (!favoriteAreas.any(
+      (element) =>
+          element.areaId == area.areaId && element.platform == area.platform && element.areaType == area.areaType,
+    )) {
       return false;
     }
     favoriteAreas.remove(area);
@@ -452,7 +457,7 @@ class SettingsService extends GetxController {
     return true;
   }
 
-  setBilibiliCookit(cookie) {
+  void setBilibiliCookit(String cookie) {
     final BiliBiliAccountService biliAccountService = Get.find<BiliBiliAccountService>();
     if (biliAccountService.cookie.isEmpty || biliAccountService.uid == 0) {
       biliAccountService.resetCookie(cookie);
@@ -468,8 +473,9 @@ class SettingsService extends GetxController {
         ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList()
         : [];
     shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
-    hotAreasList.value =
-        json['hotAreasList'] != null ? (json['hotAreasList'] as List).map((e) => e.toString()).toList() : [];
+    hotAreasList.value = json['hotAreasList'] != null
+        ? (json['hotAreasList'] as List).map((e) => e.toString()).toList()
+        : [];
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     autoRefreshTime.value = json['autoRefreshTime'] ?? 3;
     themeModeName.value = json['themeMode'] ?? "System";
@@ -489,8 +495,9 @@ class SettingsService extends GetxController {
     danmakuArea.value = json['danmakuArea'] != null ? double.parse(json['danmakuArea'].toString()) : 1.0;
     danmakuSpeed.value = json['danmakuSpeed'] != null ? double.parse(json['danmakuSpeed'].toString()) : 8.0;
     danmakuFontSize.value = json['danmakuFontSize'] != null ? double.parse(json['danmakuFontSize'].toString()) : 16.0;
-    danmakuFontBorder.value =
-        json['danmakuFontBorder'] != null ? double.parse(json['danmakuFontBorder'].toString()) : 4.0;
+    danmakuFontBorder.value = json['danmakuFontBorder'] != null
+        ? double.parse(json['danmakuFontBorder'].toString())
+        : 4.0;
     danmakuOpacity.value = json['danmakuOpacity'] != null ? double.parse(json['danmakuOpacity'].toString()) : 1.0;
     doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
@@ -549,7 +556,7 @@ class SettingsService extends GetxController {
     return json;
   }
 
-  defaultConfig() {
+  Map<String, dynamic> defaultConfig() {
     Map<String, dynamic> json = {
       "favoriteRooms": [],
       "favoriteAreas": [],
@@ -581,7 +588,7 @@ class SettingsService extends GetxController {
       'bilibiliCookie': '',
       'huyaCookie': '',
       'shieldList': [],
-      "hotAreasList": []
+      "hotAreasList": [],
     };
     return json;
   }

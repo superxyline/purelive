@@ -6,11 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 // ignore: must_be_immutable
 class RoomCard extends StatelessWidget {
-  const RoomCard({
-    super.key,
-    required this.room,
-    this.dense = false,
-  });
+  const RoomCard({super.key, required this.room, this.dense = false});
   final LiveRoom room;
   final bool dense;
 
@@ -23,24 +19,21 @@ class RoomCard extends StatelessWidget {
       AlertDialog(
         title: Text(room.title!),
         content: Text(
-          S.of(context).room_info_content(
-                room.roomId!,
-                room.platform!,
-                room.nick!,
-                room.title!,
-                room.liveStatus!.name,
-              ),
+          S.of(context).room_info_content(room.roomId!, room.platform!, room.nick!, room.title!, room.liveStatus!.name),
         ),
         actions: [FollowButton(room: room)],
       ),
     );
   }
 
-  ImageProvider? getRoomAvatar(avatar) {
+  ImageProvider? getRoomAvatar(String avatar) {
     try {
-      return CachedNetworkImageProvider(avatar, errorListener: (err) {
-        log("CachedNetworkImageProvider: Image failed to load!");
-      });
+      return CachedNetworkImageProvider(
+        avatar,
+        errorListener: (err) {
+          log("CachedNetworkImageProvider: Image failed to load!");
+        },
+      );
     } catch (e) {
       return null;
     }
@@ -50,9 +43,7 @@ class RoomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(7.5),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
         onTap: () => onTap(context),
@@ -66,29 +57,18 @@ class RoomCard extends StatelessWidget {
                   aspectRatio: 16 / 9,
                   child: Card(
                     margin: const EdgeInsets.all(0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
                     clipBehavior: Clip.antiAlias,
                     color: Theme.of(context).focusColor,
                     elevation: 0,
                     child: room.liveStatus == LiveStatus.offline && room.cover!.isNotEmpty
-                        ? Center(
-                            child: Icon(
-                              Icons.tv_off_rounded,
-                              size: dense ? 36 : 60,
-                            ),
-                          )
+                        ? Center(child: Icon(Icons.tv_off_rounded, size: dense ? 36 : 60))
                         : CachedNetworkImage(
                             imageUrl: room.cover!,
                             cacheManager: CustomCacheManager.instance,
                             fit: BoxFit.fill,
-                            errorWidget: (context, error, stackTrace) => Center(
-                              child: Icon(
-                                Icons.live_tv_rounded,
-                                size: dense ? 38 : 62,
-                              ),
-                            ),
+                            errorWidget: (context, error, stackTrace) =>
+                                Center(child: Icon(Icons.live_tv_rounded, size: dense ? 38 : 62)),
                           ),
                   ),
                 ),
@@ -121,7 +101,7 @@ class RoomCard extends StatelessWidget {
               contentPadding: dense ? const EdgeInsets.only(left: 8, right: 10) : null,
               horizontalTitleGap: dense ? 8 : null,
               leading: CircleAvatar(
-                foregroundImage: room.avatar!.isNotEmpty ? getRoomAvatar(room.avatar) : null,
+                foregroundImage: room.avatar!.isNotEmpty ? getRoomAvatar(room.avatar!) : null,
                 radius: dense ? 17 : null,
                 backgroundColor: Theme.of(context).disabledColor,
               ),
@@ -129,30 +109,21 @@ class RoomCard extends StatelessWidget {
                 room.title ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: dense ? 12.5 : 15,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: dense ? 12.5 : 15, fontWeight: FontWeight.w500),
               ),
               subtitle: Text(
                 room.nick ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: dense ? 12 : 14,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: dense ? 12 : 14),
               ),
               trailing: dense
                   ? null
                   : Text(
                       room.platform != null ? room.platform!.toUpperCase() : '',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                     ),
-            )
+            ),
           ],
         ),
       ),
@@ -161,10 +132,7 @@ class RoomCard extends StatelessWidget {
 }
 
 class FollowButton extends StatefulWidget {
-  const FollowButton({
-    super.key,
-    required this.room,
-  });
+  const FollowButton({super.key, required this.room});
 
   final LiveRoom room;
 
@@ -195,13 +163,7 @@ class _FollowButtonState extends State<FollowButton> {
 }
 
 class CountChip extends StatelessWidget {
-  const CountChip({
-    super.key,
-    required this.icon,
-    required this.count,
-    this.dense = false,
-    this.color = Colors.black,
-  });
+  const CountChip({super.key, required this.icon, required this.count, this.dense = false, this.color = Colors.black});
 
   final IconData icon;
   final String count;
@@ -221,17 +183,12 @@ class CountChip extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: Colors.white.withValues(alpha: 0.8),
-              size: dense ? 18 : 20,
-            ),
+            Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: dense ? 18 : 20),
             Text(
               count,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: dense ? 15 : 18,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.white.withValues(alpha: 0.8), fontSize: dense ? 15 : 18),
             ),
           ],
         ),

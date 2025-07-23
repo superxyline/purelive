@@ -28,13 +28,10 @@ class SupaBaseManager {
     var mapString = await rootBundle.loadString("assets/keystore/supabase.json");
 
     supabasePolicy = SupabasePolicy.fromJson(jsonDecode(mapString)); // 获取配置信息
-    await Supabase.initialize(
-      url: supabasePolicy.supabaseUrl,
-      anonKey: supabasePolicy.supabaseKey,
-    );
+    await Supabase.initialize(url: supabasePolicy.supabaseUrl, anonKey: supabasePolicy.supabaseKey);
   }
 
-  signOut() {
+  void signOut() {
     client.auth.signOut().then((value) {
       Get.offAllNamed(RoutePath.kInitial);
     });
@@ -42,8 +39,10 @@ class SupaBaseManager {
 
   Future<bool> loadUploadConfig() async {
     final user = Get.find<AuthController>().user;
-    List<dynamic> data =
-        await client.from(supabasePolicy.checkTable).select().eq(supabasePolicy.email, user.email as Object);
+    List<dynamic> data = await client
+        .from(supabasePolicy.checkTable)
+        .select()
+        .eq(supabasePolicy.email, user.email as Object);
     if (data.isNotEmpty) {
       canUploadConfig = true;
       return true;
@@ -77,19 +76,28 @@ class SupaBaseManager {
             supabasePolicy.version: VersionUtil.version,
           })
           .eq(supabasePolicy.userId, userId)
-          .then((value) => SmartDialog.showToast('上传成功'), onError: (err) {
-            SmartDialog.showToast('上传失败,请稍后重试');
-          })
+          .then(
+            (value) => SmartDialog.showToast('上传成功'),
+            onError: (err) {
+              SmartDialog.showToast('上传失败,请稍后重试');
+            },
+          )
           .catchError((err) => {SmartDialog.showToast('上传失败,请稍后重试')});
     } else {
-      client.from(supabasePolicy.tableName).insert({
-        supabasePolicy.config: encryptData,
-        supabasePolicy.email: authController.user.email,
-        supabasePolicy.updateAt: formattedTime,
-        supabasePolicy.version: VersionUtil.version,
-      }).then((value) => SmartDialog.showToast('上传成功'), onError: (err) {
-        SmartDialog.showToast('上传失败,请稍后重试');
-      });
+      client
+          .from(supabasePolicy.tableName)
+          .insert({
+            supabasePolicy.config: encryptData,
+            supabasePolicy.email: authController.user.email,
+            supabasePolicy.updateAt: formattedTime,
+            supabasePolicy.version: VersionUtil.version,
+          })
+          .then(
+            (value) => SmartDialog.showToast('上传成功'),
+            onError: (err) {
+              SmartDialog.showToast('上传失败,请稍后重试');
+            },
+          );
     }
   }
 
@@ -107,9 +115,12 @@ class SupaBaseManager {
           .from(supabasePolicy.tableName)
           .select()
           .eq(supabasePolicy.userId, authController.user.id)
-          .then((value) => value, onError: (err) {
-        SmartDialog.showToast('下载失败,请稍后重试');
-      });
+          .then(
+            (value) => value,
+            onError: (err) {
+              SmartDialog.showToast('下载失败,请稍后重试');
+            },
+          );
       if (data.isNotEmpty) {
         SmartDialog.showToast('下载成功');
         String jsonString = data[0][supabasePolicy.config];

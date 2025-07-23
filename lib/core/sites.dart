@@ -19,55 +19,20 @@ class Sites {
   static const String ccSite = "cc";
   static const String iptvSite = "iptv";
   static List<Site> supportSites = [
-    Site(
-      id: "bilibili",
-      name: "哔哩",
-      logo: "assets/images/bilibili_2.png",
-      liveSite: BiliBiliSite(),
-    ),
-    Site(
-      id: "douyu",
-      name: "斗鱼",
-      logo: "assets/images/douyu.png",
-      liveSite: DouyuSite(),
-    ),
-    Site(
-      id: "huya",
-      name: "虎牙",
-      logo: "assets/images/huya.png",
-      liveSite: HuyaSite(),
-    ),
-    Site(
-      id: "douyin",
-      name: "抖音",
-      logo: "assets/images/douyin.png",
-      liveSite: DouyinSite(),
-    ),
-    Site(
-      id: "kuaishou",
-      name: "快手",
-      logo: "assets/images/kuaishou.png",
-      liveSite: KuaishowSite(),
-    ),
-    Site(
-      id: "cc",
-      name: "网易CC",
-      logo: "assets/images/cc.png",
-      liveSite: CCSite(),
-    ),
-    Site(
-      id: "iptv",
-      name: "网络",
-      logo: "assets/images/logo.png",
-      liveSite: IptvSite(),
-    ),
+    Site(id: "bilibili", name: "哔哩", logo: "assets/images/bilibili_2.png", liveSite: BiliBiliSite()),
+    Site(id: "douyu", name: "斗鱼", logo: "assets/images/douyu.png", liveSite: DouyuSite()),
+    Site(id: "huya", name: "虎牙", logo: "assets/images/huya.png", liveSite: HuyaSite()),
+    Site(id: "douyin", name: "抖音", logo: "assets/images/douyin.png", liveSite: DouyinSite()),
+    Site(id: "kuaishou", name: "快手", logo: "assets/images/kuaishou.png", liveSite: KuaishowSite()),
+    Site(id: "cc", name: "网易CC", logo: "assets/images/cc.png", liveSite: CCSite()),
+    Site(id: "iptv", name: "网络", logo: "assets/images/logo.png", liveSite: IptvSite()),
   ];
 
   static Site of(String id) {
     return supportSites.firstWhere((e) => id == e.id);
   }
 
-  List<Site> availableSites({containsAll = false}) {
+  List<Site> availableSites({bool containsAll = false}) {
     final SettingsService settingsService = Get.find<SettingsService>();
     if (containsAll) {
       var result = supportSites.where((element) => settingsService.hotAreasList.value.contains(element.id)).toList();
@@ -83,10 +48,5 @@ class Site {
   final String name;
   final String logo;
   final LiveSite liveSite;
-  Site({
-    required this.id,
-    required this.liveSite,
-    required this.logo,
-    required this.name,
-  });
+  Site({required this.id, required this.liveSite, required this.logo, required this.name});
 }

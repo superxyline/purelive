@@ -43,7 +43,7 @@ class KuaishowDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-  void joinRoom(joinData) {
+  void joinRoom(dynamic joinData) {
     webScoketUtils?.sendMessage(joinData);
   }
 

@@ -35,16 +35,18 @@ class IptvSite implements LiveSite {
 
   Future<List<LiveArea>> getSubCategores(IptvCategory liveCategory) async {
     List<LiveArea> subs = [];
-    List<M3uItem> lists = await IptvUtils.readCategoryItems(liveCategory.path);
+    List<M3uItem> lists = await IptvUtils.readCategoryItems(liveCategory.path!);
     for (var item in lists) {
-      subs.add(LiveArea(
-        areaPic: '',
-        areaId: item.link,
-        typeName: liveCategory.name,
-        areaType: liveCategory.id,
-        platform: Sites.iptvSite,
-        areaName: item.title,
-      ));
+      subs.add(
+        LiveArea(
+          areaPic: '',
+          areaId: item.link,
+          typeName: liveCategory.name,
+          areaType: liveCategory.id,
+          platform: Sites.iptvSite,
+          areaName: item.title,
+        ),
+      );
     }
 
     return subs;
@@ -74,8 +76,12 @@ class IptvSite implements LiveSite {
   LiveDanmaku getDanmaku() => EmptyDanmaku();
 
   @override
-  Future<bool> getLiveStatus(
-      {required String nick, required String platform, required String roomId, required String title}) {
+  Future<bool> getLiveStatus({
+    required String nick,
+    required String platform,
+    required String roomId,
+    required String title,
+  }) {
     return Future.value(true);
   }
 
@@ -83,11 +89,7 @@ class IptvSite implements LiveSite {
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
     List<LivePlayQuality> qualities = <LivePlayQuality>[];
 
-    var qualityItem = LivePlayQuality(
-      quality: '默认',
-      sort: 1,
-      data: <String>[detail.data],
-    );
+    var qualityItem = LivePlayQuality(quality: '默认', sort: 1, data: <String>[detail.data]);
     qualities.add(qualityItem);
     return Future.value(qualities);
   }
@@ -127,8 +129,12 @@ class IptvSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail(
-      {required String nick, required String platform, required String roomId, required String title}) async {
+  Future<LiveRoom> getRoomDetail({
+    required String nick,
+    required String platform,
+    required String roomId,
+    required String title,
+  }) async {
     return LiveRoom(
       cover: '',
       watching: '',

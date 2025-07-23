@@ -5,7 +5,7 @@ import 'package:pure_live/modules/hot_areas/hot_areas_controller.dart';
 class HotAreasPage extends GetView<HotAreasController> {
   const HotAreasPage({super.key});
 
-  _initListData() {
+  List<SwitchListTile> _initListData() {
     return controller.sites.map((e) {
       return SwitchListTile(
           title: Text(e.name),

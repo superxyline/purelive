@@ -5,7 +5,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.8.9
 
 environment:
-  sdk: '>=3.0.6 <4.0.0'
+  sdk: ^3.8.1
 dependencies:
   flutter:
     sdk: flutter
@@ -50,11 +50,7 @@ dependencies:
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0
   window_manager: ^0.5.0
-  url_protocol:
-    git:
-      url: https://github.com/LucasXu0/flutter_url_protocol.git
-      commit: 77a8420
-  windows_single_instance: ^1.0.0
+  windows_single_instance: ^1.0.1
   app_links: ^6.1.4
   protobuf: ^4.1.0
   fixnum: ^1.1.0
@@ -81,10 +77,9 @@ dependencies:
   logger: ^2.0.2+1
   crypto: ^3.0.3
   brotli: ^0.6.0
-  flutter_restart: 
-    git: https://github.com/liuchuancong/flutterRestartPluginWip.git
   move_to_desktop: ^0.0.2
   dlna_dart: ^0.0.8
+  canvas_danmaku: ^0.2.7
   dart_tars_protocol:
     git: https://github.com/xiaoyaocz/dart_tars_protocol.git
   tars_dart:
@@ -112,6 +107,7 @@ dev_dependencies:
   protoc_builder: ^0.4.1
   flutter_launcher_icons: ^0.14.1
   msix: ^3.16.7
+  intl_utils: ^2.8.11
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -4,13 +4,7 @@ class CoreLog {
   static bool enableLog = true;
   static Function(Level, String)? onPrintLog;
   static Logger logger = Logger(
-    printer: PrettyPrinter(
-      methodCount: 0,
-      errorMethodCount: 8,
-      lineLength: 120,
-      colors: true,
-      printEmojis: true,
-    ),
+    printer: PrettyPrinter(methodCount: 0, errorMethodCount: 8, lineLength: 120, colors: true, printEmojis: true),
   );
 
   static void d(String message) {
@@ -37,7 +31,7 @@ class CoreLog {
     logger.e("${DateTime.now().toString()}\n$message", stackTrace: stackTrace);
   }
 
-  static void error(e) {
+  static void error(dynamic e) {
     onPrintLog?.call(Level.error, e.toString());
     logger.e(
       "${DateTime.now().toString()}\n${e.toString()}",

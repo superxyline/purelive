@@ -11,7 +11,7 @@ class HuyaCookieController extends GetxController {
     cookieController.text = settingsService.huyaCookie.value;
   }
 
-  setCookie(String cookie) {
+  void setCookie(String cookie) {
     cookieController.text = cookie;
     settingsService.huyaCookie.value = cookie;
   }

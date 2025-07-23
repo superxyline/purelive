@@ -9,14 +9,14 @@ import 'package:pure_live/common/index.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:canvas_danmaku/danmaku_controller.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:canvas_danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
-import 'package:pure_live/plugins/danmaku/danmaku_controller.dart';
-import 'package:pure_live/plugins/danmaku/models/danmaku_option.dart';
+import 'package:canvas_danmaku/models/danmaku_content_item.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
-import 'package:pure_live/plugins/danmaku/models/danmaku_content_item.dart';
 
 class VideoController with ChangeNotifier {
   final GlobalKey playerKey;
@@ -67,7 +67,7 @@ class VideoController with ChangeNotifier {
   final refreshCompleted = true.obs;
 
   // ignore: prefer_typing_uninitialized_variables
-  late final pip;
+  late final Floating pip;
   // Video player status
   // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
   late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
@@ -106,6 +106,7 @@ class VideoController with ChangeNotifier {
   final showLocked = false.obs;
   final danmuKey = GlobalKey();
   double volume = 0.0;
+
   List<DanmakuController> danmakuControllers = [];
   Timer? _debounceTimer;
 
@@ -176,7 +177,7 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  initPagesConfig() {
+  void initPagesConfig() {
     if (allowScreenKeepOn) WakelockPlus.enable();
     initVideoController();
     initDanmaku();
@@ -207,16 +208,15 @@ class VideoController with ChangeNotifier {
       (player.platform as dynamic).setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
       (player.platform as dynamic).setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
     }
-    mediaPlayerController = media_kit_video.VideoController(player,
-        configuration: playerCompatMode
-            ? VideoControllerConfiguration(
-                vo: 'mediacodec_embed',
-                hwdec: 'mediacodec',
-              )
-            : VideoControllerConfiguration(
-                enableHardwareAcceleration: enableCodec,
-                androidAttachSurfaceAfterVideoParameters: false,
-              ));
+    mediaPlayerController = media_kit_video.VideoController(
+      player,
+      configuration: playerCompatMode
+          ? VideoControllerConfiguration(vo: 'mediacodec_embed', hwdec: 'mediacodec')
+          : VideoControllerConfiguration(
+              enableHardwareAcceleration: enableCodec,
+              androidAttachSurfaceAfterVideoParameters: false,
+            ),
+    );
     setDataSource(datasource);
     mediaPlayerController.player.stream.playing.listen((bool playing) {
       isPlaying.value = playing;
@@ -303,7 +303,7 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  refreshView() {
+  void refreshView() {
     refreshCompleted.value = false;
     Timer(const Duration(microseconds: 200), () {
       brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
@@ -352,19 +352,21 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  updateDanmaku() {
+  void updateDanmaku() {
     for (var controller in danmakuControllers) {
-      controller.updateOption(DanmakuOption(
-        fontSize: danmakuFontSize.value,
-        area: danmakuArea.value,
-        duration: danmakuSpeed.value.toInt(),
-        opacity: danmakuOpacity.value,
-        fontWeight: danmakuFontBorder.value.toInt(),
-      ));
+      controller.updateOption(
+        DanmakuOption(
+          fontSize: danmakuFontSize.value,
+          area: danmakuArea.value,
+          duration: danmakuSpeed.value.toInt(),
+          opacity: danmakuOpacity.value,
+          fontWeight: danmakuFontBorder.value.toInt(),
+        ),
+      );
     }
   }
 
-  setDanmukuController(DanmakuController controller) {
+  void setDanmukuController(DanmakuController controller) {
     if (danmakuControllers.isEmpty) {
       danmakuController = controller;
     }
@@ -373,10 +375,9 @@ class VideoController with ChangeNotifier {
 
   void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
-    danmakuController.addDanmaku(DanmakuContentItem(
-      msg.message,
-      color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b),
-    ));
+    danmakuController.addDanmaku(
+      DanmakuContentItem(msg.message, color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)),
+    );
   }
 
   @override
@@ -407,7 +408,7 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  destory() async {
+  Future<void> destory() async {
     isPlaying.value = false;
     hasError.value = false;
     livePlayController.success.value = false;
@@ -450,7 +451,7 @@ class VideoController with ChangeNotifier {
     mediaPlayerController.player.playOrPause();
   }
 
-  exitFullScreen() {
+  void exitFullScreen() {
     isFullscreen.value = false;
     if (key.currentState?.isFullscreen() ?? false) {
       key.currentState?.exitFullscreen();
@@ -462,10 +463,7 @@ class VideoController with ChangeNotifier {
   Future setLandscapeOrientation() async {
     isVertical.value = false;
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
   }
 
   /// 设置竖屏
@@ -504,10 +502,7 @@ class VideoController with ChangeNotifier {
 
     if (Platform.isWindows || Platform.isLinux) {
       if (!isWindowFullscreen.value) {
-        Get.to(() => DesktopFullscreen(
-              controller: this,
-              key: UniqueKey(),
-            ));
+        Get.to(() => DesktopFullscreen(controller: this, key: UniqueKey()));
       } else {
         Navigator.of(Get.context!).pop();
       }
@@ -568,11 +563,13 @@ class DesktopFullscreen extends StatelessWidget {
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: [
-            Obx(() => media_kit_video.Video(
-                  controller: controller.mediaPlayerController,
-                  fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
-                  controls: (state) => VideoControllerPanel(controller: controller),
-                ))
+            Obx(
+              () => media_kit_video.Video(
+                controller: controller.mediaPlayerController,
+                fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
+                controls: (state) => VideoControllerPanel(controller: controller),
+              ),
+            ),
           ],
         ),
       ),

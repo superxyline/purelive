@@ -26,20 +26,20 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   void initState() {
     super.initState();
     // check update overlay ui
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) async {
-        // Android statusbar and navigationbar
-        if (Platform.isAndroid) {
-          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      // Android statusbar and navigationbar
+      if (Platform.isAndroid) {
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             systemNavigationBarColor: Theme.of(context).navigationBarTheme.backgroundColor,
-          ));
-          SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        } else {
-          windowManager.addListener(this);
-        }
-      },
-    );
+          ),
+        );
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      } else {
+        windowManager.addListener(this);
+      }
+    });
     addToOverlay();
     favoriteController.tabBottomIndex.addListener(() {
       setState(() => _selectedIndex = favoriteController.tabBottomIndex.value);
@@ -60,12 +60,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   }
 
   int _selectedIndex = 0;
-  final List<Widget> bodys = const [
-    FavoritePage(),
-    PopularPage(),
-    AreasPage(),
-    SearchPage(),
-  ];
+  final List<Widget> bodys = const [FavoritePage(), PopularPage(), AreasPage(), SearchPage()];
   void debounceListen(Function? func, [int delay = 1000]) {
     if (_debounceTimer != null) {
       _debounceTimer?.cancel();
@@ -77,7 +72,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     });
   }
 
-  handMoveRefresh() {
+  void handMoveRefresh() {
     favoriteController.onRefresh();
   }
 
@@ -109,7 +104,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     }
   }
 
-  void onBackButtonPressed(canPop, _) async {
+  void onBackButtonPressed(bool canPop, _) async {
     if (canPop) {
       final moveToDesktopPlugin = MoveToDesktop();
       moveToDesktopPlugin.moveToDesktop();

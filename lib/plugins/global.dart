@@ -1,6 +1,6 @@
 import 'package:pure_live/common/index.dart';
 
-initRefresh() {
+void initRefresh() {
   EasyRefresh.defaultHeaderBuilder = () => const ClassicHeader(
         armedText: '松开加载',
         dragText: '上拉刷新',

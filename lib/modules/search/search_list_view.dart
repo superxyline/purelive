@@ -15,10 +15,12 @@ class SearchListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraint) {
-      final width = constraint.maxWidth;
-      final crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      return Obx(() => EasyRefresh(
+    return LayoutBuilder(
+      builder: (context, constraint) {
+        final width = constraint.maxWidth;
+        final crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+        return Obx(
+          () => EasyRefresh(
             controller: controller.easyRefreshController,
             onRefresh: controller.refreshData,
             onLoad: controller.loadData,
@@ -32,14 +34,17 @@ class SearchListView extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final room = controller.list[index];
                       return OwnerCard(room: room);
-                    })
+                    },
+                  )
                 : EmptyView(
                     icon: Icons.live_tv_rounded,
                     title: S.of(context).empty_search_title,
                     subtitle: S.of(context).empty_search_subtitle,
                   ),
-          ));
-    });
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -61,11 +66,14 @@ class _OwnerCardState extends State<OwnerCard> {
 
   late bool isFavorite = settings.isFavorite(widget.room);
 
-  ImageProvider? getRoomAvatar(avatar) {
+  ImageProvider? getRoomAvatar(String avatar) {
     try {
-      return CachedNetworkImageProvider(avatar, errorListener: (err) {
-        log("CachedNetworkImageProvider: Image failed to load!");
-      });
+      return CachedNetworkImageProvider(
+        avatar,
+        errorListener: (err) {
+          log("CachedNetworkImageProvider: Image failed to load!");
+        },
+      );
     } catch (e) {
       return null;
     }
@@ -77,7 +85,7 @@ class _OwnerCardState extends State<OwnerCard> {
       child: ListTile(
         onTap: () => _onTap(context),
         leading: CircleAvatar(
-          foregroundImage: widget.room.avatar!.isNotEmpty ? getRoomAvatar(widget.room.avatar) : null,
+          foregroundImage: widget.room.avatar!.isNotEmpty ? getRoomAvatar(widget.room.avatar!) : null,
           radius: 20,
           backgroundColor: Theme.of(context).disabledColor,
         ),
@@ -90,11 +98,7 @@ class _OwnerCardState extends State<OwnerCard> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.room.nick!,
-              maxLines: 1,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+            Text(widget.room.nick!, maxLines: 1, style: const TextStyle(fontWeight: FontWeight.w500)),
             Text(
               widget.room.area!.isEmpty
                   ? "${widget.room.platform?.toUpperCase()}"
@@ -114,9 +118,7 @@ class _OwnerCardState extends State<OwnerCard> {
             }
           },
           style: isFavorite ? null : FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
-          child: Text(
-            isFavorite ? S.of(context).unfollow : S.of(context).follow,
-          ),
+          child: Text(isFavorite ? S.of(context).unfollow : S.of(context).follow),
         ),
       ),
     );

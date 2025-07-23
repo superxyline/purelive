@@ -1,12 +1,7 @@
 import 'dart:async';
-
 import 'package:web_socket_channel/io.dart';
 
-enum SocketStatus {
-  connected,
-  failed,
-  closed,
-}
+enum SocketStatus { connected, failed, closed }
 
 class WebScoketUtils {
   SocketStatus status = SocketStatus.closed;
@@ -67,11 +62,7 @@ class WebScoketUtils {
       if (backupUrl != null && backupUrl!.isNotEmpty && retry) {
         wsurl = backupUrl!;
       }
-      webSocket = IOWebSocketChannel.connect(
-        wsurl,
-        connectTimeout: const Duration(seconds: 10),
-        headers: headers,
-      );
+      webSocket = IOWebSocketChannel.connect(wsurl, connectTimeout: const Duration(seconds: 10), headers: headers);
 
       await webSocket?.ready;
       ready();
@@ -99,12 +90,9 @@ class WebScoketUtils {
   }
 
   void initHeartBeat() {
-    heartBeatTimer = Timer.periodic(
-      Duration(milliseconds: heartBeatTime),
-      (timer) {
-        onHeartBeat?.call();
-      },
-    );
+    heartBeatTimer = Timer.periodic(Duration(milliseconds: heartBeatTime), (timer) {
+      onHeartBeat?.call();
+    });
   }
 
   void receiveMessage(dynamic data) {
@@ -113,7 +101,7 @@ class WebScoketUtils {
     onMessage?.call(data);
   }
 
-  void onError(e, s) {
+  void onError(dynamic e, dynamic s) {
     status = SocketStatus.failed;
     onClose?.call(e.toString());
   }
