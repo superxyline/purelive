@@ -52,12 +52,7 @@ class ToolBoxController extends GetxController {
     String platform = parseResult[1];
     try {
       SmartDialog.showLoading(msg: "");
-      var detail = await Sites.of(platform).liveSite.getRoomDetail(
-            roomId: parseResult.first,
-            platform: platform,
-            nick: '',
-            title: '',
-          );
+      var detail = await Sites.of(platform).liveSite.getRoomDetail(roomId: parseResult.first, platform: platform);
       var qualites = await Sites.of(platform).liveSite.getPlayQualites(detail: detail);
       SmartDialog.dismiss(status: SmartStatus.loading);
       if (qualites.isEmpty) {
@@ -65,50 +60,45 @@ class ToolBoxController extends GetxController {
 
         return;
       }
-      var result = await Get.dialog(SimpleDialog(
-        title: const Text("选择清晰度"),
-        children: qualites
-            .map(
-              (e) => ListTile(
-                title: Text(
-                  e.quality,
-                  textAlign: TextAlign.center,
+      var result = await Get.dialog(
+        SimpleDialog(
+          title: const Text("选择清晰度"),
+          children: qualites
+              .map(
+                (e) => ListTile(
+                  title: Text(e.quality, textAlign: TextAlign.center),
+                  onTap: () {
+                    Navigator.of(Get.context!).pop(e);
+                  },
                 ),
-                onTap: () {
-                  Navigator.of(Get.context!).pop(e);
-                },
-              ),
-            )
-            .toList(),
-      ));
+              )
+              .toList(),
+        ),
+      );
       if (result == null) {
         return;
       }
       SmartDialog.showLoading(msg: "");
       var playUrls = await Sites.of(platform).liveSite.getPlayUrls(detail: detail, quality: result);
       SmartDialog.dismiss(status: SmartStatus.loading);
-      await Get.dialog(SimpleDialog(
-        title: const Text("选择线路"),
-        children: playUrls
-            .map(
-              (e) => ListTile(
-                title: Text(
-                  "线路${playUrls.indexOf(e) + 1}",
+      await Get.dialog(
+        SimpleDialog(
+          title: const Text("选择线路"),
+          children: playUrls
+              .map(
+                (e) => ListTile(
+                  title: Text("线路${playUrls.indexOf(e) + 1}"),
+                  subtitle: Text(e, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: e));
+                    Navigator.of(Get.context!).pop();
+                    SmartDialog.showToast("已复制直链");
+                  },
                 ),
-                subtitle: Text(
-                  e,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: e));
-                  Navigator.of(Get.context!).pop();
-                  SmartDialog.showToast("已复制直链");
-                },
-              ),
-            )
-            .toList(),
-      ));
+              )
+              .toList(),
+        ),
+      );
     } catch (e) {
       SmartDialog.showToast("读取直链失败");
     } finally {
@@ -118,7 +108,8 @@ class ToolBoxController extends GetxController {
 
   Future<List> parse(String url) async {
     final urlRegExp = RegExp(
-        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+      r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?",
+    );
     List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
     if (urlMatches.isEmpty) return [];
     String realUrl = urlMatches.first!;
@@ -205,7 +196,8 @@ class ToolBoxController extends GetxController {
 
   Future<String> getRealDouyinUrl(String url) async {
     final urlRegExp = RegExp(
-        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+      r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?",
+    );
     List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
     String realUrl = urlMatches.first!;
     var headers = {
@@ -218,7 +210,7 @@ class ToolBoxController extends GetxController {
       "Sec-Fetch-Site": "cross-site",
       "Sec-Fetch-Mode": "cors",
       "Sec-Fetch-Dest": "empty",
-      "Accept-Language": "zh-CN,zh;q=0.9"
+      "Accept-Language": "zh-CN,zh;q=0.9",
     };
     dio.Response response = await dio.Dio().get(
       realUrl,
@@ -226,16 +218,19 @@ class ToolBoxController extends GetxController {
     );
     final liveResponseRegExp = RegExp(r"/reflow/(\d+)");
     String reflow = liveResponseRegExp.firstMatch(response.realUri.toString())?.group(0) ?? "";
-    var liveResponse = await dio.Dio().get("https://webcast.amemv.com/webcast/room/reflow/info/", queryParameters: {
-      "room_id": reflow.split("/").last.toString(),
-      'verifyFp': '',
-      'type_id': 0,
-      'live_id': 1,
-      'sec_user_id': '',
-      'app_id': 1128,
-      'msToken': '',
-      'X-Bogus': '',
-    });
+    var liveResponse = await dio.Dio().get(
+      "https://webcast.amemv.com/webcast/room/reflow/info/",
+      queryParameters: {
+        "room_id": reflow.split("/").last.toString(),
+        'verifyFp': '',
+        'type_id': 0,
+        'live_id': 1,
+        'sec_user_id': '',
+        'app_id': 1128,
+        'msToken': '',
+        'X-Bogus': '',
+      },
+    );
     var room = liveResponse.data['data']['room']['owner']['web_rid'];
     return room.toString();
   }
@@ -243,12 +238,7 @@ class ToolBoxController extends GetxController {
   Future<String> getLocation(String url) async {
     try {
       if (url.isEmpty) return "";
-      await dio.Dio().get(
-        url,
-        options: dio.Options(
-          followRedirects: false,
-        ),
-      );
+      await dio.Dio().get(url, options: dio.Options(followRedirects: false));
     } on dio.DioException catch (e) {
       if (e.response!.statusCode == 302) {
         var redirectUrl = e.response!.headers.value("Location");

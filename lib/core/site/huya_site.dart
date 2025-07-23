@@ -210,12 +210,7 @@ class HuyaSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({
-    required String nick,
-    required String platform,
-    required String roomId,
-    required String title,
-  }) async {
+  Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
     var resultText = await HttpClient.instance.getText(
       'https://mp.huya.com/cache.php?m=Live&do=profileRoom&roomid=$roomId&showSecret=1',
       header: {
@@ -375,12 +370,7 @@ class HuyaSite implements LiveSite {
   }
 
   @override
-  Future<bool> getLiveStatus({
-    required String nick,
-    required String platform,
-    required String roomId,
-    required String title,
-  }) async {
+  Future<bool> getLiveStatus({required String platform, required String roomId}) async {
     var resultText = await HttpClient.instance.getText(
       "https://m.huya.com/$roomId",
       queryParameters: {},

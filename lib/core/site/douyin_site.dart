@@ -70,8 +70,9 @@ class DouyinSite implements LiveSite {
       header: await getRequestHeaders(),
     );
     var renderData = RegExp(r'\{\\"pathname\\":\\"\/\\",\\"categoryData.*?\]\\n').firstMatch(result)?.group(0) ?? "";
-    var renderDataJson =
-        json.decode(renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""));
+    var renderDataJson = json.decode(
+      renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""),
+    );
     for (var item in renderDataJson["categoryData"]) {
       List<LiveArea> subs = [];
       var id = '${item["partition"]["id_str"]},${item["partition"]["type"]}';
@@ -87,21 +88,18 @@ class DouyinSite implements LiveSite {
         subs.add(subCategory);
       }
 
-      var category = LiveCategory(
-        children: subs,
-        id: id,
-        name: asT<String?>(item["partition"]["title"]) ?? "",
-      );
+      var category = LiveCategory(children: subs, id: id, name: asT<String?>(item["partition"]["title"]) ?? "");
       subs.insert(
-          0,
-          LiveArea(
-            areaId: category.id,
-            typeName: category.name,
-            areaType: category.id,
-            areaPic: "",
-            areaName: category.name,
-            platform: Sites.douyinSite,
-          ));
+        0,
+        LiveArea(
+          areaId: category.id,
+          typeName: category.name,
+          areaType: category.id,
+          areaPic: "",
+          areaName: category.name,
+          platform: Sites.douyinSite,
+        ),
+      );
       categories.add(category);
     }
     return categories;
@@ -123,7 +121,7 @@ class DouyinSite implements LiveSite {
         "offset": (page - 1) * 15,
         "partition": partitionId,
         "partition_type": partitionType,
-        "req_from": 2
+        "req_from": 2,
       },
       header: await getRequestHeaders(),
     );
@@ -205,7 +203,7 @@ class DouyinSite implements LiveSite {
         "browser_language": "zh-CN",
         "browser_platform": "Win32",
         "browser_name": "Edge",
-        "browser_version": "125.0.0.0"
+        "browser_version": "125.0.0.0",
       },
       header: requestHeader,
     );
@@ -232,8 +230,7 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail(
-      {required String nick, required String platform, required String roomId, required String title}) async {
+  Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
     try {
       var detail = await getRoomWebDetail(roomId);
       var requestHeader = await getRequestHeaders();
@@ -259,7 +256,7 @@ class DouyinSite implements LiveSite {
           "browser_language": "zh-CN",
           "browser_platform": "Win32",
           "browser_name": "Edge",
-          "browser_version": "125.0.0.0"
+          "browser_version": "125.0.0.0",
         },
         header: requestHeader,
       );
@@ -349,11 +346,7 @@ class DouyinSite implements LiveSite {
         if (hlsIndex >= 0 && hlsIndex < hlsList.length) {
           urls.add(hlsList[hlsIndex]);
         }
-        var qualityItem = LivePlayQuality(
-          quality: quality["name"],
-          sort: level,
-          data: urls,
-        );
+        var qualityItem = LivePlayQuality(quality: quality["name"], sort: level, data: urls);
         if (urls.isNotEmpty) {
           qualities.add(qualityItem);
         }
@@ -371,11 +364,7 @@ class DouyinSite implements LiveSite {
         if (hlsUrl != null && hlsUrl.isNotEmpty) {
           urls.add(hlsUrl);
         }
-        var qualityItem = LivePlayQuality(
-          quality: quality["name"],
-          sort: quality["level"],
-          data: urls,
-        );
+        var qualityItem = LivePlayQuality(quality: quality["name"], sort: quality["level"], data: urls);
         if (urls.isNotEmpty) {
           qualities.add(qualityItem);
         }
@@ -396,41 +385,45 @@ class DouyinSite implements LiveSite {
   @override
   Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
     String serverUrl = "https://www.douyin.com/aweme/v1/web/live/search/";
-    var uri = Uri.parse(serverUrl).replace(scheme: "https", port: 443, queryParameters: {
-      "device_platform": "webapp",
-      "aid": "6383",
-      "channel": "channel_pc_web",
-      "search_channel": "aweme_live",
-      "keyword": keyword,
-      "search_source": "switch_tab",
-      "query_correct_type": "1",
-      "is_filter_search": "0",
-      "from_group_id": "",
-      "offset": ((page - 1) * 10).toString(),
-      "count": "10",
-      "pc_client_type": "1",
-      "version_code": "170400",
-      "version_name": "17.4.0",
-      "cookie_enabled": "true",
-      "screen_width": "1980",
-      "screen_height": "1080",
-      "browser_language": "zh-CN",
-      "browser_platform": "Win32",
-      "browser_name": "Edge",
-      "browser_version": "125.0.0.0",
-      "browser_online": "true",
-      "engine_name": "Blink",
-      "engine_version": "125.0.0.0",
-      "os_name": "Windows",
-      "os_version": "10",
-      "cpu_core_num": "12",
-      "device_memory": "8",
-      "platform": "PC",
-      "downlink": "10",
-      "effective_type": "4g",
-      "round_trip_time": "100",
-      "webid": "7382872326016435738",
-    });
+    var uri = Uri.parse(serverUrl).replace(
+      scheme: "https",
+      port: 443,
+      queryParameters: {
+        "device_platform": "webapp",
+        "aid": "6383",
+        "channel": "channel_pc_web",
+        "search_channel": "aweme_live",
+        "keyword": keyword,
+        "search_source": "switch_tab",
+        "query_correct_type": "1",
+        "is_filter_search": "0",
+        "from_group_id": "",
+        "offset": ((page - 1) * 10).toString(),
+        "count": "10",
+        "pc_client_type": "1",
+        "version_code": "170400",
+        "version_name": "17.4.0",
+        "cookie_enabled": "true",
+        "screen_width": "1980",
+        "screen_height": "1080",
+        "browser_language": "zh-CN",
+        "browser_platform": "Win32",
+        "browser_name": "Edge",
+        "browser_version": "125.0.0.0",
+        "browser_online": "true",
+        "engine_name": "Blink",
+        "engine_version": "125.0.0.0",
+        "os_name": "Windows",
+        "os_version": "10",
+        "cpu_core_num": "12",
+        "device_memory": "8",
+        "platform": "PC",
+        "downlink": "10",
+        "effective_type": "4g",
+        "round_trip_time": "100",
+        "webid": "7382872326016435738",
+      },
+    );
     var requlestUrl = uri.toString();
     var headResp = await HttpClient.instance.head('https://live.douyin.com', header: headers);
     var dyCookie = "";
@@ -493,9 +486,8 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<bool> getLiveStatus(
-      {required String nick, required String platform, required String roomId, required String title}) async {
-    var result = await getRoomDetail(roomId: roomId, platform: platform, title: title, nick: nick);
+  Future<bool> getLiveStatus({required String platform, required String roomId}) async {
+    var result = await getRoomDetail(roomId: roomId, platform: platform);
     return result.status!;
   }
 

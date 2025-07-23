@@ -14,10 +14,7 @@ import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 
 class LivePlayController extends StateController {
-  LivePlayController({
-    required this.room,
-    required this.site,
-  });
+  LivePlayController({required this.room, required this.site});
   final String site;
 
   late final Site currentSite = Sites.of(site);
@@ -195,9 +192,10 @@ class LivePlayController extends StateController {
     var liveRoom = await currentSite.liveSite.getRoomDetail(
       roomId: currentPlayRoom.value.roomId!,
       platform: currentPlayRoom.value.platform!,
-      title: currentPlayRoom.value.title!,
-      nick: currentPlayRoom.value.nick!,
     );
+    if (currentSite.id == Sites.iptvSite) {
+      liveRoom = liveRoom.copyWith(title: currentPlayRoom.value.title!, nick: currentPlayRoom.value.nick!);
+    }
     isLastLine.value = calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
     if (isLastLine.value) {
       hasError.value = true;
@@ -310,12 +308,7 @@ class LivePlayController extends StateController {
       );
     }
     messages.add(
-      LiveMessage(
-        type: LiveMessageType.chat,
-        userName: "系统消息",
-        message: "开始连接弹幕服务器",
-        color: LiveMessageColor.white,
-      ),
+      LiveMessage(type: LiveMessageType.chat, userName: "系统消息", message: "开始连接弹幕服务器", color: LiveMessageColor.white),
     );
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
@@ -329,22 +322,12 @@ class LivePlayController extends StateController {
     };
     liveDanmaku.onClose = (msg) {
       messages.add(
-        LiveMessage(
-          type: LiveMessageType.chat,
-          userName: "系统消息",
-          message: msg,
-          color: LiveMessageColor.white,
-        ),
+        LiveMessage(type: LiveMessageType.chat, userName: "系统消息", message: msg, color: LiveMessageColor.white),
       );
     };
     liveDanmaku.onReady = () {
       messages.add(
-        LiveMessage(
-          type: LiveMessageType.chat,
-          userName: "系统消息",
-          message: "弹幕服务器连接正常",
-          color: LiveMessageColor.white,
-        ),
+        LiveMessage(type: LiveMessageType.chat, userName: "系统消息", message: "弹幕服务器连接正常", color: LiveMessageColor.white),
       );
     };
   }
@@ -402,8 +385,10 @@ class LivePlayController extends StateController {
   }
 
   Future<void> getPlayUrl() async {
-    var playUrl =
-        await currentSite.liveSite.getPlayUrls(detail: detail.value!, quality: qualites[currentQuality.value]);
+    var playUrl = await currentSite.liveSite.getPlayUrls(
+      detail: detail.value!,
+      quality: qualites[currentQuality.value],
+    );
     if (playUrl.isEmpty) {
       SmartDialog.showToast("无法读取播放地址,请重新获取", displayTime: const Duration(seconds: 2));
       getVideoSuccess.value = false;
@@ -437,15 +422,11 @@ class LivePlayController extends StateController {
         "upgrade-insecure-requests": "1",
         "user-agent":
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "referer": "https://live.bilibili.com"
+        "referer": "https://live.bilibili.com",
       };
     } else if (currentSite.id == Sites.huyaSite) {
       var ua = await HuyaSite().getHuYaUA();
-      headers = {
-        "user-agent": ua,
-        "origin": "https://www.huya.com",
-        "cookie": settings.huyaCookie.value,
-      };
+      headers = {"user-agent": ua, "origin": "https://www.huya.com", "cookie": settings.huyaCookie.value};
     }
     videoController = VideoController(
       playerKey: playerKey,

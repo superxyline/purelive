@@ -32,10 +32,7 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     });
     // 定时自动刷新
     if (settings.autoRefreshTime.value != 0) {
-      Timer.periodic(
-        Duration(minutes: settings.autoRefreshTime.value),
-        (timer) => onRefresh(),
-      );
+      Timer.periodic(Duration(minutes: settings.autoRefreshTime.value), (timer) => onRefresh());
     }
   }
 
@@ -63,9 +60,7 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
 
     var futures = settings.favoriteRooms.value
         .where((room) => room.platform!.isNotEmpty)
-        .map((room) => Sites.of(room.platform!)
-            .liveSite
-            .getRoomDetail(roomId: room.roomId!, platform: room.platform!, title: room.title!, nick: room.nick!))
+        .map((room) => Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!, platform: room.platform!))
         .toList();
 
     try {

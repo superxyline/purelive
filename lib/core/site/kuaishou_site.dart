@@ -319,12 +319,7 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({
-    required String nick,
-    required String platform,
-    required String roomId,
-    required String title,
-  }) async {
+  Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
     headers['cookie'] = cookie;
     var url = "https://live.kuaishou.com/u/$roomId";
     var mHeaders = headers;
@@ -390,12 +385,7 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<bool> getLiveStatus({
-    required String nick,
-    required String platform,
-    required String roomId,
-    required String title,
-  }) async {
+  Future<bool> getLiveStatus({required String platform, required String roomId}) async {
     return false;
   }
 
