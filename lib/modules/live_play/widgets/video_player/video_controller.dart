@@ -222,6 +222,7 @@ class VideoController with ChangeNotifier {
       isPlaying.value = playing;
       if (playing && mediaPlayerControllerInitialized.value == false) {
         mediaPlayerControllerInitialized.value = true;
+        setVolumn(settings.volume.value);
       }
     });
     mediaPlayerController.player.stream.error.listen((event) {
@@ -540,6 +541,7 @@ class VideoController with ChangeNotifier {
     } else {
       await FlutterVolumeController.setVolume(value);
     }
+    settings.volume.value = value;
   }
 
   void setBrightness(double value) async {
