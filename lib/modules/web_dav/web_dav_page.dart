@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:mime/mime.dart';
 import 'package:flutter/material.dart';
+import 'package:pure_live/common/widgets/menu_button.dart';
 import 'package:webdav_client/webdav_client.dart' as webdav;
 import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/modules/web_dav/web_dav_controller.dart';
@@ -15,12 +16,9 @@ class WebDavPage extends GetView<WebDavController> {
   void _showConfigDialog({WebDAVConfig? existingConfig}) {
     final isEditing = existingConfig != null;
     final nameController = TextEditingController(text: existingConfig?.name);
-    final protocolController = TextEditingController(text: existingConfig?.protocol ?? 'https');
     final addressController = TextEditingController(text: existingConfig?.address);
-    final portController = TextEditingController(text: existingConfig?.port.toString());
     final userController = TextEditingController(text: existingConfig?.username);
     final pwdController = TextEditingController(text: existingConfig?.password);
-    final pathController = TextEditingController(text: existingConfig?.path);
     final formKey = GlobalKey<FormState>();
 
     Get.dialog(
@@ -53,28 +51,7 @@ class WebDavPage extends GetView<WebDavController> {
                         validator: (value) => value == null || value.isEmpty ? '地址不能为空' : null,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextFormField(
-                        controller: portController,
-                        decoration: InputDecoration(labelText: '端口'),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return '端口不能为空';
-                          if (int.tryParse(value) == null) return '请输入有效端口';
-                          return null;
-                        },
-                      ),
-                    ),
                   ],
-                ),
-                DropdownButtonFormField<String>(
-                  value: protocolController.text,
-                  items: ['http', 'https'].map((protocol) {
-                    return DropdownMenuItem(value: protocol, child: Text(protocol.toUpperCase()));
-                  }).toList(),
-                  onChanged: (value) => protocolController.text = value ?? 'https',
-                  decoration: InputDecoration(labelText: '协议'),
-                  validator: (value) => value == null || value.isEmpty ? '请选择协议' : null,
                 ),
                 TextFormField(
                   controller: userController,
@@ -87,47 +64,33 @@ class WebDavPage extends GetView<WebDavController> {
                   obscureText: true,
                   validator: (value) => value == null || value.isEmpty ? '密码不能为空' : null,
                 ),
-                TextFormField(
-                  controller: pathController,
-                  decoration: InputDecoration(labelText: '路径'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return '路径不能为空';
-                    if (!value.startsWith('/')) return '路径必须以斜杠开头';
-                    return null;
-                  },
-                ),
               ],
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: Get.back, child: const Text('取消')),
+          TextButton(onPressed: Navigator.of(Get.context!).pop, child: const Text('取消')),
           TextButton(
             onPressed: () {
               if (formKey.currentState?.validate() ?? false) {
                 final newConfig = WebDAVConfig(
-                  name: nameController.text,
-                  protocol: protocolController.text,
-                  address: addressController.text,
-                  port: int.parse(portController.text),
-                  username: userController.text,
+                  name: nameController.text.trim(),
+                  address: addressController.text.trim(),
+                  username: userController.text.trim(),
                   password: pwdController.text,
-                  path: pathController.text,
                 );
 
-                controller.saveConfig(newConfig).then((_) {
-                  if (isEditing) {
-                    final index = controller.configs.indexWhere((c) => c.name == existingConfig.name);
-                    controller.configs[index] = newConfig;
-                  } else {
-                    controller.configs.add(newConfig);
-                  }
-                  controller.saveCurrentConfig(newConfig.name);
-                  controller.currentConfig.value = newConfig;
-                  controller.dirPath.value = '/';
-                  controller.initializeWebDAV();
-                  Get.back();
-                });
+                if (isEditing) {
+                  final index = controller.configs.indexWhere((c) => c.name == existingConfig.name);
+                  controller.configs[index] = newConfig;
+                } else {
+                  controller.configs.add(newConfig);
+                }
+                controller.saveCurrentConfig(newConfig.name);
+                controller.currentConfig.value = newConfig;
+                controller.dirPath.value = '/';
+                controller.initializeWebDAV();
+                Navigator.of(Get.context!).pop();
               }
             },
             child: Text(isEditing ? '更新' : '添加'),
@@ -142,22 +105,22 @@ class WebDavPage extends GetView<WebDavController> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Theme.of(Get.context!).colorScheme.surface,
-      body: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) => controller.goToParentDirectory(),
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [_buildAppBar(), _buildNavigationBar(), _buildBodyContent()],
-        ),
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [_buildAppBar(), _buildNavigationBar(), _buildBodyContent()],
       ),
-      drawer: _buildDrawer(),
+      endDrawer: _buildDrawer(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => controller.uploadConfigSettings(),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
   Widget _buildDrawer() {
     return Drawer(
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topRight: Radius.circular(0), bottomRight: Radius.circular(0)),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(0), bottomLeft: Radius.circular(0)),
       ),
       backgroundColor: Theme.of(Get.context!).colorScheme.surfaceContainer,
       child: ListView(
@@ -215,12 +178,30 @@ class WebDavPage extends GetView<WebDavController> {
       snap: false,
       backgroundColor: Theme.of(Get.context!).colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-      title: const Text('CloudBrowser', style: TextStyle(fontWeight: FontWeight.w400)),
-      leading: IconButton(
-        icon: Icon(Icons.menu, color: Theme.of(Get.context!).colorScheme.onPrimaryContainer),
-        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-      ),
-      actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: () => controller.loadFiles(), tooltip: '刷新')],
+      title: const Text('WebDAV', style: TextStyle(fontWeight: FontWeight.w400)),
+      actions: [
+        PopupMenuButton<int>(
+          icon: Icon(Icons.more_vert, color: Theme.of(Get.context!).colorScheme.onPrimaryContainer),
+          tooltip: '更多操作',
+          onSelected: (int value) {
+            if (value == 1) {
+              controller.loadFiles();
+            } else if (value == 2) {
+              _scaffoldKey.currentState?.openEndDrawer();
+            }
+          },
+          itemBuilder: (BuildContext context) => [
+            PopupMenuItem(
+              value: 1,
+              child: MenuListTile(leading: const Icon(Icons.refresh), text: '刷新'),
+            ),
+            PopupMenuItem(
+              value: 2,
+              child: MenuListTile(leading: const Icon(Icons.menu), text: '打开配置列表'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -253,7 +234,7 @@ class WebDavPage extends GetView<WebDavController> {
     String accumulatedPath = '/';
 
     buttons.add(const SizedBox(width: 48));
-    buttons.add(_buildCrumbButton(label: '/', targetPath: accumulatedPath));
+    buttons.add(_buildCrumbButton(label: '我的文件', targetPath: accumulatedPath));
 
     for (String part in controller.breadcrumbParts) {
       buttons.add(Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: const Icon(Icons.navigate_next)));
@@ -324,7 +305,7 @@ class WebDavPage extends GetView<WebDavController> {
                 const Icon(Icons.cloud_queue, size: 48),
                 const SizedBox(height: 16),
                 const Text('请从侧边栏选择WebDAV配置'),
-                TextButton(onPressed: () => _scaffoldKey.currentState?.openDrawer(), child: const Text('打开配置列表')),
+                TextButton(onPressed: () => _scaffoldKey.currentState?.openEndDrawer(), child: const Text('打开配置列表')),
               ],
             ),
           ),
@@ -370,14 +351,15 @@ class WebDavPage extends GetView<WebDavController> {
       trailing: PopupMenuButton<String>(
         icon: Icon(Icons.more_vert, color: Theme.of(Get.context!).colorScheme.onSurface),
         itemBuilder: (context) => [
-          const PopupMenuItem(value: 'Download', child: Text('下载')),
-          const PopupMenuItem(value: 'Rename', child: Text('重命名')),
-          const PopupMenuItem(value: 'Copy', child: Text('复制')),
-          const PopupMenuItem(value: 'Move', child: Text('移动')),
+          const PopupMenuItem(value: 'Download', child: Text('同步到本地')),
           const PopupMenuItem(value: 'Delete', child: Text('删除')),
         ],
         onSelected: (value) {
-          // 处理文件操作（保持原逻辑）
+          if (value == 'Download') {
+            controller.downloadFile(file);
+          } else if (value == 'Delete') {
+            controller.deleteFile(file);
+          }
         },
       ),
       onTap: () => controller.onFileTap(file),

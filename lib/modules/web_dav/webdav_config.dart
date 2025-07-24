@@ -1,44 +1,23 @@
 class WebDAVConfig {
   final String name;
-  final String protocol;
   final String address;
-  final int port;
   final String username;
   final String password;
-  final String path;
 
-  const WebDAVConfig({
-    required this.name,
-    required this.protocol,
-    required this.address,
-    required this.port,
-    required this.username,
-    required this.password,
-    required this.path,
-  });
+  const WebDAVConfig({required this.name, required this.address, required this.username, required this.password});
 
-  String get fullUrl => '$protocol://$address:$port$path/';
+  String get fullUrl => address;
 
-  factory WebDAVConfig.fromJson(String configName, Map<String, dynamic> json) {
+  factory WebDAVConfig.fromJson(Map<String, dynamic> json) {
     return WebDAVConfig(
-      name: configName,
-      protocol: json['protocol'] ?? 'https',
+      name: json['name'] ?? '',
       address: json['address'] ?? '',
-      port: json['port'] ?? 80,
       username: json['username'] ?? '',
       password: json['password'] ?? '',
-      path: json['path'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'protocol': protocol,
-      'address': address,
-      'port': port,
-      'username': username,
-      'password': password,
-      'path': path,
-    };
+    return {'name': name, 'address': address, 'username': username, 'password': password};
   }
 }

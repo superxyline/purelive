@@ -7,6 +7,8 @@ class WebDAVService {
 
   late final webdav.Client _client;
 
+  webdav.Client get client => _client;
+
   WebDAVService({required this.url, required this.username, required this.password}) {
     _client = webdav.newClient(url.trim(), user: username, password: password, debug: true);
   }

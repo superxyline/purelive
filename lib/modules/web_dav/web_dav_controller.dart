@@ -1,10 +1,11 @@
-import 'dart:io';
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pure_live/common/index.dart';
+import 'package:date_format/date_format.dart';
+import 'package:pure_live/plugins/utils.dart';
 import 'package:webdav_client/webdav_client.dart' as webdav;
+import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/modules/web_dav/webdav_service.dart';
-import 'package:pure_live/modules/web_dav/webdav_config.dart' show WebDAVConfig;
 
 class WebDavController extends GetxController {
   final RxList<WebDAVConfig> configs = <WebDAVConfig>[].obs;
@@ -17,21 +18,23 @@ class WebDavController extends GetxController {
   final RxBool isFromBreadcrumb = false.obs;
 
   late WebDAVService _webdavService;
-  final String _mainConfigFile = 'config.json';
-  final String _configDir = 'conf.d';
-
+  final SettingsService _settingsService = Get.find<SettingsService>();
   @override
   void onInit() {
     super.onInit();
-    loadConfigs().then((loadedConfigs) {
-      configs.assignAll(loadedConfigs);
-      if (configs.isNotEmpty) {
-        loadCurrentConfig().then((config) {
-          currentConfig.value = config;
-          initializeWebDAV();
-        });
+    configs.assignAll(_settingsService.webDavConfigs);
+    if (_settingsService.currentWebDavConfig.value.isNotEmpty) {
+      currentConfig.value = WebDAVConfig.fromJson(jsonDecode(_settingsService.currentWebDavConfig.value));
+      initializeWebDAV();
+    }
+    configs.listen((e) {
+      _settingsService.webDavConfigs.assignAll(configs);
+    });
+    currentConfig.listen((e) {
+      if (e != null) {
+        _settingsService.currentWebDavConfig.value = jsonEncode(e.toJson());
       } else {
-        isLoading.value = false;
+        _settingsService.currentWebDavConfig.value = '';
       }
     });
   }
@@ -47,62 +50,8 @@ class WebDavController extends GetxController {
     }
   }
 
-  Future<List<WebDAVConfig>> loadConfigs() async {
-    try {
-      final appDocDir = await getApplicationSupportDirectory();
-      final configDir = Directory('${appDocDir.path}/$_configDir');
-
-      if (!configDir.existsSync()) {
-        configDir.createSync(recursive: true);
-        return [];
-      }
-
-      final configFiles = configDir
-          .listSync()
-          .where((entity) => entity is File && entity.path.endsWith('.json'))
-          .map((entity) => File(entity.path))
-          .toList();
-
-      final List<WebDAVConfig> loadedConfigs = [];
-      for (final file in configFiles) {
-        final configJson = jsonDecode(file.readAsStringSync());
-        final configName = file.path.split('/').last.replaceAll('.json', '');
-        loadedConfigs.add(WebDAVConfig.fromJson(configName, configJson));
-      }
-      return loadedConfigs;
-    } catch (e) {
-      errorMessage.value = '加载配置失败: $e';
-      return [];
-    }
-  }
-
-  Future<WebDAVConfig?> loadCurrentConfig() async {
-    final appDocDir = await getApplicationSupportDirectory();
-    final mainConfigFile = File('${appDocDir.path}/$_mainConfigFile');
-
-    if (!mainConfigFile.existsSync()) {
-      return configs.isNotEmpty ? configs.first : null;
-    }
-
-    final configName = jsonDecode(mainConfigFile.readAsStringSync())['current_config'];
-    return configs.firstWhereOrNull((config) => config.name == configName);
-  }
-
   Future<void> saveCurrentConfig(String configName) async {
-    final appDocDir = await getApplicationSupportDirectory();
-    final mainConfigFile = File('${appDocDir.path}/$_mainConfigFile');
-    await mainConfigFile.writeAsString(jsonEncode({'current_config': configName}));
-  }
-
-  Future<void> saveConfig(WebDAVConfig config) async {
-    final appDocDir = await getApplicationSupportDirectory();
-    final configDir = Directory('${appDocDir.path}/$_configDir');
-    if (!configDir.existsSync()) {
-      configDir.createSync(recursive: true);
-    }
-
-    final configFile = File('${configDir.path}/${config.name}.json');
-    configFile.writeAsStringSync(jsonEncode(config.toJson()));
+    _settingsService.currentWebDavConfig.value = jsonEncode(currentConfig.value!.toJson());
   }
 
   Future<void> loadFiles() async {
@@ -137,18 +86,11 @@ class WebDavController extends GetxController {
       triggerBreadcrumbScroll();
       loadFiles();
     } else {
-      Get.showSnackbar(const GetSnackBar(message: '已经是根目录', duration: Duration(seconds: 1)));
+      Navigator.pop(Get.context!); // 关闭抽屉
     }
   }
 
   void deleteConfig(WebDAVConfig config) async {
-    final appDocDir = await getApplicationSupportDirectory();
-    final configFile = File('${appDocDir.path}/$_configDir/${config.name}.json');
-
-    if (configFile.existsSync()) {
-      configFile.deleteSync();
-    }
-
     configs.removeWhere((c) => c.name == config.name);
     if (currentConfig.value?.name == config.name) {
       currentConfig.value = null;
@@ -158,7 +100,7 @@ class WebDavController extends GetxController {
       }
       initializeWebDAV();
     }
-    Get.back(); // 关闭对话框
+    Navigator.pop(Get.context!); // 关闭抽屉
   }
 
   void rebuildBreadcrumb() {
@@ -190,7 +132,7 @@ class WebDavController extends GetxController {
     saveCurrentConfig(config.name);
     initializeWebDAV();
     rebuildBreadcrumb();
-    Get.back(); // 关闭抽屉
+    Navigator.pop(Get.context!);
   }
 
   void onFileTap(webdav.File file) {
@@ -201,6 +143,61 @@ class WebDavController extends GetxController {
       updateBreadcrumbParts();
       triggerBreadcrumbScroll();
       loadFiles();
+    }
+  }
+
+  void uploadConfigSettings() async {
+    try {
+      // 1. 生成文件名（包含当前时间戳，避免重复）
+
+      final dateStr = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss]);
+      final fileName = 'purelive_$dateStr.txt';
+      // 2. 准备要上传的文件内容（这里假设是配置数据，根据实际需求替换）
+      // 示例：将某个配置对象转换为 JSON 字符串
+      final settingConfigs = _settingsService.toJson();
+      final fileContent = jsonEncode(settingConfigs); // 转换为 JSON 字符串
+      final dataBytes = utf8.encode(fileContent); // 转换为字节数据（WebDAV 通常需要字节流）
+
+      // 3. 定义 WebDAV 服务器上的完整路径（例如上传到根目录下）
+      final remoteFilePath = '${dirPath.value}$fileName'; // 注意路径格式，根据服务器要求调整
+      debugPrint('上传文件路径: $remoteFilePath');
+      // 4. 调用 WebDAV 客户端上传（假设 _webdavService.client 已初始化）
+      await _webdavService.client.write(
+        remoteFilePath, // 服务器上的路径
+        dataBytes, // 要上传的字节数据
+      );
+
+      // 5. 上传成功提示
+      SnackBarUtil.success('文件上传成功');
+      // 6. 刷新当前目录文件列表
+      loadFiles();
+    } catch (e) {
+      // 6. 处理错误（如网络异常、权限不足等）
+      debugPrint('文件上传失败: $e');
+      SnackBarUtil.error('文件上传失败: $e');
+    }
+  }
+
+  void deleteFile(webdav.File file) async {
+    var result = await Utils.showAlertDialog("确定要删除吗？", title: "删除");
+    if (result) {
+      try {
+        _webdavService.client.remove(file.path!);
+        loadFiles();
+        SnackBarUtil.success('文件删除成功');
+      } catch (e) {
+        SnackBarUtil.error('文件删除失败: $e');
+      }
+    }
+  }
+
+  void downloadFile(webdav.File file) async {
+    try {
+      final bytes = await _webdavService.client.read(file.path!);
+      _settingsService.fromJson(jsonDecode(utf8.decode(bytes)));
+      SnackBarUtil.success('同步成功');
+    } catch (e) {
+      SnackBarUtil.error('文件下载失败: $e');
     }
   }
 }

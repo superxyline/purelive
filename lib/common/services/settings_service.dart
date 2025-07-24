@@ -5,6 +5,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
@@ -69,6 +70,15 @@ class SettingsService extends GetxController {
     favoriteRooms.listen((rooms) {
       PrefUtil.setStringList('favoriteRooms', favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
+
+    webDavConfigs.listen((configs) {
+      PrefUtil.setStringList('webDavConfigs', configs.map<String>((e) => jsonEncode(e.toJson())).toList());
+    });
+
+    currentWebDavConfig.listen((config) {
+      PrefUtil.setString('currentWebDavConfig', config);
+    });
+
     favoriteAreas.listen((rooms) {
       PrefUtil.setStringList('favoriteAreas', favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
@@ -439,6 +449,50 @@ class SettingsService extends GetxController {
   // Backup & recover storage
   final backupDirectory = (PrefUtil.getString('backupDirectory') ?? '').obs;
 
+  final currentWebDavConfig = (PrefUtil.getString('currentWebDavConfig') ?? '').obs;
+
+  final webDavConfigs =
+      ((PrefUtil.getStringList('webDavConfigs') ?? []).map((e) => WebDAVConfig.fromJson(jsonDecode(e))).toList()).obs;
+
+  bool addWebDavConfig(WebDAVConfig config) {
+    if (webDavConfigs.any((element) => element.name == config.name)) {
+      return false;
+    }
+    webDavConfigs.add(config);
+    return true;
+  }
+
+  bool removeWebDavConfig(WebDAVConfig config) {
+    if (!webDavConfigs.any((element) => element.name == config.name)) {
+      return false;
+    }
+    webDavConfigs.remove(config);
+    return true;
+  }
+
+  bool updateWebDavConfig(WebDAVConfig config) {
+    int idx = webDavConfigs.indexWhere((element) => element.name == config.name);
+    if (idx == -1) return false;
+    webDavConfigs[idx] = config;
+    return true;
+  }
+
+  void updateWebDavConfigs(List<WebDAVConfig> configs) {
+    webDavConfigs.value = configs;
+  }
+
+  bool isWebDavConfigExist(String name) {
+    return webDavConfigs.any((element) => element.name == name);
+  }
+
+  WebDAVConfig? getWebDavConfigByName(String name) {
+    if (isWebDavConfigExist(name)) {
+      return webDavConfigs.firstWhere((element) => element.name == name);
+    } else {
+      return null;
+    }
+  }
+
   final m3uDirectory = (PrefUtil.getString('m3uDirectory') ?? 'm3uDirectory').obs;
 
   bool backup(File file) {
@@ -476,11 +530,15 @@ class SettingsService extends GetxController {
     favoriteAreas.value = json['favoriteAreas'] != null
         ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList()
         : [];
+    webDavConfigs.value = json['webDavConfigs'] != null
+        ? (json['webDavConfigs'] as List).map<WebDAVConfig>((e) => WebDAVConfig.fromJson(jsonDecode(e))).toList()
+        : [];
     shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
     hotAreasList.value = json['hotAreasList'] != null
         ? (json['hotAreasList'] as List).map((e) => e.toString()).toList()
         : [];
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
+    currentWebDavConfig.value = json['currentWebDavConfig'] ?? '';
     autoRefreshTime.value = json['autoRefreshTime'] ?? 3;
     themeModeName.value = json['themeMode'] ?? "System";
     enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
@@ -524,9 +582,10 @@ class SettingsService extends GetxController {
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
     json['favoriteRooms'] = favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList();
+    json['webDavConfigs'] = webDavConfigs.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['favoriteAreas'] = favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['themeMode'] = themeModeName.value;
-
+    json['currentWebDavConfig'] = currentWebDavConfig.value;
     json['autoRefreshTime'] = autoRefreshTime.value;
     json['autoShutDownTime'] = autoShutDownTime.value;
     json['enableAutoShutDownTime'] = enableAutoShutDownTime.value;
@@ -565,6 +624,7 @@ class SettingsService extends GetxController {
   Map<String, dynamic> defaultConfig() {
     Map<String, dynamic> json = {
       "favoriteRooms": [],
+      "webDavConfigs": [],
       "favoriteAreas": [],
       "themeMode": "Light",
       "themeColor": "Chrome",
