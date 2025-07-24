@@ -1,16 +1,17 @@
-import 'package:intl/intl.dart';
-import 'package:intl/message_lookup_by_library.dart';
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a zh_CN locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
 // Ignore issues from commonly used lints in this file.
-// ignore_for_file:unnecessary_brace_in_string_interps, unnecessary_new, strict_top_level_inference
+// ignore_for_file:unnecessary_brace_in_string_interps, unnecessary_new
 // ignore_for_file:prefer_single_quotes,comment_references, directives_ordering
 // ignore_for_file:annotate_overrides,prefer_generic_function_type_aliases
 // ignore_for_file:unused_import, file_names, avoid_escaping_inner_quotes
 // ignore_for_file:unnecessary_string_interpolations, unnecessary_string_escapes
+
+import 'package:intl/intl.dart';
+import 'package:intl/message_lookup_by_library.dart';
 
 final messages = new MessageLookup();
 
@@ -46,21 +47,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "areas_title": MessageLookupByLibrary.simpleMessage("分区"),
     "auto_backup": MessageLookupByLibrary.simpleMessage("备份目录"),
     "auto_refresh_time": MessageLookupByLibrary.simpleMessage("定时刷新时间"),
-    "auto_refresh_time_subtitle": MessageLookupByLibrary.simpleMessage("定时刷新关注直播间状态"),
+    "auto_refresh_time_subtitle": MessageLookupByLibrary.simpleMessage(
+      "定时刷新关注直播间状态",
+    ),
     "auto_shutdown_time": MessageLookupByLibrary.simpleMessage("定时关闭时间"),
-    "auto_shutdown_time_subtitle": MessageLookupByLibrary.simpleMessage("定时关闭app"),
+    "auto_shutdown_time_subtitle": MessageLookupByLibrary.simpleMessage(
+      "定时关闭app",
+    ),
     "backup_directory": MessageLookupByLibrary.simpleMessage("备份目录"),
     "backup_recover": MessageLookupByLibrary.simpleMessage("备份与恢复"),
     "backup_recover_subtitle": MessageLookupByLibrary.simpleMessage("创建备份与恢复"),
     "cancel": MessageLookupByLibrary.simpleMessage("取消"),
     "change_language": MessageLookupByLibrary.simpleMessage("切换语言"),
-    "change_language_subtitle": MessageLookupByLibrary.simpleMessage("切换软件的显示语言"),
+    "change_language_subtitle": MessageLookupByLibrary.simpleMessage(
+      "切换软件的显示语言",
+    ),
     "change_player": MessageLookupByLibrary.simpleMessage("切换播放器"),
     "change_player_subtitle": MessageLookupByLibrary.simpleMessage("切换直播间播放器"),
     "change_theme_color": MessageLookupByLibrary.simpleMessage("主题颜色"),
-    "change_theme_color_subtitle": MessageLookupByLibrary.simpleMessage("切换软件的主题颜色"),
+    "change_theme_color_subtitle": MessageLookupByLibrary.simpleMessage(
+      "切换软件的主题颜色",
+    ),
     "change_theme_mode": MessageLookupByLibrary.simpleMessage("主题模式"),
-    "change_theme_mode_subtitle": MessageLookupByLibrary.simpleMessage("切换系统/亮色/暗色模式"),
+    "change_theme_mode_subtitle": MessageLookupByLibrary.simpleMessage(
+      "切换系统/亮色/暗色模式",
+    ),
     "check_update": MessageLookupByLibrary.simpleMessage("检查更新"),
     "confirm": MessageLookupByLibrary.simpleMessage("确认"),
     "contact": MessageLookupByLibrary.simpleMessage("联系"),
@@ -75,15 +86,27 @@ class MessageLookup extends MessageLookupByLibrary {
     "dlan_title": MessageLookupByLibrary.simpleMessage("DLNA投屏"),
     "double_click_to_exit": MessageLookupByLibrary.simpleMessage("双击退出"),
     "email": MessageLookupByLibrary.simpleMessage("邮件"),
-    "empty_areas_room_subtitle": MessageLookupByLibrary.simpleMessage("下滑/上滑刷新数据"),
+    "empty_areas_room_subtitle": MessageLookupByLibrary.simpleMessage(
+      "下滑/上滑刷新数据",
+    ),
     "empty_areas_room_title": MessageLookupByLibrary.simpleMessage("未发现直播"),
     "empty_areas_subtitle": MessageLookupByLibrary.simpleMessage("请点击下方按钮切换平台"),
     "empty_areas_title": MessageLookupByLibrary.simpleMessage("未发现分区"),
-    "empty_favorite_offline_subtitle": MessageLookupByLibrary.simpleMessage("请先关注其他直播间"),
-    "empty_favorite_offline_title": MessageLookupByLibrary.simpleMessage("无未开播直播间"),
-    "empty_favorite_online_subtitle": MessageLookupByLibrary.simpleMessage("请先关注其他直播间"),
-    "empty_favorite_online_title": MessageLookupByLibrary.simpleMessage("无已开播直播间"),
-    "empty_favorite_subtitle": MessageLookupByLibrary.simpleMessage("请先关注其他直播间"),
+    "empty_favorite_offline_subtitle": MessageLookupByLibrary.simpleMessage(
+      "请先关注其他直播间",
+    ),
+    "empty_favorite_offline_title": MessageLookupByLibrary.simpleMessage(
+      "无未开播直播间",
+    ),
+    "empty_favorite_online_subtitle": MessageLookupByLibrary.simpleMessage(
+      "请先关注其他直播间",
+    ),
+    "empty_favorite_online_title": MessageLookupByLibrary.simpleMessage(
+      "无已开播直播间",
+    ),
+    "empty_favorite_subtitle": MessageLookupByLibrary.simpleMessage(
+      "请先关注其他直播间",
+    ),
     "empty_favorite_title": MessageLookupByLibrary.simpleMessage("无关注直播"),
     "empty_history": MessageLookupByLibrary.simpleMessage("无观看历史记录"),
     "empty_live_subtitle": MessageLookupByLibrary.simpleMessage("请点击下方按钮切换平台"),
@@ -91,18 +114,29 @@ class MessageLookup extends MessageLookupByLibrary {
     "empty_search_subtitle": MessageLookupByLibrary.simpleMessage("请输入其他关键字搜索"),
     "empty_search_title": MessageLookupByLibrary.simpleMessage("未发现直播"),
     "enable_auto_check_update": MessageLookupByLibrary.simpleMessage("自动检查更新"),
-    "enable_auto_check_update_subtitle": MessageLookupByLibrary.simpleMessage("在每次进入软件时，自动检查更新"),
+    "enable_auto_check_update_subtitle": MessageLookupByLibrary.simpleMessage(
+      "在每次进入软件时，自动检查更新",
+    ),
     "enable_background_play": MessageLookupByLibrary.simpleMessage("后台播放"),
-    "enable_background_play_subtitle": MessageLookupByLibrary.simpleMessage("当暂时切出APP时，允许后台播放"),
+    "enable_background_play_subtitle": MessageLookupByLibrary.simpleMessage(
+      "当暂时切出APP时，允许后台播放",
+    ),
     "enable_codec": MessageLookupByLibrary.simpleMessage("开启硬解码"),
     "enable_dense_favorites_mode": MessageLookupByLibrary.simpleMessage("紧凑模式"),
-    "enable_dense_favorites_mode_subtitle": MessageLookupByLibrary.simpleMessage("关注页面可显示更多直播间"),
+    "enable_dense_favorites_mode_subtitle":
+        MessageLookupByLibrary.simpleMessage("关注页面可显示更多直播间"),
     "enable_dynamic_color": MessageLookupByLibrary.simpleMessage("动态取色"),
-    "enable_dynamic_color_subtitle": MessageLookupByLibrary.simpleMessage("启用Monet壁纸动态取色"),
+    "enable_dynamic_color_subtitle": MessageLookupByLibrary.simpleMessage(
+      "启用Monet壁纸动态取色",
+    ),
     "enable_fullscreen_default": MessageLookupByLibrary.simpleMessage("自动全屏"),
-    "enable_fullscreen_default_subtitle": MessageLookupByLibrary.simpleMessage("当进入直播播放页，自动进入全屏"),
+    "enable_fullscreen_default_subtitle": MessageLookupByLibrary.simpleMessage(
+      "当进入直播播放页，自动进入全屏",
+    ),
     "enable_screen_keep_on": MessageLookupByLibrary.simpleMessage("屏幕常亮"),
-    "enable_screen_keep_on_subtitle": MessageLookupByLibrary.simpleMessage("当处于直播播放页，屏幕保持常亮"),
+    "enable_screen_keep_on_subtitle": MessageLookupByLibrary.simpleMessage(
+      "当处于直播播放页，屏幕保持常亮",
+    ),
     "exit_app": MessageLookupByLibrary.simpleMessage("确定退出吗?"),
     "exit_no": MessageLookupByLibrary.simpleMessage("取消"),
     "exit_yes": MessageLookupByLibrary.simpleMessage("确定"),
@@ -110,7 +144,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "favorite_areas": MessageLookupByLibrary.simpleMessage("关注分区"),
     "favorites_title": MessageLookupByLibrary.simpleMessage("关注"),
     "float_overlay_ratio": MessageLookupByLibrary.simpleMessage("悬浮窗尺寸"),
-    "float_overlay_ratio_subtitle": MessageLookupByLibrary.simpleMessage("视频小窗播放时，悬浮窗横向相对比例"),
+    "float_overlay_ratio_subtitle": MessageLookupByLibrary.simpleMessage(
+      "视频小窗播放时，悬浮窗横向相对比例",
+    ),
     "float_window_play": MessageLookupByLibrary.simpleMessage("小窗播放"),
     "follow": MessageLookupByLibrary.simpleMessage("关注"),
     "followed": MessageLookupByLibrary.simpleMessage("已关注"),
@@ -133,9 +169,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "play_video_failed": MessageLookupByLibrary.simpleMessage("无法播放直播"),
     "popular_title": MessageLookupByLibrary.simpleMessage("热门"),
     "prefer_platform": MessageLookupByLibrary.simpleMessage("首选直播平台"),
-    "prefer_platform_subtitle": MessageLookupByLibrary.simpleMessage("当进入热门/分区，首选的直播平台"),
+    "prefer_platform_subtitle": MessageLookupByLibrary.simpleMessage(
+      "当进入热门/分区，首选的直播平台",
+    ),
     "prefer_resolution": MessageLookupByLibrary.simpleMessage("首选清晰度"),
-    "prefer_resolution_subtitle": MessageLookupByLibrary.simpleMessage("当进入直播播放页，首选的视频清晰度"),
+    "prefer_resolution_subtitle": MessageLookupByLibrary.simpleMessage(
+      "当进入直播播放页，首选的视频清晰度",
+    ),
     "project": MessageLookupByLibrary.simpleMessage("项目"),
     "project_alert": MessageLookupByLibrary.simpleMessage("项目声明"),
     "project_page": MessageLookupByLibrary.simpleMessage("项目主页"),
@@ -144,7 +184,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "recover_backup": MessageLookupByLibrary.simpleMessage("恢复备份"),
     "recover_backup_failed": MessageLookupByLibrary.simpleMessage("恢复备份失败"),
     "recover_backup_subtitle": MessageLookupByLibrary.simpleMessage("从备份文件中恢复"),
-    "recover_backup_success": MessageLookupByLibrary.simpleMessage("恢复备份成功，请重启"),
+    "recover_backup_success": MessageLookupByLibrary.simpleMessage(
+      "恢复备份成功，请重启",
+    ),
     "remove": MessageLookupByLibrary.simpleMessage("删除"),
     "replay": MessageLookupByLibrary.simpleMessage("录播"),
     "retry": MessageLookupByLibrary.simpleMessage("重试"),
@@ -166,8 +208,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "supabase_back_sign_in": MessageLookupByLibrary.simpleMessage("返回登录"),
     "supabase_enter_email": MessageLookupByLibrary.simpleMessage("请输入邮箱地址"),
     "supabase_enter_password": MessageLookupByLibrary.simpleMessage("请输入密码"),
-    "supabase_enter_valid_email": MessageLookupByLibrary.simpleMessage("请输入有效的邮箱地址"),
-    "supabase_enter_valid_password": MessageLookupByLibrary.simpleMessage("请输入至少6个字符的密码"),
+    "supabase_enter_valid_email": MessageLookupByLibrary.simpleMessage(
+      "请输入有效的邮箱地址",
+    ),
+    "supabase_enter_valid_password": MessageLookupByLibrary.simpleMessage(
+      "请输入至少6个字符的密码",
+    ),
     "supabase_forgot_password": MessageLookupByLibrary.simpleMessage("忘记密码?"),
     "supabase_has_account": MessageLookupByLibrary.simpleMessage("已有帐户? 登录"),
     "supabase_log_out": MessageLookupByLibrary.simpleMessage("退出登录"),
