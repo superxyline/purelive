@@ -294,16 +294,16 @@ class VideoController with ChangeNotifier {
     } else {
       mobileController = BetterPlayerController(
         BetterPlayerConfiguration(
+          controlsConfiguration: BetterPlayerControlsConfiguration(
+            playerTheme: BetterPlayerTheme.custom,
+            customControlsBuilder: (controller, onControlsVisibilityChanged) => VideoControllerPanel(controller: this),
+          ),
           autoPlay: true,
           fit: videoFit.value,
           allowedScreenSleep: !allowScreenKeepOn,
           autoDetectFullscreenDeviceOrientation: true,
           autoDetectFullscreenAspectRatio: true,
           errorBuilder: (context, errorMessage) => Container(),
-          routePageBuilder: (context, animation, second, controllerProvider) => AnimatedBuilder(
-            animation: animation,
-            builder: (context, child) => MobileFullscreen(controller: this, controllerProvider: controllerProvider),
-          ),
         ),
       );
       mobileController?.setControlsEnabled(false);
@@ -521,6 +521,7 @@ class VideoController with ChangeNotifier {
         BetterPlayerDataSource(
           BetterPlayerDataSourceType.network,
           url,
+          videoFormat: room.platform == Sites.bilibiliSite ? BetterPlayerVideoFormat.hls : null,
           liveStream: true,
           notificationConfiguration: allowBackgroundPlay
               ? BetterPlayerNotificationConfiguration(
@@ -531,6 +532,7 @@ class VideoController with ChangeNotifier {
                   activityName: "MainActivity",
                 )
               : null,
+          headers: headers,
         ),
       );
       mobileController?.pause();
@@ -707,9 +709,8 @@ class DesktopFullscreen extends StatelessWidget {
 }
 
 // use fullscreen with controller provider
-// use fullscreen with controller provider
 class MobileFullscreen extends StatefulWidget {
-  const MobileFullscreen({Key? key, required this.controller, required this.controllerProvider}) : super(key: key);
+  const MobileFullscreen({super.key, required this.controller, required this.controllerProvider});
 
   final VideoController controller;
   final BetterPlayerControllerProvider controllerProvider;

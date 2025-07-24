@@ -159,8 +159,11 @@ class WebDavController extends GetxController {
       final dataBytes = utf8.encode(fileContent); // 转换为字节数据（WebDAV 通常需要字节流）
 
       // 3. 定义 WebDAV 服务器上的完整路径（例如上传到根目录下）
-      final remoteFilePath = '${dirPath.value}$fileName'; // 注意路径格式，根据服务器要求调整
-      debugPrint('上传文件路径: $remoteFilePath');
+      String remoteFilePath = '${dirPath.value}$fileName'; // 注意路径格式，根据服务器要求调整
+      if (dirPath.value == '/') {
+        SnackBarUtil.error('请先选择配置目录');
+        return;
+      }
       // 4. 调用 WebDAV 客户端上传（假设 _webdavService.client 已初始化）
       await _webdavService.client.write(
         remoteFilePath, // 服务器上的路径

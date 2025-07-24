@@ -155,6 +155,7 @@ class _FollowButtonState extends State<FollowButton> {
         } else {
           settings.removeRoom(widget.room);
         }
+        Navigator.of(Get.context!).pop();
       },
       style: ElevatedButton.styleFrom(),
       child: Text(isFavorite ? S.of(context).unfollow : S.of(context).follow),
