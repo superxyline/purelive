@@ -50,7 +50,7 @@ jobs:
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.x'
+          flutter-version: '3.32.7'
           cache: true
 
       # 更新Flutter的packages
@@ -111,7 +111,7 @@ jobs:
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.27.x"
+          flutter-version: "3.32.7"
           cache: true
       - name: 启用Flutter桌面支持
         run: flutter config --enable-windows-desktop
