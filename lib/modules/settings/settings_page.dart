@@ -14,10 +14,7 @@ class SettingsPage extends GetView<SettingsService> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        scrolledUnderElevation: screenWidth > 640 ? 0 : null,
-        title: Text(S.of(context).settings_title),
-      ),
+      appBar: AppBar(scrolledUnderElevation: screenWidth > 640 ? 0 : null, title: Text(S.of(context).settings_title)),
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: <Widget>[
@@ -51,61 +48,79 @@ class SettingsPage extends GetView<SettingsService> {
             leading: const Icon(Icons.backup_rounded, size: 32),
             title: Text(S.of(context).backup_recover),
             subtitle: Text(S.of(context).backup_recover_subtitle),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const BackupPage()),
-            ),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const BackupPage())),
           ),
           SectionTitle(title: S.of(context).video),
-          Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_background_play),
-                subtitle: Text(S.of(context).enable_background_play_subtitle),
-                value: controller.enableBackgroundPlay.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
-              )),
+          Obx(
+            () => SwitchListTile(
+              title: Text(S.of(context).enable_background_play),
+              subtitle: Text(S.of(context).enable_background_play_subtitle),
+              value: controller.enableBackgroundPlay.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
+            ),
+          ),
           if (Platform.isAndroid)
-            Obx(() => SwitchListTile(
-                  title: Text(S.of(context).enable_screen_keep_on),
-                  subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
-                  value: controller.enableScreenKeepOn.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
-                )),
-          Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_fullscreen_default),
-                subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
-                value: controller.enableFullScreenDefault.value,
+            Obx(
+              () => SwitchListTile(
+                title: Text(S.of(context).enable_screen_keep_on),
+                subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
+                value: controller.enableScreenKeepOn.value,
                 activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
-              )),
+                onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
+              ),
+            ),
+          if (Platform.isAndroid)
+            Obx(
+              () => ListTile(
+                title: Text('视频播放器'),
+                subtitle: Text('选择视频播放器'),
+                onTap: showVideoSetDialog,
+                trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'Exo播放器'),
+              ),
+            ),
+          Obx(
+            () => SwitchListTile(
+              title: Text(S.of(context).enable_fullscreen_default),
+              subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
+              value: controller.enableFullScreenDefault.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
+            ),
+          ),
           ListTile(
             title: Text(S.of(context).prefer_resolution),
             subtitle: Text(S.of(context).prefer_resolution_subtitle),
             onTap: showPreferResolutionSelectorDialog,
           ),
           SectionTitle(title: S.of(context).custom),
-          Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_dynamic_color),
-                subtitle: Text(S.of(context).enable_dynamic_color_subtitle),
-                value: controller.enableDynamicTheme.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableDynamicTheme.value = value,
-              )),
-          Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_dense_favorites_mode),
-                subtitle: Text(S.of(context).enable_dense_favorites_mode_subtitle),
-                value: controller.enableDenseFavorites.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableDenseFavorites.value = value,
-              )),
-          Obx(() => SwitchListTile(
-                title: Text(S.of(context).enable_auto_check_update),
-                subtitle: Text(S.of(context).enable_auto_check_update_subtitle),
-                value: controller.enableAutoCheckUpdate.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
-              )),
+          Obx(
+            () => SwitchListTile(
+              title: Text(S.of(context).enable_dynamic_color),
+              subtitle: Text(S.of(context).enable_dynamic_color_subtitle),
+              value: controller.enableDynamicTheme.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.enableDynamicTheme.value = value,
+            ),
+          ),
+          Obx(
+            () => SwitchListTile(
+              title: Text(S.of(context).enable_dense_favorites_mode),
+              subtitle: Text(S.of(context).enable_dense_favorites_mode_subtitle),
+              value: controller.enableDenseFavorites.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.enableDenseFavorites.value = value,
+            ),
+          ),
+          Obx(
+            () => SwitchListTile(
+              title: Text(S.of(context).enable_auto_check_update),
+              subtitle: Text(S.of(context).enable_auto_check_update_subtitle),
+              value: controller.enableAutoCheckUpdate.value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
+            ),
+          ),
           ListTile(
             title: Text(S.of(context).prefer_platform),
             subtitle: Text(S.of(context).prefer_platform_subtitle),
@@ -117,10 +132,7 @@ class SettingsPage extends GetView<SettingsService> {
             trailing: Obx(() => Text('${controller.autoRefreshTime}分钟')),
             onTap: showAutoRefreshTimeSetDialog,
           ),
-          ListTile(
-            title: Text(S.of(context).settings_danmaku_title),
-            onTap: showDanmuSetDialog,
-          ),
+          ListTile(title: Text(S.of(context).settings_danmaku_title), onTap: showDanmuSetDialog),
           ListTile(
             title: const Text("弹幕过滤"),
             subtitle: const Text("自定义关键词过滤弹幕"),
@@ -132,27 +144,33 @@ class SettingsPage extends GetView<SettingsService> {
             onTap: () => Get.toNamed(RoutePath.kSettingsHotAreas),
           ),
           if (Platform.isAndroid)
-            Obx(() => SwitchListTile(
-                  title: Text(S.of(context).double_click_to_exit),
-                  value: controller.doubleExit.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.doubleExit.value = value,
-                )),
+            Obx(
+              () => SwitchListTile(
+                title: Text(S.of(context).double_click_to_exit),
+                value: controller.doubleExit.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.doubleExit.value = value,
+              ),
+            ),
           if (Platform.isAndroid)
-            Obx(() => SwitchListTile(
-                  title: Text(S.of(context).enable_codec),
-                  value: controller.enableCodec.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.enableCodec.value = value,
-                )),
+            Obx(
+              () => SwitchListTile(
+                title: Text(S.of(context).enable_codec),
+                value: controller.enableCodec.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.enableCodec.value = value,
+              ),
+            ),
           if (Platform.isAndroid)
-            Obx(() => SwitchListTile(
-                  title: Text('兼容模式'),
-                  subtitle: Text('若播放卡顿可尝试打开此选项'),
-                  value: controller.playerCompatMode.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.playerCompatMode.value = value,
-                )),
+            Obx(
+              () => SwitchListTile(
+                title: Text('兼容模式'),
+                subtitle: Text('若播放卡顿可尝试打开此选项'),
+                value: controller.playerCompatMode.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.playerCompatMode.value = value,
+              ),
+            ),
           if (Platform.isAndroid)
             ListTile(
               title: Text(S.of(context).auto_shutdown_time),
@@ -167,24 +185,25 @@ class SettingsPage extends GetView<SettingsService> {
 
   void showThemeModeSelectorDialog() {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            title: Text(S.of(Get.context!).change_theme_mode),
-            children: SettingsService.themeModes.keys.map<Widget>((name) {
-              return RadioListTile<String>(
-                activeColor: Theme.of(context).colorScheme.primary,
-                groupValue: controller.themeModeName.value,
-                value: name,
-                title: Text(name),
-                onChanged: (value) {
-                  controller.changeThemeMode(value!);
-                  Navigator.of(context).pop();
-                },
-              );
-            }).toList(),
-          );
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(S.of(Get.context!).change_theme_mode),
+          children: SettingsService.themeModes.keys.map<Widget>((name) {
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.themeModeName.value,
+              value: name,
+              title: Text(name),
+              onChanged: (value) {
+                controller.changeThemeMode(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList(),
+        );
+      },
+    );
   }
 
   Future<bool> colorPickerDialog() async {
@@ -204,24 +223,13 @@ class SettingsPage extends GetView<SettingsService> {
       spacing: 5,
       runSpacing: 5,
       wheelDiameter: 155,
-      heading: Text(
-        '主题颜色',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      subheading: Text(
-        '选择透明度',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      wheelSubheading: Text(
-        '主题颜色及透明度',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
+      heading: Text('主题颜色', style: Theme.of(context).textTheme.titleMedium),
+      subheading: Text('选择透明度', style: Theme.of(context).textTheme.titleMedium),
+      wheelSubheading: Text('主题颜色及透明度', style: Theme.of(context).textTheme.titleMedium),
       showMaterialName: false,
       showColorName: false,
       showColorCode: true,
-      copyPasteBehavior: const ColorPickerCopyPasteBehavior(
-        longPressMenu: true,
-      ),
+      copyPasteBehavior: const ColorPickerCopyPasteBehavior(longPressMenu: true),
       materialNameTextStyle: Theme.of(context).textTheme.bodySmall,
       colorNameTextStyle: Theme.of(context).textTheme.bodySmall,
       colorCodeTextStyle: Theme.of(context).textTheme.bodyMedium,
@@ -342,20 +350,24 @@ class SettingsPage extends GetView<SettingsService> {
       context: context,
       builder: (context) => AlertDialog(
         // title: Text(S.of(context).auto_refresh_time),
-        content: Obx(() => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Slider(
-                  min: 0,
-                  max: 120,
-                  label: S.of(context).auto_refresh_time,
-                  value: controller.autoRefreshTime.toDouble(),
-                  onChanged: (value) => controller.autoRefreshTime.value = value.toInt(),
-                ),
-                Text('${S.of(context).auto_refresh_time}:'
-                    ' ${controller.autoRefreshTime}分钟'),
-              ],
-            )),
+        content: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Slider(
+                min: 0,
+                max: 120,
+                label: S.of(context).auto_refresh_time,
+                value: controller.autoRefreshTime.toDouble(),
+                onChanged: (value) => controller.autoRefreshTime.value = value.toInt(),
+              ),
+              Text(
+                '${S.of(context).auto_refresh_time}:'
+                ' ${controller.autoRefreshTime}分钟',
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -371,15 +383,9 @@ class SettingsPage extends GetView<SettingsService> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VideoFitSetting(
-                  controller: controller,
-                ),
-                DanmakuSetting(
-                  controller: controller,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
+                VideoFitSetting(controller: controller),
+                DanmakuSetting(controller: controller),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -393,28 +399,32 @@ class SettingsPage extends GetView<SettingsService> {
       context: context,
       builder: (context) => AlertDialog(
         // title: Text(S.of(context).auto_refresh_time),
-        content: Obx(() => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SwitchListTile(
-                  title: Text(S.of(context).auto_shutdown_time_subtitle),
-                  value: controller.enableAutoShutDownTime.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.enableAutoShutDownTime.value = value,
-                ),
-                Slider(
-                  min: 1,
-                  max: 1200,
-                  label: S.of(context).auto_refresh_time,
-                  value: controller.autoShutDownTime.toDouble(),
-                  onChanged: (value) {
-                    controller.autoShutDownTime.value = value.toInt();
-                  },
-                ),
-                Text('${S.of(context).auto_shutdown_time}:'
-                    ' ${controller.autoShutDownTime} minute'),
-              ],
-            )),
+        content: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SwitchListTile(
+                title: Text(S.of(context).auto_shutdown_time_subtitle),
+                value: controller.enableAutoShutDownTime.value,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.enableAutoShutDownTime.value = value,
+              ),
+              Slider(
+                min: 1,
+                max: 1200,
+                label: S.of(context).auto_refresh_time,
+                value: controller.autoShutDownTime.toDouble(),
+                onChanged: (value) {
+                  controller.autoShutDownTime.value = value.toInt();
+                },
+              ),
+              Text(
+                '${S.of(context).auto_shutdown_time}:'
+                ' ${controller.autoShutDownTime} minute',
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -73,6 +73,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.13.0"
+  awesome_video_player:
+    dependency: "direct main"
+    description:
+      name: awesome_video_player
+      sha256: "32466d5951beae37c5fa4f678a359d793967b4f993dd1b134dfca3295b9eebc2"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.5"
   battery_plus:
     dependency: "direct main"
     description:
@@ -694,6 +702,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_widget_from_html_core:
+    dependency: transitive
+    description:
+      name: flutter_widget_from_html_core
+      sha256: "50990ec287434a280ed15d602aa3bf6e8db9c54159762d906057a04e9493b91a"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.16.1"
   font_awesome_flutter:
     dependency: "direct main"
     description:
