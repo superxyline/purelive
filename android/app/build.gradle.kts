@@ -17,10 +17,6 @@ val localProperties = Properties().apply {
     }
 }
 
-// 从local.properties获取版本信息
-val flutterVersionCode: String by localProperties.withDefault { "1" }
-val flutterVersionName: String by localProperties.withDefault { "1.0" }
-
 // 加载签名配置
 val keystoreProperties = Properties().apply { // 同样添加了导入
     val keystorePropertiesFile = rootProject.file("key.properties")
@@ -49,9 +45,9 @@ android {
         applicationId = "com.mystyle.purelive"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutterVersionCode.toInt()
-        versionName = flutterVersionName
         multiDexEnabled = true
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     signingConfigs {
@@ -83,7 +79,7 @@ android {
             )
         }
        debug {
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

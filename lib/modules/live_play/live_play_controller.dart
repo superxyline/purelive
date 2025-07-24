@@ -187,6 +187,7 @@ class LivePlayController extends StateController {
     if (currentSite.id == Sites.iptvSite) {
       liveRoom = liveRoom.copyWith(title: currentPlayRoom.value.title!, nick: currentPlayRoom.value.nick!);
     }
+    debugPrint(liveRoom.toString());
     isLastLine.value = calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
     if (isLastLine.value) {
       hasError.value = true;

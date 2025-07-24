@@ -356,15 +356,19 @@ class VideoController with ChangeNotifier {
     }
   }
 
-  dynamic mobileStateListener(dynamic state) {
+  dynamic mobileStateListener(dynamic event) {
     if (mobileController?.videoPlayerController != null) {
-      hasError.value = mobileController?.videoPlayerController?.value.hasError ?? true;
+      hasError.value = mobileController?.videoPlayerController?.value.hasError ?? false;
+      debugPrint("Better player event: ${event.betterPlayerEventType}");
       isPlaying.value = mobileController?.isPlaying() ?? false;
       isBuffering.value = mobileController?.isBuffering() ?? false;
       isPipMode.value = mobileController?.videoPlayerController?.value.isPip ?? false;
       if (isPlaying.value && mediaPlayerControllerInitialized.value == false) {
         mediaPlayerControllerInitialized.value = true;
         setVolumn(settings.volume.value);
+      }
+      if (event.betterPlayerEventType == BetterPlayerEventType.finished && room.platform == Sites.iptvSite) {
+        hasError.value = true;
       }
     }
   }
@@ -490,12 +494,20 @@ class VideoController with ChangeNotifier {
     livePlayController.success.value = false;
     hasDestory = true;
     if (allowScreenKeepOn) WakelockPlus.disable();
+
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetApplicationScreenBrightness();
-      if (key.currentState?.isFullscreen() ?? false) {
-        key.currentState?.exitFullscreen();
+      if (settings.videoPlayerIndex.value == 0) {
+        if (key.currentState?.isFullscreen() ?? false) {
+          key.currentState?.exitFullscreen();
+        }
+        player.dispose();
+      } else {
+        if (mobileController?.isFullScreen ?? false) {
+          mobileController?.exitFullScreen();
+        }
+        mobileController?.dispose();
       }
-      player.dispose();
     } else {
       if (key.currentState?.isFullscreen() ?? false) {
         key.currentState?.exitFullscreen();
@@ -517,11 +529,18 @@ class VideoController with ChangeNotifier {
       player.pause();
       player.open(Media(datasource, httpHeaders: headers));
     } else {
+      BetterPlayerVideoFormat? videoFormat;
+      if (room.platform == Sites.bilibiliSite) {
+        videoFormat = BetterPlayerVideoFormat.hls;
+      } else if (room.platform == Sites.huyaSite) {
+        videoFormat = BetterPlayerVideoFormat.other;
+      }
+
       mobileController?.setupDataSource(
         BetterPlayerDataSource(
           BetterPlayerDataSourceType.network,
           url,
-          videoFormat: room.platform == Sites.bilibiliSite ? BetterPlayerVideoFormat.hls : null,
+          videoFormat: videoFormat,
           liveStream: true,
           notificationConfiguration: allowBackgroundPlay
               ? BetterPlayerNotificationConfiguration(
