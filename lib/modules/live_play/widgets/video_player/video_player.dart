@@ -21,7 +21,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   @override
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
-      if (widget.controller.settings.videoPlayerIndex.value == 0) {
+      if (widget.controller.videoPlayerIndex == 0) {
         return PiPSwitcher(
           floating: widget.controller.pip,
           childWhenDisabled: media_kit_video.Video(

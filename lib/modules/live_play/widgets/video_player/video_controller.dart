@@ -29,6 +29,8 @@ class VideoController with ChangeNotifier {
   final bool fullScreenByDefault;
   final bool autoPlay;
   final Map<String, String> headers;
+
+  final int videoPlayerIndex;
   final isVertical = false.obs;
   final videoFitIndex = 0.obs;
   final videoFit = BoxFit.contain.obs;
@@ -105,7 +107,7 @@ class VideoController with ChangeNotifier {
   final showSettting = false.obs;
   final showLocked = false.obs;
   final danmuKey = GlobalKey();
-  double volume = 0.0;
+  double volume = 1.0;
 
   List<DanmakuController> danmakuControllers = [];
   Timer? _debounceTimer;
@@ -141,6 +143,7 @@ class VideoController with ChangeNotifier {
     required this.qualiteName,
     required this.currentLineIndex,
     required this.currentQuality,
+    required this.videoPlayerIndex,
   }) {
     videoFitIndex.value = settings.videoFitIndex.value;
     videoFit.value = settings.videofitArrary[videoFitIndex.value];
@@ -198,7 +201,7 @@ class VideoController with ChangeNotifier {
 
   void initVideoController() async {
     FlutterVolumeController.updateShowSystemUI(false);
-    if (settings.videoPlayerIndex.value == 0 || Platform.isWindows) {
+    if (videoPlayerIndex == 0 || Platform.isWindows) {
       enableCodec = settings.enableCodec.value;
       playerCompatMode = settings.playerCompatMode.value;
       player = Player();
@@ -504,7 +507,7 @@ class VideoController with ChangeNotifier {
 
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetApplicationScreenBrightness();
-      if (settings.videoPlayerIndex.value == 0) {
+      if (videoPlayerIndex == 0) {
         if (key.currentState?.isFullscreen() ?? false) {
           key.currentState?.exitFullscreen();
         }
@@ -532,13 +535,18 @@ class VideoController with ChangeNotifier {
     } else {
       hasError.value = false;
     }
-    if (Platform.isWindows || settings.videoPlayerIndex.value == 0) {
+    if (Platform.isWindows || videoPlayerIndex == 0) {
       player.pause();
       player.open(Media(datasource, httpHeaders: headers));
     } else {
       BetterPlayerVideoFormat? videoFormat;
       if (room.platform == Sites.bilibiliSite) {
         videoFormat = BetterPlayerVideoFormat.hls;
+      }
+      if (room.platform == Sites.huyaSite) {
+        if (url.contains('.m3u8')) {
+          videoFormat = BetterPlayerVideoFormat.hls;
+        }
       }
 
       final result = await mobileController?.setupDataSource(
@@ -574,7 +582,7 @@ class VideoController with ChangeNotifier {
   }
 
   void setVideoFit(BoxFit fit) {
-    if (Platform.isWindows || settings.videoPlayerIndex.value == 0) {
+    if (Platform.isWindows || videoPlayerIndex == 0) {
       videoFit.value = fit;
       key.currentState?.update(fit: fit);
     } else {
@@ -584,7 +592,7 @@ class VideoController with ChangeNotifier {
   }
 
   void togglePlayPause() {
-    if (Platform.isWindows || settings.videoPlayerIndex.value == 0) {
+    if (Platform.isWindows || videoPlayerIndex == 0) {
       mediaPlayerController.player.playOrPause();
     } else {
       isPlaying.value ? mobileController!.pause() : mobileController!.play();
@@ -593,7 +601,7 @@ class VideoController with ChangeNotifier {
 
   void exitFullScreen() {
     isFullscreen.value = false;
-    if (Platform.isWindows || settings.videoPlayerIndex.value == 0) {
+    if (Platform.isWindows || videoPlayerIndex == 0) {
       if (key.currentState?.isFullscreen() ?? false) {
         key.currentState?.exitFullscreen();
       }
@@ -625,7 +633,7 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(milliseconds: 500), () {
       enableController();
     });
-    if (Platform.isWindows || settings.videoPlayerIndex.value == 0) {
+    if (Platform.isWindows || videoPlayerIndex == 0) {
       if (isFullscreen.value) {
         key.currentState?.exitFullscreen();
       } else {
@@ -674,7 +682,7 @@ class VideoController with ChangeNotifier {
     if ((Platform.isAndroid || Platform.isIOS)) {
       danmakuController.onClear();
       danmakuController.resume();
-      if (Platform.isWindows || settings.videoPlayerIndex.value == 0) {
+      if (Platform.isWindows || videoPlayerIndex == 0) {
         await pip.enable(ImmediatePiP());
       } else {
         if (await mobileController?.isPictureInPictureSupported() ?? false) {

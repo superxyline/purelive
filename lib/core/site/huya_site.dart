@@ -162,6 +162,9 @@ class HuyaSite implements LiveSite {
     req.streamName = line.streamName;
     var resp = await tupClient.tupRequest("getCdnTokenInfo", req, GetCdnTokenResp());
     var url = '${line.line}/${resp.streamName}.flv?${resp.flvAntiCode}&codec=264';
+    if (line.lineType == HuyaLineType.hls) {
+      url = '${line.line}/${resp.streamName}.m3u8?${resp.hlsAntiCode}&codec=264';
+    }
     if (bitRate > 0) {
       url += "&ratio=$bitRate";
     }
@@ -232,9 +235,11 @@ class HuyaSite implements LiveSite {
       var huyaLines = <HuyaLineModel>[];
       var huyaBiterates = <HuyaBitRateModel>[];
       //读取可用线路
-      var lines = data['stream']['flv']['multiLine'];
+
       var baseSteamInfoList = data['stream']['baseSteamInfoList'] as List<dynamic>;
-      for (var item in lines) {
+      var flvLines = data['stream']['flv']['multiLine'];
+      var hlsLines = data['stream']['hls']['multiLine'];
+      for (var item in flvLines) {
         if ((item["url"]?.toString() ?? "").isNotEmpty) {
           var currentStream = baseSteamInfoList.firstWhere(
             (element) => element["sCdnType"] == item["cdnType"],
@@ -247,6 +252,28 @@ class HuyaSite implements LiveSite {
               HuyaLineModel(
                 line: currentStream['sFlvUrl'],
                 lineType: HuyaLineType.flv,
+                flvAntiCode: currentStream["sFlvAntiCode"].toString(),
+                hlsAntiCode: currentStream["sHlsAntiCode"].toString(),
+                streamName: currentStream["sStreamName"].toString(),
+                cdnType: item["sCdnType"].toString(),
+              ),
+            );
+          }
+        }
+      }
+      for (var item in hlsLines) {
+        if ((item["url"]?.toString() ?? "").isNotEmpty) {
+          var currentStream = baseSteamInfoList.firstWhere(
+            (element) => element["sCdnType"] == item["cdnType"],
+            orElse: () => null,
+          );
+          if (currentStream != null) {
+            topSid = currentStream["lChannelId"];
+            subSid = currentStream["lSubChannelId"];
+            huyaLines.add(
+              HuyaLineModel(
+                line: currentStream['sHlsUrl'],
+                lineType: HuyaLineType.hls,
                 flvAntiCode: currentStream["sFlvAntiCode"].toString(),
                 hlsAntiCode: currentStream["sHlsAntiCode"].toString(),
                 streamName: currentStream["sStreamName"].toString(),

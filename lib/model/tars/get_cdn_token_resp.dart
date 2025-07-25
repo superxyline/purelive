@@ -70,4 +70,18 @@ class GetCdnTokenResp extends TarsStruct {
     _ds.DisplayString(flvAntiCode, "flvAntiCode");
     _ds.DisplayString(hlsAntiCode, "hlsAntiCode");
   }
+
+  @override
+  String toString() {
+    StringBuffer sb = StringBuffer()..write("GetCdnTokenResp(");
+    sb.write("url=$url");
+    sb.write(",cdnType=$cdnType");
+    sb.write(",streamName=$streamName");
+    sb.write(",antiCode=$antiCode");
+    sb.write(",sTime=$sTime");
+    sb.write(",flvAntiCode=$flvAntiCode");
+    sb.write(",hlsAntiCode=$hlsAntiCode");
+    sb.write(")");
+    return sb.toString();
+  }
 }

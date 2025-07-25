@@ -423,10 +423,14 @@ class LivePlayController extends StateController {
       headers = {"user-agent": ua, "origin": "https://www.huya.com"};
       log(headers.toString(), name: "headers");
     }
+
     videoController = VideoController(
       playerKey: playerKey,
       room: detail.value!,
       datasourceType: 'network',
+      videoPlayerIndex: currentSite.id == Sites.huyaSite && settings.videoPlayerIndex.value == 1
+          ? 0
+          : settings.videoPlayerIndex.value,
       datasource: playUrls.value[currentLineIndex.value],
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
       allowBackgroundPlay: settings.enableBackgroundPlay.value,

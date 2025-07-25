@@ -1,7 +1,7 @@
 {
-  "version": "1.9.0",
-  "version_num": 10190,
-  "version_desc": "-Fix: 修复播放逻辑 bug\n-Fix: 添加WebDav备份 \n-Fix: 添加EXO播放器",
+  "version": "1.9.1",
+  "version_num": 10191,
+  "version_desc": "-Fix: 修复播放逻辑 bug.\n-Fix: 添加WebDav备份 \n-Fix: 添加EXO播放器. EXO 播放虎牙失败强制使用Mpv",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
