@@ -13,7 +13,6 @@ import 'package:canvas_danmaku/danmaku_controller.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:canvas_danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
-import 'package:awesome_video_player/awesome_video_player.dart';
 import 'package:canvas_danmaku/models/danmaku_content_item.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
@@ -304,10 +303,12 @@ class VideoController with ChangeNotifier {
           autoDetectFullscreenDeviceOrientation: true,
           autoDetectFullscreenAspectRatio: true,
           errorBuilder: (context, errorMessage) => Container(),
+          handleLifecycle: true,
         ),
       );
       mobileController?.setControlsEnabled(false);
       setDataSource(datasource);
+
       mobileController?.addEventsListener(mobileStateListener);
       mediaPlayerControllerInitialized.listen((value) {
         if (fullScreenByDefault && datasource.isNotEmpty && value) {
@@ -356,10 +357,16 @@ class VideoController with ChangeNotifier {
     }
   }
 
-  dynamic mobileStateListener(dynamic event) {
+  dynamic mobileStateListener(BetterPlayerEvent event) {
     if (mobileController?.videoPlayerController != null) {
       hasError.value = mobileController?.videoPlayerController?.value.hasError ?? false;
-      debugPrint("Better player event: ${event.betterPlayerEventType}");
+      log('betterPlayerEventType: ${event.betterPlayerEventType} ${event.parameters}', name: 'video_player');
+
+      if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
+        log('betterPlayerEventType: ${event.parameters}', name: 'video_player');
+      }
+
+      log('isVideoInitialized: ${mobileController!.isVideoInitialized()}', name: 'video_player');
       isPlaying.value = mobileController?.isPlaying() ?? false;
       isBuffering.value = mobileController?.isBuffering() ?? false;
       isPipMode.value = mobileController?.videoPlayerController?.value.isPip ?? false;
@@ -367,9 +374,7 @@ class VideoController with ChangeNotifier {
         mediaPlayerControllerInitialized.value = true;
         setVolumn(settings.volume.value);
       }
-      if (event.betterPlayerEventType == BetterPlayerEventType.finished && room.platform == Sites.iptvSite) {
-        hasError.value = true;
-      }
+      log(mobileController!.isBuffering().toString(), name: 'video_player');
     }
   }
 
@@ -455,9 +460,11 @@ class VideoController with ChangeNotifier {
 
   void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
-    danmakuController.addDanmaku(
-      DanmakuContentItem(msg.message, color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)),
-    );
+    if (isPlaying.value) {
+      danmakuController.addDanmaku(
+        DanmakuContentItem(msg.message, color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)),
+      );
+    }
   }
 
   @override
@@ -532,11 +539,9 @@ class VideoController with ChangeNotifier {
       BetterPlayerVideoFormat? videoFormat;
       if (room.platform == Sites.bilibiliSite) {
         videoFormat = BetterPlayerVideoFormat.hls;
-      } else if (room.platform == Sites.huyaSite) {
-        videoFormat = BetterPlayerVideoFormat.other;
       }
 
-      mobileController?.setupDataSource(
+      final result = await mobileController?.setupDataSource(
         BetterPlayerDataSource(
           BetterPlayerDataSourceType.network,
           url,
@@ -552,9 +557,18 @@ class VideoController with ChangeNotifier {
                 )
               : null,
           headers: headers,
+          bufferingConfiguration: BetterPlayerBufferingConfiguration(
+            minBufferMs: 1000, // 增加最小缓冲时间
+            maxBufferMs: 1000, // 增加最大缓冲时间
+            bufferForPlaybackMs: 1000, // 开始播放前的缓冲时间
+            bufferForPlaybackAfterRebufferMs: 1000, // 重新缓冲后的缓冲时间
+          ),
+          cacheConfiguration: BetterPlayerCacheConfiguration(
+            useCache: false, // 禁用缓存
+          ),
         ),
       );
-      mobileController?.pause();
+      log(result.toString(), name: 'video_player');
     }
     notifyListeners();
   }
@@ -721,62 +735,6 @@ class DesktopFullscreen extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// use fullscreen with controller provider
-class MobileFullscreen extends StatefulWidget {
-  const MobileFullscreen({super.key, required this.controller, required this.controllerProvider});
-
-  final VideoController controller;
-  final BetterPlayerControllerProvider controllerProvider;
-
-  @override
-  State<MobileFullscreen> createState() => _MobileFullscreenState();
-}
-
-class _MobileFullscreenState extends State<MobileFullscreen> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      widget.controller.refresh();
-    }
-  }
-
-  @override
-  dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: PopScope(
-        canPop: !widget.controller.isFullscreen.value,
-        onPopInvokedWithResult: (canpop, _) {
-          widget.controller.toggleFullScreen();
-        },
-        child: Container(
-          alignment: Alignment.center,
-          color: Colors.black,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              widget.controllerProvider,
-              VideoControllerPanel(controller: widget.controller),
-            ],
-          ),
         ),
       ),
     );

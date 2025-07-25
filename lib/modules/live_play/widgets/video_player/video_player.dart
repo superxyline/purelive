@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:awesome_video_player/awesome_video_player.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';

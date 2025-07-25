@@ -532,7 +532,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
                           child: LinearProgressIndicator(
                             value: _updateDargVarVal,
                             backgroundColor: Colors.white38,
-                            valueColor: AlwaysStoppedAnimation(Theme.of(context).tabBarTheme.indicatorColor),
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
                           ),
                         ),
                       ),

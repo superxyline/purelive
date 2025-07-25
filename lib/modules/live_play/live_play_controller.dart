@@ -89,8 +89,6 @@ class LivePlayController extends StateController {
   // 是否是手动切换线路
   var isActive = false.obs;
 
-  bool disposed = false;
-
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
@@ -257,7 +255,7 @@ class LivePlayController extends StateController {
   }
 
   void disPoserPlayer() {
-    videoController?.dispose();
+    videoController?.destory();
     videoController = null;
     liveDanmaku.stop();
     success.value = false;
@@ -328,7 +326,6 @@ class LivePlayController extends StateController {
     if (videoController != null && videoController!.hasDestory == false) {
       videoController!.destory();
     }
-
     currentQuality.value = qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
     currentLineIndex.value = int.tryParse(index) ?? 0;
     onInitPlayerState(
@@ -388,6 +385,11 @@ class LivePlayController extends StateController {
       success.value = false;
       return;
     }
+    log(playUrl.toString(), name: "play_url");
+
+    if (room.platform == Sites.bilibiliSite && playUrl.length > 1) {
+      playUrl.removeAt(0);
+    }
     playUrls.value = playUrl;
     setPlayer();
   }
@@ -418,7 +420,8 @@ class LivePlayController extends StateController {
       };
     } else if (currentSite.id == Sites.huyaSite) {
       var ua = await HuyaSite().getHuYaUA();
-      headers = {"user-agent": ua, "origin": "https://www.huya.com", "cookie": settings.huyaCookie.value};
+      headers = {"user-agent": ua, "origin": "https://www.huya.com"};
+      log(headers.toString(), name: "headers");
     }
     videoController = VideoController(
       playerKey: playerKey,
@@ -498,7 +501,6 @@ class LivePlayController extends StateController {
   @override
   void dispose() {
     disPoserPlayer();
-    disposed = true;
     super.dispose();
   }
 }

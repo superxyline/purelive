@@ -267,7 +267,7 @@ class SettingsService extends GetxController {
   final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
 
-  final volume = (PrefUtil.getDouble('volume') ?? 0.0).obs;
+  final volume = (PrefUtil.getDouble('volume') ?? 1.0).obs;
 
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
 
@@ -568,7 +568,7 @@ class SettingsService extends GetxController {
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     huyaCookie.value = json['huyaCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
-    volume.value = json['volume'] ?? 0.0;
+    volume.value = json['volume'] ?? 1.0;
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -655,7 +655,7 @@ class SettingsService extends GetxController {
       'huyaCookie': '',
       'shieldList': [],
       "hotAreasList": [],
-      "volume": 0.0,
+      "volume": 1.0,
     };
     return json;
   }
