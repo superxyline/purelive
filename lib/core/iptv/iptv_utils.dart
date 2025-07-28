@@ -75,7 +75,6 @@ class IptvUtils {
       for (M3uItem item in m3uList.items) {
         list.add(item);
       }
-      log(list.toString());
     } catch (e) {
       await loadNetworkM3u8();
       var dir = await getApplicationCacheDirectory();
@@ -86,7 +85,6 @@ class IptvUtils {
           list.add(item);
         }
       }
-      log(e.toString());
     }
     return list;
   }

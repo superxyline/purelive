@@ -698,7 +698,9 @@ class VideoController with ChangeNotifier {
   void registerVolumeListener() {
     FlutterVolumeController.addListener((volume) {
       // 音量变化时的回调
-      settings.volume.value = volume;
+      if (Platform.isAndroid) {
+        settings.volume.value = volume;
+      }
     });
   }
 
