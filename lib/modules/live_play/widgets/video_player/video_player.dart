@@ -47,7 +47,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           controls: widget.controller.room.platform == Sites.iptvSite
                               ? media_kit_video.MaterialVideoControls
                               : widget.controller.isFullscreen.value
-                              ? media_kit_video.MaterialVideoControls
+                              ? (state) => VideoControllerPanel(controller: widget.controller)
                               : null,
                         ),
                       ),
@@ -83,7 +83,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           controls: widget.controller.room.platform == Sites.iptvSite
                               ? media_kit_video.MaterialVideoControls
                               : widget.controller.isFullscreen.value
-                              ? media_kit_video.MaterialVideoControls
+                              ? (state) => VideoControllerPanel(controller: widget.controller)
                               : null,
                         ),
                       ),
@@ -96,32 +96,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
           ),
         );
       } else {
-        return Material(
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            body: Stack(
-              fit: StackFit.expand, // 使Stack填充整个父容器
-              children: [
-                Container(
-                  color: Colors.black, // 设置你想要的背景色
-                ),
-                Obx(
-                  () => Transform.scale(
-                    scale: !widget.controller.isVerticalDirection ? 1 : 9 / 16,
-                    child: Transform.rotate(
-                      angle: widget.controller.angle.value,
-                      child: BetterPlayer(
-                        key: widget.controller.playerKey,
-                        controller: widget.controller.mobileController!,
-                      ),
-                    ),
-                  ),
-                ),
-                VideoControllerPanel(controller: widget.controller),
-              ],
-            ),
-          ),
-        );
+        return BetterPlayer(key: widget.controller.playerKey, controller: widget.controller.mobileController!);
       }
     }
     return Material(
