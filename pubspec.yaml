@@ -2,7 +2,7 @@ name: pure_live
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.9.1
+version: 1.9.2+2
 
 environment:
   sdk: ^3.8.1
@@ -164,7 +164,7 @@ flutter_intl:
 # windows msix package
 msix_config:
   display_name: 纯粹直播
-  msix_version: 1.0.0.83
+  msix_version: 1.0.0.84
   logo_path: assets/icons/icon.png
   certificate_path: assets/keystore/CERTIFICATE.pfx
   certificate_password: xxxx

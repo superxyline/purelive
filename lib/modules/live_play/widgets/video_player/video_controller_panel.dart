@@ -100,10 +100,6 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 ? ErrorWidget(controller: controller)
                 : MouseRegion(
                     onHover: (event) => controller.enableController(),
-                    onExit: (event) {
-                      controller.showControllerTimer?.cancel();
-                      controller.showController.toggle();
-                    },
                     child: Stack(
                       children: [
                         Container(
@@ -628,6 +624,8 @@ class BottomActionBar extends StatelessWidget {
               RefreshButton(controller: controller),
               DanmakuButton(controller: controller),
               FavoriteButton(controller: controller),
+              if (!controller.isFullscreen.value && Platform.isWindows) ScreenToggleButton(controller: controller),
+              if (Platform.isAndroid) ScreenToggleButton(controller: controller),
               if (controller.isFullscreen.value) SettingsButton(controller: controller),
               const Spacer(),
               if (controller.supportWindowFull && !controller.isFullscreen.value)
@@ -686,15 +684,12 @@ class ScreenToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => GestureDetector(
-        onTap: () =>
-            controller.isVertical.value ? controller.setLandscapeOrientation() : controller.setPortraitOrientation(),
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(12),
-          child: Icon(controller.isVertical.value ? Icons.crop_landscape : Icons.crop_portrait, color: Colors.white),
-        ),
+    return GestureDetector(
+      onTap: () => controller.rotateScreen(),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(12),
+        child: Icon(Icons.transform, color: Colors.white),
       ),
     );
   }

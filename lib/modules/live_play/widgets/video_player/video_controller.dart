@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math' as Math;
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +21,8 @@ import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 
 class VideoController with ChangeNotifier {
   final GlobalKey playerKey;
+
+  final GlobalKey containerKey = GlobalKey();
   final LiveRoom room;
   final String datasourceType;
   String datasource;
@@ -67,6 +70,10 @@ class VideoController with ChangeNotifier {
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
 
   final refreshCompleted = true.obs;
+
+  final videoSizeWidth = 0.0.obs;
+
+  final videoSizeHeight = 0.0.obs;
 
   // ignore: prefer_typing_uninitialized_variables
   late final Floating pip;
@@ -189,6 +196,8 @@ class VideoController with ChangeNotifier {
   // Battery level control
   final Battery _battery = Battery();
   final batteryLevel = 100.obs;
+
+  final angle = 0.0.obs;
   void initBattery() {
     if (Platform.isAndroid || Platform.isIOS) {
       _battery.batteryLevel.then((value) => batteryLevel.value = value);
@@ -298,7 +307,7 @@ class VideoController with ChangeNotifier {
         BetterPlayerConfiguration(
           controlsConfiguration: BetterPlayerControlsConfiguration(
             playerTheme: BetterPlayerTheme.custom,
-            customControlsBuilder: (controller, onControlsVisibilityChanged) => VideoControllerPanel(controller: this),
+            customControlsBuilder: null,
           ),
           autoPlay: true,
           fit: videoFit.value,
@@ -631,7 +640,7 @@ class VideoController with ChangeNotifier {
     showLocked.value = false;
     // fix obx setstate when build
     showControllerTimer?.cancel();
-    Timer(const Duration(milliseconds: 500), () {
+    Timer(const Duration(seconds: 2), () {
       enableController();
     });
     if (Platform.isWindows || videoPlayerIndex == 0) {
@@ -661,7 +670,7 @@ class VideoController with ChangeNotifier {
     showLocked.value = false;
     // fix obx setstate when build
     showControllerTimer?.cancel();
-    Timer(const Duration(milliseconds: 500), () {
+    Timer(const Duration(seconds: 2), () {
       enableController();
     });
 
@@ -730,6 +739,42 @@ class VideoController with ChangeNotifier {
       await brightnessController.setApplicationScreenBrightness(value);
     }
   }
+
+  void rotateScreen() {
+    angle.value = (angle.value + (90 * (Math.pi / 180))) % (2 * Math.pi);
+    getSize();
+    enableController();
+  }
+
+  // 判断是否为水平方向
+  bool get isVerticalDirection =>
+      ((angle.value % (2 * Math.pi)) / (Math.pi / 2)).round() % 4 == 1 ||
+      ((angle.value % (2 * Math.pi)) / (Math.pi / 2)).round() % 4 == 3;
+
+  // 获取组件尺寸
+  void getSize() {
+    if (videoPlayerIndex == 0) {
+      final RenderBox renderBox = key.currentContext!.findRenderObject() as RenderBox;
+      final Size size = renderBox.size;
+      if (!isVerticalDirection) {
+        videoSizeWidth.value = size.width;
+        videoSizeHeight.value = size.height;
+      } else {
+        videoSizeWidth.value = size.height;
+        videoSizeHeight.value = size.width;
+      }
+    } else {
+      final RenderBox renderBox = playerKey.currentContext!.findRenderObject() as RenderBox;
+      final Size size = renderBox.size;
+      if (!isVerticalDirection) {
+        videoSizeWidth.value = size.width;
+        videoSizeHeight.value = size.height;
+      } else {
+        videoSizeWidth.value = size.height;
+        videoSizeHeight.value = size.width;
+      }
+    }
+  }
 }
 
 // use fullscreen with controller provider
@@ -745,14 +790,25 @@ class DesktopFullscreen extends StatelessWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: Stack(
+          fit: StackFit.expand, // 使Stack填充整个父容器
           children: [
+            Container(
+              color: Colors.black, // 设置你想要的背景色
+            ),
             Obx(
-              () => media_kit_video.Video(
-                controller: controller.mediaPlayerController,
-                fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
-                controls: (state) => VideoControllerPanel(controller: controller),
+              () => Transform.scale(
+                scale: controller.isVerticalDirection ? 9 / 16 : 1,
+                child: Transform.rotate(
+                  angle: controller.angle.value,
+                  child: media_kit_video.Video(
+                    controller: controller.mediaPlayerController,
+                    fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
+                    controls: null,
+                  ),
+                ),
               ),
             ),
+            VideoControllerPanel(controller: controller),
           ],
         ),
       ),

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'widgets/index.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
