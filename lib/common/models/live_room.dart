@@ -1,4 +1,4 @@
-enum LiveStatus { live, offline, replay, unknown }
+enum LiveStatus { live, offline, replay, unknown, banned }
 
 class LiveRoom {
   String? roomId;

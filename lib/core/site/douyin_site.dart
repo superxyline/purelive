@@ -2,21 +2,18 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'package:get/get.dart';
 import 'dart:developer' as developer;
-import 'package:pure_live/core/sites.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/plugins/fake_useragent.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/model/live_search_result.dart';
-import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/core/common/convert_helper.dart';
 import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/common/services/settings_service.dart';
 
 class DouyinSite implements LiveSite {
   @override
@@ -44,6 +41,8 @@ class DouyinSite implements LiveSite {
 
   Future<Map<String, dynamic>> getRequestHeaders() async {
     try {
+      var fakeUseragent = FakeUserAgent.getRandomUserAgent();
+      headers['User-Agent'] = fakeUseragent['userAgent'];
       if (headers.containsKey("cookie")) {
         return headers;
       }
@@ -125,6 +124,7 @@ class DouyinSite implements LiveSite {
       },
       header: await getRequestHeaders(),
     );
+
     var hasMore = (result["data"]["data"] as List).length >= 15;
     var items = <LiveRoom>[];
     for (var item in result["data"]["data"]) {
@@ -264,6 +264,7 @@ class DouyinSite implements LiveSite {
       var userInfo = result["data"]["user"];
       var partition = result["data"]['partition_road_map'];
       var roomStatus = (asT<int?>(roomInfo["status"]) ?? 0) == 2;
+
       return LiveRoom(
         roomId: roomId,
         title: roomInfo["title"].toString(),
@@ -271,7 +272,11 @@ class DouyinSite implements LiveSite {
         nick: userInfo["nickname"].toString(),
         avatar: userInfo["avatar_thumb"]["url_list"][0].toString(),
         watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
-        liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+        liveStatus: roomStatus
+            ? LiveStatus.live
+            : result["status_code"] == 10011
+            ? LiveStatus.offline
+            : LiveStatus.banned,
         link: "https://live.douyin.com/$webRid",
         area: partition?['partition']?['title'].toString() ?? '',
         status: roomStatus,

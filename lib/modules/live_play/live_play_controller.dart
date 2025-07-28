@@ -185,7 +185,6 @@ class LivePlayController extends StateController {
     if (currentSite.id == Sites.iptvSite) {
       liveRoom = liveRoom.copyWith(title: currentPlayRoom.value.title!, nick: currentPlayRoom.value.nick!);
     }
-    debugPrint(liveRoom.toString());
     isLastLine.value = calcIsLastLine(line) && reloadDataType == ReloadDataType.changeLine;
     if (isLastLine.value) {
       hasError.value = true;
@@ -232,7 +231,11 @@ class LivePlayController extends StateController {
         isFirstLoad.value = false;
         success.value = false;
         getVideoSuccess.value = true;
-        SmartDialog.showToast("当前主播未开播或主播已下播", displayTime: const Duration(seconds: 2));
+        if (liveRoom.liveStatus == LiveStatus.banned) {
+          SmartDialog.showToast("服务器错误,请稍后获取", displayTime: const Duration(seconds: 2));
+        } else {
+          SmartDialog.showToast("当前主播未开播或主播已下播", displayTime: const Duration(seconds: 2));
+        }
         restoryQualityAndLines();
       }
 

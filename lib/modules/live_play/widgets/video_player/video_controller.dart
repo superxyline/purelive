@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
-import 'dart:math' as Math;
+import 'dart:math' as math;
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';
@@ -741,15 +741,15 @@ class VideoController with ChangeNotifier {
   }
 
   void rotateScreen() {
-    angle.value = (angle.value + (90 * (Math.pi / 180))) % (2 * Math.pi);
+    angle.value = (angle.value + (90 * (math.pi / 180))) % (2 * math.pi);
     getSize();
     enableController();
   }
 
   // 判断是否为水平方向
   bool get isVerticalDirection =>
-      ((angle.value % (2 * Math.pi)) / (Math.pi / 2)).round() % 4 == 1 ||
-      ((angle.value % (2 * Math.pi)) / (Math.pi / 2)).round() % 4 == 3;
+      ((angle.value % (2 * math.pi)) / (math.pi / 2)).round() % 4 == 1 ||
+      ((angle.value % (2 * math.pi)) / (math.pi / 2)).round() % 4 == 3;
 
   // 获取组件尺寸
   void getSize() {
