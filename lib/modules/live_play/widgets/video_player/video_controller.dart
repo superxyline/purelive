@@ -173,6 +173,18 @@ class VideoController with ChangeNotifier {
       }
     });
     isFullscreen.listen((value) {
+      if (Platform.isAndroid) {
+        if (videoPlayerIndex == 1) {
+          mobileController?.setBetterPlayerControlsConfiguration(
+            BetterPlayerControlsConfiguration(
+              playerTheme: BetterPlayerTheme.custom,
+              customControlsBuilder: isFullscreen.value
+                  ? (controller, onControlsVisibilityChanged) => VideoControllerPanel(controller: this)
+                  : null,
+            ),
+          );
+        }
+      }
       if (value) {
         Timer(const Duration(milliseconds: 100), () {
           danmakuController = danmakuControllers.last;
@@ -307,7 +319,9 @@ class VideoController with ChangeNotifier {
         BetterPlayerConfiguration(
           controlsConfiguration: BetterPlayerControlsConfiguration(
             playerTheme: BetterPlayerTheme.custom,
-            customControlsBuilder: null,
+            customControlsBuilder: isFullscreen.value
+                ? (controller, onControlsVisibilityChanged) => VideoControllerPanel(controller: this)
+                : null,
           ),
           autoPlay: true,
           fit: videoFit.value,
@@ -320,7 +334,6 @@ class VideoController with ChangeNotifier {
       );
       mobileController?.setControlsEnabled(false);
       setDataSource(datasource);
-
       mobileController?.addEventsListener(mobileStateListener);
       mediaPlayerControllerInitialized.listen((value) {
         if (fullScreenByDefault && datasource.isNotEmpty && value) {

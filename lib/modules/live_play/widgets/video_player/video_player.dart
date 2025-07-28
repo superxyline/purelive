@@ -16,10 +16,6 @@ class VideoPlayer extends StatefulWidget {
 }
 
 class _VideoPlayerState extends State<VideoPlayer> {
-  Widget _buildVideoPanel() {
-    return VideoControllerPanel(controller: widget.controller);
-  }
-
   @override
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
@@ -49,6 +45,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           controller: widget.controller.mediaPlayerController,
                           fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
                           controls: widget.controller.room.platform == Sites.iptvSite
+                              ? media_kit_video.MaterialVideoControls
+                              : widget.controller.isFullscreen.value
                               ? media_kit_video.MaterialVideoControls
                               : null,
                         ),
@@ -83,6 +81,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           controller: widget.controller.mediaPlayerController,
                           fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
                           controls: widget.controller.room.platform == Sites.iptvSite
+                              ? media_kit_video.MaterialVideoControls
+                              : widget.controller.isFullscreen.value
                               ? media_kit_video.MaterialVideoControls
                               : null,
                         ),
