@@ -1,7 +1,7 @@
 {
   "version": "1.9.2",
   "version_num": 10191,
-  "version_desc": "-Fix: 修复声音播放 -Add: 添加视频旋转",
+  "version_desc": "-Fix: 修复声音播放 -Add: 添加windows(非全屏)视频旋转",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
