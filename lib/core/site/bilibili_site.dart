@@ -31,7 +31,7 @@ class BiliBiliSite implements LiveSite {
   final SettingsService settings = Get.find<SettingsService>();
 
   static const String kDefaultUserAgent =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0";
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36";
   static const String kDefaultReferer = "https://live.bilibili.com/";
 
   String buvid3 = "";
@@ -461,10 +461,7 @@ class BiliBiliSite implements LiveSite {
   }
 
   @override
-  Future<bool> getLiveStatus({
-     required String platform,
-    required String roomId
-  }) async {
+  Future<bool> getLiveStatus({required String platform, required String roomId}) async {
     var result = await HttpClient.instance.getJson(
       "https://api.live.bilibili.com/room/v1/Room/get_info",
       queryParameters: {"room_id": roomId},

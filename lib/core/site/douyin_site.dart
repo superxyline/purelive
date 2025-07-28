@@ -5,7 +5,6 @@ import 'dart:developer' as developer;
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/plugins/fake_useragent.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/interface/live_site.dart';
@@ -27,7 +26,7 @@ class DouyinSite implements LiveSite {
   final SettingsService settings = Get.find<SettingsService>();
 
   static const String kDefaultUserAgent =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0";
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36";
 
   static const String kDefaultReferer = "https://live.douyin.com";
 
@@ -41,8 +40,6 @@ class DouyinSite implements LiveSite {
 
   Future<Map<String, dynamic>> getRequestHeaders() async {
     try {
-      var fakeUseragent = FakeUserAgent.getRandomUserAgent();
-      headers['User-Agent'] = fakeUseragent['userAgent'];
       if (headers.containsKey("cookie")) {
         return headers;
       }
