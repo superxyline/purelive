@@ -75,20 +75,20 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
           const SingleActivator(LogicalKeyboardKey.keyR): () => controller.refresh(),
           const SingleActivator(LogicalKeyboardKey.arrowUp): () async {
             double? volume = 1.0;
-            volume = await controller.volumn();
+            volume = await controller.volume();
             volume = (volume! + 0.05);
             volume = min(volume, 1.0);
             volume = max(volume, 0.0);
-            controller.setVolumn(volume);
+            controller.setVolume(volume);
             updateVolumn(volume);
           },
           const SingleActivator(LogicalKeyboardKey.arrowDown): () async {
             double? volume = 1.0;
-            volume = await controller.volumn();
+            volume = await controller.volume();
             volume = (volume! - 0.05);
             volume = min(volume, 1.0);
             volume = max(volume, 0.0);
-            controller.setVolumn(volume);
+            controller.setVolume(volume);
             updateVolumn(volume);
           },
           const SingleActivator(LogicalKeyboardKey.escape): () => controller.toggleFullScreen(),
@@ -461,7 +461,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
           setState(() => _updateDargVarVal = v);
         });
       } else {
-        await controller.volumn().then((double? v) {
+        await controller.volume().then((double? v) {
           setState(() => _updateDargVarVal = v!);
         });
       }
@@ -478,7 +478,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
     if (_isDargLeft) {
       controller.setBrightness(dragRange);
     } else {
-      controller.setVolumn(dragRange);
+      controller.setVolume(dragRange);
     }
     setState(() => _updateDargVarVal = dragRange);
   }

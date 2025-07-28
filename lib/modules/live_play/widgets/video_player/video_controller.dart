@@ -107,7 +107,6 @@ class VideoController with ChangeNotifier {
   final showSettting = false.obs;
   final showLocked = false.obs;
   final danmuKey = GlobalKey();
-  double volume = 1.0;
 
   List<DanmakuController> danmakuControllers = [];
   Timer? _debounceTimer;
@@ -201,6 +200,7 @@ class VideoController with ChangeNotifier {
 
   void initVideoController() async {
     FlutterVolumeController.updateShowSystemUI(false);
+    registerVolumeListener();
     if (videoPlayerIndex == 0 || Platform.isWindows) {
       enableCodec = settings.enableCodec.value;
       playerCompatMode = settings.playerCompatMode.value;
@@ -226,7 +226,7 @@ class VideoController with ChangeNotifier {
         isPlaying.value = playing;
         if (playing && mediaPlayerControllerInitialized.value == false) {
           mediaPlayerControllerInitialized.value = true;
-          setVolumn(settings.volume.value);
+          setVolume(settings.volume.value);
         }
       });
       mediaPlayerController.player.stream.error.listen((event) {
@@ -375,7 +375,7 @@ class VideoController with ChangeNotifier {
       isPipMode.value = mobileController?.videoPlayerController?.value.isPip ?? false;
       if (isPlaying.value && mediaPlayerControllerInitialized.value == false) {
         mediaPlayerControllerInitialized.value = true;
-        setVolumn(settings.volume.value);
+        setVolume(settings.volume.value);
       }
       log(mobileController!.isBuffering().toString(), name: 'video_player');
     }
@@ -505,6 +505,7 @@ class VideoController with ChangeNotifier {
     hasDestory = true;
     if (allowScreenKeepOn) WakelockPlus.disable();
 
+    FlutterVolumeController.removeListener();
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetApplicationScreenBrightness();
       if (videoPlayerIndex == 0) {
@@ -693,8 +694,16 @@ class VideoController with ChangeNotifier {
     }
   }
 
-  // volumn & brightness
-  Future<double?> volumn() async {
+  // 注册音量变化监听器
+  void registerVolumeListener() {
+    FlutterVolumeController.addListener((volume) {
+      // 音量变化时的回调
+      settings.volume.value = volume;
+    });
+  }
+
+  // volume & brightness
+  Future<double?> volume() async {
     if (Platform.isWindows) {
       return mediaPlayerController.player.state.volume / 100;
     }
@@ -705,7 +714,7 @@ class VideoController with ChangeNotifier {
     return await brightnessController.application;
   }
 
-  void setVolumn(double value) async {
+  void setVolume(double value) async {
     if (Platform.isWindows) {
       mediaPlayerController.player.setVolume(value * 100);
     } else {
