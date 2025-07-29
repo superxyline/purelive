@@ -88,6 +88,23 @@ jobs:
           submodules: recursive
           ref: ${{ github.event.inputs.tag_name || github.ref }}
 
+      # APK签名设置
+      - name: Setup Android Signing
+        if: startsWith(matrix.platform, 'android')
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: key.jks
+          encodedString: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: 创建key.properties
+        if: startsWith(matrix.platform, 'android')
+        run: |
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > android/key.properties
+          echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+
       - name: Setup JAVA for Android
         if: startsWith(matrix.platform, 'android')
         uses: actions/setup-java@v4
@@ -95,21 +112,6 @@ jobs:
           distribution: 'zulu'
           java-version: 17
           cache: "gradle"
-
-      - name: Setup Android Signing
-        if: startsWith(matrix.platform, 'android')
-        run: |
-          mkdir -p ${{ env.project_path }}/android/app
-          echo "${{ env.KEYSTORE_BASE64 }}" | base64 --decode > ${{ env.project_path }}/android/app/keystore.jks
-          echo "keyAlias=${{ env.KEY_ALIAS }}" >> ${{ env.project_path }}/android/local.properties
-          echo "storePassword=${{ env.STORE_PASSWORD }}" >> ${{ env.project_path }}/android/local.properties
-          echo "keyPassword=${{ env.KEY_PASSWORD }}" >> ${{ env.project_path }}/android/local.properties
-          
-          mkdir -p ${{ env.project_path }}/android
-          echo "storeFile=${{ env.project_path }}/android/app/keystore.jks" > ${{ env.project_path }}/android/key.properties
-          echo "storePassword=${{ env.STORE_PASSWORD }}" >> ${{ env.project_path }}/android/key.properties
-          echo "keyPassword=${{ env.KEY_PASSWORD }}" >> ${{ env.project_path }}/android/key.properties
-          echo "keyAlias=${{ env.KEY_ALIAS }}" >> ${{ env.project_path }}/android/key.properties
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
