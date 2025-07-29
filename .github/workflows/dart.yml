@@ -126,10 +126,9 @@ jobs:
         run: |
           flutter config --enable-${{ matrix.platform }}-desktop
 
-      - name: Get Flutter dependencies
-        run: |
-          cd ${{ env.project_path }}
-          flutter pub get
+      # 更新Flutter的packages
+      - name: 更新Flutter的packages
+        run: flutter pub get
 
       - name: Install flutter_distributor
         run: dart pub global activate flutter_distributor
