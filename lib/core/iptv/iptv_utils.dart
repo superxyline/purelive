@@ -69,7 +69,7 @@ class IptvUtils {
           receiveTimeout: const Duration(seconds: 30),
         ),
       );
-      var m3u8Url = 'https://raw.githubusercontent.com/YanG-1989/m3u/master/Gather.m3u';
+      var m3u8Url = 'https://hub.gitmirror.com/https://github.com/YanG-1989/m3u/blob/main/Gather.m3u';
       Response response = await dio.get(m3u8Url);
       final m3uList = M3uList.load(response.data);
       for (M3uItem item in m3uList.items) {

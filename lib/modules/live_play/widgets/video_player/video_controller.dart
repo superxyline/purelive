@@ -572,6 +572,7 @@ class VideoController with ChangeNotifier {
       key.currentState?.update(fit: fit);
     } else {
       mobileController?.setOverriddenFit(videoFit.value);
+      mobileController?.retryDataSource();
     }
   }
 
