@@ -126,8 +126,6 @@ class VideoController with ChangeNotifier {
     showController.value = true;
   }
 
-  // Danmaku player control
-  late DanmakuController danmakuController;
   final hideDanmaku = false.obs;
   final danmakuArea = 1.0.obs;
   final danmakuSpeed = 8.0.obs;
@@ -160,30 +158,6 @@ class VideoController with ChangeNotifier {
     danmakuFontBorder.value = settings.danmakuFontBorder.value;
     danmakuOpacity.value = settings.danmakuOpacity.value;
     initPagesConfig();
-    isWindowFullscreen.listen((value) {
-      if (value) {
-        Timer(const Duration(milliseconds: 100), () {
-          danmakuController = danmakuControllers.last;
-        });
-      } else {
-        Timer(const Duration(milliseconds: 100), () {
-          danmakuControllers.remove(danmakuController);
-          danmakuController = danmakuControllers.last;
-        });
-      }
-    });
-    isFullscreen.listen((value) {
-      if (value) {
-        Timer(const Duration(milliseconds: 100), () {
-          danmakuController = danmakuControllers.last;
-        });
-      } else {
-        Timer(const Duration(milliseconds: 100), () {
-          danmakuControllers.remove(danmakuController);
-          danmakuController = danmakuControllers.last;
-        });
-      }
-    });
   }
 
   void initPagesConfig() {
@@ -412,7 +386,9 @@ class VideoController with ChangeNotifier {
     hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
     hideDanmaku.listen((data) {
       if (data) {
-        danmakuController.clear();
+        for (var controller in danmakuControllers) {
+          controller.clear();
+        }
       }
       PrefUtil.setBool('hideDanmaku', data);
       settings.hideDanmaku.value = data;
@@ -464,18 +440,17 @@ class VideoController with ChangeNotifier {
   }
 
   void setDanmukuController(DanmakuController controller) {
-    if (danmakuControllers.isEmpty) {
-      danmakuController = controller;
-    }
     danmakuControllers.add(controller);
   }
 
   void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
     if (isPlaying.value) {
-      danmakuController.addDanmaku(
-        DanmakuContentItem(msg.message, color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)),
-      );
+      for (var controller in danmakuControllers) {
+        controller.addDanmaku(
+          DanmakuContentItem(msg.message, color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)),
+        );
+      }
     }
   }
 
@@ -592,12 +567,11 @@ class VideoController with ChangeNotifier {
   }
 
   void setVideoFit(BoxFit fit) {
-    if (Platform.isWindows || videoPlayerIndex == 0) {
-      videoFit.value = fit;
+    videoFit.value = fit;
+    if (videoPlayerIndex == 0) {
       key.currentState?.update(fit: fit);
     } else {
       mobileController?.setOverriddenFit(videoFit.value);
-      mobileController?.retryDataSource();
     }
   }
 
@@ -690,8 +664,10 @@ class VideoController with ChangeNotifier {
 
   void enterPipMode(BuildContext context) async {
     if ((Platform.isAndroid || Platform.isIOS)) {
-      danmakuController.onClear();
-      danmakuController.resume();
+      for (var danmakuController in danmakuControllers) {
+        danmakuController.onClear();
+        danmakuController.resume();
+      }
       if (Platform.isWindows || videoPlayerIndex == 0) {
         await pip.enable(ImmediatePiP());
       } else {
@@ -742,7 +718,6 @@ class VideoController with ChangeNotifier {
 
   void rotateScreen() {
     angle.value = (angle.value + (90 * (math.pi / 180))) % (2 * math.pi);
-    getSize();
     enableController();
   }
 
@@ -750,38 +725,12 @@ class VideoController with ChangeNotifier {
   bool get isVerticalDirection =>
       ((angle.value % (2 * math.pi)) / (math.pi / 2)).round() % 4 == 1 ||
       ((angle.value % (2 * math.pi)) / (math.pi / 2)).round() % 4 == 3;
-
-  // 获取组件尺寸
-  void getSize() {
-    if (videoPlayerIndex == 0) {
-      final RenderBox renderBox = key.currentContext!.findRenderObject() as RenderBox;
-      final Size size = renderBox.size;
-      if (!isVerticalDirection) {
-        videoSizeWidth.value = size.width;
-        videoSizeHeight.value = size.height;
-      } else {
-        videoSizeWidth.value = size.height;
-        videoSizeHeight.value = size.width;
-      }
-    } else {
-      final RenderBox renderBox = playerKey.currentContext!.findRenderObject() as RenderBox;
-      final Size size = renderBox.size;
-      if (!isVerticalDirection) {
-        videoSizeWidth.value = size.width;
-        videoSizeHeight.value = size.height;
-      } else {
-        videoSizeWidth.value = size.height;
-        videoSizeHeight.value = size.width;
-      }
-    }
-  }
 }
 
 // use fullscreen with controller provider
 
 class DesktopFullscreen extends StatelessWidget {
   const DesktopFullscreen({super.key, required this.controller});
-
   final VideoController controller;
 
   @override

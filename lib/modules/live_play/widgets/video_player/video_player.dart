@@ -38,8 +38,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
                         child: Obx(
                           () => media_kit_video.Video(
                             key: widget.controller.key,
-                            width: widget.controller.videoSizeWidth.value,
-                            height: widget.controller.videoSizeHeight.value,
                             pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                             resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                             controller: widget.controller.mediaPlayerController,
@@ -76,8 +74,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
                         child: Obx(
                           () => media_kit_video.Video(
                             key: widget.controller.key,
-                            width: widget.controller.videoSizeWidth.value,
-                            height: widget.controller.videoSizeHeight.value,
                             pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                             resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                             controller: widget.controller.mediaPlayerController,
@@ -119,8 +115,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   child: Obx(
                     () => media_kit_video.Video(
                       key: widget.controller.key,
-                      width: widget.controller.videoSizeWidth.value,
-                      height: widget.controller.videoSizeHeight.value,
                       pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                       resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                       controller: widget.controller.mediaPlayerController,

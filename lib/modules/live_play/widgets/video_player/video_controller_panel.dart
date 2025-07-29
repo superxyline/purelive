@@ -626,7 +626,8 @@ class BottomActionBar extends StatelessWidget {
               FavoriteButton(controller: controller),
               if (!controller.isFullscreen.value && controller.videoPlayerIndex == 0)
                 ScreenToggleButton(controller: controller),
-              if (controller.isFullscreen.value) SettingsButton(controller: controller),
+              if (controller.isFullscreen.value || controller.isWindowFullscreen.value)
+                SettingsButton(controller: controller),
               const Spacer(),
               if (controller.supportWindowFull && !controller.isFullscreen.value)
                 ExpandWindowButton(controller: controller),
