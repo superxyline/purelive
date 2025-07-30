@@ -18,6 +18,10 @@ on:
     branches:
       - master
       - main
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - '!.github/workflows/my-test-build.yml'
     tags:
       - "v*"
 
