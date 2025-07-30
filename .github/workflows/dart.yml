@@ -1,33 +1,15 @@
 name: my-test-build
 
 on:
-  repository_dispatch:
   workflow_dispatch:
     inputs:
-      ssh:
-        description: 'SSH connection to Actions'
-        required: false
-        default: 'false'
       tag_name:
         description: 'Tag name for the release'
         required: false
         default: 'v1.0.0'
-  watch:
-    types: [ started ]
   push:
-    branches:
-      - master
-      - main
-    paths-ignore:
-      - '**.md'
-      - '.github/**'
-      - '!.github/workflows/my-test-build.yml'
     tags:
       - "v*"
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
@@ -210,13 +192,12 @@ jobs:
           echo "tag_name=${{ github.event.inputs.tag_name || github.ref_name }}" >> $GITHUB_ENV
 
       - name: Upload Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.2.1
         with:
           tag_name: "${{ env.tag_name }}"
-          name: "${{ env.tag_name }}"
+          name: "${{ github.event.inputs.tag_name }}"
           body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
-          prerelease: ${{ fromJson(steps.version.outputs.content).prerelease || false }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.TOKEN }}
           files: |
             dist_2/**/*  # 递归上传所有文件
           draft: false
@@ -224,7 +205,7 @@ jobs:
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.TOKEN }}
           repository: ${{ github.repository }}
           retain_days: 0
           keep_minimum_runs: 3
