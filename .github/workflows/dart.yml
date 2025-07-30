@@ -155,7 +155,7 @@ jobs:
           overwrite: true
           path: |
             ${{ env.project_path }}/build/app/outputs/flutter-apk/*.apk
-            ${{ env.project_path }}/build/dist/*/*
+            ${{ env.project_path }}/build/dist/**/*  # 递归匹配所有文件和子目录
 
   upload-release:
     permissions: write-all
@@ -175,11 +175,28 @@ jobs:
           pattern: artifact-*
           merge-multiple: true
 
-      - name: Move File
+      - name: Debug - List downloaded files
+        run: |
+          echo "Downloaded files:"
+          find dist -type f
+
+      - name: Create release directory
         run: |
           mkdir -p dist_2
-          find dist -type f | xargs -i mv {} dist_2
-          ls dist_2
+          
+      - name: Move Android artifacts
+        run: |
+          cp -r dist/artifact-android/* dist_2/ || true
+          
+      - name: Move Windows artifacts with platform-specific subdirectory
+        run: |
+          mkdir -p dist_2/windows
+          cp -r dist/artifact-windows-amd64/* dist_2/windows/ || true
+          
+      - name: Debug - List files for release
+        run: |
+          echo "Files for release:"
+          find dist_2 -type f
 
       - name: Read version
         id: version
@@ -200,7 +217,8 @@ jobs:
           body: "${{ fromJson(steps.version.outputs.content).version_desc }}"
           prerelease: ${{ fromJson(steps.version.outputs.content).prerelease || false }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: ./dist_2/*
+          files: |
+            dist_2/**/*  # 递归上传所有文件
           draft: false
 
       - name: Delete workflow runs
