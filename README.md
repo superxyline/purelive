@@ -77,6 +77,24 @@
 暂不支持其他目录保存
 * Android端在缓存内清除缓存即可删除
 * Windows 在目录`C:/Users/用户名/AppData/Local/com.example/pure_live`下`categories.json`内修改以及删除导入的源以及定义
+
+### 问题
+[1] 软件打开白屏
+* C:/Users/用户名/AppData/Local/com.example/pure_live(删除)
+* C:/Users/用户名/AppData/Roaming/com.example/pure_live(删除)
+
+[2] 关闭软件就弹"快速异常检测失败"
+* 部分电脑关闭软件弹出 不影响实际使用
+
+[3] 使用win11恢复从手机备份的文件，然后win11无法播放直播，无画面，只有弹幕
+* 设置一下播放器
+
+[4] 部分电脑无法播放直播，无画面，只有弹幕
+* 播放器设置有误 或者手机对该播放器不支持 切换播放器即可
+
+
+
+
 ### 意见
 [ExoPlayer](https://github.com/liuchuancong/better_player/tree/media3)由本人维护,点击进行PR以及建议。
 > 如有许可协议使用不当请发 Issue 或者 Pull Request
