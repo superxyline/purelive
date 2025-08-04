@@ -1,9 +1,13 @@
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/settings/settings_card.dart';
+import 'package:pure_live/modules/settings/settings_menu.dart';
+import 'package:pure_live/modules/settings/settings_switch.dart';
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -70,6 +74,77 @@ class SettingsPage extends GetView<SettingsService> {
                 onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text("播放器高级设置", style: Get.textTheme.titleMedium),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text.rich(
+              TextSpan(
+                text: "请勿随意修改以下设置，除非你知道自己在做什么。\n在修改以下设置前，你应该先查阅",
+                children: [
+                  WidgetSpan(
+                    child: GestureDetector(
+                      onTap: () {
+                        launchUrlString("https://mpv.io/manual/stable/#video-output-drivers");
+                      },
+                      child: const Text(
+                        "MPV的文档",
+                        style: TextStyle(color: Colors.blue, fontSize: 12, decoration: TextDecoration.underline),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          SettingsCard(
+            child: Column(
+              children: [
+                Obx(
+                  () => SettingsSwitch(
+                    value: controller.customPlayerOutput.value,
+                    title: "自定义输出驱动与硬件加速",
+                    onChanged: (e) {
+                      controller.customPlayerOutput.value = e;
+                    },
+                  ),
+                ),
+                Obx(
+                  () => SettingsMenu(
+                    title: "视频输出驱动(--vo)",
+                    value: controller.videoOutputDriver.value,
+                    valueMap: SettingsService.videoOutputDrivers,
+                    onChanged: (e) {
+                      controller.videoOutputDriver.value = e;
+                    },
+                  ),
+                ),
+                Obx(
+                  () => SettingsMenu(
+                    title: "音频输出驱动(--ao)",
+                    value: controller.audioOutputDriver.value,
+                    valueMap: SettingsService.audioOutputDrivers,
+                    onChanged: (e) {
+                      controller.audioOutputDriver.value = e;
+                    },
+                  ),
+                ),
+                Obx(
+                  () => SettingsMenu(
+                    title: "硬件解码器(--hwdec)",
+                    value: controller.videoHardwareDecoder.value,
+                    valueMap: SettingsService.hardwareDecoder,
+                    onChanged: (e) {
+                      controller.videoHardwareDecoder.value = e;
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
           if (Platform.isAndroid)
             Obx(
               () => ListTile(

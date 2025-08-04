@@ -150,6 +150,22 @@ class SettingsService extends GetxController {
     volume.listen((value) {
       PrefUtil.setDouble('volume', value);
     });
+
+    customPlayerOutput.listen((value) {
+      PrefUtil.setBool('customPlayerOutput', value);
+    });
+
+    videoOutputDriver.listen((value) {
+      PrefUtil.setString('videoOutputDriver', value);
+    });
+
+    audioOutputDriver.listen((value) {
+      PrefUtil.setString('audioOutputDriver', value);
+    });
+
+    videoHardwareDecoder.listen((value) {
+      PrefUtil.setString('videoHardwareDecoder', value);
+    });
   }
 
   // Theme settings
@@ -261,6 +277,14 @@ class SettingsService extends GetxController {
 
   final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
 
+  final customPlayerOutput = (PrefUtil.getBool('customPlayerOutput') ?? false).obs;
+
+  final videoOutputDriver = (PrefUtil.getString('videoOutputDriver') ?? "gpu").obs;
+
+  final audioOutputDriver = (PrefUtil.getString('audioOutputDriver') ?? "auto").obs;
+
+  final videoHardwareDecoder = (PrefUtil.getString('videoHardwareDecoder') ?? "auto").obs;
+
   final playerCompatMode = (PrefUtil.getBool('playerCompatMode') ?? false).obs;
 
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
@@ -308,6 +332,73 @@ class SettingsService extends GetxController {
   }
 
   static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishow', 'cc', '网络'];
+
+  static const videoOutputDrivers = {
+    "gpu": "gpu",
+    "gpu-next": "gpu-next",
+    "xv": "xv (X11 only)",
+    "x11": "x11 (X11 only)",
+    "vdpau": "vdpau (X11 only)",
+    "direct3d": "direct3d (Windows only)",
+    "sdl": "sdl",
+    "dmabuf-wayland": "dmabuf-wayland",
+    "vaapi": "vaapi",
+    "null": "null",
+    "libmpv": "libmpv",
+    "mediacodec_embed": "mediacodec_embed (Android only)",
+  };
+
+  static const audioOutputDrivers = {
+    "null": "null (No audio output)",
+    "pulse": "pulse (Linux, uses PulseAudio)",
+    "pipewire": "pipewire (Linux, via Pulse compatibility or native)",
+    "alsa": "alsa (Linux only)",
+    "oss": "oss (Linux only)",
+    "jack": "jack (Linux/macOS, low-latency audio)",
+    "directsound": "directsound (Windows only)",
+    "wasapi": "wasapi (Windows only)",
+    "winmm": "winmm (Windows only, legacy API)",
+    "audiounit": "audiounit (iOS only)",
+    "coreaudio": "coreaudio (macOS only)",
+    "opensles": "opensles (Android only)",
+    "audiotrack": "audiotrack (Android only)",
+    "aaudio": "aaudio (Android only)",
+    "pcm": "pcm (Cross-platform)",
+    "sdl": "sdl (Cross-platform, via SDL library)",
+    "openal": "openal (Cross-platform, OpenAL backend)",
+    "libao": "libao (Cross-platform, uses libao library)",
+    "auto": "auto (Not available)",
+  };
+
+  static const hardwareDecoder = {
+    "no": "no",
+    "auto": "auto",
+    "auto-safe": "auto-safe",
+    "yes": "yes",
+    "auto-copy": "auto-copy",
+    "d3d11va": "d3d11va",
+    "d3d11va-copy": "d3d11va-copy",
+    "videotoolbox": "videotoolbox",
+    "videotoolbox-copy": "videotoolbox-copy",
+    "vaapi": "vaapi",
+    "vaapi-copy": "vaapi-copy",
+    "nvdec": "nvdec",
+    "nvdec-copy": "nvdec-copy",
+    "drm": "drm",
+    "drm-copy": "drm-copy",
+    "vulkan": "vulkan",
+    "vulkan-copy": "vulkan-copy",
+    "dxva2": "dxva2",
+    "dxva2-copy": "dxva2-copy",
+    "vdpau": "vdpau",
+    "vdpau-copy": "vdpau-copy",
+    "mediacodec": "mediacodec",
+    "mediacodec-copy": "mediacodec-copy",
+    "cuda": "cuda",
+    "cuda-copy": "cuda-copy",
+    "crystalhd": "crystalhd",
+    "rkmpp": "rkmpp",
+  };
 
   static const List<String> players = ['Mpv播放器', 'Exo播放器'];
   final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
@@ -569,6 +660,10 @@ class SettingsService extends GetxController {
     huyaCookie.value = json['huyaCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     volume.value = json['volume'] ?? 0.5;
+    customPlayerOutput.value = json['customPlayerOutput'] ?? false;
+    videoOutputDriver.value = json['videoOutputDriver'] ?? '';
+    audioOutputDriver.value = json['audioOutputDriver'] ?? '';
+    videoHardwareDecoder.value = json['videoHardwareDecoder'] ?? '';
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -618,6 +713,10 @@ class SettingsService extends GetxController {
     json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
     json['themeColorSwitch'] = themeColorSwitch.value;
     json['volume'] = volume.value;
+    json['customPlayerOutput'] = customPlayerOutput.value;
+    json['videoOutputDriver'] = videoOutputDriver.value;
+    json['audioOutputDriver'] = audioOutputDriver.value;
+    json['videoHardwareDecoder'] = videoHardwareDecoder.value;
     return json;
   }
 
@@ -656,6 +755,10 @@ class SettingsService extends GetxController {
       'shieldList': [],
       "hotAreasList": [],
       "volume": 0.5,
+      "customPlayerOutput": false,
+      "videoOutputDriver": "",
+      "audioOutputDriver": "",
+      "videoHardwareDecoder": "",
     };
     return json;
   }

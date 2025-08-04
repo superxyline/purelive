@@ -2,7 +2,7 @@ name: pure_live
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.9.3+3
+version: 1.9.4+4
 
 environment:
   sdk: ^3.8.1
@@ -142,6 +142,7 @@ flutter:
     - assets/keystore/
     - assets/js/webmssdk.js
     - assets/version.json
+    - assets/js/douyin.js
 
   fonts:
     - family: CustomIcons
@@ -164,7 +165,7 @@ flutter_intl:
 # windows msix package
 msix_config:
   display_name: 纯粹直播
-  msix_version: 1.0.0.85
+  msix_version: 1.0.0.86
   logo_path: assets/icons/icon.png
   certificate_path: assets/keystore/CERTIFICATE.pfx
   certificate_password: xxxx

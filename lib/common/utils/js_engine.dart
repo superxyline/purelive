@@ -15,6 +15,11 @@ class JsEngine {
     jsRuntime.evaluate(webmssdkjs);
   }
 
+  static Future<void> loadDouyinExEcutorSdk() async {
+    final douyinsdkjs = await rootBundle.loadString('assets/js/douyin.js');
+    jsRuntime.evaluate(douyinsdkjs);
+  }
+
   static JsEvalResult evaluate(String code) {
     return jsRuntime.evaluate(code);
   }
@@ -27,11 +32,7 @@ class JsEngine {
     return jsRuntime.onMessage(channelName, (args) => null);
   }
 
-  static dynamic sendMessage({
-    required String channelName,
-    required List<String> args,
-    String? uuid,
-  }) {
+  static dynamic sendMessage({required String channelName, required List<String> args, String? uuid}) {
     return jsRuntime.sendMessage(channelName: channelName, args: args);
   }
 }

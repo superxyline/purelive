@@ -194,10 +194,18 @@ class VideoController with ChangeNotifier {
         (player.platform as dynamic).setProperty('demuxer-seekable-cache', 'no');
         (player.platform as dynamic).setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
         (player.platform as dynamic).setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
+        if (settings.customPlayerOutput.value) {
+          (player.platform as dynamic).setProperty('ao', settings.audioOutputDriver.value);
+        }
       }
       mediaPlayerController = media_kit_video.VideoController(
         player,
-        configuration: playerCompatMode
+        configuration: settings.customPlayerOutput.value
+            ? VideoControllerConfiguration(
+                vo: settings.videoOutputDriver.value,
+                hwdec: settings.videoHardwareDecoder.value,
+              )
+            : playerCompatMode
             ? VideoControllerConfiguration(vo: 'mediacodec_embed', hwdec: 'mediacodec')
             : VideoControllerConfiguration(
                 enableHardwareAcceleration: enableCodec,
