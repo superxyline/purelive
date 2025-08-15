@@ -152,7 +152,7 @@ class ToolBoxController extends GetxController {
 
       // 斗鱼
       RegExpBean(regExp: RegExp(r"douyu\.com/([\d|\w]+)[/]?$"), siteType: Sites.douyuSite),
-      RegExpBean(regExp: RegExp(r"douyu\.com/topic/[\w\d]+\?.*rid=([\w\d]+?).*$"), siteType: Sites.douyuSite),
+      RegExpBean(regExp: RegExp(r"douyu\.com/topic/[\w\d]+\?.*rid=([^&]+).*$"), siteType: Sites.douyuSite),
 
       // 虎牙
       RegExpBean(regExp: RegExp(r"huya\.com/([\d|\w]+)$"), siteType: Sites.huyaSite),
