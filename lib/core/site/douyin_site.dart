@@ -113,7 +113,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
     var partitionId = ids?[0];
     var partitionType = ids?[1];
     var result = await HttpClient.instance.getJson(
-      "https://live.douyin.com/webcast/web/partition/detail/room/",
+      "https://live.douyin.com/webcast/web/partition/detail/room/v2/",
       queryParameters: {
         "aid": 6383,
         "app_name": "douyin_web",
@@ -150,7 +150,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
     var result = await HttpClient.instance.getJson(
-      "https://live.douyin.com/webcast/web/partition/detail/room/",
+      "https://live.douyin.com/webcast/web/partition/detail/room/v2/",
       queryParameters: {
         "aid": 6383,
         "app_name": "douyin_web",
