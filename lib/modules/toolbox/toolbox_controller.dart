@@ -118,83 +118,73 @@ class ToolBoxController extends GetxController {
   }
 
   Future<List> parse(String url) async {
-    final urlRegExp = RegExp(
-        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    final urlRegExp = RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
     if (urlMatches.isEmpty) return [];
     String realUrl = urlMatches.first!;
     var id = "";
     realUrl = urlMatches.first!;
-    if (realUrl.contains("bilibili.com")) {
-      var regExp = RegExp(r"bilibili\.com/([\d|\w]+)");
-      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
-      return [id, Sites.bilibiliSite];
-    }
 
-    if (realUrl.contains("b23.tv")) {
-      var btvReg = RegExp(r"https?:\/\/b23.tv\/[0-9a-z-A-Z]+");
-      var u = btvReg.firstMatch(realUrl)?.group(0) ?? "";
-      var location = await getLocation(u);
+    // 解析跳转
+    List<RegExp> regExpJumpList = [
+      // bilibili 网站 解析跳转
+      RegExp(r"https?:\/\/b23.tv\/[0-9a-z-A-Z]+")
 
-      return await parse(location);
-    }
-
-    if (realUrl.contains("douyu.com")) {
-      var regExp = RegExp(r"douyu\.com/([\d|\w]+)");
-      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
-      if (realUrl.endsWith('/')) {
-        realUrl = realUrl.substring(0, realUrl.length - 1);
+    ];
+    for (var i = 0; i < regExpJumpList.length; i++) {
+      var regExp = regExpJumpList[i];
+      var u = regExp.firstMatch(realUrl)?.group(0) ?? "";
+      if(u != "") {
+        var location = await getLocation(u);
+        return await parse(location);
       }
-      return [id, Sites.douyuSite];
     }
-    if (realUrl.contains("huya.com")) {
-      var regExp = RegExp(r"huya\.com/([\d|\w]+)");
-      if (realUrl.endsWith('/')) {
-        realUrl = realUrl.substring(0, realUrl.length - 1);
-      }
-      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
 
-      return [id, Sites.huyaSite];
-    }
-    if (realUrl.contains("live.douyin.com")) {
-      var regExp = RegExp(r"live\.douyin\.com/([\d|\w]+)");
-      if (realUrl.endsWith('/')) {
-        realUrl = realUrl.substring(0, realUrl.length - 1);
-      }
-      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
-      return [id, Sites.douyinSite];
-    }
     if (realUrl.contains("v.douyin.com")) {
       final id = await getRealDouyinUrl(realUrl);
       return [id, Sites.douyinSite];
     }
-    if (realUrl.contains("live.kuaishou.com")) {
-      var regExp = RegExp(r"live\.kuaishou\.com/u/([a-zA-Z0-9]+)$");
-      if (realUrl.endsWith('/')) {
-        realUrl = realUrl.substring(0, realUrl.length - 1);
+
+    List<RegExpBean> regExpBeanList = [
+      // bilibili 网站匹配
+      RegExpBean(regExp: RegExp(r"bilibili\.com/([\d|\w]+)$"), siteType: Sites.bilibiliSite),
+      RegExpBean(regExp: RegExp(r"bilibili\.com/h5/([\d\w]+)$"), siteType: Sites.bilibiliSite),
+
+      // 斗鱼
+      RegExpBean(regExp: RegExp(r"douyu\.com/([\d|\w]+)[/]?$"), siteType: Sites.douyuSite),
+      RegExpBean(regExp: RegExp(r"douyu\.com/topic/[\w\d]+\?.*rid=([\w\d]+?).*$"), siteType: Sites.douyuSite),
+
+      // 虎牙
+      RegExpBean(regExp: RegExp(r"huya\.com/([\d|\w]+)$"), siteType: Sites.huyaSite),
+
+      // 快手
+      RegExpBean(regExp: RegExp(r"live\.kuaishou\.com/u/([a-zA-Z0-9]+)$"), siteType: Sites.kuaishouSite),
+
+      // 抖音
+      RegExpBean(regExp: RegExp(r"live\.douyin\.com/([\d|\w]+)"), siteType: Sites.douyinSite),
+
+      // 网易 CC
+      RegExpBean(regExp: RegExp(r"cc\.163\.com/([a-zA-Z0-9]+)$"), siteType: Sites.ccSite),
+      RegExpBean(regExp: RegExp(r"cc\.163\.com/cc/([a-zA-Z0-9]+)$"), siteType: Sites.ccSite),
+
+    ];
+    for (var i = 0; i < regExpBeanList.length; i++) {
+      var regExpBean = regExpBeanList[i];
+      id = regExpBean.regExp.firstMatch(realUrl)?.group(1) ?? "";
+      if (id != "") {
+        return [id, regExpBean.siteType];
       }
-      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
-      return [id, Sites.kuaishouSite];
     }
-    if (realUrl.contains("cc.163.com")) {
-      var regExp = RegExp(r"cc\.163\.com/([a-zA-Z0-9]+)$");
-      if (realUrl.endsWith('/')) {
-        realUrl = realUrl.substring(0, realUrl.length - 1);
-      }
-      id = regExp.firstMatch(realUrl)?.group(1) ?? "";
-      return [id, Sites.ccSite];
-    }
+
     return [];
   }
 
   Future<String> getRealDouyinUrl(String url) async {
-    final urlRegExp = RegExp(
-        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    final urlRegExp = RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
     String realUrl = urlMatches.first!;
     var headers = {
-      "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
       "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br, zstd",
       "Origin": "https://live.douyin.com",
@@ -246,4 +236,14 @@ class ToolBoxController extends GetxController {
     }
     return "";
   }
+}
+
+class RegExpBean {
+  late RegExp regExp;
+  late String siteType;
+
+  RegExpBean({
+    required this.regExp,
+    required this.siteType,
+  });
 }
