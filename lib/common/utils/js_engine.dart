@@ -19,6 +19,13 @@ class JsEngine {
     jsRuntime.evaluate(webmssdkjs);
   }
 
+  static Future<void> loadDouyinExEcutorSdk() async {
+    final douyinsdkjs = await rootBundle.loadString('assets/js/douyin.js');
+    jsRuntime.evaluate(douyinsdkjs);
+  }
+
+
+
   static JsEvalResult evaluate(String code) {
     return jsRuntime.evaluate(code);
   }

@@ -258,7 +258,8 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
           "browser_language": "zh-CN",
           "browser_platform": "Win32",
           "browser_name": "Edge",
-          "browser_version": "125.0.0.0"
+          "browser_version": "125.0.0.0",
+          "a_bogus": "0",
         },
         header: requestHeader,
       );
