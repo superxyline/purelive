@@ -114,6 +114,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                     var sIndex = partIndex + index;
                     final danmaku = controller.messages[sIndex];
                     return Container(
+                      key: ObjectKey(sIndex),
                       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                       alignment: Alignment.centerLeft,
                       child: Container(
