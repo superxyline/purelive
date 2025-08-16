@@ -824,6 +824,8 @@ class LivePlayController extends StateController {
       var vBitRate = playQuality.bitRate;
       if (vBitRate * 1.3 >= bitRate){
         qualityLevel = i;
+      } else {
+        continue;
       }
       if (vBitRate * 0.8 <= bitRate) {
         break;
@@ -995,3 +997,4 @@ class LivePlayController extends StateController {
 
 
 }
+
