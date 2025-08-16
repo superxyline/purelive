@@ -64,7 +64,7 @@ dependencies:
 #  media_kit_libs_video: ^1.0.5                   # Native video dependencies.
   gsy_video_player: ^0.0.6
 #    git: https://github.com/liuchuancong/gsy_video_player.git
-  fvp: ^0.31.2                              # FVP 视频播放器
+  fvp: ^0.33.1                              # FVP 视频播放器
   video_player: 2.9.2                      #  视频播放器
   chewie: ^1.9.0                      #  视频播放器
   share_handler: ^0.0.22
@@ -109,7 +109,7 @@ dependencies:
   flutter_cache_manager: ^3.3.1
   # utils
   get: 5.0.0-release-candidate-9.2.1
-  intl: ^0.19.0
+  intl: ^0.20.2
   timezone: ^0.10.0
   date_format: ^2.0.7
   path: ^1.8.3
