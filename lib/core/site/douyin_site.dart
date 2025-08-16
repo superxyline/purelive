@@ -356,6 +356,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
           quality: quality["name"],
           sort: level,
           data: urls,
+          bitRate: (quality["v_bit_rate"] ?? 0) / 1000,
         );
         if (urls.isNotEmpty) {
           for (var url in urls) {
@@ -381,6 +382,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
           quality: quality["name"],
           sort: quality["level"],
           data: urls,
+          bitRate: (quality["v_bit_rate"] ?? 0) / 1000,
         );
         if (urls.isNotEmpty) {
           for (var url in urls) {

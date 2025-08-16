@@ -145,6 +145,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
           "bitRate": item.bitRate,
         },
         quality: item.name,
+        bitRate: item.bitRate,
       ));
     }
 

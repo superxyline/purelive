@@ -11,6 +11,18 @@ class LivePlayQuality {
 
   final int sort;
 
+  /// 码率
+  /// 流畅 250
+  /// 标清 500
+  /// 高清 1000
+  /// 超清 2000
+  /// 蓝光4M 4000
+  /// 蓝光8M 8000
+  /// 蓝光10M 10_000
+  /// 蓝光20M 20_000
+  /// 蓝光30M 30_000
+  final int bitRate;
+
   /// 播放链接
   List<LivePlayQualityPlayUrlInfo> playUrlList = [];
 
@@ -18,6 +30,7 @@ class LivePlayQuality {
     required this.quality,
     required this.data,
     this.sort = 0,
+    this.bitRate = 0,
   });
 
   @override
@@ -25,6 +38,8 @@ class LivePlayQuality {
     return json.encode({
       "quality": quality,
       "data": data.toString(),
+      "sort": sort,
+      "bitRate": bitRate,
     });
   }
 }

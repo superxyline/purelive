@@ -343,6 +343,13 @@
     "settings_delay_close": "Delay Close",
     "settings_delay_close_info": "The scheduled shutdown has expired. Would you like to delay the shutdown?",
 
+    "bit_rate_250": "Smooth",
+    "bit_rate_500": "Standard",
+    "bit_rate_1000": "High Definition",
+    "bit_rate_2000": "Ultra HD",
+    "bit_rate_4000": "Blu-ray ",
+    "bit_rate_0": "Origin",
+
 
     "cache_manage": "Cache Manage",
     "cache_manage_clear_prompt": "Are you sure you want to clear the cache?",

@@ -160,6 +160,7 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
       qualities.add(LivePlayQuality(
         quality: item["name"].toString(),
         data: DouyuPlayData(item["rate"], cdns),
+        bitRate: item["bit"] ?? 0,
       ));
     }
     return qualities;

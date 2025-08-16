@@ -79,6 +79,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "bilibili": MessageLookupByLibrary.simpleMessage("哔哩哔哩"),
         "bilibili_need_login_info": MessageLookupByLibrary.simpleMessage(
             "哔哩哔哩账号需要登录才能看高清晰度的直播，其他平台暂无此限制。"),
+        "bit_rate_0": MessageLookupByLibrary.simpleMessage("原画"),
+        "bit_rate_1000": MessageLookupByLibrary.simpleMessage("高清"),
+        "bit_rate_2000": MessageLookupByLibrary.simpleMessage("超清"),
+        "bit_rate_250": MessageLookupByLibrary.simpleMessage("流畅"),
+        "bit_rate_4000": MessageLookupByLibrary.simpleMessage("蓝光"),
+        "bit_rate_500": MessageLookupByLibrary.simpleMessage("标清"),
         "cache_manage": MessageLookupByLibrary.simpleMessage("缓存管理"),
         "cache_manage_clear_all":
             MessageLookupByLibrary.simpleMessage("清理全部缓存"),

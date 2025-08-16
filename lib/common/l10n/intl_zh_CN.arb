@@ -342,6 +342,13 @@
     "settings_delay_close": "延迟关闭",
     "settings_delay_close_info": "定时关闭已到时,是否延迟关闭?",
 
+    "bit_rate_250": "流畅",
+    "bit_rate_500": "标清",
+    "bit_rate_1000": "高清",
+    "bit_rate_2000": "超清",
+    "bit_rate_4000": "蓝光",
+    "bit_rate_0": "原画",
+
     "cache_manage": "缓存管理",
     "cache_manage_clear_prompt": "确定要清除缓存吗？",
     "cache_manage_clear_all": "清理全部缓存",

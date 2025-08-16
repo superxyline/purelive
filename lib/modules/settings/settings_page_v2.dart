@@ -428,9 +428,11 @@ class SettingsPageV2 extends GetView<SettingsService> {
                 title: Text(S.current.prefer_resolution),
                 subtitle: Text(S.current.prefer_resolution_subtitle),
                 onTap: () {
-                  SettingsPage.showPreferResolutionSelectorDialog();
+                  // SettingsPage.showPreferResolutionSelectorDialog();
+                  showPreferBitRateSelectorDialog();
                 },
-                trailing: Obx(() => Text(controller.preferResolution.value)),
+                // trailing: Obx(() => Text(controller.preferResolution.value)),
+                trailing: Obx(() => Text(controller.getBitRateName(controller.bitRate.value))),
               ),
               /// 移动网络清晰度
               SettingsListItem(
@@ -438,9 +440,11 @@ class SettingsPageV2 extends GetView<SettingsService> {
                 title: Text(S.current.prefer_resolution_mobile),
                 subtitle: Text(S.current.prefer_resolution_mobile_subtitle),
                 onTap: () {
-                  showPreferResolutionMobileSelectorDialog();
+                  // showPreferResolutionMobileSelectorDialog();
+                  showPreferBitRateMobileSelectorDialog();
                 },
-                trailing: Obx(() => Text(controller.preferResolutionMobile.value)),
+                // trailing: Obx(() => Text(controller.preferResolutionMobile.value)),
+                trailing: Obx(() => Text(controller.getBitRateName(controller.bitRateMobile.value))),
               ),
 
               if (Platform.isAndroid)
@@ -574,4 +578,57 @@ class SettingsPageV2 extends GetView<SettingsService> {
       ),
     );
   }
+
+
+  // 码率
+  static void showPreferBitRateSelectorDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.current.prefer_resolution,
+      child: ListView(
+        children: [
+          SettingsCardV2(
+              children: controller.bitRateList.map<Widget>((name) {
+                return RadioListTile<int>(
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  groupValue: controller.bitRate.value,
+                  value: name,
+                  title: Text(controller.getBitRateName(name)),
+                  onChanged: (value) {
+                    controller.changeBitRate(value!);
+                    Navigator.of(context).pop();
+                  },
+                );
+              }).toList())
+        ],
+      ),
+    );
+  }
+  // 码率 手机
+  static void showPreferBitRateMobileSelectorDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+      title: S.current.prefer_resolution_mobile,
+      child: ListView(
+        children: [
+          SettingsCardV2(
+              children: controller.bitRateList.map<Widget>((name) {
+                return RadioListTile<int>(
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  groupValue: controller.bitRateMobile.value,
+                  value: name,
+                  title: Text(controller.getBitRateName(name)),
+                  onChanged: (value) {
+                    controller.changeBitRateMobile(value!);
+                    Navigator.of(context).pop();
+                  },
+                );
+              }).toList())
+        ],
+      ),
+    );
+  }
+
 }

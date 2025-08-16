@@ -89,6 +89,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "bilibili": MessageLookupByLibrary.simpleMessage("BiLiBiLi"),
         "bilibili_need_login_info": MessageLookupByLibrary.simpleMessage(
             "Bilibili accounts require login to view high-definition live streams, and there is currently no such restriction on other platforms."),
+        "bit_rate_0": MessageLookupByLibrary.simpleMessage("Origin"),
+        "bit_rate_1000":
+            MessageLookupByLibrary.simpleMessage("High Definition"),
+        "bit_rate_2000": MessageLookupByLibrary.simpleMessage("Ultra HD"),
+        "bit_rate_250": MessageLookupByLibrary.simpleMessage("Smooth"),
+        "bit_rate_4000": MessageLookupByLibrary.simpleMessage("Blu-ray "),
+        "bit_rate_500": MessageLookupByLibrary.simpleMessage("Standard"),
         "cache_manage": MessageLookupByLibrary.simpleMessage("Cache Manage"),
         "cache_manage_clear_all":
             MessageLookupByLibrary.simpleMessage("Clear all cache"),

@@ -2871,6 +2871,66 @@ class S {
     );
   }
 
+  /// `Smooth`
+  String get bit_rate_250 {
+    return Intl.message(
+      'Smooth',
+      name: 'bit_rate_250',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Standard`
+  String get bit_rate_500 {
+    return Intl.message(
+      'Standard',
+      name: 'bit_rate_500',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `High Definition`
+  String get bit_rate_1000 {
+    return Intl.message(
+      'High Definition',
+      name: 'bit_rate_1000',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ultra HD`
+  String get bit_rate_2000 {
+    return Intl.message(
+      'Ultra HD',
+      name: 'bit_rate_2000',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blu-ray `
+  String get bit_rate_4000 {
+    return Intl.message(
+      'Blu-ray ',
+      name: 'bit_rate_4000',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Origin`
+  String get bit_rate_0 {
+    return Intl.message(
+      'Origin',
+      name: 'bit_rate_0',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cache Manage`
   String get cache_manage {
     return Intl.message(

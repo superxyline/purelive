@@ -141,6 +141,7 @@ class CCSite extends LiveSite with CCSiteMixin {
         quality: reflect[key]!,
         sort: value['vbr'],
         data: lines,
+        bitRate: value['vbr'] ?? 0,
       );
 
       qualityItem.playUrlList = playUrlList;

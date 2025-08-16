@@ -100,17 +100,20 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
             child: NotificationListener<UserScrollNotification>(
               onNotification: _userScrollAction,
               child: StreamBuilder(
-                initialData: [],
+                initialData: <LiveMessage>[],
                 stream: controller.messages.stream,
-                builder: (s,d) => ListView.builder(
+                builder: (s,d) {
+                  var data = d.data ?? [];
+                  return ListView.builder(
                   controller: _scrollController,
                   cacheExtent: 3500,
 
+
                   /// 只显示 100 条弹幕
-                  itemCount: (controller.messages.length > 100 ? 100 : controller.messages.length),
+                  itemCount: (data.length > 100 ? 100 : data.length),
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
-                    var partIndex = controller.messages.length > 100 ? controller.messages.length - 100 : 0;
+                    var partIndex = data.length > 100 ? data.length - 100 : 0;
                     var sIndex = partIndex + index;
                     final danmaku = controller.messages[sIndex];
                     return Container(
@@ -235,7 +238,8 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                       ),
                     );
                   },
-                ),
+                );
+                },
               ),
             )),
 

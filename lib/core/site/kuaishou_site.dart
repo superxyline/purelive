@@ -201,6 +201,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
             quality: quality["name"],
             sort: quality["level"],
             data: <String>[],
+            bitRate: quality["bitrate"] ?? 0,
           );
         });
 

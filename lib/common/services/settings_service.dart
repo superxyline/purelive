@@ -13,7 +13,9 @@ import 'package:pure_live/modules/live_play/widgets/video_player/model/video_pla
 import 'package:pure_live/plugins/extension/map_extension.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
-class SettingsService  extends GetxController with AutoShutDownMixin {
+import 'setting_mixin/setting_bit_rate.dart';
+
+class SettingsService  extends GetxController with AutoShutDownMixin, SettingBitRateMixin {
   static SettingsService get instance => Get.find<SettingsService>();
 
   SettingsService() {
@@ -158,6 +160,7 @@ class SettingsService  extends GetxController with AutoShutDownMixin {
 
   void init(){
     initAutoShutDown(settingPartList);
+    initBitRate(settingPartList);
   }
 
   // Theme settings
