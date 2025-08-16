@@ -107,11 +107,12 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
 
     WidgetsBinding.instance.addObserver(this);
   }
+
   var autoStop = true;
 
-  void animationControllerListener(){
+  void animationControllerListener() {
     // CoreLog.d("_scrollDanmakuItems: ${_scrollDanmakuItems.length}");
-    if(_scrollDanmakuItems.isEmpty) {
+    if (_scrollDanmakuItems.isEmpty) {
       autoStop = true;
       pause();
     }
@@ -122,6 +123,19 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
       pause();
+    }
+    switch (state) {
+      case AppLifecycleState.paused:
+        pause();
+        break;
+      case ui.AppLifecycleState.resumed:
+        resume();
+        break;
+      case ui.AppLifecycleState.detached:
+      case ui.AppLifecycleState.inactive:
+      case ui.AppLifecycleState.hidden:
+        pause();
+        break;
     }
   }
 
@@ -137,7 +151,7 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
 
   /// 添加弹幕
   void addDanmaku(DanmakuContentItem content) {
-    if(autoStop) {
+    if (autoStop) {
       autoStop = false;
       resume();
     }
