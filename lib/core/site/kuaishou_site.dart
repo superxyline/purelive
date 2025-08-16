@@ -207,7 +207,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
         var livePlayQuality = qualityMap[key]!;
         var playUrlList = livePlayQuality.data as List<String>;
         playUrlList.add(quality["url"]);
-        livePlayQuality.playUrlList.add(LivePlayQualityPlayUrlInfo(playUrl: quality["url"], info: "(${codeKey})"));
+        livePlayQuality.playUrlList.add(LivePlayQualityPlayUrlInfo(playUrl: quality["url"], info: "($codeKey)"));
 
       }
     }
@@ -361,7 +361,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
       return null;
     }
     headers['cookie'] = cookie;
-    var url = "https://live.kuaishou.com/u/$roomId";
+    // var url = "https://live.kuaishou.com/u/$roomId";
     var mHeaders = headers;
     mHeaders["Referer"] = "https://live.kuaishou.com/u/$roomId";
     mHeaders["Kww"] = cookieObj["kwfv1"];

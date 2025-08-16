@@ -1,9 +1,4 @@
 import 'dart:async';
-import 'package:get/get.dart';
-import 'package:flutter/widgets.dart';
-import 'package:easy_refresh/easy_refresh.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:pure_live/core/common/core_log.dart';
 
 import 'base_controller.dart';
 
@@ -12,6 +7,7 @@ class OneBaseController<T> extends BasePageController<T> {
 
   @override
   void onInit() {
+    super.onInit();
     refreshData();
   }
 

@@ -17,7 +17,7 @@ class HistoryController extends BasePageController<LiveRoom> {
   Future refreshData() async {
     CoreLog.d("HistoryController refreshData");
     final SettingsService settings = SettingsService.instance;
-    bool result = await UpdateRoomUtil.updateRoomList(settings.historyRooms, settings);
+    await UpdateRoomUtil.updateRoomList(settings.historyRooms, settings);
     // if (result) {
     //   easyRefreshController.finishRefresh(IndicatorResult.success);
     //   easyRefreshController.resetFooter();
@@ -32,7 +32,7 @@ class HistoryController extends BasePageController<LiveRoom> {
 
   @override
   Future<List<LiveRoom>> getData(int page, int pageSize) async {
-    CoreLog.d("HistoryController getData(int page = ${page}, int pageSize = ${pageSize})");
+    CoreLog.d("HistoryController getData(int page = $page, int pageSize = $pageSize)");
     if (page > 1) {
       canLoadMore.updateValueNotEquate(false);
       return [];

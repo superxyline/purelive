@@ -20,7 +20,7 @@ class UpdateRoomUtil {
         isOk = true;
         break;
       } catch (e) {
-        CoreLog.w("${e}");
+        CoreLog.w("$e");
         await HttpClient.resetHttpClient();
         sleep(const Duration(milliseconds: 200));
       }

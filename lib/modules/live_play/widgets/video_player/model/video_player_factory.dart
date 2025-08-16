@@ -1,7 +1,6 @@
 
 import 'dart:io';
 
-import 'package:get/get.dart';
 import 'package:gsy_video_player/gsy_video_player.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 

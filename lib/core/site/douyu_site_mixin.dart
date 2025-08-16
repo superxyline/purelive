@@ -44,7 +44,7 @@ mixin DouyuSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
         "origin": "https://passport.douyu.com",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
       });
-      CoreLog.d("result: ${result}");
+      CoreLog.d("result: $result");
       if (result["error"] != 0) {
         throw result["msg"];
       }
@@ -119,7 +119,7 @@ mixin DouyuSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
         uid = info.mid ?? 0;
         var flag = info.uname != null;
         isLogin.value = flag;
-        CoreLog.d("isLogin: ${flag}");
+        CoreLog.d("isLogin: $flag");
         userCookie.value = cookie;
         var liveSite = site.liveSite as BiliBiliSite;
         liveSite.cookie = cookie;

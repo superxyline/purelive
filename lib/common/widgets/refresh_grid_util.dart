@@ -1,6 +1,5 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/base/base_controller.dart';
@@ -9,7 +8,6 @@ import 'package:pure_live/common/widgets/room_card.dart';
 import 'package:pure_live/common/widgets/status/app_loadding_widget.dart';
 
 import 'empty_view.dart';
-import 'grid_util.dart';
 import 'refresh_my.dart';
 
 final class RefreshGridUtil {

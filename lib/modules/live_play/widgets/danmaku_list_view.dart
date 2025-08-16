@@ -143,7 +143,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                     child: Row(children: [
                                       Padding(padding: EdgeInsets.all(3)),
                                       Text(
-                                        "${danmaku.userLevel}",
+                                        danmaku.userLevel,
                                         textAlign: TextAlign.center, // 居中的子Widget
                                         style: TextStyle(
                                           color: Colors.white,
@@ -180,7 +180,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
 
                                           /// 弹幕的粉丝牌
                                           Text(
-                                            "${danmaku.fansName}",
+                                            danmaku.fansName,
                                             textAlign: TextAlign.center, // 居中的子Widget
                                             style: TextStyle(
                                               color: Colors.white,
@@ -196,7 +196,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                             radius: 8.0, // 圆的半径
                                             backgroundColor: Colors.white70, // 圆的背景颜色
                                             child: Text(
-                                              "${danmaku.fansLevel}",
+                                              danmaku.fansLevel,
                                               textAlign: TextAlign.right, // 居中的子Widget
                                               style: TextStyle(
                                                 color: DanmuUtil.getFansLevelColor(danmaku.fansLevel),

@@ -120,7 +120,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                             }
                           }
                           if (liveArea == null) {
-                            CoreLog.w("Not Find ${site}/${area}");
+                            CoreLog.w("Not Find $site/$area");
                             return;
                           }
                           Navigator.pop(Get.context!);

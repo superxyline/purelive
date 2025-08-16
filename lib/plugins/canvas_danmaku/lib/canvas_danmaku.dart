@@ -1,4 +1,4 @@
-library canvas_danmaku;
+library;
 
 export 'danmaku_screen.dart';
 export 'models/danmaku_item.dart';

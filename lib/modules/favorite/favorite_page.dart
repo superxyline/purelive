@@ -1,13 +1,10 @@
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/common/widgets/settings/settings_list_item.dart';
-import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/favorite/favorite_grid_view.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 
-import '../../common/widgets/refresh_grid_util.dart';
 import 'favorite_grid_controller.dart';
 
 class FavoritePage extends GetView<FavoriteController> {

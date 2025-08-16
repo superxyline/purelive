@@ -148,7 +148,7 @@ class CacheNetWorkUtils {
 
   static String proxyImageUrl(String imageUrl) {
     var encodeUrl = Uri.encodeComponent(imageUrl);
-    var proxyUrl = "https://gimg0.baidu.com/gimg/src=${encodeUrl}&app=2001&n=0&g=0n&q=80&fmt=webp";
+    var proxyUrl = "https://gimg0.baidu.com/gimg/src=$encodeUrl&app=2001&n=0&g=0n&q=80&fmt=webp";
     return proxyUrl;
   }
 }

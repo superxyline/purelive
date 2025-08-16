@@ -13,7 +13,6 @@ import 'package:pure_live/common/widgets/right_sheet.dart';
 import 'package:pure_live/core/common/common_request.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
-import 'package:remixicon/remixicon.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'app_style.dart';

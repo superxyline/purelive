@@ -390,7 +390,7 @@ class SettingsPage extends GetView<SettingsService> {
   /// 定时更新关注
   static void showAutoRefreshTimeSetDialog() {
     var controller = Get.find<SettingsService>();
-    var context = Get.context!;
+    // var context = Get.context!;
     Utils.showRightOrBottomSheet(
       title: S.current.auto_refresh_time,
       child: Obx(() => Column(
@@ -413,7 +413,7 @@ class SettingsPage extends GetView<SettingsService> {
   /// 弹幕设置
   static void showDanmuSetDialog({bool isFull = true}) {
     var controller = Get.find<SettingsService>();
-    var context = Get.context!;
+    // var context = Get.context!;
     Utils.showRightOrBottomSheet(
       isFull: isFull,
       title: S.current.settings_danmaku_title,

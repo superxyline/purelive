@@ -1,5 +1,4 @@
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 
 class DonatePage extends StatelessWidget {

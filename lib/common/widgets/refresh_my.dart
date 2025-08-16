@@ -58,6 +58,7 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     var itemBuilder = widget.itemBuilder ?? (context, index) => RoomCard(room: widget.pageController.list[index], dense: true);
 
     return LayoutBuilder(builder: (context, constraint) {

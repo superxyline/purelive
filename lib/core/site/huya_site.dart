@@ -1,24 +1,24 @@
-import 'dart:math';
 import 'dart:convert';
-import 'package:intl/intl.dart';
+import 'dart:math';
+
 import 'package:crypto/crypto.dart';
+import 'package:intl/intl.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/model/live_play_quality_play_url_info.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/model/live_anchor_item.dart';
-import 'package:tars_dart/tars/net/base_tars_http.dart';
 import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/model/live_play_quality.dart';
-import 'package:pure_live/core/interface/live_site.dart';
-import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
-import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/core/interface/live_site.dart';
+import 'package:pure_live/model/live_anchor_item.dart';
+import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/model/live_category_result.dart';
+import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/model/live_play_quality_play_url_info.dart';
+import 'package:pure_live/model/live_search_result.dart';
 import 'package:pure_live/model/tars/get_cdn_token_req.dart';
 import 'package:pure_live/model/tars/get_cdn_token_resp.dart';
+import 'package:tars_dart/tars/net/base_tars_http.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'huya_site_mixin.dart';
 
@@ -178,7 +178,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
     var info = "";
     var cdnType = line.cdnType;
     if(cdnType != "" && cdnType != "null") {
-      info = "(${cdnType})";
+      info = "($cdnType)";
     }
     return LivePlayQualityPlayUrlInfo(playUrl: url, info: info);
   }
@@ -248,7 +248,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
       var huyaBiterates = <HuyaBitRateModel>[];
       //读取可用线路
       var lines = [];
-      var values = data['stream'].values.toList();
+      // var values = data['stream'].values.toList();
       var keys = data['stream'].keys.toList();
       for(var key in keys) {
         if(key == 'baseSteamInfoList') continue;

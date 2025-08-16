@@ -26,19 +26,21 @@ class DnsHelper {
       lineLength: 120,
       colors: true,
       printEmojis: true,
-      printTime: true,
+      // printTime: true,
+      dateTimeFormat: DateTimeFormat.dateAndTime,
     ),
     filter: ProductionFilter(),
   )
       : Logger(
-    level: Level.verbose,
+    level: Level.trace,
     printer: PrettyPrinter(
       methodCount: 0,
       errorMethodCount: 8,
       lineLength: 120,
       colors: true,
       printEmojis: true,
-      printTime: true,
+      // printTime: true,
+      dateTimeFormat: DateTimeFormat.dateAndTime,
     ),
   );
 

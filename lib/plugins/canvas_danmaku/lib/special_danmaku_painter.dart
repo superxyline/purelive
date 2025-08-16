@@ -48,8 +48,8 @@ class SpecialDanmakuPainter extends CustomPainter {
 
   void _paintSpecialDanmaku(Canvas canvas, SpecialDanmakuContentItem item, Size size, int elapsed) {
     // 透明度动画
-    late final alpha = item.alphaTween?.transform(elapsed / item.duration) ?? item.color.opacity;
-    final color = item.alphaTween == null ? item.color : item.color.withOpacity(alpha);
+    late final alpha = item.alphaTween?.transform(elapsed / item.duration) ?? item.color.a;
+    final color = item.alphaTween == null ? item.color : item.color..withAlpha((255.0 * (alpha)).round());
     // 文本
     if (color != item.painterCache?.text?.style?.color) {
       item.painterCache!.text = TextSpan(
@@ -58,7 +58,7 @@ class SpecialDanmakuPainter extends CustomPainter {
           color: color,
           fontSize: item.fontSize,
           fontWeight: FontWeight.values[fontWeight],
-          shadows: item.hasStroke ? [Shadow(color: Colors.black.withOpacity(alpha), blurRadius: 2)] : null,
+          shadows: item.hasStroke ? [Shadow(color: Colors.black..withAlpha((255.0 * (alpha)).round()), blurRadius: 2)] : null,
         ),
       );
       item.painterCache!.layout();

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
@@ -13,8 +12,6 @@ import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_factory.d
 import 'package:pure_live/modules/live_play/widgets/video_player/model/video_player_factory.dart';
 import 'package:pure_live/plugins/extension/map_extension.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
-// import 'package:pure_live/plugins/local_http.dart';
-import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 class SettingsService  extends GetxController with AutoShutDownMixin {
   static SettingsService get instance => Get.find<SettingsService>();
@@ -153,7 +150,7 @@ class SettingsService  extends GetxController with AutoShutDownMixin {
     //   PrefUtil.setBool('webPortEnable', value);
     // });
     siteCookies.listen((value) {
-      CoreLog.d("save siteCookies: ${value}");
+      CoreLog.d("save siteCookies: $value");
       PrefUtil.setMap('siteCookies', value);
     });
     init();

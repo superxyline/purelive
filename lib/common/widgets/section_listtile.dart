@@ -30,7 +30,8 @@ class CupertinoSwitchListTile extends StatelessWidget {
       },
       trailing: CupertinoSwitch(
         value: value,
-        activeColor: activeColor,
+        // activeColor: activeColor,
+        inactiveTrackColor: activeColor,
         onChanged: onChanged,
       ),
     );

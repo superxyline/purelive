@@ -284,10 +284,10 @@ class CCDanmaku implements LiveDanmaku {
     try {
       if (data is! Uint8List) return;
       // 解析消息头
-      final header = ByteData.sublistView(data, 0, 8);
-      final sid = header.getUint16(0, Endian.big);
-      final cid = header.getUint16(2, Endian.big);
-      final flag = header.getUint32(4, Endian.big);
+      // final header = ByteData.sublistView(data, 0, 8);
+      // final sid = header.getUint16(0, Endian.big);
+      // final cid = header.getUint16(2, Endian.big);
+      // final flag = header.getUint32(4, Endian.big);
 
       // 解析消息体
       final body = data.sublist(8);
@@ -295,7 +295,7 @@ class CCDanmaku implements LiveDanmaku {
       final decoder = MessageDecoder(decompressed as Uint8List);
       final message = decoder.decode() as Map<String, dynamic>;
 
-      CoreLog.d("message: ${message}");
+      CoreLog.d("message: $message");
       // 根据消息类型处理不同数据结构
       if (message.containsKey('data') && message['data'] is Map) {
         final msgList = message['data']['msg_list'] as List<dynamic>;
@@ -317,8 +317,8 @@ class CCDanmaku implements LiveDanmaku {
           color: Colors.white,
         ));
       }
-    } catch (e, stack) {
-      print("stack:\n $stack");
+    } catch (e) {
+      // print("stack:\n $stack");
       CoreLog.error(e);
     }
   }
@@ -402,7 +402,7 @@ class BinaryWriter {
 
 class MessageDecoder {
   int _offset = 0;
-  Uint8List _data;
+  final Uint8List _data;
 
   MessageDecoder(this._data);
 
@@ -492,7 +492,7 @@ class MessageDecoder {
     try {
       return utf8.decode(bytes);
     } catch (e, stackTrace) {
-      CoreLog.w("${bytes} \n ${e.toString()} \n $stackTrace");
+      CoreLog.w("$bytes \n ${e.toString()} \n $stackTrace");
       CoreLog.e(e.toString(), stackTrace);
       return "";
     }

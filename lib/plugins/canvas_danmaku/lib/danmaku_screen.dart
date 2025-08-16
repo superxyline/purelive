@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:pure_live/core/common/core_log.dart';
 
 import './models/danmaku_content_item.dart';
 import './utils/utils.dart';
@@ -10,8 +9,6 @@ import 'danmaku_controller.dart';
 import 'models/danmaku_item.dart';
 import 'models/danmaku_option.dart';
 import 'scroll_danmaku_painter.dart';
-import 'special_danmaku_painter.dart';
-import 'static_danmaku_painter.dart';
 
 class DanmakuScreen extends StatefulWidget {
   // 创建Screen后返回控制器
@@ -157,7 +154,7 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
               color: content.color,
               fontSize: content.fontSize,
               fontWeight: FontWeight.values[_option.fontWeight],
-              shadows: content.hasStroke ? [Shadow(color: Colors.black.withOpacity(content.alphaTween?.begin ?? content.color.opacity), blurRadius: 2)] : null,
+              shadows: content.hasStroke ? [Shadow(color: Colors.black.withAlpha((255.0 * (content.alphaTween?.begin ?? content.color.a)).round()), blurRadius: 2)] : null,
             ),
           ),
           textDirection: TextDirection.ltr,

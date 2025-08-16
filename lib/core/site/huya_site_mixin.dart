@@ -57,7 +57,7 @@ mixin HuyaSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
           "page": "https%3A%2F%2Fwww.huya.com%2F"
         }
       });
-      CoreLog.d("result: ${result}");
+      CoreLog.d("result: $result");
       if (result["returnCode"] != 0) {
         throw result["message"];
       }
@@ -66,7 +66,7 @@ mixin HuyaSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
       /// https://udblgn.huya.com/qrLgn/getQrImg?k=doOvYRrvpvvuYqDVEa&appId=5002
       var qrCode = result["data"]["qrId"];
       var appId = "5002";
-      var qrcodeUrl = "https://udblgn.huya.com/qrLgn/getQrImg?k=${qrCode}&appId=${appId}";
+      var qrcodeUrl = "https://udblgn.huya.com/qrLgn/getQrImg?k=$qrCode&appId=$appId";
       var qrcodeImageResp = await HttpClient.instance.get(qrcodeUrl);
       qrBean.qrcodeKey = qrCode;
       qrBean.qrcodeUrl = qrcodeImageResp.data;
@@ -172,7 +172,7 @@ mixin HuyaSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
         uid = info.mid ?? 0;
         var flag = info.uname != null;
         isLogin.value = flag;
-        CoreLog.d("isLogin: ${flag}");
+        CoreLog.d("isLogin: $flag");
         userCookie.value = cookie;
         var liveSite = site.liveSite as BiliBiliSite;
         liveSite.cookie = cookie;

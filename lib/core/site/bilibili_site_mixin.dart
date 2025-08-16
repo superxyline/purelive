@@ -109,7 +109,7 @@ mixin BilibiliSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
         uid = info.mid ?? 0;
         var flag = info.uname != null;
         isLogin.value = flag;
-        CoreLog.d("isLogin: ${flag}");
+        CoreLog.d("isLogin: $flag");
         userCookie.value = cookie;
         var liveSite = site.liveSite as BiliBiliSite;
         liveSite.cookie = cookie;

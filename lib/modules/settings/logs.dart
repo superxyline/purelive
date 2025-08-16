@@ -243,7 +243,7 @@ class _LogsPageState extends State<LogsPage> {
                         );
                         list.add(head);
                         for (var text in bodyList) {
-                          list.add(TextSpan(text: text + "\n"));
+                          list.add(TextSpan(text: "$text\n"));
                         }
                         list.add(TextSpan(text: "\n"));
                         list.add(TextSpan(text: "\n"));

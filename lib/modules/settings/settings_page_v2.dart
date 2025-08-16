@@ -8,7 +8,6 @@ import 'package:pure_live/common/widgets/settings/settings_card_v2.dart';
 import 'package:pure_live/common/widgets/settings/settings_list_item.dart';
 import 'package:pure_live/common/widgets/settings/settings_switch.dart';
 import 'package:pure_live/common/widgets/utils.dart';
-import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_controller.dart';
 import 'package:pure_live/modules/live_play/danmaku/danmaku_controller_factory.dart';

@@ -28,7 +28,6 @@ import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/settings/logs.dart';
 import 'package:pure_live/modules/settings/settings_binding.dart';
-import 'package:pure_live/modules/settings/settings_page.dart';
 import 'package:pure_live/modules/settings/settings_page_v2.dart';
 import 'package:pure_live/modules/shield/danmu_shield_binding.dart';
 import 'package:pure_live/modules/shield/danmu_shield_page.dart';

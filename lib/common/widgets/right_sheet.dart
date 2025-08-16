@@ -108,7 +108,7 @@ class _ModalRightSheetRoute<T> extends PopupRoute<T> {
       removeTop: false,
       child: _ModalRightSheet<T>(
         route: this,
-        clickEmptyPop: this.clickEmptyPop,
+        clickEmptyPop: clickEmptyPop,
         enableDrag: enableDrag,
         elevation: elevation,
         dragHandleColor: dragHandleColor,
@@ -162,7 +162,7 @@ class _ModalRightSheetState<T> extends State<_ModalRightSheet<T>> {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
     final MaterialLocalizations localizations =
         MaterialLocalizations.of(context);
-    String? routeLabel;
+    String? routeLabel= '';
     switch (defaultTargetPlatform) {
       case TargetPlatform.iOS:
       case TargetPlatform.macOS:
@@ -174,10 +174,7 @@ class _ModalRightSheetState<T> extends State<_ModalRightSheet<T>> {
       case TargetPlatform.windows:
         routeLabel = localizations.dialogLabel;
         break;
-      default:
-        routeLabel = '';
-        break;
-    }
+      }
 
     return GestureDetector(
         excludeFromSemantics: true,
@@ -451,7 +448,7 @@ class RightSheetState extends State<RightSheet> {
   Widget build(BuildContext context) {
     final BottomSheetThemeData bottomSheetTheme =
         Theme.of(context).bottomSheetTheme;
-    final bool useMaterial3 = Theme.of(context).useMaterial3;
+    // final bool useMaterial3 = Theme.of(context).useMaterial3;
     final BottomSheetThemeData defaults = const BottomSheetThemeData();
     final BoxConstraints? constraints = widget.constraints ??
         bottomSheetTheme.constraints ??
@@ -459,21 +456,21 @@ class RightSheetState extends State<RightSheet> {
     final Color? color = widget.backgroundColor ??
         bottomSheetTheme.backgroundColor ??
         defaults.backgroundColor;
-    final Color? surfaceTintColor =
-        bottomSheetTheme.surfaceTintColor ?? defaults.surfaceTintColor;
-    final Color? shadowColor = widget.shadowColor ??
-        bottomSheetTheme.shadowColor ??
-        defaults.shadowColor;
-    final double elevation = widget.elevation ??
-        bottomSheetTheme.elevation ??
-        defaults.elevation ??
-        0;
+    // final Color? surfaceTintColor =
+    //     bottomSheetTheme.surfaceTintColor ?? defaults.surfaceTintColor;
+    // final Color? shadowColor = widget.shadowColor ??
+    //     bottomSheetTheme.shadowColor ??
+    //     defaults.shadowColor;
+    // final double elevation = widget.elevation ??
+    //     bottomSheetTheme.elevation ??
+    //     defaults.elevation ??
+    //     0;
     final ShapeBorder? shape =
         widget.shape ?? bottomSheetTheme.shape ?? defaults.shape;
     final Clip clipBehavior =
         widget.clipBehavior ?? bottomSheetTheme.clipBehavior ?? Clip.none;
-    final bool showDragHandle = widget.showDragHandle ??
-        (widget.enableDrag && (bottomSheetTheme.showDragHandle ?? false));
+    // final bool showDragHandle = widget.showDragHandle ??
+    //     (widget.enableDrag && (bottomSheetTheme.showDragHandle ?? false));
 
     Widget sheet = Material(
       key: _childKey,

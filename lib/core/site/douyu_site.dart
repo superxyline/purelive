@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -202,7 +201,7 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
     //CoreLog.d("getPlayUrl ${jsonEncode(result)}");
     return LivePlayQualityPlayUrlInfo(
         playUrl: "${result["data"]["rtmp_url"]}/${HtmlUnescape().convert(result["data"]["rtmp_live"].toString())}",
-        info: "(${cdn})"
+        info: "($cdn)"
     );
   }
 
