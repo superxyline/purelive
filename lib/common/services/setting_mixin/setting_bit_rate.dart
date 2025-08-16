@@ -36,7 +36,7 @@ mixin SettingBitRateMixin {
         return s.bit_rate_2000;
     }
     var data = bitRate / 1000;
-    var txt = "${s.bit_rate_4000}${data}M";
+    var txt = "${s.bit_rate_4000}${data.toInt()}M";
     return txt;
   }
 
