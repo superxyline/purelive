@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart'
-    as video_player;
+import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart' as video_player;
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
 import 'package:pure_live/modules/util/rx_util.dart';
@@ -17,13 +16,11 @@ import 'video_play_impl.dart';
 /// FVP 播放器
 class FvpVideoPlay extends VideoPlayerInterFace {
   // Video player control
-  late Rx<VideoPlayerController> videoPlayerController =
-      VideoPlayerController.networkUrl(Uri.parse("")).obs;
+  late Rx<VideoPlayerController> videoPlayerController = VideoPlayerController.networkUrl(Uri.parse("")).obs;
 
   // late ChewieController chewieController;
 
-  late Rx<ChewieController> chewieController =
-      ChewieController(videoPlayerController: videoPlayerController.value).obs;
+  late Rx<ChewieController> chewieController = ChewieController(videoPlayerController: videoPlayerController.value).obs;
 
   /// 存储 Stream 流监听
   /// 默认视频 MPV 视频监听流
@@ -46,11 +43,9 @@ class FvpVideoPlay extends VideoPlayerInterFace {
   @override
   void init({required video_player.VideoController controller}) {
     this.controller = controller;
-    ListenListUtil.clearStreamSubscriptionList(
-        defaultVideoStreamSubscriptionList);
+    ListenListUtil.clearStreamSubscriptionList(defaultVideoStreamSubscriptionList);
 
-    VideoPlayerOptions options =
-        VideoPlayerOptions(allowBackgroundPlayback: true);
+    VideoPlayerOptions options = VideoPlayerOptions(allowBackgroundPlayback: true);
     videoPlayerController.value = VideoPlayerController.networkUrl(
       Uri.parse(""),
       videoPlayerOptions: options,
@@ -91,8 +86,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
 
   @override
   Future<void> dispose() async {
-    ListenListUtil.clearStreamSubscriptionList(
-        defaultVideoStreamSubscriptionList);
+    ListenListUtil.clearStreamSubscriptionList(defaultVideoStreamSubscriptionList);
     disposeVideoPlayerListener();
     videoPlayerController.value.removeListener(listenerVideo);
     chewieController.value.addListener(chewieControllerListener);
@@ -131,8 +125,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
     } else {
       hasError.value = false;
     }
-    VideoPlayerOptions options =
-        VideoPlayerOptions(allowBackgroundPlayback: true);
+    VideoPlayerOptions options = VideoPlayerOptions(allowBackgroundPlayback: true);
 
     var oldVideo = videoPlayerController.value;
     videoPlayerController.value.removeListener(listenerVideo);
@@ -208,8 +201,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
     var tmpIsLive = chewieController.value.isLive;
     var tmpIsPlaying = chewieController.value.isPlaying;
     var tmpIsFullScreen = chewieController.value.isFullScreen;
-    CoreLog.d(
-        "isLive $tmpIsLive isPlaying $tmpIsPlaying isFullScreen $tmpIsFullScreen");
+    CoreLog.d("isLive $tmpIsLive isPlaying $tmpIsPlaying isFullScreen $tmpIsFullScreen");
     isFullscreen.updateValueNotEquate(tmpIsFullScreen);
     isPlaying.updateValueNotEquate(tmpIsPlaying);
   }
@@ -221,19 +213,14 @@ class FvpVideoPlay extends VideoPlayerInterFace {
     if (isError) {
       CoreLog.d("Error: ${videoPlayerController.value.value.errorDescription}");
     }
-    hasError.updateValueNotEquate(
-        videoPlayerController.value.value.errorDescription != null);
+    hasError.updateValueNotEquate(videoPlayerController.value.value.errorDescription != null);
     isPlaying.updateValueNotEquate(videoPlayerController.value.value.isPlaying);
-    isBuffering
-        .updateValueNotEquate(videoPlayerController.value.value.isBuffering);
-    isVertical.updateValueNotEquate(
-        videoPlayerController.value.value.size.width <
-            videoPlayerController.value.value.size.height);
+    isBuffering.updateValueNotEquate(videoPlayerController.value.value.isBuffering);
+    isVertical.updateValueNotEquate(videoPlayerController.value.value.size.width < videoPlayerController.value.value.size.height);
 
     // CoreLog.d("isPlaying: ${isPlaying} isBuffering: $isBuffering hasError: $hasError");
 
-    var tmpAspectRatio = videoPlayerController.value.value.size.width /
-        videoPlayerController.value.value.size.height;
+    var tmpAspectRatio = videoPlayerController.value.value.size.width / videoPlayerController.value.value.size.height;
 
     /// 重新设置宽高比
     if (tmpAspectRatio != aspectRatio) {
@@ -261,17 +248,21 @@ class FvpVideoPlay extends VideoPlayerInterFace {
   bool get supportPip => true;
 
   @override
-  List<String> get supportPlatformList =>
-      ["linux", "macos", "windows", "android", "ios"];
+  List<String> get supportPlatformList => ["linux", "macos", "windows", "android", "ios"];
 
   @override
   Widget getVideoPlayerWidget() {
-    try{
-      return Obx(() => Chewie(
-        key: UniqueKey(),
-        controller: chewieController.value,
-      ));
-    }catch(e) {
+    try {
+      return StreamBuilder(
+          initialData: chewieController.value,
+          stream: chewieController.stream,
+          builder: (s, d) => d.data == null
+              ? Container()
+              : Chewie(
+                  key: UniqueKey(),
+                  controller: d.data!,
+                ));
+    } catch (e) {
       CoreLog.error(e);
       return Container();
     }

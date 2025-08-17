@@ -170,12 +170,13 @@ class GsyVideoPlay extends VideoPlayerInterFace {
     isPlaying.updateValueNotEquate(false);
     // fix bug
     isBuffering.updateValueNotEquate(false);
-    return gsyVideoPlayerController.setDataSourceBuilder(
+    gsyVideoPlayerController.setDataSourceBuilder(
       datasource,
       mapHeadData: headers,
       cacheWithPlay: false,
       useDefaultIjkOptions: true,
     );
+    play();
   }
 
   @override
@@ -206,9 +207,20 @@ class GsyVideoPlay extends VideoPlayerInterFace {
 
   @override
   Widget getVideoPlayerWidget() {
-    return Obx(() => Chewie(
-          controller: chewieController.value,
-        ));
+    try {
+      return StreamBuilder(
+          initialData: chewieController.value,
+          stream: chewieController.stream,
+          builder: (s, d) => d.data == null
+              ? Container()
+              : Chewie(
+            key: UniqueKey(),
+            controller: d.data!,
+          ));
+    } catch (e) {
+      CoreLog.error(e);
+      return Container();
+    }
   }
 
   @override
