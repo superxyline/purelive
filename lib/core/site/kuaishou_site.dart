@@ -332,7 +332,10 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String nick, required String platform, required String roomId, required String title}) async {
+  Future<LiveRoom> getRoomDetail({required String nick, required String platform, required String roomId, required String title}) async{
+    return getRoomDetailByMobile(platform: platform, roomId: roomId);
+  }
+  Future<LiveRoom> getRoomDetailByWeb({required String platform, required String roomId}) async {
     headers['cookie'] = cookie;
     var url = "https://live.kuaishou.com/u/$roomId";
     var mHeaders = headers;
@@ -428,6 +431,109 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
       return liveRoom;
     }
   }
+
+  Future<LiveRoom> getRoomDetailByMobile({required String platform, required String roomId}) async {
+    headers['cookie'] = cookie;
+    var url = "https://live.kuaishou.com/u/$roomId";
+    var timestamp = DateTime.timestamp().millisecond;
+    url = "https://livev.m.chenzhongtech.com/fw/live/$roomId?cc=share_wxms&followRefer=151&shareMethod=CARD&kpn=GAME_ZONE&subBiz=LIVE_STEARM_OUTSIDE&shareId=18525828579338&shareToken=X-9BsYHSLmysC15S&shareMode=APP&efid=0&originShareId=18525828579338&shareObjectId=Fbb0tbOTWfQ&shareUrlOpened=0&timestamp=$timestamp";
+    var mHeaders = headers;
+    var fakeUseragent = FakeUserAgent.getRandomUserAgent();
+    mHeaders['User-Agent'] = "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/118.0.0.0";
+    mHeaders['sec-ch-ua'] = 'Google Chrome;v=107, Chromium;v=107, Not=A?Brand;v=24';
+    mHeaders['sec-ch-ua-platform'] = fakeUseragent['device'];
+    mHeaders['sec-fetch-dest'] = 'document';
+    mHeaders['sec-fetch-mode'] = 'navigate';
+    mHeaders['sec-fetch-site'] = 'same-origin';
+    mHeaders['sec-fetch-user'] = '?1';
+    mHeaders['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
+    await getCookie(url);
+    var kww = cookieObj["kwfv1"];
+    if(kww == null || kww.isEmpty) {
+      await registerDid();
+    }
+    headers['Kww'] = kww;
+    mHeaders["Kww"] = kww;
+    var resultText = await HttpClient.instance.getText(
+      url,
+      queryParameters: {},
+      header: mHeaders,
+    );
+    try {
+      CoreLog.d("resultText: $resultText");
+      var text = RegExp(r"window\.__INITIAL_STATE__=(.*?);?\s*</script>", multiLine: false).firstMatch(resultText)?.group(1);
+      var transferData = text!.replaceAll("undefined", "null");
+      var jsonObj = jsonDecode(transferData) as Map;
+      var dataObj = {};
+      for(var key in jsonObj.keys) {
+        var jsonObj2 = jsonObj[key];
+        if( jsonObj2["webSocketAddresses"] != null) {
+          dataObj = jsonObj2;
+          break;
+        }
+      }
+
+      jsonObj = dataObj;
+      var token = jsonObj["token"];
+
+      var liveStream = jsonObj["liveStream"];
+      var user = liveStream["user"];
+      var author = user["user_name"];
+      var gameInfo = liveStream["gameInfo"];
+      var liveStreamId = liveStream["liveStreamId"];
+      CoreLog.d(jsonEncode(jsonObj));
+      KuaishowDanmakuArgs? tmpArgs = await () async {
+        try {
+          var expTag = liveStream["exp_tag"];
+          var websocketInfo = jsonObj["webSocketAddresses"];
+          CoreLog.d("websocketInfo: ${jsonEncode(websocketInfo)}");
+          if (websocketInfo == null) return null;
+          var websocketInfo2 = websocketInfo["webSocketAddresses"];
+          // if (websocketInfo2 == null) {
+          //   return null;
+          // }
+          var webSocketAddresses = websocketInfo[0];
+          var webSocketToken = token;
+          return KuaishowDanmakuArgs(url: webSocketAddresses, token: webSocketToken, liveStreamId: liveStreamId, expTag: expTag);
+        } catch (e) {
+          // log(e.toString());
+          CoreLog.error(e);
+        }
+        return null;
+      }();
+      // CoreLog.d(jsonEncode(tmpArgs));
+      // CoreLog.d("${jsonEncode(jsonObj)}");
+      return LiveRoom(
+        cover: liveStream['poster'] != null
+            ? isImage(liveStream['poster'])
+            ? liveStream['poster'].toString()
+            : '${liveStream['poster'].toString()}.jpg'
+            : "",
+        watching: jsonObj["liveroom"]["playList"][0]["isLiving"] ? gameInfo["watchingCount"].toString() : '0',
+        roomId: author["id"],
+        area: gameInfo["name"] ?? '',
+        title: author["description"] != null ? author["description"].replaceAll("\n", " ") : '',
+        nick: author["name"].toString(),
+        avatar: author["avatar"].toString(),
+        introduction: author["description"].toString(),
+        notice: author["description"].toString(),
+        status: jsonObj["liveroom"]["playList"][0]["isLiving"],
+        liveStatus: jsonObj["liveroom"]["playList"][0]["isLiving"] ? LiveStatus.live : LiveStatus.offline,
+        platform: Sites.kuaishouSite,
+        link: liveStreamId,
+        data: liveStream,
+        danmakuData: tmpArgs,
+      );
+    } catch (e) {
+      CoreLog.error(e);
+      final SettingsService settings = Get.find<SettingsService>();
+      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
+      liveRoom.liveStatus = LiveStatus.offline;
+      liveRoom.status = false;
+      return liveRoom;
+    }
+  }
+
 
   @override
   Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
