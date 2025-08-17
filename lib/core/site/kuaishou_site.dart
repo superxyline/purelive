@@ -370,16 +370,19 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
       var liveStreamId = liveStream["id"];
       CoreLog.d(jsonEncode(jsonObj));
       KuaishowDanmakuArgs? tmpArgs = await () async {
+        var expTag = liveStream["expTag"] ?? "";
+        var defaultDanmakuArgs = KuaishowDanmakuArgs(
+            url: "wss://live-ws-group4.kuaishou.com/websocket",
+            token: "tcv4u8PpI34PDJQTe39jatCeZ0yRpsqECaReAkXttFeGkL7M66BIwQGpjiKrsWcv15cWPRAEjbNKkqh+ua/jWGbQqLrDDRYEYPbAvZX0JdMMCuBj4dnaYRaci0rSeWng7l2C+5y4lhLWp0QpHswvQkt5gZfydzCwGgyV+Zftey+F24NcyIejkftzWNcgGc4m3cKqW8d0C4xgdfjF+bXJlA==",
+            liveStreamId: liveStreamId,
+            expTag: liveStream["expTag"] ?? "");
         try {
-          var expTag = liveStream["expTag"];
           // var websocketInfo = jsonObj["liveroom"]["playList"][0]["websocketInfo"];
           var websocketInfo = await getWebsocketInfo(roomId, liveStreamId);
           CoreLog.d("websocketInfo: ${jsonEncode(websocketInfo)}");
-          if (websocketInfo == null) return null;
+          if (websocketInfo == null) return defaultDanmakuArgs;
           var websocketInfo2 = websocketInfo["webSocketAddresses"];
-          // if (websocketInfo2 == null) {
-          //   return null;
-          // }
+          if (websocketInfo2 == null) return defaultDanmakuArgs;
           var webSocketAddresses = websocketInfo["webSocketAddresses"][0];
           var webSocketToken = websocketInfo["token"];
           return KuaishowDanmakuArgs(url: webSocketAddresses, token: webSocketToken, liveStreamId: liveStreamId, expTag: expTag);
@@ -397,7 +400,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
       //   ]
       // }
       // }
-        return KuaishowDanmakuArgs(url: "wss://livejs-ws-group4.gifshow.com/websocket", token: "tcv4u8PpI34PDJQTe39jatCeZ0yRpsqECaReAkXttFeGkL7M66BIwQGpjiKrsWcv15cWPRAEjbNKkqh+ua/jWGbQqLrDDRYEYPbAvZX0JdMMCuBj4dnaYRaci0rSeWng7l2C+5y4lhLWp0QpHswvQkt5gZfydzCwGgyV+Zftey+F24NcyIejkftzWNcgGc4m3cKqW8d0C4xgdfjF+bXJlA==", liveStreamId: liveStreamId, expTag: liveStream["expTag"] ?? "");
+        return defaultDanmakuArgs;
       }();
       // CoreLog.d(jsonEncode(tmpArgs));
       // CoreLog.d("${jsonEncode(jsonObj)}");
@@ -435,7 +438,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
   Future<LiveRoom> getRoomDetailByMobile({required String platform, required String roomId}) async {
     headers['cookie'] = cookie;
     var url = "https://live.kuaishou.com/u/$roomId";
-    var timestamp = DateTime.timestamp().millisecond;
+    var timestamp = DateTime.timestamp().millisecondsSinceEpoch;
     url = "https://livev.m.chenzhongtech.com/fw/live/$roomId?cc=share_wxms&followRefer=151&shareMethod=CARD&kpn=GAME_ZONE&subBiz=LIVE_STEARM_OUTSIDE&shareId=18525828579338&shareToken=X-9BsYHSLmysC15S&shareMode=APP&efid=0&originShareId=18525828579338&shareObjectId=Fbb0tbOTWfQ&shareUrlOpened=0&timestamp=$timestamp";
     var mHeaders = headers;
     var fakeUseragent = FakeUserAgent.getRandomUserAgent();
@@ -447,6 +450,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
     mHeaders['sec-fetch-site'] = 'same-origin';
     mHeaders['sec-fetch-user'] = '?1';
     mHeaders['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
+    mHeaders['cookie'] = cookie + "livePageServiceNameNew=usergrowth-kfx-service; kuaishou.live.bfb1s=ac5f27b3b62895859c4c1622f49856a4; ";
     await getCookie(url);
     var kww = cookieObj["kwfv1"];
     if(kww == null || kww.isEmpty) {
@@ -488,10 +492,6 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
           var websocketInfo = jsonObj["webSocketAddresses"];
           CoreLog.d("websocketInfo: ${jsonEncode(websocketInfo)}");
           if (websocketInfo == null) return null;
-          var websocketInfo2 = websocketInfo["webSocketAddresses"];
-          // if (websocketInfo2 == null) {
-          //   return null;
-          // }
           var webSocketAddresses = websocketInfo[0];
           var webSocketToken = token;
           return KuaishowDanmakuArgs(url: webSocketAddresses, token: webSocketToken, liveStreamId: liveStreamId, expTag: expTag);
