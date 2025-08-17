@@ -78,13 +78,25 @@ class KuaishowDanmaku implements LiveDanmaku {
     mHeaders['sec-fetch-mode'] = 'navigate';
     mHeaders['sec-fetch-site'] = 'same-origin';
     mHeaders['sec-fetch-user'] = '?1';
+    // mHeaders['origin'] = 'https://live.kuaishou.com';
+    // mHeaders['sec-websocket-key'] = 'E95v8n0Z1sq1GKVru6zacw==';
+    // mHeaders['sec-websocket-version'] = '13';
+    // mHeaders['sec-websocket-extensions'] = 'permessage-deflate; client_max_window_bits';
     mHeaders['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
     webScoketUtils = WebScoketUtils(
       url: danmakuArgs.url,
       heartBeatTime: heartbeatTime,
       headers: mHeaders,
       onMessage: (e) {
-        decodeMessage(e);
+        try{
+          if(e.runtimeType == String){
+            return decodeMessageStr(e);
+          }
+          return decodeMessage(e);
+        }catch(err) {
+          CoreLog.w("$e");
+          CoreLog.error(err);
+        }
       },
       onReady: () {
         onReady?.call();
@@ -142,6 +154,10 @@ class KuaishowDanmaku implements LiveDanmaku {
     onMessage = null;
     onClose = null;
     webScoketUtils?.close();
+  }
+
+  void decodeMessageStr(String data) {
+    CoreLog.w("decodeMessageStr: ${data}");
   }
 
   void decodeMessage(List<int> data) {
