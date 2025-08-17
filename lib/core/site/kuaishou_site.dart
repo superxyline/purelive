@@ -333,7 +333,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
 
   @override
   Future<LiveRoom> getRoomDetail({required String nick, required String platform, required String roomId, required String title}) async{
-    return getRoomDetailByMobile(platform: platform, roomId: roomId);
+    return getRoomDetailByWeb(platform: platform, roomId: roomId);
   }
   Future<LiveRoom> getRoomDetailByWeb({required String platform, required String roomId}) async {
     headers['cookie'] = cookie;
