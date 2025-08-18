@@ -11,7 +11,7 @@ class MyTheme {
     this.colorScheme,
   }) : assert(colorScheme == null || primaryColor == null);
 
-  get lightThemeData {
+  ThemeData get lightThemeData {
     if (Platform.isWindows) {
       fontFamily = 'PingFang';
     }
@@ -24,7 +24,7 @@ class MyTheme {
     );
   }
 
-  get darkThemeData {
+  ThemeData get darkThemeData {
     if (Platform.isWindows) {
       fontFamily = 'PingFang';
     }

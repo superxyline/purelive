@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage>
     });
   }
 
-  handMoveRefresh() {
+  void handMoveRefresh() {
     favoriteController.onRefresh();
   }
 

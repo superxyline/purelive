@@ -296,7 +296,7 @@ class DesktopFullscreen extends StatelessWidget {
   final video_player.VideoController controller;
   final media_kit_video.VideoController mediaPlayerController;
 
-  get settings => Get.find<SettingsService>();
+  SettingsService get settings => Get.find<SettingsService>();
 
   @override
   Widget build(BuildContext context) {

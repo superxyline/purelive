@@ -144,7 +144,7 @@ class VideoController with ChangeNotifier {
     initPagesConfig();
   }
 
-  initPagesConfig() {
+  void initPagesConfig() {
     if (allowScreenKeepOn) WakelockPlus.enable();
     initVideoController();
     initDanmaku();
@@ -253,7 +253,7 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  refreshView() {
+  void refreshView() {
     refreshCompleted.updateValueNotEquate(false);
     Timer(const Duration(microseconds: 200), () async {
       await resetScreenBrightness();
@@ -316,9 +316,9 @@ class VideoController with ChangeNotifier {
   @override
   void dispose() async {
     if (hasDestory == false) {
+      hasDestory == true;
       await destory();
     }
-
     super.dispose();
   }
 
@@ -351,7 +351,7 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  destory() async {
+  Future<void> destory() async {
     resetScreenBrightness();
     disposeAllStream();
     // danmakuController.disable();

@@ -18,6 +18,7 @@ class SiteWidget {
   /// 获取站点 logo Image
   static Widget getSiteLogo(Site site) {
     return ExtendedImage.asset(
+      // key: ValueKey(site.id),
       site.logo,
       width: logoWidth,
       // cacheWidth: logoWidth.toInt(),
@@ -35,6 +36,7 @@ class SiteWidget {
   /// 获取站点 Tab
   static Tab getSiteTab(Site site) {
     return Tab(
+      // key: ValueKey(site.id),
       text: Sites.getSiteName(site.id),
       iconMargin: const EdgeInsets.all(0),
       icon: getSiteLogeImage(site.id),
@@ -51,7 +53,7 @@ class SiteWidget {
     return Sites().availableSites().map((site) => getSiteTab(site)).toList();
   }
 
-  static List<Widget> getAvailableSites({containsAll = false}) {
+  static List<Widget> getAvailableSites({bool containsAll = false}) {
     if (containsAll) {
       return availableSitesWithAllTabList;
     }

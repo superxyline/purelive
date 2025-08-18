@@ -201,7 +201,7 @@ class CCDanmaku implements LiveDanmaku {
     }
   }
 
-  void joinRoom(args) {
+  void joinRoom(dynamic args) {
     // 先注册信息
     webScoketUtils?.sendMessage(getReg());
 

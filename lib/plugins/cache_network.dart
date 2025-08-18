@@ -51,7 +51,7 @@ class CacheNetWorkUtils {
   }
 
   /// 圆形头像
-  static getCircleAvatar2(
+  static CircleAvatar getCircleAvatar2(
     String? avatar, {
     double radius = 17,
   }) {
@@ -63,12 +63,12 @@ class CacheNetWorkUtils {
   }
 
   /// 圆形头像
-  static getCircleAvatar(
+  static Widget getCircleAvatar(
     String? avatar, {
     double radius = 17,
   }) {
     if (avatar == null) {
-      return null;
+      return Container();
     }
     return CircleAvatar(radius: radius, child: getCacheImageV2(avatar, radius: radius, fit: BoxFit.fitWidth, shape: BoxShape.circle, cacheWidth: 60));
   }
@@ -84,12 +84,14 @@ class CacheNetWorkUtils {
   }) {
     if (imageUrl == null || imageUrl.isEmpty) {
       return const SizedBox(
+        // key: ValueKey("getCacheImageV2_outlined"),
         child: Icon(
           Icons.image_not_supported_outlined,
         ),
       );
     }
     return ExtendedImage.network(
+      // key: ValueKey(imageUrl),
       proxyImageUrl(imageUrl),
       cache: true,
       fit: fit,

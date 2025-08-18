@@ -115,7 +115,7 @@ class KuaishowDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-  void joinRoom(joinData) {
+  void joinRoom(dynamic joinData) {
     danmakuArgs = joinData as KuaishowDanmakuArgs;
     var csWebEnterRoom = CSWebEnterRoom();
     var payload = CSWebEnterRoom_Payload();
@@ -157,7 +157,7 @@ class KuaishowDanmaku implements LiveDanmaku {
   }
 
   void decodeMessageStr(String data) {
-    CoreLog.w("decodeMessageStr: ${data}");
+    CoreLog.w("decodeMessageStr: $data");
   }
 
   void decodeMessage(List<int> data) {

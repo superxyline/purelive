@@ -47,7 +47,7 @@ class IptvUtils {
     return await rootBundle.loadString(assetsPath);
   }
 
-  static Future<List<M3uItem>> readCategoryItems(filePath) async {
+  static Future<List<M3uItem>> readCategoryItems(String filePath) async {
     List<M3uItem> list = [];
     try {
       final m3uList = await M3uList.loadFromFile(filePath);

@@ -52,7 +52,7 @@ class CustomCache {
   }
 
   /// 获取缓存目录
-  Future<Directory> getCacheDirectory({var partPath = ""}) async {
+  Future<Directory> getCacheDirectory({String partPath = ""}) async {
     var baseDir = await getTemporaryDirectory();
     if (partPath.isNotEmpty) {
       baseDir = Directory("${baseDir.path}/$partPath");
@@ -60,7 +60,7 @@ class CustomCache {
     return baseDir;
   }
 
-  Future<Null> deleteCacheDirectory({var partPath = ""}) async {
+  Future<Null> deleteCacheDirectory({String partPath = ""}) async {
     return FileUtil.deleteDirectory(await getCacheDirectory(partPath: partPath));
   }
 
@@ -74,7 +74,7 @@ class CustomCache {
   }
 
   /// 删除过期缓存文件
-  Future<Null> deleteCacheFile({var partPath = "", int millisecond = 24 * 60 * 60 * 1000}) async {
+  Future<Null> deleteCacheFile({String partPath = "", int millisecond = 24 * 60 * 60 * 1000}) async {
     var dateTime = DateTime.timestamp();
     var deleteMillisecond = dateTime.millisecondsSinceEpoch - millisecond;
     return FileUtil.deleteFile(await getCacheDirectory(partPath: partPath), deleteMillisecond);

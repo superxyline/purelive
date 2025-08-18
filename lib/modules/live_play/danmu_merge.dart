@@ -21,7 +21,7 @@ class DanmuMerge {
     refreshList();
   }
 
-  refreshList() {
+  void refreshList() {
     var dateTime = DateTime.now();
     _msgList = _msgList.where((element) => dateTime.difference(element.dateTime).inSeconds <= 20).toList();
   }

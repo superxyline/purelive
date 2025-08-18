@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/danmaku_content_item.dart';
 
 class Utils {
-  static generateParagraph(DanmakuContentItem content, double danmakuWidth,
+  static ui.Paragraph generateParagraph(DanmakuContentItem content, double danmakuWidth,
       double fontSize, int fontWeight) {
     final ui.ParagraphBuilder builder = ui.ParagraphBuilder(ui.ParagraphStyle(
       textAlign: TextAlign.left,
@@ -19,7 +19,7 @@ class Utils {
       ..layout(ui.ParagraphConstraints(width: danmakuWidth));
   }
 
-  static generateStrokeParagraph(DanmakuContentItem content,
+  static ui.Paragraph generateStrokeParagraph(DanmakuContentItem content,
       double danmakuWidth, double fontSize, int fontWeight) {
     final Paint strokePaint = Paint()
       ..style = PaintingStyle.stroke

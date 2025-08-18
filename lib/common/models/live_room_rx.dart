@@ -41,7 +41,7 @@ class LiveRoomRx {
   Rx<String?> recordWatching = ''.obs;
 
   /// 更新内部数据
-  updateByLiveRoom(LiveRoom liveRoom) {
+  void updateByLiveRoom(LiveRoom liveRoom) {
     liveRoomToRx(liveRoom, this);
   }
 

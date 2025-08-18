@@ -71,7 +71,7 @@ class SettingsPage extends GetView<SettingsService> {
                 title: Text(S.current.enable_background_play),
                 subtitle: Text(S.current.enable_background_play_subtitle),
                 value: controller.enableBackgroundPlay.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
               )),
           if (Platform.isAndroid)
@@ -79,21 +79,21 @@ class SettingsPage extends GetView<SettingsService> {
                   title: Text(S.current.auto_rotate_screen),
                   subtitle: Text(S.current.auto_rotate_screen_info),
                   value: controller.enableRotateScreenWithSystem.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.enableRotateScreenWithSystem.value = value,
                 )),
           Obx(() => SwitchListTile(
                 title: Text(S.current.enable_screen_keep_on),
                 subtitle: Text(S.current.enable_screen_keep_on_subtitle),
                 value: controller.enableScreenKeepOn.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.current.enable_fullscreen_default),
                 subtitle: Text(S.current.enable_fullscreen_default_subtitle),
                 value: controller.enableFullScreenDefault.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
               )),
           SettingsListItem(
@@ -106,21 +106,21 @@ class SettingsPage extends GetView<SettingsService> {
                 title: Text(S.current.enable_dynamic_color),
                 subtitle: Text(S.current.enable_dynamic_color_subtitle),
                 value: controller.enableDynamicTheme.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableDynamicTheme.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.current.enable_dense_favorites_mode),
                 subtitle: Text(S.current.enable_dense_favorites_mode_subtitle),
                 value: controller.enableDenseFavorites.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableDenseFavorites.value = value,
               )),
           Obx(() => SwitchListTile(
                 title: Text(S.current.enable_auto_check_update),
                 subtitle: Text(S.current.enable_auto_check_update_subtitle),
                 value: controller.enableAutoCheckUpdate.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
               )),
           SettingsListItem(
@@ -152,7 +152,7 @@ class SettingsPage extends GetView<SettingsService> {
             Obx(() => SwitchListTile(
                   title: Text(S.current.double_click_to_exit),
                   value: controller.doubleExit.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.doubleExit.value = value,
                 )),
           // if (Platform.isAndroid)
@@ -166,7 +166,7 @@ class SettingsPage extends GetView<SettingsService> {
             Obx(() => SwitchListTile(
                   title: Text(S.current.enable_codec),
                   value: controller.enableCodec.value,
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                   onChanged: (bool value) => controller.enableCodec.value = value,
                 )),
           if (Platform.isAndroid)

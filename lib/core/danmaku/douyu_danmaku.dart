@@ -49,7 +49,7 @@ class DouyuDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-  void joinRoom(roomId) {
+  void joinRoom(String roomId) {
     webScoketUtils?.sendMessage(serializeDouyu("type@=loginreq/roomid@=$roomId/"));
     webScoketUtils?.sendMessage(serializeDouyu("type@=joingroup/rid@=$roomId/gid@=-9999/"));
   }

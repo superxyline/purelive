@@ -4,7 +4,6 @@ import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
 
 import '../base/base_controller.dart';
@@ -32,7 +31,7 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
   bool get wantKeepAlive => true;
 
   void onListenerPosition(){
-    CoreLog.d("onListenerPosition: ${scrollController.position}");
+    // CoreLog.d("onListenerPosition: ${scrollController.position}");
     if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
       if(widget.pageController.canLoadMore.isTrue) {
         EasyThrottle.throttle('scroll-refresh-throttler', const Duration(milliseconds: 200), () {

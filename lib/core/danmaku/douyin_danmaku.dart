@@ -136,7 +136,7 @@ class DouyinDanmaku implements LiveDanmaku {
     webScoketUtils?.sendMessage(obj.writeToBuffer());
   }
 
-  void decodeMessage(args) {
+  void decodeMessage(dynamic args) {
     // CoreLog.i(args.toString());
 
     var wssPackage = PushFrame.fromBuffer(args);
@@ -220,7 +220,7 @@ class DouyinDanmaku implements LiveDanmaku {
     );
   }
 
-  void sendAck(var logId, String internalExt) {
+  void sendAck(dynamic logId, String internalExt) {
     var obj = PushFrame();
     obj.payloadType = 'ack';
     obj.logId = logId;
@@ -228,7 +228,7 @@ class DouyinDanmaku implements LiveDanmaku {
     webScoketUtils?.sendMessage(obj.writeToBuffer());
   }
 
-  void joinRoom(args) {
+  void joinRoom(dynamic args) {
     var obj = PushFrame();
     obj.payloadType = 'hb';
     webScoketUtils?.sendMessage(obj.writeToBuffer());

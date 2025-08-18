@@ -34,7 +34,7 @@ class SupaBaseManager {
     );
   }
 
-  signOut() {
+  void signOut() {
     client.auth.signOut().then((value) {
       Get.offAllNamed(RoutePath.kInitial);
     });

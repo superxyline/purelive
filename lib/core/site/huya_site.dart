@@ -460,7 +460,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
     return result["data"]["uid"].toString();
   }
 
-  String getUUid(cookie, streamName) {
+  String getUUid(String cookie, String streamName) {
     return getUid(cookie, streamName).toString();
   }
 
@@ -490,7 +490,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
 
   String processAnticode(String anticode, String streamName) {
     var query = Uri.splitQueryString(anticode);
-    final uid = int.parse(getUUid(SettingsService.instance.siteCookies[id], streamName));
+    final uid = int.parse(getUUid(SettingsService.instance.siteCookies[id] ?? "", streamName));
     query["ctype"] = "huya_live";
     query["t"] = "100";
 

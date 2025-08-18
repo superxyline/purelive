@@ -4,7 +4,7 @@ import 'package:pure_live/common/base/base_controller.dart';
 
 class HotAreasController extends BaseController {
   final SettingsService settingsController = Get.find<SettingsService>();
-  final sites = [].obs;
+  final sites = <HotAreasModel>[].obs;
   @override
   void onInit() {
     for (var element in Sites.supportSites) {
@@ -17,7 +17,7 @@ class HotAreasController extends BaseController {
 
   Color get themeColor => HexColor(settingsController.themeColorSwitch.value);
 
-  void onChanged(id, value) {
+  void onChanged(String id, bool value) {
     var index = sites.map((element) => element.id).toList().indexWhere((note) => note == id);
     HotAreasModel origin = sites[index];
     sites.removeAt(index);

@@ -56,6 +56,7 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
     return isFavorite
         ? FloatingActionButton(
       key: UniqueKey(),
+      heroTag: UniqueKey(),
       elevation: 2,
       backgroundColor: Theme
           .of(context)

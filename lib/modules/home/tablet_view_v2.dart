@@ -36,6 +36,7 @@ class HomeTabletViewV2 extends GetView<HomeController> {
                           icon: const Icon(Icons.link)),
                     ),
                     FloatingActionButton(
+                      key: UniqueKey(),
                       heroTag: UniqueKey(),
                       elevation: 0,
                       onPressed: () {

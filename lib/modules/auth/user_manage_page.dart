@@ -57,7 +57,7 @@ class _UserManagerState extends State<UserManager> {
     });
   }
 
-  removeUser(email, index) {
+  void removeUser(String email, int index) {
     SupaBaseManager()
         .client
         .from(SupaBaseManager.supabasePolicy.checkTable)

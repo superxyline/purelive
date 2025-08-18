@@ -5,15 +5,13 @@ Future<void> register(String scheme) async {
   String appPath = Platform.resolvedExecutable;
 
   String protocolRegKey = 'Software\\Classes\\$scheme';
-  RegistryValue protocolRegValue = const RegistryValue(
+  RegistryValue protocolRegValue = const RegistryValue.string(
     'URL Protocol',
-    RegistryValueType.string,
     '',
   );
   String protocolCmdRegKey = 'shell\\open\\command';
-  RegistryValue protocolCmdRegValue = RegistryValue(
+  RegistryValue protocolCmdRegValue = RegistryValue.string(
     '',
-    RegistryValueType.string,
     '"$appPath" "%1"',
   );
 
@@ -22,7 +20,7 @@ Future<void> register(String scheme) async {
   regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
 }
 
-initRefresh() {
+void initRefresh() {
   EasyRefresh.defaultHeaderBuilder = () => const ClassicHeader(
         armedText: '松开加载',
         dragText: '上拉刷新',

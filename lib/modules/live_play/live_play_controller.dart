@@ -522,7 +522,7 @@ class LivePlayController extends StateController {
     return false;
   }
 
-  disPoserPlayer() {
+  void disPoserPlayer() {
     try {
       ListenListUtil.clearStreamSubscriptionList(subscriptionList.where((e) => e != null).map((e) => e!).toList());
       videoController?.dispose();
@@ -546,7 +546,7 @@ class LivePlayController extends StateController {
     }
   }
 
-  handleCurrentLineAndQuality({
+  void handleCurrentLineAndQuality({
     ReloadDataType reloadDataType = ReloadDataType.refreash,
     int line = 0,
     bool active = false,
@@ -562,7 +562,7 @@ class LivePlayController extends StateController {
     }
   }
 
-  restoryQualityAndLines() {
+  void restoryQualityAndLines() {
     // playUrls.updateValueNotEquate([];
     currentLineIndex.updateValueNotEquate(0);
     // qualites.updateValueNotEquate([];
@@ -841,13 +841,18 @@ class LivePlayController extends StateController {
     } catch (e) {
       // [Player] has been disposed
       videoController?.dispose();
-      videoController?.hasDestory = true;
       // log(e.toString());
       CoreLog.error(e);
     }
     // log("playUrls ${playUrls.value}", name: runtimeType.toString());
     // log("currentLineIndex : $currentLineIndex", name: runtimeType.toString());
     // log("current play url : ${playUrls.value[currentLineIndex.value]}", name: runtimeType.toString());
+    try{
+      videoController?.dispose();
+      videoController == null;
+    }catch(e) {
+      CoreLog.error(e);
+    }
     if (videoController == null || videoController!.hasDestory) {
       videoController = VideoController(
         livePlayController: this,
@@ -900,7 +905,7 @@ class LivePlayController extends StateController {
     });
   }
 
-  openNaviteAPP() async {
+  Future<void> openNaviteAPP() async {
     var liveRoom = liveRoomRx.toLiveRoom();
     var jumpToNativeUrl = currentSite.liveSite.getJumpToNativeUrl(liveRoom);
     var jumpToWebUrl = currentSite.liveSite.getJumpToWebUrl(liveRoom);

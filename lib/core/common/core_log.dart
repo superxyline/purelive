@@ -66,7 +66,7 @@ class CoreLog {
 
   static const String splitToken =
       '======================================================================';
-  static Future<void> error(e) async {
+  static Future<void> error(dynamic e) async {
     onPrintLog?.call(Level.error, e.toString());
     logger.e(
       "${DateTime.now().toString()} - ${getFunctionName()}\n${e.toString()}",

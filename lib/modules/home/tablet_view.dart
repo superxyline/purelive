@@ -42,6 +42,7 @@ class HomeTabletView extends StatelessWidget {
                                 icon: const Icon(Icons.link)),
                           ),
                           FloatingActionButton(
+                            key: UniqueKey(),
                             heroTag: UniqueKey(),
                             elevation: 0,
                             onPressed: () {

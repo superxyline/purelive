@@ -82,7 +82,7 @@ class WebScoketUtils {
         connect(retry: true);
         return;
       }
-      onError(e, e);
+      onError(e, e.toString());
     }
   }
 
@@ -115,7 +115,7 @@ class WebScoketUtils {
     onMessage?.call(data);
   }
 
-  void onError(e, s) {
+  void onError(dynamic e, String s) {
     status = SocketStatus.failed;
     onClose?.call(e.toString());
   }

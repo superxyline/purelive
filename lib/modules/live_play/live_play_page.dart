@@ -37,7 +37,7 @@ class LivePlayPage extends GetView<LivePlayController> {
   }
 
   /// 顶部左边的UI
-  buildTableTarLeft() {
+  Row buildTableTarLeft() {
     return Row(children: [
       /// 头像
       CacheNetWorkUtils.getCircleAvatar(controller.liveRoomRx.avatar.value, radius: 20),
@@ -504,6 +504,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
     return Obx(() => controller.isFavorite.value
         ? FloatingActionButton(
             key: UniqueKey(),
+            heroTag: UniqueKey(),
             elevation: 2,
             backgroundColor: Theme.of(context).cardColor,
             tooltip: S.current.unfollow,

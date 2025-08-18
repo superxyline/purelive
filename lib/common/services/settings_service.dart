@@ -185,7 +185,7 @@ class SettingsService  extends GetxController with AutoShutDownMixin, SettingBit
 
   final themeModeName = (PrefUtil.getString('themeMode') ?? "System").obs;
 
-  get themeMode => SettingsService.themeModes[themeModeName.value]!;
+  ThemeMode get themeMode => SettingsService.themeModes[themeModeName.value]!;
 
   void changeThemeMode(String mode) {
     themeModeName.value = mode;
@@ -237,7 +237,7 @@ class SettingsService  extends GetxController with AutoShutDownMixin, SettingBit
 
   final webPortEnable = (PrefUtil.getBool('webPortEnable') ?? false).obs;
 
-  get language => SettingsService.languages[languageName.value]!;
+  Locale get language => SettingsService.languages[languageName.value]!;
 
   Future<void> changeLanguage(String value) async {
     languageName.value = value;
@@ -327,7 +327,7 @@ class SettingsService  extends GetxController with AutoShutDownMixin, SettingBit
     }
   }
 
-  void changeWebListen(port, enable) {
+  void changeWebListen(int port, bool enable) {
     try {
       if (enable) {
         // LocalHttpServer().startServer(port);
@@ -594,7 +594,7 @@ class SettingsService  extends GetxController with AutoShutDownMixin, SettingBit
     return true;
   }
 
-  setBilibiliCookit(cookie) {
+  void setBilibiliCookit(String cookie) {
     final BiliBiliAccountService biliAccountService = Get.find<BiliBiliAccountService>();
     if (biliAccountService.cookie.isEmpty || biliAccountService.uid == 0) {
       biliAccountService.resetCookie(cookie);
@@ -712,7 +712,7 @@ class SettingsService  extends GetxController with AutoShutDownMixin, SettingBit
     return json;
   }
 
-  defaultConfig() {
+  Map<String, dynamic> defaultConfig() {
     Map<String, dynamic> json = {
       "favoriteRooms": [],
       "favoriteAreas": [],

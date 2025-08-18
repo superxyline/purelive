@@ -18,7 +18,7 @@ import 'package:pure_live/plugins/global.dart';
 class FlutterCatchError {
   static Catcher2? catcher2;
 
-  static run(Widget app, List<String> args) async {
+  static Future<void> run(Widget app, List<String> args) async {
     ///Flutter 框架异常
     FlutterError.onError = (FlutterErrorDetails details) async {
       ///TODO 线上环境
@@ -108,7 +108,7 @@ class FlutterCatchError {
   }
 
   ///对搜集的 异常进行处理  上报等等
-  static catchError(Object error, StackTrace stack) {
+  static void catchError(Object error, StackTrace stack) {
     if (kDebugMode) {
       print("AppCatchError>>>>>>>>>>: $kReleaseMode"); //是否是 Release版本
       print('APP出现异常  message:$error,stackTrace：$stack');

@@ -73,7 +73,7 @@ class BulletPos {
       {required this.id, required this.channel, required this.position, required this.width, required this.widget})
       : lifetime = DateTime.now().millisecondsSinceEpoch;
 
-  updateWith({required double position, double width = 0}) {
+  void updateWith({required double position, double width = 0}) {
     this.position = position;
     this.width = width > 0 ? width : this.width;
     lifetime = DateTime.now().millisecondsSinceEpoch;
@@ -139,7 +139,7 @@ class _BarrageState extends State<BarrageWall> with TickerProviderStateMixin {
     return channel;
   }
 
-  _releaseChannels() {
+  void _releaseChannels() {
 //    final now = DateTime.now().millisecondsSinceEpoch;
     for (int i = 0; i < _lastBullets.length; i++) {
       final channel = _lastBullets.keys.elementAt(i);
@@ -441,7 +441,7 @@ class BarrageWallController extends ValueNotifier<BarrageWallValue> {
   int? safeBottomHeight;
   Timer? _timer;
 
-  get isEnabled => enabledNotifier.value;
+  bool get isEnabled => enabledNotifier.value;
 
   BarrageWallController({List<Bullet>? bullets, this.timelineNotifier})
       : super(BarrageWallValue.fromList(bullets ?? const []));
@@ -492,7 +492,7 @@ class BarrageWallController extends ValueNotifier<BarrageWallValue> {
     tryFire();
   }
 
-  tryFire({List<Bullet> bullets = const []}) {
+  void tryFire({List<Bullet> bullets = const []}) {
     final key = Duration(milliseconds: timeline).inMinutes;
     final exists = value.bullets._map.containsKey(key);
 
@@ -511,17 +511,17 @@ class BarrageWallController extends ValueNotifier<BarrageWallValue> {
     }
   }
 
-  disable() {
+  void disable() {
     debugPrint("disable barrage ... current: $enabledNotifier");
     enabledNotifier.value = false;
   }
 
-  enable() {
+  void enable() {
     debugPrint("enable barrage ... current: $enabledNotifier");
     enabledNotifier.value = true;
   }
 
-  send(List<Bullet> bullets) {
+  void send(List<Bullet> bullets) {
     tryFire(bullets: bullets);
   }
 

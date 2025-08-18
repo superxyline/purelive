@@ -20,13 +20,13 @@ class DanmakuController {
   /// 是否运行中
   /// 可以调用pause()暂停弹幕
   bool get running => _running;
-  set running(e) {
+  set running(bool e) {
     _running = e;
   }
 
   DanmakuOption _option = DanmakuOption();
   DanmakuOption get option => _option;
-  set option(e) {
+  set option(DanmakuOption e) {
     _option = e;
   }
 

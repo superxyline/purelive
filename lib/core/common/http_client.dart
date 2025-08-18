@@ -69,12 +69,12 @@ class HttpClient {
   late Dio dio;
   static late rhttp.RhttpCompatibleClient compatibleClient;
 
-  static initHttp() async {
+  static Future<void> initHttp() async {
     await rhttp.Rhttp.init();
     await initHttpExt();
   }
 
-  static initHttpExt() async {
+  static Future<void> initHttpExt() async {
     compatibleClient = await rhttp.RhttpCompatibleClient.create(
         settings: rhttp.ClientSettings(
       dnsSettings: rhttp.DnsSettings.dynamic(resolver: (String host) async {
@@ -110,12 +110,12 @@ class HttpClient {
   // 最大排队请求队列
   static const maxCancelTokenLen = 20;
 
-  static getCancelTokenKey() {
+  static int getCancelTokenKey() {
     return DateTime.now().microsecondsSinceEpoch;
   }
 
   /// 尝试取消请求
-  static tryToCancelRequest() async {
+  static Future<void> tryToCancelRequest() async {
     if (cancelTokenMap.length <= maxCancelTokenLen) {
       return;
     }

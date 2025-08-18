@@ -7,7 +7,7 @@ abstract class DanmakuControllerBase {
   /// 可以调用pause()暂停弹幕
   bool get running => _running;
 
-  set running(e) {
+  set running(bool e) {
     _running = e;
   }
 
@@ -18,7 +18,7 @@ abstract class DanmakuControllerBase {
 
   DanmakuSettingOption get option => _option;
 
-  set option(e) {
+  set option(DanmakuSettingOption e) {
     _option = e;
   }
 

@@ -107,7 +107,7 @@ class Sites {
     return S.current.all;
   }
 
-  List<Site> availableSites({containsAll = false}) {
+  List<Site> availableSites({bool containsAll = false}) {
     final SettingsService settingsService = Get.find<SettingsService>();
     if (containsAll) {
       var result = supportSites.where((element) => settingsService.hotAreasList.value.contains(element.id)).toList();

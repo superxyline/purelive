@@ -15,6 +15,7 @@ class SearchPage extends GetView<pure_live.SearchController> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: TextField(
+          key: ValueKey("Search TextField"),
           controller: controller.searchController,
           autofocus: true,
           decoration: InputDecoration(

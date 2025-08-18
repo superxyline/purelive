@@ -145,7 +145,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                                                 value: currentVolume,
                                                 backgroundColor: Colors.white38,
                                                 valueColor: AlwaysStoppedAnimation(
-                                                  Theme.of(context).indicatorColor,
+                                                  Theme.of(context).tabBarTheme.indicatorColor,
                                                 ),
                                               ),
                                             ),
@@ -692,7 +692,7 @@ class BrightnessVolumeDargAreaState extends State<BrightnessVolumeDargArea> {
                             value: _updateDargVarVal,
                             backgroundColor: Colors.white38,
                             valueColor: AlwaysStoppedAnimation(
-                              Theme.of(context).indicatorColor,
+                              Theme.of(context).tabBarTheme.indicatorColor,
                             ),
                           ),
                         ),
@@ -808,10 +808,10 @@ class PlayPauseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => controller.togglePlayPause(),
-      child: Obx(() => Container(
+      child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(12),
-            child: Icon(
+            child: Obx(() => Icon(
               controller.videoPlayer.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
               color: Colors.white,
             ),
@@ -848,12 +848,12 @@ class ScreenToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => GestureDetector(
+    return GestureDetector(
           onTap: () => controller.isVertical.value ? controller.setLandscapeOrientation() : controller.setPortraitOrientation(),
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(12),
-            child: Icon(
+            child: Obx(() => Icon(
               controller.isVertical.value ? Icons.crop_landscape : Icons.crop_portrait,
               color: Colors.white,
             ),
@@ -971,7 +971,7 @@ class FavoriteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => GestureDetector(
+    return GestureDetector(
           onTap: () {
             if (isFavorite.value) {
               settings.removeRoom(controller.room);
@@ -984,7 +984,7 @@ class FavoriteButton extends StatelessWidget {
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(12),
-            child: Icon(
+            child: Obx(() => Icon(
               !isFavorite.value ? Icons.favorite_outline_outlined : Icons.favorite_rounded,
               color: Colors.white,
             ),
