@@ -5,13 +5,15 @@ Future<void> register(String scheme) async {
   String appPath = Platform.resolvedExecutable;
 
   String protocolRegKey = 'Software\\Classes\\$scheme';
-  RegistryValue protocolRegValue = const RegistryValue.string(
+  RegistryValue protocolRegValue = const RegistryValue(
     'URL Protocol',
+    RegistryValueType.string,
     '',
   );
   String protocolCmdRegKey = 'shell\\open\\command';
-  RegistryValue protocolCmdRegValue = RegistryValue.string(
+  RegistryValue protocolCmdRegValue = RegistryValue(
     '',
+    RegistryValueType.string,
     '"$appPath" "%1"',
   );
 
