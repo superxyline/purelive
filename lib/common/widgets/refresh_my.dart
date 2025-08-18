@@ -4,6 +4,8 @@ import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/modules/util/listen_list_util.dart';
 
 import '../base/base_controller.dart';
 import '../l10n/generated/l10n.dart';
@@ -29,30 +31,45 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
   @override
   bool get wantKeepAlive => true;
 
+  void onListenerPosition(){
+    CoreLog.d("onListenerPosition: ${scrollController.position}");
+    if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+      if(widget.pageController.canLoadMore.isTrue) {
+        EasyThrottle.throttle('scroll-refresh-throttler', const Duration(milliseconds: 200), () {
+          widget.pageController.loadData();
+        });
+      }
+    }
+    final ScrollDirection direction = scrollController.position.userScrollDirection;
+    if (direction == ScrollDirection.forward) {
+    } else if (direction == ScrollDirection.reverse) {}
+  }
+
+  var streamSubscriptionListenList = <StreamSubscription>[];
   @override
   void initState() {
     super.initState();
     scrollController = widget.pageController.scrollController;
 
-    scrollController.addListener(
-      () {
-        if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
-          if(widget.pageController.canLoadMore.isTrue) {
-            EasyThrottle.throttle('scroll-refresh-throttler', const Duration(milliseconds: 200), () {
-              widget.pageController.loadData();
-            });
-          }
-        }
-        final ScrollDirection direction = scrollController.position.userScrollDirection;
-        if (direction == ScrollDirection.forward) {
-        } else if (direction == ScrollDirection.reverse) {}
-      },
-    );
+    scrollController.addListener(onListenerPosition);
+    initScrollController();
+  }
+
+  void initScrollController(){
+    Future.delayed(
+        const Duration(milliseconds: 200), () {
+      if (scrollController.hasClients) {
+        onListenerPosition();
+        return;
+      }
+      initScrollController();
+    });
   }
 
   @override
   void dispose() {
-    scrollController.removeListener(() {});
+    scrollController.removeListener(onListenerPosition);
+    ListenListUtil.clearStreamSubscriptionList(streamSubscriptionListenList);
     super.dispose();
   }
 
