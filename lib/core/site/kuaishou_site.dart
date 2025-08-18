@@ -374,7 +374,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
         var defaultDanmakuArgs = KuaishowDanmakuArgs(
             url: "wss://live-ws-group4.kuaishou.com/websocket",
             token: "tcv4u8PpI34PDJQTe39jatCeZ0yRpsqECaReAkXttFeGkL7M66BIwQGpjiKrsWcv15cWPRAEjbNKkqh+ua/jWGbQqLrDDRYEYPbAvZX0JdMMCuBj4dnaYRaci0rSeWng7l2C+5y4lhLWp0QpHswvQkt5gZfydzCwGgyV+Zftey+F24NcyIejkftzWNcgGc4m3cKqW8d0C4xgdfjF+bXJlA==",
-            liveStreamId: liveStreamId,
+            liveStreamId: liveStreamId ?? "",
             expTag: liveStream["expTag"] ?? "");
         try {
           // var websocketInfo = jsonObj["liveroom"]["playList"][0]["websocketInfo"];
