@@ -61,6 +61,7 @@ class SoopDanmaku implements LiveDanmaku {
     var mHeaders = liveSite.getHeaders();
 
     // final wsUrl = 'wss://${liveInfo.chDomain}:${liveInfo.chpt}/Websocket/$bid';
+    CoreLog.d("args: ${json.encode(args)}");
     webScoketUtils = WebScoketUtils(
       url: danmakuArgs.url,
       heartBeatTime: heartbeatTime,

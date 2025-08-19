@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/services/settings_service.dart';
@@ -7,6 +8,7 @@ import 'package:pure_live/core/site/iptv_site.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
 import 'package:pure_live/core/site/soop_site.dart';
 
+import '../generated/iconfont.dart';
 import 'interface/live_site.dart';
 import 'site/douyin_site.dart';
 import 'site/douyu_site.dart';
@@ -28,49 +30,56 @@ class Sites {
       name: "哔哩",
       logo: "assets/images/bilibili_2.png",
       liveSite: BiliBiliSite(),
+      iconData: IconFont.iconBilibiliSquare,
     ),
     Site(
       id: douyuSite,
       name: "斗鱼",
       logo: "assets/images/douyu.png",
       liveSite: DouyuSite(),
+      iconData: IconFont.douyu,
     ),
     Site(
       id: huyaSite,
       name: "虎牙",
       logo: "assets/images/huya.png",
       liveSite: HuyaSite(),
+      iconData: IconFont.huyaxianxing,
     ),
     Site(
       id: douyinSite,
       name: "抖音",
       logo: "assets/images/douyin.png",
       liveSite: DouyinSite(),
+      iconData: IconFont.douyin,
     ),
     Site(
       id: kuaishouSite,
       name: "快手",
       logo: "assets/images/kuaishou.png",
       liveSite: KuaishowSite(),
+      iconData: IconFont.kuaishou,
     ),
     Site(
       id: ccSite,
       name: "网易CC",
       logo: "assets/images/cc.png",
       liveSite: CCSite(),
+      iconData: IconFont.creativeCommons,
     ),
     Site(
       id: soopSite,
       name: "SOOP",
       logo: "assets/images/soop.png",
       liveSite: SoopSite(),
+      iconData: IconFont.soopLogo,
     ),
-
     Site(
       id: iptvSite,
       name: "网络",
       logo: "assets/images/iptv.png",
       liveSite: IptvSite(),
+      iconData: IconFont.dianshi,
     ),
   ];
 
@@ -134,11 +143,13 @@ class Site {
   final String name;
   final String logo;
   final LiveSite liveSite;
+  IconData? iconData;
 
   Site({
     required this.id,
     required this.liveSite,
     required this.logo,
     required this.name,
+    this.iconData,
   });
 }

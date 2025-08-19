@@ -17,6 +17,10 @@ class SiteWidget {
 
   /// 获取站点 logo Image
   static Widget getSiteLogo(Site site) {
+    var iconData = site.iconData;
+    if(iconData != null) {
+      return Icon(iconData, color: Colors.red,);
+    }
     return ExtendedImage.asset(
       // key: ValueKey(site.id),
       site.logo,

@@ -267,8 +267,12 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
-    - assets/images/
+    - assets/
+    - assets/fonts/
     - assets/icons/
+    - assets/images/
+    - assets/js/
+    - assets/keystore/
     - assets/keystore/supabase.json
     # - assets/pure_live_web/
     - assets/js/webmssdk.js
@@ -301,6 +305,9 @@ flutter:
     - family: PingFang
       fonts:
         - asset: assets/PingFangSC.ttf
+    - family: ComIcon
+      fonts:
+        - asset: assets/fonts/iconfont.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
