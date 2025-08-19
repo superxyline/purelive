@@ -1815,6 +1815,11 @@ class S {
     return Intl.message('All', name: 'all', desc: '', args: []);
   }
 
+  /// `Soop`
+  String get soop {
+    return Intl.message('Soop', name: 'soop', desc: '', args: []);
+  }
+
   /// `Not Login`
   String get login_not {
     return Intl.message('Not Login', name: 'login_not', desc: '', args: []);

@@ -381,6 +381,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_videofit_title": MessageLookupByLibrary.simpleMessage("比例设置"),
     "show": MessageLookupByLibrary.simpleMessage("显示"),
     "show_offline_rooms": MessageLookupByLibrary.simpleMessage("显示未直播的直播间"),
+    "soop": MessageLookupByLibrary.simpleMessage("Soop"),
     "success": MessageLookupByLibrary.simpleMessage("成功"),
     "supabase_back_sign_in": MessageLookupByLibrary.simpleMessage("返回登录"),
     "supabase_enter_email": MessageLookupByLibrary.simpleMessage("请输入邮箱地址"),

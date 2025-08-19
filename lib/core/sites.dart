@@ -5,6 +5,7 @@ import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/core/site/cc_site.dart';
 import 'package:pure_live/core/site/iptv_site.dart';
 import 'package:pure_live/core/site/kuaishou_site.dart';
+import 'package:pure_live/core/site/soop_site.dart';
 
 import 'interface/live_site.dart';
 import 'site/douyin_site.dart';
@@ -20,6 +21,7 @@ class Sites {
   static const String kuaishouSite = "kuaishou";
   static const String ccSite = "cc";
   static const String iptvSite = "iptv";
+  static const String soopSite = "soop";
   static List<Site> supportSites = [
     Site(
       id: bilibiliSite,
@@ -57,6 +59,13 @@ class Sites {
       logo: "assets/images/cc.png",
       liveSite: CCSite(),
     ),
+    Site(
+      id: soopSite,
+      name: "SOOP",
+      logo: "assets/images/soop.png",
+      liveSite: SoopSite(),
+    ),
+
     Site(
       id: iptvSite,
       name: "网络",
@@ -103,6 +112,8 @@ class Sites {
         return S.current.cc;
       case iptvSite:
         return S.current.iptv;
+      case soopSite:
+        return S.current.soop;
     }
     return S.current.all;
   }

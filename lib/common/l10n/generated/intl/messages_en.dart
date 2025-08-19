@@ -543,6 +543,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "show_offline_rooms": MessageLookupByLibrary.simpleMessage(
       "Show Offline Rooms",
     ),
+    "soop": MessageLookupByLibrary.simpleMessage("Soop"),
     "success": MessageLookupByLibrary.simpleMessage("Success"),
     "supabase_back_sign_in": MessageLookupByLibrary.simpleMessage(
       "Back to sign in",
