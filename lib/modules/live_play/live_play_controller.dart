@@ -406,6 +406,15 @@ class LivePlayController extends StateController {
     });
   }
 
+  /// 获取信息出错
+  void getInfoError(String mgs){
+    SmartDialog.showToast(mgs, displayTime: const Duration(seconds: 2));
+    liveStatus.updateValueNotEquate(false);
+    hasError.updateValueNotEquate(true);
+    isLoadingVideo.updateValueNotEquate(false);
+    getVideoSuccess.updateValueNotEquate(false);
+  }
+
   Future<LiveRoom> onInitPlayerState({
     ReloadDataType reloadDataType = ReloadDataType.refreash,
     int line = 0,
@@ -418,12 +427,18 @@ class LivePlayController extends StateController {
     var liveRoom = liveRoomRx.toLiveRoom();
     // 只有第一次需要重新配置信息
     if (isFirstLoad.value) {
-      liveRoom = await currentSite.liveSite.getRoomDetail(
-        roomId: liveRoom.roomId!,
-        platform: liveRoom.platform!,
-        title: liveRoom.title!,
-        nick: liveRoom.nick!,
-      );
+      try {
+        liveRoom = await currentSite.liveSite.getRoomDetail(
+          roomId: liveRoom.roomId!,
+          platform: liveRoom.platform!,
+          title: liveRoom.title!,
+          nick: liveRoom.nick!,
+        );
+      } catch(e){
+        CoreLog.error(e);
+        getInfoError("$e");
+        return liveRoom;
+      }
       isFavorite.updateValueNotEquate(settings.isFavorite(liveRoom));
       liveRoomRx.updateByLiveRoom(liveRoom);
       // liveRoomRx = liveRoom;
@@ -456,7 +471,13 @@ class LivePlayController extends StateController {
       // 开始播放
       liveStatus.updateValueNotEquate(liveRoomRx.liveStatus.value != LiveStatus.unknown && liveRoomRx.liveStatus.value != LiveStatus.offline);
       if (liveStatus.value) {
-        await getPlayQualites();
+        try {
+          await getPlayQualites();
+        } catch(e) {
+          CoreLog.error(e);
+          getInfoError("获取清晰度失败");
+          return liveRoom;
+        }
         getVideoSuccess.updateValueNotEquate(true);
         if (liveRoomRx.platform.value == Sites.iptvSite) {
           settings.addRoomToHistory(liveRoomRx.toLiveRoom());
@@ -765,7 +786,13 @@ class LivePlayController extends StateController {
     var quality = qualites[currentQuality.value];
     var playUrlList = quality.playUrlList;
     if (playUrlList.isNullOrEmpty) {
-      playUrlList = await currentSite.liveSite.getPlayUrls(detail: liveRoomRx.toLiveRoom(), quality: qualites[currentQuality.value]);
+      try {
+        playUrlList = await currentSite.liveSite.getPlayUrls(detail: liveRoomRx.toLiveRoom(), quality: qualites[currentQuality.value]);
+      } catch(e) {
+        CoreLog.error(e);
+        getInfoError("无法读取播放地址");
+        return;
+      }
       quality.playUrlList = playUrlList;
     }
     if (playUrlList.isNullOrEmpty) {
