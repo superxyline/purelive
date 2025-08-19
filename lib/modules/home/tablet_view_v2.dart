@@ -12,7 +12,7 @@ class HomeTabletViewV2 extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: LayoutBuilder(builder: (context, constraint) {
-        bool showAction = Get.width > 680;
+        bool showAction = constraint.maxWidth > 680;
         return SafeArea(
           child: Row(
             children: [

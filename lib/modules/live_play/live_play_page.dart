@@ -271,7 +271,7 @@ class LivePlayPage extends GetView<LivePlayController> {
               body: Builder(
                 builder: (BuildContext context) {
                   return LayoutBuilder(builder: (context, constraint) {
-                    final width = Get.width;
+                    final width = constraint.maxWidth;
                     return SafeArea(
                       child: width <= 680
                           ? Column(
