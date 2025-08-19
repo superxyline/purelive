@@ -15,7 +15,7 @@ class PopularPage extends GetView<PopularController> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      bool showAction = Get.width <= 680;
+      bool showAction = constraint.maxWidth <= 680;
       return Scaffold(
         appBar: AppBar(
           centerTitle: true,
