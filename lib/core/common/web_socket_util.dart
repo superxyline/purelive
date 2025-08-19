@@ -48,6 +48,7 @@ class WebScoketUtils {
     this.onHeartBeat,
     this.headers,
     this.backupUrl,
+    this.protocols,
   });
   IOWebSocketChannel? webSocket;
   Timer? heartBeatTimer;
@@ -61,7 +62,10 @@ class WebScoketUtils {
 
   StreamSubscription<dynamic>? streamSubscription;
 
-  void connect({bool retry = false}) async {
+  // 协议
+  Iterable<String>? protocols;
+
+  void connect({bool retry = false,}) async {
     close();
     try {
       var wsurl = url;
@@ -71,6 +75,7 @@ class WebScoketUtils {
       webSocket = IOWebSocketChannel.connect(
         wsurl,
         connectTimeout: const Duration(seconds: 10),
+        protocols: protocols,
         headers: headers,
       );
 

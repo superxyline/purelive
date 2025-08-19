@@ -64,6 +64,7 @@ class SoopDanmaku implements LiveDanmaku {
     webScoketUtils = WebScoketUtils(
       url: danmakuArgs.url,
       heartBeatTime: heartbeatTime,
+      protocols: ['chat'],
       headers: mHeaders,
       onMessage: (e) {
         try {
