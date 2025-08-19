@@ -109,6 +109,7 @@ class CacheNetWorkUtils {
             //   "assets/images/loading.gif",
             //   fit: BoxFit.fitWidth,
             // );
+            return Container(color: Colors.grey,);
             return LoadingIndicator(
               indicatorType: Indicator.ballPulse,
 
