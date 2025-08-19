@@ -6,6 +6,8 @@ import 'package:pure_live/common/services/bilibili_account_service.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
 
+import '../util/site_logo_widget.dart';
+
 class AccountPage extends GetView<AccountController> {
   const AccountPage({super.key});
 
@@ -26,11 +28,7 @@ class AccountPage extends GetView<AccountController> {
           ),
           Obx(
             () => ListTile(
-              leading: ExtendedImage.asset(
-                'assets/images/bilibili_2.png',
-                width: 36,
-                height: 36,
-              ),
+              leading: SiteWidget.getSiteLogeImage(Sites.bilibiliSite),
               title: Text(S.current.bilibili),
               subtitle: Text(BiliBiliAccountService.instance.name.value),
               trailing: BiliBiliAccountService.instance.logined.value ? const Icon(Icons.logout) : const Icon(Icons.chevron_right),
@@ -38,11 +36,7 @@ class AccountPage extends GetView<AccountController> {
             ),
           ),
           ...Sites.supportSites.where((site) => !([Sites.bilibiliSite, Sites.allSite].contains(site.id))).map((site) => ListTile(
-                leading: ExtendedImage.asset(
-                  site.logo,
-                  width: 36,
-                  height: 36,
-                ),
+                leading: SiteWidget.getSiteLogo(site),
                 title: Text("${Sites.getSiteName(site.id)} ${S.current.live}"),
                 subtitle: Text(S.current.not_supported),
                 enabled: false,

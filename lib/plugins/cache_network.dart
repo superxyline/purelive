@@ -70,7 +70,7 @@ class CacheNetWorkUtils {
     if (avatar == null) {
       return Container();
     }
-    return CircleAvatar(radius: radius, child: getCacheImageV2(avatar, radius: radius, fit: BoxFit.fitWidth, shape: BoxShape.circle, cacheWidth: 60));
+    return CircleAvatar(radius: radius, child: getCacheImageV2(avatar, radius: radius, fit: BoxFit.fitWidth, shape: BoxShape.circle, cacheWidth: 60, cacheHeight: 60));
   }
 
   static Widget getCacheImageV2(
@@ -79,8 +79,8 @@ class CacheNetWorkUtils {
     bool full = false,
     BoxFit fit = BoxFit.fitWidth,
     BoxShape? shape,
-    int? cacheWidth,
-    int? cacheHeight,
+    int? cacheWidth = 300, // 16 : 9
+    int? cacheHeight = 169,
   }) {
     if (imageUrl == null || imageUrl.isEmpty) {
       return const SizedBox(
@@ -92,7 +92,7 @@ class CacheNetWorkUtils {
     }
     return ExtendedImage.network(
       // key: ValueKey(imageUrl),
-      proxyImageUrl(imageUrl),
+      proxyImageUrl(imageUrl, width: cacheWidth, height: cacheHeight),
       cache: true,
       fit: fit,
       borderRadius: BorderRadius.all(Radius.circular(radius)),
@@ -149,9 +149,13 @@ class CacheNetWorkUtils {
     );
   }
 
-  static String proxyImageUrl(String imageUrl) {
+  static String proxyImageUrl(String imageUrl,{int? width, int? height}) {
     var encodeUrl = Uri.encodeComponent(imageUrl);
-    var proxyUrl = "https://gimg0.baidu.com/gimg/src=$encodeUrl&app=2001&n=0&g=0n&q=80&fmt=webp";
+    var sizeText = "";
+    if(width != null && height != null) {
+      sizeText="&f$width,$height";
+    }
+    var proxyUrl = "https://gimg0.baidu.com/gimg/src=$encodeUrl&app=2001&n=0&g=0n&q=80&fmt=webp$sizeText";
     return proxyUrl;
   }
 }

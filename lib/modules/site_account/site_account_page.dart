@@ -6,6 +6,8 @@ import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/modules/site_account/site_account_controller.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
+import '../util/site_logo_widget.dart';
+
 class SiteAccountPage extends GetView<SiteAccountController> {
   const SiteAccountPage({super.key});
 
@@ -27,11 +29,7 @@ class SiteAccountPage extends GetView<SiteAccountController> {
           ...Sites.supportSites.where((site) => !([Sites.iptvSite, Sites.allSite].contains(site.id))).map((site) => site.liveSite.isSupportLogin()
               ? Obx(
                   () => ListTile(
-                    leading: ExtendedImage.asset(
-                      site.logo,
-                      width: 36,
-                      height: 36,
-                    ),
+                    leading: SiteWidget.getSiteLogo(site),
                     title: Text("${Sites.getSiteName(site.id)} ${S.current.live}"),
                     subtitle: Text(site.liveSite.userName.value.getNotNullOrEmptyByDefault(S.current.login_not)),
                     trailing: site.liveSite.isLogin.value ? const Icon(Icons.logout) : const Icon(Icons.chevron_right),
@@ -41,11 +39,7 @@ class SiteAccountPage extends GetView<SiteAccountController> {
                   ),
                 )
               : ListTile(
-                  leading: ExtendedImage.asset(
-                    site.logo,
-                    width: 36,
-                    height: 36,
-                  ),
+                  leading: SiteWidget.getSiteLogo(site),
                   title: Text("${Sites.getSiteName(site.id)} ${S.current.live}"),
                   subtitle: Text(S.current.not_supported),
                   enabled: false,
