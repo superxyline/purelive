@@ -18,7 +18,7 @@ import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
 import '../../modules/util/json_util.dart';
-import '../danmaku/empty_danmaku.dart';
+import '../danmaku/soop_danmaku.dart';
 import 'soop_site_mixin.dart';
 
 class SoopSite extends LiveSite with SoopSiteMixin {
@@ -33,7 +33,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
   List<String> imageExtensions = ['svgz', 'pjp', 'png', 'ico', 'avif', 'tiff', 'tif', 'jfif', 'svg', 'xbm', 'pjpeg', 'webp', 'jpg', 'jpeg', 'bmp', 'gif'];
 
   @override
-  LiveDanmaku getDanmaku() => EmptyDanmaku();
+  LiveDanmaku getDanmaku() => SoopDanmaku();
 
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
@@ -241,6 +241,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
 
   Future<LiveRoom> getRoomDetailByWeb222({required String platform, required String roomId}) async {
     var url = "http://api.m.sooplive.co.kr/broad/a/watch";
+    var danmakuArgs = geDanmakuArgs(roomId: roomId);
     var resultText = await HttpClient.instance.postJson(
       url,
       formUrlEncoded: true,
@@ -296,7 +297,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
         platform: Sites.soopSite,
         link: jsonObj["share"]["url"],
         data: data,
-        danmakuData: null,
+        danmakuData: await danmakuArgs,
       );
     } catch (e) {
       CoreLog.error(e);
@@ -352,6 +353,42 @@ class SoopSite extends LiveSite with SoopSiteMixin {
     var jsonObj = resultText['CHANNEL'];
     var aid = jsonObj["AID"] ?? "";
     return aid;
+  }
+
+  Future<DanmakuArgs?> geDanmakuArgs({required String roomId}) async {
+    try {
+      var url = "https://live.sooplive.co.kr/afreeca/player_live_api.php";
+      var resultText = await HttpClient.instance.postJson(
+        url,
+        formUrlEncoded: true,
+        queryParameters: {
+          'bjid': roomId,
+        },
+        data: {
+          "bid": roomId,
+          "bno": "",
+          "type": "live",
+          "pwd": "",
+          "player_type": "html5",
+          "stream_type": "common",
+          "quality": "HD",
+          "mode": "landing",
+          "from_api": "0",
+          "is_revive": "false"
+        },
+        header: getHeaders(),
+      );
+      resultText = JsonUtil.decode(resultText);
+      var jsonObj = resultText['CHANNEL'];
+      var chatNo = jsonObj["CHATNO"];
+      var chatDomain = jsonObj["CHDOMAIN"];
+      var chpt = jsonObj["CHPT"];
+      final wsUrl = 'wss://$chatDomain:$chpt/Websocket/$roomId';
+      return DanmakuArgs(url: wsUrl, chatNo: chatNo);
+    } catch (e) {
+      CoreLog.error(e);
+      return null;
+    }
   }
 
   @override
