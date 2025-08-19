@@ -19,7 +19,7 @@ class SiteWidget {
   static Widget getSiteLogo(Site site) {
     var iconData = site.iconData;
     if(iconData != null) {
-      return Icon(iconData, color: Colors.red,);
+      return Icon(iconData, color: site.iconDataColor,);
     }
     return ExtendedImage.asset(
       // key: ValueKey(site.id),

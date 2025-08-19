@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/services/settings_service.dart';
@@ -30,7 +31,9 @@ class Sites {
       name: "哔哩",
       logo: "assets/images/bilibili_2.png",
       liveSite: BiliBiliSite(),
-      iconData: IconFont.iconBilibiliSquare,
+      iconData: IconFont.bilibili,
+      iconDataColor: Color(0xffd4237a),
+      // iconDataColor: Colors.blue,
     ),
     Site(
       id: douyuSite,
@@ -38,6 +41,7 @@ class Sites {
       logo: "assets/images/douyu.png",
       liveSite: DouyuSite(),
       iconData: IconFont.douyu,
+      iconDataColor: Color(0xffFE7800),
     ),
     Site(
       id: huyaSite,
@@ -45,13 +49,15 @@ class Sites {
       logo: "assets/images/huya.png",
       liveSite: HuyaSite(),
       iconData: IconFont.huyaxianxing,
+      iconDataColor: Color(0xffF49F17),
     ),
     Site(
       id: douyinSite,
       name: "抖音",
       logo: "assets/images/douyin.png",
       liveSite: DouyinSite(),
-      iconData: IconFont.douyin,
+      iconData: IconFont.douyin3Copy,
+      iconDataColor: Color(0xff2c2c2c),
     ),
     Site(
       id: kuaishouSite,
@@ -59,6 +65,7 @@ class Sites {
       logo: "assets/images/kuaishou.png",
       liveSite: KuaishowSite(),
       iconData: IconFont.kuaishou,
+      iconDataColor: Color(0xffFF4A06),
     ),
     Site(
       id: ccSite,
@@ -66,13 +73,15 @@ class Sites {
       logo: "assets/images/cc.png",
       liveSite: CCSite(),
       iconData: IconFont.creativeCommons,
+      iconDataColor: Color(0xff1980FF),
     ),
     Site(
       id: soopSite,
       name: "SOOP",
       logo: "assets/images/soop.png",
       liveSite: SoopSite(),
-      iconData: IconFont.soopLogo,
+      iconData: IconFont.soopLogoCopy,
+      iconDataColor: Color(0xffD1FF00),
     ),
     Site(
       id: iptvSite,
@@ -80,6 +89,7 @@ class Sites {
       logo: "assets/images/iptv.png",
       liveSite: IptvSite(),
       iconData: IconFont.dianshi,
+      iconDataColor: Color(0xffFF5540),
     ),
   ];
 
@@ -144,6 +154,7 @@ class Site {
   final String logo;
   final LiveSite liveSite;
   IconData? iconData;
+  Color? iconDataColor;
 
   Site({
     required this.id,
@@ -151,5 +162,6 @@ class Site {
     required this.logo,
     required this.name,
     this.iconData,
+    this.iconDataColor,
   });
 }
