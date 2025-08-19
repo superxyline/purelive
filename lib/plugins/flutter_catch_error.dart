@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:catcher_2/catcher_2.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:fvp/fvp.dart' as fvp;
 import 'package:fvp/mdk.dart' as mdk;
 import 'package:logging/logging.dart';
@@ -102,6 +103,9 @@ class FlutterCatchError {
 
     // 图片缓存删除
     CustomCache.instance.deleteImageCacheFile();
+
+    // 隐藏底部状态栏
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.top]);
 
     ///受保护的代码块
     // runApp(app);
