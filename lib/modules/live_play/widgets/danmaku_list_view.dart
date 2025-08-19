@@ -152,7 +152,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }
 
 class MyDanmakuItem extends StatelessWidget {
