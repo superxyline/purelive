@@ -142,12 +142,13 @@ class _LogsPageState extends State<LogsPage> {
         ],
       ),
       body: logsContent.isNotEmpty
-          ? /*ListView.builder(
+          ? ListView.builder(
               itemCount: logsContent.length,
+              cacheExtent: 3,
               itemBuilder: (context, index) {
                 final log = logsContent[index];
-                var lineList = log['date'].toString().split("\n");
-                var col = Column(
+                // var lineList = log['date'].toString().split("\n");
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -195,62 +196,61 @@ class _LogsPageState extends State<LogsPage> {
                     ),
                     const Divider(indent: 12, endIndent: 12),
                   ],
-                );*/
-
-          SingleChildScrollView(
-              child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RichText(
-                      text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    children: () {
-                      List<InlineSpan> list = [];
-                      for (var log in logsContent) {
-                        var bodyList = log['body'].toString().split("\n");
-                        var head = WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          style: TextStyle(backgroundColor: Theme.of(context).colorScheme.onPrimary),
-                          child: Row(
-                            textDirection: TextDirection.rtl,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  log['date'].toString(),
-                                  style: Theme.of(context).textTheme.titleMedium,
-                                ),
-                              ),
-                              TextButton.icon(
-                                onPressed: () async {
-                                  await Clipboard.setData(
-                                    ClipboardData(text: log['body']),
-                                  );
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          '已将 ${log['date'].toString()} 复制至剪贴板',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                icon: const Icon(Icons.copy_outlined, size: 16),
-                                label: const Text('复制'),
-                              )
-                            ],
-                          ),
-                        );
-                        list.add(head);
-                        for (var text in bodyList) {
-                          list.add(TextSpan(text: "$text\n"));
-                        }
-                        list.add(TextSpan(text: "\n"));
-                        list.add(TextSpan(text: "\n"));
-                      }
-                      return list;
-                    }(),
-                  ))))
+                );})
+          // SingleChildScrollView(
+          //     child: Padding(
+          //         padding: const EdgeInsets.all(8.0),
+          //         child: RichText(
+          //             text: TextSpan(
+          //           style: Theme.of(context).textTheme.bodyMedium,
+          //           children: () {
+          //             List<InlineSpan> list = [];
+          //             for (var log in logsContent) {
+          //               var bodyList = log['body'].toString().split("\n");
+          //               var head = WidgetSpan(
+          //                 alignment: PlaceholderAlignment.middle,
+          //                 style: TextStyle(backgroundColor: Theme.of(context).colorScheme.onPrimary),
+          //                 child: Row(
+          //                   textDirection: TextDirection.rtl,
+          //                   children: [
+          //                     Padding(
+          //                       padding: const EdgeInsets.all(8.0),
+          //                       child: Text(
+          //                         log['date'].toString(),
+          //                         style: Theme.of(context).textTheme.titleMedium,
+          //                       ),
+          //                     ),
+          //                     TextButton.icon(
+          //                       onPressed: () async {
+          //                         await Clipboard.setData(
+          //                           ClipboardData(text: log['body']),
+          //                         );
+          //                         if (context.mounted) {
+          //                           ScaffoldMessenger.of(context).showSnackBar(
+          //                             SnackBar(
+          //                               content: Text(
+          //                                 '已将 ${log['date'].toString()} 复制至剪贴板',
+          //                               ),
+          //                             ),
+          //                           );
+          //                         }
+          //                       },
+          //                       icon: const Icon(Icons.copy_outlined, size: 16),
+          //                       label: const Text('复制'),
+          //                     )
+          //                   ],
+          //                 ),
+          //               );
+          //               list.add(head);
+          //               for (var text in bodyList) {
+          //                 list.add(TextSpan(text: "$text\n"));
+          //               }
+          //               list.add(TextSpan(text: "\n"));
+          //               list.add(TextSpan(text: "\n"));
+          //             }
+          //             return list;
+          //           }(),
+          //         ))))
           : const CustomScrollView(
               slivers: <Widget>[],
             ),
