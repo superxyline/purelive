@@ -254,7 +254,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
   Widget getVideoPlayerWidget() {
     try {
       return Obx(()=> Chewie(
-        key: UniqueKey(),
+        // key: UniqueKey(),
         controller: chewieController.value,
       ));
     } catch (e) {
