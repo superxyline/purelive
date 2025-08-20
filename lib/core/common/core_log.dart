@@ -76,13 +76,30 @@ class CoreLog {
     if(e is Error) {
       // 添加至文件末尾
       File logFile = await getLogsPath();
-
+      var stackTraceText = "${e.stackTrace}";
+      var splits = stackTraceText.split("\n");
+      var newStackTraceTextList = [];
+      for(var line in splits) {
+        if(!isPrint(line)) continue;
+        newStackTraceTextList.add(line);
+      }
+      stackTraceText = newStackTraceTextList.join("\n");
       logFile.writeAsString(
-        "$splitToken\nCrash occurred on ${DateTime.now()}\n ${e.toString()} \n ${e.stackTrace}".replaceAll("\n", CustomizeFileHandler.lineSeparator),
+        "$splitToken\nCrash occurred on ${DateTime.now()}\n ${e.toString()} \n $stackTraceText".replaceAll("\n", CustomizeFileHandler.lineSeparator),
         mode: FileMode.writeOnlyAppend,
       );
     }
 
+  }
+
+  static bool isPrint(String text){
+    if(text.length < 3) {
+      return false;
+    }
+    if(text[0] == '#') {
+      return text.contains("pure_live");
+    }
+    return true;
   }
 
   static void w(String message) {

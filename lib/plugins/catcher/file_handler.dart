@@ -96,7 +96,18 @@ class CustomizeFileHandler extends ReportHandler {
   }
 
   void _writeLineToFile(String text) {
+    if(!isPrint(text)) return;
     _sink?.add(utf8.encode('$text$lineSeparator'));
+  }
+
+  bool isPrint(String text){
+    if(text.length < 3) {
+      return false;
+    }
+    if(text[0] == '#') {
+      return text.contains("pure_live");
+    }
+    return true;
   }
 
   Future<void> _closeFile() async {
@@ -163,7 +174,7 @@ class CustomizeFileHandler extends ReportHandler {
   }
 
   void _printLog(String log) {
-    if (printLogs) {
+    if (printLogs && isPrint(log)) {
       logger.info(log);
     }
   }

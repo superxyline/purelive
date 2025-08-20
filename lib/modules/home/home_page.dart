@@ -35,11 +35,11 @@ class _HomePageState extends State<HomePage>
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
         // Android statusbar and navigationbar
-        if (Platform.isAndroid) {
-          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        if (Platform.isAndroid || Platform.isIOS) {
+          SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarDividerColor: Colors.transparent,
             statusBarColor: Colors.transparent,
-            systemNavigationBarColor:
-                Theme.of(context).navigationBarTheme.backgroundColor,
           ));
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         } else {
