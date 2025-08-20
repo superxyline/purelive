@@ -258,6 +258,10 @@ class SoopSite extends LiveSite with SoopSiteMixin {
     );
     try {
       resultText = JsonUtil.decode(resultText);
+      if(resultText['result'] != 1){
+        // 离线状态
+        return getLiveRoomWithError(roomId: roomId, platform: platform);
+      }
       var jsonObj = resultText['data'];
       var bno = jsonObj["broad_no"].toString();
       var nick = jsonObj["user_nick"];
@@ -301,11 +305,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      final SettingsService settings = Get.find<SettingsService>();
-      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
-      liveRoom.liveStatus = LiveStatus.offline;
-      liveRoom.status = false;
-      return liveRoom;
+      return getLiveRoomWithError(roomId: roomId, platform: platform);
     }
   }
 
@@ -386,7 +386,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
       final wsUrl = 'wss://$chatDomain:$chpt/Websocket/$roomId';
       return DanmakuArgs(url: wsUrl, chatNo: chatNo);
     } catch (e) {
-      CoreLog.error(e);
+      CoreLog.w("$e");
       return null;
     }
   }

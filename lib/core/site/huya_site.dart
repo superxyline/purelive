@@ -320,10 +320,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
         link: "https://www.huya.com/$roomId",
       );
     } else {
-      LiveRoom liveRoom = SettingsService.instance.getLiveRoomByRoomId(roomId, platform);
-      liveRoom.liveStatus = LiveStatus.offline;
-      liveRoom.status = false;
-      return liveRoom;
+      return getLiveRoomWithError(roomId: roomId, platform: platform);
     }
   }
 

@@ -453,11 +453,7 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      final SettingsService settings = Get.find<SettingsService>();
-      LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
-      liveRoom.liveStatus = LiveStatus.offline;
-      liveRoom.status = false;
-      return liveRoom;
+      return getLiveRoomWithError(roomId: roomId, platform: platform);
     }
   }
 

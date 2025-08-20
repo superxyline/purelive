@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/common/models/live_area.dart';
@@ -79,8 +81,7 @@ class LiveSite with SiteAccount, SiteVideoHeaders, SiteOpen {
   }
 
   /// 查询直播状态
-  Future<bool> getLiveStatus(
-      {required String nick, required String platform, required String roomId, required String title}) {
+  Future<bool> getLiveStatus({required String nick, required String platform, required String roomId, required String title}) {
     return Future.value(false);
   }
 
@@ -95,8 +96,16 @@ class LiveSite with SiteAccount, SiteVideoHeaders, SiteOpen {
   }
 
   /// 批量更新房间
-  Future<List<LiveRoom>> getLiveRoomDetailList(
-      {required List<LiveRoom> list}) {
+  Future<List<LiveRoom>> getLiveRoomDetailList({required List<LiveRoom> list}) {
     return Future.value(list);
+  }
+
+  /// 设置 离线状态
+  LiveRoom getLiveRoomWithError({required String roomId, required String platform}) {
+    final SettingsService settings = Get.find<SettingsService>();
+    LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
+    liveRoom.liveStatus = LiveStatus.offline;
+    liveRoom.status = false;
+    return liveRoom;
   }
 }
