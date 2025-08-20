@@ -206,7 +206,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
         "selectType": "action",
         "selectValue": "all",
         "orderType": "view_cnt",
-        "pageNo": pageSize,
+        "pageNo": page,
         "lang": "ko_KR",
       },
       header: getHeaders(),
