@@ -105,7 +105,12 @@ class FlutterCatchError {
     CustomCache.instance.deleteImageCacheFile();
 
     // 隐藏底部状态栏
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.top]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      statusBarColor: Colors.transparent,
+    ));
 
     ///受保护的代码块
     // runApp(app);
