@@ -111,7 +111,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                       // var data = d.data ?? [];
                       return ListView.builder(
                         controller: _scrollController,
-                        cacheExtent: 3500,
+                        cacheExtent: 30,
 
                         /// 只显示 100 条弹幕
                         itemCount: (controller.messages.length > 100 ? 100 : controller.messages.length),

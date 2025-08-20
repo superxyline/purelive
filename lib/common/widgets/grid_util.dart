@@ -27,7 +27,7 @@ final class GradUtil {
     String? restorationId,
     Clip clipBehavior = Clip.hardEdge,
   }) {
-    return CustomScrollView(cacheExtent: cacheExtent ?? 3500, controller: ScrollController(), physics: const AlwaysScrollableScrollPhysics(), slivers: [
+    return CustomScrollView(cacheExtent: cacheExtent ?? 30, controller: ScrollController(), physics: const AlwaysScrollableScrollPhysics(), slivers: [
       SliverPadding(
           padding: padding ?? EdgeInsets.fromLTRB(0, 0, 0, 0),
           sliver: SliverGrid(

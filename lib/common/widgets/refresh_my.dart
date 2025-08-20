@@ -100,7 +100,7 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
                     );
                   }
                   return CustomScrollView(
-                    cacheExtent: 3500,
+                    cacheExtent: 30,
                     controller: scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
@@ -108,7 +108,7 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
                           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                           sliver: GradUtil.contentGrid(
                             /// 缓存数目， 减少卡顿
-                            cacheExtent: 3500,
+                            cacheExtent: 30,
 
                             padding: const EdgeInsets.all(5),
                             controller: widget.pageController.scrollController,

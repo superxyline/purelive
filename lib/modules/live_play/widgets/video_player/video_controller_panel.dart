@@ -378,7 +378,7 @@ Widget showDialogListBody(VideoController controller, RxList<LiveRoom> rooms, {i
               boxConstraints: constraint,
             )
           : MasonryGridView.count(
-              cacheExtent: 3500,
+              cacheExtent: 30,
               padding: const EdgeInsets.all(5),
               controller: ScrollController(),
               crossAxisCount: crossAxisCount,

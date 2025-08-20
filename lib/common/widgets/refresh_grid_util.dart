@@ -36,7 +36,7 @@ final class RefreshGridUtil {
               controller.list.isNotEmpty
                   ? MasonryGridView.count(
                       /// 缓存数目， 减少卡顿
-                      cacheExtent: 3500,
+                      cacheExtent: 30,
 
                       padding: const EdgeInsets.all(5),
                       controller: controller.scrollController,

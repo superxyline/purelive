@@ -60,7 +60,7 @@ class _AreaGridViewState extends State<AreaGridView> with SingleTickerProviderSt
       return Stack(children: [
         widget.controller.list.isNotEmpty
             ? MasonryGridView.count(
-                cacheExtent: 3500,
+                cacheExtent: 30,
                 padding: const EdgeInsets.all(5),
                 controller: ScrollController(),
                 crossAxisCount: crossAxisCount,
