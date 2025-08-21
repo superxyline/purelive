@@ -9,7 +9,8 @@ import 'package:pure_live/core/site/kuaishou/kuaishou_site.dart';
 
 import '../../sites.dart';
 
-mixin SoopSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
+mixin SoopSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
+  var platform =  Sites.soopSite;
   @override
   String getJumpToNativeUrl(LiveRoom liveRoom) {
     try {
@@ -87,5 +88,29 @@ mixin SoopSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
       SmartDialog.showToast(Sites.getSiteName(site.id) + S.current.login_failed);
     }
     return false;
+  }
+
+
+  @override
+  Future<SiteParseBean> parse(String url) async {
+    String realUrl = getHttpUrl(url);
+    var siteParseBean = emptySiteParseBean;
+    if(realUrl.isEmpty) return siteParseBean;
+    // 解析跳转
+    List<RegExp> regExpJumpList = [
+      // 网站 解析跳转
+    ];
+    siteParseBean = await parseJumpUrl(regExpJumpList, realUrl);
+    if(siteParseBean.roomId.isNotEmpty) {
+      return siteParseBean;
+    }
+
+    List<RegExp> regExpBeanList = [
+      // soop
+      RegExp(r"play\.sooplive\.co\.kr/([^/]+)"),
+      RegExp(r"sooplive\.com/([^/]+)"),
+    ];
+    siteParseBean = await parseUrl(regExpBeanList, realUrl, platform);
+    return siteParseBean;
   }
 }

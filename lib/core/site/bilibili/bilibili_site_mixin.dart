@@ -11,7 +11,8 @@ import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/bilibili/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
 
-mixin BilibiliSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
+mixin BilibiliSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
+  var platform =  Sites.bilibiliSite;
   final Map<String, String> loginHeaders = {
     'User-Agent':
     "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/118.0.0.0",
@@ -163,4 +164,28 @@ mixin BilibiliSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
 
   @override
   String getJumpToWebUrl(LiveRoom liveRoom) => "https://live.bilibili.com/${liveRoom.roomId}";
+
+  @override
+  Future<SiteParseBean> parse(String url) async {
+    String realUrl = getHttpUrl(url);
+    var siteParseBean = emptySiteParseBean;
+    if(realUrl.isEmpty) return siteParseBean;
+    // 解析跳转
+    List<RegExp> regExpJumpList = [
+      // bilibili 网站 解析跳转
+      RegExp(r"https?:\/\/b23.tv\/[0-9a-z-A-Z]+")
+    ];
+    siteParseBean = await parseJumpUrl(regExpJumpList, realUrl);
+    if(siteParseBean.roomId.isNotEmpty) {
+      return siteParseBean;
+    }
+
+    List<RegExp> regExpBeanList = [
+      // bilibili 网站匹配
+      RegExp(r"bilibili\.com/([\d|\w]+)$"),
+      RegExp(r"bilibili\.com/h5/([\d\w]+)$"),
+    ];
+    siteParseBean = await parseUrl(regExpBeanList, realUrl, platform);
+    return siteParseBean;
+  }
 }

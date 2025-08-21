@@ -122,97 +122,19 @@ class ToolBoxController extends GetxController {
     List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
     if (urlMatches.isEmpty) return [];
     String realUrl = urlMatches.first!;
-    var id = "";
     realUrl = urlMatches.first!;
 
-    // 解析跳转
-    List<RegExp> regExpJumpList = [
-      // bilibili 网站 解析跳转
-      RegExp(r"https?:\/\/b23.tv\/[0-9a-z-A-Z]+")
-
-    ];
-    for (var i = 0; i < regExpJumpList.length; i++) {
-      var regExp = regExpJumpList[i];
-      var u = regExp.firstMatch(realUrl)?.group(0) ?? "";
-      if(u != "") {
-        var location = await getLocation(u);
-        return await parse(location);
+    for(var site in Sites.supportSites) {
+      var liveSite = site.liveSite;
+      var parse = await liveSite.parse(realUrl);
+      if(parse.roomId.isNotEmpty) {
+        return [parse.roomId, parse.platform];
       }
     }
-
-    if (realUrl.contains("v.douyin.com")) {
-      final id = await getRealDouyinUrl(realUrl);
-      return [id, Sites.douyinSite];
-    }
-
-    List<RegExpBean> regExpBeanList = [
-      // bilibili 网站匹配
-      RegExpBean(regExp: RegExp(r"bilibili\.com/([\d|\w]+)$"), siteType: Sites.bilibiliSite),
-      RegExpBean(regExp: RegExp(r"bilibili\.com/h5/([\d\w]+)$"), siteType: Sites.bilibiliSite),
-
-      // 斗鱼
-      RegExpBean(regExp: RegExp(r"douyu\.com/([\d|\w]+)[/]?$"), siteType: Sites.douyuSite),
-      RegExpBean(regExp: RegExp(r"douyu\.com/topic/[\w\d]+\?.*rid=([^&]+).*$"), siteType: Sites.douyuSite),
-
-      // 虎牙
-      RegExpBean(regExp: RegExp(r"huya\.com/([\d|\w]+)$"), siteType: Sites.huyaSite),
-
-      // 快手
-      RegExpBean(regExp: RegExp(r"live\.kuaishou\.com/u/([a-zA-Z0-9]+)$"), siteType: Sites.kuaishouSite),
-
-      // 抖音
-      RegExpBean(regExp: RegExp(r"live\.douyin\.com/([\d|\w]+)"), siteType: Sites.douyinSite),
-
-      // 网易 CC
-      RegExpBean(regExp: RegExp(r"cc\.163\.com/([a-zA-Z0-9]+)$"), siteType: Sites.ccSite),
-      RegExpBean(regExp: RegExp(r"cc\.163\.com/cc/([a-zA-Z0-9]+)$"), siteType: Sites.ccSite),
-
-    ];
-    for (var i = 0; i < regExpBeanList.length; i++) {
-      var regExpBean = regExpBeanList[i];
-      id = regExpBean.regExp.firstMatch(realUrl)?.group(1) ?? "";
-      if (id != "") {
-        return [id, regExpBean.siteType];
-      }
-    }
-
     return [];
   }
 
-  Future<String> getRealDouyinUrl(String url) async {
-    final urlRegExp = RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
-    List<String?> urlMatches = urlRegExp.allMatches(url).map((m) => m.group(0)).toList();
-    String realUrl = urlMatches.first!;
-    var headers = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-      "Accept": "*/*",
-      "Accept-Encoding": "gzip, deflate, br, zstd",
-      "Origin": "https://live.douyin.com",
-      "Referer": "https://live.douyin.com/",
-      "Sec-Fetch-Site": "cross-site",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Dest": "empty",
-      "Accept-Language": "zh-CN,zh;q=0.9"
-    };
-    dio.Response response = await dio.Dio().get(
-      realUrl,
-      options: dio.Options(followRedirects: true, headers: headers, maxRedirects: 100),
-    );
-    final liveResponseRegExp = RegExp(r"/reflow/(\d+)");
-    String reflow = liveResponseRegExp.firstMatch(response.realUri.toString())?.group(0) ?? "";
-    var liveResponse = await dio.Dio().get("https://webcast.amemv.com/webcast/room/reflow/info/", queryParameters: {
-      "room_id": reflow.split("/").last.toString(),
-      'verifyFp': '',
-      'type_id': 0,
-      'live_id': 1,
-      'sec_user_id': '',
-      'app_id': 1128,
-      'msToken': '',
-      'X-Bogus': '',
-    });
-    var room = liveResponse.data['data']['room']['owner']['web_rid'];
-    return room.toString();
-  }
+
 
   Future<String> getLocation(String url) async {
     try {

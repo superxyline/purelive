@@ -1,6 +1,9 @@
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+
+import '../common/core_log.dart';
 
 mixin class SiteAccount {
   /// 是否登录
@@ -119,13 +122,71 @@ mixin class SiteOpen {
 }
 
 // 站点解析
-final empytySiteParsebean = SiteParseBean(roomId: '', platform: '');
+final emptySiteParseBean = SiteParseBean(roomId: '', platform: '');
+final urlRegExp = RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
 mixin class SiteParse {
   /// 站点解析 url
   Future<SiteParseBean> parse(String url) async {
     // roomId, platform
-    return empytySiteParsebean;
+    return emptySiteParseBean;
   }
+
+  String getHttpUrl(String text) {
+    List<String?> urlMatches = urlRegExp.allMatches(text).map((m) => m.group(0)).toList();
+    if (urlMatches.isEmpty) return "";
+    String realUrl = urlMatches.first!;
+    return realUrl;
+  }
+
+  /// 解析跳转 url
+  Future<SiteParseBean> parseJumpUrl(List<RegExp> regExpJumpList, String realUrl) async {
+    for (var i = 0; i < regExpJumpList.length; i++) {
+      var regExp = regExpJumpList[i];
+      var u = regExp.firstMatch(realUrl)?.group(0) ?? "";
+      if(u != "") {
+        var location = await getHttpResponseLocation(u);
+        return await parse(location);
+      }
+    }
+    return emptySiteParseBean;
+  }
+
+  /// 解析 url
+  Future<SiteParseBean> parseUrl(List<RegExp> regExpList, String realUrl, platform) async {
+    for (var i = 0; i < regExpList.length; i++) {
+      var regExp = regExpList[i];
+      var id = regExp.firstMatch(realUrl)?.group(1) ?? "";
+      if (id != "") {
+        return SiteParseBean(roomId: id, platform: platform);
+      }
+    }
+    return emptySiteParseBean;
+  }
+
+  /// 获取 http response Location
+  Future<String> getHttpResponseLocation(String url) async {
+    try {
+      if (url.isEmpty) return "";
+      await dio.Dio().get(
+        url,
+        options: dio.Options(
+          followRedirects: false,
+        ),
+      );
+    } on dio.DioException catch (e) {
+      CoreLog.error(e);
+      if (e.response!.statusCode == 302) {
+        var redirectUrl = e.response!.headers.value("Location");
+        if (redirectUrl != null) {
+          return redirectUrl;
+        }
+      }
+    } catch (e) {
+      CoreLog.error(e);
+    }
+    return "";
+  }
+
 }
 
 class SiteParseBean {
@@ -135,5 +196,15 @@ class SiteParseBean {
   SiteParseBean({
     required this.roomId,
     required this.platform,
+  });
+}
+
+class RegExpBean {
+  late RegExp regExp;
+  late String siteType;
+
+  RegExpBean({
+    required this.regExp,
+    required this.siteType,
   });
 }
