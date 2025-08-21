@@ -60,7 +60,7 @@ class _AreaCardState extends State<AreaCard> {
                   // color: Colors.white,
                   elevation: 0,
                   child: CacheNetWorkUtils.getCacheImageV2(
-                      widget.category.areaPic!),
+                      widget.category.areaPic!, cacheWidth: 300, cacheHeight: 300),
                 ),
               ),
 
