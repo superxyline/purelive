@@ -42,7 +42,7 @@ class SoopDanmaku implements LiveDanmaku {
 
   // 常量定义
   final String f = "\x0c";
-  final String esc = "\x1b\t";
+  final String esc = "\x1b\x09";
   final String separator = "+${"-" * 70}+";
 
   WebScoketUtils? webScoketUtils;
@@ -59,6 +59,10 @@ class SoopDanmaku implements LiveDanmaku {
     var site = Sites.of(Sites.soopSite);
     var liveSite = site.liveSite as SoopSite;
     var mHeaders = liveSite.getHeaders();
+    mHeaders={
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "Origin": "https://play.sooplive.co.kr",
+    };
 
     // final wsUrl = 'wss://${liveInfo.chDomain}:${liveInfo.chpt}/Websocket/$bid';
     CoreLog.d("args: ${json.encode(args)}");
