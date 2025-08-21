@@ -12,9 +12,9 @@ import 'package:pure_live/core/common/http_client.dart' as http;
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/danmaku/util/danmaku_message_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/core/site/douyin_site.dart';
+import 'package:pure_live/core/site/douyin/douyin_site.dart';
 
-import 'proto/douyin.pb.dart';
+import './proto/douyin.pb.dart';
 
 class DouyinDanmakuArgs {
   final String webRid;

@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/core/danmaku/huya_danmaku.dart';
+import 'package:pure_live/core/site/huya/huya_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/model/live_anchor_item.dart';

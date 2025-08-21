@@ -8,7 +8,7 @@ import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/common/utils/pref_util.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/core/site/bilibili_site.dart';
+import 'package:pure_live/core/site/bilibili/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
 
 class BiliBiliAccountService extends GetxController {

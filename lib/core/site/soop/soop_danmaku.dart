@@ -6,7 +6,7 @@ import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/danmaku/util/danmaku_message_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
-import 'package:pure_live/core/site/soop_site.dart';
+import 'package:pure_live/core/site/soop/soop_site.dart';
 import 'package:pure_live/modules/util/list_util.dart';
 
 class DanmakuArgs {

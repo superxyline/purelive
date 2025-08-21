@@ -5,9 +5,9 @@ import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
-import 'package:pure_live/core/site/kuaishou_site.dart';
+import 'package:pure_live/core/site/kuaishou/kuaishou_site.dart';
 
-import '../sites.dart';
+import '../../sites.dart';
 
 mixin KuaishouSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen {
   @override

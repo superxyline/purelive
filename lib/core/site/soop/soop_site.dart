@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:get/get.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
@@ -17,8 +16,8 @@ import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
-import '../../modules/util/json_util.dart';
-import '../danmaku/soop_danmaku.dart';
+import '../../../modules/util/json_util.dart';
+import 'soop_danmaku.dart';
 import 'soop_site_mixin.dart';
 
 class SoopSite extends LiveSite with SoopSiteMixin {

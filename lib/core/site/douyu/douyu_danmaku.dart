@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pure_live/common/utils/color_util.dart';
 
-import '../common/binary_writer.dart';
+import '../../common/binary_writer.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';

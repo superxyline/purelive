@@ -17,6 +17,7 @@ mixin class SiteAccount {
 
   /// 获取用户ID
   int getUserId() => uid;
+
   /// 获取用户Cookie
   String getUserCookie() => userCookie.value;
 
@@ -54,18 +55,18 @@ mixin class SiteAccount {
   }
 
   /// web登录请求
-  URLRequest webLoginURLRequest()=> URLRequest(headers: {}, url: WebUri(""),);
+  URLRequest webLoginURLRequest() => URLRequest(headers: {}, url: WebUri(""),);
 
   /// web登录处理，判断是否成功
-  bool webLoginHandle(WebUri? uri)=> false;
+  bool webLoginHandle(WebUri? uri) => false;
 
   /// 加载二维码
-  Future<QRBean> loadQRCode() async{
+  Future<QRBean> loadQRCode() async {
     return QRBean();
   }
 
   ///  获取二维码扫描状态
-  Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async{
+  Future<QRBean> pollQRStatus(Site site, QRBean qrBean) async {
     return qrBean;
   }
 
@@ -75,24 +76,31 @@ mixin class SiteAccount {
 enum QRStatus {
   /// 加载中
   loading,
+
   /// 没有使用
   unscanned,
+
   /// 扫描中
   scanned,
+
   /// 过期
   expired,
+
   /// 失败
   failed,
+
   /// 成功
   success,
 }
 
 /// 二维码实体
-class QRBean{
+class QRBean {
   /// 二维码状态
-  QRStatus qrStatus=QRStatus.loading;
+  QRStatus qrStatus = QRStatus.loading;
+
   /// 二维码链接
   var qrcodeUrl = "";
+
   /// 二维码验证秘钥
   var qrcodeKey = "";
 }
@@ -105,6 +113,27 @@ mixin class SiteVideoHeaders {
 mixin class SiteOpen {
   /// 跳转 APP url
   String getJumpToNativeUrl(LiveRoom liveRoom) => "";
+
   /// 跳转 Web url
   String getJumpToWebUrl(LiveRoom liveRoom) => "";
+}
+
+// 站点解析
+final empytySiteParsebean = SiteParseBean(roomId: '', platform: '');
+mixin class SiteParse {
+  /// 站点解析 url
+  Future<SiteParseBean> parse(String url) async {
+    // roomId, platform
+    return empytySiteParsebean;
+  }
+}
+
+class SiteParseBean {
+  String roomId;
+  String platform;
+
+  SiteParseBean({
+    required this.roomId,
+    required this.platform,
+  });
 }

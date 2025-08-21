@@ -2,18 +2,16 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:pure_live/common/models/live_area.dart';
 import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/core/danmaku/douyu_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
+import 'package:pure_live/core/site/douyu/douyu_danmaku.dart';
 import 'package:pure_live/core/sites.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/model/live_category.dart';
@@ -22,7 +20,7 @@ import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
-import '../../common/utils/js_engine.dart';
+import '../../../common/utils/js_engine.dart';
 import 'douyu_site_mixin.dart';
 
 class DouyuSite extends LiveSite with DouyuSiteMixin {
