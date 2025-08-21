@@ -874,12 +874,12 @@ class LivePlayController extends StateController {
     // log("playUrls ${playUrls.value}", name: runtimeType.toString());
     // log("currentLineIndex : $currentLineIndex", name: runtimeType.toString());
     // log("current play url : ${playUrls.value[currentLineIndex.value]}", name: runtimeType.toString());
-    try{
-      videoController?.dispose();
-      videoController == null;
-    }catch(e) {
-      CoreLog.error(e);
-    }
+    // try{
+    //   videoController?.dispose();
+    //   videoController == null;
+    // }catch(e) {
+    //   CoreLog.error(e);
+    // }
     if (videoController == null || videoController!.hasDestory) {
       videoController = VideoController(
         livePlayController: this,
@@ -901,11 +901,11 @@ class LivePlayController extends StateController {
         streamController.add(e);
       }));
     } else {
-      videoController?.datasource = playUrls.value[currentLineIndex.value].playUrl;
-      videoController?.qualiteName = qualites[currentQuality.value].quality;
-      videoController?.currentLineIndex = currentLineIndex.value;
-      videoController?.currentQuality = currentQuality.value;
-      videoController?.setDataSource(playUrls.value[currentLineIndex.value].playUrl, headers);
+      // videoController?.datasource = playUrls.value[currentLineIndex.value].playUrl;
+      // videoController?.qualiteName = qualites[currentQuality.value].quality;
+      // videoController?.currentLineIndex = currentLineIndex.value;
+      // videoController?.currentQuality = currentQuality.value;
+      // videoController?.setDataSource(playUrls.value[currentLineIndex.value].playUrl, headers);
       // videoController?.initVideoController();
       // videoController?.play();
     }

@@ -5,6 +5,7 @@ import 'package:catcher_2/model/platform_type.dart';
 import 'package:catcher_2/model/report.dart';
 import 'package:catcher_2/model/report_handler.dart';
 import 'package:flutter/material.dart';
+import 'package:pure_live/core/common/core_log.dart';
 
 typedef FileSupplier = File Function(Report);
 
@@ -175,7 +176,8 @@ class CustomizeFileHandler extends ReportHandler {
 
   void _printLog(String log) {
     if (printLogs && isPrint(log)) {
-      logger.info(log);
+      // logger.info(log);
+      CoreLog.w(log);
     }
   }
 

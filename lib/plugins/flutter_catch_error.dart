@@ -28,6 +28,7 @@ class FlutterCatchError {
       } else {
         ///TODO 开发期间 print
         FlutterError.dumpErrorToConsole(details);
+        CoreLog.e(details.exception.toString(), details.stack!);
       }
     };
 
@@ -57,11 +58,11 @@ class FlutterCatchError {
           SilentReportMode(),
           [
             CustomizeFileHandler(await CoreLog.getLogsPath()),
-            ConsoleHandler(
-              enableDeviceParameters: false,
-              enableApplicationParameters: false,
-              enableCustomParameters: false,
-            )
+            // ConsoleHandler(
+            //   enableDeviceParameters: false,
+            //   enableApplicationParameters: false,
+            //   enableCustomParameters: false,
+            // )
           ],
         );
 
@@ -128,8 +129,9 @@ class FlutterCatchError {
   ///自定义异常页面
   static void setCustomErrorPage() {
     ErrorWidget.builder = (FlutterErrorDetails flutterErrorDetails) {
-      debugPrint(flutterErrorDetails.toString());
+      // debugPrint(flutterErrorDetails.toString());
       String stError = flutterErrorDetails.exceptionAsString();
+      CoreLog.error(flutterErrorDetails.toString());
       return Material(
         color: Colors.transparent,
         child: SafeArea(

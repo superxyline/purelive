@@ -39,8 +39,10 @@ class GsyVideoPlay extends VideoPlayerInterFace {
   @override
   void init({required video_player.VideoController controller}) {
     this.controller = controller;
-    ListenListUtil.clearStreamSubscriptionList(
-        defaultVideoStreamSubscriptionList);
+    if(isFirstOpenVideo) {
+      ListenListUtil.clearStreamSubscriptionList(
+          defaultVideoStreamSubscriptionList);
+    }
     gsyVideoPlayerController = FixGsyVideoPlayerController(
         allowBackgroundPlayback: settings.enableBackgroundPlay.value,
         player: playerType);
@@ -156,9 +158,17 @@ class GsyVideoPlay extends VideoPlayerInterFace {
     gsyVideoPlayerController.exitFullScreen();
   }
 
+
+  bool isFirstOpenVideo = true;
+
   @override
   Future<void> openVideo(String datasource, Map<String, String> headers) async {
     CoreLog.d("play url: $datasource");
+    if(isFirstOpenVideo) {
+      isFirstOpenVideo = !isFirstOpenVideo;
+    } else {
+      init(controller: controller);
+    }
     // fix datasource empty error
     if (datasource.isEmpty) {
       hasError.value = true;

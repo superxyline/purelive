@@ -89,7 +89,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
     ListenListUtil.clearStreamSubscriptionList(defaultVideoStreamSubscriptionList);
     disposeVideoPlayerListener();
     videoPlayerController.value.removeListener(listenerVideo);
-    chewieController.value.addListener(chewieControllerListener);
+    // chewieController.value.addListener(chewieControllerListener);
     videoPlayerController.value.dispose();
     chewieController.value.dispose();
     for (var i = 0; i < controllerList.length; i++) {
@@ -147,6 +147,7 @@ class FvpVideoPlay extends VideoPlayerInterFace {
     videoPlayerController.value.addListener(listenerVideo);
     // await videoPlayerController.value.initialize();
     var oldValue = chewieController.value;
+    initChewieController();
     try {
       oldValue.removeListener(chewieControllerListener);
       oldValue.dispose();
@@ -154,7 +155,6 @@ class FvpVideoPlay extends VideoPlayerInterFace {
       CoreLog.error(e);
     }
 
-    initChewieController();
   }
 
   /// 视频宽和高比
@@ -253,10 +253,15 @@ class FvpVideoPlay extends VideoPlayerInterFace {
   @override
   Widget getVideoPlayerWidget() {
     try {
-      return Obx(()=> Chewie(
-        // key: UniqueKey(),
-        controller: chewieController.value,
-      ));
+      return StreamBuilder(
+          initialData: chewieController.value,
+          stream: chewieController.stream,
+          builder: (s, d) => d.data == null
+              ? Container()
+              : Chewie(
+            key: UniqueKey(),
+            controller: d.data!,
+          ));
     } catch (e) {
       CoreLog.error(e);
       return Container();
