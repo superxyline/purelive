@@ -859,8 +859,12 @@ class LivePlayController extends StateController {
         continue;
       }
       if (vBitRate * 0.8 <= bitRate) {
-        break;
+        return qualityLevel;
       }
+    }
+    /// 原画清晰度
+    if(bitRate <= 0) {
+      return 0;
     }
     return qualityLevel;
   }
