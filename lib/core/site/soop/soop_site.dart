@@ -382,6 +382,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
       var chatNo = jsonObj["CHATNO"];
       var chatDomain = jsonObj["CHDOMAIN"];
       var chpt = jsonObj["CHPT"];
+      chpt = 9001;
       final wsUrl = 'wss://$chatDomain:$chpt/Websocket/$roomId';
       return DanmakuArgs(url: wsUrl, chatNo: chatNo);
     } catch (e) {
