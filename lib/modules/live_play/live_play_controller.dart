@@ -27,6 +27,7 @@ import 'package:pure_live/plugins/utils.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../core/danmaku/util/danmaku_message_util.dart';
 import '../../model/live_play_quality_play_url_info.dart';
 
 class LivePlayController extends StateController {
@@ -678,6 +679,9 @@ class LivePlayController extends StateController {
     );
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
+        var message = msg.message;
+        message = DanmakuMessageUtil.handleMessage(message);
+        msg.message = message;
         var isShow = isShowDanmau(msg);
         // CoreLog.d("isShow:$isShow  msg:${msg.fansLevel} ${msg.fansName}");
         if (isShow) {

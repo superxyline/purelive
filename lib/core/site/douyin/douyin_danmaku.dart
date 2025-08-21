@@ -10,7 +10,6 @@ import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/common/utils/js_engine.dart';
 import 'package:pure_live/core/common/http_client.dart' as http;
 import 'package:pure_live/core/common/web_socket_util.dart';
-import 'package:pure_live/core/danmaku/util/danmaku_message_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/site/douyin/douyin_site.dart';
 
@@ -179,7 +178,7 @@ class DouyinDanmaku implements LiveDanmaku {
         // color: chatMessage.common.fullScreenTextColor.
         //     ? Colors.white
         //     : LiveMessageColor.numberToColor(color),
-        message: DanmakuMessageUtil.handleMessage(chatMessage.content),
+        message: chatMessage.content,
         userName: chatMessage.user.nickName,
         fansLevel: fansLevel,
         fansName: fansName,

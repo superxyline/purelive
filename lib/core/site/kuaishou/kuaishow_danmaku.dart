@@ -6,7 +6,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/utils/color_util.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
-import 'package:pure_live/core/danmaku/util/danmaku_message_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/site/kuaishou/kuaishou_site.dart';
 import 'package:pure_live/plugins/fake_useragent.dart';
@@ -88,12 +87,12 @@ class KuaishowDanmaku implements LiveDanmaku {
       heartBeatTime: heartbeatTime,
       headers: mHeaders,
       onMessage: (e) {
-        try{
-          if(e.runtimeType == String){
+        try {
+          if (e.runtimeType == String) {
             return decodeMessageStr(e);
           }
           return decodeMessage(e);
-        }catch(err) {
+        } catch (err) {
           CoreLog.w("$e");
           CoreLog.error(err);
         }
@@ -244,7 +243,7 @@ class KuaishowDanmaku implements LiveDanmaku {
       onMessage?.call(LiveMessage(
         type: LiveMessageType.chat,
         color: messageColor,
-        message: DanmakuMessageUtil.handleMessage(content),
+        message: content,
         userName: userName,
         fansLevel: fansLevel,
         fansName: fansName,

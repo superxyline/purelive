@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
-import 'package:pure_live/core/danmaku/util/danmaku_message_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/site/soop/soop_site.dart';
 import 'package:pure_live/modules/util/list_util.dart';
@@ -21,6 +20,7 @@ class DanmakuArgs {
   DanmakuArgs.fromJson(Map<String, dynamic> json)
       : url = json['url'] ?? '',
         chatNo = json['chatNo'] ?? '';
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'url': url,
@@ -128,7 +128,6 @@ class SoopDanmaku implements LiveDanmaku {
     CoreLog.w("decodeMessageStr: $data");
   }
 
-
   void decodeMessage(List<int> data) {
     int s = 0x0c;
     var parts = ListUtil.splitList(data, s);
@@ -143,12 +142,11 @@ class SoopDanmaku implements LiveDanmaku {
       onMessage?.call(LiveMessage(
         type: LiveMessageType.chat,
         color: Colors.white,
-        message: DanmakuMessageUtil.handleMessage(comment),
+        message: comment,
         userName: userName,
         // fansLevel: fansLevel,
         // fansName: fansName,
       ));
     }
-
   }
 }

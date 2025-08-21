@@ -25,7 +25,7 @@ class LiveMessage {
   final String userName;
 
   /// 信息
-  final String message;
+  String message;
 
   /// 数据
   /// 单Type=Online时，Data为人气值(long)
