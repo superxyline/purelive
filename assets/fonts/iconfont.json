@@ -81,6 +81,27 @@
       "font_class": "soop_logo-copy",
       "unicode": "e603",
       "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "45322924",
+      "name": "yy-logo",
+      "font_class": "yy-logo",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "45323200",
+      "name": "yy-logo",
+      "font_class": "yy-logo1",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
+      "icon_id": "45323765",
+      "name": "yy-logo",
+      "font_class": "yy-logo-copy",
+      "unicode": "e608",
+      "unicode_decimal": 58888
     }
   ]
 }

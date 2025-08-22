@@ -333,10 +333,11 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String nick, required String platform, required String roomId, required String title}) async{
-    return getRoomDetailByWeb(platform: platform, roomId: roomId);
+  Future<LiveRoom> getRoomDetail({required LiveRoom detail}) async{
+    return getRoomDetailByWeb(detail: detail);
   }
-  Future<LiveRoom> getRoomDetailByWeb({required String platform, required String roomId}) async {
+  Future<LiveRoom> getRoomDetailByWeb({required LiveRoom detail}) async {
+    var roomId = detail.roomId ?? "";
     headers['cookie'] = cookie;
     var url = "https://live.kuaishou.com/u/$roomId";
     var mHeaders = headers;
@@ -428,11 +429,12 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      return getLiveRoomWithError(roomId: roomId, platform: platform);
+      return getLiveRoomWithError(detail);
     }
   }
 
-  Future<LiveRoom> getRoomDetailByMobile({required String platform, required String roomId}) async {
+  Future<LiveRoom> getRoomDetailByMobile({required LiveRoom detail}) async {
+    var roomId = detail.roomId ?? "";
     headers['cookie'] = cookie;
     var url = "https://live.kuaishou.com/u/$roomId";
     var timestamp = DateTime.timestamp().millisecondsSinceEpoch;
@@ -523,7 +525,7 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      return getLiveRoomWithError(roomId: roomId, platform: platform);
+      return getLiveRoomWithError(detail);
     }
   }
 
@@ -539,14 +541,4 @@ class KuaishowSite extends LiveSite with KuaishouSiteMixin {
     return LiveSearchAnchorResult(hasMore: false, items: []);
   }
 
-  @override
-  Future<bool> getLiveStatus({required String nick, required String platform, required String roomId, required String title}) async {
-    return false;
-  }
-
-  @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
-    //尚不支持
-    return Future.value([]);
-  }
 }

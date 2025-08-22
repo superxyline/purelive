@@ -2,7 +2,6 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:pure_live/common/models/live_area.dart';
-import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -234,11 +233,8 @@ class SoopSite extends LiveSite with SoopSiteMixin {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String nick, required String platform, required String roomId, required String title}) async {
-    return getRoomDetailByWeb222(platform: platform, roomId: roomId);
-  }
-
-  Future<LiveRoom> getRoomDetailByWeb222({required String platform, required String roomId}) async {
+  Future<LiveRoom> getRoomDetail({required LiveRoom detail}) async {
+    var roomId = detail.roomId ?? "";
     var url = "http://api.m.sooplive.co.kr/broad/a/watch";
     var danmakuArgs = geDanmakuArgs(roomId: roomId);
     var resultText = await HttpClient.instance.postJson(
@@ -257,9 +253,9 @@ class SoopSite extends LiveSite with SoopSiteMixin {
     );
     try {
       resultText = JsonUtil.decode(resultText);
-      if(resultText['result'] != 1){
+      if (resultText['result'] != 1) {
         // 离线状态
-        return getLiveRoomWithError(roomId: roomId, platform: platform);
+        return getLiveRoomWithError(detail);
       }
       var jsonObj = resultText['data'];
       var bno = jsonObj["broad_no"].toString();
@@ -304,7 +300,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      return getLiveRoomWithError(roomId: roomId, platform: platform);
+      return getLiveRoomWithError(detail);
     }
   }
 
@@ -363,18 +359,7 @@ class SoopSite extends LiveSite with SoopSiteMixin {
         queryParameters: {
           'bjid': roomId,
         },
-        data: {
-          "bid": roomId,
-          "bno": "",
-          "type": "live",
-          "pwd": "",
-          "player_type": "html5",
-          "stream_type": "common",
-          "quality": "HD",
-          "mode": "landing",
-          "from_api": "0",
-          "is_revive": "false"
-        },
+        data: {"bid": roomId, "bno": "", "type": "live", "pwd": "", "player_type": "html5", "stream_type": "common", "quality": "HD", "mode": "landing", "from_api": "0", "is_revive": "false"},
         header: getHeaders(),
       );
       resultText = JsonUtil.decode(resultText);
@@ -456,21 +441,5 @@ class SoopSite extends LiveSite with SoopSiteMixin {
       return "https:$imgUrl";
     }
     return imgUrl;
-  }
-
-  @override
-  Future<LiveSearchAnchorResult> searchAnchors(String keyword, {int page = 1}) async {
-    return LiveSearchAnchorResult(hasMore: false, items: []);
-  }
-
-  @override
-  Future<bool> getLiveStatus({required String nick, required String platform, required String roomId, required String title}) async {
-    return false;
-  }
-
-  @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
-    //尚不支持
-    return Future.value([]);
   }
 }

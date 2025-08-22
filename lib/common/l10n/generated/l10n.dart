@@ -1820,6 +1820,11 @@ class S {
     return Intl.message('Soop', name: 'soop', desc: '', args: []);
   }
 
+  /// `YY`
+  String get yy {
+    return Intl.message('YY', name: 'yy', desc: '', args: []);
+  }
+
   /// `Not Login`
   String get login_not {
     return Intl.message('Not Login', name: 'login_not', desc: '', args: []);

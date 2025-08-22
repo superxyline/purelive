@@ -429,12 +429,7 @@ class LivePlayController extends StateController {
     // 只有第一次需要重新配置信息
     if (isFirstLoad.value) {
       try {
-        liveRoom = await currentSite.liveSite.getRoomDetail(
-          roomId: liveRoom.roomId!,
-          platform: liveRoom.platform!,
-          title: liveRoom.title!,
-          nick: liveRoom.nick!,
-        );
+        liveRoom = await currentSite.liveSite.getRoomDetail(detail: liveRoom);
       } catch(e){
         CoreLog.error(e);
         getInfoError("$e");

@@ -84,7 +84,7 @@ class UpdateRoomUtil {
       if (room.roomId == "") {
         continue;
       }
-      futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!, platform: room.platform!, title: room.title!, nick: room.nick!));
+      futures.add(Sites.of(room.platform!).liveSite.getRoomDetail(detail: room));
     }
     List<List<Future<LiveRoom>>> groupedList = [];
 

@@ -443,5 +443,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "videofit_fitheight": MessageLookupByLibrary.simpleMessage("适应高度"),
     "videofit_fitwidth": MessageLookupByLibrary.simpleMessage("适应宽度"),
     "what_is_new": MessageLookupByLibrary.simpleMessage("最新特性"),
+    "yy": MessageLookupByLibrary.simpleMessage("YY"),
   };
 }

@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:pure_live/common/base/base_controller.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/plugins/cache_to_file.dart';
 
@@ -12,7 +15,8 @@ class AreasListController extends BasePageController<LiveCategory> {
   @override
   Future<List<LiveCategory>> getData(int page, int pageSize) async {
     var cacheKey = "${site.id}_${tabIndex.value}_${page}_$pageSize";
-    if(await CustomCache.instance.isExistCache(cacheKey) && site.id != Sites.iptvSite) {
+    if(await CustomCache.instance.isExistCache(cacheKey) && site.cacheCategory) {
+      CoreLog.d("cacheCategory: ${site.name}");
       var list = (await CustomCache.instance.getCache<List>(cacheKey))!;
       var rs = list.map((e) => LiveCategory.fromJson(e)).toList();
       return rs;

@@ -405,7 +405,8 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String nick, required String platform, required String roomId, required String title}) async {
+  Future<LiveRoom> getRoomDetail({required LiveRoom detail}) async {
+    var roomId = detail.roomId ?? "";
     try {
       var roomInfo = await getRoomInfo(roomId: roomId);
       var realRoomId = roomInfo["room_info"]["room_id"].toString();
@@ -451,7 +452,7 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      return getLiveRoomWithError(roomId: roomId, platform: platform);
+      return getLiveRoomWithError(detail);
     }
   }
 
@@ -512,7 +513,8 @@ class BiliBiliSite extends LiveSite with BilibiliSiteMixin {
   }
 
   @override
-  Future<bool> getLiveStatus({required String nick, required String platform, required String roomId, required String title}) async {
+  Future<bool> getLiveStatus({required LiveRoom detail}) async {
+    var roomId = detail.roomId ?? "";
     var result = await HttpClient.instance.getJson(
       "https://api.live.bilibili.com/room/v1/Room/get_info",
       queryParameters: {

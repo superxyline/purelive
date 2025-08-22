@@ -184,8 +184,8 @@ class CCSite extends LiveSite with CCSiteMixin {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail(
-      {required String nick, required String platform, required String roomId, required String title}) async {
+  Future<LiveRoom> getRoomDetail({required LiveRoom detail}) async {
+    var roomId = detail.roomId ?? "";
     try {
       // var url = "https://api.cc.163.com/v1/activitylives/anchor/lives";
       // var result = await HttpClient.instance.getJson(url, queryParameters: {
@@ -226,7 +226,7 @@ class CCSite extends LiveSite with CCSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      return getLiveRoomWithError(roomId: roomId, platform: platform);
+      return getLiveRoomWithError(detail);
     }
   }
 
@@ -290,18 +290,6 @@ class CCSite extends LiveSite with CCSiteMixin {
     }
     var hasMore = result["response"]["1"]["numFound"] > (page * 20);
     return LiveSearchAnchorResult(hasMore: hasMore, items: items);
-  }
-
-  @override
-  Future<bool> getLiveStatus(
-      {required String nick, required String platform, required String roomId, required String title}) async {
-    return Future.value(true);
-  }
-
-  @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
-    //尚不支持
-    return Future.value([]);
   }
 
   @override

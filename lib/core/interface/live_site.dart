@@ -49,25 +49,11 @@ class LiveSite with SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
   }
 
   /// 读取房间详情
-  Future<LiveRoom> getRoomDetail({
-    required String roomId,
-    required String platform,
-    required String nick,
-    required String title,
-  }) {
-    return Future.value(LiveRoom(
-      cover: '',
-      watching: '0',
-      roomId: '',
-      status: false,
-      platform: platform,
-      liveStatus: LiveStatus.offline,
-      title: title,
-      link: '',
-      avatar: '',
-      nick: nick,
-      isRecord: false,
-    ));
+  Future<LiveRoom> getRoomDetail({required LiveRoom detail}) async {
+    detail.liveStatus = LiveStatus.offline;
+    detail.isRecord = false;
+    detail.status = false;
+    return detail;
   }
 
   /// 读取房间清晰度
@@ -81,8 +67,11 @@ class LiveSite with SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
   }
 
   /// 查询直播状态
-  Future<bool> getLiveStatus({required String nick, required String platform, required String roomId, required String title}) {
-    return Future.value(false);
+  Future<bool> getLiveStatus({required LiveRoom detail}) async {
+    var liveRoom = await getRoomDetail(detail: detail);
+    var liveStatus = liveRoom.liveStatus ?? LiveStatus.offline;
+    var isLive = [LiveStatus.live, LiveStatus.replay].contains(liveStatus);
+    return Future.value(isLive);
   }
 
   /// 读取指定房间的SC
@@ -101,11 +90,10 @@ class LiveSite with SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
   }
 
   /// 设置 离线状态
-  LiveRoom getLiveRoomWithError({required String roomId, required String platform}) {
-    final SettingsService settings = Get.find<SettingsService>();
-    LiveRoom liveRoom = settings.getLiveRoomByRoomId(roomId, platform);
+  LiveRoom getLiveRoomWithError(LiveRoom liveRoom) {
     liveRoom.liveStatus = LiveStatus.offline;
     liveRoom.status = false;
+    liveRoom.isRecord = false;
     return liveRoom;
   }
 }

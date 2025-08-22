@@ -244,11 +244,8 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail(
-      {required String nick,
-      required String platform,
-      required String roomId,
-      required String title}) async {
+  Future<LiveRoom> getRoomDetail({required LiveRoom detail}) async {
+    var roomId = detail.roomId ?? "";
     try {
       var roomData = getSignByHome(roomId);
       var result = await HttpClient.instance.getJson(
@@ -287,7 +284,7 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      return getLiveRoomWithError(roomId: roomId, platform: platform);
+      return getLiveRoomWithError(detail);
     }
   }
 
@@ -385,17 +382,6 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
     return LiveSearchAnchorResult(hasMore: hasMore, items: items);
   }
 
-  @override
-  Future<bool> getLiveStatus(
-      {required String nick,
-      required String platform,
-      required String roomId,
-      required String title}) async {
-    var detail = await getRoomDetail(
-        roomId: roomId, platform: platform, title: title, nick: nick);
-    return detail.status!;
-  }
-
   Future<String> getPlayArgs(String roomId) async {
 
     var jsEncResult = await HttpClient.instance.getText(
@@ -448,6 +434,7 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
         "";
     String homeJs = result.replaceAll(RegExp(r"eval.*?;"), "strc;");
     await JsEngine.init();
+
     var res = JsEngine.evaluate("$homeJs;;ub98484234()").toString();
     // SmartDialog.showToast(res);
     var funcSign = res.replaceAll(RegExp('return rt;}\\);?'), 'return rt;}')

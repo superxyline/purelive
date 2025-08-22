@@ -52,12 +52,8 @@ class ToolBoxController extends GetxController {
     String platform = parseResult[1];
     try {
       SmartDialog.showLoading(msg: "");
-      var detail = await Sites.of(platform).liveSite.getRoomDetail(
-            roomId: parseResult.first,
-            platform: platform,
-            nick: '',
-            title: '',
-          );
+      var detail = LiveRoom(roomId: parseResult.first, platform: platform);
+      detail = await Sites.of(platform).liveSite.getRoomDetail(detail: detail);
       var qualites = await Sites.of(platform).liveSite.getPlayQualites(detail: detail);
       SmartDialog.dismiss(status: SmartStatus.loading);
       if (qualites.isEmpty) {

@@ -75,11 +75,6 @@ class IptvSite extends LiveSite {
   @override
   LiveDanmaku getDanmaku() => EmptyDanmaku();
 
-  @override
-  Future<bool> getLiveStatus(
-      {required String nick, required String platform, required String roomId, required String title}) {
-    return Future.value(true);
-  }
 
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
@@ -130,15 +125,14 @@ class IptvSite extends LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail(
-      {required String nick, required String platform, required String roomId, required String title}) async {
+  Future<LiveRoom> getRoomDetail({required LiveRoom detail}) async {
     return LiveRoom(
       cover: '',
       watching: '',
-      roomId: roomId,
+      roomId: detail.roomId,
       area: '',
-      title: title,
-      nick: nick,
+      title: detail.title,
+      nick: detail.nick,
       avatar:
           'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
       introduction: '',
@@ -146,8 +140,8 @@ class IptvSite extends LiveSite {
       status: true,
       liveStatus: LiveStatus.live,
       platform: Sites.iptvSite,
-      link: roomId,
-      data: roomId,
+      link: detail.roomId,
+      data: detail.roomId,
     );
   }
 

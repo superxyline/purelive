@@ -8,6 +8,7 @@ import 'package:pure_live/core/site/cc/cc_site.dart';
 import 'package:pure_live/core/site/iptv/iptv_site.dart';
 import 'package:pure_live/core/site/kuaishou/kuaishou_site.dart';
 import 'package:pure_live/core/site/soop/soop_site.dart';
+import 'package:pure_live/core/site/yy/yy_site.dart';
 
 import '../generated/iconfont.dart';
 import 'interface/live_site.dart';
@@ -25,6 +26,7 @@ class Sites {
   static const String ccSite = "cc";
   static const String iptvSite = "iptv";
   static const String soopSite = "soop";
+  static const String yySite = "yy";
   static List<Site> supportSites = [
     Site(
       id: bilibiliSite,
@@ -33,6 +35,7 @@ class Sites {
       liveSite: BiliBiliSite(),
       iconData: IconFont.bilibili,
       iconDataColor: Color(0xffd4237a),
+      getSiteName: () => S.current.bilibili,
       // iconDataColor: Colors.blue,
     ),
     Site(
@@ -42,6 +45,7 @@ class Sites {
       liveSite: DouyuSite(),
       iconData: IconFont.douyu,
       iconDataColor: Color(0xffFE7800),
+      getSiteName: () => S.current.douyu,
     ),
     Site(
       id: huyaSite,
@@ -50,6 +54,7 @@ class Sites {
       liveSite: HuyaSite(),
       iconData: IconFont.huyaxianxing,
       iconDataColor: Color(0xffF49F17),
+      getSiteName: () => S.current.huya,
     ),
     Site(
       id: douyinSite,
@@ -58,6 +63,7 @@ class Sites {
       liveSite: DouyinSite(),
       iconData: IconFont.douyin3Copy,
       iconDataColor: Color(0xff2c2c2c),
+      getSiteName: () => S.current.douyin,
     ),
     Site(
       id: kuaishouSite,
@@ -66,6 +72,7 @@ class Sites {
       liveSite: KuaishowSite(),
       iconData: IconFont.kuaishou,
       iconDataColor: Color(0xffFF4A06),
+      getSiteName: () => S.current.kuaishou,
     ),
     Site(
       id: ccSite,
@@ -74,6 +81,17 @@ class Sites {
       liveSite: CCSite(),
       iconData: IconFont.creativeCommons,
       iconDataColor: Color(0xff1980FF),
+      getSiteName: () => S.current.cc,
+    ),
+    Site(
+      id: yySite,
+      name: "YY",
+      logo: "assets/images/yy.png",
+      liveSite: YYSite(),
+      iconData: IconFont.yyLogoCopy,
+      iconDataColor: Color(0xffF49F17),
+      getSiteName: () => S.current.yy,
+      // cacheCategory: false,
     ),
     Site(
       id: soopSite,
@@ -82,6 +100,7 @@ class Sites {
       liveSite: SoopSite(),
       iconData: IconFont.soopLogoCopy,
       iconDataColor: Color(0xffD1FF00),
+      getSiteName: () => S.current.soop,
     ),
     Site(
       id: iptvSite,
@@ -90,6 +109,8 @@ class Sites {
       liveSite: IptvSite(),
       iconData: IconFont.dianshi,
       iconDataColor: Color(0xffFF5540),
+      getSiteName: () => S.current.iptv,
+      cacheCategory: false,
     ),
   ];
 
@@ -111,30 +132,17 @@ class Sites {
     return _map!;
   }
 
-  static Site allLiveSite = Site(id: allSite, name: "全部", logo: "assets/images/all.png", liveSite: LiveSite());
+  static Site allLiveSite = Site(
+    id: allSite,
+    name: "全部",
+    logo: "assets/images/all.png",
+    liveSite: LiveSite(),
+    getSiteName: () => S.current.all,
+  );
 
   static String getSiteName(String siteId) {
-    switch (siteId) {
-      case allSite:
-        return S.current.all;
-      case bilibiliSite:
-        return S.current.bilibili;
-      case douyuSite:
-        return S.current.douyu;
-      case huyaSite:
-        return S.current.huya;
-      case douyinSite:
-        return S.current.douyin;
-      case kuaishouSite:
-        return S.current.kuaishou;
-      case ccSite:
-        return S.current.cc;
-      case iptvSite:
-        return S.current.iptv;
-      case soopSite:
-        return S.current.soop;
-    }
-    return S.current.all;
+    var site = of(siteId);
+    return site.getSiteName();
   }
 
   List<Site> availableSites({bool containsAll = false}) {
@@ -148,6 +156,8 @@ class Sites {
   }
 }
 
+typedef StringCallback = String Function();
+
 class Site {
   final String id;
   final String name;
@@ -156,6 +166,10 @@ class Site {
   IconData? iconData;
   Color? iconDataColor;
 
+  /// 是否缓存分类
+  bool cacheCategory;
+  StringCallback getSiteName;
+
   Site({
     required this.id,
     required this.liveSite,
@@ -163,5 +177,7 @@ class Site {
     required this.name,
     this.iconData,
     this.iconDataColor,
+    this.cacheCategory = true,
+    required this.getSiteName,
   });
 }

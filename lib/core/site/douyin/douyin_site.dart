@@ -230,7 +230,8 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String nick, required String platform, required String roomId, required String title}) async {
+  Future<LiveRoom> getRoomDetail({required LiveRoom detail}) async {
+    var roomId = detail.roomId ?? "";
     try {
       var detail = await getRoomWebDetail(roomId);
       var requestHeader = await getRequestHeaders();
@@ -289,7 +290,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
       );
     } catch (e) {
       CoreLog.error(e);
-      return getLiveRoomWithError(roomId: roomId, platform: platform);
+      return getLiveRoomWithError(detail);
     }
   }
 
@@ -495,17 +496,6 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
   @override
   Future<LiveSearchAnchorResult> searchAnchors(String keyword, {int page = 1}) async {
     throw Exception("抖音暂不支持搜索主播，请直接搜索直播间");
-  }
-
-  @override
-  Future<bool> getLiveStatus({required String nick, required String platform, required String roomId, required String title}) async {
-    var result = await getRoomDetail(roomId: roomId, platform: platform, title: title, nick: nick);
-    return result.status!;
-  }
-
-  @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
-    return Future.value(<LiveSuperChatMessage>[]);
   }
 
   //生成指定长度的16进制随机字符串
