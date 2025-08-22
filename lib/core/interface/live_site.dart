@@ -1,15 +1,13 @@
-import 'package:get/get.dart';
-import 'package:pure_live/common/services/settings_service.dart';
-import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/model/live_anchor_item.dart';
 import 'package:pure_live/common/models/live_area.dart';
+import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/common/models/live_room.dart';
+import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/model/live_anchor_item.dart';
+import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/model/live_category_result.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
-import 'package:pure_live/common/models/live_message.dart';
-import 'package:pure_live/model/live_category_result.dart';
-import 'package:pure_live/core/interface/live_danmaku.dart';
 
 import 'live_site_mixin.dart';
 

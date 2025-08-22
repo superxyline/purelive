@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:pure_live/common/base/base_controller.dart';
 import 'package:pure_live/common/index.dart';
