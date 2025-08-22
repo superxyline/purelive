@@ -69,7 +69,7 @@ class CCDanmaku implements LiveDanmaku {
     webScoketUtils?.connect();
   }
 
-  List<int> getReg() {
+  List<int> getReg(String deviceToken) {
     var sid = 6144;
     var cid = 2;
     var updateReqInfo = {
@@ -81,19 +81,21 @@ class CCDanmaku implements LiveDanmaku {
       '30': '',
       '31': 'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Mobile Safari/537.36',
     };
-    var uuid = const Uuid();
-    var deviceToken = '${uuid.v1()}@web.cc.163.com';
+
     var macAdd = deviceToken;
     var data = {
       'web-cc': DateTime.now().microsecondsSinceEpoch,
       'macAdd': macAdd,
       'device_token': deviceToken,
-      'page_uuid': uuid.v1(),
+      'page_uuid': Uuid().v1(),
       'update_req_info': updateReqInfo,
-      'system': 'win',
       'memory': 1,
       'version': 1,
+      'system': 'win',
+      'client_type': 4253,
+      // 'webccType': 4253,
       'webccType': 4253,
+      'account_id': deviceToken,
     };
 
     /// 在 Dart 中，可以使用 ByteData 和 ByteBuffer 类来实现类似 Python 中 struct.pack() 的功能
@@ -201,10 +203,14 @@ class CCDanmaku implements LiveDanmaku {
     }
   }
 
-  void joinRoom(dynamic args) {
+  Future<void> joinRoom(dynamic args) async {
     // 先注册信息
-    webScoketUtils?.sendMessage(getReg());
+    var uuid = const Uuid();
+    var deviceToken = '${uuid.v1()}@web.cc.163.com';
+    webScoketUtils?.sendMessage(getReg(deviceToken));
 
+    // 延迟发送加入数据包
+    await Future.delayed(const Duration(seconds: 1));
 
     // n.onMessage(2, 2, T),
     // n.onMessage(6144, 20, O),
@@ -218,15 +224,15 @@ class CCDanmaku implements LiveDanmaku {
     var data = {
       // 'ccsid': 512,
       // 'cccid': 1,
+      'roomId': args2.roomId,
       'cid': args2.channelId,
       'gametype': args2.gameType,
-      'roomId': args2.roomId,
-      // 'hall_version': 1,
-      // 'motive': '',
-      // 'account_id': '',
-      // 'recom_token': '',
-      // 'client_type': 4000,
-      // 'client_source': "",
+      'hall_version': 1,
+      'motive': '',
+      'account_id': deviceToken,
+      'recom_token': '',
+      'client_type': 4000,
+      'client_source': "",
       // 'room_sessid': "",
     };
     /// ccsid: 512,
