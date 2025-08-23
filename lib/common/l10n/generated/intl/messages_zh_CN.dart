@@ -242,6 +242,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "iptv": MessageLookupByLibrary.simpleMessage("网络"),
     "is_new_version": MessageLookupByLibrary.simpleMessage("当前已经是最新版本了"),
     "issue_feedback": MessageLookupByLibrary.simpleMessage("问题反馈"),
+    "juhe": MessageLookupByLibrary.simpleMessage("聚合"),
     "keyword_input": MessageLookupByLibrary.simpleMessage("请输入关键词"),
     "kuaishou": MessageLookupByLibrary.simpleMessage("快手"),
     "license": MessageLookupByLibrary.simpleMessage("开源许可证"),

@@ -327,6 +327,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "The current version is already the latest version",
     ),
     "issue_feedback": MessageLookupByLibrary.simpleMessage("Issue Feedback"),
+    "juhe": MessageLookupByLibrary.simpleMessage("JuHe"),
     "keyword_input": MessageLookupByLibrary.simpleMessage(
       "Please enter keywords",
     ),

@@ -6,6 +6,7 @@ import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/site/bilibili/bilibili_site.dart';
 import 'package:pure_live/core/site/cc/cc_site.dart';
 import 'package:pure_live/core/site/iptv/iptv_site.dart';
+import 'package:pure_live/core/site/juhe/juhe_site.dart';
 import 'package:pure_live/core/site/kuaishou/kuaishou_site.dart';
 import 'package:pure_live/core/site/soop/soop_site.dart';
 import 'package:pure_live/core/site/yy/yy_site.dart';
@@ -27,6 +28,7 @@ class Sites {
   static const String iptvSite = "iptv";
   static const String soopSite = "soop";
   static const String yySite = "yy";
+  static const String juheSite = "juhe";
   static List<Site> supportSites = [
     Site(
       id: bilibiliSite,
@@ -101,6 +103,16 @@ class Sites {
       iconData: IconFont.soopLogoCopy,
       iconDataColor: Color(0xffD1FF00),
       getSiteName: () => S.current.soop,
+    ),
+    Site(
+      id: juheSite,
+      name: "聚合",
+      logo: "assets/images/iptv.png",
+      liveSite: JuheSite(),
+      iconData: IconFont.dianshi,
+      iconDataColor: Color(0xffc87d1a),
+      getSiteName: () => S.current.juhe,
+      cacheCategory: false,
     ),
     Site(
       id: iptvSite,

@@ -94,7 +94,8 @@ class LiveRoom {
         'status': status,
         'notice': notice,
         'recordWatching': recordWatching,
-        'introduction': introduction
+        'introduction': introduction,
+        'link': link,
       };
 
   @override
