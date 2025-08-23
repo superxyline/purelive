@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -198,8 +199,7 @@ class YYSite extends LiveSite with YYSiteMixin {
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 
-  @override
-  Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) async {
+  getLiveStreamObj({required LiveRoom detail, required String qn}) async {
     var result = await HttpClient.instance.postJson(
       "https://stream-manager.yy.com/v3/channel/streams",
       queryParameters: {"uid": "0", "cid": detail.roomId, "sid": detail.roomId, "appid": "0", "sequence": "1755858374681", "encode": "json"},
@@ -236,52 +236,72 @@ class YYSite extends LiveSite with YYSiteMixin {
           "client_type": 8,
           "h265": 0
         },
-        "avp_parameter": {"version": 1, "client_type": 8, "service_type": 0, "imsi": 0, "send_time": 1755858374, "line_seq": -1, "gear": 1, "ssl": 1, "stream_format": 0}
+        "avp_parameter": {"version": 1, "client_type": 8, "service_type": 0, "imsi": 0, "send_time": 1755858374, "line_seq": -1, "gear": int.parse(qn), "ssl": 1, "stream_format": 0}
       },
       header: getHeaders(),
     );
     var jsonObj = JsonUtil.decode(result);
+    return jsonObj;
+  }
+
+  @override
+  Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) async {
+    var jsonObj = await getLiveStreamObj(detail: detail, qn: "1");
     var streamLineAddr = jsonObj['avp_info_res']['stream_line_addr'];
     var streamLineList = jsonObj['avp_info_res']['stream_line_list'];
-    var key = "";
-    var flvUrl = "";
-    var lineSeq = 0;
-    for (key in streamLineAddr.keys) {
-      var cdn_info = streamLineAddr[key];
-      lineSeq = cdn_info["line_seq"];
-      flvUrl = cdn_info['cdn_info']['url'];
-    }
+    final channelStreamInfo = jsonObj['channel_stream_info'] as Map<String, dynamic>;
+    final streams = channelStreamInfo['streams'] as List<dynamic>;
     List<LivePlayQuality> qualities = <LivePlayQuality>[];
-    var i = 0;
-    var qualityList = ["高清", "标清"];
-    var bitRateList = [1000, 500];
+    Map<String, LivePlayQuality> qualityMap = HashMap();
+    for (var stream in streams) {
+      final obj = stream as Map<String, dynamic>;
+      if (!obj.containsKey('stream_key')) continue;
 
-    for (var sKey in streamLineList.keys) {
-      var lineInfos = streamLineList[sKey]["line_infos"];
-      List<LivePlayQualityPlayUrlInfo> list = [];
-      var index = min(i, qualityList.length - 1);
-      for (var lineInfo in lineInfos) {
-        var curLineSeq = lineInfo["line_seq"];
-        var curPlayUrl = flvUrl.replaceAll(key, sKey).replaceAll("line_seq=$lineSeq", "line_seq=$curLineSeq");
-        list.add(LivePlayQualityPlayUrlInfo(playUrl: curPlayUrl));
+      final jsonStr = obj['json']?.toString() ?? '';
+      if (jsonStr.isEmpty) continue;
+
+      final info = json.decode(jsonStr) as Map<String, dynamic>;
+      final gearInfo = info['gear_info'] as Map<String, dynamic>?;
+      if (gearInfo == null) continue;
+
+      final desc = gearInfo['name']?.toString() ?? '';
+      final qn = gearInfo['gear']?.toString() ?? '';
+      final rate = info['rate'] as int? ?? 0;
+
+      if (qn.isNotEmpty && desc.isNotEmpty) {
+        qualityMap.putIfAbsent(desc, () {
+          return LivePlayQuality(
+            quality: desc,
+            sort: rate,
+            data: qn,
+            bitRate: rate,
+          );
+        });
       }
-      var livePlayQuality = LivePlayQuality(
-        quality: qualityList[index],
-        sort: index,
-        data: list,
-        bitRate: bitRateList[index],
-      );
-      livePlayQuality.playUrlList = list;
-      qualities.add(livePlayQuality);
-      i++;
     }
 
-    // qualities.sort((a, b) => b.sort.compareTo(a.sort));
+    // 排序清晰度
+    qualities = qualityMap.values.toList();
+    qualities.sort((a, b) => b.sort.compareTo(a.sort));
     return Future.value(qualities);
   }
 
   @override
   Future<List<LivePlayQualityPlayUrlInfo>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
+    var qn = quality.data?.toString() ?? '';
+    // return quality.playUrlList;
+    // 获取直播数据
+    final liveData = await getLiveStreamObj(detail: detail,qn: qn);
+
+    // 解析直播地址
+    final avpInfoRes = liveData['avp_info_res'] as Map<String, dynamic>;
+    final streamLineAddr = avpInfoRes['stream_line_addr'] as Map<String, dynamic>;
+
+    final name = streamLineAddr.keys.first;
+    final cdnInfo = streamLineAddr[name]['cdn_info'] as Map<String, dynamic>;
+    final url = cdnInfo['url'] ?? "";
+
+    quality.playUrlList.add(LivePlayQualityPlayUrlInfo(playUrl: url, info: ""));
     return quality.playUrlList;
   }
 
@@ -398,52 +418,6 @@ class YYSite extends LiveSite with YYSiteMixin {
     }
   }
 
-  Future<String> getCdnUrl({required String bno, String quality = "master"}) async {
-    var url = "http://livestream-manager.sooplive.co.kr/broad_stream_assign.html";
-    var resultText = await HttpClient.instance.getJson(
-      url,
-      queryParameters: {
-        'return_type': 'gcp_cdn',
-        'use_cors': 'false',
-        'cors_origin_url': 'play.sooplive.co.kr',
-        'broad_key': '$bno-common-$quality-hls',
-        'time': '8361.086329376785',
-      },
-      header: getHeaders(),
-    );
-    resultText = JsonUtil.decode(resultText);
-    var viewUrl = resultText['view_url'];
-    return viewUrl;
-  }
-
-  Future<String> getStreamAid({required String roomId, required String quality}) async {
-    var url = "https://live.sooplive.co.kr/afreeca/player_live_api.php";
-    var resultText = await HttpClient.instance.postJson(
-      url,
-      formUrlEncoded: true,
-      queryParameters: {
-        'bjid': roomId,
-      },
-      data: {
-        "bid": roomId,
-        "bno": "286770866",
-        "type": "aid",
-        "pwd": "",
-        "player_type": "html5",
-        "stream_type": "common",
-        "quality": quality,
-        "mode": "landing",
-        "from_api": "0",
-        "is_revive": "false"
-      },
-      header: getHeaders(),
-    );
-    resultText = JsonUtil.decode(resultText);
-    var jsonObj = resultText['CHANNEL'];
-    var aid = jsonObj["AID"] ?? "";
-    return aid;
-  }
-
   @override
   Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
     var pageSize = 60;
@@ -476,14 +450,6 @@ class YYSite extends LiveSite with YYSiteMixin {
     }
     var hasMore = items.length >= pageSize;
     return LiveSearchRoomResult(hasMore: hasMore, items: items);
-  }
-
-  String getAvatarUrlByRoomId(String roomId) {
-    if (roomId.isEmpty || roomId.length < 2) {
-      return "";
-    }
-    var part = roomId.substring(0, 2);
-    return "https://stimg.sooplive.co.kr/LOGO/$part/$roomId/m/$roomId.webp";
   }
 
   String validImgUrl(String imgUrl) {
