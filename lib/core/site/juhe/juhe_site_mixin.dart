@@ -3,7 +3,7 @@ import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/sites.dart';
 
 mixin JuheSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
-  var platform =  Sites.yySite;
+  var platform =  Sites.juheSite;
   /// ------------------ 登录
   @override
   bool isSupportLogin() => false;

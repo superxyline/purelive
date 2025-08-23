@@ -2,7 +2,7 @@ import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/sites.dart';
 
-mixin DouyuSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
+mixin SiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
   var platform =  Sites.iptvSite;
   /// ------------------ 登录
   @override
