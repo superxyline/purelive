@@ -333,10 +333,7 @@ void resetRoomInDialog(VideoController controller, LiveRoom item, {isBottomSheet
     return;
   }
   controller.exitFull();
-  controller.livePlayController.resetRoom(
-    Sites.of(item.platform!),
-    item.roomId!,
-  );
+  controller.livePlayController.resetRoom(item);
 }
 
 /// 显示列表

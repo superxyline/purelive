@@ -353,7 +353,7 @@ class LivePlayController extends StateController {
         isLastLine.updateValueNotEquate(false);
         isFirstLoad.updateValueNotEquate(true);
         restoryQualityAndLines();
-        resetRoom(Sites.of(liveRoomRx.platform.value!), liveRoomRx.roomId.value!);
+        resetRoom(liveRoomRx.toLiveRoom());
       } else {
         if (success.value) {
           isActive.updateValueNotEquate(false);
@@ -371,18 +371,17 @@ class LivePlayController extends StateController {
     initAutoShutDown();
   }
 
-  void resetRoom(Site site, String roomId) async {
+  void resetRoom(LiveRoom item) async {
     // if (liveRoomRx.platform == site.id && liveRoomRx.roomId == roomId) {
     //   return;
     // }
-    currentSite = site;
+    var of = Sites.of(item.platform??"");
+    currentSite = of;
 
     // var liveRoom = liveRoomRx;
     // liveRoom.roomId = roomId;
     // liveRoom.platform = site.id;
-    liveRoomRx
-      ..roomId.value = roomId
-      ..platform.value = site.id;
+    liveRoomRx.updateByLiveRoom(item);
 
     success.updateValueNotEquate(false);
     hasError.updateValueNotEquate(false);
