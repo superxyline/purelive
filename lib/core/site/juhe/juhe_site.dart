@@ -128,8 +128,13 @@ class JuheSite extends LiveSite with JuheSiteMixin {
 
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
-    LiveArea category = LiveArea(platform: id, areaName: "卡哇伊");
-    return await getCategoryRooms(category);
+    var roomAreaName = "卡哇伊";
+    var map = await getAreaNameMap();
+    var tmpLiveArea = map[roomAreaName];
+    if(tmpLiveArea == null) {
+      return LiveCategoryResult(hasMore: false, items: [],);
+    }
+    return await getCategoryRooms(tmpLiveArea);
   }
 
   @override
@@ -137,8 +142,6 @@ class JuheSite extends LiveSite with JuheSiteMixin {
     if(detail.link.isNotNullOrEmpty) {
       return detail;
     }
-    var find = Get.find<AreasListController>(tag: id);
-    List<LiveCategory> data = await find.getData(1, 100);
     var roomAreaName = detail.area ?? "";
     var map = await getAreaNameMap();
     var tmpLiveArea = map[roomAreaName];

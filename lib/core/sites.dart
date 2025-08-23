@@ -112,7 +112,7 @@ class Sites {
       iconData: IconFont.dianshi,
       iconDataColor: Color(0xffc87d1a),
       getSiteName: () => S.current.juhe,
-      cacheCategory: false,
+      // cacheCategory: false,
     ),
     Site(
       id: iptvSite,
