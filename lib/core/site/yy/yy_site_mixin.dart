@@ -42,7 +42,7 @@ mixin YYSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
 
     List<RegExp> regExpBeanList = [
       // 虎牙
-      RegExp(r"yy\.com/([\d|\w]+)$"),
+      RegExp(r"yy\.com/([\d|\w]+)"),
     ];
     siteParseBean = await parseUrl(regExpBeanList, realUrl, platform);
     return siteParseBean;
