@@ -208,18 +208,22 @@ class CountChip extends StatelessWidget {
     required this.count,
     this.dense = false,
     this.color = Colors.black,
+    this.size,
   });
 
   final IconData? icon;
   final String count;
   final bool dense;
   final Color color;
+  final double? size;
 
   @override
   Widget build(BuildContext context) {
+    var curSize = size;
+    curSize ??= Theme.of(context).textTheme.bodySmall?.fontSize;
     return Card(
       shape: const StadiumBorder(),
-      color: color.withValues(alpha: 0.8),
+      color: color.withValues(alpha: 0.6),
       shadowColor: Colors.transparent,
       elevation: 0,
       child: Padding(
@@ -229,17 +233,17 @@ class CountChip extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           textDirection: TextDirection.ltr,
           children: [
-            if(icon != null)
-            Icon(
-              icon,
-              color: Colors.white.withValues(alpha: 0.8),
-              size: Theme.of(context).textTheme.bodySmall!.fontSize! * 1.2,
-            ),
+            if (icon != null)
+              Icon(
+                icon,
+                color: Colors.white.withValues(alpha: 0.8),
+                size: size !=null ? size! * 1.2: size,
+              ),
             Text(
               count,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                    fontSize: size,
                   ),
             ),
           ],
