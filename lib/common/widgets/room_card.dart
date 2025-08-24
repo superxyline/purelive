@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 import 'package:pure_live/plugins/cache_network.dart';
+import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 
 // ignore: must_be_immutable
@@ -12,7 +13,9 @@ class RoomCard extends StatelessWidget {
     this.dense = false,
     this.onTap,
   });
+
   final LiveRoom room;
+
   /// 密集
   final bool dense;
   final GestureTapCallback? onTap;
@@ -27,12 +30,12 @@ class RoomCard extends StatelessWidget {
         title: Text(room.title!),
         content: Text(
           S.current.room_info_content(
-                room.roomId!,
-                room.platform!,
-                room.nick!,
-                room.title!,
-                room.liveStatus!.name,
-              ),
+            room.roomId!,
+            room.platform!,
+            room.nick!,
+            room.title!,
+            room.liveStatus!.name,
+          ),
         ),
         actions: [FollowButton(room: room)],
       ),
@@ -49,7 +52,7 @@ class RoomCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
         onTap: () {
-          if(onTap == null) {
+          if (onTap == null) {
             defaultOnTap(context);
           } else {
             onTap!();
@@ -94,11 +97,11 @@ class RoomCard extends StatelessWidget {
                     ),
                   ),
                 // 平台图标
-                 Positioned(
+                Positioned(
                   left: dense ? 5 : 7,
                   top: dense ? 5 : 7,
                   child: SiteWidget.getSiteLogeImage(room.platform!)!,
-                  ),
+                ),
                 // 人气值
                 if (room.liveStatus == LiveStatus.live || room.liveStatus == LiveStatus.replay)
                   Positioned(
@@ -107,6 +110,17 @@ class RoomCard extends StatelessWidget {
                     child: CountChip(
                       icon: Icons.whatshot_rounded,
                       count: readableCount(readableCountStrToNum(room.watching ?? "0").toString()),
+                      dense: dense,
+                    ),
+                  ),
+                // 分类
+                if (room.area.isNotNullOrEmpty)
+                  Positioned(
+                    left: dense ? 0 : 2,
+                    bottom: dense ? 0 : 2,
+                    child: CountChip(
+                      // icon: Icons.snowshoeing_rounded,
+                      count: room.area ?? "",
                       dense: dense,
                     ),
                   ),
@@ -190,13 +204,13 @@ class _FollowButtonState extends State<FollowButton> {
 class CountChip extends StatelessWidget {
   const CountChip({
     super.key,
-    required this.icon,
+    this.icon,
     required this.count,
     this.dense = false,
     this.color = Colors.black,
   });
 
-  final IconData icon;
+  final IconData? icon;
   final String count;
   final bool dense;
   final Color color;
@@ -215,12 +229,12 @@ class CountChip extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           textDirection: TextDirection.ltr,
           children: [
+            if(icon != null)
             Icon(
               icon,
               color: Colors.white.withValues(alpha: 0.8),
               size: Theme.of(context).textTheme.bodySmall!.fontSize! * 1.2,
             ),
-
             Text(
               count,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
