@@ -84,10 +84,7 @@ class BiliBiliSite implements LiveSite {
     const baseUrl = "https://api.live.bilibili.com/xlive/web-interface/v1/second/getList";
     var url =
         "$baseUrl?platform=web&parent_area_id=${category.areaType}&area_id=${category.areaId}&sort_type=&page=$page&w_webid=${await getAccessId()}";
-
     var queryParams = await getWbiSign(url);
-
-    developer.log(queryParams.toString(), name: "queryParams");
     var result = await HttpClient.instance.getJson(baseUrl, queryParameters: queryParams, header: await getHeader());
     developer.log(result.toString(), name: "result");
     var hasMore = result["data"]["has_more"] == 1;
@@ -129,7 +126,6 @@ class BiliBiliSite implements LiveSite {
     for (var item in result["data"]["playurl_info"]["playurl"]["g_qn_desc"]) {
       qualitiesMap[int.tryParse(item["qn"].toString()) ?? 0] = item["desc"].toString();
     }
-    developer.log(qualitiesMap.toString(), name: "qualitiesMap");
     for (var item in result["data"]["playurl_info"]["playurl"]["stream"][0]["format"][0]["codec"][0]["accept_qn"]) {
       var qualityItem = LivePlayQuality(quality: qualitiesMap[item] ?? "未知清晰度", data: item);
       qualities.add(qualityItem);
@@ -155,7 +151,6 @@ class BiliBiliSite implements LiveSite {
     );
 
     var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
-
     for (var streamItem in streamList) {
       var formatList = streamItem["format"];
       for (var formatItem in formatList) {
@@ -166,7 +161,14 @@ class BiliBiliSite implements LiveSite {
             var urlList = codecItem["url_info"];
             var baseUrl = codecItem["base_url"].toString();
             for (var urlItem in urlList) {
-              urls.add("${urlItem["host"]}$baseUrl${urlItem["extra"]}");
+              if (!urlItem["host"].contains("gotcha104")) {
+                urls.add("${urlItem["host"]}$baseUrl${urlItem["extra"]}");
+              }
+            }
+            if (urls.isEmpty) {
+              for (var urlItem in urlList) {
+                urls.add("${urlItem["host"]}$baseUrl${urlItem["extra"]}");
+              }
             }
           }
         }
