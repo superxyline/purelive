@@ -96,7 +96,6 @@
 
 
 ### 意见
-[ExoPlayer](https://github.com/liuchuancong/better_player/tree/media3)由本人维护,点击进行PR以及建议。
 > 如有许可协议使用不当请发 Issue 或者 Pull Request
 >
 > If any of the licenses are not being used correctly, please submit a new issue.
