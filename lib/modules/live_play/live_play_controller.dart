@@ -388,11 +388,6 @@ class LivePlayController extends StateController {
       success.value = false;
       return;
     }
-    log(playUrl.toString(), name: "play_url");
-
-    if (room.platform == Sites.bilibiliSite && playUrl.length > 1) {
-      playUrl.removeAt(0);
-    }
     playUrls.value = playUrl;
     setPlayer();
   }

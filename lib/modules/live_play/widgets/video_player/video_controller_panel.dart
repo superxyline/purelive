@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:canvas_danmaku/danmaku_screen.dart';
-import 'package:canvas_danmaku/models/danmaku_option.dart';
+import 'package:pure_live/pkg/canvas_danmaku/danmaku_screen.dart';
+import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
 class VideoControllerPanel extends StatefulWidget {
@@ -381,12 +381,11 @@ class DanmakuViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => DanmakuScreen(
-        createdController: (c) {
-          controller.setDanmukuController(c);
-        },
+        controller: controller.danmakuController,
         option: DanmakuOption(
           fontSize: controller.danmakuFontSize.value,
-          area: controller.danmakuArea.value,
+          topArea: controller.danmakuTopArea.value,
+          bottomArea: controller.danmakuBottomArea.value,
           duration: controller.danmakuSpeed.value.toInt(),
           opacity: controller.danmakuOpacity.value,
           fontWeight: controller.danmakuFontBorder.value.toInt(),
@@ -947,15 +946,28 @@ class DanmakuSetting extends StatelessWidget {
           ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            leading: Text(S.of(context).settings_danmaku_area, style: label),
+            leading: Text('距离顶部区域', style: label),
             title: Slider(
               divisions: 10,
               min: 0.0,
-              max: 1.0,
-              value: controller.danmakuArea.value,
-              onChanged: (val) => controller.danmakuArea.value = val,
+              max: 0.4,
+              value: controller.danmakuTopArea.value,
+              onChanged: (val) => controller.danmakuTopArea.value = val,
             ),
-            trailing: Text('${(controller.danmakuArea.value * 100).toInt()}%', style: digit),
+            trailing: Text('${(controller.danmakuTopArea.value * 100).toInt()}%', style: digit),
+          ),
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Text('距离底部区域', style: label),
+            title: Slider(
+              divisions: 10,
+              min: 0.0,
+              max: 0.4,
+              value: controller.danmakuBottomArea.value,
+              onChanged: (val) => controller.danmakuBottomArea.value = val,
+            ),
+            trailing: Text('${(controller.danmakuBottomArea.value * 100).toInt()}%', style: digit),
           ),
           ListTile(
             dense: true,

@@ -10,14 +10,14 @@ import 'package:pure_live/common/index.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:canvas_danmaku/danmaku_controller.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-import 'package:canvas_danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
-import 'package:canvas_danmaku/models/danmaku_content_item.dart';
+import 'package:pure_live/pkg/canvas_danmaku/danmaku_controller.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
+import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_content_item.dart';
 
 class VideoController with ChangeNotifier {
   final GlobalKey playerKey;
@@ -115,7 +115,6 @@ class VideoController with ChangeNotifier {
   final showLocked = false.obs;
   final danmuKey = GlobalKey();
 
-  List<DanmakuController> danmakuControllers = [];
   Timer? _debounceTimer;
 
   void enableController() {
@@ -127,7 +126,8 @@ class VideoController with ChangeNotifier {
   }
 
   final hideDanmaku = false.obs;
-  final danmakuArea = 1.0.obs;
+  final danmakuTopArea = 0.0.obs;
+  final danmakuBottomArea = 0.0.obs;
   final danmakuSpeed = 8.0.obs;
   final danmakuFontSize = 16.0.obs;
   final danmakuFontBorder = 4.0.obs;
@@ -149,10 +149,19 @@ class VideoController with ChangeNotifier {
     required this.currentQuality,
     required this.videoPlayerIndex,
   }) {
+    danmakuController = DanmakuController(
+      onAddDanmaku: (item) {},
+      onUpdateOption: (option) {},
+      onPause: () {},
+      onResume: () {},
+      onClear: () {},
+    );
+
     videoFitIndex.value = settings.videoFitIndex.value;
     videoFit.value = settings.videofitArrary[videoFitIndex.value];
     hideDanmaku.value = settings.hideDanmaku.value;
-    danmakuArea.value = settings.danmakuArea.value;
+    danmakuTopArea.value = settings.danmakuTopArea.value;
+    danmakuBottomArea.value = settings.danmakuBottomArea.value;
     danmakuSpeed.value = settings.danmakuSpeed.value;
     danmakuFontSize.value = settings.danmakuFontSize.value;
     danmakuFontBorder.value = settings.danmakuFontBorder.value;
@@ -172,6 +181,8 @@ class VideoController with ChangeNotifier {
   final batteryLevel = 100.obs;
 
   final angle = 0.0.obs;
+
+  late DanmakuController danmakuController;
   void initBattery() {
     if (Platform.isAndroid || Platform.isIOS) {
       _battery.batteryLevel.then((value) => batteryLevel.value = value);
@@ -394,17 +405,21 @@ class VideoController with ChangeNotifier {
     hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
     hideDanmaku.listen((data) {
       if (data) {
-        for (var controller in danmakuControllers) {
-          controller.clear();
-        }
+        danmakuController.clear();
       }
       PrefUtil.setBool('hideDanmaku', data);
       settings.hideDanmaku.value = data;
     });
-    danmakuArea.value = PrefUtil.getDouble('danmakuArea') ?? 1.0;
-    danmakuArea.listen((data) {
-      PrefUtil.setDouble('danmakuArea', data);
-      settings.danmakuArea.value = data;
+    danmakuTopArea.value = PrefUtil.getDouble('danmakuTopArea') ?? 0.0;
+    danmakuTopArea.listen((data) {
+      PrefUtil.setDouble('danmakuTopArea', data);
+      settings.danmakuTopArea.value = data;
+      updateDanmaku();
+    });
+    danmakuBottomArea.value = PrefUtil.getDouble('danmakuBottomArea') ?? 0.0;
+    danmakuBottomArea.listen((data) {
+      PrefUtil.setDouble('danmakuBottomArea', data);
+      settings.danmakuBottomArea.value = data;
       updateDanmaku();
     });
     danmakuSpeed.value = PrefUtil.getDouble('danmakuSpeed') ?? 8;
@@ -434,31 +449,24 @@ class VideoController with ChangeNotifier {
   }
 
   void updateDanmaku() {
-    for (var controller in danmakuControllers) {
-      controller.updateOption(
-        DanmakuOption(
-          fontSize: danmakuFontSize.value,
-          area: danmakuArea.value,
-          duration: danmakuSpeed.value.toInt(),
-          opacity: danmakuOpacity.value,
-          fontWeight: danmakuFontBorder.value.toInt(),
-        ),
-      );
-    }
-  }
-
-  void setDanmukuController(DanmakuController controller) {
-    danmakuControllers.add(controller);
+    danmakuController.updateOption(
+      DanmakuOption(
+        fontSize: danmakuFontSize.value,
+        topArea: danmakuTopArea.value,
+        bottomArea: danmakuBottomArea.value,
+        duration: danmakuSpeed.value.toInt(),
+        opacity: danmakuOpacity.value,
+        fontWeight: danmakuFontBorder.value.toInt(),
+      ),
+    );
   }
 
   void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
     if (isPlaying.value) {
-      for (var controller in danmakuControllers) {
-        controller.addDanmaku(
-          DanmakuContentItem(msg.message, color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)),
-        );
-      }
+      danmakuController.addDanmaku(
+        DanmakuContentItem(msg.message, color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)),
+      );
     }
   }
 
@@ -673,10 +681,8 @@ class VideoController with ChangeNotifier {
 
   void enterPipMode(BuildContext context) async {
     if ((Platform.isAndroid || Platform.isIOS)) {
-      for (var danmakuController in danmakuControllers) {
-        danmakuController.onClear();
-        danmakuController.resume();
-      }
+      danmakuController.clear();
+      danmakuController.resume();
       if (Platform.isWindows || videoPlayerIndex == 0) {
         await pip.enable(ImmediatePiP());
       } else {

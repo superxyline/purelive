@@ -103,8 +103,12 @@ class SettingsService extends GetxController {
       PrefUtil.setBool('hideDanmaku', value);
     });
 
-    danmakuArea.listen((value) {
-      PrefUtil.setDouble('danmakuArea', value);
+    danmakuTopArea.listen((value) {
+      PrefUtil.setDouble('danmakuTopArea', value);
+    });
+
+    danmakuBottomArea.listen((value) {
+      PrefUtil.setDouble('danmakuBottomArea', value);
     });
 
     danmakuSpeed.listen((value) {
@@ -264,7 +268,8 @@ class SettingsService extends GetxController {
   final enableAutoCheckUpdate = (PrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
   final videoFitIndex = (PrefUtil.getInt('videoFitIndex') ?? 0).obs;
   final hideDanmaku = (PrefUtil.getBool('hideDanmaku') ?? false).obs;
-  final danmakuArea = (PrefUtil.getDouble('danmakuArea') ?? 1.0).obs;
+  final danmakuTopArea = (PrefUtil.getDouble('danmakuTopArea') ?? 0.0).obs;
+  final danmakuBottomArea = (PrefUtil.getDouble('danmakuBottomArea') ?? 0.0).obs;
   final danmakuSpeed = (PrefUtil.getDouble('danmakuSpeed') ?? 8.0).obs;
   final danmakuFontSize = (PrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
   final danmakuFontBorder = (PrefUtil.getDouble('danmakuFontBorder') ?? 4.0).obs;
@@ -645,7 +650,10 @@ class SettingsService extends GetxController {
     preferPlatform.value = json['preferPlatform'] ?? platforms[0];
     videoFitIndex.value = json['videoFitIndex'] ?? 0;
     hideDanmaku.value = json['hideDanmaku'] ?? false;
-    danmakuArea.value = json['danmakuArea'] != null ? double.parse(json['danmakuArea'].toString()) : 1.0;
+    danmakuTopArea.value = json['danmakuTopArea'] != null ? double.parse(json['danmakuTopArea'].toString()) : 0.0;
+    danmakuBottomArea.value = json['danmakuBottomArea'] != null
+        ? double.parse(json['danmakuBottomArea'].toString())
+        : 1.0;
     danmakuSpeed.value = json['danmakuSpeed'] != null ? double.parse(json['danmakuSpeed'].toString()) : 8.0;
     danmakuFontSize.value = json['danmakuFontSize'] != null ? double.parse(json['danmakuFontSize'].toString()) : 16.0;
     danmakuFontBorder.value = json['danmakuFontBorder'] != null
@@ -698,7 +706,8 @@ class SettingsService extends GetxController {
 
     json['videoFitIndex'] = videoFitIndex.value;
     json['hideDanmaku'] = hideDanmaku.value;
-    json['danmakuArea'] = danmakuArea.value;
+    json['danmakuTopArea'] = danmakuTopArea.value;
+    json['danmakuBottomArea'] = danmakuBottomArea.value;
     json['danmakuSpeed'] = danmakuSpeed.value;
     json['danmakuFontSize'] = danmakuFontSize.value;
     json['danmakuFontBorder'] = danmakuFontBorder.value;
@@ -741,7 +750,8 @@ class SettingsService extends GetxController {
       "preferResolution": "原画",
       "preferPlatform": "bilibili",
       "hideDanmaku": false,
-      "danmakuArea": 1.0,
+      "danmakuTopArea": 0.0,
+      "danmakuBottomArea": 0.0,
       "danmakuSpeed": 8.0,
       "danmakuFontSize": 16.0,
       "danmakuFontBorder": 4.0,

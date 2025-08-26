@@ -129,7 +129,7 @@ class BiliBiliSite implements LiveSite {
     for (var item in result["data"]["playurl_info"]["playurl"]["g_qn_desc"]) {
       qualitiesMap[int.tryParse(item["qn"].toString()) ?? 0] = item["desc"].toString();
     }
-
+    developer.log(qualitiesMap.toString(), name: "qualitiesMap");
     for (var item in result["data"]["playurl_info"]["playurl"]["stream"][0]["format"][0]["codec"][0]["accept_qn"]) {
       var qualityItem = LivePlayQuality(quality: qualitiesMap[item] ?? "未知清晰度", data: item);
       qualities.add(qualityItem);
