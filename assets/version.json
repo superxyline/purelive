@@ -1,7 +1,7 @@
 {
-  "version": "1.9.4",
+  "version": "1.9.5",
   "version_num": 10192,
-  "version_desc": "-Fix: 修复抖音直播 间隔过短导致的崩溃问题\n-Add: Mpv高级设置 \n-Update: 更新依赖包",
+  "version_desc": "-Fix: 修复抖音直播 \n-Fix: 优化弹幕 \n-Fix: 优化B站直播",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
