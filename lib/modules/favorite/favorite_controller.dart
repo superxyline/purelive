@@ -62,24 +62,25 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
         .where((room) => room.platform!.isNotEmpty)
         .map((room) => Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!, platform: room.platform!))
         .toList();
-
     try {
-      // 控制并发数量为3
       for (int i = 0; i < futures.length; i += 5) {
-        List<LiveRoom> rooms = await Future.wait(futures.sublist(i, i + 5 > futures.length ? futures.length : i + 5));
-        for (var room in rooms) {
-          try {
-            settings.updateRoom(room);
-          } catch (e) {
-            debugPrint('Error during refresh for a single request: $e');
+        try {
+          List<LiveRoom> rooms = await Future.wait(futures.sublist(i, i + 5 > futures.length ? futures.length : i + 5));
+          for (var room in rooms) {
+            try {
+              settings.updateRoom(room);
+            } catch (e) {
+              debugPrint('Error during refresh for a single request: $e');
+            }
           }
+        } catch (e) {
+          debugPrint('Error during refresh for a batch of requests: $e');
         }
       }
       syncRooms();
     } catch (e) {
       debugPrint('Error during refresh: $e');
     }
-
     isFirstLoad = false;
     return false;
   }
