@@ -60,7 +60,7 @@ class SettingsPage extends GetView<SettingsService> {
               title: Text(S.of(context).enable_background_play),
               subtitle: Text(S.of(context).enable_background_play_subtitle),
               value: controller.enableBackgroundPlay.value,
-              activeColor: Theme.of(context).colorScheme.primary,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
             ),
           ),
@@ -70,7 +70,7 @@ class SettingsPage extends GetView<SettingsService> {
                 title: Text(S.of(context).enable_screen_keep_on),
                 subtitle: Text(S.of(context).enable_screen_keep_on_subtitle),
                 value: controller.enableScreenKeepOn.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               ),
             ),
@@ -159,7 +159,7 @@ class SettingsPage extends GetView<SettingsService> {
               title: Text(S.of(context).enable_fullscreen_default),
               subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
               value: controller.enableFullScreenDefault.value,
-              activeColor: Theme.of(context).colorScheme.primary,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
             ),
           ),
@@ -174,7 +174,7 @@ class SettingsPage extends GetView<SettingsService> {
               title: Text(S.of(context).enable_dynamic_color),
               subtitle: Text(S.of(context).enable_dynamic_color_subtitle),
               value: controller.enableDynamicTheme.value,
-              activeColor: Theme.of(context).colorScheme.primary,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => controller.enableDynamicTheme.value = value,
             ),
           ),
@@ -183,7 +183,7 @@ class SettingsPage extends GetView<SettingsService> {
               title: Text(S.of(context).enable_dense_favorites_mode),
               subtitle: Text(S.of(context).enable_dense_favorites_mode_subtitle),
               value: controller.enableDenseFavorites.value,
-              activeColor: Theme.of(context).colorScheme.primary,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => controller.enableDenseFavorites.value = value,
             ),
           ),
@@ -192,7 +192,7 @@ class SettingsPage extends GetView<SettingsService> {
               title: Text(S.of(context).enable_auto_check_update),
               subtitle: Text(S.of(context).enable_auto_check_update_subtitle),
               value: controller.enableAutoCheckUpdate.value,
-              activeColor: Theme.of(context).colorScheme.primary,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
             ),
           ),
@@ -223,7 +223,7 @@ class SettingsPage extends GetView<SettingsService> {
               () => SwitchListTile(
                 title: Text(S.of(context).double_click_to_exit),
                 value: controller.doubleExit.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.doubleExit.value = value,
               ),
             ),
@@ -232,7 +232,7 @@ class SettingsPage extends GetView<SettingsService> {
               () => SwitchListTile(
                 title: Text(S.of(context).enable_codec),
                 value: controller.enableCodec.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableCodec.value = value,
               ),
             ),
@@ -242,7 +242,7 @@ class SettingsPage extends GetView<SettingsService> {
                 title: Text('兼容模式'),
                 subtitle: Text('若播放卡顿可尝试打开此选项'),
                 value: controller.playerCompatMode.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.playerCompatMode.value = value,
               ),
             ),
@@ -264,18 +264,37 @@ class SettingsPage extends GetView<SettingsService> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(S.of(Get.context!).change_theme_mode),
-          children: SettingsService.themeModes.keys.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
+          children: [
+            RadioGroup<String>(
               groupValue: controller.themeModeName.value,
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
+              onChanged: (String? value) {
                 controller.changeThemeMode(value!);
                 Navigator.of(context).pop();
               },
-            );
-          }).toList(),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 0, bottom: 10, left: 16, right: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: SettingsService.themeModes.keys.map<Widget>((name) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Radio(value: name, activeColor: Theme.of(Get.context!).colorScheme.primary),
+                        GestureDetector(
+                          onTap: () {
+                            controller.changeThemeMode(name);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -333,18 +352,39 @@ class SettingsPage extends GetView<SettingsService> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(S.of(context).change_language),
-          children: SettingsService.languages.keys.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
+          children: [
+            RadioGroup<String>(
               groupValue: controller.languageName.value,
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
-                controller.changeLanguage(value!);
-                Navigator.of(context).pop();
+              onChanged: (String? value) {
+                if (value != null) {
+                  controller.changeLanguage(value);
+                  Navigator.of(context).pop();
+                }
               },
-            );
-          }).toList(),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 0, bottom: 10, left: 16, right: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: SettingsService.languages.keys.map<Widget>((name) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Radio<String>(value: name, activeColor: Theme.of(context).colorScheme.primary),
+                        GestureDetector(
+                          onTap: () {
+                            controller.changeLanguage(name);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -357,18 +397,39 @@ class SettingsPage extends GetView<SettingsService> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(S.of(context).change_player),
-          children: playerList.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
+          children: [
+            RadioGroup<String>(
               groupValue: playerList[controller.videoPlayerIndex.value],
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
-                controller.changePlayer(playerList.indexOf(name));
-                Navigator.of(context).pop();
+              onChanged: (String? value) {
+                if (value != null) {
+                  controller.changePlayer(playerList.indexOf(value));
+                  Navigator.of(context).pop();
+                }
               },
-            );
-          }).toList(),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 0, bottom: 10, left: 16, right: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: playerList.map<Widget>((name) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Radio<String>(value: name, activeColor: Theme.of(context).colorScheme.primary),
+                        GestureDetector(
+                          onTap: () {
+                            controller.changePlayer(playerList.indexOf(name));
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -380,18 +441,39 @@ class SettingsPage extends GetView<SettingsService> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(S.of(context).prefer_resolution),
-          children: SettingsService.resolutions.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
+          children: [
+            RadioGroup<String>(
               groupValue: controller.preferResolution.value,
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
-                controller.changePreferResolution(value!);
-                Navigator.of(context).pop();
+              onChanged: (String? value) {
+                if (value != null) {
+                  controller.changePreferResolution(value);
+                  Navigator.of(context).pop();
+                }
               },
-            );
-          }).toList(),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 0, bottom: 10, left: 16, right: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: SettingsService.resolutions.map<Widget>((name) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Radio<String>(value: name, activeColor: Theme.of(context).colorScheme.primary),
+                        GestureDetector(
+                          onTap: () {
+                            controller.changePreferResolution(name);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -403,18 +485,39 @@ class SettingsPage extends GetView<SettingsService> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(S.of(context).prefer_platform),
-          children: SettingsService.platforms.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
+          children: [
+            RadioGroup<String>(
               groupValue: controller.preferPlatform.value,
-              value: name,
-              title: Text(name.toUpperCase()),
-              onChanged: (value) {
-                controller.changePreferPlatform(value!);
-                Navigator.of(context).pop();
+              onChanged: (String? value) {
+                if (value != null) {
+                  controller.changePreferPlatform(value);
+                  Navigator.of(context).pop();
+                }
               },
-            );
-          }).toList(),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 0, bottom: 10, left: 16, right: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: SettingsService.platforms.map<Widget>((name) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Radio<String>(value: name, activeColor: Theme.of(context).colorScheme.primary),
+                        GestureDetector(
+                          onTap: () {
+                            controller.changePreferPlatform(name);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(name.toUpperCase(), style: Theme.of(context).textTheme.bodyLarge),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -481,7 +584,7 @@ class SettingsPage extends GetView<SettingsService> {
               SwitchListTile(
                 title: Text(S.of(context).auto_shutdown_time_subtitle),
                 value: controller.enableAutoShutDownTime.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableAutoShutDownTime.value = value,
               ),
               Slider(

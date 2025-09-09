@@ -651,10 +651,16 @@ class SettingsService extends GetxController {
     preferPlatform.value = json['preferPlatform'] ?? platforms[0];
     videoFitIndex.value = json['videoFitIndex'] ?? 0;
     hideDanmaku.value = json['hideDanmaku'] ?? false;
-    danmakuTopArea.value = json['danmakuTopArea'] != null ? double.parse(json['danmakuTopArea'].toString()) : 0.0;
+    danmakuTopArea.value = json['danmakuTopArea'] != null
+        ? double.parse(json['danmakuTopArea'].toString()) > 0.4
+              ? 0.4
+              : double.parse(json['danmakuTopArea'].toString())
+        : 0.0;
     danmakuBottomArea.value = json['danmakuBottomArea'] != null
-        ? double.parse(json['danmakuBottomArea'].toString())
-        : 1.0;
+        ? double.parse(json['danmakuBottomArea'].toString()) > 0.4
+              ? 0.4
+              : double.parse(json['danmakuBottomArea'].toString())
+        : 0.0;
     danmakuSpeed.value = json['danmakuSpeed'] != null ? double.parse(json['danmakuSpeed'].toString()) : 8.0;
     danmakuFontSize.value = json['danmakuFontSize'] != null ? double.parse(json['danmakuFontSize'].toString()) : 16.0;
     danmakuFontBorder.value = json['danmakuFontBorder'] != null

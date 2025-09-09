@@ -10,7 +10,7 @@ class HotAreasPage extends GetView<HotAreasController> {
       return SwitchListTile(
           title: Text(e.name),
           value: e.show,
-          activeColor: Theme.of(Get.context!).colorScheme.primary,
+          activeThumbColor: Theme.of(Get.context!).colorScheme.primary,
           onChanged: (bool value) => controller.onChanged(e.id, value));
     }).toList();
   }

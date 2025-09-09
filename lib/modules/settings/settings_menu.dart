@@ -45,21 +45,41 @@ class SettingsMenu<T> extends StatelessWidget {
       builder: (_) => SafeArea(
         top: false,
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: valueMap.keys
-                .map(
-                  (e) => RadioListTile(
-                    value: e,
-                    groupValue: value,
-                    title: Text((valueMap[e]?.tr) ?? "???", style: Get.textTheme.bodyMedium),
-                    onChanged: (e) {
-                      Navigator.of(Get.context!).pop();
-                      onChanged?.call(e as T);
-                    },
-                  ),
-                )
-                .toList(),
+          child: RadioGroup<T>(
+            // 绑定组值
+            groupValue: value,
+            // 处理值变化
+            onChanged: (T? newValue) {
+              if (newValue != null) {
+                Navigator.of(Get.context!).pop();
+                onChanged?.call(newValue);
+              }
+            },
+            // 内容区域
+            child: Padding(
+              padding: const EdgeInsets.only(top: 0, bottom: 10, left: 16, right: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // 遍历选项
+                children: valueMap.keys.map<Widget>((e) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 单选按钮
+                      Radio<T>(value: e, activeColor: Theme.of(Get.context!).colorScheme.primary),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(Get.context!).pop();
+                          onChanged?.call(e);
+                        },
+                        child: Text((valueMap[e]?.tr) ?? "???", style: Get.textTheme.bodyMedium),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ),
       ),

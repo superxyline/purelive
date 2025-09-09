@@ -76,23 +76,25 @@ class _BackupPageState extends State<BackupPage> {
   }
 
   void showImportSetDialog() {
-    List<String> list = ["本地导入", "网络导入"];
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
           title: const Text('导入M3u直播源'),
-          children: list.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
+          children: [
+            RadioGroup<String>(
               groupValue: '',
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
+              onChanged: (String? value) {
                 importFile(value!);
               },
-            );
-          }).toList(),
+              child: Column(
+                children: <Widget>[
+                  Radio<String>(value: '本地导入'),
+                  Radio<String>(value: '网络导入'),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );

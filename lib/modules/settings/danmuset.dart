@@ -32,7 +32,7 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
             title: Text(S.of(context).settings_danmaku_open),
             contentPadding: EdgeInsets.zero,
             value: !widget.controller.hideDanmaku.value,
-            activeColor: Theme.of(context).colorScheme.primary,
+            activeThumbColor: Theme.of(context).colorScheme.primary,
             onChanged: (bool value) => widget.controller.hideDanmaku.value = !value,
           ),
         ),
