@@ -76,7 +76,8 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
     if (_isVolumeBarVisible) {
       _hideVolumeBar();
     } else {
-      _showVolumeBar();
+      initVolume();
+      Future.delayed(const Duration(milliseconds: 20), _showVolumeBar);
     }
   }
 
