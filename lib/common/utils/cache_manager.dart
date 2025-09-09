@@ -1,9 +1,7 @@
-// ignore_for_file: implementation_imports
-import 'package:path/path.dart' as p;
 import 'package:file/local.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_cache_manager/src/storage/file_system/file_system_io.dart';
 
 class CustomCacheManager {
   static const key = 'customCacheKey';
