@@ -5,9 +5,7 @@ import 'package:window_manager/window_manager.dart';
 class WindowUtil {
   static String title = '纯粹直播';
   static Future<void> init({required double width, required double height}) async {
-    double? windowsWidth = PrefUtil.getDouble('windowsWidth') ?? width;
-    double? windowsHeight = PrefUtil.getDouble('windowsHeight') ?? height;
-    WindowOptions windowOptions = WindowOptions(size: Size(windowsWidth, windowsHeight), center: false);
+    WindowOptions windowOptions = WindowOptions(size: Size(width, height), center: true, minimumSize: Size(400, 400));
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();

@@ -96,9 +96,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
 
   void _init() async {
     if (Platform.isWindows) {
-      // Add this line to override the default close handler
       await WindowUtil.setTitle();
-      await WindowUtil.setWindowsPort();
       setState(() {});
     }
   }

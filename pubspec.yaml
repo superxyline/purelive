@@ -30,12 +30,12 @@ dependencies:
   flutter_smart_dialog: ^4.9.5 #各种弹窗 Toast/Dialog/Popup
   # barrage wall
   quiver: ^3.2.1
-  flex_color_picker: ^3.3.0
+  flex_color_picker: ^3.7.1
   flutter_exit_app: ^1.1.2
   visibility_detector: ^0.4.0+2
   floating: ^6.0.0
   # database
-  supabase_flutter: ^2.0.1
+  supabase_flutter: ^2.10.0
   email_validator: ^3.0.0
   font_awesome_flutter: ^10.6.0
   # video player mobile

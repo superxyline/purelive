@@ -74,13 +74,11 @@ class DouyinSite implements LiveSite {
   @override
   Future<List<LiveCategory>> getCategores(int page, int pageSize) async {
     List<LiveCategory> categories = [];
-    developer.log('111111');
     var result = await HttpClient.instance.getText(
       "https://live.douyin.com/",
       queryParameters: {},
       header: await getRequestHeaders(),
     );
-    developer.log(result);
     var renderData = RegExp(r'\{\\"pathname\\":\\"\/\\",\\"categoryData.*?\]\\n').firstMatch(result)?.group(0) ?? "";
     var renderDataJson = json.decode(
       renderData.trim().replaceAll('\\"', '"').replaceAll(r"\\", r"\").replaceAll(']\\n', ""),
@@ -120,7 +118,6 @@ class DouyinSite implements LiveSite {
   @override
   Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
     var ids = category.areaId?.split(',');
-    developer.log(ids.toString());
     var partitionId = ids?[0];
     var partitionType = ids?[1];
     var requestparam = await DouyinClient().commonRequest({
@@ -172,7 +169,6 @@ class DouyinSite implements LiveSite {
       "partition_type": '1',
       "req_from": 2.toString(),
     }, await getRequestHeaders());
-    developer.log(requestparam.toString());
     var result = await HttpClient.instance.getJson(
       "https://live.douyin.com/webcast/web/partition/detail/room/v2/",
       queryParameters: requestparam['params'],
