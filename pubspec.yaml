@@ -2,7 +2,7 @@ name: pure_live
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.9.5+5
+version: 1.9.6+6
 
 environment:
   sdk: ^3.8.1
@@ -14,7 +14,6 @@ dependencies:
     sdk: flutter
   #hashlib
   hashlib: ^2.0.0
-  vector_graphics: ^1.1.19
   # network
   flutter_js: ^0.8.2
   html: ^0.15.4
@@ -105,12 +104,6 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.1
   msix: ^3.16.7
   intl_utils: ^2.8.11
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
 # flutter pub run flutter_launcher_icons
@@ -159,7 +152,7 @@ flutter_intl:
 # windows msix package
 msix_config:
   display_name: 纯粹直播
-  msix_version: 1.0.0.87
+  msix_version: 1.0.0.88
   logo_path: assets/icons/icon.png
   certificate_path: assets/keystore/CERTIFICATE.pfx
   certificate_password: xxxx

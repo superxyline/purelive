@@ -1,7 +1,7 @@
 {
-  "version": "1.9.5",
+  "version": "1.9.6",
   "version_num": 10192,
-  "version_desc": "-Fix: 修复抖音直播 \n-Fix: 优化弹幕 \n-Fix: 优化B站直播",
+  "version_desc": "-Fix: 优化了部分UI细节\n-Fix: 修复了部分bug",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

@@ -1,4 +1,3 @@
-import 'route_path.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/mine_page.dart';

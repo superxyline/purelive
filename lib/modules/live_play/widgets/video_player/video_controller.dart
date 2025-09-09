@@ -116,7 +116,8 @@ class VideoController with ChangeNotifier {
   final danmuKey = GlobalKey();
 
   Timer? _debounceTimer;
-
+  StreamSubscription? _widthSubscription;
+  StreamSubscription? _heightSubscription;
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
@@ -237,6 +238,12 @@ class VideoController with ChangeNotifier {
           hasError.value = true;
           isPlaying.value = false;
         }
+      });
+      _widthSubscription = player.stream.width.listen((event) {
+        isVertical.value = (player.state.height ?? 9) > (player.state.width ?? 16);
+      });
+      _heightSubscription = player.stream.height.listen((event) {
+        isVertical.value = (player.state.height ?? 9) > (player.state.width ?? 16);
       });
       debounce(hasError, (callback) {
         if (hasError.value && !livePlayController.isLastLine.value) {
@@ -475,7 +482,6 @@ class VideoController with ChangeNotifier {
     if (hasDestory == false) {
       await destory();
     }
-
     super.dispose();
   }
 
@@ -503,6 +509,8 @@ class VideoController with ChangeNotifier {
     hasError.value = false;
     livePlayController.success.value = false;
     hasDestory = true;
+    _widthSubscription?.cancel();
+    _heightSubscription?.cancel();
     if (allowScreenKeepOn) WakelockPlus.disable();
 
     FlutterVolumeController.removeListener();
@@ -584,8 +592,20 @@ class VideoController with ChangeNotifier {
 
   void setVideoFit(BoxFit fit) {
     videoFit.value = fit;
+    double? aspectRatio;
+    if (player.state.width != null && player.state.height != null) {
+      aspectRatio = player.state.width! / player.state.height!;
+    }
     if (videoPlayerIndex == 0) {
-      key.currentState?.update(fit: fit);
+      if (fit == BoxFit.fitWidth) {
+        aspectRatio = 16 / 9;
+        key.currentState?.update(fit: fit);
+      } else if (fit == BoxFit.fitHeight) {
+        aspectRatio = 9 / 16;
+        key.currentState?.update(fit: BoxFit.contain, aspectRatio: aspectRatio);
+      } else {
+        key.currentState?.update(fit: fit, aspectRatio: aspectRatio);
+      }
     } else {
       mobileController?.setOverriddenFit(videoFit.value);
       mobileController?.retryDataSource();
@@ -614,14 +634,12 @@ class VideoController with ChangeNotifier {
 
   /// 设置横屏
   Future setLandscapeOrientation() async {
-    isVertical.value = false;
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
   }
 
   /// 设置竖屏
   Future setPortraitOrientation() async {
-    isVertical.value = true;
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
   }
@@ -638,6 +656,9 @@ class VideoController with ChangeNotifier {
       if (isFullscreen.value) {
         key.currentState?.exitFullscreen();
       } else {
+        if (Platform.isAndroid || Platform.isIOS) {
+          setLandscapeOrientation();
+        }
         key.currentState?.enterFullscreen();
       }
       isFullscreen.toggle();
@@ -650,7 +671,9 @@ class VideoController with ChangeNotifier {
         if (Platform.isAndroid) {
           SystemChrome.setEnabledSystemUIMode(
             !isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky,
+            overlays: SystemUiOverlay.values,
           );
+          setPortraitOrientation();
         }
       });
     }
