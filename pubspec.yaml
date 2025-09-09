@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   #hashlib
   hashlib: ^2.0.0
+  vector_graphics: ^1.1.19
   # network
   flutter_js: ^0.8.2
   html: ^0.15.4
@@ -21,7 +22,7 @@ dependencies:
   url_launcher: ^6.1.12
   web_socket_channel: ^3.0.1
   cached_network_image: ^3.3.0
-  
+  animated_splash_plus: ^1.0.3
   # ui related
   dynamic_color: ^1.8.1
   waterfall_flow: ^3.1.1

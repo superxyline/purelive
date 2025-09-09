@@ -77,6 +77,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   }
 
   void onDestinationSelected(int index) {
+    if (index == 1) {
+      Get.lazyPut(() => PopularController());
+    } else if (index == 2) {
+      Get.lazyPut(() => AreasController());
+    }
     setState(() => _selectedIndex = index);
     favoriteController.tabBottomIndex.value = index;
   }

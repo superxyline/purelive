@@ -28,12 +28,9 @@ void main(List<String> args) async {
 }
 
 void initService() {
-  Get.put(AuthController());
-  Get.put(SettingsService());
-  Get.put(FavoriteController());
-  Get.put(PopularController());
-  Get.put(AreasController());
-  Get.put(BiliBiliAccountService());
+  Get.lazyPut(() => SettingsService());
+  Get.lazyPut(() => PopularController());
+  Get.lazyPut(() => AreasController());
 }
 
 class MyApp extends StatefulWidget {
@@ -99,6 +96,9 @@ class _MyAppState extends State<MyApp> with WindowListener {
       await WindowUtil.setTitle();
       setState(() {});
     }
+    Get.lazyPut(() => AuthController());
+    Get.lazyPut(() => FavoriteController());
+    Get.lazyPut(() => BiliBiliAccountService());
   }
 
   @override
@@ -138,7 +138,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              initialRoute: RoutePath.kInitial,
+              initialRoute: RoutePath.kSplash,
               defaultTransition: Transition.native,
               getPages: AppPages.routes,
             );

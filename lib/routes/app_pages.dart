@@ -1,5 +1,6 @@
 import 'route_path.dart';
 import 'package:get/get.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/mine_page.dart';
 import 'package:pure_live/modules/home/home_page.dart';
 import 'package:pure_live/modules/about/about_page.dart';
@@ -7,6 +8,7 @@ import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
+import 'package:pure_live/modules/splash/splash_screen.dart';
 import 'package:pure_live/modules/web_dav/web_dav_page.dart';
 import 'package:pure_live/modules/toolbox/toolbox_page.dart';
 import 'package:pure_live/modules/account/account_bing.dart';
@@ -94,5 +96,25 @@ class AppPages {
     GetPage(name: RoutePath.kHuyaCookie, page: () => const HuyaCookiePage(), bindings: [HuyaCookieBinding()]),
 
     GetPage(name: RoutePath.kWebDavPage, page: () => WebDavPage(), bindings: [WebDavBinding()]),
+
+    GetPage(
+      name: RoutePath.kSplash,
+      page: () => SplashScreen(
+        bgGradient: const LinearGradient(
+          colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2), Color(0xFF80DEEA)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        logo: Image.asset('assets/icons/icon.png', width: 150),
+        showTextLogo: true,
+        logoText: "欢迎使用",
+        textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black54),
+        loaderType: LoaderType.progressBar,
+        onNextPressed: () {
+          Get.offAllNamed(RoutePath.kInitial);
+        },
+        duration: const Duration(seconds: 3),
+      ),
+    ),
   ];
 }
