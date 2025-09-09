@@ -130,11 +130,10 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Colors.black26, Colors.black38],
+                    colors: [Colors.black12, Colors.black12],
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                   ),
-                  borderRadius: BorderRadius.circular(60),
                 ),
               ),
             ),
