@@ -100,6 +100,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 ? ErrorWidget(controller: controller)
                 : MouseRegion(
                     onHover: (event) => controller.enableController(),
+                    cursor: !controller.showController.value ? SystemMouseCursors.none : SystemMouseCursors.basic,
                     child: Stack(
                       children: [
                         Container(
