@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -669,9 +670,15 @@ class SettingsService extends GetxController {
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     volume.value = json['volume'] ?? 0.5;
     customPlayerOutput.value = json['customPlayerOutput'] ?? false;
-    videoOutputDriver.value = json['videoOutputDriver'] ?? '';
-    audioOutputDriver.value = json['audioOutputDriver'] ?? '';
-    videoHardwareDecoder.value = json['videoHardwareDecoder'] ?? '';
+    videoOutputDriver.value = (json['videoOutputDriver'] == null || json['videoOutputDriver'] == "")
+        ? 'gpu'
+        : json['videoOutputDriver'];
+    audioOutputDriver.value = (json['audioOutputDriver'] == null || json['audioOutputDriver'] == "")
+        ? 'auto'
+        : json['audioOutputDriver'];
+    videoHardwareDecoder.value = (json['videoHardwareDecoder'] == null || json['videoHardwareDecoder'] == "")
+        ? 'auto'
+        : json['videoHardwareDecoder'];
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -680,6 +687,7 @@ class SettingsService extends GetxController {
     changePreferPlatform(preferPlatform.value);
     changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     changeAutoRefreshConfig(autoRefreshTime.value);
+    log(json['videoOutputDriver']);
   }
 
   Map<String, dynamic> toJson() {
