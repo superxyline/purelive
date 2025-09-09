@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_controller.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class AreasRoomPage extends StatefulWidget {
   const AreasRoomPage({super.key});
@@ -25,18 +25,24 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
     return KeepAliveWrapper(
       child: Scaffold(
         appBar: AppBar(title: Text(controller.subCategory.areaName!)),
-        body: LayoutBuilder(builder: (context, constraint) {
-          final width = constraint.maxWidth;
-          final crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-          return Obx(() => EasyRefresh(
+        body: LayoutBuilder(
+          builder: (context, constraint) {
+            final width = constraint.maxWidth;
+            final crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+            return Obx(
+              () => EasyRefresh(
                 controller: controller.easyRefreshController,
                 onRefresh: controller.refreshData,
                 onLoad: controller.loadData,
                 child: controller.list.isNotEmpty
-                    ? MasonryGridView.count(
-                        padding: const EdgeInsets.all(5),
+                    ? WaterfallFlow.builder(
+                        gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 3,
+                          mainAxisSpacing: 3,
+                        ),
+                        padding: const EdgeInsets.all(0),
                         controller: controller.scrollController,
-                        crossAxisCount: crossAxisCount,
                         itemCount: controller.list.length,
                         itemBuilder: (context, index) => RoomCard(room: controller.list[index], dense: true),
                       )
@@ -45,8 +51,10 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
                         title: S.of(context).empty_areas_room_title,
                         subtitle: S.of(context).empty_areas_room_subtitle,
                       ),
-              ));
-        }),
+              ),
+            );
+          },
+        ),
         floatingActionButton: FavoriteAreaFloatingButton(area: controller.subCategory),
       ),
     );
@@ -54,10 +62,7 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
 }
 
 class FavoriteAreaFloatingButton extends StatefulWidget {
-  const FavoriteAreaFloatingButton({
-    super.key,
-    required this.area,
-  });
+  const FavoriteAreaFloatingButton({super.key, required this.area});
 
   final LiveArea area;
 
@@ -121,15 +126,8 @@ class _FavoriteAreaFloatingButtonState extends State<FavoriteAreaFloatingButton>
             label: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  S.of(context).follow,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Text(
-                  widget.area.areaName!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(S.of(context).follow, style: Theme.of(context).textTheme.bodySmall),
+                Text(widget.area.areaName!, maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ),
           );

@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 import 'package:pure_live/modules/popular/popular_grid_controller.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class PopularGridView extends StatefulWidget {
   final String tag;
@@ -21,24 +21,30 @@ class _PopularGridViewState extends State<PopularGridView> {
       builder: (context, constraint) {
         final width = constraint.maxWidth;
         final crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-        return Obx(() => EasyRefresh(
-              controller: controller.easyRefreshController,
-              onRefresh: controller.refreshData,
-              onLoad: controller.loadData,
-              child: controller.list.isNotEmpty
-                  ? MasonryGridView.count(
-                      padding: const EdgeInsets.all(5),
-                      controller: controller.scrollController,
+        return Obx(
+          () => EasyRefresh(
+            controller: controller.easyRefreshController,
+            onRefresh: controller.refreshData,
+            onLoad: controller.loadData,
+            child: controller.list.isNotEmpty
+                ? WaterfallFlow.builder(
+                    padding: const EdgeInsets.all(0),
+                    controller: controller.scrollController,
+                    gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
-                      itemCount: controller.list.length,
-                      itemBuilder: (context, index) => RoomCard(room: controller.list[index], dense: true),
-                    )
-                  : EmptyView(
-                      icon: Icons.live_tv_rounded,
-                      title: S.of(context).empty_live_title,
-                      subtitle: S.of(context).empty_live_subtitle,
+                      crossAxisSpacing: 3,
+                      mainAxisSpacing: 3,
                     ),
-            ));
+                    itemCount: controller.list.length,
+                    itemBuilder: (context, index) => RoomCard(room: controller.list[index], dense: true),
+                  )
+                : EmptyView(
+                    icon: Icons.live_tv_rounded,
+                    title: S.of(context).empty_live_title,
+                    subtitle: S.of(context).empty_live_subtitle,
+                  ),
+          ),
+        );
       },
     );
   }

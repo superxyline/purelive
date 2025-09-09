@@ -1,10 +1,10 @@
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class SearchListView extends StatelessWidget {
   final String tag;
@@ -25,11 +25,15 @@ class SearchListView extends StatelessWidget {
             onRefresh: controller.refreshData,
             onLoad: controller.loadData,
             child: controller.list.isNotEmpty
-                ? MasonryGridView.count(
-                    padding: const EdgeInsets.all(8),
+                ? WaterfallFlow.builder(
+                    padding: const EdgeInsets.all(0),
                     physics: const BouncingScrollPhysics(),
                     controller: controller.scrollController,
-                    crossAxisCount: crossAxisCount,
+                    gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 3,
+                      mainAxisSpacing: 3,
+                    ),
                     itemCount: controller.list.length,
                     itemBuilder: (context, index) {
                       final room = controller.list[index];

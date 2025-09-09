@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 class HistoryPage extends GetView {
   HistoryPage({super.key});
@@ -52,10 +52,14 @@ class HistoryPage extends GetView {
               },
               child: rooms.isEmpty
                   ? EmptyView(icon: Icons.history_rounded, title: S.of(context).empty_history, subtitle: '')
-                  : MasonryGridView.count(
-                      padding: const EdgeInsets.all(5),
+                  : WaterfallFlow.builder(
+                      padding: const EdgeInsets.all(0),
                       controller: ScrollController(),
-                      crossAxisCount: crossAxisCount,
+                      gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 3,
+                        mainAxisSpacing: 3,
+                      ),
                       itemCount: rooms.length,
                       itemBuilder: (context, index) => RoomCard(room: rooms[index], dense: dense),
                     ),

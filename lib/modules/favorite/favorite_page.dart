@@ -1,115 +1,106 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 class FavoritePage extends GetView<FavoriteController> {
   const FavoritePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraint) {
-      bool showAction = Get.width <= 680;
-      return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          scrolledUnderElevation: 0,
-          leading: showAction ? const MenuButton() : null,
-          actions: showAction
-              ? [
-                  PopupMenuButton(
-                    tooltip: '搜索',
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+    return LayoutBuilder(
+      builder: (context, constraint) {
+        bool showAction = Get.width <= 680;
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            scrolledUnderElevation: 0,
+            leading: showAction ? const MenuButton() : null,
+            actions: showAction
+                ? [
+                    PopupMenuButton(
+                      tooltip: '搜索',
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      offset: const Offset(12, 0),
+                      position: PopupMenuPosition.under,
+                      icon: const Icon(Icons.read_more_sharp),
+                      onSelected: (int index) {
+                        if (index == 0) {
+                          Get.toNamed(RoutePath.kSearch);
+                        } else {
+                          Get.toNamed(RoutePath.kToolbox);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return [
+                          const PopupMenuItem(
+                            value: 0,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: MenuListTile(leading: Icon(CustomIcons.search), text: "搜索直播"),
+                          ),
+                          const PopupMenuItem(
+                            value: 1,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: MenuListTile(leading: Icon(Icons.link), text: "链接访问"),
+                          ),
+                        ];
+                      },
                     ),
-                    offset: const Offset(12, 0),
-                    position: PopupMenuPosition.under,
-                    icon: const Icon(Icons.read_more_sharp),
-                    onSelected: (int index) {
-                      if (index == 0) {
-                        Get.toNamed(RoutePath.kSearch);
-                      } else {
-                        Get.toNamed(RoutePath.kToolbox);
-                      }
-                    },
-                    itemBuilder: (BuildContext context) {
-                      return [
-                        const PopupMenuItem(
-                          value: 0,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: MenuListTile(
-                            leading: Icon(CustomIcons.search),
-                            text: "搜索直播",
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 1,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: MenuListTile(
-                            leading: Icon(Icons.link),
-                            text: "链接访问",
-                          ),
-                        ),
-                      ];
-                    },
-                  )
-                ]
-              : null,
-          title: TabBar(
-            controller: controller.tabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.center,
-            labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-            indicatorSize: TabBarIndicatorSize.label,
-            tabs: [
-              Tab(text: S.of(context).online_room_title),
-              Tab(text: S.of(context).offline_room_title),
-            ],
-          ),
-        ),
-        body: Column(
-          children: [
-            TabBar(
-              controller: controller.tabSiteController,
+                  ]
+                : null,
+            title: TabBar(
+              controller: controller.tabController,
               isScrollable: true,
               tabAlignment: TabAlignment.center,
+              labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 12),
               indicatorSize: TabBarIndicatorSize.label,
-              tabs: Sites().availableSites(containsAll: true).map<Widget>((e) => Tab(text: e.name)).toList(),
+              tabs: [
+                Tab(text: S.of(context).online_room_title),
+                Tab(text: S.of(context).offline_room_title),
+              ],
             ),
-            Expanded(
-              child: Obx(() {
-                return TabBarView(
-                  controller: controller.tabSiteController,
-                  children: controller.tabOnlineIndex.value == 0
-                      ? Sites()
-                          .availableSites(containsAll: true)
-                          .map((e) => e.id)
-                          .toList()
-                          .map((e) => _RoomOnlineGridView(e))
-                          .toList()
-                      : Sites()
-                          .availableSites(containsAll: true)
-                          .map((e) => e.id)
-                          .toList()
-                          .map((e) => _RoomOfflineGridView(e))
-                          .toList(),
-                );
-              }),
-            )
-          ],
-        ),
-      );
-    });
+          ),
+          body: Column(
+            children: [
+              TabBar(
+                controller: controller.tabSiteController,
+                isScrollable: true,
+                tabAlignment: TabAlignment.center,
+                indicatorSize: TabBarIndicatorSize.label,
+                tabs: Sites().availableSites(containsAll: true).map<Widget>((e) => Tab(text: e.name)).toList(),
+              ),
+              Expanded(
+                child: Obx(() {
+                  return TabBarView(
+                    controller: controller.tabSiteController,
+                    children: controller.tabOnlineIndex.value == 0
+                        ? Sites()
+                              .availableSites(containsAll: true)
+                              .map((e) => e.id)
+                              .toList()
+                              .map((e) => _RoomOnlineGridView(e))
+                              .toList()
+                        : Sites()
+                              .availableSites(containsAll: true)
+                              .map((e) => e.id)
+                              .toList()
+                              .map((e) => _RoomOfflineGridView(e))
+                              .toList(),
+                  );
+                }),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
 class _RoomOnlineGridView extends GetView<FavoriteController> {
   _RoomOnlineGridView(this.site);
   final String site;
-  final refreshController = EasyRefreshController(
-    controlFinishRefresh: true,
-    controlFinishLoad: true,
-  );
+  final refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
   Future onRefresh() async {
@@ -124,23 +115,29 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraint) {
-      final width = constraint.maxWidth;
-      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      if (dense) {
-        crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-      }
-      return Obx(() => EasyRefresh(
+    return LayoutBuilder(
+      builder: (context, constraint) {
+        final width = constraint.maxWidth;
+        int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+        if (dense) {
+          crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+        }
+        return Obx(
+          () => EasyRefresh(
             controller: refreshController,
             onRefresh: onRefresh,
             onLoad: () {
               refreshController.finishLoad(IndicatorResult.success);
             },
             child: controller.onlineRooms.isNotEmpty
-                ? MasonryGridView.count(
-                    padding: const EdgeInsets.all(5),
+                ? WaterfallFlow.builder(
+                    padding: const EdgeInsets.all(0),
                     controller: ScrollController(),
-                    crossAxisCount: crossAxisCount,
+                    gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 3,
+                      mainAxisSpacing: 3,
+                    ),
                     itemCount: site == Sites.allSite
                         ? controller.onlineRooms.length
                         : controller.onlineRooms.where((el) => el.platform == site).toList().length,
@@ -156,18 +153,17 @@ class _RoomOnlineGridView extends GetView<FavoriteController> {
                     title: S.of(context).empty_favorite_online_title,
                     subtitle: S.of(context).empty_favorite_online_subtitle,
                   ),
-          ));
-    });
+          ),
+        );
+      },
+    );
   }
 }
 
 class _RoomOfflineGridView extends GetView<FavoriteController> {
   _RoomOfflineGridView(this.site);
   final String site;
-  final refreshController = EasyRefreshController(
-    controlFinishRefresh: true,
-    controlFinishLoad: true,
-  );
+  final refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
   final dense = Get.find<SettingsService>().enableDenseFavorites.value;
 
   Future onRefresh() async {
@@ -177,24 +173,30 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraint) {
-      final width = constraint.maxWidth;
-      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      if (dense) {
-        crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
-      }
+    return LayoutBuilder(
+      builder: (context, constraint) {
+        final width = constraint.maxWidth;
+        int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+        if (dense) {
+          crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+        }
 
-      return Obx(() => EasyRefresh(
+        return Obx(
+          () => EasyRefresh(
             controller: refreshController,
             onRefresh: onRefresh,
             onLoad: () {
               refreshController.finishLoad(IndicatorResult.noMore);
             },
             child: controller.offlineRooms.isNotEmpty
-                ? MasonryGridView.count(
-                    padding: const EdgeInsets.all(5),
+                ? WaterfallFlow.builder(
+                    padding: const EdgeInsets.all(0),
                     controller: ScrollController(),
-                    crossAxisCount: crossAxisCount,
+                    gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 3,
+                      mainAxisSpacing: 3,
+                    ),
                     itemCount: site == Sites.allSite
                         ? controller.offlineRooms.length
                         : controller.offlineRooms.where((el) => el.platform == site).toList().length,
@@ -210,7 +212,9 @@ class _RoomOfflineGridView extends GetView<FavoriteController> {
                     title: S.of(context).empty_favorite_offline_title,
                     subtitle: S.of(context).empty_favorite_offline_subtitle,
                   ),
-          ));
-    });
+          ),
+        );
+      },
+    );
   }
 }
