@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/pkg/canvas_danmaku/danmaku_screen.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
 class VideoControllerPanel extends StatefulWidget {
@@ -631,6 +632,7 @@ class BottomActionBar extends StatelessWidget {
               const Spacer(),
               if (controller.supportWindowFull && !controller.isFullscreen.value)
                 ExpandWindowButton(controller: controller),
+              OverlayVolumeControl(controller: controller),
               if (!controller.isWindowFullscreen.value) ExpandButton(controller: controller),
             ],
           ),
