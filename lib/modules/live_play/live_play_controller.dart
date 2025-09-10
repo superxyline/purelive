@@ -89,7 +89,7 @@ class LivePlayController extends StateController {
   // 是否是手动切换线路
   var isActive = false.obs;
 
-  Future<bool> onBackPressed() async {
+  Future<bool> onBackPressed({bool directiveExit = false}) async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
       return await Future.value(false);
@@ -99,7 +99,7 @@ class LivePlayController extends StateController {
       return await Future.value(false);
     }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
-    if (!doubleExit) {
+    if (!doubleExit || directiveExit) {
       disPoserPlayer();
       return Future.value(true);
     }

@@ -92,7 +92,7 @@ dependencies:
   remixicon: ^1.2.0
   mobile_scanner: ^7.0.1 #二维码扫描
   webdav_client: ^1.2.2
-  mime: ^1.0.6
+  mime: ^2.0.0
   awesome_video_player: ^1.0.5
 dev_dependencies:
   flutter_test:

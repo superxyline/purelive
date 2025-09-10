@@ -9,9 +9,9 @@ class LivePlayPage extends GetView<LivePlayController> {
   LivePlayPage({super.key});
 
   final SettingsService settings = Get.find<SettingsService>();
-  Future<bool> onWillPop() async {
+  Future<bool> onWillPop({bool directiveExit = false}) async {
     try {
-      var exit = await controller.onBackPressed();
+      var exit = await controller.onBackPressed(directiveExit: directiveExit);
       if (exit) {
         Navigator.of(Get.context!).pop();
       }
@@ -27,154 +27,162 @@ class LivePlayPage extends GetView<LivePlayController> {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
     return BackButtonListener(
-      onBackButtonPressed: onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Obx(
-            () => controller.getVideoSuccess.value
-                ? Row(
-                    children: [
-                      CircleAvatar(
-                        foregroundImage: controller.detail.value == null && controller.detail.value!.avatar!.isEmpty
-                            ? null
-                            : NetworkImage(controller.detail.value!.avatar!),
-                        radius: 13,
-                        backgroundColor: Theme.of(context).disabledColor,
-                      ),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            controller.detail.value == null && controller.detail.value!.nick == null
-                                ? ''
-                                : controller.detail.value!.nick!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                          if (controller.detail.value != null && controller.detail.value!.area != null)
+      onBackButtonPressed: () => onWillPop(directiveExit: false),
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            onWillPop(directiveExit: true);
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Obx(
+              () => controller.getVideoSuccess.value
+                  ? Row(
+                      children: [
+                        CircleAvatar(
+                          foregroundImage: controller.detail.value == null && controller.detail.value!.avatar!.isEmpty
+                              ? null
+                              : NetworkImage(controller.detail.value!.avatar!),
+                          radius: 13,
+                          backgroundColor: Theme.of(context).disabledColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              controller.detail.value!.area!.isEmpty
-                                  ? controller.detail.value!.platform!.toUpperCase()
-                                  : "${controller.detail.value!.platform!.toUpperCase()} / ${controller.detail.value!.area}",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
+                              controller.detail.value == null && controller.detail.value!.nick == null
+                                  ? ''
+                                  : controller.detail.value!.nick!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelSmall,
                             ),
-                        ],
-                      ),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      CircleAvatar(
-                        foregroundImage: controller.currentPlayRoom.value.avatar == null
-                            ? null
-                            : NetworkImage(controller.currentPlayRoom.value.avatar!),
-                        radius: 13,
-                        backgroundColor: Theme.of(context).disabledColor,
-                      ),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            controller.detail.value!.nick!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                          Text(
-                            controller.currentPlayRoom.value.area!.isEmpty
-                                ? controller.currentPlayRoom.value.platform!.toUpperCase()
-                                : "${controller.currentPlayRoom.value.platform!.toUpperCase()} / ${controller.currentPlayRoom.value.area}",
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-          ),
-          actions: [
-            PopupMenuButton(
-              tooltip: '搜索',
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              offset: const Offset(12, 0),
-              position: PopupMenuPosition.under,
-              icon: const Icon(Icons.more_vert_rounded),
-              onSelected: (int index) {
-                if (index == 0) {
-                  controller.openNaviteAPP();
-                } else {
-                  showDlnaCastDialog();
-                }
-              },
-              itemBuilder: (BuildContext context) {
-                return [
-                  const PopupMenuItem(
-                    value: 0,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: MenuListTile(leading: Icon(Icons.open_in_new_rounded), text: "打开直播间"),
-                  ),
-                  const PopupMenuItem(
-                    value: 1,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: MenuListTile(leading: Icon(Icons.live_tv_rounded), text: "投屏"),
-                  ),
-                ];
-              },
-            ),
-          ],
-        ),
-        body: Builder(
-          builder: (BuildContext context) {
-            return LayoutBuilder(
-              builder: (context, constraint) {
-                final width = Get.width;
-                return SafeArea(
-                  child: width <= 680
-                      ? Column(
-                          children: <Widget>[
-                            buildVideoPlayer(),
-                            const ResolutionsRow(),
-                            const Divider(height: 1),
-                            Expanded(
-                              child: Obx(
-                                () => DanmakuListView(key: controller.danmakuViewKey, room: controller.detail.value!),
+                            if (controller.detail.value != null && controller.detail.value!.area != null)
+                              Text(
+                                controller.detail.value!.area!.isEmpty
+                                    ? controller.detail.value!.platform!.toUpperCase()
+                                    : "${controller.detail.value!.platform!.toUpperCase()} / ${controller.detail.value!.area}",
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
                               ),
-                            ),
                           ],
-                        )
-                      : Row(
-                          children: <Widget>[
-                            Expanded(child: buildVideoPlayer()),
-                            SizedBox(
-                              width: 400,
-                              child: Column(
-                                children: [
-                                  const ResolutionsRow(),
-                                  const Divider(height: 1),
-                                  Expanded(
-                                    child: Obx(
-                                      () => DanmakuListView(
-                                        key: controller.danmakuViewKey,
-                                        room: controller.detail.value!,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        CircleAvatar(
+                          foregroundImage: controller.currentPlayRoom.value.avatar == null
+                              ? null
+                              : NetworkImage(controller.currentPlayRoom.value.avatar!),
+                          radius: 13,
+                          backgroundColor: Theme.of(context).disabledColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.detail.value!.nick!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                            Text(
+                              controller.currentPlayRoom.value.area!.isEmpty
+                                  ? controller.currentPlayRoom.value.platform!.toUpperCase()
+                                  : "${controller.currentPlayRoom.value.platform!.toUpperCase()} / ${controller.currentPlayRoom.value.area}",
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
                             ),
                           ],
                         ),
-                );
-              },
-            );
-          },
-        ),
-        floatingActionButton: Obx(
-          () => controller.getVideoSuccess.value
-              ? FavoriteFloatingButton(room: controller.detail.value!)
-              : FavoriteFloatingButton(room: controller.currentPlayRoom.value),
+                      ],
+                    ),
+            ),
+            actions: [
+              PopupMenuButton(
+                tooltip: '搜索',
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                offset: const Offset(12, 0),
+                position: PopupMenuPosition.under,
+                icon: const Icon(Icons.more_vert_rounded),
+                onSelected: (int index) {
+                  if (index == 0) {
+                    controller.openNaviteAPP();
+                  } else {
+                    showDlnaCastDialog();
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    const PopupMenuItem(
+                      value: 0,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: MenuListTile(leading: Icon(Icons.open_in_new_rounded), text: "打开直播间"),
+                    ),
+                    const PopupMenuItem(
+                      value: 1,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: MenuListTile(leading: Icon(Icons.live_tv_rounded), text: "投屏"),
+                    ),
+                  ];
+                },
+              ),
+            ],
+          ),
+          body: Builder(
+            builder: (BuildContext context) {
+              return LayoutBuilder(
+                builder: (context, constraint) {
+                  final width = Get.width;
+                  return SafeArea(
+                    child: width <= 680
+                        ? Column(
+                            children: <Widget>[
+                              buildVideoPlayer(),
+                              const ResolutionsRow(),
+                              const Divider(height: 1),
+                              Expanded(
+                                child: Obx(
+                                  () => DanmakuListView(key: controller.danmakuViewKey, room: controller.detail.value!),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: <Widget>[
+                              Expanded(child: buildVideoPlayer()),
+                              SizedBox(
+                                width: 400,
+                                child: Column(
+                                  children: [
+                                    const ResolutionsRow(),
+                                    const Divider(height: 1),
+                                    Expanded(
+                                      child: Obx(
+                                        () => DanmakuListView(
+                                          key: controller.danmakuViewKey,
+                                          room: controller.detail.value!,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                  );
+                },
+              );
+            },
+          ),
+          floatingActionButton: Obx(
+            () => controller.getVideoSuccess.value
+                ? FavoriteFloatingButton(room: controller.detail.value!)
+                : FavoriteFloatingButton(room: controller.currentPlayRoom.value),
+          ),
         ),
       ),
     );
