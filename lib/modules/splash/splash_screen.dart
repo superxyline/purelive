@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:pure_live/modules/auth/auth_controller.dart';
-import 'package:pure_live/modules/favorite/favorite_controller.dart';
-import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 enum LoaderType { spinner, dots, progressBar }
 
@@ -67,12 +64,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         widget.onNextPressed!();
       });
     }
-
-    Get.put(AuthController(), permanent: true);
-    Get.put(FavoriteController(), permanent: true);
-    Get.put(BiliBiliAccountService(), permanent: true);
-    // Get.put(PopularController(), permanent: true);
-    // Get.put(AreasController(), permanent: true);
   }
 
   @override

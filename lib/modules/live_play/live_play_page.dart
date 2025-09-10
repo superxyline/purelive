@@ -27,7 +27,7 @@ class LivePlayPage extends GetView<LivePlayController> {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
     return Obx(
-      () => controller.isFullScreen.value
+      () => controller.isFullScreen.value && controller.settings.videoPlayerIndex.value == 0
           ? DesktopFullscreen(controller: controller.videoController!)
           : BackButtonListener(
               onBackButtonPressed: () => onWillPop(directiveExit: false),
