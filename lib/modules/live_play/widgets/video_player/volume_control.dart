@@ -53,12 +53,14 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
     );
 
     Overlay.of(context).insert(_overlayEntry!);
-    setState(() {
-      _isVolumeBarVisible = true;
-      controller.enableController();
-      _hideTimer?.cancel();
-      _hideTimer = Timer(const Duration(seconds: 3), _hideVolumeBar);
-    });
+    if (mounted) {
+      setState(() {
+        _isVolumeBarVisible = true;
+        controller.enableController();
+        _hideTimer?.cancel();
+        _hideTimer = Timer(const Duration(seconds: 3), _hideVolumeBar);
+      });
+    }
   }
 
   // 移除Overlay中的音量条
