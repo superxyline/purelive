@@ -42,6 +42,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     favoriteController.tabBottomIndex.addListener(() {
       setState(() => _selectedIndex = favoriteController.tabBottomIndex.value);
     });
+
+    Get.put(AreasController(), permanent: true);
   }
 
   @override

@@ -95,11 +95,10 @@ class _MyAppState extends State<MyApp> with WindowListener {
       await WindowUtil.setTitle();
       setState(() {});
     }
-    Get.put(AuthController());
-    Get.put(FavoriteController());
-    Get.put(BiliBiliAccountService());
-    Get.put(PopularController());
-    Get.put(AreasController());
+    Get.lazyPut(() => AuthController(), fenix: true);
+    Get.lazyPut(() => FavoriteController(), fenix: true);
+    Get.lazyPut(() => BiliBiliAccountService(), fenix: true);
+    Get.lazyPut(() => PopularController(), fenix: true);
   }
 
   @override
