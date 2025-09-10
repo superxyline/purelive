@@ -29,7 +29,7 @@ val keystoreProperties = Properties().apply { // 同样添加了导入
 
 android {
     namespace = "com.mystyle.purelive"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {

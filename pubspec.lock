@@ -81,6 +81,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.13.0"
+  auto_orientation_v2:
+    dependency: "direct main"
+    description:
+      name: auto_orientation_v2
+      sha256: "96a72a00b367e1aebef4be55f4804c0369197dc65a0dffd039d4c2f72f59d955"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.6"
   awesome_video_player:
     dependency: "direct main"
     description:

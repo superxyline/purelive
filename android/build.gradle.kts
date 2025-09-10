@@ -29,7 +29,7 @@ subprojects {
                 namespace = project.group.toString()
             }
             // 配置 compileSdk
-            compileSdkVersion(35) // 注意：AGP 7.0+ 支持此属性写法
+            compileSdkVersion(36) // 注意：AGP 7.0+ 支持此属性写法
         }
     }
 }
