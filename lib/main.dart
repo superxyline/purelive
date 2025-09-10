@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/global.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
-import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 const kWindowsScheme = 'purelive://signin';
 
@@ -94,11 +93,6 @@ class _MyAppState extends State<MyApp> with WindowListener {
       await WindowUtil.setTitle();
       setState(() {});
     }
-    Get.put(AuthController());
-    Get.put(FavoriteController());
-    Get.put(BiliBiliAccountService());
-    Get.put(PopularController());
-    Get.put(AreasController());
   }
 
   @override
