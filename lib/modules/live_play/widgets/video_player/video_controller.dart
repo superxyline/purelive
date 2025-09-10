@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
-import 'dart:math' as math;
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';
@@ -22,7 +21,6 @@ import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_content_item.dart';
 class VideoController with ChangeNotifier {
   final GlobalKey playerKey;
 
-  final GlobalKey containerKey = GlobalKey();
   final LiveRoom room;
   final String datasourceType;
   String datasource;
@@ -180,8 +178,6 @@ class VideoController with ChangeNotifier {
   // Battery level control
   final Battery _battery = Battery();
   final batteryLevel = 100.obs;
-
-  final angle = 0.0.obs;
 
   late DanmakuController danmakuController;
   void initBattery() {
@@ -656,9 +652,6 @@ class VideoController with ChangeNotifier {
       if (isFullscreen.value) {
         key.currentState?.exitFullscreen();
       } else {
-        if (Platform.isAndroid || Platform.isIOS) {
-          setLandscapeOrientation();
-        }
         key.currentState?.enterFullscreen();
       }
       isFullscreen.toggle();
@@ -673,7 +666,6 @@ class VideoController with ChangeNotifier {
             !isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky,
             overlays: SystemUiOverlay.values,
           );
-          setPortraitOrientation();
         }
       });
     }
@@ -753,16 +745,6 @@ class VideoController with ChangeNotifier {
       await brightnessController.setApplicationScreenBrightness(value);
     }
   }
-
-  void rotateScreen() {
-    angle.value = (angle.value + (90 * (math.pi / 180))) % (2 * math.pi);
-    enableController();
-  }
-
-  // 判断是否为水平方向
-  bool get isVerticalDirection =>
-      ((angle.value % (2 * math.pi)) / (math.pi / 2)).round() % 4 == 1 ||
-      ((angle.value % (2 * math.pi)) / (math.pi / 2)).round() % 4 == 3;
 }
 
 // use fullscreen with controller provider
@@ -782,18 +764,10 @@ class DesktopFullscreen extends StatelessWidget {
             Container(
               color: Colors.black, // 设置你想要的背景色
             ),
-            Obx(
-              () => Transform.scale(
-                scale: controller.isVerticalDirection ? 9 / 16 : 1,
-                child: Transform.rotate(
-                  angle: controller.angle.value,
-                  child: media_kit_video.Video(
-                    controller: controller.mediaPlayerController,
-                    fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
-                    controls: null,
-                  ),
-                ),
-              ),
+            media_kit_video.Video(
+              controller: controller.mediaPlayerController,
+              fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
+              controls: null,
             ),
             VideoControllerPanel(controller: controller),
           ],

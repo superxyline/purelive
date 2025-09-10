@@ -625,8 +625,6 @@ class BottomActionBar extends StatelessWidget {
               RefreshButton(controller: controller),
               DanmakuButton(controller: controller),
               FavoriteButton(controller: controller),
-              if (!controller.isFullscreen.value && controller.videoPlayerIndex == 0)
-                ScreenToggleButton(controller: controller),
               if (controller.isFullscreen.value || controller.isWindowFullscreen.value)
                 SettingsButton(controller: controller),
               const Spacer(),
@@ -675,24 +673,6 @@ class RefreshButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: const Icon(Icons.refresh_rounded, color: Colors.white),
-      ),
-    );
-  }
-}
-
-class ScreenToggleButton extends StatelessWidget {
-  const ScreenToggleButton({super.key, required this.controller});
-
-  final VideoController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => controller.rotateScreen(),
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(12),
-        child: Icon(Icons.transform, color: Colors.white),
       ),
     );
   }

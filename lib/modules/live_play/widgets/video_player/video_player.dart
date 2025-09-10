@@ -31,25 +31,17 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     color: Colors.black, // 设置你想要的背景色
                   ),
                   Obx(
-                    () => Transform.scale(
-                      scale: !widget.controller.isVerticalDirection ? 1 : 9 / 16,
-                      child: Transform.rotate(
-                        angle: widget.controller.angle.value,
-                        child: Obx(
-                          () => media_kit_video.Video(
-                            key: widget.controller.key,
-                            pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-                            resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-                            controller: widget.controller.mediaPlayerController,
-                            fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
-                            controls: widget.controller.room.platform == Sites.iptvSite
-                                ? media_kit_video.MaterialVideoControls
-                                : widget.controller.isFullscreen.value
-                                ? (state) => VideoControllerPanel(controller: widget.controller)
-                                : null,
-                          ),
-                        ),
-                      ),
+                    () => media_kit_video.Video(
+                      key: widget.controller.key,
+                      pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+                      resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+                      controller: widget.controller.mediaPlayerController,
+                      fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+                      controls: widget.controller.room.platform == Sites.iptvSite
+                          ? media_kit_video.MaterialVideoControls
+                          : widget.controller.isFullscreen.value
+                          ? (state) => VideoControllerPanel(controller: widget.controller)
+                          : null,
                     ),
                   ),
                   VideoControllerPanel(controller: widget.controller),
@@ -67,25 +59,17 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     color: Colors.black, // 设置你想要的背景色
                   ),
                   Obx(
-                    () => Transform.scale(
-                      scale: !widget.controller.isVerticalDirection ? 1 : 9 / 16,
-                      child: Transform.rotate(
-                        angle: widget.controller.angle.value,
-                        child: Obx(
-                          () => media_kit_video.Video(
-                            key: widget.controller.key,
-                            pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-                            resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-                            controller: widget.controller.mediaPlayerController,
-                            fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
-                            controls: widget.controller.room.platform == Sites.iptvSite
-                                ? media_kit_video.MaterialVideoControls
-                                : widget.controller.isFullscreen.value
-                                ? (state) => VideoControllerPanel(controller: widget.controller)
-                                : null,
-                          ),
-                        ),
-                      ),
+                    () => media_kit_video.Video(
+                      key: widget.controller.key,
+                      pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+                      resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+                      controller: widget.controller.mediaPlayerController,
+                      fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+                      controls: widget.controller.room.platform == Sites.iptvSite
+                          ? media_kit_video.MaterialVideoControls
+                          : widget.controller.isFullscreen.value
+                          ? (state) => VideoControllerPanel(controller: widget.controller)
+                          : null,
                     ),
                   ),
                   VideoControllerPanel(controller: widget.controller),
@@ -108,25 +92,17 @@ class _VideoPlayerState extends State<VideoPlayer> {
               color: Colors.black, // 设置你想要的背景色
             ),
             Obx(
-              () => Transform.scale(
-                scale: !widget.controller.isVerticalDirection ? 1 : 9 / 16,
-                child: Transform.rotate(
-                  angle: widget.controller.angle.value,
-                  child: Obx(
-                    () => media_kit_video.Video(
-                      key: widget.controller.key,
-                      pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-                      resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
-                      controller: widget.controller.mediaPlayerController,
-                      fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
-                      controls: widget.controller.room.platform == Sites.iptvSite
-                          ? media_kit_video.MaterialVideoControls
-                          : widget.controller.isFullscreen.value
-                          ? (state) => VideoControllerPanel(controller: widget.controller)
-                          : null,
-                    ),
-                  ),
-                ),
+              () => media_kit_video.Video(
+                key: widget.controller.key,
+                pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+                resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
+                controller: widget.controller.mediaPlayerController,
+                fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+                controls: widget.controller.room.platform == Sites.iptvSite
+                    ? media_kit_video.MaterialVideoControls
+                    : widget.controller.isFullscreen.value
+                    ? (state) => VideoControllerPanel(controller: widget.controller)
+                    : null,
               ),
             ),
             VideoControllerPanel(controller: widget.controller),
