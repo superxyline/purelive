@@ -89,6 +89,8 @@ class LivePlayController extends StateController {
   // 是否是手动切换线路
   var isActive = false.obs;
 
+  var isFullScreen = false.obs;
+
   Future<bool> onBackPressed({bool directiveExit = false}) async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
@@ -419,7 +421,6 @@ class LivePlayController extends StateController {
     } else if (currentSite.id == Sites.huyaSite) {
       var ua = await HuyaSite().getHuYaUA();
       headers = {"user-agent": ua, "origin": "https://www.huya.com"};
-      log(headers.toString(), name: "headers");
     }
 
     videoController = VideoController(
@@ -451,6 +452,10 @@ class LivePlayController extends StateController {
           }
         }
       }
+    });
+
+    videoController?.isFullscreen.listen((value) {
+      isFullScreen.value = value;
     });
   }
 

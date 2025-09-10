@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/global.dart';
+import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 
 const kWindowsScheme = 'purelive://signin';
@@ -123,7 +124,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
               theme: lightTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
               darkTheme: darkTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
               locale: SettingsService.languages[settings.languageName.value]!,
-              navigatorObservers: [FlutterSmartDialog.observer],
+              navigatorObservers: [FlutterSmartDialog.observer, BackButtonObserver()],
               builder: FlutterSmartDialog.init(),
               supportedLocales: S.delegate.supportedLocales,
               localizationsDelegates: const [

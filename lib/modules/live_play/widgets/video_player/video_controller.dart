@@ -17,6 +17,7 @@ import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_content_item.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/fullscreen.dart';
 
 class VideoController with ChangeNotifier {
   final GlobalKey playerKey;
@@ -291,10 +292,10 @@ class VideoController with ChangeNotifier {
         pip.pipStatusStream.listen((status) {
           if (status == PiPStatus.enabled) {
             isPipMode.value = true;
-            key.currentState?.enterFullscreen();
+            doEnterFullScreen();
           } else {
             isPipMode.value = false;
-            key.currentState?.exitFullscreen();
+            doExitFullScreen();
           }
         });
       }
@@ -513,8 +514,8 @@ class VideoController with ChangeNotifier {
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetApplicationScreenBrightness();
       if (videoPlayerIndex == 0) {
-        if (key.currentState?.isFullscreen() ?? false) {
-          key.currentState?.exitFullscreen();
+        if (isFullscreen.value) {
+          doEnterFullScreen();
         }
         player.dispose();
       } else {
@@ -524,8 +525,8 @@ class VideoController with ChangeNotifier {
         mobileController?.dispose();
       }
     } else {
-      if (key.currentState?.isFullscreen() ?? false) {
-        key.currentState?.exitFullscreen();
+      if (isFullscreen.value) {
+        doEnterFullScreen();
       }
       player.dispose();
     }
@@ -617,14 +618,13 @@ class VideoController with ChangeNotifier {
   }
 
   void exitFullScreen() {
-    isFullscreen.value = false;
     if (Platform.isWindows || videoPlayerIndex == 0) {
-      if (key.currentState?.isFullscreen() ?? false) {
-        key.currentState?.exitFullscreen();
-      }
+      doExitFullScreen();
     } else {
       mobileController?.exitFullScreen();
     }
+
+    isFullscreen.value = false;
     showSettting.value = false;
   }
 
@@ -650,9 +650,17 @@ class VideoController with ChangeNotifier {
     });
     if (Platform.isWindows || videoPlayerIndex == 0) {
       if (isFullscreen.value) {
-        key.currentState?.exitFullscreen();
+        doExitFullScreen();
+        await verticalScreen();
       } else {
-        key.currentState?.enterFullscreen();
+        await doEnterFullScreen();
+        if (Platform.isAndroid) {
+          if (isVertical.value) {
+            await verticalScreen();
+          } else {
+            await landScape();
+          }
+        }
       }
       isFullscreen.toggle();
       refreshView();
