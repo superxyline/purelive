@@ -71,6 +71,12 @@ class LivePlayPage extends GetView<LivePlayController> {
                           ),
                       ],
                     ),
+                    const SizedBox(width: 8),
+                    Obx(
+                      () => controller.getVideoSuccess.value
+                          ? FavoriteFloatingButton(room: controller.detail.value!)
+                          : FavoriteFloatingButton(room: controller.currentPlayRoom.value),
+                    ),
                   ],
                 )
               : Row(
@@ -99,6 +105,12 @@ class LivePlayPage extends GetView<LivePlayController> {
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
                         ),
                       ],
+                    ),
+                    const SizedBox(width: 8),
+                    Obx(
+                      () => controller.getVideoSuccess.value
+                          ? FavoriteFloatingButton(room: controller.detail.value!)
+                          : FavoriteFloatingButton(room: controller.currentPlayRoom.value),
                     ),
                   ],
                 ),
@@ -177,11 +189,6 @@ class LivePlayPage extends GetView<LivePlayController> {
             },
           );
         },
-      ),
-      floatingActionButton: Obx(
-        () => controller.getVideoSuccess.value
-            ? FavoriteFloatingButton(room: controller.detail.value!)
-            : FavoriteFloatingButton(room: controller.currentPlayRoom.value),
       ),
     );
   }
@@ -336,10 +343,10 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
     final settings = Get.find<SettingsService>();
     late bool isFavorite = settings.isFavorite(widget.room);
     return isFavorite
-        ? FloatingActionButton(
-            elevation: 2,
-            backgroundColor: Theme.of(context).cardColor,
-            tooltip: S.of(context).unfollow,
+        ? FilledButton(
+            style: ButtonStyle(
+              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
+            ),
             onPressed: () {
               Get.dialog(
                 AlertDialog(
@@ -367,31 +374,17 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
                 }
               });
             },
-            child: CircleAvatar(
-              foregroundImage: (widget.room.avatar == '') ? null : NetworkImage(widget.room.avatar!),
-              radius: 18,
-              backgroundColor: Theme.of(context).disabledColor,
-            ),
+            child: Text('取消关注'),
           )
-        : FloatingActionButton.extended(
-            elevation: 2,
-            backgroundColor: Theme.of(context).cardColor,
+        : FilledButton(
+            style: ButtonStyle(
+              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
+            ),
             onPressed: () {
               setState(() => isFavorite = !isFavorite);
               settings.addRoom(widget.room);
             },
-            icon: CircleAvatar(
-              foregroundImage: (widget.room.avatar == '') ? null : NetworkImage(widget.room.avatar!),
-              radius: 18,
-              backgroundColor: Theme.of(context).disabledColor,
-            ),
-            label: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(S.of(context).follow, style: Theme.of(context).textTheme.bodySmall),
-                Text(widget.room.nick!, maxLines: 1, overflow: TextOverflow.ellipsis),
-              ],
-            ),
+            child: Text('关注'),
           );
   }
 }
