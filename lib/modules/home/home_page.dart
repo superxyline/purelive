@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../search/search_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:move_to_desktop/move_to_desktop.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
@@ -42,8 +43,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     favoriteController.tabBottomIndex.addListener(() {
       setState(() => _selectedIndex = favoriteController.tabBottomIndex.value);
     });
-
-    Get.put(AreasController(), permanent: true);
   }
 
   @override
@@ -106,7 +105,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
 
   void onBackButtonPressed(bool didPop, _) async {
     if (!didPop) {
-      SystemNavigator.pop();
+      MoveToDesktop().moveToDesktop();
     }
   }
 

@@ -47,6 +47,7 @@ dependencies:
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
   screen_brightness: ^2.1.2
+  move_to_desktop: ^0.0.2
   flutter_volume_controller: ^1.2.7
   flutter_color: ^2.1.0
   crypto_simple: ^3.0.0

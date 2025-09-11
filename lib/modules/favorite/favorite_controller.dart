@@ -32,9 +32,7 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     });
     // 定时自动刷新
     if (settings.autoRefreshTime.value != 0) {
-      if (Get.currentRoute != RoutePath.kLivePlay) {
-        Timer.periodic(Duration(minutes: settings.autoRefreshTime.value), (timer) => onRefresh());
-      }
+      Timer.periodic(Duration(minutes: settings.autoRefreshTime.value), (timer) => onRefresh());
     }
   }
 

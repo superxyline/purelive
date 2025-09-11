@@ -30,6 +30,11 @@ void main(List<String> args) async {
 
 void initService() {
   Get.put(SettingsService());
+  Get.put(AuthController());
+  Get.put(FavoriteController());
+  Get.put(BiliBiliAccountService());
+  Get.put(PopularController());
+  Get.put(AreasController());
 }
 
 class MyApp extends StatefulWidget {
@@ -95,10 +100,6 @@ class _MyAppState extends State<MyApp> with WindowListener {
       await WindowUtil.setTitle();
       setState(() {});
     }
-    Get.lazyPut(() => AuthController(), fenix: true);
-    Get.lazyPut(() => FavoriteController(), fenix: true);
-    Get.lazyPut(() => BiliBiliAccountService(), fenix: true);
-    Get.lazyPut(() => PopularController(), fenix: true);
   }
 
   @override
