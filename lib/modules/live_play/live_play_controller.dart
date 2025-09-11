@@ -6,6 +6,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/site/huya_site.dart';
 import 'widgets/video_player/video_controller.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -16,7 +17,7 @@ import 'package:pure_live/core/interface/live_danmaku.dart';
 class LivePlayController extends StateController {
   LivePlayController({required this.room, required this.site});
   final String site;
-
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
   late final Site currentSite = Sites.of(site);
 
   late final LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
@@ -91,6 +92,10 @@ class LivePlayController extends StateController {
 
   var isFullScreen = false.obs;
 
+  var closeTimes = 240.obs;
+
+  var closeTimeFlag = false.obs;
+
   Future<bool> onBackPressed({bool directiveExit = false}) async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
@@ -150,6 +155,30 @@ class LivePlayController extends StateController {
           loadRefreshRoomTimer?.cancel();
         }
       }
+    });
+
+    debounce(closeTimeFlag, (callback) {
+      if (closeTimeFlag.isTrue) {
+        _stopWatchTimer.onStopTimer();
+        _stopWatchTimer.setPresetMinuteTime(closeTimes.value, add: false);
+        _stopWatchTimer.onStartTimer();
+      } else {
+        _stopWatchTimer.onStopTimer();
+      }
+    }, time: 1.seconds);
+
+    debounce(closeTimes, (callback) {
+      if (closeTimeFlag.isTrue) {
+        _stopWatchTimer.onStopTimer();
+        _stopWatchTimer.setPresetMinuteTime(closeTimes.value, add: false);
+        _stopWatchTimer.onStartTimer();
+      } else {
+        _stopWatchTimer.onStopTimer();
+      }
+    }, time: 1.seconds);
+    _stopWatchTimer.fetchEnded.listen((value) {
+      _stopWatchTimer.onStopTimer();
+      exit(0);
     });
   }
 

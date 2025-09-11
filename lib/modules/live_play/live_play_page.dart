@@ -127,8 +127,10 @@ class LivePlayPage extends GetView<LivePlayController> {
             onSelected: (int index) {
               if (index == 0) {
                 controller.openNaviteAPP();
-              } else {
+              } else if (index == 1) {
                 showDlnaCastDialog();
+              } else if (index == 2) {
+                showTimerDialog(context);
               }
             },
             itemBuilder: (BuildContext context) {
@@ -142,6 +144,11 @@ class LivePlayPage extends GetView<LivePlayController> {
                   value: 1,
                   padding: EdgeInsets.symmetric(horizontal: 12),
                   child: MenuListTile(leading: Icon(Icons.live_tv_rounded), text: "投屏"),
+                ),
+                const PopupMenuItem(
+                  value: 2,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  child: MenuListTile(leading: Icon(Icons.watch_later_outlined), text: "定时关闭"),
                 ),
               ];
             },
@@ -240,6 +247,40 @@ class LivePlayPage extends GetView<LivePlayController> {
                         : TimeOutVideoWidget(controller: controller),
                   ),
                 ),
+        ),
+      ),
+    );
+  }
+
+  void showTimerDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        // title: Text(S.of(context).auto_refresh_time),
+        content: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SwitchListTile(
+                title: Text('定时关闭'),
+                contentPadding: EdgeInsets.zero,
+                value: controller.closeTimeFlag.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.closeTimeFlag.value = value,
+              ),
+              Slider(
+                min: 0,
+                max: 240,
+                label: S.of(context).auto_refresh_time,
+                value: controller.closeTimes.toDouble(),
+                onChanged: (value) => controller.closeTimes.value = value.toInt(),
+              ),
+              Text(
+                '自动关闭时间:'
+                ' ${controller.closeTimes}分钟',
+              ),
+            ],
+          ),
         ),
       ),
     );

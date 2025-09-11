@@ -67,7 +67,9 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
   void _hideVolumeBar() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-    setState(() => _isVolumeBarVisible = false);
+    if (mounted) {
+      setState(() => _isVolumeBarVisible = false);
+    }
     _hideTimer?.cancel();
     _hideTimer = null;
   }
