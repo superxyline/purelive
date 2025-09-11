@@ -731,13 +731,22 @@ class DesktopFullscreen extends StatelessWidget {
               color: Colors.black, // 设置你想要的背景色
             ),
             if (controller.videoPlayerIndex == 0)
-              media_kit_video.Video(
-                key: ValueKey(controller.videoFit.value),
-                controller: controller.mediaPlayerController,
-                fit: controller.videoFit.value,
-                controls: null,
+              Obx(
+                () => media_kit_video.Video(
+                  key: ValueKey(controller.videoFit.value),
+                  pauseUponEnteringBackgroundMode: !controller.settings.enableBackgroundPlay.value,
+                  resumeUponEnteringForegroundMode: !controller.settings.enableBackgroundPlay.value,
+                  controller: controller.mediaPlayerController,
+                  fit: controller.videoFit.value,
+                  controls: controller.room.platform == Sites.iptvSite
+                      ? media_kit_video.MaterialVideoControls
+                      : controller.isFullscreen.value
+                      ? (state) => VideoControllerPanel(controller: controller)
+                      : null,
+                ),
               ),
-            if (controller.videoPlayerIndex == 0) VideoControllerPanel(controller: controller),
+            if (controller.room.platform != Sites.iptvSite && !controller.isFullscreen.value)
+              VideoControllerPanel(controller: controller),
             if (controller.videoPlayerIndex == 1) BetterPlayer(controller: controller.mobileController!),
           ],
         ),
