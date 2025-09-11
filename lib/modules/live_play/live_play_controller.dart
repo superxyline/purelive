@@ -29,8 +29,6 @@ class LivePlayController extends StateController {
   // 控制唯一子组件
   VideoController? videoController;
 
-  final playerKey = GlobalKey();
-
   final danmakuViewKey = GlobalKey();
 
   final LiveRoom room;
@@ -453,10 +451,11 @@ class LivePlayController extends StateController {
     }
 
     videoController = VideoController(
-      playerKey: playerKey,
       room: detail.value!,
       datasourceType: 'network',
-      videoPlayerIndex: settings.videoPlayerIndex.value,
+      videoPlayerIndex: currentSite.id == Sites.huyaSite && settings.videoPlayerIndex.value == 1
+          ? 0
+          : settings.videoPlayerIndex.value,
       datasource: playUrls.value[currentLineIndex.value],
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
       allowBackgroundPlay: settings.enableBackgroundPlay.value,

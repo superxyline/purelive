@@ -20,8 +20,6 @@ import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_content_item.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/fullscreen.dart';
 
 class VideoController with ChangeNotifier {
-  final GlobalKey playerKey;
-
   final LiveRoom room;
   final String datasourceType;
   String datasource;
@@ -112,6 +110,15 @@ class VideoController with ChangeNotifier {
   final showLocked = false.obs;
   final danmuKey = GlobalKey();
 
+  GlobalKey playerKey = GlobalKey();
+  List<Map<String, dynamic>> videoFitType = [
+    {'attr': BoxFit.contain, 'desc': '包含'},
+    {'attr': BoxFit.cover, 'desc': '覆盖'},
+    {'attr': BoxFit.fill, 'desc': '填充'},
+    {'attr': BoxFit.fitHeight, 'desc': '高度适应'},
+    {'attr': BoxFit.fitWidth, 'desc': '宽度适应'},
+    {'attr': BoxFit.scaleDown, 'desc': '缩小适应'},
+  ];
   Timer? _debounceTimer;
   StreamSubscription? _widthSubscription;
   StreamSubscription? _heightSubscription;
@@ -131,7 +138,6 @@ class VideoController with ChangeNotifier {
   final danmakuFontBorder = 4.0.obs;
   final danmakuOpacity = 1.0.obs;
   VideoController({
-    required this.playerKey,
     required this.room,
     required this.datasourceType,
     required this.datasource,
@@ -228,7 +234,6 @@ class VideoController with ChangeNotifier {
         }
       });
       mediaPlayerController.player.stream.error.listen((event) {
-        log('video error: $event', name: 'video_player');
         if (event.toString().contains('Failed to open')) {
           hasError.value = true;
           isPlaying.value = false;
@@ -367,21 +372,16 @@ class VideoController with ChangeNotifier {
   dynamic mobileStateListener(BetterPlayerEvent event) {
     if (mobileController?.videoPlayerController != null) {
       hasError.value = mobileController?.videoPlayerController?.value.hasError ?? false;
-      log('betterPlayerEventType: ${event.betterPlayerEventType} ${event.parameters}', name: 'video_player');
-
-      if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
-        log('betterPlayerEventType: ${event.parameters}', name: 'video_player');
-      }
-
-      log('isVideoInitialized: ${mobileController!.isVideoInitialized()}', name: 'video_player');
       isPlaying.value = mobileController?.isPlaying() ?? false;
       isBuffering.value = mobileController?.isBuffering() ?? false;
       isPipMode.value = mobileController?.videoPlayerController?.value.isPip ?? false;
       if (isPlaying.value && mediaPlayerControllerInitialized.value == false) {
         mediaPlayerControllerInitialized.value = true;
         setVolume(settings.volume.value);
+        isVertical.value =
+            (mobileController?.videoPlayerController!.value.size!.height ?? 9) >
+            (mobileController?.videoPlayerController!.value.size!.width ?? 16);
       }
-      log(mobileController!.isBuffering().toString(), name: 'video_player');
     }
   }
 
@@ -503,15 +503,12 @@ class VideoController with ChangeNotifier {
     FlutterVolumeController.removeListener();
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetApplicationScreenBrightness();
+      if (isFullscreen.value) {
+        doExitFullScreen();
+      }
       if (videoPlayerIndex == 0) {
-        if (isFullscreen.value) {
-          doExitFullScreen();
-        }
         player.dispose();
       } else {
-        if (mobileController?.isFullScreen ?? false) {
-          mobileController?.exitFullScreen();
-        }
         mobileController?.dispose();
       }
     } else {
@@ -580,24 +577,11 @@ class VideoController with ChangeNotifier {
 
   void setVideoFit(BoxFit fit) {
     videoFit.value = fit;
-    double? aspectRatio;
-    if (player.state.width != null && player.state.height != null) {
-      aspectRatio = player.state.width! / player.state.height!;
-    }
-    if (videoPlayerIndex == 0) {
-      if (fit == BoxFit.fitWidth) {
-        aspectRatio = 16 / 9;
-        key.currentState?.update(fit: fit);
-      } else if (fit == BoxFit.fitHeight) {
-        aspectRatio = 9 / 16;
-        key.currentState?.update(fit: BoxFit.contain, aspectRatio: aspectRatio);
-      } else {
-        key.currentState?.update(fit: fit, aspectRatio: aspectRatio);
-      }
-    } else {
+    if (videoPlayerIndex == 1) {
       mobileController?.setOverriddenFit(videoFit.value);
       mobileController?.retryDataSource();
     }
+    settings.videoFitIndex.value = videoFitIndex.value;
   }
 
   void togglePlayPause() {
@@ -609,11 +593,7 @@ class VideoController with ChangeNotifier {
   }
 
   void exitFullScreen() {
-    if (Platform.isWindows || videoPlayerIndex == 0) {
-      doExitFullScreen();
-    } else {
-      mobileController?.exitFullScreen();
-    }
+    doExitFullScreen();
 
     isFullscreen.value = false;
     showSettting.value = false;
@@ -632,40 +612,25 @@ class VideoController with ChangeNotifier {
   }
 
   void toggleFullScreen() async {
-    // disable locked
     showLocked.value = false;
-    // fix obx setstate when build
     showControllerTimer?.cancel();
     Timer(const Duration(seconds: 2), () {
       enableController();
     });
-    if (Platform.isWindows || videoPlayerIndex == 0) {
-      if (isFullscreen.value) {
-        doExitFullScreen();
-        await verticalScreen();
-      } else {
-        await doEnterFullScreen();
-        if (Platform.isAndroid) {
-          if (isVertical.value) {
-            await verticalScreen();
-          } else {
-            await landScape();
-          }
+    if (isFullscreen.value) {
+      doExitFullScreen();
+      await verticalScreen();
+    } else {
+      await doEnterFullScreen();
+      if (Platform.isAndroid) {
+        if (isVertical.value) {
+          await verticalScreen();
+        } else {
+          await landScape();
         }
       }
-      isFullscreen.toggle();
-    } else {
-      mobileController?.toggleFullScreen();
-      Timer(const Duration(milliseconds: 400), () {
-        isFullscreen.toggle();
-        if (Platform.isAndroid) {
-          SystemChrome.setEnabledSystemUIMode(
-            !isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky,
-            overlays: SystemUiOverlay.values,
-          );
-        }
-      });
     }
+    isFullscreen.toggle();
   }
 
   void toggleWindowFullScreen() {
@@ -765,12 +730,15 @@ class DesktopFullscreen extends StatelessWidget {
             Container(
               color: Colors.black, // 设置你想要的背景色
             ),
-            media_kit_video.Video(
-              controller: controller.mediaPlayerController,
-              fit: controller.settings.videofitArrary[controller.videoFitIndex.value],
-              controls: null,
-            ),
-            VideoControllerPanel(controller: controller),
+            if (controller.videoPlayerIndex == 0)
+              media_kit_video.Video(
+                key: ValueKey(controller.videoFit.value),
+                controller: controller.mediaPlayerController,
+                fit: controller.videoFit.value,
+                controls: null,
+              ),
+            if (controller.videoPlayerIndex == 0) VideoControllerPanel(controller: controller),
+            if (controller.videoPlayerIndex == 1) BetterPlayer(controller: controller.mobileController!),
           ],
         ),
       ),

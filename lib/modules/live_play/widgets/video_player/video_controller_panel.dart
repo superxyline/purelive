@@ -630,6 +630,8 @@ class BottomActionBar extends StatelessWidget {
               if (controller.isFullscreen.value || controller.isWindowFullscreen.value)
                 SettingsButton(controller: controller),
               const Spacer(),
+              VideoFitSetting(controller: controller),
+              SizedBox(width: 8),
               OverlayVolumeControl(controller: controller),
               if (controller.supportWindowFull && !controller.isFullscreen.value)
                 ExpandWindowButton(controller: controller),
@@ -829,7 +831,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(isFavorite ? Icons.check_rounded : Icons.close, color: Colors.white, size: 15),
-            Text(isFavorite ? '已关注' : '关注', style: TextStyle(color: Colors.white, fontSize: 12)),
+            Text(isFavorite ? '已关注' : '关注', style: TextStyle(color: Colors.white, fontSize: 15)),
           ],
         ),
       ),
@@ -860,10 +862,7 @@ class SettingsPanel extends StatelessWidget {
             width: width,
             child: ListView(
               padding: const EdgeInsets.all(16),
-              children: [
-                VideoFitSetting(controller: controller),
-                DanmakuSetting(controller: controller),
-              ],
+              children: [DanmakuSetting(controller: controller)],
             ),
           ),
         ),
@@ -874,66 +873,35 @@ class SettingsPanel extends StatelessWidget {
 
 class VideoFitSetting extends StatefulWidget {
   const VideoFitSetting({super.key, required this.controller});
-
   final VideoController controller;
-
   @override
   State<VideoFitSetting> createState() => _VideoFitSettingState();
 }
 
 class _VideoFitSettingState extends State<VideoFitSetting> {
-  late final fitmodes = {
-    S.of(context).videofit_contain: BoxFit.contain,
-    S.of(context).videofit_fill: BoxFit.fill,
-    S.of(context).videofit_cover: BoxFit.cover,
-    S.of(context).videofit_fitwidth: BoxFit.fitWidth,
-    S.of(context).videofit_fitheight: BoxFit.fitHeight,
-  };
-  late int fitIndex = fitmodes.values.toList().indexWhere((e) => e == widget.controller.videoFit.value);
+  VideoController get controller => widget.controller;
   @override
   Widget build(BuildContext context) {
-    final Color color = Theme.of(context).colorScheme.primary.withValues(alpha: 0.8);
-    final isSelected = [false, false, false, false, false];
-    int fitIndex = widget.controller.videoFitIndex.value;
-    isSelected[fitIndex] = true;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Text(
-            S.of(context).settings_videofit_title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: ToggleButtons(
-            borderRadius: BorderRadius.circular(10),
-            // selectedBorderColor: color,
-            // borderColor: color,
-            selectedColor: Theme.of(context).colorScheme.primary,
-            fillColor: color,
-            isSelected: isSelected,
-            onPressed: (index) {
-              setState(() {
-                fitIndex = index;
-                widget.controller.videoFitIndex.value = index;
-                widget.controller.setVideoFit(fitmodes.values.toList()[index]);
-              });
-            },
-            children: fitmodes.keys
-                .map<Widget>(
-                  (e) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(e, style: const TextStyle(fontSize: 12, color: Colors.white)),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-      ],
+    List<String> descs = controller.videoFitType.map((e) => e['desc'] as String).toList();
+    List<BoxFit> attrs = controller.videoFitType.map((e) => e['attr'] as BoxFit).toList();
+    return GestureDetector(
+      onTap: () {
+        controller.enableController();
+        var currentIndex = controller.videoFitIndex.value;
+        currentIndex++;
+        if (currentIndex == attrs.length) {
+          currentIndex = 0;
+        }
+        controller.videoFitIndex.value = currentIndex;
+        controller.setVideoFit(attrs[currentIndex]);
+        setState(() {});
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 2),
+        alignment: Alignment.center,
+        height: 25,
+        child: Text(descs[controller.videoFitIndex.value], style: TextStyle(color: Colors.white, fontSize: 15)),
+      ),
     );
   }
 }

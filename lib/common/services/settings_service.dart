@@ -309,6 +309,7 @@ class SettingsService extends GetxController {
     BoxFit.cover,
     BoxFit.fitWidth,
     BoxFit.fitHeight,
+    BoxFit.scaleDown,
   ];
 
   final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;

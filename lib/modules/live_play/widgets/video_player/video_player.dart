@@ -32,11 +32,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   ),
                   Obx(
                     () => media_kit_video.Video(
-                      key: widget.controller.key,
+                      key: ValueKey(widget.controller.videoFit.value),
                       pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                       resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                       controller: widget.controller.mediaPlayerController,
-                      fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+                      fit: widget.controller.videoFit.value,
                       controls: widget.controller.room.platform == Sites.iptvSite
                           ? media_kit_video.MaterialVideoControls
                           : widget.controller.isFullscreen.value
@@ -44,7 +44,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           : null,
                     ),
                   ),
-                  VideoControllerPanel(controller: widget.controller),
+                  if (widget.controller.room.platform != Sites.iptvSite && !widget.controller.isFullscreen.value)
+                    VideoControllerPanel(controller: widget.controller),
                 ],
               ),
             ),
@@ -60,11 +61,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   ),
                   Obx(
                     () => media_kit_video.Video(
-                      key: widget.controller.key,
+                      key: ValueKey(widget.controller.videoFit.value),
                       pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                       resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                       controller: widget.controller.mediaPlayerController,
-                      fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+                      fit: widget.controller.videoFit.value,
                       controls: widget.controller.room.platform == Sites.iptvSite
                           ? media_kit_video.MaterialVideoControls
                           : widget.controller.isFullscreen.value
@@ -72,7 +73,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           : null,
                     ),
                   ),
-                  VideoControllerPanel(controller: widget.controller),
+                  if (widget.controller.room.platform != Sites.iptvSite && !widget.controller.isFullscreen.value)
+                    VideoControllerPanel(controller: widget.controller),
                 ],
               ),
             ),
@@ -93,11 +95,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
             ),
             Obx(
               () => media_kit_video.Video(
-                key: widget.controller.key,
+                key: ValueKey(widget.controller.videoFit.value),
                 pauseUponEnteringBackgroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                 resumeUponEnteringForegroundMode: !widget.controller.settings.enableBackgroundPlay.value,
                 controller: widget.controller.mediaPlayerController,
-                fit: widget.controller.settings.videofitArrary[widget.controller.videoFitIndex.value],
+                fit: widget.controller.videoFit.value,
                 controls: widget.controller.room.platform == Sites.iptvSite
                     ? media_kit_video.MaterialVideoControls
                     : widget.controller.isFullscreen.value
@@ -105,7 +107,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     : null,
               ),
             ),
-            VideoControllerPanel(controller: widget.controller),
+            if (widget.controller.room.platform != Sites.iptvSite && !widget.controller.isFullscreen.value)
+              VideoControllerPanel(controller: widget.controller),
           ],
         ),
       ),

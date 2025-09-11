@@ -31,7 +31,7 @@ class LivePlayPage extends GetView<LivePlayController> {
     return Obx(
       () => BackButtonListener(
         onBackButtonPressed: () => onWillPop(directiveExit: false),
-        child: controller.isFullScreen.value && controller.settings.videoPlayerIndex.value == 0
+        child: controller.isFullScreen.value
             ? DesktopFullscreen(controller: controller.videoController!)
             : buildNormalPlayerView(context),
       ),
