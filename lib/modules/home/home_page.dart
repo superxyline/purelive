@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../search/search_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:move_to_desktop/move_to_desktop.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
@@ -22,6 +21,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin, WindowListener {
   Timer? _debounceTimer;
   final FavoriteController favoriteController = Get.find<FavoriteController>();
+
   @override
   void initState() {
     super.initState();
@@ -104,10 +104,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
     }
   }
 
-  void onBackButtonPressed(bool canPop, _) async {
-    if (canPop) {
-      final moveToDesktopPlugin = MoveToDesktop();
-      moveToDesktopPlugin.moveToDesktop();
+  void onBackButtonPressed(bool didPop, _) async {
+    if (!didPop) {
+      SystemNavigator.pop();
     }
   }
 
@@ -115,7 +114,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   Widget build(BuildContext context) {
     super.build(context);
     return PopScope(
-      canPop: Get.currentRoute == RoutePath.kInitial,
+      canPop: false,
       onPopInvokedWithResult: onBackButtonPressed,
       child: LayoutBuilder(
         builder: (context, constraint) => constraint.maxWidth <= 680

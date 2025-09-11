@@ -77,7 +77,6 @@ dependencies:
   logger: ^2.0.2+1
   crypto: ^3.0.3
   brotli: ^0.6.0
-  move_to_desktop: ^0.0.2
   dlna_dart: ^0.1.0
   dart_tars_protocol:
     git: https://github.com/xiaoyaocz/dart_tars_protocol.git
