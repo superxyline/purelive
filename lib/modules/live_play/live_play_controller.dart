@@ -456,9 +456,7 @@ class LivePlayController extends StateController {
       playerKey: playerKey,
       room: detail.value!,
       datasourceType: 'network',
-      videoPlayerIndex: currentSite.id == Sites.huyaSite && settings.videoPlayerIndex.value == 1
-          ? 0
-          : settings.videoPlayerIndex.value,
+      videoPlayerIndex: settings.videoPlayerIndex.value,
       datasource: playUrls.value[currentLineIndex.value],
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
       allowBackgroundPlay: settings.enableBackgroundPlay.value,

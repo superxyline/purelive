@@ -79,7 +79,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
           ),
         );
       } else {
-        return BetterPlayer(key: widget.controller.playerKey, controller: widget.controller.mobileController!);
+        return BetterPlayer(controller: widget.controller.mobileController!);
       }
     }
     return Material(

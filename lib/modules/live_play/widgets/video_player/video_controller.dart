@@ -68,8 +68,6 @@ class VideoController with ChangeNotifier {
 
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
 
-  final refreshCompleted = true.obs;
-
   final videoSizeWidth = 0.0.obs;
 
   final videoSizeHeight = 0.0.obs;
@@ -397,14 +395,6 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  void refreshView() {
-    refreshCompleted.value = false;
-    Timer(const Duration(microseconds: 200), () {
-      brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
-      refreshCompleted.value = true;
-    });
-  }
-
   void initDanmaku() {
     hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
     hideDanmaku.listen((data) {
@@ -515,7 +505,7 @@ class VideoController with ChangeNotifier {
       brightnessController.resetApplicationScreenBrightness();
       if (videoPlayerIndex == 0) {
         if (isFullscreen.value) {
-          doEnterFullScreen();
+          doExitFullScreen();
         }
         player.dispose();
       } else {
@@ -526,10 +516,11 @@ class VideoController with ChangeNotifier {
       }
     } else {
       if (isFullscreen.value) {
-        doEnterFullScreen();
+        doExitFullScreen();
       }
       player.dispose();
     }
+    isFullscreen.value = false;
   }
 
   void setDataSource(String url) async {
@@ -663,12 +654,10 @@ class VideoController with ChangeNotifier {
         }
       }
       isFullscreen.toggle();
-      refreshView();
     } else {
       mobileController?.toggleFullScreen();
       Timer(const Duration(milliseconds: 400), () {
         isFullscreen.toggle();
-        // fix immersion status bar problem
         if (Platform.isAndroid) {
           SystemChrome.setEnabledSystemUIMode(
             !isFullscreen.value ? SystemUiMode.edgeToEdge : SystemUiMode.immersiveSticky,
@@ -699,7 +688,6 @@ class VideoController with ChangeNotifier {
       throw UnimplementedError('Unsupported Platform');
     }
     enableController();
-    refreshView();
   }
 
   void enterPipMode(BuildContext context) async {
