@@ -725,7 +725,7 @@ class DesktopFullscreen extends StatelessWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: Stack(
-          fit: StackFit.expand, // 使Stack填充整个父容器
+          fit: StackFit.passthrough, // 使Stack填充整个父容器
           children: [
             Container(
               color: Colors.black, // 设置你想要的背景色

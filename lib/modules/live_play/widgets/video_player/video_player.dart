@@ -25,7 +25,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
             child: Scaffold(
               resizeToAvoidBottomInset: true,
               body: Stack(
-                fit: StackFit.expand, // 使Stack填充整个父容器
+                fit: StackFit.passthrough,
                 children: [
                   Container(
                     color: Colors.black, // 设置你想要的背景色
@@ -54,7 +54,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
             child: Scaffold(
               resizeToAvoidBottomInset: true,
               body: Stack(
-                fit: StackFit.expand, // 使Stack填充整个父容器
+                fit: StackFit.passthrough,
                 children: [
                   Container(
                     color: Colors.black, // 设置你想要的背景色
@@ -81,14 +81,28 @@ class _VideoPlayerState extends State<VideoPlayer> {
           ),
         );
       } else {
-        return BetterPlayer(controller: widget.controller.mobileController!);
+        return Scaffold(
+          resizeToAvoidBottomInset: true,
+          body: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              Container(
+                color: Colors.black, // 设置你想要的背景色
+              ),
+              BetterPlayer(
+                key: ValueKey(widget.controller.videoFit.value),
+                controller: widget.controller.mobileController!,
+              ),
+            ],
+          ),
+        );
       }
     }
     return Material(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: Stack(
-          fit: StackFit.expand, // 使Stack填充整个父容器
+          fit: StackFit.passthrough,
           children: [
             Container(
               color: Colors.black, // 设置你想要的背景色

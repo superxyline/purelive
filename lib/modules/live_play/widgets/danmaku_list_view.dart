@@ -34,7 +34,8 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
 
   void _scrollToBottom() {
     if (_scrollHappen) return;
-    if (_scrollController.hasClients) {
+    if (_scrollController.hasClients &&
+        (controller.videoController != null && !controller.videoController!.isFullscreen.value)) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 200),
@@ -83,15 +84,9 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                       children: [
                         TextSpan(
                           text: "${danmaku.userName}: ",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w300,
-                          ),
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
                         ),
-                        TextSpan(
-                          text: danmaku.message,
-                          style: const TextStyle(fontSize: 14),
-                        ),
+                        TextSpan(text: danmaku.message, style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                   ),
@@ -112,7 +107,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                 _scrollToBottom();
               },
             ),
-          )
+          ),
       ],
     );
   }

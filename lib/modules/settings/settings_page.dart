@@ -561,7 +561,6 @@ class SettingsPage extends GetView<SettingsService> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VideoFitSetting(controller: controller),
                 DanmakuSetting(controller: controller),
                 const SizedBox(height: 20),
               ],
