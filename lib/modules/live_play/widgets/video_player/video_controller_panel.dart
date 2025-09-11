@@ -820,33 +820,18 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         setState(() => isFavorite = !isFavorite);
         EventBus.instance.emit('changeFavorite', true);
       },
-      child: Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-            decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 1.5)),
-            width: 40,
-            height: 20,
-            alignment: Alignment.center,
-            child: Text('关注', style: TextStyle(color: Colors.white, fontSize: 12)),
-          ),
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Transform.rotate(
-              angle: 75,
-              child: Container(width: 25, height: 2, color: isFavorite ? Colors.white : Colors.transparent),
-            ),
-          ),
-          Positioned(
-            top: 8,
-            left: 8,
-            child: Transform.rotate(
-              angle: -75,
-              child: Container(width: 25, height: 2, color: isFavorite ? Colors.white : Colors.transparent),
-            ),
-          ),
-        ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 2),
+        alignment: Alignment.center,
+        height: 25,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(isFavorite ? Icons.check_rounded : Icons.close, color: Colors.white, size: 15),
+            Text(isFavorite ? '已关注' : '关注', style: TextStyle(color: Colors.white, fontSize: 12)),
+          ],
+        ),
       ),
     );
   }

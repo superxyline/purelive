@@ -405,17 +405,19 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
         ? FilledButton(
             style: ButtonStyle(
               padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
+              backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary.withValues(alpha: 0.5)),
             ),
             onPressed: () {
               setState(() => isFavorite = !isFavorite);
               settings.removeRoom(widget.room);
               EventBus.instance.emit('changeFavorite', true);
             },
-            child: Text('取消关注'),
+            child: Text('已关注'),
           )
         : FilledButton(
             style: ButtonStyle(
               padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
+              backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary),
             ),
             onPressed: () {
               setState(() => isFavorite = !isFavorite);
