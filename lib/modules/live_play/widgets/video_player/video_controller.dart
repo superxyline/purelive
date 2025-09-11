@@ -289,12 +289,12 @@ class VideoController with ChangeNotifier {
       });
       if (Platform.isAndroid) {
         pip = Floating();
-        pip.pipStatusStream.listen((status) {
+        pip.pipStatusStream.listen((status) async {
           if (status == PiPStatus.enabled) {
             isPipMode.value = true;
-            doEnterFullScreen();
           } else {
             isPipMode.value = false;
+            isFullscreen.value = false;
             doExitFullScreen();
           }
         });
@@ -707,6 +707,11 @@ class VideoController with ChangeNotifier {
       danmakuController.clear();
       danmakuController.resume();
       if (Platform.isWindows || videoPlayerIndex == 0) {
+        isFullscreen.toggle();
+        if (isVertical.value) {
+          await verticalScreen();
+        }
+        doEnterFullScreen();
         await pip.enable(ImmediatePiP());
       } else {
         if (await mobileController?.isPictureInPictureSupported() ?? false) {
