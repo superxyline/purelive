@@ -86,7 +86,6 @@ class BiliBiliSite implements LiveSite {
         "$baseUrl?platform=web&parent_area_id=${category.areaType}&area_id=${category.areaId}&sort_type=&page=$page&w_webid=${await getAccessId()}";
 
     var queryParams = await getWbiSign(url);
-    print(queryParams);
     var result = await HttpClient.instance.getJson(baseUrl, queryParameters: queryParams, header: await getHeader());
     developer.log(result.toString(), name: "result");
     var hasMore = result["data"]["has_more"] == 1;
