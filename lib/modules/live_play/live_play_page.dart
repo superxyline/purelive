@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'widgets/index.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
@@ -338,41 +340,35 @@ class FavoriteFloatingButton extends StatefulWidget {
 }
 
 class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
+  StreamSubscription<dynamic>? subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    listenFavorite();
+  }
+
+  void listenFavorite() {
+    subscription = EventBus.instance.listen('changeFavorite', (data) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings = Get.find<SettingsService>();
-    late bool isFavorite = settings.isFavorite(widget.room);
+    bool isFavorite = settings.isFavorite(widget.room);
     return isFavorite
         ? FilledButton(
             style: ButtonStyle(
               padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
             ),
             onPressed: () {
-              Get.dialog(
-                AlertDialog(
-                  title: Text(S.of(context).unfollow),
-                  content: Text(S.of(context).unfollow_message(widget.room.nick!)),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(Get.context!).pop(false);
-                      },
-                      child: Text(S.of(context).cancel),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(Get.context!).pop(true);
-                      },
-                      child: Text(S.of(context).confirm),
-                    ),
-                  ],
-                ),
-              ).then((value) {
-                if (value) {
-                  setState(() => isFavorite = !isFavorite);
-                  settings.removeRoom(widget.room);
-                }
-              });
+              setState(() => isFavorite = !isFavorite);
+              settings.removeRoom(widget.room);
+              EventBus.instance.emit('changeFavorite', true);
             },
             child: Text('取消关注'),
           )
@@ -383,6 +379,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
             onPressed: () {
               setState(() => isFavorite = !isFavorite);
               settings.addRoom(widget.room);
+              EventBus.instance.emit('changeFavorite', true);
             },
             child: Text('关注'),
           );

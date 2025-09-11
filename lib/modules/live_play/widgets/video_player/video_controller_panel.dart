@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/pkg/canvas_danmaku/danmaku_screen.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
@@ -629,9 +630,9 @@ class BottomActionBar extends StatelessWidget {
               if (controller.isFullscreen.value || controller.isWindowFullscreen.value)
                 SettingsButton(controller: controller),
               const Spacer(),
+              OverlayVolumeControl(controller: controller),
               if (controller.supportWindowFull && !controller.isFullscreen.value)
                 ExpandWindowButton(controller: controller),
-              OverlayVolumeControl(controller: controller),
               if (!controller.isWindowFullscreen.value) ExpandButton(controller: controller),
             ],
           ),
@@ -789,23 +790,63 @@ class FavoriteButton extends StatefulWidget {
 
 class _FavoriteButtonState extends State<FavoriteButton> {
   final settings = Get.find<SettingsService>();
-
+  StreamSubscription<dynamic>? subscription;
   late bool isFavorite = settings.isFavorite(widget.controller.room);
+
+  @override
+  void initState() {
+    super.initState();
+    listenFavorite();
+  }
+
+  void listenFavorite() {
+    subscription = EventBus.instance.listen('changeFavorite', (data) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        widget.controller.enableController();
         if (isFavorite) {
           settings.removeRoom(widget.controller.room);
         } else {
           settings.addRoom(widget.controller.room);
         }
         setState(() => isFavorite = !isFavorite);
+        EventBus.instance.emit('changeFavorite', true);
       },
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(12),
-        child: Icon(!isFavorite ? Icons.favorite_outline_outlined : Icons.favorite_rounded, color: Colors.white),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+            decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 1.5)),
+            width: 40,
+            height: 20,
+            alignment: Alignment.center,
+            child: Text('关注', style: TextStyle(color: Colors.white, fontSize: 12)),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Transform.rotate(
+              angle: 75,
+              child: Container(width: 25, height: 2, color: isFavorite ? Colors.white : Colors.transparent),
+            ),
+          ),
+          Positioned(
+            top: 8,
+            left: 8,
+            child: Transform.rotate(
+              angle: -75,
+              child: Container(width: 25, height: 2, color: isFavorite ? Colors.white : Colors.transparent),
+            ),
+          ),
+        ],
       ),
     );
   }
