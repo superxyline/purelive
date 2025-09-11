@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
@@ -691,10 +692,17 @@ class DanmakuButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: Obx(
-          () => Icon(
-            controller.hideDanmaku.value ? CustomIcons.danmaku_close : CustomIcons.danmaku_open,
-            color: Colors.white,
-          ),
+          () => controller.hideDanmaku.value
+              ? SvgPicture.asset(
+                  'assets/images/video/danmu_close.svg',
+                  // ignore: deprecated_member_use
+                  color: Colors.white,
+                )
+              : SvgPicture.asset(
+                  'assets/images/video/danmu_open.svg',
+                  // ignore: deprecated_member_use
+                  color: Colors.white,
+                ),
         ),
       ),
     );

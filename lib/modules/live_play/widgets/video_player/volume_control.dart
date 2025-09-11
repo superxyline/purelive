@@ -10,7 +10,7 @@ class OverlayVolumeControl extends StatefulWidget {
 }
 
 class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
-  double _volume = 0.7;
+  double _volume = 0.5;
   OverlayEntry? _overlayEntry;
   bool _isVolumeBarVisible = false;
   VideoController get controller => widget.controller;
@@ -58,7 +58,7 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
         _isVolumeBarVisible = true;
         controller.enableController();
         _hideTimer?.cancel();
-        _hideTimer = Timer(const Duration(seconds: 3), _hideVolumeBar);
+        _hideTimer = Timer(const Duration(seconds: 2), _hideVolumeBar);
       });
     }
   }
@@ -98,8 +98,9 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
       setState(() => _volume = newVolume);
       _overlayEntry?.markNeedsBuild();
       controller.setVolume(_volume);
+      controller.enableController();
       _hideTimer?.cancel();
-      _hideTimer = Timer(const Duration(seconds: 3), _hideVolumeBar);
+      _hideTimer = Timer(const Duration(seconds: 2), _hideVolumeBar);
     }
   }
 
