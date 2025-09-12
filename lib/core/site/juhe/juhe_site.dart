@@ -86,6 +86,9 @@ class JuheSite extends LiveSite with JuheSiteMixin {
   @override
   Future<LiveCategoryResult> getCategoryRooms(LiveArea category, {int page = 1}) async {
     CoreLog.d("getCategoryRooms: ${json.encode(category)}");
+    if(page > 1) {
+      return LiveCategoryResult(hasMore: false, items: []);
+    }
     var resultText = await HttpClient.instance.getJson(
       "http://api.vipmisss.com:81/xcdsw/${category.areaId}",
       queryParameters: {},
@@ -128,6 +131,9 @@ class JuheSite extends LiveSite with JuheSiteMixin {
 
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
+    if(page > 1) {
+      return LiveCategoryResult(hasMore: false, items: []);
+    }
     var roomAreaName = "卡哇伊";
     var map = await getAreaNameMap();
     var tmpLiveArea = map[roomAreaName];
@@ -176,6 +182,9 @@ class JuheSite extends LiveSite with JuheSiteMixin {
 
   @override
   Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
+    if(page > 1) {
+      return LiveSearchRoomResult(hasMore: false, items: []);
+    }
     var liveCategoryResult = await getRecommendRooms(nick: "");
     var items = liveCategoryResult.items;
     var list = <LiveRoom>[];
