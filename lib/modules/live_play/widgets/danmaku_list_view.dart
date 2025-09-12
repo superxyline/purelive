@@ -32,16 +32,20 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
     super.dispose();
   }
 
-  void _scrollToBottom() {
+  void _scrollToBottom() async {
     if (_scrollHappen) return;
-    if (_scrollController.hasClients &&
-        (controller.videoController != null && !controller.videoController!.isFullscreen.value)) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.linearToEaseOut,
-      );
-      setState(() {});
+    try {
+      if (_scrollController.hasClients) {
+        await _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.linearToEaseOut,
+        );
+        if (!context.mounted) return;
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint("滚动动画被取消: $e");
     }
   }
 

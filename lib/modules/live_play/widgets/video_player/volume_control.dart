@@ -32,6 +32,7 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
 
   Future<void> initVolume() async {
     final volume = await controller.volume();
+    if (!context.mounted) return;
     setState(() {
       _volume = volume ?? 0.5;
     });

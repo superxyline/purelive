@@ -504,7 +504,11 @@ class VideoController with ChangeNotifier {
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetApplicationScreenBrightness();
       if (isFullscreen.value) {
-        doExitFullScreen();
+        if (videoPlayerIndex == 1) {
+          mobileController?.exitFullScreen();
+        } else {
+          doExitFullScreen();
+        }
       }
       if (videoPlayerIndex == 0) {
         player.dispose();
@@ -588,8 +592,13 @@ class VideoController with ChangeNotifier {
   }
 
   void exitFullScreen() {
-    doExitFullScreen();
-
+    if (videoPlayerIndex == 1) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        mobileController?.exitFullScreen();
+      });
+    } else {
+      doExitFullScreen();
+    }
     isFullscreen.value = false;
     showSettting.value = false;
   }
@@ -613,18 +622,35 @@ class VideoController with ChangeNotifier {
       enableController();
     });
     if (isFullscreen.value) {
-      doExitFullScreen();
-      await verticalScreen();
-    } else {
-      await doEnterFullScreen();
       if (Platform.isAndroid) {
-        if (isVertical.value) {
-          await verticalScreen();
+        if (videoPlayerIndex == 1) {
+          Future.delayed(const Duration(milliseconds: 100), () {
+            mobileController?.exitFullScreen();
+          });
         } else {
-          await landScape();
+          doExitFullScreen();
+          await verticalScreen();
         }
+      } else {
+        doExitFullScreen();
+      }
+    } else {
+      if (Platform.isAndroid) {
+        if (videoPlayerIndex == 1) {
+          mobileController?.enterFullScreen();
+        } else {
+          await doEnterFullScreen();
+          if (isVertical.value) {
+            await verticalScreen();
+          } else {
+            await landScape();
+          }
+        }
+      } else {
+        await doEnterFullScreen();
       }
     }
+
     isFullscreen.toggle();
   }
 
@@ -725,24 +751,18 @@ class DesktopFullscreen extends StatelessWidget {
             Container(
               color: Colors.black, // 设置你想要的背景色
             ),
-            if (controller.videoPlayerIndex == 0)
-              Obx(
-                () => media_kit_video.Video(
-                  key: ValueKey(controller.videoFit.value),
-                  pauseUponEnteringBackgroundMode: !controller.settings.enableBackgroundPlay.value,
-                  resumeUponEnteringForegroundMode: !controller.settings.enableBackgroundPlay.value,
-                  controller: controller.mediaPlayerController,
-                  fit: controller.videoFit.value,
-                  controls: controller.room.platform == Sites.iptvSite
-                      ? media_kit_video.MaterialVideoControls
-                      : controller.isFullscreen.value
-                      ? (state) => VideoControllerPanel(controller: controller)
-                      : null,
-                ),
+            Obx(
+              () => media_kit_video.Video(
+                key: ValueKey(controller.videoFit.value),
+                pauseUponEnteringBackgroundMode: !controller.settings.enableBackgroundPlay.value,
+                resumeUponEnteringForegroundMode: !controller.settings.enableBackgroundPlay.value,
+                controller: controller.mediaPlayerController,
+                fit: controller.videoFit.value,
+                controls: controller.room.platform == Sites.iptvSite
+                    ? media_kit_video.MaterialVideoControls
+                    : (state) => VideoControllerPanel(controller: controller),
               ),
-            if (controller.room.platform != Sites.iptvSite && !controller.isFullscreen.value)
-              VideoControllerPanel(controller: controller),
-            if (controller.videoPlayerIndex == 1) BetterPlayer(controller: controller.mobileController!),
+            ),
           ],
         ),
       ),

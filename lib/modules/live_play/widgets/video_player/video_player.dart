@@ -39,13 +39,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
                       fit: widget.controller.videoFit.value,
                       controls: widget.controller.room.platform == Sites.iptvSite
                           ? media_kit_video.MaterialVideoControls
-                          : widget.controller.isFullscreen.value
-                          ? (state) => VideoControllerPanel(controller: widget.controller)
-                          : null,
+                          : (state) => VideoControllerPanel(controller: widget.controller),
                     ),
                   ),
-                  if (widget.controller.room.platform != Sites.iptvSite && !widget.controller.isFullscreen.value)
-                    VideoControllerPanel(controller: widget.controller),
                 ],
               ),
             ),
@@ -68,20 +64,16 @@ class _VideoPlayerState extends State<VideoPlayer> {
                       fit: widget.controller.videoFit.value,
                       controls: widget.controller.room.platform == Sites.iptvSite
                           ? media_kit_video.MaterialVideoControls
-                          : widget.controller.isFullscreen.value
-                          ? (state) => VideoControllerPanel(controller: widget.controller)
-                          : null,
+                          : (state) => VideoControllerPanel(controller: widget.controller),
                     ),
                   ),
-                  if (widget.controller.room.platform != Sites.iptvSite && !widget.controller.isFullscreen.value)
-                    VideoControllerPanel(controller: widget.controller),
                 ],
               ),
             ),
           ),
         );
       } else {
-        return BetterPlayer(controller: widget.controller.mobileController!);
+        return BetterPlayer(key: widget.controller.playerKey, controller: widget.controller.mobileController!);
       }
     }
     return Material(
@@ -102,13 +94,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
                 fit: widget.controller.videoFit.value,
                 controls: widget.controller.room.platform == Sites.iptvSite
                     ? media_kit_video.MaterialVideoControls
-                    : widget.controller.isFullscreen.value
-                    ? (state) => VideoControllerPanel(controller: widget.controller)
-                    : null,
+                    : (state) => VideoControllerPanel(controller: widget.controller),
               ),
             ),
-            if (widget.controller.room.platform != Sites.iptvSite && !widget.controller.isFullscreen.value)
-              VideoControllerPanel(controller: widget.controller),
           ],
         ),
       ),

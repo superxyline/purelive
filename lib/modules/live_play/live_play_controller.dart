@@ -29,8 +29,6 @@ class LivePlayController extends StateController {
   // 控制唯一子组件
   VideoController? videoController;
 
-  final danmakuViewKey = GlobalKey();
-
   final LiveRoom room;
 
   Rx<LiveRoom?> detail = Rx<LiveRoom?>(LiveRoom());
@@ -447,6 +445,11 @@ class LivePlayController extends StateController {
       headers = {"user-agent": ua, "origin": "https://www.huya.com"};
     }
 
+    log(
+      (currentSite.id == Sites.huyaSite && settings.videoPlayerIndex.value == 1 ? 0 : settings.videoPlayerIndex.value)
+          .toString(),
+      name: "video_player_index",
+    );
     videoController = VideoController(
       room: detail.value!,
       datasourceType: 'network',

@@ -30,14 +30,20 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (settings.enableScreenKeepOn.value) {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
-    return Obx(
-      () => BackButtonListener(
+    return Obx(() {
+      var currentPlayIndex =
+          controller.currentSite.id == Sites.huyaSite && controller.settings.videoPlayerIndex.value == 1
+          ? 0
+          : controller.settings.videoPlayerIndex.value;
+      return BackButtonListener(
         onBackButtonPressed: () => onWillPop(directiveExit: false),
-        child: controller.isFullScreen.value
+        child: currentPlayIndex == 1
+            ? buildNormalPlayerView(context)
+            : controller.isFullScreen.value
             ? DesktopFullscreen(controller: controller.videoController!)
             : buildNormalPlayerView(context),
-      ),
-    );
+      );
+    });
   }
 
   Scaffold buildNormalPlayerView(BuildContext context) {
@@ -176,11 +182,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                           buildVideoPlayer(),
                           const ResolutionsRow(),
                           const Divider(height: 1),
-                          Expanded(
-                            child: Obx(
-                              () => DanmakuListView(key: controller.danmakuViewKey, room: controller.detail.value!),
-                            ),
-                          ),
+                          Expanded(child: Obx(() => DanmakuListView(room: controller.detail.value!))),
                         ],
                       )
                     : Row(
@@ -192,12 +194,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                               children: [
                                 const ResolutionsRow(),
                                 const Divider(height: 1),
-                                Expanded(
-                                  child: Obx(
-                                    () =>
-                                        DanmakuListView(key: controller.danmakuViewKey, room: controller.detail.value!),
-                                  ),
-                                ),
+                                Expanded(child: Obx(() => DanmakuListView(room: controller.detail.value!))),
                               ],
                             ),
                           ),
