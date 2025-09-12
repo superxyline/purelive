@@ -404,8 +404,20 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
     return isFavorite
         ? FilledButton(
             style: ButtonStyle(
-              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-              backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary.withValues(alpha: 0.5)),
+              // 减小内边距，使按钮更小
+              padding: WidgetStateProperty.all(EdgeInsets.all(5.0)),
+              // 设置背景色
+              backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary.withAlpha(125)),
+              // 设置按钮形状，调整圆角半径
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.0), // 圆角半径，可根据需要调整
+                ),
+              ),
+              // 可选：减小文字大小
+              textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 12.0)),
+              minimumSize: WidgetStateProperty.all(Size.zero), // 移除默认最小尺寸
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onPressed: () {
               Get.dialog(
@@ -439,15 +451,27 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
           )
         : FilledButton(
             style: ButtonStyle(
-              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
+              // 减小内边距，使按钮更小
+              padding: WidgetStateProperty.all(EdgeInsets.all(5.0)),
+              // 设置背景色
               backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary),
+              // 设置按钮形状，调整圆角半径
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.0), // 圆角半径，可根据需要调整
+                ),
+              ),
+              // 可选：减小文字大小
+              textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 12.0)),
+              minimumSize: WidgetStateProperty.all(Size.zero), // 移除默认最小尺寸
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onPressed: () {
               setState(() => isFavorite = !isFavorite);
               settings.addRoom(widget.room);
               EventBus.instance.emit('changeFavorite', true);
             },
-            child: Text('关注'),
+            child: const Text('关注'),
           );
   }
 }
