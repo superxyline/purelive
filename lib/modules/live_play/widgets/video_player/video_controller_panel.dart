@@ -633,8 +633,10 @@ class BottomActionBar extends StatelessWidget {
               VideoFitSetting(controller: controller),
               SizedBox(width: 8),
               OverlayVolumeControl(controller: controller),
+              SizedBox(width: 8),
               if (controller.supportWindowFull && !controller.isFullscreen.value)
                 ExpandWindowButton(controller: controller),
+              if (controller.supportWindowFull && !controller.isFullscreen.value) SizedBox(width: 8),
               if (!controller.isWindowFullscreen.value) ExpandButton(controller: controller),
             ],
           ),
@@ -741,7 +743,6 @@ class ExpandWindowButton extends StatelessWidget {
       onTap: () => controller.toggleWindowFullScreen(),
       child: Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(12),
         child: RotatedBox(
           quarterTurns: 1,
           child: Obx(
@@ -768,7 +769,6 @@ class ExpandButton extends StatelessWidget {
       onTap: () => controller.toggleFullScreen(),
       child: Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(12),
         child: Obx(
           () => Icon(
             controller.isFullscreen.value ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,

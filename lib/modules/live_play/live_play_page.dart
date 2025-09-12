@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:async';
 import 'widgets/index.dart';
 import 'package:get/get.dart';
@@ -405,7 +406,9 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
         ? FilledButton(
             style: ButtonStyle(
               // 减小内边距，使按钮更小
-              padding: WidgetStateProperty.all(EdgeInsets.all(5.0)),
+              padding: Platform.isWindows
+                  ? WidgetStateProperty.all(EdgeInsets.all(12.0))
+                  : WidgetStateProperty.all(EdgeInsets.all(5.0)),
               // 设置背景色
               backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary.withAlpha(125)),
               // 设置按钮形状，调整圆角半径
@@ -452,7 +455,9 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
         : FilledButton(
             style: ButtonStyle(
               // 减小内边距，使按钮更小
-              padding: WidgetStateProperty.all(EdgeInsets.all(5.0)),
+              padding: Platform.isWindows
+                  ? WidgetStateProperty.all(EdgeInsets.all(12.0))
+                  : WidgetStateProperty.all(EdgeInsets.all(5.0)),
               // 设置背景色
               backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary),
               // 设置按钮形状，调整圆角半径
