@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:pure_live/modules/live_play/play_other.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
@@ -119,6 +120,13 @@ class LivePlayPage extends GetView<LivePlayController> {
                 ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz_outlined),
+            tooltip: '切换直播间',
+            onPressed: () {
+              Get.dialog(PlayOther(controller: controller));
+            },
+          ),
           PopupMenuButton(
             tooltip: '搜索',
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -215,40 +223,42 @@ class LivePlayPage extends GetView<LivePlayController> {
         child: Obx(
           () => controller.success.value
               ? VideoPlayer(controller: controller.videoController!)
-              : controller.hasError.value && controller.isActive.value == false
+              : controller.hasError.value && controller.isActive.value == false || !controller.getVideoSuccess.value
               ? ErrorVideoWidget(controller: controller)
-              : !controller.getVideoSuccess.value
-              ? ErrorVideoWidget(controller: controller)
-              : Card(
-                  elevation: 0,
-                  margin: const EdgeInsets.all(0),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  clipBehavior: Clip.antiAlias,
-                  color: Get.theme.focusColor,
-                  child: Obx(
-                    () => controller.isFirstLoad.value || !controller.loadTimeOut.value
-                        ? const Center(child: CircularProgressIndicator(color: Colors.white))
-                        : controller.loadTimeOut.value
-                        ? CachedNetworkImage(
-                            imageUrl: controller.currentPlayRoom.value.cover!,
-                            cacheManager: CustomCacheManager.instance,
-                            fit: BoxFit.fill,
-                            errorWidget: (context, error, stackTrace) => const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.live_tv_rounded, size: 48),
-                                  Text("无法获取播放信息", style: TextStyle(color: Colors.white, fontSize: 18)),
-                                  Text("当前房间未开播或无法观看", style: TextStyle(color: Colors.white, fontSize: 18)),
-                                  Text("请刷新重试", style: TextStyle(color: Colors.white, fontSize: 18)),
-                                ],
-                              ),
-                            ),
-                          )
-                        : TimeOutVideoWidget(controller: controller),
+              : videoInfo(),
+        ),
+      ),
+    );
+  }
+
+  Card videoInfo() {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.all(0),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      clipBehavior: Clip.antiAlias,
+      color: Get.theme.focusColor,
+      child: Obx(
+        () => controller.isFirstLoad.value || !controller.loadTimeOut.value
+            ? const Center(child: CircularProgressIndicator(color: Colors.white))
+            : controller.loadTimeOut.value
+            ? CachedNetworkImage(
+                imageUrl: controller.currentPlayRoom.value.cover!,
+                cacheManager: CustomCacheManager.instance,
+                fit: BoxFit.fill,
+                errorWidget: (context, error, stackTrace) => const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.live_tv_rounded, size: 48),
+                      Text("无法获取播放信息", style: TextStyle(color: Colors.white, fontSize: 18)),
+                      Text("当前房间未开播或无法观看", style: TextStyle(color: Colors.white, fontSize: 18)),
+                      Text("请刷新重试", style: TextStyle(color: Colors.white, fontSize: 18)),
+                    ],
                   ),
                 ),
-        ),
+              )
+            : TimeOutVideoWidget(controller: controller),
       ),
     );
   }

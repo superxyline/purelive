@@ -121,8 +121,6 @@ class LivePlayController extends StateController {
   @override
   void onInit() {
     super.onInit();
-    // 发现房间ID 会变化 使用静态列表ID 对比
-    log('onInit', name: 'LivePlayController');
     currentPlayRoom.value = room;
     onInitPlayerState(firstLoad: true);
     isFirstLoad.listen((p0) {
@@ -193,7 +191,6 @@ class LivePlayController extends StateController {
     loadTimeOut.value = false;
     Timer(const Duration(milliseconds: 4000), () {
       if (Get.currentRoute == '/live_play') {
-        log('resetRoom', name: 'LivePlayController');
         onInitPlayerState(firstLoad: true);
       }
     });
@@ -259,7 +256,7 @@ class LivePlayController extends StateController {
       } else {
         isFirstLoad.value = false;
         success.value = false;
-        getVideoSuccess.value = true;
+        getVideoSuccess.value = false;
         if (liveRoom.liveStatus == LiveStatus.banned) {
           SmartDialog.showToast("服务器错误,请稍后获取", displayTime: const Duration(seconds: 2));
         } else {
@@ -535,5 +532,20 @@ class LivePlayController extends StateController {
   void dispose() {
     disPoserPlayer();
     super.dispose();
+  }
+
+  void switchRoom(LiveRoom room) async {
+    success.value = false;
+    hasError.value = false;
+    messages.clear();
+    if (videoController != null && !videoController!.hasDestory) {
+      await videoController?.destory();
+      videoController = null;
+    }
+    isFirstLoad.value = true;
+    getVideoSuccess.value = true;
+    loadTimeOut.value = false;
+    currentPlayRoom.value = room;
+    onInitPlayerState(firstLoad: true);
   }
 }

@@ -1908,6 +1908,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.0"
+  very_good_infinite_list:
+    dependency: "direct main"
+    description:
+      name: very_good_infinite_list
+      sha256: "2f72172c28849b29c65dda0e598d486a59d669cfff1d60db7896719ec8211501"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.9.0"
   visibility_detector:
     dependency: "direct main"
     description:

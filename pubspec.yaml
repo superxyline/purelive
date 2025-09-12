@@ -97,6 +97,7 @@ dependencies:
   awesome_video_player: ^1.0.5
   device_info_plus: ^11.5.0
   auto_orientation_v2: ^2.3.6
+  very_good_infinite_list: ^0.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

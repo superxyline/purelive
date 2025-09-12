@@ -627,8 +627,7 @@ class BottomActionBar extends StatelessWidget {
               RefreshButton(controller: controller),
               FavoriteButton(controller: controller),
               DanmakuButton(controller: controller),
-              if (controller.isFullscreen.value || controller.isWindowFullscreen.value)
-                SettingsButton(controller: controller),
+              SettingsButton(controller: controller),
               const Spacer(),
               VideoFitSetting(controller: controller),
               SizedBox(width: 8),
@@ -726,7 +725,11 @@ class SettingsButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
-        child: const Icon(CustomIcons.danmaku_setting, color: Colors.white),
+        child: SvgPicture.asset(
+          'assets/images/video/danmu_close.svg',
+          // ignore: deprecated_member_use
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -845,7 +848,7 @@ class SettingsPanel extends StatelessWidget {
 
   final VideoController controller;
 
-  static const double width = 380;
+  static const double width = 280;
 
   @override
   Widget build(BuildContext context) {
@@ -855,7 +858,7 @@ class SettingsPanel extends StatelessWidget {
         bottom: 0,
         right: controller.showSettting.value ? 0 : -width,
         width: width,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 200),
         child: Card(
           color: Colors.black.withValues(alpha: 0.8),
           child: SizedBox(
@@ -922,89 +925,113 @@ class DanmakuSetting extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 0),
             child: Text(
               S.of(context).settings_danmaku_title,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
             ),
           ),
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            leading: Text('距离顶部区域', style: label),
-            title: Slider(
-              divisions: 10,
-              min: 0.0,
-              max: 0.4,
-              value: controller.danmakuTopArea.value,
-              onChanged: (val) => controller.danmakuTopArea.value = val,
+          SizedBox(
+            height: Platform.isWindows ? 40 : 32,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              leading: Text('距离顶部', style: label),
+              title: Slider(
+                divisions: 10,
+                min: 0.0,
+                max: 0.4,
+                value: controller.danmakuTopArea.value,
+                onChanged: (val) => controller.danmakuTopArea.value = val,
+              ),
+              trailing: Text('${(controller.danmakuTopArea.value * 100).toInt()}%', style: digit),
             ),
-            trailing: Text('${(controller.danmakuTopArea.value * 100).toInt()}%', style: digit),
           ),
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            leading: Text('距离底部区域', style: label),
-            title: Slider(
-              divisions: 10,
-              min: 0.0,
-              max: 0.4,
-              value: controller.danmakuBottomArea.value,
-              onChanged: (val) => controller.danmakuBottomArea.value = val,
+          SizedBox(
+            height: Platform.isWindows ? 40 : 32,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              leading: Text('距离底部', style: label),
+              title: Slider(
+                divisions: 10,
+                min: 0.0,
+                max: 0.4,
+                value: controller.danmakuBottomArea.value,
+                onChanged: (val) => controller.danmakuBottomArea.value = val,
+              ),
+              trailing: Text('${(controller.danmakuBottomArea.value * 100).toInt()}%', style: digit),
             ),
-            trailing: Text('${(controller.danmakuBottomArea.value * 100).toInt()}%', style: digit),
           ),
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            leading: Text(S.of(context).settings_danmaku_opacity, style: label),
-            title: Slider(
-              divisions: 10,
-              min: 0.0,
-              max: 1.0,
-              value: controller.danmakuOpacity.value,
-              onChanged: (val) => controller.danmakuOpacity.value = val,
+          SizedBox(
+            height: Platform.isWindows ? 40 : 32,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              leading: Text(S.of(context).settings_danmaku_opacity, style: label),
+              title: Slider(
+                divisions: 10,
+                min: 0.0,
+                max: 1.0,
+                value: controller.danmakuOpacity.value,
+                onChanged: (val) => controller.danmakuOpacity.value = val,
+              ),
+              trailing: Text('${(controller.danmakuOpacity.value * 100).toInt()}%', style: digit),
             ),
-            trailing: Text('${(controller.danmakuOpacity.value * 100).toInt()}%', style: digit),
           ),
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            leading: Text(S.of(context).settings_danmaku_speed, style: label),
-            title: Slider(
-              divisions: 15,
-              min: 5.0,
-              max: 20.0,
-              value: controller.danmakuSpeed.value,
-              onChanged: (val) => controller.danmakuSpeed.value = val,
+          SizedBox(
+            height: Platform.isWindows ? 40 : 32,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              leading: Text(S.of(context).settings_danmaku_speed, style: label),
+              title: Slider(
+                divisions: 15,
+                min: 5.0,
+                max: 20.0,
+                value: controller.danmakuSpeed.value,
+                onChanged: (val) => controller.danmakuSpeed.value = val,
+              ),
+              trailing: Text(controller.danmakuSpeed.value.toInt().toString(), style: digit),
             ),
-            trailing: Text(controller.danmakuSpeed.value.toInt().toString(), style: digit),
           ),
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            leading: Text(S.of(context).settings_danmaku_fontsize, style: label),
-            title: Slider(
-              divisions: 20,
-              min: 10.0,
-              max: 30.0,
-              value: controller.danmakuFontSize.value,
-              onChanged: (val) => controller.danmakuFontSize.value = val,
+          SizedBox(
+            height: Platform.isWindows ? 40 : 32,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              leading: Text(S.of(context).settings_danmaku_fontsize, style: label),
+              title: Slider(
+                divisions: 20,
+                min: 10.0,
+                max: 30.0,
+                value: controller.danmakuFontSize.value,
+                onChanged: (val) => controller.danmakuFontSize.value = val,
+              ),
+              trailing: Text(controller.danmakuFontSize.value.toInt().toString(), style: digit),
             ),
-            trailing: Text(controller.danmakuFontSize.value.toInt().toString(), style: digit),
           ),
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            leading: Text(S.of(context).settings_danmaku_fontBorder, style: label),
-            title: Slider(
-              divisions: 8,
-              min: 0.0,
-              max: 8.0,
-              value: controller.danmakuFontBorder.value,
-              onChanged: (val) => controller.danmakuFontBorder.value = val,
+          SizedBox(
+            height: Platform.isWindows ? 40 : 32,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              leading: Text(S.of(context).settings_danmaku_fontBorder, style: label),
+              title: Slider(
+                divisions: 8,
+                min: 0.0,
+                max: 8.0,
+                value: controller.danmakuFontBorder.value,
+                onChanged: (val) => controller.danmakuFontBorder.value = val,
+              ),
+              trailing: Text(controller.danmakuFontBorder.value.toStringAsFixed(2), style: digit),
             ),
-            trailing: Text(controller.danmakuFontBorder.value.toStringAsFixed(2), style: digit),
           ),
         ],
       ),
