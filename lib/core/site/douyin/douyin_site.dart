@@ -238,6 +238,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
     try {
       var detail = await getRoomWebDetail(roomId);
       var webRid = roomId;
+      CoreLog.d("detail: ${json.encode(detail)}");
 
       var realRoomId = detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
       var userUniqueId = detail["userStore"]["odin"]["user_unique_id"].toString();
@@ -256,7 +257,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
         watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
         liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
         link: "https://live.douyin.com/$webRid",
-        area: roomInfo?['partition']?['title'].toString() ?? '',
+        area: roomInfo?['partition_road_map']?['partition']?['title'].toString() ?? '',
         status: roomStatus,
         platform: Sites.douyinSite,
         introduction: roomInfo["title"].toString(),
