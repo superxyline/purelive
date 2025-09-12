@@ -559,12 +559,7 @@ class VideoController with ChangeNotifier {
                 )
               : null,
           headers: headers,
-          bufferingConfiguration: BetterPlayerBufferingConfiguration(
-            minBufferMs: 1000, // 增加最小缓冲时间
-            maxBufferMs: 1000, // 增加最大缓冲时间
-            bufferForPlaybackMs: 1000, // 开始播放前的缓冲时间
-            bufferForPlaybackAfterRebufferMs: 1000, // 重新缓冲后的缓冲时间
-          ),
+          bufferingConfiguration: BetterPlayerBufferingConfiguration(),
           cacheConfiguration: BetterPlayerCacheConfiguration(
             useCache: false, // 禁用缓存
           ),
@@ -577,11 +572,11 @@ class VideoController with ChangeNotifier {
 
   void setVideoFit(BoxFit fit) {
     videoFit.value = fit;
+    settings.videoFitIndex.value = videoFitIndex.value;
     if (videoPlayerIndex == 1) {
       mobileController?.setOverriddenFit(videoFit.value);
       mobileController?.retryDataSource();
     }
-    settings.videoFitIndex.value = videoFitIndex.value;
   }
 
   void togglePlayPause() {
