@@ -726,7 +726,7 @@ class SettingsButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
         child: SvgPicture.asset(
-          'assets/images/video/danmu_close.svg',
+          'assets/images/video/danmu_setting.svg',
           // ignore: deprecated_member_use
           color: Colors.white,
         ),
