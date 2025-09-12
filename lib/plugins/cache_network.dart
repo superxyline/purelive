@@ -153,7 +153,8 @@ class CacheNetWorkUtils {
     var encodeUrl = Uri.encodeComponent(imageUrl);
     var sizeText = "";
     if(width != null && height != null) {
-      sizeText="&size=f$width,$height";
+      // sizeText="&size=f$width,$height";
+      sizeText="&size=w$width";
     }
     var proxyUrl = "https://gimg0.baidu.com/gimg/src=$encodeUrl&app=2001&n=0&g=0n&q=80&fmt=webp$sizeText";
     return proxyUrl;
