@@ -269,9 +269,10 @@ jobs:
       # build Windows inno_setup
       - name: Setup Windows inno-setup Languages
         if: startsWith(matrix.platform,'windows')
+        continue-on-error: true
         run: |
           git clone https://github.com/maotoumao/inno-setup-action-cli.git inno-setup-action-cli --depth 1
-          xcopy /y inno-setup-action-cli\src\Languages "C:\Program Files (x86)\Inno Setup 6\Languages"
+          xcopy /y /e /s inno-setup-action-cli\src\Languages "C:\Program Files (x86)\Inno Setup 6\Languages"
 
       # build Windows ZIP\MSIX
       - name: Build Windows
