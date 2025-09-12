@@ -17,6 +17,7 @@ import 'package:pure_live/model/live_play_quality_play_url_info.dart';
 import 'package:pure_live/model/live_search_result.dart';
 
 import 'douyin_site_mixin.dart';
+import 'douyin_client.dart';
 
 class DouyinSite extends LiveSite with DouyinSiteMixin {
   @override
@@ -109,20 +110,21 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
     var ids = category.areaId?.split(',');
     var partitionId = ids?[0];
     var partitionType = ids?[1];
+    var requestparam = await DouyinClient().commonRequest({
+      "aid": '6383',
+      "app_name": "douyin_web",
+      "live_id": '1',
+      "device_platform": "web",
+      "count": '15',
+      "offset": ((page - 1) * 15).toString(),
+      "partition": partitionId.toString(),
+      "partition_type": partitionType.toString(),
+      "req_from": 2.toString(),
+    }, await getRequestHeaders());
     var result = await HttpClient.instance.getJson(
       "https://live.douyin.com/webcast/web/partition/detail/room/v2/",
-      queryParameters: {
-        "aid": 6383,
-        "app_name": "douyin_web",
-        "live_id": 1,
-        "device_platform": "web",
-        "count": 15,
-        "offset": (page - 1) * 15,
-        "partition": partitionId,
-        "partition_type": partitionType,
-        "req_from": 2
-      },
-      header: await getRequestHeaders(),
+      queryParameters: requestparam['params'],
+      header: requestparam['headers'],
     );
     var hasMore = (result["data"]["data"] as List).length >= 15;
     var items = <LiveRoom>[];
@@ -146,19 +148,21 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
 
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1, required String nick}) async {
+    var requestparam = await DouyinClient().commonRequest({
+      "aid": '6383',
+      "app_name": "douyin_web",
+      "live_id": '1',
+      "device_platform": "web",
+      "count": '15',
+      "offset": ((page - 1) * 15).toString(),
+      "partition": '720',
+      "partition_type": '1',
+      "req_from": 2.toString(),
+    }, await getRequestHeaders());
     var result = await HttpClient.instance.getJson(
       "https://live.douyin.com/webcast/web/partition/detail/room/v2/",
-      queryParameters: {
-        "aid": 6383,
-        "app_name": "douyin_web",
-        "live_id": 1,
-        "device_platform": "web",
-        "count": 15,
-        "offset": (page - 1) * 15,
-        "partition": 720,
-        "partition_type": 1,
-      },
-      header: await getRequestHeaders(),
+      queryParameters: requestparam['params'],
+      header: requestparam['headers'],
     );
 
     var hasMore = (result["data"]["data"] as List).length >= 15;
@@ -233,48 +237,26 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
     var roomId = detail.roomId ?? "";
     try {
       var detail = await getRoomWebDetail(roomId);
-      var requestHeader = await getRequestHeaders();
       var webRid = roomId;
+
       var realRoomId = detail["roomStore"]["roomInfo"]["room"]["id_str"].toString();
       var userUniqueId = detail["userStore"]["odin"]["user_unique_id"].toString();
-      var result = await HttpClient.instance.getJson(
-        "https://live.douyin.com/webcast/room/web/enter/",
-        queryParameters: {
-          "aid": 6383,
-          "app_name": "douyin_web",
-          "live_id": 1,
-          "device_platform": "web",
-          "enter_from": "web_live",
-          "web_rid": webRid,
-          "room_id_str": "",
-          "enter_source": "",
-          "Room-Enter-User-Login-Ab": 1,
-          "is_need_double_stream": false,
-          "cookie_enabled": true,
-          "screen_width": 1980,
-          "screen_height": 1080,
-          "browser_language": "zh-CN",
-          "browser_platform": "Win32",
-          "browser_name": "Edge",
-          "browser_version": "125.0.0.0",
-          "a_bogus": "0",
-        },
-        header: requestHeader,
-      );
-      var roomInfo = result["data"]["data"][0];
-      var userInfo = result["data"]["user"];
-      var partition = result["data"]['partition_road_map'];
+      var roomInfo = detail["roomStore"]["roomInfo"]["room"];
+      var owner = roomInfo["owner"];
+      var anchor = detail["roomStore"]["roomInfo"]["anchor"];
       var roomStatus = (asT<int?>(roomInfo["status"]) ?? 0) == 2;
       return LiveRoom(
         roomId: roomId,
         title: roomInfo["title"].toString(),
         cover: roomStatus ? roomInfo["cover"]["url_list"][0].toString() : "",
-        nick: userInfo["nickname"].toString(),
-        avatar: userInfo["avatar_thumb"]["url_list"][0].toString(),
+        nick: roomStatus ? owner["nickname"].toString() : anchor["nickname"].toString(),
+        avatar: roomStatus
+            ? owner["avatar_thumb"]["url_list"][0].toString()
+            : anchor["avatar_thumb"]["url_list"][0].toString(),
         watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
         liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
         link: "https://live.douyin.com/$webRid",
-        area: partition?['partition']?['title'].toString() ?? '',
+        area: roomInfo?['partition']?['title'].toString() ?? '',
         status: roomStatus,
         platform: Sites.douyinSite,
         introduction: roomInfo["title"].toString(),
@@ -285,7 +267,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
           userId: userUniqueId,
           cookie: headers["cookie"],
         ),
-        data: roomInfo["stream_url"],
+        data: roomStatus ? roomInfo["stream_url"] : {},
       );
     } catch (e) {
       CoreLog.error(e);
@@ -401,7 +383,7 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
   @override
   Future<LiveSearchRoomResult> searchRooms(String keyword, {int page = 1}) async {
     String serverUrl = "https://www.douyin.com/aweme/v1/web/live/search/";
-    var uri = Uri.parse(serverUrl).replace(scheme: "https", port: 443, queryParameters: {
+    var requestparam = await DouyinClient().commonRequest({
       "device_platform": "webapp",
       "aid": "6383",
       "channel": "channel_pc_web",
@@ -435,7 +417,8 @@ class DouyinSite extends LiveSite with DouyinSiteMixin {
       "effective_type": "4g",
       "round_trip_time": "100",
       "webid": "7382872326016435738",
-    });
+    }, {});
+    var uri = Uri.parse(serverUrl).replace(scheme: "https", port: 443, queryParameters: requestparam['params']);
     var requlestUrl = uri.toString();
     var headResp = await HttpClient.instance.head('https://live.douyin.com', header: headers);
     var dyCookie = "";
