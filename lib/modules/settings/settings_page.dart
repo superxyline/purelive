@@ -74,6 +74,29 @@ class SettingsPage extends GetView<SettingsService> {
                 onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               ),
             ),
+          if (Platform.isAndroid)
+            Obx(
+              () => ListTile(
+                title: Text('视频播放器'),
+                subtitle: Text('选择视频播放器'),
+                onTap: showVideoSetDialog,
+                trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'Exo播放器'),
+              ),
+            ),
+          Obx(
+            () => SwitchListTile(
+              title: Text(S.of(context).enable_fullscreen_default),
+              subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
+              value: controller.enableFullScreenDefault.value,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
+            ),
+          ),
+          ListTile(
+            title: Text(S.of(context).prefer_resolution),
+            subtitle: Text(S.of(context).prefer_resolution_subtitle),
+            onTap: showPreferResolutionSelectorDialog,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Text("播放器高级设置", style: Get.textTheme.titleMedium),
@@ -145,29 +168,7 @@ class SettingsPage extends GetView<SettingsService> {
               ],
             ),
           ),
-          if (Platform.isAndroid)
-            Obx(
-              () => ListTile(
-                title: Text('视频播放器'),
-                subtitle: Text('选择视频播放器'),
-                onTap: showVideoSetDialog,
-                trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'Exo播放器'),
-              ),
-            ),
-          Obx(
-            () => SwitchListTile(
-              title: Text(S.of(context).enable_fullscreen_default),
-              subtitle: Text(S.of(context).enable_fullscreen_default_subtitle),
-              value: controller.enableFullScreenDefault.value,
-              activeThumbColor: Theme.of(context).colorScheme.primary,
-              onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
-            ),
-          ),
-          ListTile(
-            title: Text(S.of(context).prefer_resolution),
-            subtitle: Text(S.of(context).prefer_resolution_subtitle),
-            onTap: showPreferResolutionSelectorDialog,
-          ),
+
           SectionTitle(title: S.of(context).custom),
           Obx(
             () => SwitchListTile(

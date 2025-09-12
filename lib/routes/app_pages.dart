@@ -98,22 +98,43 @@ class AppPages {
 
     GetPage(
       name: RoutePath.kSplash,
-      page: () => SplashScreen(
-        bgGradient: const LinearGradient(
-          colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2), Color(0xFF80DEEA)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        logo: Image.asset('assets/icons/icon.png', width: 150),
-        showTextLogo: true,
-        logoText: "欢迎使用",
-        textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black54),
-        loaderType: LoaderType.progressBar,
-        onNextPressed: () {
-          Get.offAllNamed(RoutePath.kInitial);
-        },
-        duration: const Duration(seconds: 2),
-      ),
+      page: () {
+        // 判断是否为夜间模式
+        final bool isDarkMode = Get.isDarkMode;
+
+        // 根据模式选择渐变色
+        final LinearGradient bgGradient = isDarkMode
+            ? const LinearGradient(
+                colors: [Color(0xFF0D1B2A), Color(0xFF1B263B), Color(0xFF141E27)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : const LinearGradient(
+                colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2), Color(0xFF80DEEA)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              );
+
+        // 夜间模式下的文字颜色
+        final Color textColor = isDarkMode ? Colors.white70 : Colors.black54;
+
+        return SplashScreen(
+          bgGradient: bgGradient,
+          logo: Image.asset('assets/icons/icon.png', width: 150),
+          showTextLogo: true,
+          logoText: "欢迎使用",
+          textStyle: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: textColor, // 动态颜色
+          ),
+          loaderType: LoaderType.progressBar,
+          onNextPressed: () {
+            Get.offAllNamed(RoutePath.kInitial);
+          },
+          duration: const Duration(seconds: 2),
+        );
+      },
     ),
   ];
 }
