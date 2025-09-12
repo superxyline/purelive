@@ -408,9 +408,32 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary.withValues(alpha: 0.5)),
             ),
             onPressed: () {
-              setState(() => isFavorite = !isFavorite);
-              settings.removeRoom(widget.room);
-              EventBus.instance.emit('changeFavorite', true);
+              Get.dialog(
+                AlertDialog(
+                  title: Text(S.of(context).unfollow),
+                  content: Text(S.of(context).unfollow_message(widget.room.nick!)),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(Get.context!).pop(false);
+                      },
+                      child: Text(S.of(context).cancel),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(Get.context!).pop(true);
+                      },
+                      child: Text(S.of(context).confirm),
+                    ),
+                  ],
+                ),
+              ).then((value) {
+                if (value) {
+                  setState(() => isFavorite = !isFavorite);
+                  settings.removeRoom(widget.room);
+                  EventBus.instance.emit('changeFavorite', true);
+                }
+              });
             },
             child: Text('已关注'),
           )
