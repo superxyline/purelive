@@ -16,7 +16,7 @@ class UpdateRoomUtil {
     var isOk = false;
     for (var i = 0; i < testCount; i++) {
       try {
-        await HttpClient.instance.get("https://m.baidu.com/favicon.ico");
+        await HttpClient.instance.get("http://suggestion.baidu.com/su?wd=pqn&cb=suggestion");
         isOk = true;
         break;
       } catch (e) {
