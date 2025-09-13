@@ -2,6 +2,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
+import 'package:keframe/keframe.dart';
 import 'package:pure_live/common/base/base_controller.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/common/widgets/room_card.dart';
@@ -19,12 +20,11 @@ final class RefreshGridUtil {
   }
 
   static Widget buildRoomCard(BasePageController controller, {IndexedWidgetBuilder? itemBuilder}) {
-    return buildRoomCardV2(controller, itemBuilder: itemBuilder);
+    return SizeCacheWidget(estimateCount: 20 * 2, child: buildRoomCardV2(controller, itemBuilder: itemBuilder));
   }
 
-
   static Widget buildRoomCardV1(BasePageController controller, {IndexedWidgetBuilder? itemBuilder}) {
-    itemBuilder ??= (context, index) => RoomCard(room: controller.list[index], dense: true);
+    itemBuilder ??= (context, index) => FrameSeparateWidget(index: index, placeHolder: const SizedBox(width: 220.0, height: 200), child: RoomCard(room: controller.list[index], dense: true));
     return LayoutBuilder(
       builder: (context, constraint) {
         final crossAxisCount = getCrossAxisCount(constraint);
@@ -60,6 +60,9 @@ final class RefreshGridUtil {
   }
 
   static Widget buildRoomCardV2(BasePageController controller, {IndexedWidgetBuilder? itemBuilder}) {
-    return RefreshMy(pageController: controller,itemBuilder: itemBuilder,);
+    return RefreshMy(
+      pageController: controller,
+      itemBuilder: itemBuilder,
+    );
   }
 }

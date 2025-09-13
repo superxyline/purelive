@@ -1,5 +1,6 @@
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
+import 'package:keframe/keframe.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
 import 'package:pure_live/common/widgets/status/app_loadding_widget.dart';
@@ -59,14 +60,16 @@ class _AreaGridViewState extends State<AreaGridView> with SingleTickerProviderSt
       final crossAxisCount = width > 1280 ? 9 : (width > 960 ? 7 : (width > 640 ? 5 : 3));
       return Stack(children: [
         widget.controller.list.isNotEmpty
-            ? MasonryGridView.count(
-                cacheExtent: 30,
-                padding: const EdgeInsets.all(5),
-                controller: ScrollController(),
-                crossAxisCount: crossAxisCount,
-                itemCount: category.children.length,
-                itemBuilder: (context, index) => AreaCard(category: category.children[index]),
-              )
+            ? SizeCacheWidget(
+                estimateCount: 20 * 2,
+                child: MasonryGridView.count(
+                  cacheExtent: 30,
+                  padding: const EdgeInsets.all(5),
+                  controller: ScrollController(),
+                  crossAxisCount: crossAxisCount,
+                  itemCount: category.children.length,
+                  itemBuilder: (context, index) => FrameSeparateWidget(index: index, placeHolder: const SizedBox(width: 220.0, height: 200), child: AreaCard(category: category.children[index])),
+                ))
             : EmptyView(
                 icon: Icons.area_chart_outlined,
                 title: S.current.empty_areas_title,

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:keframe/keframe.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/refresh_grid_util.dart';
 import 'package:pure_live/modules/search/search_list_controller.dart';
@@ -15,7 +16,14 @@ class SearchListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshGridUtil.buildRoomCard(controller, itemBuilder: (context, index) => RoomCard(room: controller.list[index], dense: true,));
+    return RefreshGridUtil.buildRoomCard(controller,
+        itemBuilder: (context, index) => FrameSeparateWidget(
+            index: index,
+            placeHolder: const SizedBox(width: 220.0, height: 200),
+            child: RoomCard(
+              room: controller.list[index],
+              dense: true,
+            )));
   }
 }
 

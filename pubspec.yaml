@@ -33,6 +33,11 @@ dependencies:
 
   flutter_localizations:
     sdk: flutter
+
+  # 优化
+  # 分帧优化
+  keframe: ^3.0.0
+
   #hashlib
   hashlib: ^1.21.1
   # network

@@ -1,9 +1,10 @@
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
+import 'package:keframe/keframe.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/keep_alive_wrapper.dart';
-import 'package:pure_live/modules/areas/widgets/area_card.dart';
 import 'package:pure_live/modules/areas/favorite_areas_controller.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:pure_live/modules/areas/widgets/area_card.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 
 class FavoriteAreasPage extends GetView<FavoriteAreasController> {
@@ -30,12 +31,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
               child: Obx(() {
                 return TabBarView(
                     controller: controller.tabSiteController,
-                    children: Sites()
-                        .availableSites(containsAll: true)
-                        .map((e) => e.id)
-                        .toList()
-                        .map((e) => KeepAliveWrapper(child: buildTabView(context, crossAxisCount, e, constraint)))
-                        .toList());
+                    children: Sites().availableSites(containsAll: true).map((e) => e.id).toList().map((e) => KeepAliveWrapper(child: buildTabView(context, crossAxisCount, e, constraint))).toList());
               }),
             )
           ],
@@ -47,18 +43,18 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
   Widget buildTabView(BuildContext context, int crossAxisCount, String siteId, BoxConstraints constraint) {
     return Obx(
       () => controller.favoriteAreas.isNotEmpty
-          ? MasonryGridView.count(
-              cacheExtent: 30,
-              padding: const EdgeInsets.all(5),
-              controller: ScrollController(),
-              crossAxisCount: crossAxisCount,
-              itemCount: siteId == Sites.allSite
-                  ? controller.favoriteAreas.length
-                  : controller.favoriteAreas.where((e) => e.platform == siteId).toList().length,
-              itemBuilder: (context, index) => AreaCard(
-                  category: siteId == Sites.allSite
-                      ? controller.favoriteAreas[index]
-                      : controller.favoriteAreas.where((e) => e.platform == siteId).toList()[index]))
+          ? SizeCacheWidget(
+              estimateCount: 20 * 2,
+              child: MasonryGridView.count(
+                  cacheExtent: 30,
+                  padding: const EdgeInsets.all(5),
+                  controller: ScrollController(),
+                  crossAxisCount: crossAxisCount,
+                  itemCount: siteId == Sites.allSite ? controller.favoriteAreas.length : controller.favoriteAreas.where((e) => e.platform == siteId).toList().length,
+                  itemBuilder: (context, index) => FrameSeparateWidget(
+                      index: index,
+                      placeHolder: const SizedBox(width: 220.0, height: 200),
+                      child: AreaCard(category: siteId == Sites.allSite ? controller.favoriteAreas[index] : controller.favoriteAreas.where((e) => e.platform == siteId).toList()[index]))))
           : EmptyView(
               icon: Icons.area_chart_outlined,
               title: S.current.empty_areas_title,

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:keframe/keframe.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/plugins/catcher/file_handler.dart';
@@ -142,61 +143,65 @@ class _LogsPageState extends State<LogsPage> {
         ],
       ),
       body: logsContent.isNotEmpty
-          ? ListView.builder(
-              itemCount: logsContent.length,
-              cacheExtent: 3,
-              itemBuilder: (context, index) {
-                final log = logsContent[index];
-                // var lineList = log['date'].toString().split("\n");
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: RichText(
-                            text: TextSpan(
-                              text: log['date'].toString(),
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () async {
-                            await Clipboard.setData(
-                              ClipboardData(text: log['body']),
-                            );
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    '已将 ${log['date'].toString()} 复制至剪贴板',
+          ? SizeCacheWidget(
+              child: ListView.builder(
+                  itemCount: logsContent.length,
+                  cacheExtent: 3,
+                  itemBuilder: (context, index) {
+                    final log = logsContent[index];
+                    // var lineList = log['date'].toString().split("\n");
+                    return FrameSeparateWidget(
+                        index: index,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: RichText(
+                                    text: TextSpan(
+                                      text: log['date'].toString(),
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
                                   ),
                                 ),
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.copy_outlined, size: 16),
-                          label: const Text('复制'),
-                        )
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        elevation: 1,
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: RichText(text: TextSpan(text: log['body'], style: TextStyle(color: Colors.black))),
-                        ),
-                      ),
-                    ),
-                    const Divider(indent: 12, endIndent: 12),
-                  ],
-                );})
+                                TextButton.icon(
+                                  onPressed: () async {
+                                    await Clipboard.setData(
+                                      ClipboardData(text: log['body']),
+                                    );
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            '已将 ${log['date'].toString()} 复制至剪贴板',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  icon: const Icon(Icons.copy_outlined, size: 16),
+                                  label: const Text('复制'),
+                                )
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                elevation: 1,
+                                clipBehavior: Clip.antiAliasWithSaveLayer,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: RichText(text: TextSpan(text: log['body'], style: TextStyle(color: Colors.black))),
+                                ),
+                              ),
+                            ),
+                            const Divider(indent: 12, endIndent: 12),
+                          ],
+                        ));
+                  }))
           // SingleChildScrollView(
           //     child: Padding(
           //         padding: const EdgeInsets.all(8.0),

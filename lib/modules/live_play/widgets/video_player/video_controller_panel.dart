@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
+import 'package:keframe/keframe.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/utils.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -374,20 +375,25 @@ Widget showDialogListBody(VideoController controller, RxList<LiveRoom> rooms, {i
               subtitle: '',
               boxConstraints: constraint,
             )
-          : MasonryGridView.count(
-              cacheExtent: 30,
-              padding: const EdgeInsets.all(5),
-              controller: ScrollController(),
-              crossAxisCount: crossAxisCount,
-              itemCount: rooms.length,
-              itemBuilder: (context, index) => RoomCard(
-                room: isReverse ? rooms[rooms.length - 1 - index] : rooms[index],
-                dense: dense,
-                onTap: () {
-                  resetRoomInDialog(controller, isReverse ? rooms[rooms.length - 1 - index] : rooms[index], isBottomSheet: isBottomSheet);
-                },
-              ),
-            ),
+          : SizeCacheWidget(
+              estimateCount: 20 * 2,
+              child: MasonryGridView.count(
+                cacheExtent: 30,
+                padding: const EdgeInsets.all(5),
+                controller: ScrollController(),
+                crossAxisCount: crossAxisCount,
+                itemCount: rooms.length,
+                itemBuilder: (context, index) => FrameSeparateWidget(
+                    index: index,
+                    placeHolder: const SizedBox(width: 220.0, height: 200),
+                    child: RoomCard(
+                      room: isReverse ? rooms[rooms.length - 1 - index] : rooms[index],
+                      dense: dense,
+                      onTap: () {
+                        resetRoomInDialog(controller, isReverse ? rooms[rooms.length - 1 - index] : rooms[index], isBottomSheet: isBottomSheet);
+                      },
+                    )),
+              )),
     );
   });
 }
@@ -806,9 +812,10 @@ class PlayPauseButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => controller.togglePlayPause(),
       child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(12),
-            child: Obx(() => Icon(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(12),
+          child: Obx(
+            () => Icon(
               controller.videoPlayer.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
               color: Colors.white,
             ),
@@ -846,11 +853,12 @@ class ScreenToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-          onTap: () => controller.isVertical.value ? controller.setLandscapeOrientation() : controller.setPortraitOrientation(),
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(12),
-            child: Obx(() => Icon(
+        onTap: () => controller.isVertical.value ? controller.setLandscapeOrientation() : controller.setPortraitOrientation(),
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(12),
+          child: Obx(
+            () => Icon(
               controller.isVertical.value ? Icons.crop_landscape : Icons.crop_portrait,
               color: Colors.white,
             ),
@@ -969,19 +977,20 @@ class FavoriteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-          onTap: () {
-            if (isFavorite.value) {
-              settings.removeRoom(controller.room);
-            } else {
-              settings.addRoom(controller.room);
-            }
-            isFavorite.toggle();
-            // setState(() => isFavorite.toggle);
-          },
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(12),
-            child: Obx(() => Icon(
+        onTap: () {
+          if (isFavorite.value) {
+            settings.removeRoom(controller.room);
+          } else {
+            settings.addRoom(controller.room);
+          }
+          isFavorite.toggle();
+          // setState(() => isFavorite.toggle);
+        },
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(12),
+          child: Obx(
+            () => Icon(
               !isFavorite.value ? Icons.favorite_outline_outlined : Icons.favorite_rounded,
               color: Colors.white,
             ),

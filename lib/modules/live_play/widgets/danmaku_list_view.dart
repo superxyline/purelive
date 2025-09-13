@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:keframe/keframe.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/util/danmu_util.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
+
+import 'opacity_animation.dart';
 
 class DanmakuListView extends StatefulWidget {
   final LiveRoom room;
@@ -109,24 +112,38 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                     stream: controller.messages.stream,
                     builder: (s, d) {
                       // var data = d.data ?? [];
-                      return ListView.builder(
-                        controller: _scrollController,
-                        cacheExtent: 30,
+                      return SizeCacheWidget(
+                          estimateCount: 30 * 2,
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            cacheExtent: 1000,
 
-                        /// 只显示 100 条弹幕
-                        itemCount: (controller.messages.length > 100 ? 100 : controller.messages.length),
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          var partIndex = controller.messages.length > 100 ? controller.messages.length - 100 : 0;
-                          var sIndex = partIndex + index;
-                          final danmaku = controller.messages[sIndex];
-                          return RepaintBoundary(
-                              child: MyDanmakuItem(
-                            key: ValueKey(danmaku),
-                            danmaku: danmaku,
+                            /// 只显示 100 条弹幕
+                            itemCount: controller.messages.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              var partIndex = controller.messages.length > 100 ? controller.messages.length - 100 : 0;
+                              var sIndex = index;
+                              final danmaku = controller.messages[sIndex];
+                              return FrameSeparateWidget(
+                                  index: index,
+                                  /*placeHolder: Container(
+                                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      )),*/
+                                  child: OpacityTansWidget(
+                                      child: MyDanmakuItem(
+                                    key: ValueKey(danmaku),
+                                    danmaku: danmaku,
+                                  )));
+                            },
                           ));
-                        },
-                      );
                     },
                   )),
               Visibility(

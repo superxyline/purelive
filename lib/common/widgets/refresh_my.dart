@@ -4,6 +4,7 @@ import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:keframe/keframe.dart';
 import 'package:pure_live/modules/util/listen_list_util.dart';
 
 import '../base/base_controller.dart';
@@ -30,10 +31,10 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
   @override
   bool get wantKeepAlive => true;
 
-  void onListenerPosition(){
+  void onListenerPosition() {
     // CoreLog.d("onListenerPosition: ${scrollController.position}");
     if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
-      if(widget.pageController.canLoadMore.isTrue) {
+      if (widget.pageController.canLoadMore.isTrue) {
         EasyThrottle.throttle('scroll-refresh-throttler', const Duration(milliseconds: 200), () {
           widget.pageController.loadData();
         });
@@ -45,6 +46,7 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
   }
 
   var streamSubscriptionListenList = <StreamSubscription>[];
+
   @override
   void initState() {
     super.initState();
@@ -54,9 +56,8 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
     initScrollController();
   }
 
-  void initScrollController(){
-    Future.delayed(
-        const Duration(milliseconds: 200), () {
+  void initScrollController() {
+    Future.delayed(const Duration(milliseconds: 200), () {
       if (scrollController.hasClients) {
         onListenerPosition();
         return;
@@ -75,7 +76,8 @@ class _RefreshMyState extends State<RefreshMy> with AutomaticKeepAliveClientMixi
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var itemBuilder = widget.itemBuilder ?? (context, index) => RoomCard(room: widget.pageController.list[index], dense: true);
+    var itemBuilder = widget.itemBuilder ??
+        (context, index) => FrameSeparateWidget(index: index, placeHolder: const SizedBox(width: 220.0, height: 200), child: RoomCard(room: widget.pageController.list[index], dense: true));
 
     return LayoutBuilder(builder: (context, constraint) {
       final crossAxisCount = RefreshGridUtil.getCrossAxisCount(constraint);
