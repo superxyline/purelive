@@ -267,6 +267,20 @@ jobs:
           flutter_distributor package --platform linux --targets deb,zip --skip-clean
 
       # build Windows inno_setup
+      # 安装特定版本的 Inno Setup 并添加到环境变量
+      - name: Install Inno Setup
+        if: startsWith(matrix.platform,'windows')
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # 发现异常时报错
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+
+          curl.exe -OL https://files.jrsoftware.org/is/6/innosetup-6.5.0.exe
+          .\innosetup-6.5.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+          "C:\Program Files (x86)\Inno Setup 6" >> $env:GITHUB_PATH
+
       - name: Setup Windows inno-setup Languages
         if: startsWith(matrix.platform,'windows')
         continue-on-error: true
