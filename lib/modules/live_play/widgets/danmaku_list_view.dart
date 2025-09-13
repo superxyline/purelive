@@ -47,11 +47,11 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
       var tmpMilliseconds = DateTime.now().millisecondsSinceEpoch;
       if (curMilliseconds < tmpMilliseconds - milliseconds) {
         curMilliseconds = tmpMilliseconds;
-        _scrollTimer?.cancel();
+            _scrollTimer?.cancel();
         _scrollToBottom();
       } else {
-        _scrollTimer?.cancel();
-        _scrollTimer = Timer(milliseconds.milliseconds, () {
+      _scrollTimer?.cancel();
+      _scrollTimer = Timer(milliseconds.milliseconds, () {
           _scrollToBottom();
         });
       }
@@ -76,8 +76,8 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
     if (_scrollController.hasClients && !controller.isFullscreen.value) {
       await _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 1000),
-        curve: Curves.linearToEaseOut,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.linear,
       );
       // setState(() {});
     }
