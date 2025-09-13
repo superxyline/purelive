@@ -7,6 +7,8 @@ import 'package:pure_live/plugins/cache_network.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 
+import '../live_play/widgets/slide_animation.dart';
+
 class SearchListView extends StatelessWidget {
   final String tag;
 
@@ -20,10 +22,11 @@ class SearchListView extends StatelessWidget {
         itemBuilder: (context, index) => FrameSeparateWidget(
             index: index,
             placeHolder: const SizedBox(width: 220.0, height: 200),
-            child: RoomCard(
+            child: SlideTansWidget(
+                child: RoomCard(
               room: controller.list[index],
               dense: true,
-            )));
+            ))));
   }
 }
 

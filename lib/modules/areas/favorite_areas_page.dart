@@ -7,6 +7,8 @@ import 'package:pure_live/modules/areas/favorite_areas_controller.dart';
 import 'package:pure_live/modules/areas/widgets/area_card.dart';
 import 'package:pure_live/modules/util/site_logo_widget.dart';
 
+import '../live_play/widgets/slide_animation.dart';
+
 class FavoriteAreasPage extends GetView<FavoriteAreasController> {
   const FavoriteAreasPage({super.key});
 
@@ -54,7 +56,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
                   itemBuilder: (context, index) => FrameSeparateWidget(
                       index: index,
                       placeHolder: const SizedBox(width: 220.0, height: 200),
-                      child: AreaCard(category: siteId == Sites.allSite ? controller.favoriteAreas[index] : controller.favoriteAreas.where((e) => e.platform == siteId).toList()[index]))))
+                      child: SlideTansWidget(child: AreaCard(category: siteId == Sites.allSite ? controller.favoriteAreas[index] : controller.favoriteAreas.where((e) => e.platform == siteId).toList()[index])))))
           : EmptyView(
               icon: Icons.area_chart_outlined,
               title: S.current.empty_areas_title,

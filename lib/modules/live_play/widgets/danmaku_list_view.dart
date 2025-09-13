@@ -9,6 +9,7 @@ import 'package:pure_live/modules/util/danmu_util.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
 import 'opacity_animation.dart';
+import 'slide_animation.dart';
 
 class DanmakuListView extends StatefulWidget {
   final LiveRoom room;
@@ -137,7 +138,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                       )),*/
-                                  child: OpacityTansWidget(
+                                  child: SlideTansWidget(
                                       child: MyDanmakuItem(
                                     key: ValueKey(danmaku),
                                     danmaku: danmaku,

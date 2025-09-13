@@ -36,7 +36,14 @@ class SlideState extends State<SlideTansWidget> with TickerProviderStateMixin {
     // });
     //begin: Offset.zero, end: Offset(1, 0) 以左下角为参考点，相对于左下角坐标 x轴方向向右 平移执行动画的view 的1倍 宽度，y轴方向不动，也就是水平向右平移
     //begin: Offset.zero, end: Offset(1, 1) 以左下角为参考点，相对于左下角坐标 x轴方向向右 平移执行动画的view 的1倍 宽度，y轴方向 向下 平衡执行动画view 的1倍的高度，也就是向右下角平移了
-    animation = Tween(begin: Offset.zero, end: Offset(1, 0)).animate(controller);
+    // animation = Tween(begin:const Offset(-1.0, 0.0), end: Offset.zero).animate(controller);
+    animation = Tween<Offset>(
+      begin: const Offset(-1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeOut,
+    ));
 
     //开始执行动画
     controller.forward();

@@ -15,6 +15,8 @@ import 'package:pure_live/modules/settings/settings_page.dart';
 import 'package:pure_live/plugins/barrage.dart';
 import 'package:pure_live/plugins/extension/string_extension.dart';
 
+import '../slide_animation.dart';
+
 class VideoControllerPanel extends StatefulWidget {
   final VideoController controller;
 
@@ -386,14 +388,14 @@ Widget showDialogListBody(VideoController controller, RxList<LiveRoom> rooms, {i
                 itemBuilder: (context, index) => FrameSeparateWidget(
                     index: index,
                     placeHolder: const SizedBox(width: 220.0, height: 200),
-                    child: RoomCard(
+                    child: SlideTansWidget(child: RoomCard(
                       room: isReverse ? rooms[rooms.length - 1 - index] : rooms[index],
                       dense: dense,
                       onTap: () {
                         resetRoomInDialog(controller, isReverse ? rooms[rooms.length - 1 - index] : rooms[index], isBottomSheet: isBottomSheet);
                       },
                     )),
-              )),
+              ))),
     );
   });
 }
