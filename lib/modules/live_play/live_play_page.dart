@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
+import 'package:pure_live/core/iptv/src/general_utils_object_extension.dart';
 import 'package:pure_live/modules/areas/areas_list_controller.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
@@ -144,190 +145,195 @@ class LivePlayPage extends GetView<LivePlayController> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      initialData: false,
-      stream: controller.streamState,
-      builder: (context, snapshot){
-        if (settings.enableScreenKeepOn.value) {
-          WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
-        }
-        final page = () {
-          CoreLog.d("isFullscreen.value ${controller.isFullscreen.value}");
-          if (controller.isFullscreen.value || controller.isPiP.value) {
-            return PopScope(
-              canPop: false,
-              onPopInvokedWithResult: (didPop, result) {
-                controller.videoController?.exitFull();
-              },
+        initialData: false,
+        stream: controller.streamState,
+        builder: (context, snapshot) {
+          if (settings.enableScreenKeepOn.value) {
+            WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
+          }
+          final page = () {
+            CoreLog.d("isFullscreen.value ${controller.isFullscreen.value}");
+            if (controller.isFullscreen.value || controller.isPiP.value) {
+              return PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  controller.videoController?.exitFull();
+                },
+                child: Scaffold(
+                  body: buildVideoPlayerBody(),
+                ),
+              );
+            }
+            return BackButtonListener(
+              onBackButtonPressed: onWillPop,
               child: Scaffold(
-                body: buildVideoPlayerBody(),
+                appBar: AppBar(
+                  title: Obx(() => buildTableTarLeft()),
+                  actions: [
+                    PopupMenuButton(
+                      tooltip: S.current.search,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      offset: const Offset(12, 0),
+                      position: PopupMenuPosition.under,
+                      icon: const Icon(Icons.more_vert_rounded),
+                      // onSelected: (int index) {
+                      //   if (index == 0) {
+                      //     controller.openNaviteAPP();
+                      //   } else {
+                      //     showDlnaCastDialog();
+                      //   }
+                      // },
+                      itemBuilder: (BuildContext context) {
+                        /// 右边的列表
+                        return [
+                          PopupMenuItem(
+                            value: 0,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: MenuListTile(
+                              leading: Icon(Icons.open_in_new_rounded),
+                              text: S.current.live_room_open_external,
+                            ),
+                            onTap: () {
+                              controller.openNaviteAPP();
+                            },
+                          ),
+                          PopupMenuItem(
+                            value: 1,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            onTap: showDlnaCastDialog,
+                            child: MenuListTile(
+                              leading: Icon(Icons.live_tv_rounded),
+                              text: S.current.screen_caste,
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 2,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: MenuListTile(
+                              leading: Icon(Remix.play_circle_line),
+                              text: S.current.settings_player,
+                            ),
+                            onTap: () {
+                              SettingsPageV2.settingPlayerInfoSheet();
+                            },
+                          ),
+                          PopupMenuItem(
+                            value: 3,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: MenuListTile(
+                              leading: Icon(Remix.filter_off_line),
+                              text: S.current.danmu_filter,
+                            ),
+                            onTap: () {
+                              Get.toNamed(RoutePath.kSettingsDanmuShield);
+                            },
+                          ),
+                          PopupMenuItem(
+                            value: 4,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: MenuListTile(
+                              leading: const Icon(Remix.bug_line),
+                              text: S.current.settings_log,
+                            ),
+                            onTap: () {
+                              Get.toNamed(RoutePath.kLog);
+                            },
+                          ),
+                          PopupMenuItem(
+                            value: 5,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: MenuListTile(
+                              leading: Icon(Icons.timer_outlined),
+                              text: S.current.auto_shutdown_time,
+                            ),
+                            onTap: () {
+                              SettingsPage.showAutoShutDownTimeSetDialog();
+                            },
+                          ),
+                          if (settings.enableAutoShutDownTime.value)
+                            PopupMenuItem(
+                                value: 6,
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: Obx(() => Visibility(
+                                    visible: settings.enableAutoShutDownTime.value,
+                                    child: MenuListTile(
+                                        leading: Icon(Icons.share_arrival_time_outlined), text: "${S.current.auto_shutdown_time}：${TimeUtil.secondValueToStr(controller.countdown.value)}")))),
+
+                          /// 其他跳转
+                          ...controller.currentSite.liveSite.jumpItems(controller.liveRoomRx.toLiveRoom()).map((e) => PopupMenuItem(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                onTap: e.onTap,
+                                child: MenuListTile(
+                                  leading: Icon(e.iconData),
+                                  text: e.text,
+                                ),
+                              )),
+                        ];
+                      },
+                    )
+                  ],
+                ),
+                body: Builder(
+                  builder: (BuildContext context) {
+                    return LayoutBuilder(builder: (context, constraint) {
+                      final width = constraint.maxWidth;
+                      return SafeArea(
+                        child: width <= 680
+                            ? Column(
+                                children: <Widget>[
+                                  buildVideoPlayer(),
+                                  const ResolutionsRow(),
+                                  const Divider(height: 1),
+                                  Expanded(
+                                    child: Obx(() => DanmakuListView(
+                                          key: controller.danmakuViewKey,
+                                          room: controller.liveRoomRx.toLiveRoom(),
+                                          controller: controller,
+                                        )),
+                                  ),
+                                ],
+                              )
+                            : Row(children: <Widget>[
+                                Expanded(
+                                  child: buildVideoPlayer(),
+                                ),
+                                SizedBox(
+                                  width: 400,
+                                  child: Column(children: [
+                                    const ResolutionsRow(),
+                                    const Divider(height: 1),
+                                    Expanded(
+                                      child: Obx(() => DanmakuListView(
+                                            key: controller.danmakuViewKey,
+                                            room: controller.liveRoomRx.toLiveRoom(),
+                                            controller: controller,
+                                          )),
+                                    ),
+                                  ]),
+                                ),
+                              ]),
+                      );
+                    });
+                  },
+                ),
+                floatingActionButton: Obx(() => controller.getVideoSuccess.value
+                    ? FavoriteFloatingButton(key: UniqueKey(), room: controller.liveRoomRx.toLiveRoom())
+                    : FavoriteFloatingButton(key: UniqueKey(), room: controller.liveRoomRx.toLiveRoom())),
               ),
             );
+          }();
+          if (!Platform.isAndroid) {
+            return page;
           }
-          return BackButtonListener(
-            onBackButtonPressed: onWillPop,
-            child: Scaffold(
-              appBar: AppBar(
-                title: Obx(() => buildTableTarLeft()),
-                actions: [
-                  PopupMenuButton(
-                    tooltip: S.current.search,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    offset: const Offset(12, 0),
-                    position: PopupMenuPosition.under,
-                    icon: const Icon(Icons.more_vert_rounded),
-                    // onSelected: (int index) {
-                    //   if (index == 0) {
-                    //     controller.openNaviteAPP();
-                    //   } else {
-                    //     showDlnaCastDialog();
-                    //   }
-                    // },
-                    itemBuilder: (BuildContext context) {
-                      /// 右边的列表
-                      return [
-                        PopupMenuItem(
-                          value: 0,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: MenuListTile(
-                            leading: Icon(Icons.open_in_new_rounded),
-                            text: S.current.live_room_open_external,
-                          ),
-                          onTap: () {
-                            controller.openNaviteAPP();
-                          },
-                        ),
-                        PopupMenuItem(
-                          value: 1,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          onTap: showDlnaCastDialog,
-                          child: MenuListTile(
-                            leading: Icon(Icons.live_tv_rounded),
-                            text: S.current.screen_caste,
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 2,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: MenuListTile(
-                            leading: Icon(Remix.play_circle_line),
-                            text: S.current.settings_player,
-                          ),
-                          onTap: () {
-                            SettingsPageV2.settingPlayerInfoSheet();
-                          },
-                        ),
-                        PopupMenuItem(
-                          value: 3,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: MenuListTile(
-                            leading: Icon(Remix.filter_off_line),
-                            text: S.current.danmu_filter,
-                          ),
-                          onTap: () {
-                            Get.toNamed(RoutePath.kSettingsDanmuShield);
-                          },
-                        ),
-                        PopupMenuItem(
-                          value: 4,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: MenuListTile(
-                            leading: const Icon(Remix.bug_line),
-                            text: S.current.settings_log,
-                          ),
-                          onTap: () {
-                            Get.toNamed(RoutePath.kLog);
-                          },
-                        ),
-                        PopupMenuItem(
-                          value: 5,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: MenuListTile(
-                            leading: Icon(Icons.timer_outlined),
-                            text: S.current.auto_shutdown_time,
-                          ),
-                          onTap: () {
-                            SettingsPage.showAutoShutDownTimeSetDialog();
-                          },
-                        ),
-                        if(settings.enableAutoShutDownTime.value)
-                          PopupMenuItem(
-                              value: 6,
-                              padding: EdgeInsets.symmetric(horizontal: 12),
-                              child: Obx(
-                                      () => Visibility(
-                                      visible: settings.enableAutoShutDownTime.value,
-                                      child: MenuListTile(
-                                          leading: Icon(Icons.share_arrival_time_outlined),
-                                          text: "${S.current.auto_shutdown_time}：${TimeUtil.secondValueToStr(controller.countdown.value)}"
-                                      )))
-                          ),
-                      ];
-                    },
-                  )
-                ],
-              ),
-              body: Builder(
-                builder: (BuildContext context) {
-                  return LayoutBuilder(builder: (context, constraint) {
-                    final width = constraint.maxWidth;
-                    return SafeArea(
-                      child: width <= 680
-                          ? Column(
-                        children: <Widget>[
-                          buildVideoPlayer(),
-                          const ResolutionsRow(),
-                          const Divider(height: 1),
-                          Expanded(
-                            child: Obx(() => DanmakuListView(
-                              key: controller.danmakuViewKey,
-                              room: controller.liveRoomRx.toLiveRoom(),
-                              controller: controller,
-                            )),
-                          ),
-                        ],
-                      )
-                          : Row(children: <Widget>[
-                        Expanded(
-                          child: buildVideoPlayer(),
-                        ),
-                        SizedBox(
-                          width: 400,
-                          child: Column(children: [
-                            const ResolutionsRow(),
-                            const Divider(height: 1),
-                            Expanded(
-                              child: Obx(() => DanmakuListView(
-                                key: controller.danmakuViewKey,
-                                room: controller.liveRoomRx.toLiveRoom(),
-                                controller: controller,
-                              )),
-                            ),
-                          ]),
-                        ),
-                      ]),
-                    );
-                  });
-                },
-              ),
-              floatingActionButton: Obx(() => controller.getVideoSuccess.value
-                  ? FavoriteFloatingButton(key: UniqueKey(), room: controller.liveRoomRx.toLiveRoom())
-                  : FavoriteFloatingButton(key: UniqueKey(), room: controller.liveRoomRx.toLiveRoom())),
-            ),
-          );
-        }();
-        if (!Platform.isAndroid) {
+          // return PiPSwitcher(
+          //   floating: controller.pip,
+          //   childWhenDisabled: page,
+          //   childWhenEnabled: buildVideoPlayer(),
+          // );
           return page;
-        }
-        // return PiPSwitcher(
-        //   floating: controller.pip,
-        //   childWhenDisabled: page,
-        //   childWhenEnabled: buildVideoPlayer(),
-        // );
-        return page;
-      }
-    );
+        });
   }
 
   void showDlnaCastDialog() {

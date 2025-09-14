@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:pure_live/common/l10n/generated/l10n.dart';
@@ -6,6 +7,7 @@ import 'package:pure_live/common/services/settings_service.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/kuaishou/kuaishou_site.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../sites.dart';
 
@@ -112,5 +114,23 @@ mixin SoopSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
     ];
     siteParseBean = await parseUrl(regExpBeanList, realUrl, platform);
     return siteParseBean;
+  }
+
+  @override
+  List<OtherJumpItem> jumpItems(LiveRoom liveRoom) {
+    List<OtherJumpItem> list = [];
+
+    list.add(OtherJumpItem(
+      text: '直播录像',
+      iconData: Icons.emergency_recording_outlined,
+      onTap: () async {
+        try {
+          await launchUrlString("https://www.sooplive.co.kr/${liveRoom.roomId}/vods", mode: LaunchMode.externalApplication);
+        } catch (e) {
+          CoreLog.error(e);
+        }
+      },
+    ));
+    return list;
   }
 }

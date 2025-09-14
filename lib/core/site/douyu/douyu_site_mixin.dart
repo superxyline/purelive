@@ -1,5 +1,6 @@
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/models/bilibili_user_info_page.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -7,9 +8,11 @@ import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/bilibili/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
-mixin DouyuSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
-  var platform =  Sites.douyuSite;
+mixin DouyuSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse, SiteOtherJump {
+  var platform = Sites.douyuSite;
+
   /// ------------------ 登录
   @override
   bool isSupportLogin() => false;
@@ -159,13 +162,13 @@ mixin DouyuSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
   Future<SiteParseBean> parse(String url) async {
     String realUrl = getHttpUrl(url);
     var siteParseBean = emptySiteParseBean;
-    if(realUrl.isEmpty) return siteParseBean;
+    if (realUrl.isEmpty) return siteParseBean;
     // 解析跳转
     List<RegExp> regExpJumpList = [
       // 网站 解析跳转
     ];
     siteParseBean = await parseJumpUrl(regExpJumpList, realUrl);
-    if(siteParseBean.roomId.isNotEmpty) {
+    if (siteParseBean.roomId.isNotEmpty) {
       return siteParseBean;
     }
 
@@ -176,5 +179,36 @@ mixin DouyuSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
     ];
     siteParseBean = await parseUrl(regExpBeanList, realUrl, platform);
     return siteParseBean;
+  }
+
+  @override
+  List<OtherJumpItem> jumpItems(LiveRoom liveRoom) {
+    List<OtherJumpItem> list = [];
+
+    list.add(OtherJumpItem(
+      text: '直播录像',
+      iconData: Icons.emergency_recording_outlined,
+      onTap: () async {
+        try {
+          await launchUrlString("https://v.douyu.com/author/${liveRoom.userId}?type=liveReplay", mode: LaunchMode.externalApplication);
+        } catch (e) {
+          CoreLog.error(e);
+        }
+      },
+    ));
+
+    list.add(OtherJumpItem(
+      text: '鱼吧',
+      iconData: Icons.web_outlined,
+      onTap: () async {
+        try {
+          await launchUrlString("http://yuba.douyu.com/api/dy/anchor/anchorTopic?room_id=${liveRoom.roomId}", mode: LaunchMode.externalApplication);
+        } catch (e) {
+          CoreLog.error(e);
+        }
+      },
+    ));
+
+    return list;
   }
 }

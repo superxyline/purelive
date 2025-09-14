@@ -263,12 +263,14 @@ class DouyuSite extends LiveSite with DouyuSiteMixin {
         roomInfo = result["room"];
       }
 
+      // CoreLog.d("result: ${json.encode(result)}");
       return LiveRoom(
         cover: roomInfo["room_pic"].toString(),
         watching: roomInfo["room_biz_all"]["hot"].toString(),
         roomId: roomId,
         title: roomInfo["room_name"].toString(),
         nick: roomInfo["owner_name"].toString(),
+        userId: roomInfo["up_id"].toString(),
         avatar: roomInfo["owner_avatar"].toString(),
         introduction: roomInfo["show_details"].toString(),
         area: roomInfo["second_lvl_name"]?.toString() ?? '',

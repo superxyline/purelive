@@ -293,6 +293,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
             ));
           }
         }
+        // CoreLog.d("result: ${json.encode(data)}");
         bool isXingxiu = data['liveData']['gid'] == 1663;
         return LiveRoom(
           cover: data['liveData']?['screenshot'] ?? '',
@@ -301,6 +302,7 @@ class HuyaSite extends LiveSite with HuyaSiteMixin {
           area: data['liveData']?['gameFullName'] ?? '',
           title: data['liveData']?['introduction'] ?? '',
           nick: data['profileInfo']?['nick'] ?? '',
+          userId: data['profileInfo']?['uid']?.toString() ?? '',
           avatar: data['profileInfo']?['avatar180'] ?? '',
           introduction: data['liveData']?['introduction'] ?? '',
           notice: data['welcomeText'] ?? '',

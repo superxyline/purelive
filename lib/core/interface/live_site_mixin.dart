@@ -208,3 +208,23 @@ class RegExpBean {
     required this.siteType,
   });
 }
+
+/// 跳转
+mixin class SiteOtherJump {
+  List<OtherJumpItem> jumpItems(LiveRoom liveRoom) {
+    return [];
+  }
+}
+
+/// 跳转选项
+class OtherJumpItem {
+  late IconData? iconData;
+  late void Function() onTap;
+  late String text;
+
+  OtherJumpItem({
+    required this.text,
+    this.iconData,
+    required this.onTap,
+  });
+}

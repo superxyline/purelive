@@ -11,7 +11,7 @@ import 'package:pure_live/model/live_search_result.dart';
 
 import 'live_site_mixin.dart';
 
-class LiveSite with SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
+class LiveSite with SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse, SiteOtherJump {
   /// 站点唯一ID
   String id = "";
 

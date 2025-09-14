@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,7 @@ import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/core/interface/live_site_mixin.dart';
 import 'package:pure_live/core/site/bilibili/bilibili_site.dart';
 import 'package:pure_live/core/sites.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 mixin BilibiliSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
   var platform =  Sites.bilibiliSite;
@@ -187,5 +189,37 @@ mixin BilibiliSiteMixin on SiteAccount, SiteVideoHeaders, SiteOpen, SiteParse {
     ];
     siteParseBean = await parseUrl(regExpBeanList, realUrl, platform);
     return siteParseBean;
+  }
+
+  @override
+  List<OtherJumpItem> jumpItems(LiveRoom liveRoom) {
+    List<OtherJumpItem> list = [];
+
+    list.add(OtherJumpItem(
+      text: '直播录像',
+      iconData: Icons.emergency_recording_outlined,
+      onTap: () async {
+        try {
+          // await launchUrlString("https://space.bilibili.com/${liveRoom.userId}/lists/405144?type=series", mode: LaunchMode.externalApplication);
+          await launchUrlString("https://space.bilibili.com/${liveRoom.userId}/lists?type=series", mode: LaunchMode.externalApplication);
+        } catch (e) {
+          CoreLog.error(e);
+        }
+      },
+    ));
+
+    list.add(OtherJumpItem(
+      text: '动态',
+      iconData: Icons.wind_power_outlined,
+      onTap: () async {
+        try {
+          await launchUrlString("https://space.bilibili.com/${liveRoom.userId}/dynamic", mode: LaunchMode.externalApplication);
+        } catch (e) {
+          CoreLog.error(e);
+        }
+      },
+    ));
+
+    return list;
   }
 }
