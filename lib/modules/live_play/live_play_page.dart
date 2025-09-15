@@ -64,13 +64,16 @@ class LivePlayPage extends GetView<LivePlayController> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          controller.detail.value == null && controller.detail.value!.nick == null
-                              ? ''
-                              : controller.detail.value!.nick!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall,
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            controller.detail.value == null && controller.detail.value!.nick == null
+                                ? ''
+                                : controller.detail.value!.nick!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
                         ),
                         if (controller.detail.value != null && controller.detail.value!.area != null)
                           Text(

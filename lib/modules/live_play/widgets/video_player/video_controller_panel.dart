@@ -848,7 +848,7 @@ class SettingsPanel extends StatelessWidget {
 
   final VideoController controller;
 
-  static const double width = 280;
+  static const double width = 300;
 
   @override
   Widget build(BuildContext context) {
@@ -932,7 +932,7 @@ class DanmakuSetting extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: Platform.isWindows ? 40 : 32,
+            height: Platform.isWindows ? 50 : 35,
             child: ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -949,7 +949,7 @@ class DanmakuSetting extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: Platform.isWindows ? 40 : 32,
+            height: Platform.isWindows ? 50 : 35,
             child: ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -966,7 +966,7 @@ class DanmakuSetting extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: Platform.isWindows ? 40 : 32,
+            height: Platform.isWindows ? 50 : 35,
             child: ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -983,7 +983,7 @@ class DanmakuSetting extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: Platform.isWindows ? 40 : 32,
+            height: Platform.isWindows ? 50 : 35,
             child: ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -1000,7 +1000,7 @@ class DanmakuSetting extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: Platform.isWindows ? 40 : 32,
+            height: Platform.isWindows ? 50 : 35,
             child: ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -1017,7 +1017,7 @@ class DanmakuSetting extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: Platform.isWindows ? 40 : 32,
+            height: Platform.isWindows ? 50 : 35,
             child: ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
