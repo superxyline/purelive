@@ -287,7 +287,7 @@ class DouyinSite implements LiveSite {
     }
   }
 
-  Future<Map> getRoomWebDetail(String webRid) async {
+  Future<String> _getWebCookie(String webRid) async {
     var headResp = await HttpClient.instance.head("https://live.douyin.com/$webRid", header: headers);
     var dyCookie = "";
     headResp.headers["set-cookie"]?.forEach((element) {
@@ -298,7 +298,15 @@ class DouyinSite implements LiveSite {
       if (cookie.contains("__ac_nonce")) {
         dyCookie += "$cookie;";
       }
+      if (cookie.contains("msToken")) {
+        dyCookie += "$cookie;";
+      }
     });
+    return dyCookie;
+  }
+
+  Future<Map> getRoomWebDetail(String webRid) async {
+    var dyCookie = await _getWebCookie(webRid);
     var result = await HttpClient.instance.getText(
       "https://live.douyin.com/$webRid",
       queryParameters: {},
