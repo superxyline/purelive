@@ -609,6 +609,11 @@ class SettingsService  extends GetxController with AutoShutDownMixin, SettingBit
     favoriteAreas.value = json['favoriteAreas'] != null ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList() : [];
     shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
     hotAreasList.value = json['hotAreasList'] != null ? (json['hotAreasList'] as List).map((e) => e.toString()).toList() : [];
+
+    favoriteRoomsMap = toRoomMap(favoriteRooms.value);
+    historyRoomsMap = toRoomMap(historyRooms.value);
+    favoriteRoomsLengthChangeFlag.toggle();
+
     autoRefreshTime.value = json['autoRefreshTime'] ?? 3;
     themeModeName.value = json['themeMode'] ?? "System";
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
