@@ -64,15 +64,13 @@ mixin SettingWebdavMixin {
       PrefUtil.setInt(webdavSyncTimeKey, value);
     });
 
-    settingPartList.fromJsonList.add(fromJsonBitRate);
-    settingPartList.toJsonList.add(toJsonBitRate);
-    settingPartList.defaultConfigList.add(defaultConfigBitRate);
+    settingPartList.fromJsonList.add(fromJsonWebdav);
+    settingPartList.toJsonList.add(toJsonWebdav);
+    settingPartList.defaultConfigList.add(defaultConfigWebdav);
   }
 
-  void onInitBitRate() {}
-
   //// -------------- 默认
-  void fromJsonBitRate(Map<String, dynamic> json) {
+  void fromJsonWebdav(Map<String, dynamic> json) {
     webdavUrl.value = json[webdavUrlKey] ?? webdavUrlDefault;
     webdavUser.value = json[webdavUserKey] ?? webdavUserDefault;
     webdavPwd.value = json[webdavPwdKey] ?? webdavPwdDefault;
@@ -80,7 +78,7 @@ mixin SettingWebdavMixin {
     webdavSyncTime.value = json[webdavSyncTimeKey] ?? webdavSyncTimeDefault;
   }
 
-  void toJsonBitRate(Map<String, dynamic> json) {
+  void toJsonWebdav(Map<String, dynamic> json) {
     json[webdavUrlKey] = webdavUrl.value;
     json[webdavUserKey] = webdavUser.value;
     json[webdavPwdKey] = webdavPwd.value;
@@ -88,7 +86,7 @@ mixin SettingWebdavMixin {
     json[webdavSyncTimeKey] = webdavSyncTime.value;
   }
 
-  void defaultConfigBitRate(Map<String, dynamic> json) {
+  void defaultConfigWebdav(Map<String, dynamic> json) {
     json[webdavUrlKey] = webdavUrlDefault;
     json[webdavUserKey] = webdavUserDefault;
     json[webdavPwdKey] = webdavPwdDefault;

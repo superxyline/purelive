@@ -23,6 +23,8 @@ class PrefUtil {
       prefs.setDouble(key, value);
     } else if (value is List<String>) {
       prefs.setStringList(key, value);
+    } else if (value is Map) {
+      setMap(key, value);
     }
   }
 
