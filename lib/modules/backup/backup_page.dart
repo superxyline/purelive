@@ -4,7 +4,13 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/auth/utils/constants.dart';
 import 'package:pure_live/modules/backup/scan_page.dart';
+import 'package:pure_live/modules/util/rx_util.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
+
+import '../../common/services/setting_mixin/setting_webdav.dart';
+import '../../common/widgets/settings/settings_card_v2.dart';
+import '../../common/widgets/settings/settings_list_item.dart';
+import '../../common/widgets/utils.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
@@ -55,6 +61,16 @@ class _BackupPageState extends State<BackupPage> {
             title: Text(S.current.recover_backup),
             subtitle: Text(S.current.recover_backup_subtitle),
             onTap: () => FileRecoverUtils().recoverBackup(),
+          ),
+          /// 移动网络清晰度
+          SettingsListItem(
+            leading: Icon(Icons.sync),
+            title: Text("Webdav 数据同步"),
+            subtitle: Text("Webdav 数据同步"),
+            onTap: () {
+              showPreferWebdevSelectorDialog();
+            },
+            // trailing: Obx(() => Text(controller.preferResolutionMobile.value)),
           ),
           SectionTitle(title: S.current.auto_backup),
           ListTile(
@@ -177,4 +193,64 @@ class _BackupPageState extends State<BackupPage> {
       showEditTextDialog();
     }
   }
+
+  // webdav 同步
+  static void showPreferWebdevSelectorDialog() {
+    var controller = Get.find<SettingsService>();
+    var context = Get.context!;
+    Utils.showRightOrBottomSheet(
+        title: "Webdav",
+        child: ListView(children: [
+          SettingsCardV2(children: [
+            TextField(
+                onChanged: (s) => controller.webdavUrl.updateValueNotEquate(s),
+                controller: TextEditingController(text: controller.webdavUrl.value),
+                decoration: InputDecoration(border: const OutlineInputBorder(), label: const Text("URL"), hintText: SettingWebdavMixin.webdavUrlDefault)),
+            const SizedBox(
+              height: 8,
+            ),
+            TextField(
+                onChanged: (s) => controller.webdavUser.updateValueNotEquate(s),
+                controller: TextEditingController(text: controller.webdavUser.value),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  label: Text("用户名"),
+                )),
+            const SizedBox(
+              height: 8,
+            ),
+            TextField(
+                onChanged: (s) => controller.webdavPwd.updateValueNotEquate(s),
+                controller: TextEditingController(text: controller.webdavPwd.value),
+                obscureText: true,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  label: Text("密码"),
+                )),
+            const SizedBox(
+              height: 8,
+            ),
+            TextField(
+                onChanged: (s) => controller.webdavPath.updateValueNotEquate(s),
+                controller: TextEditingController(text: controller.webdavPath.value),
+                decoration: InputDecoration(border: const OutlineInputBorder(), label: Text("储存路径"), hintText: "请确保路径存在")),
+            const SizedBox(
+              height: 8,
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(child: Text('备份'), onPressed: () {SettingsService.instance.uploadData();}, ),
+                SizedBox(width: 16), // 添加间距
+                ElevatedButton(child: Text('恢复'), onPressed: () {SettingsService.instance.downloadData();}, ),
+              ],
+            ),
+          ])
+        ]));
+  }
+
 }

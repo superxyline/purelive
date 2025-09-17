@@ -34,6 +34,8 @@ Future<void> initService() async {
   Get.put(HomeController());
   Get.put(SiteAccountController());
   Get.put(HistoryController());
+
+  SettingsService.instance.syncData();
 }
 
 class MyApp extends StatefulWidget {

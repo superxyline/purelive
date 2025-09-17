@@ -129,6 +129,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
               SettingsPage.showCacheManageSetDialog();
             },
           ),
+
           /// 日志设置
           SettingsListItem(
             leading: const Icon(Remix.bug_line),
@@ -422,6 +423,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                     value: controller.enableFullScreenDefault.value,
                     onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
                   )),
+
               /// 清晰度
               SettingsListItem(
                 leading: Icon(Icons.video_camera_back_outlined),
@@ -434,6 +436,7 @@ class SettingsPageV2 extends GetView<SettingsService> {
                 // trailing: Obx(() => Text(controller.preferResolution.value)),
                 trailing: Obx(() => Text(controller.getBitRateName(controller.bitRate.value))),
               ),
+
               /// 移动网络清晰度
               SettingsListItem(
                 leading: Icon(Icons.video_camera_back_outlined),
@@ -537,17 +540,17 @@ class SettingsPageV2 extends GetView<SettingsService> {
         children: [
           SettingsCardV2(
               children: SettingsService.resolutions.map<Widget>((name) {
-                return RadioListTile<String>(
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  groupValue: controller.preferResolutionMobile.value,
-                  value: name,
-                  title: Text(name),
-                  onChanged: (value) {
-                    controller.changePreferResolutionMobile(value!);
-                    Navigator.of(context).pop();
-                  },
-                );
-              }).toList())
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.preferResolutionMobile.value,
+              value: name,
+              title: Text(name),
+              onChanged: (value) {
+                controller.changePreferResolutionMobile(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList())
         ],
       ),
     );
@@ -563,22 +566,21 @@ class SettingsPageV2 extends GetView<SettingsService> {
         children: [
           SettingsCardV2(
               children: DanmakuControllerfactory.getDanmakuControllerTypeList().map<Widget>((name) {
-                return RadioListTile<String>(
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  groupValue: controller.danmakuControllerType.value,
-                  value: name,
-                  title: Text(name),
-                  onChanged: (value) {
-                    controller.changeDanmakuController(value!);
-                    Navigator.of(context).pop();
-                  },
-                );
-              }).toList())
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.danmakuControllerType.value,
+              value: name,
+              title: Text(name),
+              onChanged: (value) {
+                controller.changeDanmakuController(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList())
         ],
       ),
     );
   }
-
 
   // 码率
   static void showPreferBitRateSelectorDialog() {
@@ -590,21 +592,22 @@ class SettingsPageV2 extends GetView<SettingsService> {
         children: [
           SettingsCardV2(
               children: controller.bitRateList.map<Widget>((name) {
-                return RadioListTile<int>(
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  groupValue: controller.bitRate.value,
-                  value: name,
-                  title: Text(controller.getBitRateName(name)),
-                  onChanged: (value) {
-                    controller.changeBitRate(value!);
-                    Navigator.of(context).pop();
-                  },
-                );
-              }).toList())
+            return RadioListTile<int>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.bitRate.value,
+              value: name,
+              title: Text(controller.getBitRateName(name)),
+              onChanged: (value) {
+                controller.changeBitRate(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList())
         ],
       ),
     );
   }
+
   // 码率 手机
   static void showPreferBitRateMobileSelectorDialog() {
     var controller = Get.find<SettingsService>();
@@ -615,20 +618,19 @@ class SettingsPageV2 extends GetView<SettingsService> {
         children: [
           SettingsCardV2(
               children: controller.bitRateList.map<Widget>((name) {
-                return RadioListTile<int>(
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  groupValue: controller.bitRateMobile.value,
-                  value: name,
-                  title: Text(controller.getBitRateName(name)),
-                  onChanged: (value) {
-                    controller.changeBitRateMobile(value!);
-                    Navigator.of(context).pop();
-                  },
-                );
-              }).toList())
+            return RadioListTile<int>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: controller.bitRateMobile.value,
+              value: name,
+              title: Text(controller.getBitRateName(name)),
+              onChanged: (value) {
+                controller.changeBitRateMobile(value!);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList())
         ],
       ),
     );
   }
-
 }
