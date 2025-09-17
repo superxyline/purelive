@@ -712,6 +712,8 @@ class SettingsService  extends GetxController with AutoShutDownMixin, SettingBit
     json['siteCookies'] = siteCookies.value;
     CoreLog.d("siteCookies: ${siteCookies.value}");
 
+    json['danmakuControllerType'] = danmakuControllerType.value;
+
     for (var f in settingPartList.toJsonList) {
       f.call(json);
     }
