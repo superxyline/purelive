@@ -182,8 +182,8 @@ mixin SettingWebdavMixin {
   }
 
   void toastError(String msg) {
-    CoreLog.error(msg);
     SmartDialog.showToast(msg);
+    CoreLog.error(msg);
     // SnackBarUtil.error(msg);
   }
 

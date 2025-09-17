@@ -162,6 +162,7 @@ class SettingsService  extends GetxController with AutoShutDownMixin, SettingBit
   void init(){
     initAutoShutDown(settingPartList);
     initBitRate(settingPartList);
+    initWebdav(settingPartList);
   }
 
   // Theme settings
