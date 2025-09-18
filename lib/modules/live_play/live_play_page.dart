@@ -64,8 +64,8 @@ class LivePlayPage extends GetView<LivePlayController> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: 120,
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 120),
                           child: Text(
                             controller.detail.value == null && controller.detail.value!.nick == null
                                 ? ''
@@ -105,11 +105,16 @@ class LivePlayPage extends GetView<LivePlayController> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          controller.detail.value!.nick!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall,
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 120),
+                          child: Text(
+                            controller.detail.value == null && controller.detail.value!.nick == null
+                                ? ''
+                                : controller.detail.value!.nick!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
                         ),
                         Text(
                           controller.currentPlayRoom.value.area!.isEmpty

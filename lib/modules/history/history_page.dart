@@ -31,10 +31,23 @@ class HistoryPage extends GetView {
 
   @override
   Widget build(BuildContext context) {
+    final SettingsService settings = Get.find<SettingsService>();
     return Scaffold(
-      appBar: AppBar(centerTitle: true, scrolledUnderElevation: 0, title: Text('${S.of(context).history}(20)')),
+      appBar: AppBar(
+        centerTitle: true,
+        scrolledUnderElevation: 0,
+        title: Text('${S.of(context).history}(${settings.historyRooms.length}/20)'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete_forever),
+            onPressed: () {
+              settings.historyRooms.clear();
+              onRefresh();
+            },
+          ),
+        ],
+      ),
       body: Obx(() {
-        final SettingsService settings = Get.find<SettingsService>();
         const dense = true;
         final rooms = settings.historyRooms.toList();
         return LayoutBuilder(

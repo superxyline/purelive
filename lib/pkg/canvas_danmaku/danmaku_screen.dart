@@ -524,25 +524,21 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
         final screenHeight = constraints.maxHeight;
         final topOffset = screenHeight * _option.topArea;
         final bottomOffset = screenHeight * _option.bottomArea;
-
         double displayHeight = screenHeight - topOffset - bottomOffset;
-        _trackCount = ((displayHeight - _danmakuHeight) / _danmakuHeight).floor();
+        _trackCount = (displayHeight / _danmakuHeight).floor();
 
-        /// 为字幕留出余量
-        if (_option.safeArea) {
-          _trackCount = _trackCount - 1;
-        }
-        if (_trackCount < 0) _trackCount = 0;
+        _trackCount.clamp(0, (displayHeight / _danmakuHeight).floor());
         _trackYPositions.clear();
         for (int i = 0; i < _trackCount; i++) {
-          _trackYPositions.add(topOffset + i * _danmakuHeight);
+          double trackY = topOffset + (i * _danmakuHeight) + (_danmakuHeight / 2);
+          _trackYPositions.add(trackY);
         }
 
         return Stack(
           children: [
             Positioned(
-              top: topOffset, // 上接顶部预留区
-              bottom: bottomOffset, // 下接底部预留区
+              top: 0, // 上接顶部预留区
+              bottom: 0, // 下接底部预留区
               left: 0,
               right: 0,
               child: ClipRect(

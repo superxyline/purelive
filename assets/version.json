@@ -1,7 +1,7 @@
 {
-  "version": "1.9.8",
+  "version": "1.9.9",
   "version_num": 10198,
-  "version_desc": "-Fix: 修复Exo全屏播放. \n-Add:播放页面添加切换直播间以及倒计时退出 . \n-Fix: 优化弹幕设置. \n-Fix: 优化暗黑模式启动图. \n-Fix: 修复视频显示模式调整.",
+  "version_desc": "-Fix: 修复douyin.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
