@@ -456,9 +456,6 @@ class DouyinSite implements LiveSite {
         }
       }
     }
-    // var qualityData = json.decode(
-    //     detail.data["live_core_sdk_data"]["pull_data"]["stream_data"])["data"];
-
     qualities.sort((a, b) => b.sort.compareTo(a.sort));
     return qualities;
   }
