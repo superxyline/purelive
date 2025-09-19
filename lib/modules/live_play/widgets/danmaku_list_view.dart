@@ -1,6 +1,8 @@
+import 'dart:ui' as ui;
 import 'package:get/get.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/emoji_manager.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
 class DanmakuListView extends StatefulWidget {
@@ -90,7 +92,7 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
                           text: "${danmaku.userName}: ",
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
                         ),
-                        TextSpan(text: danmaku.message, style: const TextStyle(fontSize: 14)),
+                        ...parseEmojis(danmaku.message, 14),
                       ],
                     ),
                   ),
@@ -116,6 +118,82 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
     );
   }
 
+  List<InlineSpan> parseEmojis(String text, double fontSize) {
+    final List<InlineSpan> spans = [];
+    final regex = RegExp(r'\[(.*?)\]');
+    int lastIndex = 0;
+
+    for (final match in regex.allMatches(text)) {
+      // 添加表情前的文本
+      if (match.start > lastIndex) {
+        spans.add(
+          TextSpan(
+            text: text.substring(lastIndex, match.start),
+            style: TextStyle(fontSize: fontSize),
+          ),
+        );
+      }
+
+      // 处理表情
+      final emojiKey = match.group(0)!;
+      final image = EmojiManager.getEmoji(emojiKey);
+
+      if (image != null) {
+        spans.add(
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: SizedBox(
+              width: fontSize * 1.2,
+              height: fontSize * 1.2,
+              child: CustomPaint(painter: EmojiPainter(image)),
+            ),
+          ),
+        );
+      } else {
+        // 表情不存在时显示原始文本
+        spans.add(
+          TextSpan(
+            text: emojiKey,
+            style: TextStyle(fontSize: fontSize),
+          ),
+        );
+      }
+
+      lastIndex = match.end;
+    }
+
+    // 添加剩余文本
+    if (lastIndex < text.length) {
+      spans.add(
+        TextSpan(
+          text: text.substring(lastIndex),
+          style: TextStyle(fontSize: fontSize),
+        ),
+      );
+    }
+
+    return spans;
+  }
+
   @override
   bool get wantKeepAlive => true;
+}
+
+class EmojiPainter extends CustomPainter {
+  final ui.Image image;
+
+  EmojiPainter(this.image);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint(),
+    );
+  }
+
+  @override
+  bool shouldRepaint(EmojiPainter old) => image != old.image;
 }
