@@ -37,76 +37,35 @@ class ScrollDanmakuPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final startPosition = size.width;
-
-    if (scrollDanmakuItems.length > batchThreshold) {
-      // 弹幕数量超过阈值时使用批量绘制
-      final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
-      final Canvas pictureCanvas = Canvas(pictureRecorder);
-
-      for (var item in scrollDanmakuItems) {
-        item.lastDrawTick ??= item.creationTime;
-        final endPosition = -item.width;
-        final distance = startPosition - endPosition;
-        item.xPosition = item.xPosition + (((item.lastDrawTick! - tick) / totalDuration) * distance);
-
-        if (item.xPosition < -item.width || item.xPosition > size.width) {
-          continue;
-        }
-
-        item.paragraph ??= Utils.generateParagraph(item.content, size.width, fontSize, fontWeight);
-
-        if (showStroke) {
-          item.strokeParagraph ??= Utils.generateStrokeParagraph(item.content, size.width, fontSize, fontWeight);
-          pictureCanvas.drawParagraph(item.strokeParagraph!, Offset(item.xPosition, item.yPosition));
-        }
-
-        if (item.content.selfSend) {
-          pictureCanvas.drawRect(
-            _getSelfSendOffset(item) & (Size(item.width, item.height) + const Offset(4, 0)),
-            selfSendPaint,
-          );
-        }
-
-        pictureCanvas.drawParagraph(item.paragraph!, Offset(item.xPosition, item.yPosition));
-        item.lastDrawTick = tick;
-      }
-
-      final ui.Picture picture = pictureRecorder.endRecording();
-      canvas.drawPicture(picture);
-    } else {
-      // 弹幕数量较少时直接绘制 (节约创建 canvas 的开销)
-      for (var item in scrollDanmakuItems) {
-        item.lastDrawTick ??= item.creationTime;
-        final endPosition = -item.width;
-        final distance = startPosition - endPosition;
-        item.xPosition = item.xPosition + (((item.lastDrawTick! - tick) / totalDuration) * distance);
-
-        if (item.xPosition < -item.width || item.xPosition > size.width) {
-          continue;
-        }
-
-        item.paragraph ??= Utils.generateParagraph(item.content, size.width, fontSize, fontWeight);
-
-        if (showStroke) {
-          item.strokeParagraph ??= Utils.generateStrokeParagraph(item.content, size.width, fontSize, fontWeight);
-          canvas.drawParagraph(item.strokeParagraph!, Offset(item.xPosition, item.yPosition));
-        }
-
-        if (item.content.selfSend) {
-          canvas.drawRect(
-            _getSelfSendOffset(item) & (Size(item.width, item.height) + const Offset(4, 0)),
-            selfSendPaint,
-          );
-        }
-
-        canvas.drawParagraph(item.paragraph!, Offset(item.xPosition, item.yPosition));
-        item.lastDrawTick = tick;
-      }
-    }
+    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final Canvas pictureCanvas = Canvas(pictureRecorder);
+    _drawDanmakus(pictureCanvas, size, startPosition);
+    final ui.Picture picture = pictureRecorder.endRecording();
+    canvas.drawPicture(picture);
   }
 
-  Offset _getSelfSendOffset(DanmakuItem item) {
-    return Offset(item.xPosition - 2, item.yPosition + 2);
+  void _drawDanmakus(Canvas canvas, Size size, double startPosition) {
+    for (var item in scrollDanmakuItems) {
+      item.lastDrawTick ??= item.creationTime;
+      final currentWidth = Utils.calculateMixedContentWidth(item.content, fontSize);
+      final endPosition = -currentWidth; // 使用临时宽度计算结束位置
+      final distance = startPosition - endPosition;
+      item.xPosition = item.xPosition + (((item.lastDrawTick! - tick) / totalDuration) * distance);
+      if (item.xPosition < -currentWidth || item.xPosition > size.width) {
+        continue;
+      }
+      Utils.drawMixedContent(
+        canvas,
+        item.content,
+        Offset(item.xPosition, item.yPosition),
+        fontSize,
+        fontWeight,
+        showStroke,
+        item.content.selfSend,
+        selfSendPaint,
+      );
+      item.lastDrawTick = tick;
+    }
   }
 
   @override
@@ -114,6 +73,12 @@ class ScrollDanmakuPainter extends CustomPainter {
     return oldDelegate.scrollDanmakuItems != scrollDanmakuItems ||
         oldDelegate.progress != progress ||
         oldDelegate.running != running ||
-        oldDelegate.tick != tick;
+        oldDelegate.tick != tick ||
+        oldDelegate.fontSize != fontSize ||
+        oldDelegate.fontWeight != fontWeight ||
+        oldDelegate.showStroke != showStroke;
   }
+
+  @override
+  bool shouldRebuildSemantics(covariant ScrollDanmakuPainter oldDelegate) => false;
 }

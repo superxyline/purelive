@@ -135,6 +135,11 @@ flutter:
     - assets/keystore/
     - assets/version.json
     - assets/js/
+    - assets/emo/huya/
+    - assets/emo/douyu/
+    - assets/emo/douyin/
+    - assets/emo/bilibili/
+    - assets/emo/kuaishou/
 
   fonts:
     - family: CustomIcons

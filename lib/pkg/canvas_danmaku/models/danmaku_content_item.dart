@@ -1,8 +1,18 @@
 import 'dart:math' show pi;
 import 'dart:ui' show PathMetric;
 import 'package:flutter/material.dart';
+import 'package:pure_live/plugins/emoji_manager.dart';
 
 enum DanmakuItemType { scroll, top, bottom, special }
+
+enum ContentType { text, emoji }
+
+class MixedContent {
+  final ContentType type;
+  final String value; // 文本内容或表情key
+
+  MixedContent(this.type, this.value);
+}
 
 class DanmakuContentItem {
   /// 弹幕文本
@@ -16,7 +26,33 @@ class DanmakuContentItem {
 
   /// 是否为自己发送
   final bool selfSend;
-  DanmakuContentItem(this.text, {this.color = Colors.white, this.type = DanmakuItemType.scroll, this.selfSend = false});
+  final List<MixedContent> mixedContent;
+
+  DanmakuContentItem(this.text, {this.color = Colors.white, this.type = DanmakuItemType.scroll, this.selfSend = false})
+    : mixedContent = _parseMixedContent(text);
+  // 解析文本为混合内容
+  static List<MixedContent> _parseMixedContent(String text) {
+    final List<MixedContent> result = [];
+    final regex = RegExp(r'\[(.*?)\]');
+    int lastIndex = 0;
+
+    for (final match in regex.allMatches(text)) {
+      if (match.start > lastIndex) {
+        result.add(MixedContent(ContentType.text, text.substring(lastIndex, match.start)));
+      }
+      if (EmojiManager().cache.containsKey(match.group(0))) {
+        result.add(MixedContent(ContentType.emoji, match.group(0)!));
+      } else {
+        result.add(MixedContent(ContentType.text, match.group(0)!));
+      }
+      lastIndex = match.end;
+    }
+
+    if (lastIndex < text.length) {
+      result.add(MixedContent(ContentType.text, text.substring(lastIndex)));
+    }
+    return result;
+  }
 }
 
 class SpecialDanmakuContentItem extends DanmakuContentItem {
@@ -117,11 +153,7 @@ class SpecialDanmakuContentItem extends DanmakuContentItem {
     );
   }
 
-  static (double, double) _toRelativePosition(
-    dynamic rawStart,
-    dynamic rawEnd,
-    double videoSize,
-  ) {
+  static (double, double) _toRelativePosition(dynamic rawStart, dynamic rawEnd, double videoSize) {
     double toRadix(double? value, dynamic rawValue) =>
         (value! > 1 || (rawValue is String && !rawValue.contains('.'))) ? value /= videoSize : value;
 
@@ -145,18 +177,18 @@ class SpecialDanmakuContentItem extends DanmakuContentItem {
   }
 
   static int _parseInt(dynamic digit) => switch (digit) {
-        int() => digit,
-        double() => digit.toInt(),
-        String() => int.tryParse(digit) ?? 0,
-        _ => throw UnimplementedError()
-      };
+    int() => digit,
+    double() => digit.toInt(),
+    String() => int.tryParse(digit) ?? 0,
+    _ => throw UnimplementedError(),
+  };
 
   static double _parseDouble(dynamic digit) => switch (digit) {
-        int() => digit.toDouble(),
-        double() => digit,
-        String() => double.tryParse(digit) ?? 0,
-        _ => throw UnimplementedError()
-      };
+    int() => digit.toDouble(),
+    double() => digit,
+    String() => double.tryParse(digit) ?? 0,
+    _ => throw UnimplementedError(),
+  };
 
   static Tween<T> _makeTween<T>(T start, T end) {
     return start == end ? ConstantTween<T>(start) : Tween<T>(begin: start, end: end);

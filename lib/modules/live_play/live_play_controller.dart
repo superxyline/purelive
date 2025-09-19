@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/site/huya_site.dart';
 import 'widgets/video_player/video_controller.dart';
+import 'package:pure_live/plugins/emoji_manager.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:pure_live/model/live_play_quality.dart';
@@ -121,6 +122,7 @@ class LivePlayController extends StateController {
     super.onInit();
     currentPlayRoom.value = room;
     onInitPlayerState(firstLoad: true);
+    EmojiManager().preload(site);
     isFirstLoad.listen((p0) {
       if (isFirstLoad.value) {
         Timer(const Duration(seconds: 8), () {
