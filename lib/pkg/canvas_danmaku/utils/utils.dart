@@ -38,7 +38,6 @@ class Utils {
     final currentY = offset.dy;
     final emojiSize = fontSize * 1.2;
 
-    // 如果需要描边，先绘制所有文本的描边
     if (showStroke) {
       double strokeX = currentX;
       for (final item in content.mixedContent) {
@@ -47,13 +46,12 @@ class Utils {
             text: TextSpan(
               text: item.value,
               style: TextStyle(
-                // 移除 color 属性，避免与 foreground 冲突
                 fontSize: fontSize,
                 fontWeight: FontWeight.values[fontWeight],
                 foreground: Paint()
                   ..style = PaintingStyle.stroke
                   ..strokeWidth = 2
-                  ..color = Colors.black, // 这里已经通过foreground设置了颜色
+                  ..color = content.color, // 这里已经通过foreground设置了颜色
               ),
             ),
             textDirection: TextDirection.ltr,
@@ -70,7 +68,7 @@ class Utils {
     // 绘制自发送弹幕的边框（如果需要）
     if (selfSend && selfSendPaint != null) {
       final totalWidth = calculateMixedContentWidth(content, fontSize);
-      canvas.drawRect(Rect.fromLTWH(currentX - 2, currentY + 2, totalWidth + 4, fontSize + 4), selfSendPaint);
+      canvas.drawRect(Rect.fromLTWH(currentX, currentY, totalWidth, fontSize), selfSendPaint);
     }
 
     // 绘制实际内容（文本和表情）
