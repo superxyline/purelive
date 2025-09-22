@@ -38,33 +38,6 @@ class Utils {
     final currentY = offset.dy;
     final emojiSize = fontSize * 1.2;
 
-    if (showStroke) {
-      double strokeX = currentX;
-      for (final item in content.mixedContent) {
-        if (item.type == ContentType.text) {
-          final textPainter = TextPainter(
-            text: TextSpan(
-              text: item.value,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.values[fontWeight],
-                foreground: Paint()
-                  ..style = PaintingStyle.stroke
-                  ..strokeWidth = 2
-                  ..color = content.color, // 这里已经通过foreground设置了颜色
-              ),
-            ),
-            textDirection: TextDirection.ltr,
-          )..layout();
-
-          textPainter.paint(canvas, Offset(strokeX, currentY));
-          strokeX += textPainter.width;
-        } else {
-          strokeX += emojiSize;
-        }
-      }
-    }
-
     // 绘制自发送弹幕的边框（如果需要）
     if (selfSend && selfSendPaint != null) {
       final totalWidth = calculateMixedContentWidth(content, fontSize);
