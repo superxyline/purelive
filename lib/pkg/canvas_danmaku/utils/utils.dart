@@ -54,7 +54,21 @@ class Utils {
           ),
           textDirection: TextDirection.ltr,
         )..layout();
-
+        final strokePainter = TextPainter(
+          text: TextSpan(
+            text: item.value,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.values[fontWeight],
+              foreground: Paint()
+                ..style = PaintingStyle.stroke
+                ..strokeWidth = 0.8
+                ..color = Colors.black54, // 这里已经通过foreground设置了颜色
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        strokePainter.paint(canvas, Offset(currentX, currentY));
         textPainter.paint(canvas, Offset(currentX, currentY));
         currentX += textPainter.width;
       } else {
