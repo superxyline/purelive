@@ -69,7 +69,16 @@ class ScrollDanmakuPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant ScrollDanmakuPainter oldDelegate) {
+    return oldDelegate.scrollDanmakuItems != scrollDanmakuItems ||
+        oldDelegate.progress != progress ||
+        oldDelegate.running != running ||
+        oldDelegate.tick != tick ||
+        oldDelegate.fontSize != fontSize ||
+        oldDelegate.fontWeight != fontWeight ||
+        oldDelegate.showStroke != showStroke;
   }
+
+  @override
+  bool shouldRebuildSemantics(covariant ScrollDanmakuPainter oldDelegate) => false;
 }
