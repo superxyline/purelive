@@ -44,6 +44,7 @@ class EmojiManager {
 
   void clearCache() {
     _cache.clear();
+    _validEmojiPaths.clear();
   }
 
   // 优先检查GIF格式，再检查PNG格式
