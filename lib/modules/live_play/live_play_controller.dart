@@ -247,7 +247,7 @@ class LivePlayController extends StateController {
           settings.addRoomToHistory(liveRoom);
         }
         // start danmaku server
-        List<String> except = ['iptv', 'cc'];
+        List<String> except = ['kuaishou', 'iptv', 'cc'];
         if (except.indexWhere((element) => element == liveRoom.platform!) == -1) {
           liveDanmaku.stop();
           initDanmau();

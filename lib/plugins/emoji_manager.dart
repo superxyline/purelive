@@ -60,6 +60,10 @@ class EmojiManager {
         platform = 'bilibili';
       } else if (site == Sites.douyinSite) {
         platform = 'douyin';
+      } else if (site == Sites.kuaishouSite) {
+        platform = 'kuaishou';
+      } else if (site == Sites.ccSite) {
+        platform = 'cc';
       }
       final path = 'assets/emo/$platform/$code.$ext';
       if (await assetExists(path)) {
