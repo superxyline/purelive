@@ -158,18 +158,14 @@ jobs:
         run: |
           $lines = Get-Content pubspec.yaml
           foreach ($line in $lines) {
-            # 只匹配以 "version:" 开头（允许前导空格最多0个，即顶层字段）
             if ($line -match '^\s*version:\s*(\S+)') {
-              $fullVersion = $matches[1] -replace '[\'"]', ''  # 去掉引号
-              # 可选：只取主版本（不含 build number）
-              # $mainVersion = $fullVersion -replace '\+.*', ''
-              # echo "version=$mainVersion" >> $env:GITHUB_OUTPUT
-              echo "version=$fullVersion" >> $env:GITHUB_OUTPUT
-              Write-Host "✅ Extracted version: $fullVersion"
+              $v = $matches[1] -replace '[\'"]', ''
+              echo "version=$v" >> $env:GITHUB_OUTPUT
+              Write-Host "✅ Version: $v"
               exit 0
             }
           }
-          Write-Error "❌ No top-level 'version:' found in pubspec.yaml"
+          Write-Error "Version not found"
           exit 1
        # 使用 fastforge 打包 Windows exe
       - name: Package Windows exe
