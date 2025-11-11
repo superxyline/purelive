@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/event_bus.dart';
+import 'package:pure_live/common/widgets/count_button.dart';
 import 'package:pure_live/pkg/canvas_danmaku/danmaku_screen.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
@@ -388,8 +389,9 @@ class DanmakuViewer extends StatelessWidget {
         controller: controller.danmakuController,
         option: DanmakuOption(
           fontSize: controller.danmakuFontSize.value,
-          topArea: controller.danmakuTopArea.value,
-          bottomArea: controller.danmakuBottomArea.value,
+          topAreaDistance: controller.danmakuTopArea.value,
+          area: controller.danmakuArea.value,
+          bottomAreaDistance: controller.danmakuBottomArea.value,
           duration: controller.danmakuSpeed.value.toInt(),
           opacity: controller.danmakuOpacity.value,
           fontWeight: controller.danmakuFontBorder.value.toInt(),
@@ -937,15 +939,32 @@ class DanmakuSetting extends StatelessWidget {
               dense: true,
               contentPadding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
-              leading: Text('距离顶部', style: label),
+              leading: Text('显示区域', style: label),
               title: Slider(
                 divisions: 10,
                 min: 0.0,
-                max: 0.4,
-                value: controller.danmakuTopArea.value,
-                onChanged: (val) => controller.danmakuTopArea.value = val,
+                max: 1.0,
+                value: controller.danmakuArea.value,
+                onChanged: (val) => controller.danmakuArea.value = val,
               ),
-              trailing: Text('${(controller.danmakuTopArea.value * 100).toInt()}%', style: digit),
+              trailing: Text('${(controller.danmakuArea.value * 100).toInt()}%', style: digit),
+            ),
+          ),
+          SizedBox(
+            height: Platform.isWindows ? 50 : 35,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              leading: Text('距离顶部', style: label),
+              title: Obx(
+                () => CountButton(
+                  maxValue: 300,
+                  minValue: 0,
+                  selectedValue: controller.danmakuTopArea.value,
+                  onChanged: (val) => controller.danmakuTopArea.value = val,
+                ),
+              ),
             ),
           ),
           SizedBox(
@@ -955,14 +974,14 @@ class DanmakuSetting extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
               leading: Text('距离底部', style: label),
-              title: Slider(
-                divisions: 10,
-                min: 0.0,
-                max: 0.4,
-                value: controller.danmakuBottomArea.value,
-                onChanged: (val) => controller.danmakuBottomArea.value = val,
+              title: Obx(
+                () => CountButton(
+                  maxValue: 300,
+                  minValue: 0,
+                  selectedValue: controller.danmakuBottomArea.value,
+                  onChanged: (val) => controller.danmakuBottomArea.value = val,
+                ),
               ),
-              trailing: Text('${(controller.danmakuBottomArea.value * 100).toInt()}%', style: digit),
             ),
           ),
           SizedBox(

@@ -104,6 +104,10 @@ class SettingsService extends GetxController {
       PrefUtil.setBool('hideDanmaku', value);
     });
 
+    danmakuArea.listen((value) {
+      PrefUtil.setDouble('danmakuArea', value);
+    });
+
     danmakuTopArea.listen((value) {
       PrefUtil.setDouble('danmakuTopArea', value);
     });
@@ -258,7 +262,7 @@ class SettingsService extends GetxController {
 
   final autoShutDownTime = (PrefUtil.getInt('autoShutDownTime') ?? 120).obs;
 
-  final enableDenseFavorites = (PrefUtil.getBool('enableDenseFavorites') ?? false).obs;
+  final enableDenseFavorites = (PrefUtil.getBool('enableDenseFavorites') ?? true).obs;
 
   final enableBackgroundPlay = (PrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
 
@@ -270,6 +274,7 @@ class SettingsService extends GetxController {
   final videoFitIndex = (PrefUtil.getInt('videoFitIndex') ?? 0).obs;
   final hideDanmaku = (PrefUtil.getBool('hideDanmaku') ?? false).obs;
   final danmakuTopArea = (PrefUtil.getDouble('danmakuTopArea') ?? 0.0).obs;
+  final danmakuArea = (PrefUtil.getDouble('danmakuArea') ?? 1.0).obs;
   final danmakuBottomArea = (PrefUtil.getDouble('danmakuBottomArea') ?? 0.5).obs;
   final danmakuSpeed = (PrefUtil.getDouble('danmakuSpeed') ?? 8.0).obs;
   final danmakuFontSize = (PrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
@@ -657,6 +662,11 @@ class SettingsService extends GetxController {
               ? 0.4
               : double.parse(json['danmakuTopArea'].toString())
         : 0.0;
+    danmakuArea.value = json['danmakuArea'] != null
+        ? double.parse(json['danmakuArea'].toString()) > 1.0
+              ? 1.0
+              : double.parse(json['danmakuArea'].toString())
+        : 1.0;
     danmakuBottomArea.value = double.parse(json['danmakuBottomArea'].toString());
     danmakuSpeed.value = json['danmakuSpeed'] != null ? double.parse(json['danmakuSpeed'].toString()) : 8.0;
     danmakuFontSize.value = json['danmakuFontSize'] != null ? double.parse(json['danmakuFontSize'].toString()) : 16.0;
@@ -718,6 +728,7 @@ class SettingsService extends GetxController {
     json['videoFitIndex'] = videoFitIndex.value;
     json['hideDanmaku'] = hideDanmaku.value;
     json['danmakuTopArea'] = danmakuTopArea.value;
+    json['danmakuArea'] = danmakuArea.value;
     json['danmakuBottomArea'] = danmakuBottomArea.value;
     json['danmakuSpeed'] = danmakuSpeed.value;
     json['danmakuFontSize'] = danmakuFontSize.value;
@@ -762,6 +773,7 @@ class SettingsService extends GetxController {
       "preferPlatform": "bilibili",
       "hideDanmaku": false,
       "danmakuTopArea": 0.0,
+      "danmakuArea": 1.0,
       "danmakuBottomArea": 0.0,
       "danmakuSpeed": 8.0,
       "danmakuFontSize": 16.0,

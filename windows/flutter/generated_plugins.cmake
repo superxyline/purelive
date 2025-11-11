@@ -5,8 +5,10 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   battery_plus
+  bitsdojo_window_windows
   connectivity_plus
   dynamic_color
+  flutter_acrylic
   flutter_inappwebview_windows
   flutter_js
   flutter_volume_controller
@@ -15,10 +17,10 @@ list(APPEND FLUTTER_PLUGIN_LIST
   permission_handler_windows
   screen_brightness_windows
   screen_retriever_windows
+  tray_manager
   url_launcher_windows
   volume_controller
   window_manager
-  windows_single_instance
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

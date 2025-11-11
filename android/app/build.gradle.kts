@@ -29,19 +29,18 @@ val keystoreProperties = Properties().apply { // 同样添加了导入
 
 android {
     namespace = "com.mystyle.purelive"
-    compileSdk = 36
-    ndkVersion = "27.0.12077973"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
 
     defaultConfig {
-        namespace = "com.mystyle.purelive"
         applicationId = "com.mystyle.purelive"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion

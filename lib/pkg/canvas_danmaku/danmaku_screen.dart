@@ -516,11 +516,13 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
     _danmakuHeight = textPainter.height;
     return LayoutBuilder(
       builder: (context, constraints) {
-        _viewWidth = constraints.maxWidth;
+        if (constraints.maxWidth != _viewWidth) {
+          _viewWidth = constraints.maxWidth;
+        }
         final screenHeight = constraints.maxHeight;
-        final topOffset = screenHeight * _option.topArea;
-        final bottomOffset = screenHeight * _option.bottomArea;
-        double displayHeight = screenHeight - topOffset - bottomOffset;
+        final topOffset = _option.topAreaDistance;
+        final bottomOffset = _option.bottomAreaDistance;
+        double displayHeight = (screenHeight - topOffset - bottomOffset) * _option.area;
         _trackCount = (displayHeight / _danmakuHeight).floor();
         _trackCount.clamp(0, (displayHeight / _danmakuHeight).floor());
         _trackYPositions.clear();

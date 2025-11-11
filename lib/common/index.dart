@@ -10,7 +10,6 @@ export 'utils/string_to_boolean.dart';
 export 'widgets/index.dart';
 export 'package:flutter_color/flutter_color.dart';
 export 'package:flutter/material.dart';
-export 'package:windows_single_instance/windows_single_instance.dart';
 export 'package:pure_live/modules/popular/popular_controller.dart';
 export 'package:pure_live/modules/favorite/favorite_controller.dart';
 export 'package:permission_handler/permission_handler.dart';

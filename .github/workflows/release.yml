@@ -105,7 +105,7 @@ jobs:
       - name: 签出代码
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag_name }}
+          channel: stable
 
       # 设置Flutter环境
       - name: 设置Flutter环境
@@ -113,28 +113,80 @@ jobs:
         with:
           channel: stable
           cache: true
+
       - name: 启用Flutter桌面支持
         run: flutter config --enable-windows-desktop
+
       - name: 更新Flutter的packages
         run: flutter pub get
 
-      # 安装flutter_distributor
-      - name: 安装flutter_distributor
-        run: dart pub global activate flutter_distributor
+      # 安装 Inno Setup 6（fastforge 的依赖）
+      - name: Install Inno Setup 6
+        run: |
+          $url = "https://jrsoftware.org/download.php/is.exe"
+          $output = "${{ runner.temp }}\innosetup.exe"
+          
+          Write-Host "Downloading Inno Setup 6..."
+          Invoke-WebRequest -Uri $url -OutFile $output
+          
+          Write-Host "Installing Inno Setup 6..."
+          Start-Process -FilePath $output -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
+          
+          # 添加到PATH
+          $innoPath = "C:\Program Files (x86)\Inno Setup 6"
+          echo "$innoPath" >> $env:GITHUB_PATH
 
-      # 构建Windows ZIP\MSIX
-      - name: 构建Windows应用
-        run: flutter_distributor package --platform windows --targets msix,zip,exe --skip-clean
+      - name: Copy Chinese language pack
+        run: |
+          $sourceFile = "windows\packaging\exe\ChineseSimplified.isl"
+          $targetDir = "C:\Program Files (x86)\Inno Setup 6\Languages"
+          $targetFile = "$targetDir\ChineseSimplified.isl"
+          
+          if (Test-Path $sourceFile) {
+            Copy-Item $sourceFile $targetFile -Force
+            Write-Host "Chinese language pack copied successfully"
+          } else {
+            Write-Host "Chinese language pack not found in project"
+          }
+       # 安装 fastforge
+      - name: Install fastforge
+        run: dart pub global activate fastforge
+
+       # 获取 Flutter 版本号
+      - name: Get Flutter version
+        id: get_version
+        run: |
+          $VERSION = (Get-Content pubspec.yaml | Select-String "version:" | ForEach-Object { $_ -replace "version:\s*", "" } | ForEach-Object { $_ -replace "\+.*", "" })
+          echo "Version: $VERSION"
+          echo "version=$VERSION" >> $env:GITHUB_OUTPUT
+       # 使用 fastforge 打包 Windows exe
+      - name: Package Windows exe
+        run: fastforge package --platform windows --targets exe
+      
+        # 重命名生成的安装程序
+      - name: Rename Windows installer
+        run: |
+          $VERSION = "${{ steps.get_version.outputs.version }}"
+          
+          # fastforge 生成的文件通常在 dist 目录中
+          $DIST_DIR = "dist\$VERSION"
+          $INSTALLER_NAME = "PureLive-$VERSION-windows-x64-setup.exe"
+          
+          # 查找生成的 exe 文件
+          Get-ChildItem "$DIST_DIR" -Filter "*.exe" | ForEach-Object {
+            $SRC = $_.FullName
+            Write-Host "Found installer: $SRC"
+            Copy-Item $SRC $INSTALLER_NAME -Force
+            Write-Host "Renamed to: $INSTALLER_NAME"
+          }
 
       # 上传Windows应用至Artifacts
       - name: 上传Windows应用至Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows
-          path: |
-            build/dist/*/*.msix
-            build/dist/*/*.zip
-            build/dist/*/*.exe
+          name: windows-installer
+          path: PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
+          retention-days: 1
 
       # 读取版本信息
       - name: 读取版本信息
@@ -152,9 +204,7 @@ jobs:
           prerelease: false
           token: ${{ secrets.TOKEN }}
           files: |
-            build/dist/*/*.msix
-            build/dist/*/*.zip
-            build/dist/*/*.exe
+            windows-installer/*.exe
 
       # 完成
       - name: 输出任务状态

@@ -6,9 +6,11 @@ class DanmakuOption {
   final int fontWeight;
 
   /// 显示区域，0.1-1.0
-  final double topArea;
+  final double area;
 
-  final double bottomArea;
+  final double topAreaDistance;
+
+  final double bottomAreaDistance;
 
   /// 滚动弹幕运行时间，秒
   final int duration;
@@ -39,8 +41,9 @@ class DanmakuOption {
   DanmakuOption({
     this.fontSize = 16,
     this.fontWeight = 4,
-    this.topArea = 0.0,
-    this.bottomArea = 0.0,
+    this.area = 1.0,
+    this.topAreaDistance = 0.0,
+    this.bottomAreaDistance = 0.0,
     this.duration = 10,
     this.opacity = 1.0,
     this.hideBottom = false,
@@ -53,10 +56,11 @@ class DanmakuOption {
   });
 
   DanmakuOption copyWith({
+    double? area,
     double? fontSize,
     int? fontWeight,
-    double? topArea,
-    double? bottomArea,
+    double? topAreaDistance,
+    double? bottomAreaDistance,
     int? duration,
     double? opacity,
     bool? hideTop,
@@ -67,8 +71,9 @@ class DanmakuOption {
     bool? safeArea,
   }) {
     return DanmakuOption(
-      topArea: topArea ?? this.topArea,
-      bottomArea: bottomArea ?? this.bottomArea,
+      area: area ?? this.area,
+      topAreaDistance: topAreaDistance ?? this.topAreaDistance,
+      bottomAreaDistance: bottomAreaDistance ?? this.bottomAreaDistance,
       fontSize: fontSize ?? this.fontSize,
       fontWeight: fontWeight ?? this.fontWeight,
       duration: duration ?? this.duration,

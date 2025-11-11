@@ -131,6 +131,7 @@ class VideoController with ChangeNotifier {
   }
 
   final hideDanmaku = false.obs;
+  final danmakuArea = 1.0.obs;
   final danmakuTopArea = 0.0.obs;
   final danmakuBottomArea = 0.0.obs;
   final danmakuSpeed = 8.0.obs;
@@ -446,8 +447,9 @@ class VideoController with ChangeNotifier {
     danmakuController.updateOption(
       DanmakuOption(
         fontSize: danmakuFontSize.value,
-        topArea: danmakuTopArea.value,
-        bottomArea: danmakuBottomArea.value,
+        area: danmakuArea.value,
+        topAreaDistance: danmakuTopArea.value,
+        bottomAreaDistance: danmakuBottomArea.value,
         duration: danmakuSpeed.value.toInt(),
         opacity: danmakuOpacity.value,
         fontWeight: danmakuFontBorder.value.toInt(),

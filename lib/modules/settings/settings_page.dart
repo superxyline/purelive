@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:pure_live/modules/settings/danmuset.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/settings/settings_card.dart';
 import 'package:pure_live/modules/settings/settings_menu.dart';
@@ -208,7 +207,6 @@ class SettingsPage extends GetView<SettingsService> {
             trailing: Obx(() => Text('${controller.autoRefreshTime}分钟')),
             onTap: showAutoRefreshTimeSetDialog,
           ),
-          ListTile(title: Text(S.of(context).settings_danmaku_title), onTap: showDanmuSetDialog),
           ListTile(
             title: const Text("弹幕过滤"),
             subtitle: const Text("自定义关键词过滤弹幕"),
@@ -545,27 +543,6 @@ class SettingsPage extends GetView<SettingsService> {
                 ' ${controller.autoRefreshTime}分钟',
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void showDanmuSetDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(S.of(context).settings_danmaku_title),
-        content: SizedBox(
-          width: Platform.isAndroid ? MediaQuery.of(context).size.width : MediaQuery.of(context).size.width * 0.6,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DanmakuSetting(controller: controller),
-                const SizedBox(height: 20),
-              ],
-            ),
           ),
         ),
       ),
