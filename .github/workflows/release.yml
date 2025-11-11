@@ -151,14 +151,26 @@ jobs:
        # 安装 fastforge
       - name: Install fastforge
         run: dart pub global activate fastforge
-
        # 获取 Flutter 版本号
-      - name: Get Flutter version
+      - name: Get Flutter app version from pubspec.yaml
         id: get_version
+        shell: pwsh
         run: |
-          $VERSION = (Get-Content pubspec.yaml | Select-String "version:" | ForEach-Object { $_ -replace "version:\s*", "" } | ForEach-Object { $_ -replace "\+.*", "" })
-          echo "Version: $VERSION"
-          echo "version=$VERSION" >> $env:GITHUB_OUTPUT
+          $lines = Get-Content pubspec.yaml
+          foreach ($line in $lines) {
+            # 只匹配以 "version:" 开头（允许前导空格最多0个，即顶层字段）
+            if ($line -match '^\s*version:\s*(\S+)') {
+              $fullVersion = $matches[1] -replace '[\'"]', ''  # 去掉引号
+              # 可选：只取主版本（不含 build number）
+              # $mainVersion = $fullVersion -replace '\+.*', ''
+              # echo "version=$mainVersion" >> $env:GITHUB_OUTPUT
+              echo "version=$fullVersion" >> $env:GITHUB_OUTPUT
+              Write-Host "✅ Extracted version: $fullVersion"
+              exit 0
+            }
+          }
+          Write-Error "❌ No top-level 'version:' found in pubspec.yaml"
+          exit 1
        # 使用 fastforge 打包 Windows exe
       - name: Package Windows exe
         run: fastforge package --platform windows --targets exe
