@@ -1,7 +1,7 @@
 {
   "version": "2.0.0",
   "version_num": 10200,
-  "version_desc": "-Fixed: 修复弹幕显示问题.\n -Fixed: 优化部分UI",
+  "version_desc": "-Fixed: 修复弹幕显示问题.\n -Fixed: 优化部分UI.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
