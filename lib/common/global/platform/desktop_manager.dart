@@ -88,7 +88,7 @@ class DesktopManager {
     if (!PlatformUtils.isDesktop) return;
 
     try {
-      await trayManager.setIcon('assets/icons/icon.ico');
+      await trayManager.setIcon('assets/icons/app_icon.ico');
     } catch (e) {
       debugPrint('系统托盘初始化失败: $e');
     }

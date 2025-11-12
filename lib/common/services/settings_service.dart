@@ -38,6 +38,9 @@ class SettingsService extends GetxController {
     enableBackgroundPlay.listen((value) {
       PrefUtil.setBool('enableBackgroundPlay', value);
     });
+    enableStartUp.listen((value) {
+      PrefUtil.setBool('enableStartUp', value);
+    });
     enableRotateScreenWithSystem.listen((value) {
       PrefUtil.setBool('enableRotateScreenWithSystem', value);
     });
@@ -265,6 +268,8 @@ class SettingsService extends GetxController {
   final enableDenseFavorites = (PrefUtil.getBool('enableDenseFavorites') ?? true).obs;
 
   final enableBackgroundPlay = (PrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
+
+  final enableStartUp = (PrefUtil.getBool('enableStartUp') ?? true).obs;
 
   final enableRotateScreenWithSystem = (PrefUtil.getBool('enableRotateScreenWithSystem') ?? false).obs;
 
@@ -648,6 +653,7 @@ class SettingsService extends GetxController {
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
     enableDenseFavorites.value = json['enableDenseFavorites'] ?? false;
     enableBackgroundPlay.value = json['enableBackgroundPlay'] ?? false;
+    enableStartUp.value = json['enableStartUp'] ?? true;
     enableRotateScreenWithSystem.value = json['enableRotateScreenWithSystem'] ?? false;
     enableScreenKeepOn.value = json['enableScreenKeepOn'] ?? true;
     enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
@@ -717,6 +723,7 @@ class SettingsService extends GetxController {
     json['enableDynamicTheme'] = enableDynamicTheme.value;
     json['enableDenseFavorites'] = enableDenseFavorites.value;
     json['enableBackgroundPlay'] = enableBackgroundPlay.value;
+    json['enableStartUp'] = enableStartUp.value;
     json['enableRotateScreenWithSystem'] = enableRotateScreenWithSystem.value;
     json['enableScreenKeepOn'] = enableScreenKeepOn.value;
     json['enableAutoCheckUpdate'] = enableAutoCheckUpdate.value;
@@ -765,6 +772,7 @@ class SettingsService extends GetxController {
       "enableAutoShutDownTime": false,
       "enableDenseFavorites": false,
       "enableBackgroundPlay": false,
+      "enableStartUp": true,
       "enableRotateScreenWithSystem": false,
       "enableScreenKeepOn": true,
       "enableAutoCheckUpdate": false,

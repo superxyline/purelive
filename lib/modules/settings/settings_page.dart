@@ -22,6 +22,16 @@ class SettingsPage extends GetView<SettingsService> {
         physics: const BouncingScrollPhysics(),
         children: <Widget>[
           SectionTitle(title: S.of(context).general),
+          if (Platform.isWindows)
+            Obx(
+              () => SwitchListTile(
+                title: Text('开机启动'),
+                subtitle: Text('应用将在每次开机时自动启动'),
+                value: controller.enableStartUp.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.enableStartUp.value = value,
+              ),
+            ),
           ListTile(
             leading: const Icon(Icons.dark_mode_rounded, size: 32),
             title: Text(S.of(context).change_theme_mode),
