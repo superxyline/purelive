@@ -49,26 +49,28 @@ class AppInitializer {
     initRefresh();
     initService();
 
-    bool isInstanceInstalled = await FlutterSingleInstance().isFirstInstance();
-    if (isInstanceInstalled) {
-      await FlutterSingleInstance().focus();
-    }
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    launchAtStartup.setup(
-      appName: packageInfo.appName,
-      appPath: Platform.resolvedExecutable,
-      // 设置 packageName 参数以支持 MSIX。
-      packageName: 'dev.leanflutter.puretech.pure_live',
-    );
-    var settings = Get.find<SettingsService>();
-    if (settings.enableStartUp.value) {
-      await launchAtStartup.isEnabled().then((value) {
-        if (value) {
-          launchAtStartup.enable();
-        } else {
-          launchAtStartup.disable();
-        }
-      });
+    if (PlatformUtils.isDesktop) {
+      bool isInstanceInstalled = await FlutterSingleInstance().isFirstInstance();
+      if (isInstanceInstalled) {
+        await FlutterSingleInstance().focus();
+      }
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      launchAtStartup.setup(
+        appName: packageInfo.appName,
+        appPath: Platform.resolvedExecutable,
+        // 设置 packageName 参数以支持 MSIX。
+        packageName: 'dev.leanflutter.puretech.pure_live',
+      );
+      var settings = Get.find<SettingsService>();
+      if (settings.enableStartUp.value) {
+        await launchAtStartup.isEnabled().then((value) {
+          if (value) {
+            launchAtStartup.enable();
+          } else {
+            launchAtStartup.disable();
+          }
+        });
+      }
     }
     // 标记为已初始化
     _isInitialized = true;
