@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
@@ -40,6 +41,11 @@ class SettingsService extends GetxController {
     });
     enableStartUp.listen((value) {
       PrefUtil.setBool('enableStartUp', value);
+      if (value) {
+        launchAtStartup.enable();
+      } else {
+        launchAtStartup.disable();
+      }
     });
     enableRotateScreenWithSystem.listen((value) {
       PrefUtil.setBool('enableRotateScreenWithSystem', value);
@@ -706,7 +712,11 @@ class SettingsService extends GetxController {
     changePreferPlatform(preferPlatform.value);
     changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     changeAutoRefreshConfig(autoRefreshTime.value);
-    log(json['videoOutputDriver']);
+    if (enableStartUp.value) {
+      launchAtStartup.enable();
+    } else {
+      launchAtStartup.disable();
+    }
   }
 
   Map<String, dynamic> toJson() {
