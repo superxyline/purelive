@@ -60,6 +60,16 @@ class AppInitializer {
       // 设置 packageName 参数以支持 MSIX。
       packageName: 'dev.leanflutter.puretech.pure_live',
     );
+    var settings = Get.find<SettingsService>();
+    if (settings.enableStartUp.value) {
+      await launchAtStartup.isEnabled().then((value) {
+        if (value) {
+          launchAtStartup.enable();
+        } else {
+          launchAtStartup.disable();
+        }
+      });
+    }
     // 标记为已初始化
     _isInitialized = true;
   }
