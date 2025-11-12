@@ -27,7 +27,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with DesktopWindowMixin {
   final settings = Get.find<SettingsService>();
-  bool isFullscreen = false;
 
   StreamSubscription<dynamic>? subscription;
   @override
@@ -35,13 +34,6 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
     super.initState();
     if (PlatformUtils.isDesktop) {
       DesktopManager.initializeListeners(this);
-      subscription = EventBus.instance.listen('isFullscreen', (data) {
-        Future.delayed(Duration(milliseconds: 100), () {
-          setState(() {
-            isFullscreen = data;
-          });
-        });
-      });
     }
     initShareM3uState();
   }

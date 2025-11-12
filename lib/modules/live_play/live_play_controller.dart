@@ -484,7 +484,6 @@ class LivePlayController extends StateController {
 
     videoController?.isFullscreen.listen((value) {
       isFullScreen.value = value;
-      EventBus.instance.emit('isFullscreen', value);
     });
   }
 
