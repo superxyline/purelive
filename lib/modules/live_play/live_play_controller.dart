@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/core/site/huya_site.dart';
 import 'widgets/video_player/video_controller.dart';
 import 'package:pure_live/plugins/emoji_manager.dart';
@@ -20,7 +21,6 @@ class LivePlayController extends StateController {
   final String site;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
   late final Site currentSite = Sites.of(site);
-
   late final LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
 
   final settings = Get.find<SettingsService>();
@@ -484,6 +484,7 @@ class LivePlayController extends StateController {
 
     videoController?.isFullscreen.listen((value) {
       isFullScreen.value = value;
+      EventBus.instance.emit('isFullscreen', value);
     });
   }
 

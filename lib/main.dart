@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/global/initialized.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
@@ -26,11 +27,21 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with DesktopWindowMixin {
   final settings = Get.find<SettingsService>();
+  bool isFullscreen = false;
+
+  StreamSubscription<dynamic>? subscription;
   @override
   void initState() {
     super.initState();
     if (PlatformUtils.isDesktop) {
       DesktopManager.initializeListeners(this);
+      subscription = EventBus.instance.listen('isFullscreen', (data) {
+        Future.delayed(Duration(milliseconds: 100), () {
+          setState(() {
+            isFullscreen = data;
+          });
+        });
+      });
     }
     initShareM3uState();
   }
@@ -39,6 +50,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
   void dispose() {
     if (PlatformUtils.isDesktop) {
       DesktopManager.disposeListeners();
+      subscription?.cancel();
     }
     super.dispose();
   }
@@ -87,14 +99,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
               darkTheme: darkTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
               locale: SettingsService.languages[settings.languageName.value]!,
               navigatorObservers: [FlutterSmartDialog.observer, BackButtonObserver()],
-              builder: FlutterSmartDialog.init(
-                builder: (context, child) {
-                  if (PlatformUtils.isDesktopNotMac) {
-                    return DesktopManager.buildWithTitleBar(child);
-                  }
-                  return child ?? const SizedBox.shrink();
-                },
-              ),
+              builder: FlutterSmartDialog.init(),
               supportedLocales: S.delegate.supportedLocales,
               localizationsDelegates: const [
                 S.delegate,

@@ -10,7 +10,7 @@ class CountButton extends StatefulWidget {
     this.step = 1.0,
     this.backgroundColor,
     this.foregroundColor,
-    this.buttonSize = const Size(20, 30),
+    this.buttonSize = const Size(35, 35),
     this.incrementIcon,
     this.decrementIcon,
     this.borderRadius = 12.0,
@@ -63,7 +63,7 @@ class _CountButtonState extends State<CountButton> {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Container(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(1.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,

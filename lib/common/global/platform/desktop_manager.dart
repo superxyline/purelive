@@ -1,12 +1,9 @@
 import 'dart:io';
 import 'dart:ui';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
-import 'package:pure_live/common/global/theme_utils.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 
 class DesktopManager {
@@ -21,11 +18,8 @@ class DesktopManager {
 
       const WindowOptions windowOptions = WindowOptions(
         size: Size(1080, 720),
-        minimumSize: Size(360, 720),
+        minimumSize: Size(400, 400),
         center: true,
-        backgroundColor: Colors.transparent,
-        skipTaskbar: false,
-        titleBarStyle: TitleBarStyle.hidden,
       );
 
       await windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -34,7 +28,6 @@ class DesktopManager {
         await windowManager.show();
         await windowManager.focus();
         await windowManager.setTitle('纯粹直播');
-        await windowManager.setBackgroundColor(Colors.transparent);
         if (Platform.isMacOS) {
           await Window.setEffect(
             effect: WindowEffect.hudWindow,
@@ -55,19 +48,12 @@ class DesktopManager {
 
     try {
       if (PlatformUtils.isWindows) {
-        doWhenWindowReady(() {
-          final win = appWindow;
-          win.minSize = const Size(1080, 720);
-          win.size = const Size(1080, 720);
-          win.alignment = Alignment.center;
-          win.show();
-          if (Platform.isWindows) {
-            Window.setEffect(
-              effect: WindowEffect.mica,
-              dark: PlatformDispatcher.instance.platformBrightness == Brightness.dark,
-            );
-          }
-        });
+        if (Platform.isWindows) {
+          Window.setEffect(
+            effect: WindowEffect.mica,
+            dark: PlatformDispatcher.instance.platformBrightness == Brightness.dark,
+          );
+        }
       }
     } catch (e) {
       debugPrint('桌面端后初始化失败: $e');
@@ -96,26 +82,6 @@ class DesktopManager {
       trayManager.removeListener(_currentState as TrayListener);
     }
     _currentState = null;
-  }
-
-  static Widget buildWithTitleBar(Widget? child) {
-    if (!PlatformUtils.isWindows) {
-      return child ?? const SizedBox.shrink();
-    }
-    return Stack(
-      children: [
-        if (child != null)
-          Positioned.fill(
-            child: Column(
-              children: [
-                SizedBox(height: 30),
-                Expanded(child: child),
-              ],
-            ),
-          ),
-        const Positioned(top: 0, left: 0, right: 0, height: 30, child: CustomTitleBar()),
-      ],
-    );
   }
 
   static Future<void> _initTray() async {
@@ -222,57 +188,6 @@ class DesktopManager {
     } catch (e) {
       debugPrint('显示窗口失败: $e');
     }
-  }
-}
-
-class CustomTitleBar extends StatelessWidget {
-  const CustomTitleBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final buttonColors = WindowButtonColors(
-      iconNormal: Get.theme.colorScheme.primary,
-      mouseOver: ThemeUtils.select(context, light: Colors.grey.shade300, dark: Colors.grey.shade700),
-      mouseDown: ThemeUtils.select(context, light: Colors.grey.shade400, dark: Colors.grey.shade800),
-      iconMouseOver: ThemeUtils.select(context, light: Colors.black, dark: Colors.white),
-      iconMouseDown: ThemeUtils.select(context, light: Colors.black, dark: Colors.white),
-    );
-
-    final closeButtonColors = WindowButtonColors(
-      iconNormal: ThemeUtils.select(context, light: Colors.black54, dark: Colors.white70),
-      mouseOver: Colors.red.shade700,
-      mouseDown: Colors.red.shade900,
-      iconMouseOver: Colors.white,
-      iconMouseDown: Colors.white,
-    );
-
-    return Container(
-      color: Get.theme.colorScheme.surface,
-      child: WindowTitleBarBox(
-        child: Row(
-          children: [
-            Expanded(child: MoveWindow()),
-            Row(
-              children: [
-                MinimizeWindowButton(colors: buttonColors, onPressed: () => windowManager.minimize()),
-                MaximizeWindowButton(
-                  colors: buttonColors,
-                  onPressed: () async {
-                    bool maximized = await windowManager.isMaximized();
-                    if (maximized) {
-                      windowManager.restore();
-                    } else {
-                      windowManager.maximize();
-                    }
-                  },
-                ),
-                CloseWindowButton(colors: closeButtonColors, onPressed: () => windowManager.close()),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 

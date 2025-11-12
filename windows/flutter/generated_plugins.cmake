@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   battery_plus
-  bitsdojo_window_windows
   connectivity_plus
   dynamic_color
   flutter_acrylic
