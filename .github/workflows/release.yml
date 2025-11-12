@@ -212,7 +212,7 @@ jobs:
           prerelease: false
           token: ${{ secrets.TOKEN }}
           files: |
-            windows-installer/*.exe
+            PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
 
       # 完成
       - name: 输出任务状态
