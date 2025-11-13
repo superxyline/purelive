@@ -93,12 +93,6 @@ class RoomCard extends StatelessWidget {
                       dense: dense,
                     ),
                   ),
-                if (room.isRecord == false && room.liveStatus == LiveStatus.live)
-                  Positioned(
-                    left: dense ? 10 : 12,
-                    bottom: dense ? 10 : 12,
-                    child: Image.asset('assets/images/live.gif', color: Colors.white, height: 12),
-                  ),
               ],
             ),
             ListTile(
