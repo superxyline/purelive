@@ -405,6 +405,12 @@ class VideoController with ChangeNotifier {
       PrefUtil.setBool('hideDanmaku', data);
       settings.hideDanmaku.value = data;
     });
+    danmakuArea.value = PrefUtil.getDouble('danmakuArea') ?? 0.0;
+    danmakuArea.listen((data) {
+      PrefUtil.setDouble('danmakuArea', data);
+      settings.danmakuArea.value = data;
+      updateDanmaku();
+    });
     danmakuTopArea.value = PrefUtil.getDouble('danmakuTopArea') ?? 0.0;
     danmakuTopArea.listen((data) {
       PrefUtil.setDouble('danmakuTopArea', data);
@@ -549,7 +555,7 @@ class VideoController with ChangeNotifier {
         }
       }
 
-      final result = await mobileController?.setupDataSource(
+      await mobileController?.setupDataSource(
         BetterPlayerDataSource(
           BetterPlayerDataSourceType.network,
           url,
@@ -571,7 +577,6 @@ class VideoController with ChangeNotifier {
           ),
         ),
       );
-      log(result.toString(), name: 'video_player');
     }
     notifyListeners();
   }
