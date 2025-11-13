@@ -15,7 +15,7 @@ dependencies:
   #hashlib
   hashlib: ^2.0.0
   # network
-  flutter_js: ^0.8.2
+  flutter_js: ^0.8.5
   flutter_svg: ^2.2.1
   html: ^0.15.4
   http: ^1.1.0
@@ -31,19 +31,18 @@ dependencies:
   flutter_smart_dialog: ^4.9.5 
   # barrage wall
   quiver: ^3.2.1
-  flex_color_picker: ^3.7.1
-  flutter_exit_app: ^1.1.2
-  visibility_detector: ^0.4.0+2
+  flex_color_picker: ^3.7.2
+  flutter_exit_app: ^2.0.0
   floating: ^6.0.0
   # database
-  supabase_flutter: ^2.10.0
+  supabase_flutter: ^2.10.3
   email_validator: ^3.0.0
   font_awesome_flutter: ^10.6.0
   # video player mobile
   media_kit: ^1.2.1
   media_kit_video: ^1.3.1
   media_kit_libs_video: ^1.0.7
-  share_handler: ^0.0.19
+  share_handler: ^0.0.25
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
   screen_brightness: ^2.1.2
@@ -59,28 +58,28 @@ dependencies:
   flutter_acrylic: ^1.1.4
   protobuf: ^4.1.0
   fixnum: ^1.1.0
-  dio: ^5.3.3
-  dio_cookie_manager: ^3.1.1
+  dio: ^5.9.0
+  dio_cookie_manager: ^3.3.0
   cookie_jar: ^4.0.8
   # system hardware utils
-  wakelock_plus: ^1.1.3
-  battery_plus: ^6.0.1
-  stop_watch_timer: ^3.0.2
+  wakelock_plus: ^1.4.0
+  battery_plus: ^7.0.0
+  stop_watch_timer: ^3.2.2
   # storage
-  file_picker: ^10.2.0
-  permission_handler: ^12.0.0+1
-  shared_preferences: ^2.2.2
+  file_picker: ^10.3.6
+  permission_handler: ^12.0.1
+  shared_preferences: ^2.5.3
   flutter_cache_manager: ^3.4.1
   # utils
   get: ^5.0.0-release-candidate-9.3.2
   intl: ^0.20.2
-  timezone: ^0.10.0
-  date_format: ^2.0.7
-  path: ^1.8.5
-  file: ^7.0.0
-  path_provider: ^2.1.1
-  logger: ^2.0.2+1
-  crypto: ^3.0.3
+  timezone: ^0.10.1
+  date_format: ^2.0.9
+  path: ^1.9.1
+  file: ^7.0.1
+  path_provider: ^2.1.5
+  logger: ^2.6.2
+  crypto: ^3.0.7
   brotli: ^0.6.0
   dlna_dart: ^0.1.0
   dart_tars_protocol:
@@ -90,17 +89,16 @@ dependencies:
       url:  https://github.com/xiaoyaocz/dart_simple_live.git
       path: ./simple_live_core/packages/tars_dart
   html_unescape: ^2.0.0
-  flutter_inappwebview: ^6.0.0-beta.25
-  connectivity_plus: ^6.0.3 
+  flutter_inappwebview: ^6.2.0-beta.2 
+  connectivity_plus: ^7.0.0 
   qr_flutter: ^4.1.0 
   remixicon: ^1.2.0
-  mobile_scanner: ^7.0.1 #二维码扫描
-  webdav_client: ^1.2.2
+  mobile_scanner: ^7.1.3 #二维码扫描
+  webdav_client_plus: ^1.0.2
   mime: ^2.0.0
   awesome_video_player: ^1.0.5
-  device_info_plus: ^11.5.0
+  device_info_plus: ^12.2.0
   auto_orientation_v2: ^2.3.6
-  very_good_infinite_list: ^0.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -109,7 +107,7 @@ dev_dependencies:
   build_runner: ^2.3.3
   protoc_builder: ^0.4.1
   flutter_launcher_icons: ^0.14.4
-  msix: ^3.16.7
+  msix: ^3.16.12
   intl_utils: ^2.8.11
   flutter_lints: ^6.0.0
 

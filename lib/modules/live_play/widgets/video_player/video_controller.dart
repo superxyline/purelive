@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:async';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/services.dart';

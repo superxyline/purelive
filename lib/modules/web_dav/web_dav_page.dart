@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:mime/mime.dart';
 import 'package:flutter/material.dart';
 import 'package:pure_live/common/widgets/menu_button.dart';
-import 'package:webdav_client/webdav_client.dart' as webdav;
+import 'package:webdav_client_plus/webdav_client_plus.dart';
 import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/modules/web_dav/web_dav_controller.dart';
 
@@ -325,27 +325,27 @@ class WebDavPage extends GetView<WebDavController> {
     });
   }
 
-  Widget _buildFileItem(webdav.File file, int index) {
+  Widget _buildFileItem(WebdavFile file, int index) {
     return ListTile(
       hoverColor: Theme.of(Get.context!).colorScheme.primaryContainer,
       leading: Icon(
-        file.isDir ?? false
+        file.isDir
             ? Icons.folder_outlined
-            : lookupMimeType(file.name ?? '')?.startsWith('image/') ?? false
+            : lookupMimeType(file.name)?.startsWith('image/') ?? false
             ? Icons.image_outlined
-            : lookupMimeType(file.name ?? '')?.startsWith('video/') ?? false
+            : lookupMimeType(file.name)?.startsWith('video/') ?? false
             ? Icons.video_library_outlined
-            : lookupMimeType(file.name ?? '')?.startsWith('audio/') ?? false
+            : lookupMimeType(file.name)?.startsWith('audio/') ?? false
             ? Icons.audio_file_outlined
-            : lookupMimeType(file.name ?? '')?.startsWith('text/') ?? false
+            : lookupMimeType(file.name)?.startsWith('text/') ?? false
             ? Icons.text_snippet_outlined
             : Icons.insert_drive_file_outlined,
         color: Theme.of(Get.context!).colorScheme.primary,
         size: 28,
       ),
-      title: Text(file.name ?? '未命名文件', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+      title: Text(file.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
       subtitle: Text(
-        file.mTime?.toString() ?? '未知时间',
+        file.created?.toString() ?? '未知时间',
         style: TextStyle(color: Theme.of(Get.context!).colorScheme.onSurfaceVariant),
       ),
       trailing: PopupMenuButton<String>(

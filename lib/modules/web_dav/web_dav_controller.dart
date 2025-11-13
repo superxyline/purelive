@@ -3,14 +3,14 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:date_format/date_format.dart';
 import 'package:pure_live/plugins/utils.dart';
-import 'package:webdav_client/webdav_client.dart' as webdav;
+import 'package:webdav_client_plus/webdav_client_plus.dart';
 import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/modules/web_dav/webdav_service.dart';
 
 class WebDavController extends GetxController {
   final RxList<WebDAVConfig> configs = <WebDAVConfig>[].obs;
   final Rx<WebDAVConfig?> currentConfig = Rx<WebDAVConfig?>(null);
-  final RxList<webdav.File> files = <webdav.File>[].obs;
+  final RxList<WebdavFile> files = <WebdavFile>[].obs;
   final RxBool isLoading = true.obs;
   final RxString errorMessage = ''.obs;
   final RxString dirPath = '/'.obs;
@@ -135,9 +135,9 @@ class WebDavController extends GetxController {
     Navigator.pop(Get.context!);
   }
 
-  void onFileTap(webdav.File file) {
-    if (file.isDir ?? false) {
-      final newPath = buildPath(file.name!);
+  void onFileTap(WebdavFile file) {
+    if (file.isDir) {
+      final newPath = buildPath(file.name);
       dirPath.value = newPath;
       isFromBreadcrumb.value = false;
       updateBreadcrumbParts();
@@ -181,11 +181,11 @@ class WebDavController extends GetxController {
     }
   }
 
-  void deleteFile(webdav.File file) async {
+  void deleteFile(WebdavFile file) async {
     var result = await Utils.showAlertDialog("确定要删除吗？", title: "删除");
     if (result) {
       try {
-        _webdavService.client.remove(file.path!);
+        _webdavService.client.remove(file.path);
         loadFiles();
         SnackBarUtil.success('文件删除成功');
       } catch (e) {
@@ -194,9 +194,9 @@ class WebDavController extends GetxController {
     }
   }
 
-  void downloadFile(webdav.File file) async {
+  void downloadFile(WebdavFile file) async {
     try {
-      final bytes = await _webdavService.client.read(file.path!);
+      final bytes = await _webdavService.client.read(file.path);
       _settingsService.fromJson(jsonDecode(utf8.decode(bytes)));
       SnackBarUtil.success('同步成功');
     } catch (e) {
