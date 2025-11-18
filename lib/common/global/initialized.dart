@@ -5,8 +5,8 @@ import 'package:pure_live/plugins/global.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
-import 'package:flutter_single_instance/flutter_single_instance.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
+import 'package:windows_single_instance/windows_single_instance.dart';
 import 'package:pure_live/common/global/platform/desktop_manager.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
@@ -26,7 +26,7 @@ class AppInitializer {
   AppInitializer._internal();
 
   // 初始化方法
-  Future<void> initialize() async {
+  Future<void> initialize(List<String> args) async {
     if (_isInitialized) {
       // 已经初始化过，直接返回
       return;
@@ -50,10 +50,8 @@ class AppInitializer {
     initService();
 
     if (PlatformUtils.isDesktop) {
-      bool isInstanceInstalled = await FlutterSingleInstance().isFirstInstance();
-      if (isInstanceInstalled) {
-        await FlutterSingleInstance().focus();
-      }
+      await WindowsSingleInstance.ensureSingleInstance(args, 'dev.leanflutter.puretech.pure_live');
+
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       launchAtStartup.setup(
         appName: packageInfo.appName,

@@ -13,7 +13,7 @@ const kWindowsScheme = 'purelive://signin';
 
 void main(List<String> args) async {
   // 初始化
-  await AppInitializer().initialize();
+  await AppInitializer().initialize(args);
   runApp(const MyApp());
 }
 
