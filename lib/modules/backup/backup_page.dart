@@ -87,11 +87,27 @@ class _BackupPageState extends State<BackupPage> {
               onChanged: (String? value) {
                 importFile(value!);
               },
-              child: Column(
-                children: <Widget>[
-                  Radio<String>(value: '本地导入'),
-                  Radio<String>(value: '网络导入'),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.only(top: 0, bottom: 10, left: 16, right: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: ['本地导入', '网络导入'].map<Widget>((name) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Radio<String>(value: name, activeColor: Theme.of(context).colorScheme.primary),
+                        GestureDetector(
+                          onTap: () {
+                            importFile(name);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ],
