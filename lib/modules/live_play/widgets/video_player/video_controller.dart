@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
@@ -129,6 +128,7 @@ class VideoController with ChangeNotifier {
   final danmakuFontSize = 16.0.obs;
   final danmakuFontBorder = 4.0.obs;
   final danmakuOpacity = 1.0.obs;
+  Timer? hasErrorTimer;
   VideoController({
     required this.room,
     required this.datasourceType,
@@ -170,6 +170,16 @@ class VideoController with ChangeNotifier {
     initVideoController();
     initDanmaku();
     initBattery();
+    hasError.listen((p0) {
+      if (hasError.value && !livePlayController.isLastLine.value) {
+        hasErrorTimer?.cancel();
+        hasErrorTimer = Timer(const Duration(milliseconds: 2000), () {
+          SmartDialog.showToast("当前视频播放出错,正在为您切换路线");
+          changeLine();
+          hasErrorTimer?.cancel();
+        });
+      }
+    });
   }
 
   // Battery level control
@@ -429,12 +439,6 @@ class VideoController with ChangeNotifier {
       ijkPlayer.addListener(_playerListener);
     }
     notifyListeners();
-    debounce(hasError, (callback) {
-      if (hasError.value && !livePlayController.isLastLine.value) {
-        SmartDialog.showToast("视频播放失败,正在为您切换线路");
-        changeLine();
-      }
-    }, time: const Duration(seconds: 2));
   }
 
   void _playerListener() {
@@ -653,27 +657,6 @@ class _IjkPlayerFullscreenState extends State<IjkPlayerFullscreen> {
     doEnterFullScreen();
   }
 
-  Widget _buildIjkPanel(
-    FijkPlayer fijkPlayer,
-    FijkData fijkData,
-    BuildContext context,
-    Size viewSize,
-    Rect texturePos,
-  ) {
-    Rect rect = widget.controller.ijkPlayer.value.fullScreen
-        ? Rect.fromLTWH(0, 0, viewSize.width, viewSize.height)
-        : Rect.fromLTRB(
-            max(0.0, texturePos.left),
-            max(0.0, texturePos.top),
-            min(viewSize.width, texturePos.right),
-            min(viewSize.height, texturePos.bottom),
-          );
-    return Positioned.fromRect(
-      rect: rect,
-      child: VideoControllerPanel(controller: widget.controller),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -691,9 +674,12 @@ class _IjkPlayerFullscreenState extends State<IjkPlayerFullscreen> {
                 fit: FijkHelper.getIjkBoxFit(widget.controller.videoFit.value),
                 fs: false,
                 color: Colors.black,
-                panelBuilder: _buildIjkPanel,
+                panelBuilder:
+                    (FijkPlayer fijkPlayer, FijkData fijkData, BuildContext context, Size viewSize, Rect texturePos) =>
+                        Container(),
               ),
             ),
+            VideoControllerPanel(controller: widget.controller),
           ],
         ),
       ),
