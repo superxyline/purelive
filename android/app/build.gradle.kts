@@ -31,7 +31,9 @@ android {
     namespace = "com.mystyle.purelive"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
+    lint {
+        disable.add("NullSafeMutableLiveData")
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:get/get.dart';
 import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
+import 'package:pure_live/modules/live_play/widgets/video_player/fijk_helper.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 
@@ -15,6 +17,27 @@ class VideoPlayer extends StatefulWidget {
 }
 
 class _VideoPlayerState extends State<VideoPlayer> {
+  Widget _buildIjkPanel(
+    FijkPlayer fijkPlayer,
+    FijkData fijkData,
+    BuildContext context,
+    Size viewSize,
+    Rect texturePos,
+  ) {
+    Rect rect = widget.controller.ijkPlayer.value.fullScreen
+        ? Rect.fromLTWH(0, 0, viewSize.width, viewSize.height)
+        : Rect.fromLTRB(
+            max(0.0, texturePos.left),
+            max(0.0, texturePos.top),
+            min(viewSize.width, texturePos.right),
+            min(viewSize.height, texturePos.bottom),
+          );
+    return Positioned.fromRect(
+      rect: rect,
+      child: VideoControllerPanel(controller: widget.controller),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
@@ -73,7 +96,17 @@ class _VideoPlayerState extends State<VideoPlayer> {
           ),
         );
       } else {
-        return BetterPlayer(key: widget.controller.playerKey, controller: widget.controller.mobileController!);
+        return AspectRatio(
+          aspectRatio: 16 / 9,
+          key: ValueKey(widget.controller.videoFit.value),
+          child: FijkView(
+            player: widget.controller.ijkPlayer,
+            fit: FijkHelper.getIjkBoxFit(widget.controller.videoFit.value),
+            fs: false,
+            color: Colors.black,
+            panelBuilder: _buildIjkPanel,
+          ),
+        );
       }
     }
     return Material(

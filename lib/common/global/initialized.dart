@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/global.dart';
@@ -6,7 +7,7 @@ import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
-import 'package:windows_single_instance/windows_single_instance.dart';
+import 'package:flutter_single_instance/flutter_single_instance.dart';
 import 'package:pure_live/common/global/platform/desktop_manager.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
@@ -50,7 +51,14 @@ class AppInitializer {
     initService();
 
     if (PlatformUtils.isDesktop) {
-      await WindowsSingleInstance.ensureSingleInstance(args, 'dev.leanflutter.puretech.pure_live');
+      if (!await FlutterSingleInstance().isFirstInstance()) {
+        log("App is already running");
+        final err = await FlutterSingleInstance().focus();
+        if (err != null) {
+          log("Error focusing running instance: $err");
+        }
+        exit(0);
+      }
 
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       launchAtStartup.setup(

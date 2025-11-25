@@ -454,9 +454,7 @@ class LivePlayController extends StateController {
     videoController = VideoController(
       room: detail.value!,
       datasourceType: 'network',
-      videoPlayerIndex: currentSite.id == Sites.huyaSite && settings.videoPlayerIndex.value == 1
-          ? 0
-          : settings.videoPlayerIndex.value,
+      videoPlayerIndex: settings.videoPlayerIndex.value,
       datasource: playUrls.value[currentLineIndex.value],
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
       allowBackgroundPlay: settings.enableBackgroundPlay.value,
@@ -473,11 +471,7 @@ class LivePlayController extends StateController {
     networkTimer = Timer(const Duration(seconds: 10), () async {
       if (videoController != null && videoController!.hasDestory == false) {
         final connectivityResults = await Connectivity().checkConnectivity();
-        if (!connectivityResults.contains(ConnectivityResult.none)) {
-          if (!videoController!.isActivePause.value && videoController!.isPlaying.value == false) {
-            videoController!.refresh();
-          }
-        }
+        if (!connectivityResults.contains(ConnectivityResult.none)) {}
       }
     });
 

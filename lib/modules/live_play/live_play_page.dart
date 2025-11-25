@@ -30,20 +30,10 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (settings.enableScreenKeepOn.value) {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
-    return Obx(() {
-      var currentPlayIndex =
-          controller.currentSite.id == Sites.huyaSite && controller.settings.videoPlayerIndex.value == 1
-          ? 0
-          : controller.settings.videoPlayerIndex.value;
-      return BackButtonListener(
-        onBackButtonPressed: () => onWillPop(directiveExit: false),
-        child: currentPlayIndex == 1
-            ? buildNormalPlayerView(context)
-            : controller.isFullScreen.value
-            ? DesktopFullscreen(controller: controller.videoController!)
-            : buildNormalPlayerView(context),
-      );
-    });
+    return BackButtonListener(
+      onBackButtonPressed: () => onWillPop(directiveExit: false),
+      child: buildNormalPlayerView(context),
+    );
   }
 
   Scaffold buildNormalPlayerView(BuildContext context) {

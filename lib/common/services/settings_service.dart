@@ -422,7 +422,7 @@ class SettingsService extends GetxController {
     "rkmpp": "rkmpp",
   };
 
-  static const List<String> players = ['Mpv播放器', 'Exo播放器'];
+  static const List<String> players = ['Mpv播放器', 'IJK播放器'];
   final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
 
   List<String> get playerlist => players;

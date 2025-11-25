@@ -89,7 +89,7 @@ class SettingsPage extends GetView<SettingsService> {
                 title: Text('视频播放器'),
                 subtitle: Text('选择视频播放器'),
                 onTap: showVideoSetDialog,
-                trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'Exo播放器'),
+                trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'IJK播放器'),
               ),
             ),
           Obx(

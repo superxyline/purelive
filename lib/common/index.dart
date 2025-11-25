@@ -13,7 +13,7 @@ export 'package:flutter/material.dart';
 export 'package:pure_live/modules/popular/popular_controller.dart';
 export 'package:pure_live/modules/favorite/favorite_controller.dart';
 export 'package:permission_handler/permission_handler.dart';
-export 'package:awesome_video_player/awesome_video_player.dart';
+export 'package:flv_lzc/fijkplayer.dart';
 export 'package:pure_live/modules/auth/auth_controller.dart';
 export 'package:pure_live/modules/areas/areas_controller.dart';
 export 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
