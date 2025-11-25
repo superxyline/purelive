@@ -429,6 +429,12 @@ class VideoController with ChangeNotifier {
       ijkPlayer.addListener(_playerListener);
     }
     notifyListeners();
+    debounce(hasError, (callback) {
+      if (hasError.value && !livePlayController.isLastLine.value) {
+        SmartDialog.showToast("视频播放失败,正在为您切换线路");
+        changeLine();
+      }
+    }, time: const Duration(seconds: 2));
   }
 
   void _playerListener() {
