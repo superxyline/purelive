@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:auto_orientation_v2/auto_orientation_v2.dart';
 
@@ -14,6 +15,7 @@ Future<void> landScape() async {
       await AutoOrientation.landscapeAutoMode(forceSensor: true);
     } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       await const MethodChannel('com.alexmercerind/media_kit_video').invokeMethod('Utils.EnterNativeFullscreen');
+      windowManager.setFullScreen(true);
     }
   } catch (exception, stacktrace) {
     debugPrint(exception.toString());

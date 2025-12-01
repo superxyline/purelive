@@ -489,40 +489,31 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(seconds: 2), () {
       enableController();
     });
-    if (isFullscreen.value) {
-      if (Platform.isAndroid) {
-        if (videoPlayerIndex == 1) {
-          await Future.delayed(Duration(milliseconds: 100));
-          ijkPlayer.exitFullScreen();
-          Navigator.of(Get.context!).pop();
-          doExitFullScreen();
-          verticalScreen();
-        } else {
-          doExitFullScreen();
-          await verticalScreen();
-        }
-      } else {
+    bool isIjkPlayer = videoPlayerIndex == 1;
+    if (isIjkPlayer) {
+      if (isFullscreen.value) {
+        await Future.delayed(Duration(milliseconds: 100));
+        ijkPlayer.exitFullScreen();
+        Navigator.of(Get.context!).pop();
         doExitFullScreen();
+        verticalScreen();
+      } else {
+        await Future.delayed(Duration(milliseconds: 100));
+        ijkPlayer.enterFullScreen();
+        Navigator.push(Get.context!, MaterialPageRoute(builder: (_) => IjkPlayerFullscreen(controller: this)));
       }
     } else {
-      if (Platform.isAndroid) {
-        if (videoPlayerIndex == 1) {
-          await Future.delayed(Duration(milliseconds: 100));
-          ijkPlayer.enterFullScreen();
-          Navigator.push(Get.context!, MaterialPageRoute(builder: (_) => IjkPlayerFullscreen(controller: this)));
-        } else {
-          await doEnterFullScreen();
-          if (isVertical.value) {
-            await verticalScreen();
-          } else {
-            await landScape();
-          }
-        }
+      if (isFullscreen.value) {
+        await Future.delayed(Duration(milliseconds: 100));
+        Navigator.of(Get.context!).pop();
+        doExitFullScreen();
+        verticalScreen();
       } else {
-        await doEnterFullScreen();
+        await Future.delayed(Duration(milliseconds: 100));
+        doEnterFullScreen();
+        Navigator.push(Get.context!, MaterialPageRoute(builder: (_) => MediaPlayerFullscreen(controller: this)));
       }
     }
-
     isFullscreen.toggle();
   }
 
@@ -557,6 +548,7 @@ class VideoController with ChangeNotifier {
         if (isVertical.value) {
           await verticalScreen();
         }
+        await Future.delayed(Duration(milliseconds: 100));
         doEnterFullScreen();
         await pip.enable(ImmediatePiP());
       } else {}
@@ -678,6 +670,56 @@ class _IjkPlayerFullscreenState extends State<IjkPlayerFullscreen> {
               ),
             ),
             VideoControllerPanel(controller: widget.controller),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MediaPlayerFullscreen extends StatefulWidget {
+  const MediaPlayerFullscreen({super.key, required this.controller});
+  final VideoController controller;
+
+  @override
+  State<MediaPlayerFullscreen> createState() => _MediaPlayerFullscreenState();
+}
+
+class _MediaPlayerFullscreenState extends State<MediaPlayerFullscreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (Platform.isAndroid || Platform.isIOS) {
+      landScape();
+      doEnterFullScreen();
+    }
+  }
+
+  VideoController get controller => widget.controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          fit: StackFit.passthrough, // 使Stack填充整个父容器
+          children: [
+            Container(
+              color: Colors.black, // 设置你想要的背景色
+            ),
+            Obx(
+              () => media_kit_video.Video(
+                key: ValueKey(controller.videoFit.value),
+                pauseUponEnteringBackgroundMode: !controller.settings.enableBackgroundPlay.value,
+                resumeUponEnteringForegroundMode: !controller.settings.enableBackgroundPlay.value,
+                controller: controller.mediaPlayerController,
+                fit: controller.videoFit.value,
+                controls: controller.room.platform == Sites.iptvSite
+                    ? media_kit_video.MaterialVideoControls
+                    : (state) => VideoControllerPanel(controller: controller),
+              ),
+            ),
           ],
         ),
       ),

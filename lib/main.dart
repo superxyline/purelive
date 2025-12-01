@@ -99,7 +99,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
                 GlobalCupertinoLocalizations.delegate,
               ],
               initialRoute: RoutePath.kSplash,
-              defaultTransition: Platform.isAndroid ? Transition.cupertino : null,
+              defaultTransition: Platform.isAndroid ? Transition.cupertino : Transition.native,
               getPages: AppPages.routes,
             );
           });

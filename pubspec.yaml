@@ -39,9 +39,21 @@ dependencies:
   email_validator: ^3.0.0
   font_awesome_flutter: ^10.6.0
   # video player 
-  media_kit: ^1.2.2 # Primary package.
-  media_kit_video: ^2.0.0 # For video rendering.
-  media_kit_libs_video: ^1.0.7 # Native video dependencies.
+  media_kit:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit
+  media_kit_video:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit_video
+  media_kit_libs_video:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/universal/media_kit_libs_video
   share_handler: ^0.0.25
   uri_to_file: ^1.0.0
   bordered_text: ^2.0.0
@@ -54,7 +66,7 @@ dependencies:
   launch_at_startup: ^0.5.1
   tray_manager: ^0.5.2
   flutter_single_instance: ^1.7.0
-  package_info_plus: ^9.0.0
+  package_info_plus: ^8.3.1
   flutter_acrylic: ^1.1.4
   protobuf: ^4.1.0
   fixnum: ^1.1.0
@@ -62,7 +74,7 @@ dependencies:
   dio_cookie_manager: ^3.3.0
   cookie_jar: ^4.0.8
   # system hardware utils
-  wakelock_plus: ^1.4.0
+  wakelock_plus: ^1.3.3
   battery_plus: ^7.0.0
   stop_watch_timer: ^3.2.2
   # storage
@@ -112,7 +124,47 @@ dev_dependencies:
   msix: ^3.16.12
   intl_utils: ^2.8.11
   flutter_lints: ^6.0.0
-
+dependency_overrides:
+  media_kit:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit
+  media_kit_video:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit_video
+  media_kit_libs_video:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/universal/media_kit_libs_video
+  media_kit_libs_linux:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/linux/media_kit_libs_linux
+  media_kit_libs_ios_video:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/ios/media_kit_libs_ios_video
+  media_kit_libs_android_video:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/android/media_kit_libs_android_video
+  media_kit_libs_windows_video:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/windows/media_kit_libs_windows_video
+  media_kit_libs_macos_video:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./libs/macos/media_kit_libs_macos_video
 # flutter pub run flutter_launcher_icons
 flutter_icons:
   android: "ic_launcher"

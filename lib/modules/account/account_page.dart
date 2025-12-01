@@ -9,18 +9,12 @@ class AccountPage extends GetView<AccountController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("三方认证"),
-      ),
+      appBar: AppBar(title: const Text("三方认证")),
       body: ListView(
         children: [
           Obx(
             () => ListTile(
-              leading: Image.asset(
-                'assets/images/bilibili_2.png',
-                width: 36,
-                height: 36,
-              ),
+              leading: Image.asset('assets/images/bilibili_2.png', width: 36, height: 36),
               title: const Text("哔哩哔哩"),
               subtitle: Text(BiliBiliAccountService.instance.name.value),
               trailing: BiliBiliAccountService.instance.logined.value
@@ -30,11 +24,7 @@ class AccountPage extends GetView<AccountController> {
             ),
           ),
           ListTile(
-            leading: Image.asset(
-              'assets/images/huya.png',
-              width: 36,
-              height: 36,
-            ),
+            leading: Image.asset('assets/images/huya.png', width: 36, height: 36),
             title: const Text("虎牙直播"),
             subtitle: const Text("设置cookie"),
             trailing: const Icon(Icons.chevron_right),
@@ -43,26 +33,23 @@ class AccountPage extends GetView<AccountController> {
             },
           ),
           ListTile(
-            leading: Image.asset(
-              'assets/images/douyu.png',
-              width: 36,
-              height: 36,
-            ),
-            title: const Text("斗鱼直播"),
-            subtitle: const Text("尚不支持"),
-            enabled: false,
+            leading: Image.asset('assets/images/douyin.png', width: 36, height: 36),
+            title: const Text("抖音直播"),
+            subtitle: const Text("设置cookie"),
             trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Get.toNamed(RoutePath.kDouyuCookie);
+            },
           ),
           ListTile(
-            leading: Image.asset(
-              'assets/images/douyin.png',
-              width: 36,
-              height: 36,
-            ),
-            title: const Text("抖音直播"),
-            subtitle: const Text("尚不支持"),
+            leading: Image.asset('assets/images/douyu.png', width: 36, height: 36),
+            title: const Text("斗鱼直播"),
+            subtitle: const Text("设置cookie"),
             enabled: false,
             trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Get.toNamed(RoutePath.kDouyuCookie);
+            },
           ),
         ],
       ),

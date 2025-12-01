@@ -80,4 +80,6 @@ class RoutePath {
 
   // WebDavPage
   static const kWebDavPage = "/web_dav_page";
+
+  static const kDouyuCookie = "/douyu_cookie";
 }

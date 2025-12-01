@@ -38,6 +38,8 @@ import 'package:pure_live/modules/account/bilibili/bilibili_bings.dart';
 import 'package:pure_live/modules/account/bilibili/web_login_page.dart';
 import 'package:pure_live/modules/auth/components/update_password.dart';
 import 'package:pure_live/modules/account/huya/huya_cookie_binding.dart';
+import 'package:pure_live/modules/account/douyin/douyin_cookie_page.dart';
+import 'package:pure_live/modules/account/douyin/douyin_cookie_binding.dart';
 
 // auth
 
@@ -93,6 +95,8 @@ class AppPages {
     GetPage(name: RoutePath.kFavoriteAreas, page: () => const FavoriteAreasPage(), bindings: [FavoriteAreasBinding()]),
 
     GetPage(name: RoutePath.kHuyaCookie, page: () => const HuyaCookiePage(), bindings: [HuyaCookieBinding()]),
+
+    GetPage(name: RoutePath.kDouyuCookie, page: () => const DouyinCookiePage(), bindings: [DouyinCookieBinding()]),
 
     GetPage(name: RoutePath.kWebDavPage, page: () => WebDavPage(), bindings: [WebDavBinding()]),
 

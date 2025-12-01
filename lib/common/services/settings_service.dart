@@ -164,6 +164,10 @@ class SettingsService extends GetxController {
       PrefUtil.setString('huyaCookie', value);
     });
 
+    douyinCookie.listen((value) {
+      PrefUtil.setString('douyinCookie', value);
+    });
+
     volume.listen((value) {
       PrefUtil.setDouble('volume', value);
     });
@@ -317,6 +321,8 @@ class SettingsService extends GetxController {
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
 
   final huyaCookie = (PrefUtil.getString('huyaCookie') ?? '').obs;
+
+  final douyinCookie = (PrefUtil.getString('douyinCookie') ?? '').obs;
 
   static const List<BoxFit> videofitList = [
     BoxFit.contain,
@@ -691,6 +697,7 @@ class SettingsService extends GetxController {
     playerCompatMode.value = json['playerCompatMode'] ?? false;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     huyaCookie.value = json['huyaCookie'] ?? '';
+    douyinCookie.value = json['douyinCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     volume.value = json['volume'] ?? 0.5;
     customPlayerOutput.value = json['customPlayerOutput'] ?? false;
@@ -756,6 +763,7 @@ class SettingsService extends GetxController {
     json['playerCompatMode'] = playerCompatMode.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['huyaCookie'] = huyaCookie.value;
+    json['douyinCookie'] = douyinCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
     json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
     json['themeColorSwitch'] = themeColorSwitch.value;
@@ -802,6 +810,7 @@ class SettingsService extends GetxController {
       'playerCompatMode': false,
       'bilibiliCookie': '',
       'huyaCookie': '',
+      'douyinCookie': '',
       'shieldList': [],
       "hotAreasList": [],
       "volume": 0.5,

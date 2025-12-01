@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -22,6 +23,7 @@ class DouyinSite implements LiveSite {
 
   @override
   LiveDanmaku getDanmaku() => DouyinDanmaku();
+  final SettingsService settings = Get.find<SettingsService>();
 
   /// 使用 QQBrowser User-Agent（参考 DouyinLiveRecorder）
   static const String kDefaultUserAgent =
@@ -47,6 +49,10 @@ class DouyinSite implements LiveSite {
     try {
       // 如果用户已设置 cookie，直接使用用户的 cookie
       if (cookie.isNotEmpty) {
+        headers["cookie"] = cookie;
+        return headers;
+      } else if (settings.douyinCookie.value.isNotEmpty) {
+        cookie = settings.douyinCookie.value;
         headers["cookie"] = cookie;
         return headers;
       }
