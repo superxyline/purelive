@@ -207,10 +207,6 @@ class VideoController with ChangeNotifier {
       if (settings.customPlayerOutput.value) {
         (player.platform as dynamic).setProperty('ao', settings.audioOutputDriver.value);
       }
-      var pp = player.platform as NativePlayer;
-      if (Platform.isAndroid) {
-        await pp.setProperty('force-seekable', 'yes');
-      }
       mediaPlayerController = media_kit_video.VideoController(
         player,
         configuration: settings.customPlayerOutput.value
