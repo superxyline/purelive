@@ -178,7 +178,7 @@ jobs:
           
           # fastforge 生成的文件通常在 dist 目录中
           $DIST_DIR = "dist\$VERSION"
-          $INSTALLER_NAME = "PureLive-$VERSION-windows-x64-setup.exe"
+          $INSTALLER_NAME = "PureLive-windows-x64-setup.exe"
           
           # 查找生成的 exe 文件
           Get-ChildItem "$DIST_DIR" -Filter "*.exe" | ForEach-Object {
@@ -193,7 +193,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
+          path: PureLive-windows-x64-setup.exe
           retention-days: 1
 
       # 读取版本信息
@@ -212,7 +212,7 @@ jobs:
           prerelease: false
           token: ${{ secrets.TOKEN }}
           files: |
-            PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
+            PureLive-windows-x64-setup.exe
 
       # 完成
       - name: 输出任务状态
