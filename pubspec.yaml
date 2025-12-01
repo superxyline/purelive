@@ -190,7 +190,6 @@ flutter:
     - assets/icons/
     - assets/keystore/
     - assets/version.json
-    - assets/js/
     - assets/emo/huya/
     - assets/emo/douyu/
     - assets/emo/douyin/
