@@ -33,7 +33,7 @@ class NewVersionDialog extends StatelessWidget {
     final apkUrl =
         '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/app-armeabi-v7a-release.apk';
     final windowsExecutableUrl =
-        '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/PureLive-windows-x64-setup.exe';
+        '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/PureLive-${VersionUtil.version}-windows-x64-setup.exe';
 
     return AlertDialog(
       title: Text(S.of(context).check_update),
