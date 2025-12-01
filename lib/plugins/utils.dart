@@ -9,6 +9,7 @@ class Utils {
     String cancel = '',
     bool selectable = false,
     List<Widget>? actions,
+    bool barrierDismissible = true,
   }) async {
     var result = await Get.dialog<bool>(
       AlertDialog(
@@ -34,6 +35,7 @@ class Utils {
           ...?actions,
         ],
       ),
+      barrierDismissible: barrierDismissible,
     );
     return result ?? false;
   }

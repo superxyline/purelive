@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pure_live/plugins/utils.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
@@ -135,16 +136,20 @@ class DesktopManager {
 
   static Future<void> handleWindowClose() async {
     if (!PlatformUtils.isDesktop) return;
-
-    try {
+    var result = await Utils.showAlertDialog(
+      "确定要退出吗？",
+      title: "退出",
+      confirm: "确定",
+      cancel: "最小化",
+      barrierDismissible: false,
+    );
+    if (result) {
+      await windowManager.close();
+      exit(0);
+    } else if (result == false) {
       if (await windowManager.isPreventClose()) {
         await windowManager.hide();
-      } else {
-        await windowManager.close();
-        exit(0);
       }
-    } catch (e) {
-      debugPrint('窗口关闭处理失败: $e');
     }
   }
 
