@@ -1,7 +1,7 @@
 {
-  "version": "2.0.0",
-  "version_num": 10200,
-  "version_desc": "-Fixed: 修复弹幕显示问题.\n -Fixed: 优化部分UI.",
+  "version": "2.0.1",
+  "version_num": 10201,
+  "version_desc": "-Fixed: 修复抖音视频无法播放.\n -Fixed: 添加Ijk,去除ExoPlayer. \n -Fixed: 添加退出确认. \n -Add: 添加应用内下载",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
