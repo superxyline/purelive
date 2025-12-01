@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'widgets/version_dialog.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -20,27 +21,15 @@ class _AboutPageState extends State<AboutPage> {
         physics: const BouncingScrollPhysics(),
         children: <Widget>[
           SectionTitle(title: S.of(context).about),
-          ListTile(
-            title: Text(S.of(context).what_is_new),
-            onTap: showNewFeaturesDialog,
-          ),
-          ListTile(
-            title: Text(S.of(context).check_update),
-            onTap: () => showCheckUpdateDialog(context),
-          ),
-          ListTile(
-            title: Text(S.of(context).version),
-            subtitle: const Text(VersionUtil.version),
-          ),
+          ListTile(title: Text(S.of(context).what_is_new), onTap: showNewFeaturesDialog),
+          ListTile(title: Text(S.of(context).check_update), onTap: () => showCheckUpdateDialog(context)),
+          ListTile(title: Text(S.of(context).version), subtitle: const Text(VersionUtil.version)),
           ListTile(
             title: const Text('历史记录'),
             subtitle: const Text('历史版本更新记录'),
             onTap: () => Get.toNamed(RoutePath.kVersionHistory),
           ),
-          ListTile(
-            title: Text(S.of(context).license),
-            onTap: showLicenseDialog,
-          ),
+          ListTile(title: Text(S.of(context).license), onTap: showLicenseDialog),
           SectionTitle(title: S.of(context).project),
           ListTile(
             title: Text(S.of(context).project_alert),
@@ -54,10 +43,12 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  void showCheckUpdateDialog(BuildContext context) {
+  void showCheckUpdateDialog(BuildContext context) async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     showDialog(
-      context: context,
-      builder: (context) => VersionUtil.hasNewVersion() ? const NewVersionDialog() : const NoNewVersionDialog(),
+      context: Get.context!,
+      builder: (context) =>
+          VersionUtil.hasNewVersion() ? NewVersionDialog(packageInfo: packageInfo) : const NoNewVersionDialog(),
     );
   }
 
@@ -66,10 +57,7 @@ class _AboutPageState extends State<AboutPage> {
       context: context,
       applicationName: S.of(context).app_name,
       applicationVersion: VersionUtil.version,
-      applicationIcon: SizedBox(
-        width: 60,
-        child: Center(child: Image.asset('assets/icons/icon.png')),
-      ),
+      applicationIcon: SizedBox(width: 60, child: Center(child: Image.asset('assets/icons/icon.png'))),
     );
   }
 
@@ -84,10 +72,7 @@ class _AboutPageState extends State<AboutPage> {
           children: [
             Text('Version ${VersionUtil.latestVersion}'),
             const SizedBox(height: 20),
-            Text(
-              VersionUtil.latestUpdateLog,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(VersionUtil.latestUpdateLog, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 10),
           ],
         ),

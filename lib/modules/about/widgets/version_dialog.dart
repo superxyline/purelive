@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/update.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class NoNewVersionDialog extends StatelessWidget {
   const NoNewVersionDialog({super.key});
@@ -24,16 +25,16 @@ class NoNewVersionDialog extends StatelessWidget {
 }
 
 class NewVersionDialog extends StatelessWidget {
-  const NewVersionDialog({super.key, this.entry});
+  const NewVersionDialog({super.key, this.entry, required this.packageInfo});
 
   final OverlayEntry? entry;
-
+  final PackageInfo packageInfo;
   @override
   Widget build(BuildContext context) {
     final apkUrl =
         '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/app-armeabi-v7a-release.apk';
     final windowsExecutableUrl =
-        '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/PureLive-${VersionUtil.version}-windows-x64-setup.exe';
+        '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/PureLive-${packageInfo.version}-windows-x64-setup.exe';
 
     return AlertDialog(
       title: Text(S.of(context).check_update),
