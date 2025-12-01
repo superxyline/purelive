@@ -203,15 +203,13 @@ class VideoController with ChangeNotifier {
       enableCodec = settings.enableCodec.value;
       playerCompatMode = settings.playerCompatMode.value;
       player = Player();
-      if (player.platform is NativePlayer) {
-        (player.platform as dynamic).setProperty('cache', 'no'); // --cache=<yes|no|auto>
-        (player.platform as dynamic).setProperty('cache-secs', '0'); // --cache-secs=<seconds> with cache but why not.
-        (player.platform as dynamic).setProperty('demuxer-seekable-cache', 'no');
-        (player.platform as dynamic).setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
-        (player.platform as dynamic).setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
-        if (settings.customPlayerOutput.value) {
-          (player.platform as dynamic).setProperty('ao', settings.audioOutputDriver.value);
-        }
+
+      if (settings.customPlayerOutput.value) {
+        (player.platform as dynamic).setProperty('ao', settings.audioOutputDriver.value);
+      }
+      var pp = player.platform as NativePlayer;
+      if (Platform.isAndroid) {
+        await pp.setProperty('force-seekable', 'yes');
       }
       mediaPlayerController = media_kit_video.VideoController(
         player,
