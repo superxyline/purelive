@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:pure_live/common/index.dart';
@@ -158,13 +159,7 @@ class VideoController with ChangeNotifier {
     globalPlayer.setDataSource(datasource, headers);
     globalPlayer.onError.listen((error) {
       if (error != null) {
-        debugPrint("Error: $error");
-        if (error.contains("Failed to open")) {
-          SmartDialog.showToast("当前视频播放出错,正在切换线路");
-          changeLine();
-        }
-      } else {
-        // retryRoom();
+        log("An error occured while loading the stream: $error", error: error, name: "VideoController");
       }
     });
     Future.delayed(Duration(milliseconds: 1000), () {

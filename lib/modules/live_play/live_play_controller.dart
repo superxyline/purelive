@@ -70,6 +70,8 @@ class LivePlayController extends StateController {
 
   final screenMode = VideoMode.normal.obs;
 
+  bool hasUseDefaultResolution = false;
+
   Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
@@ -279,6 +281,20 @@ class LivePlayController extends StateController {
         return;
       }
       qualites.value = playQualites;
+      settings.preferResolution.value = qualites[currentQuality.value].quality;
+      if (!hasUseDefaultResolution) {
+        int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
+        if (qualityLevel == 0) {
+          currentQuality.value = 0;
+        } else if (qualityLevel == settings.resolutionsList.length - 1) {
+          currentQuality.value = playQualites.length - 1;
+        } else {
+          int middle = (playQualites.length / 2).floor();
+          currentQuality.value = middle;
+        }
+        hasUseDefaultResolution = true;
+      }
+
       getPlayUrl();
     } catch (e) {
       SmartDialog.showToast("无法读取视频信息,请重新获取");
@@ -391,6 +407,7 @@ class LivePlayController extends StateController {
       await videoController?.destory();
       videoController = null;
     }
+    hasUseDefaultResolution = false;
     currentPlayRoom.value = room;
     onInitPlayerState();
   }

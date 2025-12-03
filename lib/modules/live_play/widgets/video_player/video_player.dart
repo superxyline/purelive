@@ -39,15 +39,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      if (controller.globalPlayer.isPlaying.value) {
-        return widget.controller.globalPlayer.getVideoWidget(VideoControllerPanel(controller: widget.controller));
-      }
-      if (controller.globalPlayer.hasError.value) {
-        return TimeOutVideoWidget(controller: controller);
-      }
-      return buildLoading();
-    });
+    return widget.controller.globalPlayer.getVideoWidget(VideoControllerPanel(controller: widget.controller));
   }
 }
 

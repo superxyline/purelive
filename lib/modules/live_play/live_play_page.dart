@@ -26,7 +26,6 @@ class LivePlayPage extends GetView<LivePlayController> {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
     return PopScope(
-      canPop: false,
       onPopInvokedWithResult: onWillPop,
       child: Obx(() {
         if (controller.screenMode.value == VideoMode.normal) {
@@ -193,7 +192,7 @@ class LivePlayPage extends GetView<LivePlayController> {
               child: SizedBox(
                 width: 32,
                 height: 32,
-                child: CircularProgressIndicator(strokeWidth: 6, color: Colors.white),
+                child: CircularProgressIndicator(strokeWidth: 4, color: Colors.white),
               ),
             ),
           ),
