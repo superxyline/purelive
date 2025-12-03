@@ -160,6 +160,10 @@ class VideoController with ChangeNotifier {
     globalPlayer.onError.listen((error) {
       if (error != null) {
         log("An error occured while loading the stream: $error", error: error, name: "VideoController");
+        if (error.contains("Failed to open")) {
+          SmartDialog.showToast("当前视频播放出错,正在切换线路");
+          changeLine();
+        }
       }
     });
     Future.delayed(Duration(milliseconds: 1000), () {
