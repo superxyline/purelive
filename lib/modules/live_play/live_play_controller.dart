@@ -13,6 +13,7 @@ import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/player/switchable_global_player.dart';
 
 enum VideoMode { normal, widescreen, fullscreen }
 
@@ -89,6 +90,18 @@ class LivePlayController extends StateController {
       return await Future.value(false);
     }
     return await Future.value(true);
+  }
+
+  @override
+  void onClose() {
+    SwitchableGlobalPlayer().stop();
+    super.onClose();
+  }
+
+  @override
+  void dispose() {
+    SwitchableGlobalPlayer().stop();
+    super.dispose();
   }
 
   @override

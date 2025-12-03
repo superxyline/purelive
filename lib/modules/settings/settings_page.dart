@@ -177,6 +177,25 @@ class SettingsPage extends GetView<SettingsService> {
               ],
             ),
           ),
+          if (Platform.isAndroid)
+            Obx(
+              () => SwitchListTile(
+                title: Text(S.of(context).enable_codec),
+                value: controller.enableCodec.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.enableCodec.value = value,
+              ),
+            ),
+          if (Platform.isAndroid)
+            Obx(
+              () => SwitchListTile(
+                title: Text('兼容模式'),
+                subtitle: Text('若播放卡顿可尝试打开此选项'),
+                value: controller.playerCompatMode.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.playerCompatMode.value = value,
+              ),
+            ),
 
           SectionTitle(title: S.of(context).custom),
           Obx(
@@ -234,25 +253,6 @@ class SettingsPage extends GetView<SettingsService> {
                 value: controller.doubleExit.value,
                 activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.doubleExit.value = value,
-              ),
-            ),
-          if (Platform.isAndroid)
-            Obx(
-              () => SwitchListTile(
-                title: Text(S.of(context).enable_codec),
-                value: controller.enableCodec.value,
-                activeThumbColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableCodec.value = value,
-              ),
-            ),
-          if (Platform.isAndroid)
-            Obx(
-              () => SwitchListTile(
-                title: Text('兼容模式'),
-                subtitle: Text('若播放卡顿可尝试打开此选项'),
-                value: controller.playerCompatMode.value,
-                activeThumbColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.playerCompatMode.value = value,
               ),
             ),
           if (Platform.isAndroid)

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/utils.dart';
+import 'package:pure_live/player/switchable_global_player.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/fullscreen.dart';
 
@@ -43,6 +44,7 @@ class BackButtonObserver extends RouteObserver<PageRoute<dynamic>> {
     if (route.settings.name == RoutePath.kLivePlay) {
       Get.find<LivePlayController>().onDelete();
       doExitFullScreen();
+      SwitchableGlobalPlayer().stop();
     }
   }
 }
