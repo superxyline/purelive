@@ -51,4 +51,7 @@ key.properties
 
 # /assets/keystore/
 /assets/pure_live_web/
-pubspec.lock
+
+Podfile.lock
+# FVM Version Cache
+.fvm/
