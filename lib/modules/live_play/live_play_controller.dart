@@ -69,7 +69,7 @@ class LivePlayController extends StateController {
 
   final screenMode = VideoMode.normal.obs;
 
-  Future<bool> onBackPressed({bool directiveExit = false}) async {
+  Future<bool> onBackPressed() async {
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
       return await Future.value(false);
@@ -79,8 +79,7 @@ class LivePlayController extends StateController {
       return await Future.value(false);
     }
     bool doubleExit = Get.find<SettingsService>().doubleExit.value;
-    if (!doubleExit || directiveExit) {
-      disPoserPlayer();
+    if (!doubleExit) {
       return Future.value(true);
     }
     int nowExitTime = DateTime.now().millisecondsSinceEpoch;
@@ -89,7 +88,6 @@ class LivePlayController extends StateController {
       SmartDialog.showToast(S.current.double_click_to_exit);
       return await Future.value(false);
     }
-    disPoserPlayer();
     return await Future.value(true);
   }
 
@@ -193,13 +191,6 @@ class LivePlayController extends StateController {
 
   void setFullScreen() {
     screenMode.value = VideoMode.fullscreen;
-  }
-
-  void disPoserPlayer() {
-    videoController?.destory();
-    videoController = null;
-    liveDanmaku.stop();
-    success.value = false;
   }
 
   void handleCurrentLineAndQuality({ReloadDataType reloadDataType = ReloadDataType.refreash, int line = 0}) {
@@ -378,18 +369,6 @@ class LivePlayController extends StateController {
       SmartDialog.showToast("无法打开APP，将使用浏览器打开");
       await launchUrlString(webUrl, mode: LaunchMode.externalApplication);
     }
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-    disPoserPlayer();
-  }
-
-  @override
-  void dispose() {
-    disPoserPlayer();
-    super.dispose();
   }
 
   void switchRoom(LiveRoom room) async {

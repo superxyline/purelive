@@ -12,16 +12,12 @@ class LivePlayPage extends GetView<LivePlayController> {
   LivePlayPage({super.key});
 
   final SettingsService settings = Get.find<SettingsService>();
-  Future<bool> onWillPop({bool directiveExit = false}) async {
-    try {
-      var exit = await controller.onBackPressed(directiveExit: directiveExit);
-      if (exit) {
-        Navigator.of(Get.context!).pop();
-      }
-    } catch (e) {
+  Future<void> onWillPop(bool didPop, Object? result) async {
+    if (didPop) return;
+    var shouldPop = await controller.onBackPressed();
+    if (shouldPop) {
       Navigator.of(Get.context!).pop();
     }
-    return true;
   }
 
   @override
@@ -29,8 +25,9 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (settings.enableScreenKeepOn.value) {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
-    return BackButtonListener(
-      onBackButtonPressed: () => onWillPop(directiveExit: false),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: onWillPop,
       child: Obx(() {
         if (controller.screenMode.value == VideoMode.normal) {
           return buildNormalPlayerView(context);
