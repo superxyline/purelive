@@ -14,27 +14,7 @@ enum PlayerEngine { mediaKit, fijk }
 class SwitchableGlobalPlayer {
   static final SwitchableGlobalPlayer _instance = SwitchableGlobalPlayer._internal();
   factory SwitchableGlobalPlayer() => _instance;
-  SwitchableGlobalPlayer._internal() {
-    final orientationStream = CombineLatestStream.combine2<int?, int?, bool>(width, height, (w, h) {
-      if (w == null || h == null) return false;
-      return h > w; // 竖屏：高度 > 宽度
-    });
-
-    // 订阅并更新 isVerticalVideo
-    _orientationSubscription = orientationStream.listen((isVertical) {
-      isVerticalVideo.value = isVertical;
-    });
-    _isPlayingSubscription = onPlaying.listen((playing) {
-      isPlaying.value = playing;
-    });
-
-    _errorSubscription = onError.listen((error) {
-      hasError.value = error != null;
-    });
-    _volumeSubscription = volume.listen((v) {
-      volume.value = v;
-    });
-  }
+  SwitchableGlobalPlayer._internal();
 
   UnifiedPlayer? _currentPlayer;
   PlayerEngine _currentEngine = PlayerEngine.mediaKit;
@@ -42,13 +22,10 @@ class SwitchableGlobalPlayer {
 
   ValueKey<String> videoKey = ValueKey('video_0');
 
-  late StreamSubscription<bool> _orientationSubscription;
-
-  late StreamSubscription<bool> _isPlayingSubscription;
-
-  late StreamSubscription<String?> _errorSubscription;
-
-  late StreamSubscription<double?> _volumeSubscription;
+  StreamSubscription<bool>? _orientationSubscription;
+  StreamSubscription<bool>? _isPlayingSubscription;
+  StreamSubscription<String?>? _errorSubscription;
+  StreamSubscription<double?>? _volumeSubscription;
 
   final isVerticalVideo = false.obs;
 
@@ -56,7 +33,7 @@ class SwitchableGlobalPlayer {
 
   final hasError = false.obs;
 
-  final volume = 0.5.obs;
+  final currentVolume = 0.5.obs;
 
   Stream<bool> get onLoading => _currentPlayer?.onLoading ?? Stream.value(false);
 
@@ -68,11 +45,43 @@ class SwitchableGlobalPlayer {
 
   Stream<int?> get height => _currentPlayer?.height ?? Stream.value(null);
 
+  Stream<double?> get volume => _currentPlayer?.volume ?? Stream.value(null);
+
+  void _subscribeToPlayerEvents() {
+    // 先取消旧订阅
+    _isPlayingSubscription?.cancel();
+    _errorSubscription?.cancel();
+    _volumeSubscription?.cancel();
+    _orientationSubscription?.cancel();
+    final orientationStream = CombineLatestStream.combine2<int?, int?, bool>(width, height, (w, h) {
+      if (w == null || h == null) return false;
+      return h > w; // 竖屏：高度 > 宽度
+    });
+
+    // 订阅并更新 isVerticalVideo
+    _orientationSubscription = orientationStream.listen((isVertical) {
+      isVerticalVideo.value = isVertical;
+    });
+    // 订阅新 player
+    _isPlayingSubscription = onPlaying.listen((playing) {
+      isPlaying.value = playing;
+    });
+
+    _errorSubscription = onError.listen((error) {
+      hasError.value = error != null;
+    });
+
+    _volumeSubscription = volume.listen((v) {
+      currentVolume.value = v!;
+    });
+  }
+
   Future<void> init(PlayerEngine engine) async {
     if (_currentPlayer != null) return; // 已初始化
     _currentPlayer = _createPlayer(engine);
     await _currentPlayer!.init();
     _currentEngine = engine;
+    _subscribeToPlayerEvents();
   }
 
   UnifiedPlayer _createPlayer(PlayerEngine engine) {
@@ -92,6 +101,7 @@ class SwitchableGlobalPlayer {
     await _currentPlayer!.init();
     _currentEngine = newEngine;
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
+    _subscribeToPlayerEvents();
   }
 
   Future<void> setVolume(double volume) async {
@@ -104,6 +114,9 @@ class SwitchableGlobalPlayer {
   }
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
+    isPlaying.value = false;
+    hasError.value = false;
+    isVerticalVideo.value = false;
     await _currentPlayer?.setDataSource(url, headers);
   }
 
@@ -145,10 +158,10 @@ class SwitchableGlobalPlayer {
 
   void dispose() {
     _currentPlayer?.dispose();
-    _orientationSubscription.cancel();
-    _isPlayingSubscription.cancel();
-    _errorSubscription.cancel();
-    _volumeSubscription.cancel();
+    _orientationSubscription?.cancel();
+    _isPlayingSubscription?.cancel();
+    _errorSubscription?.cancel();
+    _volumeSubscription?.cancel();
   }
 
   PlayerEngine get currentEngine => _currentEngine;

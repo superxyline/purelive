@@ -26,7 +26,10 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
 
   @override
   void dispose() {
-    _hideVolumeBar();
+    _hideTimer?.cancel();
+    _hideTimer = null;
+    _overlayEntry?.remove();
+    _overlayEntry = null;
     super.dispose();
   }
 
@@ -40,6 +43,7 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
 
   // 创建并显示Overlay中的音量条
   void _showVolumeBar() {
+    if (!mounted) return;
     final renderBox = context.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
 
@@ -64,15 +68,16 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
     }
   }
 
-  // 移除Overlay中的音量条
   void _hideVolumeBar() {
+    _hideTimer?.cancel();
+    _hideTimer = null;
     _overlayEntry?.remove();
     _overlayEntry = null;
     if (mounted) {
-      setState(() => _isVolumeBarVisible = false);
+      setState(() {
+        _isVolumeBarVisible = false;
+      });
     }
-    _hideTimer?.cancel();
-    _hideTimer = null;
   }
 
   // 切换音量条显示状态
@@ -82,7 +87,9 @@ class _OverlayVolumeControlState extends State<OverlayVolumeControl> {
       _hideVolumeBar();
     } else {
       initVolume();
-      Future.delayed(const Duration(milliseconds: 20), _showVolumeBar);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showVolumeBar();
+      });
     }
   }
 

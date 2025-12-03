@@ -14,6 +14,8 @@ import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 
+enum VideoMode { normal, widescreen, fullscreen }
+
 class LivePlayController extends StateController {
   LivePlayController({required this.room, required this.site});
   final String site;
@@ -50,8 +52,6 @@ class LivePlayController extends StateController {
   /// 当前线路
   final currentLineIndex = 0.obs;
 
-  int loopCount = 0;
-
   int lastExitTime = 0;
 
   /// 双击退出Flag
@@ -63,17 +63,11 @@ class LivePlayController extends StateController {
   // 当前直播间信息 下一个频道或者上一个
   var currentPlayRoom = LiveRoom().obs;
 
-  var lastChannelIndex = 0.obs;
-
-  Timer? channelTimer;
-
-  Timer? loadRefreshRoomTimer;
-
-  var isFullScreen = false.obs;
-
   var closeTimes = 240.obs;
 
   var closeTimeFlag = false.obs;
+
+  final screenMode = VideoMode.normal.obs;
 
   Future<bool> onBackPressed({bool directiveExit = false}) async {
     if (videoController!.showSettting.value) {
@@ -189,18 +183,16 @@ class LivePlayController extends StateController {
     return liveRoom;
   }
 
-  bool calcIsLastLine(int line) {
-    var lastLine = line + 1;
-    if (playUrls.isEmpty) {
-      return true;
-    }
-    if (playUrls.length == 1) {
-      return true;
-    }
-    if (lastLine == playUrls.length - 1) {
-      return true;
-    }
-    return false;
+  void setNormalScreen() {
+    screenMode.value = VideoMode.normal;
+  }
+
+  void setWidescreen() {
+    screenMode.value = VideoMode.widescreen;
+  }
+
+  void setFullScreen() {
+    screenMode.value = VideoMode.fullscreen;
   }
 
   void disPoserPlayer() {
@@ -210,18 +202,13 @@ class LivePlayController extends StateController {
     success.value = false;
   }
 
-  void handleCurrentLineAndQuality({
-    ReloadDataType reloadDataType = ReloadDataType.refreash,
-    int line = 0,
-    bool active = false,
-  }) {
-    if (reloadDataType == ReloadDataType.changeLine && active == false) {
+  void handleCurrentLineAndQuality({ReloadDataType reloadDataType = ReloadDataType.refreash, int line = 0}) {
+    if (reloadDataType == ReloadDataType.changeLine) {
       if (line == playUrls.length - 1) {
         currentLineIndex.value = 0;
       } else {
         currentLineIndex.value = currentLineIndex.value + 1;
       }
-      loopCount++;
     }
   }
 
@@ -229,7 +216,6 @@ class LivePlayController extends StateController {
     playUrls.value = [];
     currentLineIndex.value = 0;
     qualites.value = [];
-    loopCount = 0;
     currentQuality.value = 0;
   }
 
@@ -339,12 +325,6 @@ class LivePlayController extends StateController {
       var ua = await HuyaSite().getHuYaUA();
       headers = {"user-agent": ua, "origin": "https://www.huya.com"};
     }
-
-    log(
-      (currentSite.id == Sites.huyaSite && settings.videoPlayerIndex.value == 1 ? 0 : settings.videoPlayerIndex.value)
-          .toString(),
-      name: "video_player_index",
-    );
     videoController = VideoController(
       room: detail.value!,
       datasourceType: 'network',
@@ -360,10 +340,6 @@ class LivePlayController extends StateController {
       currentQuality: currentQuality.value,
     );
     success.value = true;
-
-    videoController?.isFullscreen.listen((value) {
-      isFullScreen.value = value;
-    });
   }
 
   Future<void> openNaviteAPP() async {

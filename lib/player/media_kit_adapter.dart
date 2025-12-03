@@ -61,6 +61,7 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
 
   @override
   Stream<bool> get onPlaying => _player.stream.playing;
+
   @override
   Stream<String?> get onError => _player.stream.error.map((e) => e);
   @override

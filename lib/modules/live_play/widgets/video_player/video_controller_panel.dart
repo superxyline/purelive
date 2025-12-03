@@ -144,7 +144,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     if (controller.showSettting.value) {
                       controller.showSettting.toggle();
                     } else {
-                      controller.isPlaying.value
+                      controller.globalPlayer.isPlaying.value
                           ? controller.enableController()
                           : controller.globalPlayer.togglePlayPause();
                     }
@@ -655,7 +655,10 @@ class PlayPauseButton extends StatelessWidget {
         () => Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(12),
-          child: Icon(controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.white),
+          child: Icon(
+            controller.globalPlayer.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
+            color: Colors.white,
+          ),
         ),
       ),
     );

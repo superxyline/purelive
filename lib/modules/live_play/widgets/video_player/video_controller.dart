@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
-import 'package:flutter/services.dart';
 import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:battery_plus/battery_plus.dart';
@@ -15,6 +14,7 @@ import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_content_item.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/fullscreen.dart';
 
 class VideoController with ChangeNotifier {
   final LiveRoom room;
@@ -42,10 +42,6 @@ class VideoController with ChangeNotifier {
   final int currentLineIndex;
 
   final int currentQuality;
-
-  final isPlaying = false.obs;
-
-  final isBuffering = false.obs;
 
   final isPipMode = false.obs;
 
@@ -252,7 +248,7 @@ class VideoController with ChangeNotifier {
 
   void sendDanmaku(LiveMessage msg) {
     if (hideDanmaku.value) return;
-    if (isPlaying.value) {
+    if (globalPlayer.isPlaying.value) {
       danmakuController.addDanmaku(
         DanmakuContentItem(msg.message, color: Color.fromARGB(255, msg.color.r, msg.color.g, msg.color.b)),
       );
@@ -295,18 +291,7 @@ class VideoController with ChangeNotifier {
   void exitFullScreen() async {
     isFullscreen.value = false;
     showSettting.value = false;
-  }
-
-  /// 设置横屏
-  Future setLandscapeOrientation() async {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-  }
-
-  /// 设置竖屏
-  Future setPortraitOrientation() async {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    doExitFullScreen();
   }
 
   void toggleFullScreen() async {
@@ -315,25 +300,45 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(seconds: 2), () {
       enableController();
     });
+    if (isFullscreen.value) {
+      livePlayController.setNormalScreen();
+
+      exitFullScreen();
+    } else {
+      livePlayController.setFullScreen();
+      enterFullScreen();
+    }
     isFullscreen.toggle();
+    enableController();
+  }
+
+  void enterFullScreen() {
+    doEnterFullScreen();
+    if (globalPlayer.isVerticalVideo.value) {
+      verticalScreen();
+    } else {
+      landScape();
+    }
   }
 
   void toggleWindowFullScreen() {
-    // disable locked
     showLocked.value = false;
-    // fix obx setstate when build
     showControllerTimer?.cancel();
     Timer(const Duration(seconds: 2), () {
       enableController();
     });
-
+    if (isWindowFullscreen.value) {
+      livePlayController.setNormalScreen();
+    } else {
+      livePlayController.setWidescreen();
+    }
+    isWindowFullscreen.toggle();
     enableController();
   }
 
   // 注册音量变化监听器
   void registerVolumeListener() {
     FlutterVolumeController.addListener((volume) {
-      // 音量变化时的回调
       if (Platform.isAndroid) {
         settings.volume.value = volume;
       }
@@ -343,7 +348,7 @@ class VideoController with ChangeNotifier {
   // volume & brightness
   Future<double?> volume() async {
     if (Platform.isWindows) {
-      return globalPlayer.volume.value / 100;
+      return globalPlayer.currentVolume.value / 100;
     }
     return await FlutterVolumeController.getVolume();
   }

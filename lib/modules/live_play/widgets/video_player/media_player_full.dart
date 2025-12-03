@@ -12,14 +12,21 @@ class MediaPlayerFullscreen extends StatefulWidget {
   State<MediaPlayerFullscreen> createState() => _MediaPlayerFullscreenState();
 }
 
-class _MediaPlayerFullscreenState extends State<MediaPlayerFullscreen> {
+class _MediaPlayerFullscreenState extends State<MediaPlayerFullscreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (Platform.isAndroid || Platform.isIOS) {
       landScape();
       doEnterFullScreen();
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   VideoController get controller => widget.controller;
