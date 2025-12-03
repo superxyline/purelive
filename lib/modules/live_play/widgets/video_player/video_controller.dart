@@ -7,17 +7,14 @@ import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
+import 'package:pure_live/player/switchable_global_player.dart';
 import 'package:pure_live/pkg/canvas_danmaku/danmaku_controller.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
-import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_content_item.dart';
-import 'package:pure_live/modules/live_play/widgets/video_player/fullscreen.dart';
-import 'package:pure_live/modules/live_play/widgets/video_player/fijk_helper.dart';
 
 class VideoController with ChangeNotifier {
   final LiveRoom room;
@@ -46,8 +43,6 @@ class VideoController with ChangeNotifier {
 
   final int currentQuality;
 
-  final hasError = false.obs;
-
   final isPlaying = false.obs;
 
   final isBuffering = false.obs;
@@ -58,30 +53,13 @@ class VideoController with ChangeNotifier {
 
   final isWindowFullscreen = false.obs;
 
-  bool hasDestory = false;
-
   bool get supportPip => Platform.isAndroid;
 
   bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
 
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
 
-  final videoSizeWidth = 0.0.obs;
-
-  final videoSizeHeight = 0.0.obs;
-
-  // ignore: prefer_typing_uninitialized_variables
   late final Floating pip;
-  // Video player status
-  // A [GlobalKey<VideoState>] is required to access the programmatic fullscreen interface.
-  late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
-
-  // Create a [Player] to control playback.
-  late Player player;
-  // CeoController] to handle video output from [Player].
-  late media_kit_video.VideoController mediaPlayerController;
-
-  late FijkPlayer ijkPlayer;
 
   GlobalKey<BrightnessVolumnDargAreaState> brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
 
@@ -92,6 +70,8 @@ class VideoController with ChangeNotifier {
   bool enableCodec = true;
 
   bool playerCompatMode = false;
+
+  final globalPlayer = SwitchableGlobalPlayer();
 
   Timer? showControllerTimer;
   final showController = true.obs;
@@ -109,8 +89,6 @@ class VideoController with ChangeNotifier {
     {'attr': BoxFit.scaleDown, 'desc': '缩小适应'},
   ];
   Timer? _debounceTimer;
-  StreamSubscription? _widthSubscription;
-  StreamSubscription? _heightSubscription;
 
   void enableController() {
     showControllerTimer?.cancel();
@@ -170,16 +148,6 @@ class VideoController with ChangeNotifier {
     initVideoController();
     initDanmaku();
     initBattery();
-    hasError.listen((p0) {
-      if (hasError.value && !livePlayController.isLastLine.value) {
-        hasErrorTimer?.cancel();
-        hasErrorTimer = Timer(const Duration(milliseconds: 2000), () {
-          SmartDialog.showToast("当前视频播放出错,正在为您切换路线");
-          changeLine();
-          hasErrorTimer?.cancel();
-        });
-      }
-    });
   }
 
   // Battery level control
@@ -199,69 +167,9 @@ class VideoController with ChangeNotifier {
   void initVideoController() async {
     FlutterVolumeController.updateShowSystemUI(false);
     registerVolumeListener();
-    if (videoPlayerIndex == 0 || Platform.isWindows) {
-      enableCodec = settings.enableCodec.value;
-      playerCompatMode = settings.playerCompatMode.value;
-      player = Player();
-
-      if (settings.customPlayerOutput.value) {
-        (player.platform as dynamic).setProperty('ao', settings.audioOutputDriver.value);
-      }
-      mediaPlayerController = media_kit_video.VideoController(
-        player,
-        configuration: settings.customPlayerOutput.value
-            ? VideoControllerConfiguration(
-                vo: settings.videoOutputDriver.value,
-                hwdec: settings.videoHardwareDecoder.value,
-              )
-            : playerCompatMode
-            ? VideoControllerConfiguration(vo: 'mediacodec_embed', hwdec: 'mediacodec')
-            : VideoControllerConfiguration(
-                enableHardwareAcceleration: enableCodec,
-                androidAttachSurfaceAfterVideoParameters: false,
-              ),
-      );
-      setDataSource(datasource);
-      mediaPlayerController.player.stream.playing.listen((bool playing) {
-        isPlaying.value = playing;
-        if (playing && mediaPlayerControllerInitialized.value == false) {
-          mediaPlayerControllerInitialized.value = true;
-          setVolume(settings.volume.value);
-        }
-      });
-      mediaPlayerController.player.stream.error.listen((event) {
-        if (event.toString().contains('Failed to open')) {
-          hasError.value = true;
-          isPlaying.value = false;
-        }
-      });
-      _widthSubscription = player.stream.width.listen((event) {
-        isVertical.value = (player.state.height ?? 9) > (player.state.width ?? 16);
-      });
-      _heightSubscription = player.stream.height.listen((event) {
-        isVertical.value = (player.state.height ?? 9) > (player.state.width ?? 16);
-      });
-
-      mediaPlayerControllerInitialized.listen((value) {
-        if (fullScreenByDefault && datasource.isNotEmpty && value) {
-          Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
-        }
-      });
-      if (Platform.isAndroid) {
-        pip = Floating();
-        pip.pipStatusStream.listen((status) async {
-          if (status == PiPStatus.enabled) {
-            isPipMode.value = true;
-          } else {
-            isPipMode.value = false;
-            isFullscreen.value = false;
-            doExitFullScreen();
-          }
-        });
-      }
-    } else {
-      ijkPlayer = FijkPlayer();
-      setDataSource(datasource);
+    globalPlayer.setDataSource(datasource, headers);
+    if (fullScreenByDefault) {
+      Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
     }
   }
 
@@ -353,9 +261,7 @@ class VideoController with ChangeNotifier {
 
   @override
   void dispose() async {
-    if (hasDestory == false) {
-      await destory();
-    }
+    await destory();
     super.dispose();
   }
 
@@ -367,102 +273,26 @@ class VideoController with ChangeNotifier {
   }
 
   void changeLine({bool active = false}) async {
-    // 播放错误 不一定是线路问题 先切换路线解决 后面尝试通知用户切换播放器
     await destory();
     Timer(const Duration(seconds: 2), () {
-      livePlayController.onInitPlayerState(
-        reloadDataType: ReloadDataType.changeLine,
-        line: currentLineIndex,
-        active: active,
-      );
+      livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.changeLine, line: currentLineIndex);
     });
   }
 
   Future<void> destory() async {
-    isPlaying.value = false;
-    hasError.value = false;
-    livePlayController.success.value = false;
-    hasDestory = true;
-    _widthSubscription?.cancel();
-    _heightSubscription?.cancel();
     if (allowScreenKeepOn) WakelockPlus.disable();
-
     FlutterVolumeController.removeListener();
     if (Platform.isAndroid || Platform.isIOS) {
       brightnessController.resetApplicationScreenBrightness();
-      if (isFullscreen.value) {
-        if (videoPlayerIndex == 1) {
-          await Future.delayed(Duration(milliseconds: 100));
-          ijkPlayer.exitFullScreen();
-          Navigator.of(Get.context!).pop();
-          doExitFullScreen();
-          verticalScreen();
-        } else {
-          doExitFullScreen();
-        }
-      }
-      if (videoPlayerIndex == 0) {
-        player.dispose();
-      } else {
-        ijkPlayer.release();
-      }
-    } else {
-      if (isFullscreen.value) {
-        doExitFullScreen();
-      }
-      player.dispose();
     }
-    isFullscreen.value = false;
-  }
-
-  void setDataSource(String url) async {
-    datasource = url;
-    // fix datasource empty error
-    if (datasource.isEmpty) {
-      hasError.value = true;
-      return;
-    } else {
-      hasError.value = false;
-    }
-    if (Platform.isWindows || videoPlayerIndex == 0) {
-      player.pause();
-      player.open(Media(datasource, httpHeaders: headers));
-    } else {
-      await FijkHelper.setFijkOption(ijkPlayer, enableCodec: enableCodec, headers: headers);
-      ijkPlayer.setDataSource(url, autoPlay: autoPlay);
-      ijkPlayer.addListener(_playerListener);
-    }
-    notifyListeners();
-  }
-
-  void _playerListener() {
-    isPlaying.value = ijkPlayer.state == FijkState.started;
-    hasError.value = ijkPlayer.state == FijkState.error;
   }
 
   void setVideoFit(BoxFit fit) {
-    videoFit.value = fit;
-    settings.videoFitIndex.value = videoFitIndex.value;
-  }
-
-  void togglePlayPause() {
-    if (Platform.isWindows || videoPlayerIndex == 0) {
-      mediaPlayerController.player.playOrPause();
-    } else {
-      isPlaying.value ? ijkPlayer.pause() : ijkPlayer.start();
-    }
+    var index = settings.videofitArrary.indexOf(fit);
+    globalPlayer.changeVideoFit(index);
   }
 
   void exitFullScreen() async {
-    if (videoPlayerIndex == 1) {
-      await Future.delayed(Duration(milliseconds: 100));
-      ijkPlayer.exitFullScreen();
-      Navigator.of(Get.context!).pop();
-      doExitFullScreen();
-      verticalScreen();
-    } else {
-      doExitFullScreen();
-    }
     isFullscreen.value = false;
     showSettting.value = false;
   }
@@ -485,31 +315,6 @@ class VideoController with ChangeNotifier {
     Timer(const Duration(seconds: 2), () {
       enableController();
     });
-    bool isIjkPlayer = videoPlayerIndex == 1;
-    if (isIjkPlayer) {
-      if (isFullscreen.value) {
-        await Future.delayed(Duration(milliseconds: 100));
-        ijkPlayer.exitFullScreen();
-        Navigator.of(Get.context!).pop();
-        doExitFullScreen();
-        verticalScreen();
-      } else {
-        await Future.delayed(Duration(milliseconds: 100));
-        ijkPlayer.enterFullScreen();
-        Navigator.push(Get.context!, MaterialPageRoute(builder: (_) => IjkPlayerFullscreen(controller: this)));
-      }
-    } else {
-      if (isFullscreen.value) {
-        await Future.delayed(Duration(milliseconds: 100));
-        Navigator.of(Get.context!).pop();
-        doExitFullScreen();
-        verticalScreen();
-      } else {
-        await Future.delayed(Duration(milliseconds: 100));
-        doEnterFullScreen();
-        Navigator.push(Get.context!, MaterialPageRoute(builder: (_) => MediaPlayerFullscreen(controller: this)));
-      }
-    }
     isFullscreen.toggle();
   }
 
@@ -522,33 +327,7 @@ class VideoController with ChangeNotifier {
       enableController();
     });
 
-    if (Platform.isWindows || Platform.isLinux) {
-      if (!isWindowFullscreen.value) {
-        Get.to(() => DesktopFullscreen(controller: this, key: UniqueKey()));
-      } else {
-        Navigator.of(Get.context!).pop();
-      }
-      isWindowFullscreen.toggle();
-    } else {
-      throw UnimplementedError('Unsupported Platform');
-    }
     enableController();
-  }
-
-  void enterPipMode(BuildContext context) async {
-    if ((Platform.isAndroid || Platform.isIOS)) {
-      danmakuController.clear();
-      danmakuController.resume();
-      if (Platform.isWindows || videoPlayerIndex == 0) {
-        isFullscreen.toggle();
-        if (isVertical.value) {
-          await verticalScreen();
-        }
-        await Future.delayed(Duration(milliseconds: 100));
-        doEnterFullScreen();
-        await pip.enable(ImmediatePiP());
-      } else {}
-    }
   }
 
   // 注册音量变化监听器
@@ -564,7 +343,7 @@ class VideoController with ChangeNotifier {
   // volume & brightness
   Future<double?> volume() async {
     if (Platform.isWindows) {
-      return mediaPlayerController.player.state.volume / 100;
+      return globalPlayer.volume.value / 100;
     }
     return await FlutterVolumeController.getVolume();
   }
@@ -575,7 +354,7 @@ class VideoController with ChangeNotifier {
 
   void setVolume(double value) async {
     if (Platform.isWindows) {
-      mediaPlayerController.player.setVolume(value * 100);
+      globalPlayer.setVolume(value * 100);
     } else {
       await FlutterVolumeController.setVolume(value);
     }
@@ -586,139 +365,5 @@ class VideoController with ChangeNotifier {
     if (Platform.isAndroid || Platform.isIOS) {
       await brightnessController.setApplicationScreenBrightness(value);
     }
-  }
-}
-
-// use fullscreen with controller provider
-
-class DesktopFullscreen extends StatelessWidget {
-  const DesktopFullscreen({super.key, required this.controller});
-  final VideoController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: Stack(
-          fit: StackFit.passthrough, // 使Stack填充整个父容器
-          children: [
-            Container(
-              color: Colors.black, // 设置你想要的背景色
-            ),
-            Obx(
-              () => media_kit_video.Video(
-                key: ValueKey(controller.videoFit.value),
-                pauseUponEnteringBackgroundMode: !controller.settings.enableBackgroundPlay.value,
-                resumeUponEnteringForegroundMode: !controller.settings.enableBackgroundPlay.value,
-                controller: controller.mediaPlayerController,
-                fit: controller.videoFit.value,
-                controls: controller.room.platform == Sites.iptvSite
-                    ? media_kit_video.MaterialVideoControls
-                    : (state) => VideoControllerPanel(controller: controller),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// use fullscreen with controller provider
-
-class IjkPlayerFullscreen extends StatefulWidget {
-  const IjkPlayerFullscreen({super.key, required this.controller});
-  final VideoController controller;
-
-  @override
-  State<IjkPlayerFullscreen> createState() => _IjkPlayerFullscreenState();
-}
-
-class _IjkPlayerFullscreenState extends State<IjkPlayerFullscreen> {
-  @override
-  void initState() {
-    super.initState();
-    landScape();
-    doEnterFullScreen();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: Stack(
-          fit: StackFit.passthrough, // 使Stack填充整个父容器
-          children: [
-            Container(
-              color: Colors.black, // 设置你想要的背景色
-            ),
-            Obx(
-              () => FijkView(
-                player: widget.controller.ijkPlayer,
-                fit: FijkHelper.getIjkBoxFit(widget.controller.videoFit.value),
-                fs: false,
-                color: Colors.black,
-                panelBuilder:
-                    (FijkPlayer fijkPlayer, FijkData fijkData, BuildContext context, Size viewSize, Rect texturePos) =>
-                        Container(),
-              ),
-            ),
-            VideoControllerPanel(controller: widget.controller),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class MediaPlayerFullscreen extends StatefulWidget {
-  const MediaPlayerFullscreen({super.key, required this.controller});
-  final VideoController controller;
-
-  @override
-  State<MediaPlayerFullscreen> createState() => _MediaPlayerFullscreenState();
-}
-
-class _MediaPlayerFullscreenState extends State<MediaPlayerFullscreen> {
-  @override
-  void initState() {
-    super.initState();
-    if (Platform.isAndroid || Platform.isIOS) {
-      landScape();
-      doEnterFullScreen();
-    }
-  }
-
-  VideoController get controller => widget.controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: Stack(
-          fit: StackFit.passthrough, // 使Stack填充整个父容器
-          children: [
-            Container(
-              color: Colors.black, // 设置你想要的背景色
-            ),
-            Obx(
-              () => media_kit_video.Video(
-                key: ValueKey(controller.videoFit.value),
-                pauseUponEnteringBackgroundMode: !controller.settings.enableBackgroundPlay.value,
-                resumeUponEnteringForegroundMode: !controller.settings.enableBackgroundPlay.value,
-                controller: controller.mediaPlayerController,
-                fit: controller.videoFit.value,
-                controls: controller.room.platform == Sites.iptvSite
-                    ? media_kit_video.MaterialVideoControls
-                    : (state) => VideoControllerPanel(controller: controller),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

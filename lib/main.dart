@@ -7,6 +7,7 @@ import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/global/initialized.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
+import 'package:pure_live/player/switchable_global_player.dart';
 import 'package:pure_live/common/global/platform/desktop_manager.dart';
 
 const kWindowsScheme = 'purelive://signin';
@@ -35,6 +36,16 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
       DesktopManager.initializeListeners(this);
     }
     initShareM3uState();
+    initGlopalPlayer();
+  }
+
+  Future<void> initGlopalPlayer() async {
+    final settings = Get.find<SettingsService>();
+    if (PlatformUtils.isDesktop) {
+      await SwitchableGlobalPlayer().init(PlayerEngine.mediaKit);
+    } else {
+      await SwitchableGlobalPlayer().init(PlayerEngine.values[settings.videoPlayerIndex.value]);
+    }
   }
 
   @override

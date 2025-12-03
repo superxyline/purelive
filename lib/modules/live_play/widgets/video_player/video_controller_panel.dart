@@ -71,11 +71,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
       type: MaterialType.transparency,
       child: CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.mediaPlay): () => controller.mediaPlayerController.player.play(),
-          const SingleActivator(LogicalKeyboardKey.mediaPause): () => controller.mediaPlayerController.player.pause(),
-          const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () =>
-              controller.mediaPlayerController.player.playOrPause(),
-          const SingleActivator(LogicalKeyboardKey.space): () => controller.mediaPlayerController.player.playOrPause(),
+          const SingleActivator(LogicalKeyboardKey.mediaPlay): () => controller.globalPlayer.play(),
+          const SingleActivator(LogicalKeyboardKey.mediaPause): () => controller.globalPlayer.pause(),
+          const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () => controller.globalPlayer.togglePlayPause(),
+          const SingleActivator(LogicalKeyboardKey.space): () => controller.globalPlayer.togglePlayPause(),
           const SingleActivator(LogicalKeyboardKey.keyR): () => controller.refresh(),
           const SingleActivator(LogicalKeyboardKey.arrowUp): () async {
             double? volume = 1.0;
@@ -99,72 +98,68 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
         },
         child: Focus(
           autofocus: true,
-          child: Obx(
-            () => controller.hasError.value
-                ? ErrorWidget(controller: controller)
-                : MouseRegion(
-                    onHover: (event) => controller.enableController(),
-                    cursor: !controller.showController.value ? SystemMouseCursors.none : SystemMouseCursors.basic,
-                    child: Stack(
-                      children: [
-                        Container(
-                          color: Colors.transparent,
-                          alignment: Alignment.center,
-                          child: AnimatedOpacity(
-                            opacity: !showVolumn ? 0.8 : 0.0,
-                            duration: const Duration(milliseconds: 300),
-                            child: Card(
-                              color: Colors.black,
-                              child: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Icon(iconData, color: Colors.white),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8, right: 4),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: SizedBox(
-                                          width: 100,
-                                          height: 20,
-                                          child: LinearProgressIndicator(
-                                            value: currentVolumn,
-                                            backgroundColor: Colors.white38,
-                                            valueColor: AlwaysStoppedAnimation(
-                                              Theme.of(context).tabBarTheme.indicatorColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+          child: MouseRegion(
+            onHover: (event) => controller.enableController(),
+            cursor: !controller.showController.value ? SystemMouseCursors.none : SystemMouseCursors.basic,
+            child: Stack(
+              children: [
+                Container(
+                  color: Colors.transparent,
+                  alignment: Alignment.center,
+                  child: AnimatedOpacity(
+                    opacity: !showVolumn ? 0.8 : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Card(
+                      color: Colors.black,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(iconData, color: Colors.white),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 4),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: SizedBox(
+                                  width: 100,
+                                  height: 20,
+                                  child: LinearProgressIndicator(
+                                    value: currentVolumn,
+                                    backgroundColor: Colors.white38,
+                                    valueColor: AlwaysStoppedAnimation(Theme.of(context).tabBarTheme.indicatorColor),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        DanmakuViewer(controller: controller),
-                        GestureDetector(
-                          onTap: () {
-                            if (controller.showSettting.value) {
-                              controller.showSettting.toggle();
-                            } else {
-                              controller.isPlaying.value ? controller.enableController() : controller.togglePlayPause();
-                            }
-                          },
-                          onDoubleTap: () => controller.isWindowFullscreen.value
-                              ? controller.toggleWindowFullScreen()
-                              : controller.toggleFullScreen(),
-                          child: BrightnessVolumnDargArea(controller: controller),
-                        ),
-                        SettingsPanel(controller: controller),
-                        LockButton(controller: controller),
-                        TopActionBar(controller: controller, barHeight: barHeight),
-                        BottomActionBar(controller: controller, barHeight: barHeight),
-                      ],
+                      ),
                     ),
                   ),
+                ),
+                DanmakuViewer(controller: controller),
+                GestureDetector(
+                  onTap: () {
+                    if (controller.showSettting.value) {
+                      controller.showSettting.toggle();
+                    } else {
+                      controller.isPlaying.value
+                          ? controller.enableController()
+                          : controller.globalPlayer.togglePlayPause();
+                    }
+                  },
+                  onDoubleTap: () => controller.isWindowFullscreen.value
+                      ? controller.toggleWindowFullScreen()
+                      : controller.toggleFullScreen(),
+                  child: BrightnessVolumnDargArea(controller: controller),
+                ),
+                SettingsPanel(controller: controller),
+                LockButton(controller: controller),
+                TopActionBar(controller: controller, barHeight: barHeight),
+                BottomActionBar(controller: controller, barHeight: barHeight),
+              ],
+            ),
           ),
         ),
       ),
@@ -366,7 +361,7 @@ class PIPButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => controller.enterPipMode(context),
+      onTap: () {},
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),
@@ -655,7 +650,7 @@ class PlayPauseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => controller.togglePlayPause(),
+      onTap: () => controller.globalPlayer.togglePlayPause(),
       child: Obx(
         () => Container(
           alignment: Alignment.center,

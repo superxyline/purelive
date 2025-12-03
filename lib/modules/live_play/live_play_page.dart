@@ -6,7 +6,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:pure_live/modules/live_play/play_other.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
 class LivePlayPage extends GetView<LivePlayController> {
@@ -39,89 +38,41 @@ class LivePlayPage extends GetView<LivePlayController> {
   Scaffold buildNormalPlayerView(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Obx(
-          () => controller.getVideoSuccess.value
-              ? Row(
-                  children: [
-                    CircleAvatar(
-                      foregroundImage: controller.detail.value == null && controller.detail.value!.avatar!.isEmpty
-                          ? null
-                          : NetworkImage(controller.detail.value!.avatar!),
-                      radius: 13,
-                      backgroundColor: Theme.of(context).disabledColor,
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: 120),
-                          child: Text(
-                            controller.detail.value == null && controller.detail.value!.nick == null
-                                ? ''
-                                : controller.detail.value!.nick!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                        ),
-                        if (controller.detail.value != null && controller.detail.value!.area != null)
-                          Text(
-                            controller.detail.value!.area!.isEmpty
-                                ? controller.detail.value!.platform!.toUpperCase()
-                                : "${controller.detail.value!.platform!.toUpperCase()} / ${controller.detail.value!.area}",
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(width: 8),
-                    Obx(
-                      () => controller.getVideoSuccess.value
-                          ? FavoriteFloatingButton(room: controller.detail.value!)
-                          : FavoriteFloatingButton(room: controller.currentPlayRoom.value),
-                    ),
-                  ],
-                )
-              : Row(
-                  children: [
-                    CircleAvatar(
-                      foregroundImage: controller.currentPlayRoom.value.avatar == null
-                          ? null
-                          : NetworkImage(controller.currentPlayRoom.value.avatar!),
-                      radius: 13,
-                      backgroundColor: Theme.of(context).disabledColor,
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: 120),
-                          child: Text(
-                            controller.detail.value == null && controller.detail.value!.nick == null
-                                ? ''
-                                : controller.detail.value!.nick!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                        ),
-                        Text(
-                          controller.currentPlayRoom.value.area!.isEmpty
-                              ? controller.currentPlayRoom.value.platform!.toUpperCase()
-                              : "${controller.currentPlayRoom.value.platform!.toUpperCase()} / ${controller.currentPlayRoom.value.area}",
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 8),
-                    Obx(
-                      () => controller.getVideoSuccess.value
-                          ? FavoriteFloatingButton(room: controller.detail.value!)
-                          : FavoriteFloatingButton(room: controller.currentPlayRoom.value),
-                    ),
-                  ],
+        title: Row(
+          children: [
+            CircleAvatar(
+              foregroundImage: controller.currentPlayRoom.value.avatar == null
+                  ? null
+                  : NetworkImage(controller.currentPlayRoom.value.avatar!),
+              radius: 13,
+              backgroundColor: Theme.of(context).disabledColor,
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 120),
+                  child: Text(
+                    controller.detail.value == null && controller.detail.value!.nick == null
+                        ? ''
+                        : controller.detail.value!.nick!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
                 ),
+                Text(
+                  controller.currentPlayRoom.value.area!.isEmpty
+                      ? controller.currentPlayRoom.value.platform!.toUpperCase()
+                      : "${controller.currentPlayRoom.value.platform!.toUpperCase()} / ${controller.currentPlayRoom.value.area}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
+                ),
+              ],
+            ),
+            const SizedBox(width: 8),
+            FavoriteFloatingButton(room: controller.detail.value!),
+          ],
         ),
         actions: [
           IconButton(
@@ -216,44 +167,31 @@ class LivePlayPage extends GetView<LivePlayController> {
       child: Container(
         color: Colors.black,
         child: Obx(
-          () => controller.success.value
-              ? VideoPlayer(controller: controller.videoController!)
-              : controller.hasError.value && controller.isActive.value == false || !controller.getVideoSuccess.value
-              ? ErrorVideoWidget(controller: controller)
-              : videoInfo(),
+          () => controller.success.value ? VideoPlayer(controller: controller.videoController!) : buildLoading(),
         ),
       ),
     );
   }
 
-  Card videoInfo() {
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.all(0),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      clipBehavior: Clip.antiAlias,
-      color: Get.theme.focusColor,
-      child: Obx(
-        () => controller.isFirstLoad.value || !controller.loadTimeOut.value
-            ? const Center(child: CircularProgressIndicator(color: Colors.white))
-            : controller.loadTimeOut.value
-            ? CachedNetworkImage(
-                imageUrl: controller.currentPlayRoom.value.cover!,
-                cacheManager: CustomCacheManager.instance,
-                fit: BoxFit.fill,
-                errorWidget: (context, error, stackTrace) => const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.live_tv_rounded, size: 48),
-                      Text("无法获取播放信息", style: TextStyle(color: Colors.white, fontSize: 18)),
-                      Text("当前房间未开播或无法观看", style: TextStyle(color: Colors.white, fontSize: 18)),
-                      Text("请刷新重试", style: TextStyle(color: Colors.white, fontSize: 18)),
-                    ],
-                  ),
-                ),
-              )
-            : TimeOutVideoWidget(controller: controller),
+  Widget buildLoading() {
+    return Material(
+      child: Stack(
+        fit: StackFit.passthrough,
+        children: [
+          Container(
+            color: Colors.black, // 设置你想要的背景色
+          ),
+          Container(
+            color: Colors.black,
+            child: const Center(
+              child: SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(strokeWidth: 6, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -522,51 +460,6 @@ class ErrorVideoWidget extends StatelessWidget {
                   const Text("所有线路已切换且无法播放", style: TextStyle(color: Colors.white, fontSize: 14)),
                   const Text("请切换播放器或设置解码方式刷新重试", style: TextStyle(color: Colors.white, fontSize: 14)),
                   const Text("如仍有问题可能该房间未开播或无法观看", style: TextStyle(color: Colors.white, fontSize: 14)),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TimeOutVideoWidget extends StatelessWidget {
-  const TimeOutVideoWidget({super.key, required this.controller});
-
-  final LivePlayController controller;
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      type: MaterialType.transparency,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Obx(
-              () => Text(
-                '${controller.currentPlayRoom.value.platform == Sites.iptvSite ? controller.currentPlayRoom.value.title : controller.currentPlayRoom.value.nick ?? ''}',
-                style: const TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      S.of(context).play_video_failed,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
-                  const Text("该房间未开播或已下播", style: TextStyle(color: Colors.white, fontSize: 14)),
-                  const Text("请刷新或者切换其他直播间进行观看吧", style: TextStyle(color: Colors.white, fontSize: 14)),
                 ],
               ),
             ),
