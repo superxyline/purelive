@@ -1,6 +1,6 @@
 {
   "version": "2.0.2",
-  "version_num": 10201,
+  "version_num": 10202,
   "version_desc": "-Fixed: 修复竖屏播放，优化播放器",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
