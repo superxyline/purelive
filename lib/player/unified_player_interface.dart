@@ -35,4 +35,6 @@ abstract class UnifiedPlayer {
   bool get isPlayingNow;
 
   void setVolume(double value) {}
+
+  void stop() {}
 }

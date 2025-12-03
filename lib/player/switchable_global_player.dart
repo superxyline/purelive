@@ -133,6 +133,10 @@ class SwitchableGlobalPlayer {
     }
   }
 
+  Future<void> stop() async {
+    _currentPlayer?.stop();
+  }
+
   // 获取当前视频 Widget（带唯一 key 避免复用问题）
   Widget getVideoWidget(Widget? child) {
     return KeyedSubtree(

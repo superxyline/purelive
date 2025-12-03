@@ -275,7 +275,6 @@ class LivePlayController extends StateController {
         return;
       }
       qualites.value = playQualites;
-      // 第一次加载 使用系统默认线路
       getPlayUrl();
     } catch (e) {
       SmartDialog.showToast("无法读取视频信息,请重新获取");
@@ -332,7 +331,6 @@ class LivePlayController extends StateController {
       datasource: playUrls.value[currentLineIndex.value],
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
       allowBackgroundPlay: settings.enableBackgroundPlay.value,
-      fullScreenByDefault: settings.enableFullScreenDefault.value,
       autoPlay: true,
       headers: headers,
       qualiteName: qualites[currentQuality.value].quality,

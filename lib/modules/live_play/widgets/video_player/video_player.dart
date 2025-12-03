@@ -43,7 +43,55 @@ class _VideoPlayerState extends State<VideoPlayer> {
       if (controller.globalPlayer.isPlaying.value) {
         return widget.controller.globalPlayer.getVideoWidget(VideoControllerPanel(controller: widget.controller));
       }
+      if (controller.globalPlayer.hasError.value) {
+        return TimeOutVideoWidget(controller: controller);
+      }
       return buildLoading();
     });
+  }
+}
+
+class TimeOutVideoWidget extends StatelessWidget {
+  const TimeOutVideoWidget({super.key, required this.controller});
+
+  final VideoController controller;
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Obx(
+              () => Text(
+                '${controller.room.platform == Sites.iptvSite ? controller.room.title : controller.room.nick ?? ''}',
+                style: const TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      S.of(context).play_video_failed,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                  const Text("该房间未开播或已下播", style: TextStyle(color: Colors.white, fontSize: 14)),
+                  const Text("请刷新或者切换其他直播间进行观看吧", style: TextStyle(color: Colors.white, fontSize: 14)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

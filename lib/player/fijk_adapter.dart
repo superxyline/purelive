@@ -103,4 +103,9 @@ class FijkPlayerAdapter implements UnifiedPlayer {
   void setVolume(double value) {
     throw UnimplementedError();
   }
+
+  @override
+  void stop() {
+    _player.stop();
+  }
 }

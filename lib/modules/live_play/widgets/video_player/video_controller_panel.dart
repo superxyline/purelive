@@ -204,11 +204,7 @@ class TopActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => AnimatedPositioned(
-        top:
-            (!controller.isPipMode.value &&
-                !controller.showSettting.value &&
-                controller.showController.value &&
-                !controller.showLocked.value)
+        top: (!controller.showSettting.value && controller.showController.value && !controller.showLocked.value)
             ? 0
             : -barHeight,
         left: 0,
@@ -240,7 +236,7 @@ class TopActionBar extends StatelessWidget {
                 ),
               ),
               if (controller.fullscreenUI) ...[const DatetimeInfo(), BatteryInfo(controller: controller)],
-              if (!controller.fullscreenUI && controller.supportPip) PIPButton(controller: controller),
+              // if (!controller.fullscreenUI && controller.supportPip) PIPButton(controller: controller),
             ],
           ),
         ),
@@ -553,11 +549,7 @@ class LockButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => AnimatedOpacity(
-        opacity:
-            (!controller.isPipMode.value &&
-                !controller.showSettting.value &&
-                controller.fullscreenUI &&
-                controller.showController.value)
+        opacity: (!controller.showSettting.value && controller.fullscreenUI && controller.showController.value)
             ? 0.9
             : 0.0,
         duration: const Duration(milliseconds: 300),
@@ -596,11 +588,7 @@ class BottomActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => AnimatedPositioned(
-        bottom:
-            (!controller.isPipMode.value &&
-                !controller.showSettting.value &&
-                controller.showController.value &&
-                !controller.showLocked.value)
+        bottom: (!controller.showSettting.value && controller.showController.value && !controller.showLocked.value)
             ? 0
             : -barHeight,
         left: 0,

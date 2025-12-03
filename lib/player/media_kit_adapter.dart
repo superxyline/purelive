@@ -83,4 +83,9 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
   void setVolume(double value) {
     _player.setVolume(value);
   }
+
+  @override
+  void stop() {
+    _player.stop();
+  }
 }

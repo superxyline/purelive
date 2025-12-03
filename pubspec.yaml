@@ -33,7 +33,6 @@ dependencies:
   quiver: ^3.2.1
   flex_color_picker: ^3.7.2
   flutter_exit_app: ^2.0.0
-  floating: ^6.0.0
   # database
   supabase_flutter: ^2.10.3
   email_validator: ^3.0.0

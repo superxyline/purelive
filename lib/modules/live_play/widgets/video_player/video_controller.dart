@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
-import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -23,7 +22,6 @@ class VideoController with ChangeNotifier {
   final bool allowBackgroundPlay;
   final bool allowScreenKeepOn;
   final bool allowFullScreen;
-  final bool fullScreenByDefault;
   final bool autoPlay;
   final Map<String, String> headers;
 
@@ -43,8 +41,6 @@ class VideoController with ChangeNotifier {
 
   final int currentQuality;
 
-  final isPipMode = false.obs;
-
   final isFullscreen = false.obs;
 
   final isWindowFullscreen = false.obs;
@@ -54,8 +50,6 @@ class VideoController with ChangeNotifier {
   bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
 
   bool get fullscreenUI => isFullscreen.value || isWindowFullscreen.value;
-
-  late final Floating pip;
 
   GlobalKey<BrightnessVolumnDargAreaState> brightnessKey = GlobalKey<BrightnessVolumnDargAreaState>();
 
@@ -102,7 +96,6 @@ class VideoController with ChangeNotifier {
   final danmakuFontSize = 16.0.obs;
   final danmakuFontBorder = 4.0.obs;
   final danmakuOpacity = 1.0.obs;
-  Timer? hasErrorTimer;
   VideoController({
     required this.room,
     required this.datasourceType,
@@ -111,7 +104,6 @@ class VideoController with ChangeNotifier {
     this.allowBackgroundPlay = false,
     this.allowScreenKeepOn = false,
     this.allowFullScreen = true,
-    this.fullScreenByDefault = false,
     this.autoPlay = true,
     BoxFit fitMode = BoxFit.contain,
     required this.qualiteName,
@@ -164,8 +156,36 @@ class VideoController with ChangeNotifier {
     FlutterVolumeController.updateShowSystemUI(false);
     registerVolumeListener();
     globalPlayer.setDataSource(datasource, headers);
-    if (fullScreenByDefault) {
-      Timer(const Duration(milliseconds: 500), () => toggleFullScreen());
+    globalPlayer.onError.listen((error) {
+      if (error != null) {
+        debugPrint("Error: $error");
+        if (error.contains("Failed to open")) {
+          SmartDialog.showToast("当前视频播放出错,正在切换线路");
+          changeLine();
+        }
+      } else {
+        // retryRoom();
+      }
+    });
+    Future.delayed(Duration(milliseconds: 1000), () {
+      if (settings.enableFullScreenDefault.value) {
+        livePlayController.setFullScreen();
+        enterFullScreen();
+        isFullscreen.value = true;
+        enableController();
+      }
+    });
+  }
+
+  void retryRoom() async {
+    var liveRoom = await Sites.of(
+      room.platform!,
+    ).liveSite.getRoomDetail(roomId: room.roomId!, platform: room.platform!);
+    if (liveRoom.liveStatus == LiveStatus.offline) {
+      livePlayController.setNormalScreen();
+      SmartDialog.showToast("该房间已下播", displayTime: const Duration(seconds: 2));
+    } else {
+      changeLine();
     }
   }
 
@@ -302,8 +322,7 @@ class VideoController with ChangeNotifier {
     });
     if (isFullscreen.value) {
       livePlayController.setNormalScreen();
-
-      exitFullScreen();
+      doExitFullScreen();
     } else {
       livePlayController.setFullScreen();
       enterFullScreen();
