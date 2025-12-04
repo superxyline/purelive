@@ -8,8 +8,11 @@ class MainFlutterWindow: NSWindow {
     self.contentViewController = flutterViewController
     self.setFrame(windowFrame, display: true)
 
+    RegisterGeneratedPlugins(registry: flutterViewController)
+
     // Temporary workaround: Disable launch_at_startup on macOS
     // Until LaunchAtLogin Swift Package is properly configured
+    // MUST be set AFTER RegisterGeneratedPlugins to avoid conflicts
     FlutterMethodChannel(
       name: "launch_at_startup",
       binaryMessenger: flutterViewController.engine.binaryMessenger
@@ -26,8 +29,6 @@ class MainFlutterWindow: NSWindow {
         result(FlutterMethodNotImplemented)
       }
     }
-
-    RegisterGeneratedPlugins(registry: flutterViewController)
 
     super.awakeFromNib()
   }
