@@ -57,7 +57,7 @@ class SwitchableGlobalPlayer {
       width.where((w) => w != null && w > 0), // 过滤无效宽度
       height.where((h) => h != null && h > 0), // 过滤无效高度
       (w, h) => h! > w!,
-    ).debounceTime(const Duration(seconds: 1)).distinct();
+    ).debounceTime(const Duration(milliseconds: 100)).distinct();
 
     // 订阅并更新 isVerticalVideo
     _orientationSubscription = orientationStream.listen((isVertical) {

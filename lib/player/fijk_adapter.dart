@@ -39,14 +39,8 @@ class FijkPlayerAdapter implements UnifiedPlayer {
         _player.state == FijkState.started ||
         _player.state == FijkState.paused) {
       _loadingSubject.add(false);
-      int rotation = _player.value.rotate; // 获取旋转角度（0/90/180/270）
       int actualWidth = _player.value.size!.width.toInt();
       int actualHeight = _player.value.size!.height.toInt();
-      if (rotation == 90 || rotation == 270) {
-        int temp = actualWidth;
-        actualWidth = actualHeight;
-        actualHeight = temp;
-      }
       _heightSubject.add(actualWidth);
       _widthSubject.add(actualHeight);
     } else if (_player.state == FijkState.asyncPreparing || _player.state == FijkState.initialized) {
