@@ -15,7 +15,7 @@ class SwitchableGlobalPlayer {
   static final SwitchableGlobalPlayer _instance = SwitchableGlobalPlayer._internal();
   factory SwitchableGlobalPlayer() => _instance;
   SwitchableGlobalPlayer._internal();
-
+  final isInitialized = false.obs;
   UnifiedPlayer? _currentPlayer;
   PlayerEngine _currentEngine = PlayerEngine.mediaKit;
   final SettingsService settings = Get.find<SettingsService>();
@@ -86,6 +86,7 @@ class SwitchableGlobalPlayer {
     await _currentPlayer!.init();
     _currentEngine = engine;
     _subscribeToPlayerEvents();
+    isInitialized.value = true;
   }
 
   UnifiedPlayer _createPlayer(PlayerEngine engine) {
@@ -106,6 +107,7 @@ class SwitchableGlobalPlayer {
     _currentEngine = newEngine;
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
     _subscribeToPlayerEvents();
+    isInitialized.value = true;
   }
 
   Future<void> setVolume(double volume) async {
@@ -170,6 +172,7 @@ class SwitchableGlobalPlayer {
     _isPlayingSubscription?.cancel();
     _errorSubscription?.cancel();
     _volumeSubscription?.cancel();
+    isInitialized.value = false;
   }
 
   PlayerEngine get currentEngine => _currentEngine;
