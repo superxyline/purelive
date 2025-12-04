@@ -53,10 +53,11 @@ class SwitchableGlobalPlayer {
     _errorSubscription?.cancel();
     _volumeSubscription?.cancel();
     _orientationSubscription?.cancel();
-    final orientationStream = CombineLatestStream.combine2<int?, int?, bool>(width, height, (w, h) {
-      if (w == null || h == null) return false;
-      return h > w; // 竖屏：高度 > 宽度
-    });
+    final orientationStream = CombineLatestStream.combine2<int?, int?, bool>(
+      width.where((w) => w != null && w > 0), // 过滤无效宽度
+      height.where((h) => h != null && h > 0), // 过滤无效高度
+      (w, h) => h! > w!,
+    ).debounceTime(const Duration(seconds: 1)).distinct();
 
     // 订阅并更新 isVerticalVideo
     _orientationSubscription = orientationStream.listen((isVertical) {
