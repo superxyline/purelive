@@ -118,7 +118,7 @@ class SwitchableGlobalPlayer {
   }
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
-    isPlaying.value = false;
+    isPlaying.value = true;
     hasError.value = false;
     isVerticalVideo.value = false;
     await _currentPlayer?.setDataSource(url, headers);
