@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'dart:developer';
 import 'fijk_adapter.dart';
 import 'package:get/get.dart';
 import 'media_kit_adapter.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:flutter/material.dart';
 import 'unified_player_interface.dart';
-import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/common/index.dart';
 
 // switchable_global_player.dart
 
@@ -35,6 +35,8 @@ class SwitchableGlobalPlayer {
 
   final currentVolume = 0.5.obs;
 
+  UnifiedPlayer get currentPlayer => _currentPlayer!;
+
   Stream<bool> get onLoading => _currentPlayer?.onLoading ?? Stream.value(false);
 
   Stream<bool> get onPlaying => _currentPlayer?.onPlaying ?? Stream.value(false);
@@ -56,8 +58,8 @@ class SwitchableGlobalPlayer {
     final orientationStream = CombineLatestStream.combine2<int?, int?, bool>(
       width.where((w) => w != null && w > 0), // 过滤无效宽度
       height.where((h) => h != null && h > 0), // 过滤无效高度
-      (w, h) => h! > w!,
-    ).debounceTime(const Duration(milliseconds: 100)).distinct();
+      (w, h) => h! >= w!,
+    );
 
     // 订阅并更新 isVerticalVideo
     _orientationSubscription = orientationStream.listen((isVertical) {
@@ -82,7 +84,6 @@ class SwitchableGlobalPlayer {
     _currentPlayer = _createPlayer(engine);
     await _currentPlayer!.init();
     _currentEngine = engine;
-    _subscribeToPlayerEvents();
   }
 
   UnifiedPlayer _createPlayer(PlayerEngine engine) {
@@ -102,7 +103,6 @@ class SwitchableGlobalPlayer {
     await _currentPlayer!.init();
     _currentEngine = newEngine;
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
-    _subscribeToPlayerEvents();
   }
 
   Future<void> setVolume(double volume) async {
@@ -115,6 +115,7 @@ class SwitchableGlobalPlayer {
   }
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
+    _subscribeToPlayerEvents();
     isPlaying.value = false;
     hasError.value = false;
     isVerticalVideo.value = false;
@@ -170,6 +171,4 @@ class SwitchableGlobalPlayer {
   }
 
   PlayerEngine get currentEngine => _currentEngine;
-
-  UnifiedPlayer? get currentPlayer => _currentPlayer;
 }
