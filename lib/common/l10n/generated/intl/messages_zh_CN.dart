@@ -84,7 +84,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "dlan_button_info": MessageLookupByLibrary.simpleMessage("DLNA投屏"),
     "dlan_device_not_found": MessageLookupByLibrary.simpleMessage("未发现DLNA设备"),
     "dlan_title": MessageLookupByLibrary.simpleMessage("DLNA投屏"),
-    "double_click_to_exit": MessageLookupByLibrary.simpleMessage("双击退出"),
     "email": MessageLookupByLibrary.simpleMessage("邮件"),
     "empty_areas_room_subtitle": MessageLookupByLibrary.simpleMessage(
       "下滑/上滑刷新数据",

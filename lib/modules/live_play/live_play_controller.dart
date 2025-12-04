@@ -53,14 +53,6 @@ class LivePlayController extends StateController {
   /// 当前线路
   final currentLineIndex = 0.obs;
 
-  int lastExitTime = 0;
-
-  /// 双击退出Flag
-  bool doubleClickExit = false;
-
-  /// 双击退出Timer
-  Timer? doubleClickTimer;
-
   // 当前直播间信息 下一个频道或者上一个
   var currentPlayRoom = LiveRoom().obs;
 
@@ -79,16 +71,6 @@ class LivePlayController extends StateController {
     }
     if (videoController!.isFullscreen.value) {
       videoController?.exitFullScreen();
-      return await Future.value(false);
-    }
-    bool doubleExit = Get.find<SettingsService>().doubleExit.value;
-    if (!doubleExit) {
-      return Future.value(true);
-    }
-    int nowExitTime = DateTime.now().millisecondsSinceEpoch;
-    if (nowExitTime - lastExitTime > 1000) {
-      lastExitTime = nowExitTime;
-      SmartDialog.showToast(S.current.double_click_to_exit);
       return await Future.value(false);
     }
     return await Future.value(true);
@@ -299,7 +281,6 @@ class LivePlayController extends StateController {
         int targetIndex = (preferRatio * (availableQualities.length - 1)).round();
         // 确保索引在有效范围内
         targetIndex = targetIndex.clamp(0, availableQualities.length - 1);
-
         currentQuality.value = targetIndex;
         hasUseDefaultResolution = true;
       }

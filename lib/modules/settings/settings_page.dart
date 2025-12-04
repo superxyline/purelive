@@ -247,15 +247,6 @@ class SettingsPage extends GetView<SettingsService> {
             onTap: () => Get.toNamed(RoutePath.kSettingsHotAreas),
           ),
           if (Platform.isAndroid)
-            Obx(
-              () => SwitchListTile(
-                title: Text(S.of(context).double_click_to_exit),
-                value: controller.doubleExit.value,
-                activeThumbColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.doubleExit.value = value,
-              ),
-            ),
-          if (Platform.isAndroid)
             ListTile(
               title: Text(S.of(context).auto_shutdown_time),
               subtitle: Text(S.of(context).auto_shutdown_time_subtitle),

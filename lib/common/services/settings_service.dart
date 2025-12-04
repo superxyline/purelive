@@ -140,10 +140,6 @@ class SettingsService extends GetxController {
       PrefUtil.setDouble('danmakuOpacity', value);
     });
 
-    doubleExit.listen((value) {
-      PrefUtil.setBool('doubleExit', value);
-    });
-
     enableCodec.listen((value) {
       PrefUtil.setBool('enableCodec', value);
     });
@@ -313,7 +309,7 @@ class SettingsService extends GetxController {
   final playerCompatMode = (PrefUtil.getBool('playerCompatMode') ?? false).obs;
 
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
-  final doubleExit = (PrefUtil.getBool('doubleExit') ?? true).obs;
+
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
 
   final volume = (PrefUtil.getDouble('volume') ?? 0.5).obs;
@@ -691,7 +687,6 @@ class SettingsService extends GetxController {
         ? double.parse(json['danmakuFontBorder'].toString())
         : 4.0;
     danmakuOpacity.value = json['danmakuOpacity'] != null ? double.parse(json['danmakuOpacity'].toString()) : 1.0;
-    doubleExit.value = json['doubleExit'] ?? true;
     videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
     enableCodec.value = json['enableCodec'] ?? true;
     playerCompatMode.value = json['playerCompatMode'] ?? false;
@@ -757,7 +752,6 @@ class SettingsService extends GetxController {
     json['danmakuFontSize'] = danmakuFontSize.value;
     json['danmakuFontBorder'] = danmakuFontBorder.value;
     json['danmakuOpacity'] = danmakuOpacity.value;
-    json['doubleExit'] = doubleExit.value;
     json['videoPlayerIndex'] = videoPlayerIndex.value;
     json['enableCodec'] = enableCodec.value;
     json['playerCompatMode'] = playerCompatMode.value;
@@ -804,7 +798,6 @@ class SettingsService extends GetxController {
       "danmakuFontSize": 16.0,
       "danmakuFontBorder": 4.0,
       "danmakuOpacity": 1.0,
-      'doubleExit': true,
       "videoPlayerIndex": 0,
       'enableCodec': true,
       'playerCompatMode': false,
