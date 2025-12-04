@@ -64,6 +64,7 @@ class SwitchableGlobalPlayer {
     // 订阅并更新 isVerticalVideo
     _orientationSubscription = orientationStream.listen((isVertical) {
       isVerticalVideo.value = isVertical;
+      log('isVerticalVideo: $isVertical', name: 'SwitchableGlobalPlayer');
     });
     // 订阅新 player
     _isPlayingSubscription = onPlaying.listen((playing) {
@@ -84,6 +85,7 @@ class SwitchableGlobalPlayer {
     _currentPlayer = _createPlayer(engine);
     await _currentPlayer!.init();
     _currentEngine = engine;
+    _subscribeToPlayerEvents();
   }
 
   UnifiedPlayer _createPlayer(PlayerEngine engine) {
@@ -103,6 +105,7 @@ class SwitchableGlobalPlayer {
     await _currentPlayer!.init();
     _currentEngine = newEngine;
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
+    _subscribeToPlayerEvents();
   }
 
   Future<void> setVolume(double volume) async {
@@ -115,7 +118,6 @@ class SwitchableGlobalPlayer {
   }
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
-    _subscribeToPlayerEvents();
     isPlaying.value = false;
     hasError.value = false;
     isVerticalVideo.value = false;
