@@ -41,8 +41,8 @@ class FijkPlayerAdapter implements UnifiedPlayer {
       _loadingSubject.add(false);
       int actualWidth = _player.value.size!.width.toInt();
       int actualHeight = _player.value.size!.height.toInt();
-      _heightSubject.add(actualWidth);
-      _widthSubject.add(actualHeight);
+      _heightSubject.add(actualHeight);
+      _widthSubject.add(actualWidth);
     } else if (_player.state == FijkState.asyncPreparing || _player.state == FijkState.initialized) {
       _loadingSubject.add(true);
     }
