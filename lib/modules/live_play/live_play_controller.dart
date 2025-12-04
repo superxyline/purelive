@@ -281,17 +281,26 @@ class LivePlayController extends StateController {
         return;
       }
       qualites.value = playQualites;
-      settings.preferResolution.value = qualites[currentQuality.value].quality;
       if (!hasUseDefaultResolution) {
-        int qualityLevel = settings.resolutionsList.indexOf(settings.preferResolution.value);
-        if (qualityLevel == 0) {
-          currentQuality.value = 0;
-        } else if (qualityLevel == settings.resolutionsList.length - 1) {
-          currentQuality.value = playQualites.length - 1;
-        } else {
-          int middle = (playQualites.length / 2).floor();
-          currentQuality.value = middle;
+        String userPrefer = settings.preferResolution.value;
+        List<String> availableQualities = playQualites.map((e) => e.quality).toList();
+        int matchedIndex = availableQualities.indexOf(userPrefer);
+        // 尝试直接匹配用户偏好的分辨率
+        if (matchedIndex != -1) {
+          currentQuality.value = matchedIndex;
+          hasUseDefaultResolution = true;
+          getPlayUrl();
+          return;
         }
+        // 未匹配到，根据用户偏好的"级别"选择最接近的清晰度
+        List<String> systemResolutions = settings.resolutionsList;
+        int preferLevel = systemResolutions.indexOf(userPrefer);
+        double preferRatio = preferLevel / (systemResolutions.length - 1);
+        int targetIndex = (preferRatio * (availableQualities.length - 1)).round();
+        // 确保索引在有效范围内
+        targetIndex = targetIndex.clamp(0, availableQualities.length - 1);
+
+        currentQuality.value = targetIndex;
         hasUseDefaultResolution = true;
       }
 
