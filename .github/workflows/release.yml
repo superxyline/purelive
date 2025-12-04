@@ -244,9 +244,6 @@ jobs:
       - name: Build macOS Release
         run: flutter build macos --release
 
-      - name: Install create-dmg
-        run: brew install create-dmg
-
       # 获取 Flutter 版本号
       - name: Get Flutter app version from pubspec.yaml
         id: get_version
@@ -264,13 +261,23 @@ jobs:
           Write-Error "Version not found"
           exit 1
 
+      - name: Install create-dmg
+        run: brew install create-dmg
+
       - name: Create DMG
         run: |
-          create-dmg "PureLive-${{ steps.get_version.outputs.version }}-macOS.dmg" "build/macos/Build/Products/Release/纯粹直播.app"
+          create-dmg \
+            --volname "PureLive" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --app-drop-link 600 185 \
+            "PureLive-${{ steps.get_version.outputs.version }}-macOS.dmg" \
+            "build/macos/Build/Products/Release/纯粹直播.app"
         working-directory: ./
 
       # 上传 DMG 至 Artifacts
-      - name: 上传DMG至Artifacts
+      - name: 上传 DMG 至 Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: macOS
@@ -284,7 +291,7 @@ jobs:
           path: assets/version.json
 
       # 上传至 Release
-      - name: 上传至Release
+      - name: 上传至 Release
         uses: softprops/action-gh-release@v2.2.1
         with:
           name: "${{ github.event.inputs.tag_name }}"
