@@ -1,15 +1,16 @@
-import 'dart:io';
 import 'dart:developer';
+import 'dart:io';
+
+import 'package:flutter_single_instance/flutter_single_instance.dart';
 import 'package:get/get.dart';
-import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/global.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
-import 'package:pure_live/common/global/platform/mobile_manager.dart';
-import 'package:flutter_single_instance/flutter_single_instance.dart';
 import 'package:pure_live/common/global/platform/desktop_manager.dart';
+import 'package:pure_live/common/global/platform/mobile_manager.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
+import 'package:pure_live/plugins/global.dart';
 
 class AppInitializer {
   // 单例实例
@@ -50,7 +51,8 @@ class AppInitializer {
     initRefresh();
     initService();
 
-    if (PlatformUtils.isDesktop) {
+    if (PlatformUtils.isDesktopNotMac) {
+      // FlutterSingleInstance may have issues in Release mode for macOS build，but it works fine in debug mode.
       if (!await FlutterSingleInstance().isFirstInstance()) {
         log("App is already running");
         final err = await FlutterSingleInstance().focus();

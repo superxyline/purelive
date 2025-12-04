@@ -1,5 +1,6 @@
 {
   "cmake.sourceDirectory": "E:/project/pure_live/windows",
   "cmake.configureOnOpen": true,
-  "cmake.ignoreCMakeListsMissing": true
+  "cmake.ignoreCMakeListsMissing": true,
+  "dart.flutterSdkPath": ".fvm/versions/3.38.3"
 }
