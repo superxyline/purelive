@@ -136,7 +136,7 @@ class AppPages {
           onNextPressed: () {
             Get.offAllNamed(RoutePath.kInitial);
           },
-          duration: const Duration(seconds: 2),
+          duration: const Duration(seconds: 3),
         );
       },
     ),

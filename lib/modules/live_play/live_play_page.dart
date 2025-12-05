@@ -173,9 +173,7 @@ class LivePlayPage extends GetView<LivePlayController> {
       child: Container(
         color: Colors.black,
         child: Obx(
-          () => controller.success.value && SwitchableGlobalPlayer().isInitialized.value
-              ? VideoPlayer(controller: controller.videoController!)
-              : buildLoading(),
+          () => controller.success.value ? VideoPlayer(controller: controller.videoController!) : buildLoading(),
         ),
       ),
     );
