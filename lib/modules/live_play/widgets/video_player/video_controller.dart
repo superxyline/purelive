@@ -287,7 +287,7 @@ class VideoController with ChangeNotifier {
     });
   }
 
-  void changeLine({bool active = false}) async {
+  void changeLine() async {
     await destory();
     Timer(const Duration(seconds: 2), () {
       livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.changeLine, line: currentLineIndex);
