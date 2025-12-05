@@ -6,7 +6,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:pure_live/modules/live_play/play_other.dart';
-import 'package:pure_live/player/switchable_global_player.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
 class LivePlayPage extends GetView<LivePlayController> {
