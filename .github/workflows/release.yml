@@ -147,7 +147,7 @@ jobs:
       - name: 签出代码
         uses: actions/checkout@v4
         with:
-          channel: stable
+          ref: ${{ github.event.inputs.tag_name || github.ref }}
 
       # 设置Flutter环境
       - name: 设置Flutter环境
@@ -250,7 +250,7 @@ jobs:
         uses: softprops/action-gh-release@v2.2.1
         with:
           name: "${{ github.event.inputs.tag_name }}"
-          body: 
+          body: |
             📦 纯粹直播 v${{ github.ref_name }}
             本软件为开源项目,无广告，无病毒，若安装时出现病毒误报，可自行斟酌。
             
@@ -379,7 +379,7 @@ jobs:
         uses: softprops/action-gh-release@v2.2.1
         with:
           name: "${{ github.event.inputs.tag_name }}"
-          body: 
+          body: |
             📦 纯粹直播 v${{ github.ref_name }}
             本软件为开源项目,无广告，无病毒，若安装时出现病毒误报，可自行斟酌。
 
