@@ -136,20 +136,7 @@ class DesktopManager {
 
   static Future<void> handleWindowClose() async {
     if (!PlatformUtils.isDesktop) return;
-    var result = await Utils.showAlertDialog(
-      "确定要退出吗？",
-      title: "退出",
-      confirm: "确定",
-      cancel: "最小化",
-      barrierDismissible: false,
-    );
-    if (result) {
-      exit(0);
-    } else if (result == false) {
-      if (await windowManager.isPreventClose()) {
-        await windowManager.hide();
-      }
-    }
+    await Utils.showExitDialog();
   }
 
   static Future<void> handleTrayIconClick() async {

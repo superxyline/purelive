@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 
@@ -219,5 +220,85 @@ class Utils {
       ),
     );
     return result;
+  }
+
+  static Future<bool> showExitDialog() async {
+    final settings = Get.find<SettingsService>();
+    final dontAsk = settings.dontAskExit;
+    if (dontAsk.value) {
+      if (settings.exitChoose.value == 'exit') {
+        exit(0);
+      } else if (settings.exitChoose.value == 'minimize') {
+        if (await windowManager.isPreventClose()) {
+          await windowManager.hide();
+        }
+        return true;
+      }
+    }
+    bool shouldNotAskAgain = false;
+    var result = await Get.dialog<bool>(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('提示', style: Get.textTheme.titleLarge),
+            content: Container(
+              constraints: const BoxConstraints(maxHeight: 400),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('确定要退出吗？', style: Get.textTheme.titleMedium),
+                      SizedBox(height: 12),
+                      const Divider(height: 1),
+                      CheckboxListTile(
+                        title: Text('不再询问', style: Get.textTheme.titleSmall),
+                        value: shouldNotAskAgain,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            shouldNotAskAgain = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.spaceBetween,
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  if (shouldNotAskAgain) {
+                    settings.dontAskExit.value = true;
+                    settings.exitChoose.value = 'minimize';
+                  }
+                  Navigator.of(context).pop();
+                  if (await windowManager.isPreventClose()) {
+                    await windowManager.hide();
+                  }
+                },
+                child: Text('最小化'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+                onPressed: () {
+                  if (shouldNotAskAgain) {
+                    settings.dontAskExit.value = true;
+                    settings.exitChoose.value = 'exit';
+                  }
+                  Navigator.of(context).pop();
+                  exit(0);
+                },
+                child: Text('退出'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    return result ?? false;
   }
 }

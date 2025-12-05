@@ -160,6 +160,14 @@ class SettingsService extends GetxController {
       PrefUtil.setString('huyaCookie', value);
     });
 
+    dontAskExit.listen((value) {
+      PrefUtil.setBool('dontAskExit', value);
+    });
+
+    exitChoose.listen((value) {
+      PrefUtil.setString('exitChoose', value);
+    });
+
     douyinCookie.listen((value) {
       PrefUtil.setString('douyinCookie', value);
     });
@@ -317,6 +325,11 @@ class SettingsService extends GetxController {
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
 
   final huyaCookie = (PrefUtil.getString('huyaCookie') ?? '').obs;
+
+  final dontAskExit = (PrefUtil.getBool('dontAskExit') ?? false).obs;
+
+  // exit or minimize choose
+  final exitChoose = (PrefUtil.getString('exitChoose') ?? '').obs;
 
   final douyinCookie = (PrefUtil.getString('douyinCookie') ?? '').obs;
 
@@ -692,6 +705,8 @@ class SettingsService extends GetxController {
     playerCompatMode.value = json['playerCompatMode'] ?? false;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     huyaCookie.value = json['huyaCookie'] ?? '';
+    dontAskExit.value = json['dontAskExit'] ?? false;
+    exitChoose.value = json['exitChoose'] ?? '';
     douyinCookie.value = json['douyinCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     volume.value = json['volume'] ?? 0.5;
@@ -757,6 +772,8 @@ class SettingsService extends GetxController {
     json['playerCompatMode'] = playerCompatMode.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['huyaCookie'] = huyaCookie.value;
+    json['dontAskExit'] = dontAskExit;
+    json['exitChoose'] = exitChoose.value;
     json['douyinCookie'] = douyinCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
     json['hotAreasList'] = hotAreasList.map<String>((e) => e.toString()).toList();
@@ -803,7 +820,9 @@ class SettingsService extends GetxController {
       'playerCompatMode': false,
       'bilibiliCookie': '',
       'huyaCookie': '',
+      'dontAskExit': false,
       'douyinCookie': '',
+      'exitChoose': '',
       'shieldList': [],
       "hotAreasList": [],
       "volume": 0.5,
