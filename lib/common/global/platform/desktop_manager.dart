@@ -144,7 +144,6 @@ class DesktopManager {
       barrierDismissible: false,
     );
     if (result) {
-      await windowManager.close();
       exit(0);
     } else if (result == false) {
       if (await windowManager.isPreventClose()) {
