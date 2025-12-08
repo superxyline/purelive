@@ -255,10 +255,11 @@ class VideoController with ChangeNotifier {
         danmakuController.clear();
         danmakuController.pause();
         hideDanmaku.value = true;
+        showController.value = false;
         livePlayController.setFullScreen();
       } else {
         danmakuController.resume();
-        livePlayController.setNormalScreen();
+        hideDanmaku.value = false;
         hideDanmaku.value = false;
       }
     });
