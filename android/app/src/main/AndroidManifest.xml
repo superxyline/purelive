@@ -35,7 +35,8 @@
   <application 
     android:label="@string/AppName" 
     android:name="${applicationName}"
-    android:banner="@drawable/banner" 
+    android:banner="@drawable/banner"
+    android:largeHeap="true" 
     android:usesCleartextTraffic="true"
     android:networkSecurityConfig="@xml/network_security_config"
     android:requestLegacyExternalStorage="true" 
@@ -43,9 +44,11 @@
     android:allowNativeHeapPointerTagging="false" 
     android:icon="@mipmap/ic_launcher">
     <activity android:name=".MainActivity" 
-    android:exported="true"
+      android:exported="true"
       android:launchMode="singleTask" 
       android:theme="@style/LaunchTheme"
+      android:clearTaskOnLaunch="true"
+      android:excludeFromRecents="false"
       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
       android:hardwareAccelerated="true" 
       android:resizeableActivity="true"
@@ -90,6 +93,9 @@
 		This is used by the Flutter tool to generate GeneratedPluginRegistrant.java
 		-->
     <meta-data android:name="flutterEmbedding" android:value="2" />
+    <meta-data
+        android:name="io.flutter.embedding.android.EnableImpeller"
+        android:value="false" />
     <!-- enable floating window -->
     <service android:name="flutter.overlay.window.flutter_overlay_window.OverlayService"
       android:exported="false" />
@@ -102,10 +108,10 @@
   </application>
   <uses-feature android:name="android.software.leanback" android:required="false" />
   <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-   <queries>
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
-        </intent>
-    </queries>
+  <queries>
+    <intent>
+      <action android:name="android.intent.action.PROCESS_TEXT"/>
+      <data android:mimeType="text/plain"/>
+    </intent>
+  </queries>
 </manifest>
