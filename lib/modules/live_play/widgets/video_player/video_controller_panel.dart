@@ -238,7 +238,7 @@ class TopActionBar extends StatelessWidget {
                 ),
               ),
               if (controller.fullscreenUI) ...[const DatetimeInfo(), BatteryInfo(controller: controller)],
-              // if (!controller.fullscreenUI && controller.supportPip) PIPButton(controller: controller),
+              if (!controller.fullscreenUI && controller.supportPip) PIPButton(controller: controller),
             ],
           ),
         ),
@@ -359,7 +359,9 @@ class PIPButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        controller.globalPlayer.enablePip();
+      },
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(12),

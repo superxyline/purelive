@@ -249,6 +249,15 @@ class VideoController with ChangeNotifier {
       settings.danmakuOpacity.value = data;
       updateDanmaku();
     });
+
+    globalPlayer.isInPipMode.listen((isInPip) {
+      if (isInPip) {
+        danmakuController.clear();
+        danmakuController.pause();
+      } else {
+        danmakuController.resume();
+      }
+    });
   }
 
   void updateDanmaku() {
