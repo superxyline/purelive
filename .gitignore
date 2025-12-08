@@ -45,9 +45,9 @@ app.*.map.json
 /android/app/release
 
 pubspec.lock
-key.properties
-**/*.keystore
-**/*.jks
+# key.properties
+# **/*.keystore
+# **/*.jks
 
 # /assets/keystore/
 /assets/pure_live_web/
