@@ -1,7 +1,7 @@
 {
-  "version": "2.0.3",
-  "version_num": 10202,
-  "version_desc": "-Fixed: 修复竖屏播放，优化播放器. \n -Fixed: 修复清晰度切换",
+  "version": "2.0.4",
+  "version_num": 10204,
+  "version_desc": "-Fixed:优化播放器. \n -Fixed: 修复备份.\n -Fixed: 修复画中画.\n -Added: 添加下载及项目.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
