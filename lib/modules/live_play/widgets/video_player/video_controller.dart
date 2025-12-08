@@ -254,8 +254,12 @@ class VideoController with ChangeNotifier {
       if (isInPip) {
         danmakuController.clear();
         danmakuController.pause();
+        hideDanmaku.value = true;
+        livePlayController.setFullScreen();
       } else {
         danmakuController.resume();
+        livePlayController.setNormalScreen();
+        hideDanmaku.value = false;
       }
     });
   }

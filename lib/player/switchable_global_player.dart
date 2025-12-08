@@ -235,7 +235,7 @@ class SwitchableGlobalPlayer {
     _errorSubscription = onError.listen((error) => hasError.value = error != null);
     _volumeSubscription = volume.listen((v) => currentVolume.value = v ?? 0.5);
     _pipSubscription = floating.pipStatusStream.listen((status) {
-      isInPipMode.value = status == PiPStatus.disabled;
+      isInPipMode.value = status == PiPStatus.enabled;
     });
   }
 
