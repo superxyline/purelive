@@ -772,7 +772,7 @@ class SettingsService extends GetxController {
     json['playerCompatMode'] = playerCompatMode.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['huyaCookie'] = huyaCookie.value;
-    json['dontAskExit'] = dontAskExit;
+    json['dontAskExit'] = dontAskExit.value;
     json['exitChoose'] = exitChoose.value;
     json['douyinCookie'] = douyinCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();
