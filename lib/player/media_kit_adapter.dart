@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'unified_player_interface.dart';
@@ -14,6 +15,18 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
   Future<void> init() async {
     _isPlaying = false;
     _player = Player();
+
+    var pp = _player.platform as NativePlayer;
+    if (Platform.isAndroid) {
+      await pp.setProperty('force-seekable', 'yes');
+    } else if (Platform.isWindows) {
+      await pp.setProperty('cache', 'no');
+      await pp.setProperty('cache-secs', '0');
+      await pp.setProperty('cache-size', '0');
+      await pp.setProperty('demuxer-seekable-cache', 'no');
+      await pp.setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
+      await pp.setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
+    }
     _controller = settings.playerCompatMode.value
         ? VideoController(
             _player,
@@ -56,7 +69,11 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
 
   @override
   void dispose() {
-    _player.dispose();
+    try {
+      _player.dispose();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   @override
@@ -87,5 +104,10 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
   @override
   void stop() {
     _player.stop();
+  }
+
+  @override
+  void release() {
+    _player.dispose();
   }
 }

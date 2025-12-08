@@ -83,10 +83,7 @@ class SwitchableGlobalPlayer {
   Future<void> init(PlayerEngine engine) async {
     if (_currentPlayer != null) return; // 已初始化
     _currentPlayer = _createPlayer(engine);
-    await _currentPlayer!.init();
     _currentEngine = engine;
-    _subscribeToPlayerEvents();
-    isInitialized.value = true;
   }
 
   UnifiedPlayer _createPlayer(PlayerEngine engine) {
@@ -103,7 +100,6 @@ class SwitchableGlobalPlayer {
     if (newEngine == _currentEngine) return;
     _currentPlayer?.dispose();
     _currentPlayer = _createPlayer(newEngine);
-    await _currentPlayer!.init();
     _currentEngine = newEngine;
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
     _subscribeToPlayerEvents();
@@ -120,10 +116,14 @@ class SwitchableGlobalPlayer {
   }
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
+    await _currentPlayer!.init();
+    _subscribeToPlayerEvents();
+    isInitialized.value = true;
     isPlaying.value = true;
     hasError.value = false;
     isVerticalVideo.value = false;
-    await _currentPlayer?.setDataSource(url, headers);
+    await Future.delayed(Duration(milliseconds: 100));
+    _currentPlayer?.setDataSource(url, headers);
   }
 
   // 控制方法透传
@@ -141,6 +141,7 @@ class SwitchableGlobalPlayer {
 
   Future<void> stop() async {
     _currentPlayer?.stop();
+    dispose();
   }
 
   // 获取当前视频 Widget（带唯一 key 避免复用问题）

@@ -37,4 +37,6 @@ abstract class UnifiedPlayer {
   void setVolume(double value) {}
 
   void stop() {}
+
+  void release() {}
 }
