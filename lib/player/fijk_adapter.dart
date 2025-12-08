@@ -106,7 +106,7 @@ class FijkPlayerAdapter implements UnifiedPlayer {
   Stream<double?> get volume => throw UnimplementedError();
 
   @override
-  void setVolume(double value) {
+  Future<void> setVolume(double value) {
     throw UnimplementedError();
   }
 

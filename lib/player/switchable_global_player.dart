@@ -6,6 +6,7 @@ import 'media_kit_adapter.dart';
 import 'package:rxdart/rxdart.dart';
 import 'unified_player_interface.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 // switchable_global_player.dart
 
@@ -118,12 +119,16 @@ class SwitchableGlobalPlayer {
   Future<void> setDataSource(String url, Map<String, String> headers) async {
     await _currentPlayer!.init();
     _subscribeToPlayerEvents();
+    videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
     isInitialized.value = true;
     isPlaying.value = true;
     hasError.value = false;
     isVerticalVideo.value = false;
     await Future.delayed(Duration(milliseconds: 100));
-    _currentPlayer?.setDataSource(url, headers);
+    await _currentPlayer?.setDataSource(url, headers);
+    if (PlatformUtils.isDesktop) {
+      setVolume(settings.volume.value);
+    }
   }
 
   // 控制方法透传

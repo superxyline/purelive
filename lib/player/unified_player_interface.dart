@@ -13,6 +13,8 @@ abstract class UnifiedPlayer {
 
   Future<void> pause();
 
+  Future<void> setVolume(double volume);
+
   // 获取用于渲染的 Widget（由具体实现返回 Video 或 FijkView）
   Widget getVideoWidget(int index, Widget? controls);
 
@@ -33,8 +35,6 @@ abstract class UnifiedPlayer {
   Stream<double?> get volume;
 
   bool get isPlayingNow;
-
-  void setVolume(double value) {}
 
   void stop() {}
 
