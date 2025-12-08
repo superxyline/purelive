@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'widgets/version_dialog.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -21,9 +21,15 @@ class _AboutPageState extends State<AboutPage> {
         physics: const BouncingScrollPhysics(),
         children: <Widget>[
           SectionTitle(title: S.of(context).about),
+          ListTile(
+            title: Text("在线更新"),
+            trailing: Text('当前版本：v${VersionUtil.version}', style: Get.textTheme.bodyMedium),
+            onTap: () {
+              Get.toNamed(RoutePath.kVersionPage);
+            },
+          ),
           ListTile(title: Text(S.of(context).what_is_new), onTap: showNewFeaturesDialog),
           ListTile(title: Text(S.of(context).check_update), onTap: () => showCheckUpdateDialog(context)),
-          ListTile(title: Text(S.of(context).version), subtitle: const Text(VersionUtil.version)),
           ListTile(
             title: const Text('历史记录'),
             subtitle: const Text('历史版本更新记录'),
@@ -31,6 +37,13 @@ class _AboutPageState extends State<AboutPage> {
           ),
           ListTile(title: Text(S.of(context).license), onTap: showLicenseDialog),
           SectionTitle(title: S.of(context).project),
+          ListTile(
+            title: Text(S.of(context).project_page),
+            subtitle: const Text(VersionUtil.projectUrl),
+            onTap: () {
+              launchUrl(Uri.parse(VersionUtil.projectUrl), mode: LaunchMode.externalApplication);
+            },
+          ),
           ListTile(
             title: Text(S.of(context).project_alert),
             subtitle: Padding(
@@ -44,11 +57,9 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   void showCheckUpdateDialog(BuildContext context) async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     showDialog(
       context: Get.context!,
-      builder: (context) =>
-          VersionUtil.hasNewVersion() ? NewVersionDialog(packageInfo: packageInfo) : const NoNewVersionDialog(),
+      builder: (context) => VersionUtil.hasNewVersion() ? NewVersionDialog() : const NoNewVersionDialog(),
     );
   }
 

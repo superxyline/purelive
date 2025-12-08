@@ -8,7 +8,6 @@ import 'package:move_to_desktop/move_to_desktop.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/about/widgets/version_dialog.dart';
@@ -83,16 +82,15 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
 
   Future<void> addToOverlay() async {
     final overlay = Overlay.maybeOf(context);
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (context) => Container(
         alignment: Alignment.center,
         color: Colors.black54,
-        child: NewVersionDialog(entry: entry, packageInfo: packageInfo),
+        child: NewVersionDialog(entry: entry),
       ),
     );
-    await VersionUtil.checkUpdate();
+    await VersionUtil().checkUpdate();
     bool isHasNerVersion = Get.find<SettingsService>().enableAutoCheckUpdate.value && VersionUtil.hasNewVersion();
     if (mounted) {
       if (overlay != null && isHasNerVersion) {

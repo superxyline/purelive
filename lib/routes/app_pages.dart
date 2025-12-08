@@ -8,6 +8,7 @@ import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/splash/splash_screen.dart';
+import 'package:pure_live/modules/version/version_page.dart';
 import 'package:pure_live/modules/web_dav/web_dav_page.dart';
 import 'package:pure_live/modules/toolbox/toolbox_page.dart';
 import 'package:pure_live/modules/account/account_bing.dart';
@@ -19,6 +20,7 @@ import 'package:pure_live/modules/auth/user_manage_page.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
+import 'package:pure_live/modules/version/version_binding.dart';
 import 'package:pure_live/modules/web_dav/web_dav_binding.dart';
 import 'package:pure_live/modules/toolbox/boolbox_binding.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_page.dart';
@@ -140,5 +142,7 @@ class AppPages {
         );
       },
     ),
+    // VersionPage
+    GetPage(name: RoutePath.kVersionPage, page: () => const VersionPage(), bindings: [VersionBinding()]),
   ];
 }

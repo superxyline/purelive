@@ -1,8 +1,6 @@
-import 'dart:io';
+import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/update.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 class NoNewVersionDialog extends StatelessWidget {
   const NoNewVersionDialog({super.key});
@@ -25,18 +23,11 @@ class NoNewVersionDialog extends StatelessWidget {
 }
 
 class NewVersionDialog extends StatelessWidget {
-  const NewVersionDialog({super.key, this.entry, required this.packageInfo});
+  const NewVersionDialog({super.key, this.entry});
 
   final OverlayEntry? entry;
-  final PackageInfo packageInfo;
   @override
   Widget build(BuildContext context) {
-    final apkUrl =
-        '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/app-armeabi-v7a-release.apk';
-    var buildNumber = int.parse(packageInfo.buildNumber) + 1;
-    final windowsExecutableUrl =
-        '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/PureLive-${VersionUtil.latestVersion}+${buildNumber.toString()}-windows-x64-setup.exe';
-
     return AlertDialog(
       title: Text(S.of(context).check_update),
       content: Column(
@@ -64,39 +55,29 @@ class NewVersionDialog extends StatelessWidget {
       actions: <Widget>[
         Row(
           mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  ...getMirrorUrls(Platform.isWindows ? windowsExecutableUrl : apkUrl).asMap().entries.map((entry) {
-                    int index = entry.key;
-                    String url = entry.value;
-
-                    return ElevatedButton(
-                      child: Text('下载 ${index + 1}'),
-                      onPressed: () {
-                        downloadAndInstallApk(url);
-                      },
-                    );
-                  }),
-                ],
-              ),
+            //  RoutePath.kVersionPage
+            TextButton(
+              child: Text(S.of(context).cancel),
+              onPressed: () {
+                if (entry != null) {
+                  entry!.remove();
+                } else {
+                  Navigator.pop(context);
+                }
+              },
             ),
-            SizedBox(
-              width: 60,
-              child: TextButton(
-                child: Text(S.of(context).cancel),
-                onPressed: () {
-                  if (entry != null) {
-                    entry!.remove();
-                  } else {
-                    Navigator.pop(context);
-                  }
-                },
-              ),
+            ElevatedButton(
+              child: Text(S.of(context).update),
+              onPressed: () {
+                if (entry != null) {
+                  entry!.remove();
+                } else {
+                  Navigator.pop(context);
+                }
+                Get.toNamed(RoutePath.kVersionPage);
+              },
             ),
           ],
         ),

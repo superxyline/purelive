@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class VersionUtil {
@@ -14,11 +15,11 @@ class VersionUtil {
   static const String emailUrl = 'mailto:17792321552@163.com?subject=PureLive Feedback';
   static const String telegramGroup = 't.me/pure_live_channel';
   static const String telegramGroupUrl = 'https://t.me/pure_live_channel';
-
+  final isHasNewVersion = false.obs;
   static String latestVersion = version;
   static String latestUpdateLog = '';
   static List allReleased = [];
-  static Future<void> checkUpdate() async {
+  Future<void> checkUpdate() async {
     try {
       var response = await http.get(Uri.parse(releaseUrl));
       allReleased = await jsonDecode(response.body);

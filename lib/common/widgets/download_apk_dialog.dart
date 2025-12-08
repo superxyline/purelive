@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -40,11 +42,12 @@ class _DownloadApkDialogState extends State<DownloadApkDialog> {
 
   Future<void> _startDownload() async {
     final apkName = widget.apkUrl.split('/').last;
-
-    // 获取目录（兼容 Android 11+ 安装）
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$apkName');
-
+    final apkDir = Directory('${dir.path}${path.separator}pure_live');
+    if (!apkDir.existsSync()) {
+      apkDir.createSync(recursive: true);
+    }
+    final file = File('${apkDir.path}${path.separator}$apkName');
     try {
       await _dio.download(
         widget.apkUrl,
@@ -83,6 +86,7 @@ class _DownloadApkDialogState extends State<DownloadApkDialog> {
         }
       }
     } catch (e) {
+      log(e.toString(), name: 'DownloadApkDialog');
       if (mounted && !_cancelToken.isCancelled) {
         _showErrorAndClose('下载失败: $e');
       }

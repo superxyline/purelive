@@ -32,6 +32,16 @@ class SettingsPage extends GetView<SettingsService> {
                 onChanged: (bool value) => controller.enableStartUp.value = value,
               ),
             ),
+          if (Platform.isWindows)
+            Obx(
+              () => SwitchListTile(
+                title: Text('退出每次询问'),
+                subtitle: Text('应用将在每次退出时不再询问是否退出'),
+                value: controller.dontAskExit.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.dontAskExit.value = value,
+              ),
+            ),
           ListTile(
             leading: const Icon(Icons.dark_mode_rounded, size: 32),
             title: Text(S.of(context).change_theme_mode),
