@@ -276,9 +276,11 @@ class Utils {
                     settings.exitChoose.value = 'minimize';
                   }
                   Navigator.of(context).pop();
-                  if (await windowManager.isPreventClose()) {
-                    await windowManager.hide();
-                  }
+                  Future.delayed(const Duration(milliseconds: 200), () async {
+                    if (await windowManager.isPreventClose()) {
+                      await windowManager.hide();
+                    }
+                  });
                 },
                 child: Text('最小化'),
               ),
@@ -290,7 +292,9 @@ class Utils {
                     settings.exitChoose.value = 'exit';
                   }
                   Navigator.of(context).pop();
-                  exit(0);
+                  Future.delayed(const Duration(milliseconds: 200), () {
+                    exit(0);
+                  });
                 },
                 child: Text('退出'),
               ),
