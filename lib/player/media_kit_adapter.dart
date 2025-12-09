@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'unified_player_interface.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/services/settings_service.dart';
 
 class MediaKitPlayerAdapter implements UnifiedPlayer {
@@ -11,11 +12,12 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
   late VideoController _controller;
   final SettingsService settings = Get.find<SettingsService>();
   bool _isPlaying = false;
+  bool isInitialized = false;
   @override
   Future<void> init() async {
     _isPlaying = false;
     _player = Player();
-
+    isInitialized = false;
     var pp = _player.platform as NativePlayer;
     if (Platform.isAndroid) {
       await pp.setProperty('force-seekable', 'yes');
@@ -41,6 +43,14 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
           );
     _player.stream.playing.listen((playing) {
       _isPlaying = playing;
+      if (!isInitialized) {
+        isInitialized = true;
+        if (PlatformUtils.isDesktop) {
+          Future.delayed(Duration(seconds: 1)).then((value) {
+            _player.setVolume(settings.volume.value * 100);
+          });
+        }
+      }
     });
   }
 

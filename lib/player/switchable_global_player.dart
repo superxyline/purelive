@@ -8,7 +8,6 @@ import 'package:rxdart/rxdart.dart';
 import 'unified_player_interface.dart';
 import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 enum PlayerEngine { mediaKit, fijk }
 
@@ -102,9 +101,6 @@ class SwitchableGlobalPlayer {
         Future.microtask(() {
           isInitialized.value = true;
           _subscribeToPlayerEvents();
-          if (PlatformUtils.isDesktop) {
-            setVolume(settings.volume.value);
-          }
         }),
       );
     } catch (e, st) {
