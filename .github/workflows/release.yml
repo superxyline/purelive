@@ -1,6 +1,5 @@
 name: app-build-action
 
-# 推送Tag时触发 或者 手动触发
 on:
   workflow_dispatch:
     inputs:
@@ -15,22 +14,19 @@ on:
 jobs:
   build-android:
     runs-on: macos-latest
-    permissions:
-      contents: write
     steps:
-      # 签出代码
       - name: 签出代码
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag_name }}
+          ref: ${{ github.event.inputs.tag_name || github.ref }}
 
-      # APK签名设置
       - name: 下载Android keystore
         id: android_keystore
         uses: timheuer/base64-to-file@v1.2
         with:
           fileName: key.jks
           encodedString: ${{ secrets.KEYSTORE_BASE64 }}
+
       - name: 创建key.properties
         run: |
           echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > android/key.properties
@@ -38,7 +34,6 @@ jobs:
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
 
-      # 设置JAVA环境
       - name: 设置JAVA环境
         uses: actions/setup-java@v4
         with:
@@ -46,110 +41,36 @@ jobs:
           java-version: "17"
           cache: 'gradle'
 
-      # 设置Flutter
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      # 更新Flutter的packages
       - name: 更新Flutter的packages
         run: flutter pub get
 
-      # 打包APK
       - name: 打包APK
         run: flutter build apk --release --split-per-abi
-      
-      # 上传APK至Artifacts
+
       - name: 上传APK至Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android
+          name: android-apks
           path: |
             build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
             build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-x86_64-release.apk
-
-      # 读取版本信息
-      - name: 读取版本信息
-        id: version
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: assets/version.json
-
-      # 上传至Release
-      - name: 上传至Release
-        uses: softprops/action-gh-release@v2.2.1
-        with:
-          name: "${{ github.event.inputs.tag_name }}"
-          body: 
-            📦 纯粹直播 v${{ github.ref_name }}
-            本软件为开源项目,无广告，无病毒，若安装时出现病毒误报，可自行斟酌。
-            
-            🖥️ Windows 版本
-            • 安装程序：支持 Windows 10/11 (x64)
-            • 功能：自动创建桌面快捷方式
-            • 功能：支持多种直播源
-            • 已实现WebDav
-            • 功能：支持弹幕显示
-            • ⌨️ 快捷键支持：
-            • 空格 - 播放 / 暂停
-            • ESC - 播放器全屏和非全屏
-            • 上下方向键 - 音量+ / 音量-
-            • Space - 暂停/播放切换
-            • R - 刷新
-            • 软件打开白屏
-              - C:/Users/用户名/AppData/Local/com.example/pure_live(删除)
-              - C:/Users/用户名/AppData/Roaming/com.example/pure_live(删除)
-             • 若关闭软件就弹"快速异常检测失败"
-              - 部分电脑关闭软件弹出 不影响实际使用
-
-            🍎 macOS 版本 - 感谢 RebornQ 开发
-            • 安装程序：支持 macOS 10.15+ (x64)
-
-            📱 Android 版本
-            • 安装程序：支持 Android 6.0+ (armeabi-v7a, arm64-v8a)
-            • 已实现WebDav
-            • 支持多种播放器切换 
-            • 支持弹幕显示
-            • 支持应用內更新
-            • 软件打开白屏(清空缓存即可，不会清除)
-
-            📺 TV 版本
-            • 安装程序：支持 Android TV 6.0+ (armeabi-v7a, arm64-v8a)
-            • 已实现TV同步直播源
-            • 支持多种播放器切换 
-            • 支持弹幕显示
-            • 支持应用內更新
-            下载地址：https://github.com/liuchuancong/pure_live_TV/releases/latest
-
-            本次更新内容：
-            ${{ fromJson(steps.version.outputs.content).version_desc }}
-          prerelease: false
-          token: ${{ secrets.TOKEN }}
-          files: |
-            build/app/outputs/flutter-apk/app-x86_64-release.apk
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-
-      # 完成
-      - name: 输出任务状态
-        if: always()
-        run: echo "🍏 Android job's status is ${{ job.status }}."
+            build/app/outputs/flutter-apk/app-x86_6x-release.apk
+          retention-days: 1
 
   build-windows:
     runs-on: windows-latest
-    permissions:
-      contents: write
     steps:
-      # 签出代码
       - name: 签出代码
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.tag_name || github.ref }}
 
-      # 设置Flutter环境
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
@@ -162,188 +83,78 @@ jobs:
       - name: 更新Flutter的packages
         run: flutter pub get
 
-      # 安装 Inno Setup 6（fastforge 的依赖）
       - name: Install Inno Setup 6
         run: |
           $url = "https://jrsoftware.org/download.php/is.exe"
           $output = "${{ runner.temp }}\innosetup.exe"
-          
-          Write-Host "Downloading Inno Setup 6..."
           Invoke-WebRequest -Uri $url -OutFile $output
-          
-          Write-Host "Installing Inno Setup 6..."
           Start-Process -FilePath $output -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
-          
-          # 添加到PATH
-          $innoPath = "C:\Program Files (x86)\Inno Setup 6"
-          echo "$innoPath" >> $env:GITHUB_PATH
+          echo "C:\Program Files (x86)\Inno Setup 6" >> $env:GITHUB_PATH
 
       - name: Copy Chinese language pack
         run: |
-          $sourceFile = "windows\packaging\exe\ChineseSimplified.isl"
-          $targetDir = "C:\Program Files (x86)\Inno Setup 6\Languages"
-          $targetFile = "$targetDir\ChineseSimplified.isl"
-          
-          if (Test-Path $sourceFile) {
-            Copy-Item $sourceFile $targetFile -Force
-            Write-Host "Chinese language pack copied successfully"
-          } else {
-            Write-Host "Chinese language pack not found in project"
-          }
-      # 安装 fastforge
+          $source = "windows\packaging\exe\ChineseSimplified.isl"
+          $target = "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl"
+          if (Test-Path $source) { Copy-Item $source $target -Force }
+
       - name: Install fastforge
         run: dart pub global activate fastforge
-      # 获取 Flutter 版本号
-      - name: Get Flutter app version from pubspec.yaml
+
+      - name: Get version from pubspec.yaml
         id: get_version
         shell: pwsh
         run: |
           $lines = Get-Content pubspec.yaml
           foreach ($line in $lines) {
-              if ($line -match '^\s*version:\s*(\S+)') {
-                  $v = $matches[1] -replace '[`"''`]', ''
-                  "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-                  Write-Host "✅ Version: $v"
-                  exit 0
-              }
+            if ($line -match '^\s*version:\s*(\S+)') {
+              $v = $matches[1] -replace '[`"''`]', ''
+              "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+              exit 0
+            }
           }
-          Write-Error "Version not found"
-          exit 1
-      # 使用 fastforge 打包 Windows exe
+          Write-Error "Version not found"; exit 1
+
       - name: Package Windows exe
         run: fastforge package --platform windows --targets exe
 
-        # 重命名生成的安装程序
-      - name: Rename Windows installer
+      - name: Rename installer
         run: |
           $VERSION = "${{ steps.get_version.outputs.version }}"
-          
-          # fastforge 生成的文件通常在 dist 目录中
-          $DIST_DIR = "dist\$VERSION"
-          $INSTALLER_NAME = "PureLive-$VERSION-windows-x64-setup.exe"
-          
-          # 查找生成的 exe 文件
-          Get-ChildItem "$DIST_DIR" -Filter "*.exe" | ForEach-Object {
-            $SRC = $_.FullName
-            Write-Host "Found installer: $SRC"
-            Copy-Item $SRC $INSTALLER_NAME -Force
-            Write-Host "Renamed to: $INSTALLER_NAME"
-          }
+          $SRC = Get-ChildItem "dist\$VERSION" -Filter "*.exe" | Select-Object -First 1
+          Copy-Item $SRC.FullName "PureLive-$VERSION-windows-x64-setup.exe"
 
-      # 上传Windows应用至Artifacts
-      - name: 上传Windows应用至Artifacts
+      - name: 上传Windows安装包
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
           path: PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
           retention-days: 1
 
-      # 读取版本信息
-      - name: 读取版本信息
-        id: version
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: assets/version.json
-
-      # 上传至Release
-      - name: 上传至Release
-        uses: softprops/action-gh-release@v2.2.1
-        with:
-          name: "${{ github.event.inputs.tag_name }}"
-          body: |
-            📦 纯粹直播 v${{ github.ref_name }}
-            本软件为开源项目,无广告，无病毒，若安装时出现病毒误报，可自行斟酌。
-            
-            🖥️ Windows 版本
-            • 安装程序：支持 Windows 10/11 (x64)
-            • 功能：自动创建桌面快捷方式
-            • 功能：支持多种直播源
-            • 已实现WebDav
-            • 功能：支持弹幕显示
-            • ⌨️ 快捷键支持：
-            • 空格 - 播放 / 暂停
-            • ESC - 播放器全屏和非全屏
-            • 上下方向键 - 音量+ / 音量-
-            • Space - 暂停/播放切换
-            • R - 刷新
-            • 软件打开白屏
-              - C:/Users/用户名/AppData/Local/com.example/pure_live(删除)
-              - C:/Users/用户名/AppData/Roaming/com.example/pure_live(删除)
-             • 若关闭软件就弹"快速异常检测失败"
-              - 部分电脑关闭软件弹出 不影响实际使用
-
-            🍎 macOS 版本 - 感谢 RebornQ 开发
-            • 安装程序：支持 macOS 10.15+ (x64)
-
-            📱 Android 版本
-            • 安装程序：支持 Android 6.0+ (armeabi-v7a, arm64-v8a)
-            • 已实现WebDav
-            • 支持多种播放器切换 
-            • 支持弹幕显示
-            • 支持应用內更新
-            • 软件打开白屏(清空缓存即可，不会清除)
-
-            📺 TV 版本
-            • 安装程序：支持 Android TV 6.0+ (armeabi-v7a, arm64-v8a)
-            • 已实现TV同步直播源
-            • 支持多种播放器切换 
-            • 支持弹幕显示
-            • 支持应用內更新
-            下载地址：https://github.com/liuchuancong/pure_live_TV/releases/latest
-
-            本次更新内容：
-            ${{ fromJson(steps.version.outputs.content).version_desc }}
-          prerelease: false
-          token: ${{ secrets.TOKEN }}
-          files: |
-            PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
-
-      # 完成
-      - name: 输出任务状态
-        if: always()
-        run: echo "🍏 Windows job's status is ${{ job.status }}."
-
   build-macos:
     runs-on: macos-latest
-    permissions:
-      contents: write
     steps:
-      # 签出代码
       - name: 签出代码
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag_name }}
+          ref: ${{ github.event.inputs.tag_name || github.ref }}
 
-      # 设置Flutter
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      # 更新Flutter的packages
       - name: 更新Flutter的packages
         run: flutter pub get
 
-      - name: Build macOS Release
+      - name: Build macOS
         run: flutter build macos --release
 
-      # 获取 Flutter 版本号
-      - name: Get Flutter app version from pubspec.yaml
+      - name: Get version from pubspec.yaml
         id: get_version
-        shell: pwsh
         run: |
-          $lines = Get-Content pubspec.yaml
-          foreach ($line in $lines) {
-              if ($line -match '^\s*version:\s*(\S+)') {
-                  $v = $matches[1] -replace '[`"''`]', ''
-                  "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-                  Write-Host "✅ Version: $v"
-                  exit 0
-              }
-          }
-          Write-Error "Version not found"
-          exit 1
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/[`"'"'"']//g')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Install create-dmg
         run: brew install create-dmg
@@ -358,76 +169,99 @@ jobs:
             --app-drop-link 600 185 \
             "PureLive-${{ steps.get_version.outputs.version }}-macOS.dmg" \
             "build/macos/Build/Products/Release/纯粹直播.app"
-        working-directory: ./
 
-      # 上传 DMG 至 Artifacts
-      - name: 上传 DMG 至 Artifacts
+      - name: 上传DMG
         uses: actions/upload-artifact@v4
         with:
-          name: macOS
+          name: macos-dmg
           path: PureLive-${{ steps.get_version.outputs.version }}-macOS.dmg
+          retention-days: 1
 
-      # 读取版本信息
-      - name: 读取版本信息
+  publish-release:
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows, build-macos]
+    permissions:
+      contents: write
+    steps:
+      - name: 签出代码（用于读取 version.json）
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag_name || github.ref }}
+
+      - name: 下载所有构建产物
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: 读取版本描述
         id: version
         uses: juliangruber/read-file-action@v1
         with:
           path: assets/version.json
 
-      # 上传至 Release
-      - name: 上传至 Release
-        uses: softprops/action-gh-release@v2.2.1
-        with:
-          name: "${{ github.event.inputs.tag_name }}"
-          body: |
-            📦 纯粹直播 v${{ github.ref_name }}
-            本软件为开源项目,无广告，无病毒，若安装时出现病毒误报，可自行斟酌。
-
-            🖥️ Windows 版本
-            • 安装程序：支持 Windows 10/11 (x64)
-            • 功能：自动创建桌面快捷方式
-            • 功能：支持多种直播源
-            • 已实现WebDav
-            • 功能：支持弹幕显示
-            • ⌨️ 快捷键支持：
+      - name: 构建 Release Body
+        id: release_body
+        run: |
+          cat << EOF > release_body.txt
+          📦 纯粹直播 v${{ github.ref_name }}
+          本软件为开源项目,无广告，无病毒，若安装时出现病毒误报，可自行斟酌。
+          
+          🖥️ Windows 版本
+          • 安装程序：支持 Windows 10/11 (x64)
+          • 功能：自动创建桌面快捷方式
+          • 功能：支持多种直播源
+          • 已实现WebDav
+          • 功能：支持弹幕显示
+          • ⌨️ 快捷键支持：
             • 空格 - 播放 / 暂停
             • ESC - 播放器全屏和非全屏
             • 上下方向键 - 音量+ / 音量-
             • Space - 暂停/播放切换
             • R - 刷新
-            • 软件打开白屏
-              - C:/Users/用户名/AppData/Local/com.example/pure_live(删除)
-              - C:/Users/用户名/AppData/Roaming/com.example/pure_live(删除)
-             • 若关闭软件就弹"快速异常检测失败"
-              - 部分电脑关闭软件弹出 不影响实际使用
+          • 软件打开白屏
+            - C:/Users/用户名/AppData/Local/com.example/pure_live(删除)
+            - C:/Users/用户名/AppData/Roaming/com.example/pure_live(删除)
+          • 若关闭软件就弹"快速异常检测失败"
+            - 部分电脑关闭软件弹出 不影响实际使用
 
-            🍎 macOS 版本 - 感谢 RebornQ 开发
-            • 安装程序：支持 macOS 10.15+ (x64)
+          🍎 macOS 版本 - 感谢 RebornQ 开发
+          • 安装程序：支持 macOS 10.15+ (x64)
 
-            📱 Android 版本
-            • 安装程序：支持 Android 6.0+ (armeabi-v7a, arm64-v8a)
-            • 已实现WebDav
-            • 支持多种播放器切换 
-            • 支持弹幕显示
-            • 支持应用內更新
-            • 软件打开白屏(清空缓存即可，不会清除)
+          📱 Android 版本
+          • 安装程序：支持 Android 6.0+ (armeabi-v7a, arm64-v8a)
+          • 已实现WebDav
+          • 支持多种播放器切换 
+          • 支持弹幕显示
+          • 支持应用內更新
+          • 软件打开白屏(清空缓存即可，不会清除)
 
-            📺 TV 版本
-            • 安装程序：支持 Android TV 6.0+ (armeabi-v7a, arm64-v8a)
-            • 已实现TV同步直播源
-            • 支持多种播放器切换 
-            • 支持弹幕显示
-            • 支持应用內更新
-            下载地址：https://github.com/liuchuancong/pure_live_TV/releases/latest
+          📺 TV 版本
+          • 安装程序：支持 Android TV 6.0+ (armeabi-v7a, arm64-v8a)
+          • 已实现TV同步直播源
+          • 支持多种播放器切换 
+          • 支持弹幕显示
+          • 支持应用內更新
+          下载地址：https://github.com/liuchuancong/pure_live_TV/releases/latest
 
-            本次更新内容：
-            ${{ fromJson(steps.version.outputs.content).version_desc }}
+          本次更新内容：
+          $(echo '${{ fromJson(steps.version.outputs.content).version_desc }}')
+          EOF
+          echo "body_path=$(pwd)/release_body.txt" >> $GITHUB_OUTPUT
+
+      - name: 上传至 Release
+        uses: softprops/action-gh-release@v2.2.1
+        with:
+          name: ${{ github.event.inputs.tag_name || github.ref_name }}
+          body_path: ${{ steps.release_body.outputs.body_path }}
           prerelease: false
           token: ${{ secrets.TOKEN }}
           files: |
-            PureLive-${{ steps.get_version.outputs.version }}-macOS.dmg
+            artifacts/android-apks/app-armeabi-v7a-release.apk
+            artifacts/android-apks/app-arm64-v8a-release.apk
+            artifacts/android-apks/app-x86_64-release.apk
+            artifacts/windows-installer/*.exe
+            artifacts/macos-dmg/*.dmg
 
-      # 完成
-      - name: 输出任务状态
+      - name: 输出状态
         if: always()
-        run: echo "🍏 macOS job's status is ${{ job.status }}."
+        run: 'echo "✅ Release published with status: ${{ job.status }}"'
