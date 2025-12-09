@@ -202,49 +202,38 @@ jobs:
       - name: 构建 Release Body
         id: release_body
         run: |
-          cat << EOF > release_body.txt
-          📦 纯粹直播 v${{ github.ref_name }}
-          本软件为开源项目,无广告，无病毒，若安装时出现病毒误报，可自行斟酌。
-          
-          🖥️ Windows 版本
-          • 安装程序：支持 Windows 10/11 (x64)
-          • 功能：自动创建桌面快捷方式
-          • 功能：支持多种直播源
-          • 已实现WebDav
-          • 功能：支持弹幕显示
-          • ⌨️ 快捷键支持：
-            • 空格 - 播放 / 暂停
-            • ESC - 播放器全屏和非全屏
-            • 上下方向键 - 音量+ / 音量-
-            • Space - 暂停/播放切换
-            • R - 刷新
-          • 软件打开白屏
-            - C:/Users/用户名/AppData/Local/com.example/pure_live(删除)
-            - C:/Users/用户名/AppData/Roaming/com.example/pure_live(删除)
-          • 若关闭软件就弹"快速异常检测失败"
-            - 部分电脑关闭软件弹出 不影响实际使用
+          cat << 'EOF' > release_body.txt
+          # 纯粹直播 v${{ github.ref_name }}
 
-          🍎 macOS 版本 - 感谢 RebornQ 开发
-          • 安装程序：支持 macOS 10.15+ (x64)
+          开源无广告、无病毒，杀毒软件误报可自行斟酌使用。
+          ### 📥 快速下载
 
-          📱 Android 版本
-          • 安装程序：支持 Android 6.0+ (armeabi-v7a, arm64-v8a)
-          • 已实现WebDav
-          • 支持多种播放器切换 
-          • 支持弹幕显示
-          • 支持应用內更新
-          • 软件打开白屏(清空缓存即可，不会清除)
+          |版本|下载地址|
+          |---|---|
+          |TV版|[pure_live_TV](https://github.com/liuchuancong/pure_live_TV/releases/latest)|
+          |Windows/macOS/Android版|[pure_live](https://github.com/liuchuancong/pure_live/releases/latest)|
 
-          📺 TV 版本
-          • 安装程序：支持 Android TV 6.0+ (armeabi-v7a, arm64-v8a)
-          • 已实现TV同步直播源
-          • 支持多种播放器切换 
-          • 支持弹幕显示
-          • 支持应用內更新
-          下载地址：https://github.com/liuchuancong/pure_live_TV/releases/latest
+          ### 🖥️ Windows 版
+          - 适配：Win10/11 (x64)，自动创建桌面快捷方式
+          - 功能：多直播源、WebDAV、弹幕显示
+          - 快捷键：空格(播放/暂停) \| ESC(全屏切换) \| 上下键(音量) \| R(刷新)
 
-          本次更新内容：
-          $(echo '${{ fromJson(steps.version.outputs.content).version_desc }}')
+          ### 🍎 macOS 版
+          感谢 RebornQ 开发 | 适配：macOS 10.15+ (x64) | 同 Windows 核心功能
+
+          ### 📱 Android 版
+          适配：Android 6.0+ | 功能：WebDAV、多播放器切换、弹幕、应用内更新
+
+          ### 📺 TV 版
+          适配：Android TV 6.0+ | 功能：直播源同步、多播放器、弹幕、应用内更新
+
+          ### ❓ 常见问题
+          1. **Windows 白屏**：删除 `C:/Users/[你的用户名]/AppData/Local/` 及 `Roaming/` 下的 `com.example/pure_live` 文件夹  
+          2. **Windows 关闭弹窗 "快速异常检测失败"**：不影响使用  
+          3. **Android 白屏**：清空应用缓存（不会清除配置）
+
+          ### 📝 本次更新
+          ${{ fromJson(steps.version.outputs.content).version_desc }}
           EOF
           echo "body_path=$(pwd)/release_body.txt" >> $GITHUB_OUTPUT
 
