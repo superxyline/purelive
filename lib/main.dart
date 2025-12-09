@@ -82,14 +82,6 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
       child: DynamicColorBuilder(
         builder: (lightDynamic, darkDynamic) {
           return Obx(() {
-            if (Platform.isWindows) {
-              settings.videoPlayerIndex.value = 0;
-            } else {
-              if (settings.videoPlayerIndex.value > 1) {
-                settings.videoPlayerIndex.value = 0;
-              }
-            }
-
             var themeColor = HexColor(settings.themeColorSwitch.value);
             ThemeData lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
             ThemeData darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;

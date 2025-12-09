@@ -137,9 +137,12 @@ class SwitchableGlobalPlayer {
   }
 
   void enablePip() async {
-    final rational = isVerticalVideo.value ? Rational.vertical() : Rational.landscape();
-    final arguments = ImmediatePiP(aspectRatio: rational);
-    await floating.enable(arguments);
+    final status = await floating.pipStatus;
+    if (status == PiPStatus.disabled) {
+      final rational = isVerticalVideo.value ? Rational.vertical() : Rational.landscape();
+      final arguments = ImmediatePiP(aspectRatio: rational);
+      await floating.enable(arguments);
+    }
   }
 
   void changeVideoFit(int index) {
@@ -174,6 +177,7 @@ class SwitchableGlobalPlayer {
           ),
         );
       }
+      // 画中画时只显示视频
       return PiPSwitcher(
         floating: floating,
         childWhenEnabled: KeyedSubtree(
@@ -187,7 +191,6 @@ class SwitchableGlobalPlayer {
                 children: [
                   Container(color: Colors.black),
                   _currentPlayer?.getVideoWidget(settings.videoFitIndex.value, child) ?? const SizedBox(),
-                  child ?? const SizedBox(),
                 ],
               ),
               resizeToAvoidBottomInset: true,
