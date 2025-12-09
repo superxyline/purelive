@@ -224,11 +224,17 @@ class Utils {
 
   static Future<bool> showExitDialog() async {
     final settings = Get.find<SettingsService>();
-    final dontAsk = settings.dontAskExit;
-    if (dontAsk.value) {
-      if (settings.exitChoose.value == 'exit') {
-        exit(0);
-      } else if (settings.exitChoose.value == 'minimize') {
+    final dontAsk = settings.dontAskExit.value;
+    final exitChoose = settings.exitChoose.value;
+    if (dontAsk) {
+      if (exitChoose == 'exit') {
+        if (await windowManager.isPreventClose()) {
+          await windowManager.setPreventClose(false);
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          exit(0);
+        });
+      } else if (exitChoose == 'minimize') {
         if (await windowManager.isPreventClose()) {
           await windowManager.hide();
         }
@@ -259,7 +265,6 @@ class Utils {
                         onChanged: (bool? value) {
                           setState(() {
                             shouldNotAskAgain = value!;
-                            settings.dontAskExit.value = shouldNotAskAgain;
                           });
                         },
                       ),
@@ -272,6 +277,7 @@ class Utils {
             actions: [
               TextButton(
                 onPressed: () async {
+                  settings.dontAskExit.value = shouldNotAskAgain;
                   settings.exitChoose.value = 'minimize';
                   Navigator.of(context).pop();
                   Future.delayed(const Duration(milliseconds: 200), () async {
@@ -284,10 +290,14 @@ class Utils {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
-                onPressed: () {
+                onPressed: () async {
+                  settings.dontAskExit.value = shouldNotAskAgain;
                   settings.exitChoose.value = 'exit';
                   Navigator.of(context).pop();
-                  Future.delayed(const Duration(milliseconds: 400), () {
+                  if (await windowManager.isPreventClose()) {
+                    await windowManager.setPreventClose(false);
+                  }
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
                     exit(0);
                   });
                 },
