@@ -259,6 +259,7 @@ class Utils {
                         onChanged: (bool? value) {
                           setState(() {
                             shouldNotAskAgain = value!;
+                            settings.dontAskExit.value = shouldNotAskAgain;
                           });
                         },
                       ),
@@ -271,10 +272,7 @@ class Utils {
             actions: [
               TextButton(
                 onPressed: () async {
-                  if (shouldNotAskAgain) {
-                    settings.dontAskExit.value = true;
-                    settings.exitChoose.value = 'minimize';
-                  }
+                  settings.exitChoose.value = 'minimize';
                   Navigator.of(context).pop();
                   Future.delayed(const Duration(milliseconds: 200), () async {
                     if (await windowManager.isPreventClose()) {
@@ -287,12 +285,9 @@ class Utils {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
                 onPressed: () {
-                  if (shouldNotAskAgain) {
-                    settings.dontAskExit.value = true;
-                    settings.exitChoose.value = 'exit';
-                  }
+                  settings.exitChoose.value = 'exit';
                   Navigator.of(context).pop();
-                  Future.delayed(const Duration(milliseconds: 200), () {
+                  Future.delayed(const Duration(milliseconds: 400), () {
                     exit(0);
                   });
                 },
