@@ -47,7 +47,6 @@ class SwitchableGlobalPlayer {
   Stream<String?> get onError => _currentPlayer?.onError ?? Stream.value(null);
   Stream<int?> get width => _currentPlayer?.width ?? Stream.value(null);
   Stream<int?> get height => _currentPlayer?.height ?? Stream.value(null);
-  Stream<double?> get volume => _currentPlayer?.volume ?? Stream.value(null);
 
   // ------------------ 初始化 & 切换 ------------------
 
@@ -232,7 +231,6 @@ class SwitchableGlobalPlayer {
 
     _isPlayingSubscription = onPlaying.listen((playing) => isPlaying.value = playing);
     _errorSubscription = onError.listen((error) => hasError.value = error != null);
-    _volumeSubscription = volume.listen((v) => currentVolume.value = v ?? 0.5);
     _pipSubscription = floating.pipStatusStream.listen((status) {
       isInPipMode.value = status == PiPStatus.enabled;
     });

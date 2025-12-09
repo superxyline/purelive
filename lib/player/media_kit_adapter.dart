@@ -105,9 +105,6 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
   Stream<int?> get width => _player.stream.width;
 
   @override
-  Stream<double?> get volume => _player.stream.volume;
-
-  @override
   Future<void> setVolume(double value) async {
     await _player.setVolume(value * 100);
   }

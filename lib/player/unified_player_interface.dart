@@ -32,8 +32,6 @@ abstract class UnifiedPlayer {
 
   Stream<int?> get height;
 
-  Stream<double?> get volume;
-
   bool get isPlayingNow;
 
   void stop() {}
