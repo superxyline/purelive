@@ -374,7 +374,7 @@ class VideoController with ChangeNotifier {
   // volume & brightness
   Future<double?> volume() async {
     if (Platform.isWindows) {
-      return globalPlayer.currentVolume.value / 100;
+      return globalPlayer.currentVolume.value;
     }
     return await FlutterVolumeController.getVolume();
   }
