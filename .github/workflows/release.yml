@@ -227,11 +227,6 @@ jobs:
           ### 📺 TV 版
           适配：Android TV 6.0+ | 功能：直播源同步、多播放器、弹幕、应用内更新
 
-          ### ❓ 常见问题
-          1. **Windows 白屏**：删除 `C:/Users/[你的用户名]/AppData/Local/` 及 `Roaming/` 下的 `com.example/pure_live` 文件夹  
-          2. **Windows 关闭弹窗 "快速异常检测失败"**：不影响使用  
-          3. **Android 白屏**：清空应用缓存（不会清除配置）
-
           ### 📝 本次更新
           ${{ fromJson(steps.version.outputs.content).version_desc }}
           EOF
