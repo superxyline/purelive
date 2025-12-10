@@ -1,7 +1,7 @@
 {
-  "version": "2.0.4",
-  "version_num": 10204,
-  "version_desc": "-Fixed:优化播放器. \n -Fixed: 修复备份.\n -Fixed: 修复画中画.\n -Added: 添加下载及项目.",
+  "version": "2.0.5",
+  "version_num": 10205,
+  "version_desc": "-Fixed: 迁移数据至Hive.",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }

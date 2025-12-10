@@ -21,15 +21,30 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
     isInitialized = false;
     var pp = _player.platform as NativePlayer;
     if (Platform.isAndroid) {
-      await pp.setProperty('force-seekable', 'yes');
+      const Map<String, String> lowLatencyProps = {
+        'profile': 'low-latency', // 使用预设的低延迟配置文件
+        'untimed': '', // 忽略时间戳以减少延迟
+        'no-cache': '', // 禁用文件缓存
+        'no-demuxer-thread': '', // 禁用分离器线程
+        'demuxer-max-back-bytes': '0', // 禁用回放缓冲区
+        'buffer-size': '5242880', // 限制前向缓冲区大小 (例如 5MB)
+        'network-caching': '300', // 降低网络缓存时间 (例如 300ms)
+        'force-seekable': 'yes', // 强制使用 seekable 输出
+      };
+      for (final entry in lowLatencyProps.entries) {
+        await pp.setProperty(entry.key, entry.value);
+      }
     } else if (Platform.isWindows) {
       await pp.setProperty('cache', 'no');
       await pp.setProperty('cache-secs', '0');
-      await pp.setProperty('cache-size', '0');
+      await pp.setProperty('cache-size', '5120');
       await pp.setProperty('demuxer-seekable-cache', 'no');
       await pp.setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
       await pp.setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
+      await pp.setProperty('demuxer-lavf-o-set', 'buffer_size=0');
+      await pp.setProperty('network-caching', '100');
     }
+
     _controller = settings.playerCompatMode.value
         ? VideoController(
             _player,
