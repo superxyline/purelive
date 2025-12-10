@@ -41,8 +41,6 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
       await pp.setProperty('demuxer-seekable-cache', 'no');
       await pp.setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
       await pp.setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
-      await pp.setProperty('demuxer-lavf-o-set', 'buffer_size=0');
-      await pp.setProperty('network-caching', '100');
     }
 
     _controller = settings.playerCompatMode.value
