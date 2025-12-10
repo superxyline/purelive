@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 // download_apk_dialog.dart
 
@@ -81,6 +83,14 @@ class _DownloadApkDialogState extends State<DownloadApkDialog> {
 
         // 安装 APK
         final result = await OpenFilex.open(file.path);
+        if (PlatformUtils.isDesktopNotMac) {
+          if (await windowManager.isPreventClose()) {
+            await windowManager.setPreventClose(false);
+          }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            exit(0);
+          });
+        }
         if (result.type != ResultType.done) {
           Get.snackbar('安装失败', result.message);
         }
