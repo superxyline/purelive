@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
+import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:pure_live/common/global/initialized.dart';
 import 'package:pure_live/plugins/file_recover_utils.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
@@ -91,10 +92,10 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
             }
             return GetMaterialApp(
               title: '纯粹直播',
-              themeMode: SettingsService.themeModes[settings.themeModeName.value]!,
+              themeMode: AppConsts.themeModes[settings.themeModeName.value]!,
               theme: lightTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
               darkTheme: darkTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
-              locale: SettingsService.languages[settings.languageName.value]!,
+              locale: AppConsts.languages[settings.languageName.value]!,
               navigatorObservers: [FlutterSmartDialog.observer, BackButtonObserver()],
               builder: FlutterSmartDialog.init(),
               supportedLocales: S.delegate.supportedLocales,

@@ -1,32 +1,147 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/player/player_consts.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:pure_live/common/utils/hive_pref_util.dart';
 import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
-  SettingsService() {
-    enableDynamicTheme.listen((bool value) {
-      PrefUtil.setBool('enableDynamicTheme', value);
+  // ========== 响应式变量 ==========
+  final themeModeName = (HivePrefUtil.getString('themeMode') ?? "System").obs;
+  final themeColorSwitch = (HivePrefUtil.getString('themeColorSwitch') ?? Colors.blue.hex).obs;
+  final languageName = (HivePrefUtil.getString('language') ?? "简体中文").obs;
+  final enableDynamicTheme = (HivePrefUtil.getBool('enableDynamicTheme') ?? false).obs;
+  final autoRefreshTime = (HivePrefUtil.getInt('autoRefreshTime') ?? 3).obs;
+  final autoShutDownTime = (HivePrefUtil.getInt('autoShutDownTime') ?? 120).obs;
+  final enableDenseFavorites = (HivePrefUtil.getBool('enableDenseFavorites') ?? true).obs;
+  final enableBackgroundPlay = (HivePrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
+  final enableStartUp = (HivePrefUtil.getBool('enableStartUp') ?? true).obs;
+  final enableRotateScreenWithSystem = (HivePrefUtil.getBool('enableRotateScreenWithSystem') ?? false).obs;
+  final enableScreenKeepOn = (HivePrefUtil.getBool('enableScreenKeepOn') ?? true).obs;
+  final enableAutoCheckUpdate = (HivePrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
+  final enableFullScreenDefault = (HivePrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
+  final videoFitIndex = (HivePrefUtil.getInt('videoFitIndex') ?? 0).obs;
+  final hideDanmaku = (HivePrefUtil.getBool('hideDanmaku') ?? false).obs;
+  final danmakuTopArea = (HivePrefUtil.getDouble('danmakuTopArea') ?? 0.0).obs;
+  final danmakuArea = (HivePrefUtil.getDouble('danmakuArea') ?? 1.0).obs;
+  final danmakuBottomArea = (HivePrefUtil.getDouble('danmakuBottomArea') ?? 0.5).obs;
+  final danmakuSpeed = (HivePrefUtil.getDouble('danmakuSpeed') ?? 8.0).obs;
+  final danmakuFontSize = (HivePrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
+  final danmakuFontBorder = (HivePrefUtil.getDouble('danmakuFontBorder') ?? 4.0).obs;
+  final danmakuOpacity = (HivePrefUtil.getDouble('danmakuOpacity') ?? 1.0).obs;
+  final enableCodec = (HivePrefUtil.getBool('enableCodec') ?? true).obs;
+  final playerCompatMode = (HivePrefUtil.getBool('playerCompatMode') ?? false).obs;
+  final videoPlayerIndex = (HivePrefUtil.getInt('videoPlayerIndex') ?? 0).obs;
+  final bilibiliCookie = (HivePrefUtil.getString('bilibiliCookie') ?? '').obs;
+  final huyaCookie = (HivePrefUtil.getString('huyaCookie') ?? '').obs;
+  final dontAskExit = (HivePrefUtil.getBool('dontAskExit') ?? false).obs;
+  final exitChoose = (HivePrefUtil.getString('exitChoose') ?? '').obs;
+  final douyinCookie = (HivePrefUtil.getString('douyinCookie') ?? '').obs;
+  final volume = (HivePrefUtil.getDouble('volume') ?? 0.5).obs;
+  final customPlayerOutput = (HivePrefUtil.getBool('customPlayerOutput') ?? false).obs;
+  final videoOutputDriver = (HivePrefUtil.getString('videoOutputDriver') ?? "gpu").obs;
+  final audioOutputDriver = (HivePrefUtil.getString('audioOutputDriver') ?? "auto").obs;
+  final videoHardwareDecoder = (HivePrefUtil.getString('videoHardwareDecoder') ?? "auto").obs;
+  final enableAutoShutDownTime = (HivePrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
+  final preferResolution = (HivePrefUtil.getString('preferResolution') ?? PlayerConsts.resolutions[0]).obs;
+  final preferPlatform = (HivePrefUtil.getString('preferPlatform') ?? AppConsts.platforms[0]).obs;
+  final shieldList = ((HivePrefUtil.getStringList('shieldList') ?? [])).obs;
+  final hotAreasList = ((HivePrefUtil.getStringList('hotAreasList') ?? AppConsts.supportSites)).obs;
+  final favoriteRooms =
+      ((HivePrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
+  final historyRooms =
+      ((HivePrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
+  final favoriteAreas =
+      ((HivePrefUtil.getStringList('favoriteAreas') ?? []).map((e) => LiveArea.fromJson(jsonDecode(e))).toList()).obs;
+  final backupDirectory = (HivePrefUtil.getString('backupDirectory') ?? '').obs;
+  final currentWebDavConfig = (HivePrefUtil.getString('currentWebDavConfig') ?? '').obs;
+  final webDavConfigs =
+      ((HivePrefUtil.getStringList('webDavConfigs') ?? []).map((e) => WebDAVConfig.fromJson(jsonDecode(e))).toList())
+          .obs;
+  final m3uDirectory = (HivePrefUtil.getString('m3uDirectory') ?? 'm3uDirectory').obs;
+
+  final Map<ColorSwatch<Object>, String> colorsNameMap = AppConsts.themeColors.map(
+    (key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key),
+  );
+
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown);
+
+  // ========== Getter / Setter ==========
+  ThemeMode get themeMode => AppConsts.themeModes[themeModeName.value]!;
+  Locale get language => AppConsts.languages[languageName.value]!;
+  List<String> get resolutionsList => PlayerConsts.resolutions;
+  List<BoxFit> get videofitArrary => PlayerConsts.videofitList;
+  List<String> get playerlist => PlayerConsts.players;
+  StopWatchTimer get stopWatchTimer => _stopWatchTimer;
+
+  // ========== 数据迁移核心方法 ==========
+  /// 迁移旧 SharedPreferences 数据到 Hive（仅首次执行）
+  Future<void> migrateOldPrefsData() async {
+    if (HivePrefUtil.getBool('_migrated_from_sp') == true) {
+      return;
+    }
+
+    try {
+      final allKeys = PrefUtil.prefs.getKeys();
+
+      for (final key in allKeys) {
+        final value = PrefUtil.prefs.get(key);
+        if (value == null) continue;
+        if (value is String) {
+          await HivePrefUtil.setString(key, value);
+        } else if (value is int) {
+          await HivePrefUtil.setInt(key, value);
+        } else if (value is bool) {
+          await HivePrefUtil.setBool(key, value);
+        } else if (value is double) {
+          await HivePrefUtil.setDouble(key, value);
+        } else if (value is List<String>) {
+          await HivePrefUtil.setStringList(key, value);
+        }
+      }
+
+      await HivePrefUtil.setBool('_migrated_from_sp', true);
+      log('旧 SharedPreferences 数据迁移到 Hive 完成！', name: 'SettingsService');
+    } catch (e) {
+      log('数据迁移失败: $e', name: 'SettingsService');
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    migrateOldPrefsData().then((_) {
+      update(['migrate_complete']);
+    });
+
+    // ========== 响应式变量监听 ==========
+    enableDynamicTheme.listen((bool value) async {
+      await HivePrefUtil.setBool('enableDynamicTheme', value);
       update(['myapp']);
     });
-    themeColorSwitch.listen((value) {
-      themeColorSwitch.value = value;
-      PrefUtil.setString('themeColorSwitch', value);
+
+    themeColorSwitch.listen((value) async {
+      await HivePrefUtil.setString('themeColorSwitch', value);
     });
-    enableDenseFavorites.listen((value) {
-      PrefUtil.setBool('enableDenseFavorites', value);
+
+    enableDenseFavorites.listen((value) async {
+      await HivePrefUtil.setBool('enableDenseFavorites', value);
     });
-    autoRefreshTime.listen((value) {
-      PrefUtil.setInt('autoRefreshTime', value);
+
+    autoRefreshTime.listen((value) async {
+      await HivePrefUtil.setInt('autoRefreshTime', value);
     });
-    debounce(autoShutDownTime, (callback) {
-      PrefUtil.setInt('autoShutDownTime', autoShutDownTime.value);
+
+    debounce(autoShutDownTime, (callback) async {
+      await HivePrefUtil.setInt('autoShutDownTime', autoShutDownTime.value);
       if (enableAutoShutDownTime.isTrue) {
         _stopWatchTimer.onStopTimer();
         _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
@@ -35,25 +150,30 @@ class SettingsService extends GetxController {
         _stopWatchTimer.onStopTimer();
       }
     }, time: 1.seconds);
-    enableBackgroundPlay.listen((value) {
-      PrefUtil.setBool('enableBackgroundPlay', value);
+
+    enableBackgroundPlay.listen((value) async {
+      await HivePrefUtil.setBool('enableBackgroundPlay', value);
     });
-    enableStartUp.listen((value) {
-      PrefUtil.setBool('enableStartUp', value);
+
+    enableStartUp.listen((value) async {
+      await HivePrefUtil.setBool('enableStartUp', value);
       if (value) {
         launchAtStartup.enable();
       } else {
         launchAtStartup.disable();
       }
     });
-    enableRotateScreenWithSystem.listen((value) {
-      PrefUtil.setBool('enableRotateScreenWithSystem', value);
+
+    enableRotateScreenWithSystem.listen((value) async {
+      await HivePrefUtil.setBool('enableRotateScreenWithSystem', value);
     });
-    enableScreenKeepOn.listen((value) {
-      PrefUtil.setBool('enableScreenKeepOn', value);
+
+    enableScreenKeepOn.listen((value) async {
+      await HivePrefUtil.setBool('enableScreenKeepOn', value);
     });
-    debounce(enableAutoShutDownTime, (callback) {
-      PrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
+
+    debounce(enableAutoShutDownTime, (callback) async {
+      await HivePrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
       if (enableAutoShutDownTime.value == true) {
         _stopWatchTimer.onStopTimer();
         _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
@@ -62,151 +182,153 @@ class SettingsService extends GetxController {
         _stopWatchTimer.onStopTimer();
       }
     }, time: 1.seconds);
-    enableAutoCheckUpdate.listen((value) {
-      PrefUtil.setBool('enableAutoCheckUpdate', value);
-    });
-    enableFullScreenDefault.listen((value) {
-      PrefUtil.setBool('enableFullScreenDefault', value);
+
+    enableAutoCheckUpdate.listen((value) async {
+      await HivePrefUtil.setBool('enableAutoCheckUpdate', value);
     });
 
-    shieldList.listen((value) {
-      PrefUtil.setStringList('shieldList', value);
+    enableFullScreenDefault.listen((value) async {
+      await HivePrefUtil.setBool('enableFullScreenDefault', value);
     });
 
-    hotAreasList.listen((value) {
-      PrefUtil.setStringList('hotAreasList', value);
-    });
-    favoriteRooms.listen((rooms) {
-      PrefUtil.setStringList('favoriteRooms', favoriteRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+    shieldList.listen((value) async {
+      await HivePrefUtil.setStringList('shieldList', value);
     });
 
-    webDavConfigs.listen((configs) {
-      PrefUtil.setStringList('webDavConfigs', configs.map<String>((e) => jsonEncode(e.toJson())).toList());
+    hotAreasList.listen((value) async {
+      await HivePrefUtil.setStringList('hotAreasList', value);
     });
 
-    currentWebDavConfig.listen((config) {
-      PrefUtil.setString('currentWebDavConfig', config);
+    favoriteRooms.listen((rooms) async {
+      await HivePrefUtil.setStringList('favoriteRooms', rooms.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
 
-    favoriteAreas.listen((rooms) {
-      PrefUtil.setStringList('favoriteAreas', favoriteAreas.map<String>((e) => jsonEncode(e.toJson())).toList());
+    webDavConfigs.listen((configs) async {
+      await HivePrefUtil.setStringList('webDavConfigs', configs.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
 
-    historyRooms.listen((rooms) {
-      PrefUtil.setStringList('historyRooms', historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+    currentWebDavConfig.listen((config) async {
+      await HivePrefUtil.setString('currentWebDavConfig', config);
     });
 
-    backupDirectory.listen((String value) {
-      PrefUtil.setString('backupDirectory', value);
+    favoriteAreas.listen((areas) async {
+      await HivePrefUtil.setStringList('favoriteAreas', areas.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
+
+    historyRooms.listen((rooms) async {
+      await HivePrefUtil.setStringList('historyRooms', rooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+    });
+
+    backupDirectory.listen((String value) async {
+      await HivePrefUtil.setString('backupDirectory', value);
+    });
+
+    // 初始化自动关机定时器
     onInitShutDown();
+
+    // 自动关机监听
     _stopWatchTimer.fetchEnded.listen((value) {
       _stopWatchTimer.onStopTimer();
       FlutterExitApp.exitApp();
     });
 
-    videoFitIndex.listen((value) {
-      PrefUtil.setInt('videoFitIndex', value);
-    });
-    hideDanmaku.listen((value) {
-      PrefUtil.setBool('hideDanmaku', value);
+    // 弹幕/播放器相关配置监听
+    videoFitIndex.listen((value) async {
+      await HivePrefUtil.setInt('videoFitIndex', value);
     });
 
-    danmakuArea.listen((value) {
-      PrefUtil.setDouble('danmakuArea', value);
+    hideDanmaku.listen((value) async {
+      await HivePrefUtil.setBool('hideDanmaku', value);
     });
 
-    danmakuTopArea.listen((value) {
-      PrefUtil.setDouble('danmakuTopArea', value);
+    danmakuArea.listen((value) async {
+      await HivePrefUtil.setDouble('danmakuArea', value);
     });
 
-    danmakuBottomArea.listen((value) {
-      PrefUtil.setDouble('danmakuBottomArea', value);
+    danmakuTopArea.listen((value) async {
+      await HivePrefUtil.setDouble('danmakuTopArea', value);
     });
 
-    danmakuSpeed.listen((value) {
-      PrefUtil.setDouble('danmakuSpeed', value);
+    danmakuBottomArea.listen((value) async {
+      await HivePrefUtil.setDouble('danmakuBottomArea', value);
     });
 
-    danmakuFontSize.listen((value) {
-      PrefUtil.setDouble('danmakuFontSize', value);
+    danmakuSpeed.listen((value) async {
+      await HivePrefUtil.setDouble('danmakuSpeed', value);
     });
 
-    danmakuFontBorder.listen((value) {
-      PrefUtil.setDouble('danmakuFontBorder', value);
+    danmakuFontSize.listen((value) async {
+      await HivePrefUtil.setDouble('danmakuFontSize', value);
     });
 
-    danmakuOpacity.listen((value) {
-      PrefUtil.setDouble('danmakuOpacity', value);
+    danmakuFontBorder.listen((value) async {
+      await HivePrefUtil.setDouble('danmakuFontBorder', value);
     });
 
-    enableCodec.listen((value) {
-      PrefUtil.setBool('enableCodec', value);
+    danmakuOpacity.listen((value) async {
+      await HivePrefUtil.setDouble('danmakuOpacity', value);
     });
 
-    playerCompatMode.listen((value) {
-      PrefUtil.setBool('playerCompatMode', value);
+    enableCodec.listen((value) async {
+      await HivePrefUtil.setBool('enableCodec', value);
     });
 
-    videoPlayerIndex.listen((value) {
-      PrefUtil.setInt('videoPlayerIndex', value);
+    playerCompatMode.listen((value) async {
+      await HivePrefUtil.setBool('playerCompatMode', value);
     });
 
-    bilibiliCookie.listen((value) {
-      PrefUtil.setString('bilibiliCookie', value);
+    videoPlayerIndex.listen((value) async {
+      await HivePrefUtil.setInt('videoPlayerIndex', value);
     });
 
-    huyaCookie.listen((value) {
-      PrefUtil.setString('huyaCookie', value);
+    bilibiliCookie.listen((value) async {
+      await HivePrefUtil.setString('bilibiliCookie', value);
     });
 
-    dontAskExit.listen((value) {
-      PrefUtil.setBool('dontAskExit', value);
+    huyaCookie.listen((value) async {
+      await HivePrefUtil.setString('huyaCookie', value);
     });
 
-    exitChoose.listen((value) {
-      PrefUtil.setString('exitChoose', value);
+    dontAskExit.listen((value) async {
+      await HivePrefUtil.setBool('dontAskExit', value);
     });
 
-    douyinCookie.listen((value) {
-      PrefUtil.setString('douyinCookie', value);
+    exitChoose.listen((value) async {
+      await HivePrefUtil.setString('exitChoose', value);
     });
 
-    volume.listen((value) {
-      PrefUtil.setDouble('volume', value);
+    douyinCookie.listen((value) async {
+      await HivePrefUtil.setString('douyinCookie', value);
     });
 
-    customPlayerOutput.listen((value) {
-      PrefUtil.setBool('customPlayerOutput', value);
+    volume.listen((value) async {
+      await HivePrefUtil.setDouble('volume', value);
     });
 
-    videoOutputDriver.listen((value) {
-      PrefUtil.setString('videoOutputDriver', value);
+    customPlayerOutput.listen((value) async {
+      await HivePrefUtil.setBool('customPlayerOutput', value);
     });
 
-    audioOutputDriver.listen((value) {
-      PrefUtil.setString('audioOutputDriver', value);
+    videoOutputDriver.listen((value) async {
+      await HivePrefUtil.setString('videoOutputDriver', value);
     });
 
-    videoHardwareDecoder.listen((value) {
-      PrefUtil.setString('videoHardwareDecoder', value);
+    audioOutputDriver.listen((value) async {
+      await HivePrefUtil.setString('audioOutputDriver', value);
+    });
+
+    videoHardwareDecoder.listen((value) async {
+      await HivePrefUtil.setString('videoHardwareDecoder', value);
     });
   }
 
-  // Theme settings
-  static Map<String, ThemeMode> themeModes = {
-    "System": ThemeMode.system,
-    "Dark": ThemeMode.dark,
-    "Light": ThemeMode.light,
-  };
-  final themeModeName = (PrefUtil.getString('themeMode') ?? "System").obs;
-
-  ThemeMode get themeMode => SettingsService.themeModes[themeModeName.value]!;
-
-  void changeThemeMode(String mode) {
-    themeModeName.value = mode;
-    PrefUtil.setString('themeMode', mode);
-    Get.changeThemeMode(themeMode);
+  // ========== 公共方法（替换为 HivePrefUtil 异步写入） ==========
+  void changeThemeMode(String mode) async {
+    if (AppConsts.themeModes.containsKey(mode)) {
+      themeModeName.value = mode;
+      await HivePrefUtil.setString('themeMode', mode);
+      Get.changeThemeMode(themeMode);
+    }
   }
 
   void changeThemeColorSwitch(String hexColor) {
@@ -224,252 +346,46 @@ class SettingsService extends GetxController {
     }
   }
 
-  static Map<String, Color> themeColors = {
-    "Crimson": const Color.fromARGB(255, 220, 20, 60),
-    "Orange": Colors.orange,
-    "Chrome": const Color.fromARGB(255, 230, 184, 0),
-    "Grass": Colors.lightGreen,
-    "Teal": Colors.teal,
-    "SeaFoam": const Color.fromARGB(255, 112, 193, 207),
-    "Ice": const Color.fromARGB(255, 115, 155, 208),
-    "Blue": Colors.blue,
-    "Indigo": Colors.indigo,
-    "Violet": Colors.deepPurple,
-    "Primary": const Color(0xFF6200EE),
-    "Orchid": const Color.fromARGB(255, 218, 112, 214),
-    "Variant": const Color(0xFF3700B3),
-    "Secondary": const Color(0xFF03DAC6),
-  };
-
-  // Make a custom ColorSwatch to name map from the above custom colors.
-  final Map<ColorSwatch<Object>, String> colorsNameMap = themeColors.map(
-    (key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key),
-  );
-
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
-
-  final themeColorSwitch = (PrefUtil.getString('themeColorSwitch') ?? Colors.blue.hex).obs;
-
-  StopWatchTimer get stopWatchTimer => _stopWatchTimer;
-
-  static Map<String, Locale> languages = {
-    "English": const Locale.fromSubtags(languageCode: 'en'),
-    "简体中文": const Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
-  };
-  final languageName = (PrefUtil.getString('language') ?? "简体中文").obs;
-
-  Locale get language => SettingsService.languages[languageName.value]!;
-
-  void changeLanguage(String value) {
+  void changeLanguage(String value) async {
     languageName.value = value;
-    PrefUtil.setString('language', value);
+    await HivePrefUtil.setString('language', value);
     Get.updateLocale(language);
   }
 
-  void changePlayer(int value) {
+  void changePlayer(int value) async {
     videoPlayerIndex.value = value;
-    PrefUtil.setInt('videoPlayerIndex', value);
+    await HivePrefUtil.setInt('videoPlayerIndex', value);
   }
 
-  final enableDynamicTheme = (PrefUtil.getBool('enableDynamicTheme') ?? false).obs;
-
-  // Custom settings
-  final autoRefreshTime = (PrefUtil.getInt('autoRefreshTime') ?? 3).obs;
-
-  final autoShutDownTime = (PrefUtil.getInt('autoShutDownTime') ?? 120).obs;
-
-  final enableDenseFavorites = (PrefUtil.getBool('enableDenseFavorites') ?? true).obs;
-
-  final enableBackgroundPlay = (PrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
-
-  final enableStartUp = (PrefUtil.getBool('enableStartUp') ?? true).obs;
-
-  final enableRotateScreenWithSystem = (PrefUtil.getBool('enableRotateScreenWithSystem') ?? false).obs;
-
-  final enableScreenKeepOn = (PrefUtil.getBool('enableScreenKeepOn') ?? true).obs;
-
-  final enableAutoCheckUpdate = (PrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
-  final videoFitIndex = (PrefUtil.getInt('videoFitIndex') ?? 0).obs;
-  final hideDanmaku = (PrefUtil.getBool('hideDanmaku') ?? false).obs;
-  final danmakuTopArea = (PrefUtil.getDouble('danmakuTopArea') ?? 0.0).obs;
-  final danmakuArea = (PrefUtil.getDouble('danmakuArea') ?? 1.0).obs;
-  final danmakuBottomArea = (PrefUtil.getDouble('danmakuBottomArea') ?? 0.5).obs;
-  final danmakuSpeed = (PrefUtil.getDouble('danmakuSpeed') ?? 8.0).obs;
-  final danmakuFontSize = (PrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
-  final danmakuFontBorder = (PrefUtil.getDouble('danmakuFontBorder') ?? 4.0).obs;
-
-  final danmakuOpacity = (PrefUtil.getDouble('danmakuOpacity') ?? 1.0).obs;
-
-  final enableFullScreenDefault = (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
-
-  final videoPlayerIndex = (PrefUtil.getInt('videoPlayerIndex') ?? 0).obs;
-
-  final enableCodec = (PrefUtil.getBool('enableCodec') ?? true).obs;
-
-  final customPlayerOutput = (PrefUtil.getBool('customPlayerOutput') ?? false).obs;
-
-  final videoOutputDriver = (PrefUtil.getString('videoOutputDriver') ?? "gpu").obs;
-
-  final audioOutputDriver = (PrefUtil.getString('audioOutputDriver') ?? "auto").obs;
-
-  final videoHardwareDecoder = (PrefUtil.getString('videoHardwareDecoder') ?? "auto").obs;
-
-  final playerCompatMode = (PrefUtil.getBool('playerCompatMode') ?? false).obs;
-
-  final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
-
-  static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
-
-  final volume = (PrefUtil.getDouble('volume') ?? 0.5).obs;
-
-  final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
-
-  final huyaCookie = (PrefUtil.getString('huyaCookie') ?? '').obs;
-
-  final dontAskExit = (PrefUtil.getBool('dontAskExit') ?? false).obs;
-
-  // exit or minimize choose
-  final exitChoose = (PrefUtil.getString('exitChoose') ?? '').obs;
-
-  final douyinCookie = (PrefUtil.getString('douyinCookie') ?? '').obs;
-
-  static const List<BoxFit> videofitList = [
-    BoxFit.contain,
-    BoxFit.fill,
-    BoxFit.cover,
-    BoxFit.fitWidth,
-    BoxFit.fitHeight,
-    BoxFit.scaleDown,
-  ];
-
-  final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
-
-  void changePreferResolution(String name) {
-    if (resolutions.indexWhere((e) => e == name) != -1) {
+  void changePreferResolution(String name) async {
+    if (PlayerConsts.resolutions.indexWhere((e) => e == name) != -1) {
       preferResolution.value = name;
-      PrefUtil.setString('preferResolution', name);
+      await HivePrefUtil.setString('preferResolution', name);
     }
   }
 
-  List<String> get resolutionsList => resolutions;
+  void changePreferPlatform(String name) async {
+    if (AppConsts.platforms.indexWhere((e) => e == name) != -1) {
+      preferPlatform.value = name;
+      update(['myapp']);
+      await HivePrefUtil.setString('preferPlatform', name);
+    }
+  }
 
-  List<BoxFit> get videofitArrary => videofitList;
-
-  void changeShutDownConfig(int minutes, bool isAutoShutDown) {
+  void changeShutDownConfig(int minutes, bool isAutoShutDown) async {
     autoShutDownTime.value = minutes;
     enableAutoShutDownTime.value = isAutoShutDown;
-    PrefUtil.setInt('autoShutDownTime', minutes);
-    PrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
+    await HivePrefUtil.setInt('autoShutDownTime', minutes);
+    await HivePrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
     onInitShutDown();
   }
 
-  void changeAutoRefreshConfig(int minutes) {
+  void changeAutoRefreshConfig(int minutes) async {
     autoRefreshTime.value = minutes;
-    PrefUtil.setInt('autoRefreshTime', minutes);
+    await HivePrefUtil.setInt('autoRefreshTime', minutes);
   }
 
-  static const List<String> platforms = ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishow', 'cc', '网络'];
-
-  static const videoOutputDrivers = {
-    "gpu": "gpu",
-    "gpu-next": "gpu-next",
-    "xv": "xv (X11 only)",
-    "x11": "x11 (X11 only)",
-    "vdpau": "vdpau (X11 only)",
-    "direct3d": "direct3d (Windows only)",
-    "sdl": "sdl",
-    "dmabuf-wayland": "dmabuf-wayland",
-    "vaapi": "vaapi",
-    "null": "null",
-    "libmpv": "libmpv",
-    "mediacodec_embed": "mediacodec_embed (Android only)",
-  };
-
-  static const audioOutputDrivers = {
-    "null": "null (No audio output)",
-    "pulse": "pulse (Linux, uses PulseAudio)",
-    "pipewire": "pipewire (Linux, via Pulse compatibility or native)",
-    "alsa": "alsa (Linux only)",
-    "oss": "oss (Linux only)",
-    "jack": "jack (Linux/macOS, low-latency audio)",
-    "directsound": "directsound (Windows only)",
-    "wasapi": "wasapi (Windows only)",
-    "winmm": "winmm (Windows only, legacy API)",
-    "audiounit": "audiounit (iOS only)",
-    "coreaudio": "coreaudio (macOS only)",
-    "opensles": "opensles (Android only)",
-    "audiotrack": "audiotrack (Android only)",
-    "aaudio": "aaudio (Android only)",
-    "pcm": "pcm (Cross-platform)",
-    "sdl": "sdl (Cross-platform, via SDL library)",
-    "openal": "openal (Cross-platform, OpenAL backend)",
-    "libao": "libao (Cross-platform, uses libao library)",
-    "auto": "auto (Not available)",
-  };
-
-  static const hardwareDecoder = {
-    "no": "no",
-    "auto": "auto",
-    "auto-safe": "auto-safe",
-    "yes": "yes",
-    "auto-copy": "auto-copy",
-    "d3d11va": "d3d11va",
-    "d3d11va-copy": "d3d11va-copy",
-    "videotoolbox": "videotoolbox",
-    "videotoolbox-copy": "videotoolbox-copy",
-    "vaapi": "vaapi",
-    "vaapi-copy": "vaapi-copy",
-    "nvdec": "nvdec",
-    "nvdec-copy": "nvdec-copy",
-    "drm": "drm",
-    "drm-copy": "drm-copy",
-    "vulkan": "vulkan",
-    "vulkan-copy": "vulkan-copy",
-    "dxva2": "dxva2",
-    "dxva2-copy": "dxva2-copy",
-    "vdpau": "vdpau",
-    "vdpau-copy": "vdpau-copy",
-    "mediacodec": "mediacodec",
-    "mediacodec-copy": "mediacodec-copy",
-    "cuda": "cuda",
-    "cuda-copy": "cuda-copy",
-    "crystalhd": "crystalhd",
-    "rkmpp": "rkmpp",
-  };
-
-  static const List<String> players = ['Mpv播放器', 'IJK播放器'];
-  final preferPlatform = (PrefUtil.getString('preferPlatform') ?? platforms[0]).obs;
-
-  List<String> get playerlist => players;
-  void changePreferPlatform(String name) {
-    if (platforms.indexWhere((e) => e == name) != -1) {
-      preferPlatform.value = name;
-      update(['myapp']);
-      PrefUtil.setString('preferPlatform', name);
-    }
-  }
-
-  static const List<String> supportSites = [
-    Sites.bilibiliSite,
-    Sites.douyuSite,
-    Sites.huyaSite,
-    Sites.douyinSite,
-    Sites.kuaishouSite,
-    Sites.ccSite,
-    Sites.iptvSite,
-  ];
-
-  final shieldList = ((PrefUtil.getStringList('shieldList') ?? [])).obs;
-
-  final hotAreasList = ((PrefUtil.getStringList('hotAreasList') ?? supportSites)).obs;
-
-  // Favorite rooms storage
-  final favoriteRooms =
-      ((PrefUtil.getStringList('favoriteRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
-
-  final historyRooms =
-      ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => LiveRoom.fromJson(jsonDecode(e))).toList()).obs;
-
+  // ========== 业务方法（收藏、历史、屏蔽等）==========
   bool isFavorite(LiveRoom room) {
     return favoriteRooms.any((element) => element.roomId == room.roomId);
   }
@@ -533,17 +449,11 @@ class SettingsService extends GetxController {
       historyRooms.remove(room);
     }
     updateRoom(room);
-    //默认只记录50条，够用了
-    // 防止数据量大页面卡顿
     if (historyRooms.length > 50) {
       historyRooms.removeRange(0, historyRooms.length - 50);
     }
     historyRooms.insert(0, room);
   }
-
-  // Favorite areas storage
-  final favoriteAreas =
-      ((PrefUtil.getStringList('favoriteAreas') ?? []).map((e) => LiveArea.fromJson(jsonDecode(e))).toList()).obs;
 
   bool isFavoriteArea(LiveArea area) {
     return favoriteAreas.any(
@@ -574,14 +484,7 @@ class SettingsService extends GetxController {
     return true;
   }
 
-  // Backup & recover storage
-  final backupDirectory = (PrefUtil.getString('backupDirectory') ?? '').obs;
-
-  final currentWebDavConfig = (PrefUtil.getString('currentWebDavConfig') ?? '').obs;
-
-  final webDavConfigs =
-      ((PrefUtil.getStringList('webDavConfigs') ?? []).map((e) => WebDAVConfig.fromJson(jsonDecode(e))).toList()).obs;
-
+  // ========== WebDAV 相关 ==========
   bool addWebDavConfig(WebDAVConfig config) {
     if (webDavConfigs.any((element) => element.name == config.name)) {
       return false;
@@ -621,8 +524,7 @@ class SettingsService extends GetxController {
     }
   }
 
-  final m3uDirectory = (PrefUtil.getString('m3uDirectory') ?? 'm3uDirectory').obs;
-
+  // ========== 备份恢复 ==========
   bool backup(File file) {
     try {
       final json = toJson();
@@ -651,6 +553,7 @@ class SettingsService extends GetxController {
     }
   }
 
+  // ========== 序列化 ==========
   void fromJson(Map<String, dynamic> json) {
     favoriteRooms.value = json['favoriteRooms'] != null
         ? (json['favoriteRooms'] as List).map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e))).toList()
@@ -679,8 +582,8 @@ class SettingsService extends GetxController {
     enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
     languageName.value = json['languageName'] ?? "简体中文";
-    preferResolution.value = json['preferResolution'] ?? resolutions[0];
-    preferPlatform.value = json['preferPlatform'] ?? platforms[0];
+    preferResolution.value = json['preferResolution'] ?? PlayerConsts.resolutions[0];
+    preferPlatform.value = json['preferPlatform'] ?? AppConsts.platforms[0];
     videoFitIndex.value = json['videoFitIndex'] ?? 0;
     hideDanmaku.value = json['hideDanmaku'] ?? false;
     danmakuTopArea.value = json['danmakuTopArea'] != null
@@ -720,6 +623,8 @@ class SettingsService extends GetxController {
     videoHardwareDecoder.value = (json['videoHardwareDecoder'] == null || json['videoHardwareDecoder'] == "")
         ? 'auto'
         : json['videoHardwareDecoder'];
+
+    // 同步更新到 Hive（恢复备份时）
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
@@ -728,6 +633,7 @@ class SettingsService extends GetxController {
     changePreferPlatform(preferPlatform.value);
     changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     changeAutoRefreshConfig(autoRefreshTime.value);
+
     if (enableStartUp.value) {
       launchAtStartup.enable();
     } else {
@@ -786,51 +692,9 @@ class SettingsService extends GetxController {
     return json;
   }
 
-  Map<String, dynamic> defaultConfig() {
-    Map<String, dynamic> json = {
-      "favoriteRooms": [],
-      "webDavConfigs": [],
-      "favoriteAreas": [],
-      "themeMode": "Light",
-      "themeColor": "Chrome",
-      "enableDynamicTheme": false,
-      "autoShutDownTime": 120,
-      "autoRefreshTime": 3,
-      "languageName": languageName.value,
-      "enableAutoShutDownTime": false,
-      "enableDenseFavorites": false,
-      "enableBackgroundPlay": false,
-      "enableStartUp": true,
-      "enableRotateScreenWithSystem": false,
-      "enableScreenKeepOn": true,
-      "enableAutoCheckUpdate": false,
-      "enableFullScreenDefault": false,
-      "preferResolution": "原画",
-      "preferPlatform": "bilibili",
-      "hideDanmaku": false,
-      "danmakuTopArea": 0.0,
-      "danmakuArea": 1.0,
-      "danmakuBottomArea": 0.0,
-      "danmakuSpeed": 8.0,
-      "danmakuFontSize": 16.0,
-      "danmakuFontBorder": 4.0,
-      "danmakuOpacity": 1.0,
-      "videoPlayerIndex": 0,
-      'enableCodec': true,
-      'playerCompatMode': false,
-      'bilibiliCookie': '',
-      'huyaCookie': '',
-      'dontAskExit': false,
-      'douyinCookie': '',
-      'exitChoose': '',
-      'shieldList': [],
-      "hotAreasList": [],
-      "volume": 0.5,
-      "customPlayerOutput": false,
-      "videoOutputDriver": "",
-      "audioOutputDriver": "",
-      "videoHardwareDecoder": "",
-    };
-    return json;
+  @override
+  void onClose() {
+    _stopWatchTimer.dispose();
+    super.onClose();
   }
 }

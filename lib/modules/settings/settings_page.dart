@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/player/player_consts.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/settings/settings_card.dart';
 import 'package:pure_live/modules/settings/settings_menu.dart';
+import 'package:pure_live/player/switchable_global_player.dart';
 import 'package:pure_live/modules/settings/settings_switch.dart';
 
 class SettingsPage extends GetView<SettingsService> {
@@ -93,15 +96,15 @@ class SettingsPage extends GetView<SettingsService> {
                 onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               ),
             ),
-          if (Platform.isAndroid)
-            Obx(
-              () => ListTile(
-                title: Text('视频播放器'),
-                subtitle: Text('选择视频播放器'),
-                onTap: showVideoSetDialog,
-                trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'IJK播放器'),
-              ),
+          // if (Platform.isAndroid)
+          Obx(
+            () => ListTile(
+              title: Text('视频播放器'),
+              subtitle: Text('选择视频播放器'),
+              onTap: showVideoSetDialog,
+              trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'IJK播放器'),
             ),
+          ),
           Obx(
             () => SwitchListTile(
               title: Text(S.of(context).enable_fullscreen_default),
@@ -158,7 +161,7 @@ class SettingsPage extends GetView<SettingsService> {
                   () => SettingsMenu(
                     title: "视频输出驱动(--vo)",
                     value: controller.videoOutputDriver.value,
-                    valueMap: SettingsService.videoOutputDrivers,
+                    valueMap: PlayerConsts.videoOutputDrivers,
                     onChanged: (e) {
                       controller.videoOutputDriver.value = e;
                     },
@@ -168,7 +171,7 @@ class SettingsPage extends GetView<SettingsService> {
                   () => SettingsMenu(
                     title: "音频输出驱动(--ao)",
                     value: controller.audioOutputDriver.value,
-                    valueMap: SettingsService.audioOutputDrivers,
+                    valueMap: PlayerConsts.audioOutputDrivers,
                     onChanged: (e) {
                       controller.audioOutputDriver.value = e;
                     },
@@ -178,7 +181,7 @@ class SettingsPage extends GetView<SettingsService> {
                   () => SettingsMenu(
                     title: "硬件解码器(--hwdec)",
                     value: controller.videoHardwareDecoder.value,
-                    valueMap: SettingsService.hardwareDecoder,
+                    valueMap: PlayerConsts.hardwareDecoder,
                     onChanged: (e) {
                       controller.videoHardwareDecoder.value = e;
                     },
@@ -286,7 +289,7 @@ class SettingsPage extends GetView<SettingsService> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: SettingsService.themeModes.keys.map<Widget>((name) {
+                  children: AppConsts.themeModes.keys.map<Widget>((name) {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -376,7 +379,7 @@ class SettingsPage extends GetView<SettingsService> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: SettingsService.languages.keys.map<Widget>((name) {
+                  children: AppConsts.languages.keys.map<Widget>((name) {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -413,6 +416,7 @@ class SettingsPage extends GetView<SettingsService> {
               onChanged: (String? value) {
                 if (value != null) {
                   controller.changePlayer(playerList.indexOf(value));
+                  SwitchableGlobalPlayer().switchEngine(PlayerEngine.values[controller.videoPlayerIndex.value]);
                   Navigator.of(context).pop();
                 }
               },
@@ -429,6 +433,9 @@ class SettingsPage extends GetView<SettingsService> {
                         GestureDetector(
                           onTap: () {
                             controller.changePlayer(playerList.indexOf(name));
+                            SwitchableGlobalPlayer().switchEngine(
+                              PlayerEngine.values[controller.videoPlayerIndex.value],
+                            );
                             Navigator.of(context).pop();
                           },
                           child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
@@ -465,7 +472,7 @@ class SettingsPage extends GetView<SettingsService> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: SettingsService.resolutions.map<Widget>((name) {
+                  children: PlayerConsts.resolutions.map<Widget>((name) {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -509,7 +516,7 @@ class SettingsPage extends GetView<SettingsService> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: SettingsService.platforms.map<Widget>((name) {
+                  children: AppConsts.platforms.map<Widget>((name) {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

@@ -23,7 +23,7 @@ class SwitchableGlobalPlayer {
   final hasError = false.obs;
   final currentVolume = 0.5.obs;
   final isInPipMode = false.obs;
-  final floating = Floating();
+  late Floating floating;
 
   // 依赖
   final SettingsService settings = Get.find<SettingsService>();
@@ -67,14 +67,10 @@ class SwitchableGlobalPlayer {
 
   Future<void> switchEngine(PlayerEngine newEngine) async {
     if (newEngine == _currentEngine) return;
-
     _cleanup(); // 清理旧播放器和订阅
-
     _currentPlayer = _createPlayer(newEngine);
     _currentEngine = newEngine;
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
-
-    _subscribeToPlayerEvents();
   }
 
   // ------------------ 数据源设置 ------------------
@@ -99,6 +95,9 @@ class SwitchableGlobalPlayer {
       unawaited(
         Future.microtask(() {
           isInitialized.value = true;
+          if (Platform.isAndroid) {
+            floating = Floating();
+          }
           _subscribeToPlayerEvents();
         }),
       );

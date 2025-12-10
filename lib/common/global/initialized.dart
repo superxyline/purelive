@@ -1,16 +1,17 @@
-import 'dart:developer';
 import 'dart:io';
-
-import 'package:flutter_single_instance/flutter_single_instance.dart';
+import 'dart:developer';
 import 'package:get/get.dart';
+import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/global.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:pure_live/common/global/platform/desktop_manager.dart';
-import 'package:pure_live/common/global/platform/mobile_manager.dart';
+import 'package:pure_live/common/utils/hive_pref_util.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
-import 'package:pure_live/common/index.dart';
+import 'package:flutter_single_instance/flutter_single_instance.dart';
+import 'package:pure_live/common/global/platform/mobile_manager.dart';
+import 'package:pure_live/common/global/platform/desktop_manager.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
-import 'package:pure_live/plugins/global.dart';
 
 class AppInitializer {
   // 单例实例
@@ -41,8 +42,11 @@ class AppInitializer {
     } else if (PlatformUtils.isMobile) {
       await MobileManager.initialize();
     }
-
     PrefUtil.prefs = await SharedPreferences.getInstance();
+    final appDir = await getApplicationDocumentsDirectory();
+    String path = '${appDir.path}${Platform.pathSeparator}pure_live';
+    await Hive.initFlutter(path);
+    await HivePrefUtil.init();
     MediaKit.ensureInitialized();
     await SupaBaseManager.getInstance().initial();
     if (PlatformUtils.isDesktop) {
