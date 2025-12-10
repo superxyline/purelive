@@ -1,4 +1,7 @@
+import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:markdown_widget/config/configs.dart';
+import 'package:markdown_widget/widget/markdown_block.dart';
 
 class VersionHistoryPage extends StatefulWidget {
   const VersionHistoryPage({super.key});
@@ -16,33 +19,28 @@ class _VersionHistoryPageState extends State<VersionHistoryPage> {
 
   List<Widget> getRichTextList() {
     List<VersionHistoryModel> versions = loadHistoryList();
+    final config = Get.isDarkMode ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig;
     return versions
-        .map((e) => Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    e.version,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    e.updateBody,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                  ),
-                ],
-              ),
-            ))
+        .map(
+          (e) => Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(e.version, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                MarkdownBlock(data: e.updateBody, config: config),
+              ],
+            ),
+          ),
+        )
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('版本历史更新'),
-      ),
+      appBar: AppBar(title: const Text('版本历史更新')),
       body: ListView(
         scrollDirection: Axis.vertical,
         physics: const AlwaysScrollableScrollPhysics(),

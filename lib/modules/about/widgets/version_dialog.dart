@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:markdown_widget/config/configs.dart';
+import 'package:markdown_widget/widget/markdown_block.dart';
 
 class NoNewVersionDialog extends StatelessWidget {
   const NoNewVersionDialog({super.key});
@@ -26,30 +28,41 @@ class NewVersionDialog extends StatelessWidget {
   const NewVersionDialog({super.key, this.entry});
 
   final OverlayEntry? entry;
+
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final maxWidth = mediaQuery.size.width * 0.9;
+    final maxHeight = mediaQuery.size.height * 0.7;
+    final config = Get.isDarkMode ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig;
     return AlertDialog(
       title: Text(S.of(context).check_update),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(S.of(context).new_version_info(VersionUtil.latestVersion)),
-          const SizedBox(height: 20),
-          Text(VersionUtil.latestUpdateLog, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 10),
-          TextButton(
-            onPressed: () {
-              if (entry != null) {
-                entry!.remove();
-              } else {
-                Navigator.pop(context);
-              }
-              launchUrl(Uri.parse('https://github.com/liuchuancong/pure_live'), mode: LaunchMode.externalApplication);
-            },
-            child: const Text('本软件开源免费'),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
+                onPressed: () {
+                  if (entry != null) {
+                    entry!.remove();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                  launchUrl(
+                    Uri.parse('https://github.com/liuchuancong/pure_live'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+                child: const Text('本软件开源免费', style: TextStyle(fontSize: 20)),
+              ),
+              MarkdownBlock(data: VersionUtil.latestUpdateLog, config: config),
+              const SizedBox(height: 10),
+            ],
           ),
-        ],
+        ),
       ),
       actionsAlignment: MainAxisAlignment.start,
       actions: <Widget>[
@@ -57,7 +70,6 @@ class NewVersionDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            //  RoutePath.kVersionPage
             TextButton(
               child: Text(S.of(context).cancel),
               onPressed: () {

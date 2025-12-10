@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 class VersionUtil {
   static const String version = '2.0.5';
   static const String projectUrl = 'https://github.com/liuchuancong/pure_live';
-  static const String releaseUrl = 'https://api.github.com/repos/liuchuancong/pure_live/releases';
+  static const String releaseUrl = 'https://api.github.com/repos/liuchuancong/pure_live/releases?per_page=30';
   static const String issuesUrl = 'https://github.com/liuchuancong/pure_live/issues';
   static const String kanbanUrl =
       'https://jackiu-notes.notion.site/50bc0d3d377445eea029c6e3d4195671?v=663125e639b047cea5e69d8264926b8b';

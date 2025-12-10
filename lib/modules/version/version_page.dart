@@ -1,6 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:pure_live/plugins/update.dart';
+import 'package:markdown_widget/config/configs.dart';
+import 'package:pure_live/common/utils/version_util.dart';
+import 'package:markdown_widget/widget/markdown_block.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/modules/version/version_controller.dart';
 
@@ -13,15 +16,12 @@ class VersionPage extends GetView<VersionController> {
       appBar: AppBar(title: const Text('版本更新')),
       body: Obx(() {
         if (controller.loading.value) {
-          // ✅ 加载状态：在整个 body 区域居中（非滚动内）
           return Center(child: CircularProgressIndicator.adaptive());
         }
-
         final hasAnyContent =
             (PlatformUtils.isDesktop && controller.windowsUrl.value.isNotEmpty == true) ||
             (PlatformUtils.isMobile &&
                 (controller.apkUrl.value.isNotEmpty == true || controller.apkUrl2.value.isNotEmpty == true));
-
         if (!hasAnyContent) {
           return const Center(
             child: Padding(
@@ -48,6 +48,10 @@ class VersionPage extends GetView<VersionController> {
                   const SizedBox(height: 24),
                   _buildDownloadSection(title: 'ARM32 (armeabi-v7a) 版本', urls: controller.apkUrl.value),
                 ],
+                MarkdownBlock(
+                  data: VersionUtil.latestUpdateLog,
+                  config: Get.isDarkMode ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig,
+                ),
               ],
             ),
           ),

@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'widgets/version_dialog.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:markdown_widget/config/configs.dart';
+import 'package:markdown_widget/widget/markdown_block.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -29,7 +31,6 @@ class _AboutPageState extends State<AboutPage> {
             },
           ),
           ListTile(title: Text(S.of(context).what_is_new), onTap: showNewFeaturesDialog),
-          ListTile(title: Text(S.of(context).check_update), onTap: () => showCheckUpdateDialog(context)),
           ListTile(
             title: const Text('历史记录'),
             subtitle: const Text('历史版本更新记录'),
@@ -59,7 +60,7 @@ class _AboutPageState extends State<AboutPage> {
   void showCheckUpdateDialog(BuildContext context) async {
     showDialog(
       context: Get.context!,
-      builder: (context) => VersionUtil.hasNewVersion() ? NewVersionDialog() : const NoNewVersionDialog(),
+      builder: (context) => VersionUtil.hasNewVersion() ? NewVersionDialog() : NoNewVersionDialog(),
     );
   }
 
@@ -73,21 +74,41 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   void showNewFeaturesDialog() {
+    final config = Get.isDarkMode ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig;
+    final mediaQuery = MediaQuery.of(context);
+    final maxWidth = mediaQuery.size.width * 0.9;
+    final maxHeight = mediaQuery.size.height * 0.7;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(S.of(context).what_is_new),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Version ${VersionUtil.latestVersion}'),
-            const SizedBox(height: 20),
-            Text(VersionUtil.latestUpdateLog, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text(S.of(context).what_is_new),
+          content: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      launchUrl(
+                        Uri.parse('https://github.com/liuchuancong/pure_live'),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    },
+                    child: const Text('本软件开源免费', style: TextStyle(fontSize: 20)),
+                  ),
+                  MarkdownBlock(data: VersionUtil.latestUpdateLog, config: config),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.start,
+        );
+      },
     );
   }
 }

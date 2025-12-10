@@ -105,6 +105,7 @@ dependencies:
   rxdart: ^0.28.0
   hive_ce: ^2.15.1
   hive_ce_flutter: ^2.3.3
+  markdown_widget: ^2.3.2+8
 dev_dependencies:
   flutter_test:
     sdk: flutter
