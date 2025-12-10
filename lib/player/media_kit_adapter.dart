@@ -62,7 +62,7 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
       if (!isInitialized) {
         isInitialized = true;
         if (PlatformUtils.isDesktop) {
-          Future.delayed(Duration(seconds: 1)).then((value) {
+          Future.microtask(() {
             _player.setVolume(settings.volume.value * 100);
           });
         }
