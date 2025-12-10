@@ -230,9 +230,11 @@ class SwitchableGlobalPlayer {
 
     _isPlayingSubscription = onPlaying.listen((playing) => isPlaying.value = playing);
     _errorSubscription = onError.listen((error) => hasError.value = error != null);
-    _pipSubscription = floating.pipStatusStream.listen((status) {
-      isInPipMode.value = status == PiPStatus.enabled;
-    });
+    if (Platform.isAndroid) {
+      _pipSubscription = floating.pipStatusStream.listen((status) {
+        isInPipMode.value = status == PiPStatus.enabled;
+      });
+    }
   }
 
   void _cleanupSubscriptions() {
