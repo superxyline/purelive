@@ -76,35 +76,41 @@ class SwitchableGlobalPlayer {
   // ------------------ 数据源设置 ------------------
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
-    _currentPlayer ??= _createPlayer(_currentEngine);
-    _cleanupSubscriptions();
-    videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
-    unawaited(
-      Future.microtask(() {
-        isInitialized.value = false;
-        isPlaying.value = true;
-        hasError.value = false;
-        isVerticalVideo.value = false;
-      }),
-    );
-
     try {
-      await _currentPlayer!.init();
-      await _currentPlayer!.setDataSource(url, headers);
-
+      await stop();
+      await Future.delayed(Duration(milliseconds: 100));
+      _currentPlayer ??= _createPlayer(_currentEngine);
+      _cleanupSubscriptions();
+      videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
       unawaited(
         Future.microtask(() {
-          isInitialized.value = true;
-          if (Platform.isAndroid) {
-            floating = Floating();
-          }
-          _subscribeToPlayerEvents();
+          isInitialized.value = false;
+          isPlaying.value = true;
+          hasError.value = false;
+          isVerticalVideo.value = false;
         }),
       );
+
+      try {
+        await _currentPlayer!.init();
+        await _currentPlayer!.setDataSource(url, headers);
+
+        unawaited(
+          Future.microtask(() {
+            isInitialized.value = true;
+            if (Platform.isAndroid) {
+              floating = Floating();
+            }
+            _subscribeToPlayerEvents();
+          }),
+        );
+      } catch (e, st) {
+        log('setDataSource failed: $e', error: e, stackTrace: st, name: 'SwitchableGlobalPlayer');
+        hasError.value = true;
+        isInitialized.value = false;
+      }
     } catch (e, st) {
       log('setDataSource failed: $e', error: e, stackTrace: st, name: 'SwitchableGlobalPlayer');
-      hasError.value = true;
-      isInitialized.value = false;
     }
   }
 
