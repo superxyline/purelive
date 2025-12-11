@@ -13,6 +13,7 @@ import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
+import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/player/switchable_global_player.dart';
 
 enum VideoMode { normal, widescreen, fullscreen }
@@ -23,11 +24,10 @@ class LivePlayController extends StateController {
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
   late final Site currentSite = Sites.of(site);
   late final LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
-
+  late PlayerInstanceState playerState;
   final settings = Get.find<SettingsService>();
 
   final messages = <LiveMessage>[].obs;
-
   // 控制唯一子组件
   VideoController? videoController;
 
@@ -36,10 +36,6 @@ class LivePlayController extends StateController {
   Rx<LiveRoom?> detail = Rx<LiveRoom?>(LiveRoom());
 
   final success = false.obs;
-
-  var liveStatus = false.obs;
-
-  Map<String, List<String>> liveStream = {};
 
   /// 清晰度数据
   RxList<LivePlayQuality> qualites = RxList<LivePlayQuality>();
@@ -151,8 +147,8 @@ class LivePlayController extends StateController {
     }
 
     // 开始播放
-    liveStatus.value = liveRoom.status! || liveRoom.isRecord!;
-    if (liveStatus.value) {
+    bool liveStatus = liveRoom.status! || liveRoom.isRecord!;
+    if (liveStatus) {
       await getPlayQualites();
       if (currentPlayRoom.value.platform == Sites.iptvSite) {
         settings.addRoomToHistory(currentPlayRoom.value);
@@ -336,6 +332,8 @@ class LivePlayController extends StateController {
       var ua = await HuyaSite().getHuYaUA();
       headers = {"user-agent": ua, "origin": "https://www.huya.com"};
     }
+
+    playerState = GlobalPlayerState().setCurrentRoom(room.roomId!);
     videoController = VideoController(
       room: detail.value!,
       datasource: playUrls.value[currentLineIndex.value],
@@ -344,6 +342,7 @@ class LivePlayController extends StateController {
       qualiteName: qualites[currentQuality.value].quality,
       currentLineIndex: currentLineIndex.value,
       currentQuality: currentQuality.value,
+      initialState: playerState,
     );
     success.value = true;
   }

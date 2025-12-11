@@ -9,6 +9,7 @@ import 'package:pure_live/player/fullscreen.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
+import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/player/switchable_global_player.dart';
 import 'package:pure_live/pkg/canvas_danmaku/danmaku_controller.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
@@ -25,7 +26,7 @@ class VideoController with ChangeNotifier {
   final isVertical = false.obs;
 
   ScreenBrightness brightnessController = ScreenBrightness();
-
+  final PlayerInstanceState initialState;
   double initBrightness = 0.0;
 
   final String qualiteName;
@@ -88,6 +89,7 @@ class VideoController with ChangeNotifier {
     required this.qualiteName,
     required this.currentLineIndex,
     required this.currentQuality,
+    required this.initialState,
   }) {
     danmakuController = DanmakuController(
       onAddDanmaku: (item) {},
@@ -112,6 +114,10 @@ class VideoController with ChangeNotifier {
     initVideoController();
     initDanmaku();
     initBattery();
+    isFullscreen.value = initialState.isFullscreen;
+    isWindowFullscreen.value = initialState.isWindowFullscreen;
+    isFullscreen.listen((v) => initialState.isFullscreen = v);
+    isWindowFullscreen.listen((v) => initialState.isWindowFullscreen = v);
   }
 
   // Battery level control
