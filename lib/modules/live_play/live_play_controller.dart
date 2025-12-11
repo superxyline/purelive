@@ -339,7 +339,6 @@ class LivePlayController extends StateController {
     videoController = VideoController(
       room: detail.value!,
       datasourceType: 'network',
-      videoPlayerIndex: settings.videoPlayerIndex.value,
       datasource: playUrls.value[currentLineIndex.value],
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
       allowBackgroundPlay: settings.enableBackgroundPlay.value,

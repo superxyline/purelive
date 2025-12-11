@@ -25,12 +25,7 @@ class VideoController with ChangeNotifier {
   final bool allowFullScreen;
   final bool autoPlay;
   final Map<String, String> headers;
-
-  final int videoPlayerIndex;
   final isVertical = false.obs;
-  final videoFitIndex = 0.obs;
-  final videoFit = BoxFit.contain.obs;
-  final mediaPlayerControllerInitialized = false.obs;
 
   ScreenBrightness brightnessController = ScreenBrightness();
 
@@ -57,10 +52,6 @@ class VideoController with ChangeNotifier {
   LivePlayController livePlayController = Get.find<LivePlayController>();
 
   final SettingsService settings = Get.find<SettingsService>();
-
-  bool enableCodec = true;
-
-  bool playerCompatMode = false;
 
   final globalPlayer = SwitchableGlobalPlayer();
 
@@ -110,7 +101,6 @@ class VideoController with ChangeNotifier {
     required this.qualiteName,
     required this.currentLineIndex,
     required this.currentQuality,
-    required this.videoPlayerIndex,
   }) {
     danmakuController = DanmakuController(
       onAddDanmaku: (item) {},
@@ -120,8 +110,6 @@ class VideoController with ChangeNotifier {
       onClear: () {},
     );
 
-    videoFitIndex.value = settings.videoFitIndex.value;
-    videoFit.value = settings.videofitArrary[videoFitIndex.value];
     hideDanmaku.value = settings.hideDanmaku.value;
     danmakuTopArea.value = settings.danmakuTopArea.value;
     danmakuBottomArea.value = settings.danmakuBottomArea.value;
@@ -309,8 +297,7 @@ class VideoController with ChangeNotifier {
     }
   }
 
-  void setVideoFit(BoxFit fit) {
-    var index = settings.videofitArrary.indexOf(fit);
+  void setVideoFit(int index) {
     globalPlayer.changeVideoFit(index);
   }
 

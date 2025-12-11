@@ -882,20 +882,23 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
     return GestureDetector(
       onTap: () {
         controller.enableController();
-        var currentIndex = controller.videoFitIndex.value;
+        var currentIndex = controller.settings.videoFitIndex.value;
         currentIndex++;
         if (currentIndex == attrs.length) {
           currentIndex = 0;
         }
-        controller.videoFitIndex.value = currentIndex;
-        controller.setVideoFit(attrs[currentIndex]);
+        controller.settings.videoFitIndex.value = currentIndex;
+        controller.setVideoFit(currentIndex);
         setState(() {});
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 2),
         alignment: Alignment.center,
         height: 25,
-        child: Text(descs[controller.videoFitIndex.value], style: TextStyle(color: Colors.white, fontSize: 15)),
+        child: Text(
+          descs[controller.settings.videoFitIndex.value],
+          style: TextStyle(color: Colors.white, fontSize: 15),
+        ),
       ),
     );
   }
