@@ -7,6 +7,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/common/index.dart' hide BackButton;
 import 'package:pure_live/modules/live_play/play_other.dart';
+import 'package:pure_live/modules/live_play/danmaku_tab.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 
@@ -138,7 +139,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                           buildVideoPlayer(),
                           const ResolutionsRow(),
                           const Divider(height: 1),
-                          Expanded(child: Obx(() => DanmakuListView(room: controller.detail.value!))),
+                          Expanded(child: Obx(() => DanmakuTabView())),
                         ],
                       )
                     : Row(

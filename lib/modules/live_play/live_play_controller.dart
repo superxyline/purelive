@@ -18,7 +18,7 @@ import 'package:pure_live/player/switchable_global_player.dart';
 
 enum VideoMode { normal, widescreen, fullscreen }
 
-class LivePlayController extends StateController {
+class LivePlayController extends StateController with GetSingleTickerProviderStateMixin {
   LivePlayController({required this.room, required this.site});
   final String site;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown);
@@ -30,6 +30,10 @@ class LivePlayController extends StateController {
   PlayerInstanceState playerState = PlayerInstanceState();
 
   final settings = Get.find<SettingsService>();
+
+  late TabController tabController;
+
+  final List<String> tabs = ['弹幕列表', '弹幕设置', '屏蔽管理'];
 
   final messages = <LiveMessage>[].obs;
 
@@ -78,6 +82,7 @@ class LivePlayController extends StateController {
   @override
   void onClose() {
     SwitchableGlobalPlayer().stop();
+    tabController.dispose();
     super.onClose();
   }
 
@@ -116,6 +121,7 @@ class LivePlayController extends StateController {
       _stopWatchTimer.onStopTimer();
       exit(0);
     });
+    tabController = TabController(length: tabs.length, vsync: this);
   }
 
   void resetRoom(Site site, String roomId) async {
