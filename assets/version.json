@@ -1,7 +1,7 @@
 {
   "version": "2.0.6",
   "version_num": 10206,
-  "version_desc": "-Fixed: 优化显示UI.添加全屏切换直播间.添加弹幕设置功能。 \n-Fixed: 优化弹幕显示. \n-Fixed: 优化播放器. ",
+  "version_desc": "-Fixed: 优化显示UI.添加全屏切换直播间.添加弹幕设置功能。 \n-Fixed: 优化弹幕显示. \n-Fixed: 优化播放器. \n: Fixed: 修复抖音搜索。认证內添加ttwid=xxx 即可 ttwid可在电脑端cookie中找到。",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
