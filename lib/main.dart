@@ -44,11 +44,17 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
   }
 
   Future<void> initGlopalPlayer() async {
-    final settings = Get.find<SettingsService>();
-    if (PlatformUtils.isDesktop) {
-      await SwitchableGlobalPlayer().init(PlayerEngine.mediaKit);
+    if (Get.isRegistered<SettingsService>()) {
+      final settings = Get.find<SettingsService>();
+      if (PlatformUtils.isDesktop) {
+        await SwitchableGlobalPlayer().init(PlayerEngine.mediaKit);
+      } else {
+        await SwitchableGlobalPlayer().init(PlayerEngine.values[settings.videoPlayerIndex.value]);
+      }
     } else {
-      await SwitchableGlobalPlayer().init(PlayerEngine.values[settings.videoPlayerIndex.value]);
+      Future.delayed(Duration(seconds: 1)).then((value) async {
+        await initGlopalPlayer();
+      });
     }
   }
 
