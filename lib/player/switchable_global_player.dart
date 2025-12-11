@@ -77,8 +77,6 @@ class SwitchableGlobalPlayer {
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
     try {
-      await stop();
-      await Future.delayed(Duration(milliseconds: 100));
       _currentPlayer ??= _createPlayer(_currentEngine);
       _cleanupSubscriptions();
       videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');

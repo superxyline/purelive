@@ -6,28 +6,21 @@ class FijkHelper {
   /// setFijkOption
   /// [player]
   static Future<void> setFijkOption(FijkPlayer player, {enableCodec = true, Map<String, String>? headers}) async {
-    player.setOption(FijkOption.playerCategory, 'framedrop', 5);
-    player.setOption(FijkOption.playerCategory, 'mediacodec', 1);
-    player.setOption(FijkOption.playerCategory, 'mediacodec-hevc', 1);
-    player.setOption(FijkOption.playerCategory, 'videotoolbox', 1);
-    player.setOption(FijkOption.playerCategory, 'enable-accurate-seek', 1);
-    player.setOption(FijkOption.playerCategory, 'soundtouch', 1);
-    player.setOption(FijkOption.playerCategory, 'subtitle', 1);
-    player.setOption(FijkOption.hostCategory, "request-screen-on", 1);
-    player.setOption(FijkOption.hostCategory, "request-audio-focus", 1);
+    await player.setOption(FijkOption.playerCategory, 'framedrop', 1);
+    await player.setOption(FijkOption.playerCategory, 'mediacodec', enableCodec ? 1 : 0);
+    await player.setOption(FijkOption.playerCategory, 'mediacodec-hevc', enableCodec ? 1 : 0);
+    await player.setOption(FijkOption.playerCategory, 'videotoolbox', enableCodec ? 1 : 0);
+    await player.setOption(FijkOption.playerCategory, 'enable-accurate-seek', 1);
+    await player.setOption(FijkOption.playerCategory, 'soundtouch', 1);
+    await player.setOption(FijkOption.playerCategory, 'subtitle', 1);
+    await player.setOption(FijkOption.hostCategory, "request-screen-on", 1);
+    await player.setOption(FijkOption.hostCategory, "request-audio-focus", 1);
     // Set format
-    player.setOption(FijkOption.formatCategory, 'reconnect', 1);
-    player.setOption(FijkOption.formatCategory, 'timeout', 30 * 1000 * 1000);
-    player.setOption(FijkOption.formatCategory, 'fflags', 'fastseek');
-    player.setOption(FijkOption.formatCategory, 'rtsp_transport', 'tcp');
-    player.setOption(FijkOption.formatCategory, 'packet-buffering', 1);
-
-    // Set codec
-    if (!enableCodec) {
-      player.setOption(FijkOption.playerCategory, 'mediacodec', 0);
-      player.setOption(FijkOption.playerCategory, 'mediacodec-hevc', 0);
-      player.setOption(FijkOption.playerCategory, 'videotoolbox', 0);
-    }
+    await player.setOption(FijkOption.formatCategory, 'reconnect', 1);
+    await player.setOption(FijkOption.formatCategory, 'timeout', 30 * 1000 * 1000);
+    await player.setOption(FijkOption.formatCategory, 'fflags', 'fastseek');
+    await player.setOption(FijkOption.formatCategory, 'rtsp_transport', 'tcp');
+    await player.setOption(FijkOption.formatCategory, 'packet-buffering', 1);
 
     // Set request headers
     String requestHeaders = '';
