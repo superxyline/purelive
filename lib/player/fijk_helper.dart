@@ -6,7 +6,6 @@ class FijkHelper {
   /// setFijkOption
   /// [player]
   static Future<void> setFijkOption(FijkPlayer player, {enableCodec = true, Map<String, String>? headers}) async {
-    // Set player
     player.setOption(FijkOption.playerCategory, 'framedrop', 5);
     player.setOption(FijkOption.playerCategory, 'mediacodec', 1);
     player.setOption(FijkOption.playerCategory, 'mediacodec-hevc', 1);
@@ -19,16 +18,10 @@ class FijkHelper {
     // Set format
     player.setOption(FijkOption.formatCategory, 'reconnect', 1);
     player.setOption(FijkOption.formatCategory, 'timeout', 30 * 1000 * 1000);
+    player.setOption(FijkOption.formatCategory, 'fflags', 'fastseek');
     player.setOption(FijkOption.formatCategory, 'rtsp_transport', 'tcp');
     player.setOption(FijkOption.formatCategory, 'packet-buffering', 1);
-    player.setOption(FijkOption.formatCategory, "fflags", "nobuffer");
-    player.setOption(FijkOption.formatCategory, "flags", "low_delay");
-    player.setOption(FijkOption.formatCategory, "reconnect_at_eof", 1);
-    player.setOption(FijkOption.formatCategory, "reconnect_streamed", 1);
-    player.setOption(FijkOption.formatCategory, "reconnect_delay_max", 2);
-    player.setOption(FijkOption.playerCategory, "packet-buffering", false);
-    player.setOption(FijkOption.playerCategory, "start-on-prepared", true);
-    player.setOption(FijkOption.playerCategory, "sync", "decoder");
+
     // Set codec
     if (!enableCodec) {
       player.setOption(FijkOption.playerCategory, 'mediacodec', 0);
