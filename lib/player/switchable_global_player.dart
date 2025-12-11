@@ -77,6 +77,8 @@ class SwitchableGlobalPlayer {
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
     try {
+      // 等待初始化完成
+      await Future.delayed(Duration(milliseconds: 100));
       _currentPlayer ??= _createPlayer(_currentEngine);
       _cleanupSubscriptions();
       videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
@@ -148,12 +150,29 @@ class SwitchableGlobalPlayer {
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
   }
 
-  // ------------------ UI ------------------
-
   Widget getVideoWidget(Widget? child) {
     return Obx(() {
       if (!isInitialized.value) {
-        return Container(color: Colors.black);
+        return Material(
+          child: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              Container(
+                color: Colors.black, // 设置你想要的背景色
+              ),
+              Container(
+                color: Colors.black,
+                child: const Center(
+                  child: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(strokeWidth: 4, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
       }
       if (!Platform.isAndroid) {
         return KeyedSubtree(

@@ -284,22 +284,21 @@ class VideoController with ChangeNotifier {
 
   @override
   void dispose() async {
+    globalPlayer.dispose();
     await destory();
     super.dispose();
   }
 
   void refresh() async {
+    globalPlayer.dispose();
     await destory();
-    Timer(const Duration(seconds: 2), () {
-      livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.refreash);
-    });
+    livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.refreash);
   }
 
   void changeLine() async {
+    globalPlayer.dispose();
     await destory();
-    Timer(const Duration(seconds: 2), () {
-      livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.changeLine, line: currentLineIndex);
-    });
+    livePlayController.onInitPlayerState(reloadDataType: ReloadDataType.changeLine, line: currentLineIndex);
   }
 
   Future<void> destory() async {

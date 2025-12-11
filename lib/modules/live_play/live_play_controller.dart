@@ -133,6 +133,7 @@ class LivePlayController extends StateController {
   }
 
   Future<LiveRoom> onInitPlayerState({ReloadDataType reloadDataType = ReloadDataType.refreash, int line = 0}) async {
+    SwitchableGlobalPlayer().dispose();
     var liveRoom = await currentSite.liveSite.getRoomDetail(
       roomId: currentPlayRoom.value.roomId!,
       platform: currentPlayRoom.value.platform!,
@@ -245,6 +246,7 @@ class LivePlayController extends StateController {
   }
 
   void setResolution(String quality, String index) {
+    SwitchableGlobalPlayer().dispose();
     if (videoController != null) {
       videoController!.destory();
     }
@@ -391,6 +393,7 @@ class LivePlayController extends StateController {
   }
 
   void switchRoom(LiveRoom room) async {
+    SwitchableGlobalPlayer().dispose();
     success.value = false;
     messages.clear();
     if (videoController != null) {
