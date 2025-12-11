@@ -28,13 +28,22 @@ class AppConsts {
   static const Map<String, Locale> languages = {"English": Locale('en'), "简体中文": Locale('zh', 'CN')};
 
   // 视频 Fit 模式
-  static const List<BoxFit> videoFitList = [
+  List<BoxFit> videoFitList = [
     BoxFit.contain,
-    BoxFit.fill,
     BoxFit.cover,
-    BoxFit.fitWidth,
+    BoxFit.fill,
     BoxFit.fitHeight,
+    BoxFit.fitWidth,
     BoxFit.scaleDown,
+  ];
+
+  List<Map<String, dynamic>> videoFitType = [
+    {'attr': BoxFit.contain, 'desc': '包含'},
+    {'attr': BoxFit.cover, 'desc': '覆盖'},
+    {'attr': BoxFit.fill, 'desc': '填充'},
+    {'attr': BoxFit.fitHeight, 'desc': '高度适应'},
+    {'attr': BoxFit.fitWidth, 'desc': '宽度适应'},
+    {'attr': BoxFit.scaleDown, 'desc': '缩小适应'},
   ];
 
   static Map<String, Color> themeColors = {

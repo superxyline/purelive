@@ -18,12 +18,9 @@ import 'package:pure_live/modules/live_play/widgets/video_player/fullscreen.dart
 
 class VideoController with ChangeNotifier {
   final LiveRoom room;
-  final String datasourceType;
   String datasource;
-  final bool allowBackgroundPlay;
   final bool allowScreenKeepOn;
   final bool allowFullScreen;
-  final bool autoPlay;
   final Map<String, String> headers;
   final isVertical = false.obs;
 
@@ -62,14 +59,7 @@ class VideoController with ChangeNotifier {
   final danmuKey = GlobalKey();
 
   GlobalKey playerKey = GlobalKey();
-  List<Map<String, dynamic>> videoFitType = [
-    {'attr': BoxFit.contain, 'desc': '包含'},
-    {'attr': BoxFit.cover, 'desc': '覆盖'},
-    {'attr': BoxFit.fill, 'desc': '填充'},
-    {'attr': BoxFit.fitHeight, 'desc': '高度适应'},
-    {'attr': BoxFit.fitWidth, 'desc': '宽度适应'},
-    {'attr': BoxFit.scaleDown, 'desc': '缩小适应'},
-  ];
+
   Timer? _debounceTimer;
 
   void enableController() {
@@ -90,13 +80,10 @@ class VideoController with ChangeNotifier {
   final danmakuOpacity = 1.0.obs;
   VideoController({
     required this.room,
-    required this.datasourceType,
     required this.datasource,
     required this.headers,
-    this.allowBackgroundPlay = false,
     this.allowScreenKeepOn = false,
     this.allowFullScreen = true,
-    this.autoPlay = true,
     BoxFit fitMode = BoxFit.contain,
     required this.qualiteName,
     required this.currentLineIndex,

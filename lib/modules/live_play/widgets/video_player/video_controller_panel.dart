@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/event_bus.dart';
+import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:pure_live/common/widgets/count_button.dart';
 import 'package:pure_live/pkg/canvas_danmaku/danmaku_screen.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
@@ -877,8 +878,8 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
   VideoController get controller => widget.controller;
   @override
   Widget build(BuildContext context) {
-    List<String> descs = controller.videoFitType.map((e) => e['desc'] as String).toList();
-    List<BoxFit> attrs = controller.videoFitType.map((e) => e['attr'] as BoxFit).toList();
+    List<String> descs = AppConsts().videoFitType.map((e) => e['desc'] as String).toList();
+    List<BoxFit> attrs = AppConsts().videoFitList;
     return GestureDetector(
       onTap: () {
         controller.enableController();
