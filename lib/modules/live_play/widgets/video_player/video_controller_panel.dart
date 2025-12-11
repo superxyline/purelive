@@ -9,7 +9,9 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:pure_live/common/widgets/count_button.dart';
+import 'package:pure_live/modules/live_play/play_other.dart';
 import 'package:pure_live/pkg/canvas_danmaku/danmaku_screen.dart';
+import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
@@ -238,7 +240,18 @@ class TopActionBar extends StatelessWidget {
                   ),
                 ),
               ),
-              if (controller.fullscreenUI) ...[const DatetimeInfo(), BatteryInfo(controller: controller)],
+              if (controller.fullscreenUI) ...[
+                IconButton(
+                  icon: const Icon(Icons.swap_horiz_outlined),
+                  tooltip: '切换直播间',
+                  color: Colors.white,
+                  onPressed: () {
+                    Get.dialog(PlayOther(controller: Get.find<LivePlayController>()));
+                  },
+                ),
+                const DatetimeInfo(),
+                BatteryInfo(controller: controller),
+              ],
               if (!controller.fullscreenUI && controller.supportPip) PIPButton(controller: controller),
             ],
           ),

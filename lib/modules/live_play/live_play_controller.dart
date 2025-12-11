@@ -21,13 +21,19 @@ enum VideoMode { normal, widescreen, fullscreen }
 class LivePlayController extends StateController {
   LivePlayController({required this.room, required this.site});
   final String site;
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
-  late final Site currentSite = Sites.of(site);
-  late final LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
-  late PlayerInstanceState playerState;
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown);
+
+  late Site currentSite = Sites.of(site);
+
+  late LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
+
+  PlayerInstanceState playerState = PlayerInstanceState();
+
   final settings = Get.find<SettingsService>();
 
   final messages = <LiveMessage>[].obs;
+
+  final isLiving = true.obs;
   // 控制唯一子组件
   VideoController? videoController;
 
@@ -48,9 +54,6 @@ class LivePlayController extends StateController {
 
   /// 当前线路
   final currentLineIndex = 0.obs;
-
-  // 当前直播间信息 下一个频道或者上一个
-  var currentPlayRoom = LiveRoom().obs;
 
   var closeTimes = 240.obs;
 
@@ -87,7 +90,7 @@ class LivePlayController extends StateController {
   @override
   void onInit() {
     super.onInit();
-    currentPlayRoom.value = room;
+    detail.value = room;
     onInitPlayerState();
     EmojiManager().preload(site);
     debounce(closeTimeFlag, (callback) {
@@ -131,11 +134,11 @@ class LivePlayController extends StateController {
   Future<LiveRoom> onInitPlayerState({ReloadDataType reloadDataType = ReloadDataType.refreash, int line = 0}) async {
     SwitchableGlobalPlayer().dispose();
     var liveRoom = await currentSite.liveSite.getRoomDetail(
-      roomId: currentPlayRoom.value.roomId!,
-      platform: currentPlayRoom.value.platform!,
+      roomId: detail.value!.roomId!,
+      platform: detail.value!.platform!,
     );
     if (currentSite.id == Sites.iptvSite) {
-      liveRoom = liveRoom.copyWith(title: currentPlayRoom.value.title!, nick: currentPlayRoom.value.nick!);
+      liveRoom = liveRoom.copyWith(title: detail.value!.title!, nick: detail.value!.nick!);
     }
     handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line);
     detail.value = liveRoom;
@@ -146,12 +149,12 @@ class LivePlayController extends StateController {
       return liveRoom;
     }
 
-    // 开始播放
     bool liveStatus = liveRoom.status! || liveRoom.isRecord!;
     if (liveStatus) {
+      isLiving.value = true;
       await getPlayQualites();
-      if (currentPlayRoom.value.platform == Sites.iptvSite) {
-        settings.addRoomToHistory(currentPlayRoom.value);
+      if (detail.value!.platform == Sites.iptvSite) {
+        settings.addRoomToHistory(detail.value!);
       } else {
         settings.addRoomToHistory(liveRoom);
       }
@@ -164,6 +167,7 @@ class LivePlayController extends StateController {
       }
     } else {
       success.value = false;
+      isLiving.value = false;
       if (liveRoom.liveStatus == LiveStatus.banned) {
         SmartDialog.showToast("服务器错误,请稍后获取", displayTime: const Duration(seconds: 2));
       } else {
@@ -390,13 +394,17 @@ class LivePlayController extends StateController {
   void switchRoom(LiveRoom room) async {
     SwitchableGlobalPlayer().dispose();
     success.value = false;
+    isLiving.value = true;
     messages.clear();
+    liveDanmaku.stop();
     if (videoController != null) {
       await videoController?.destory();
       videoController = null;
     }
     hasUseDefaultResolution = false;
-    currentPlayRoom.value = room;
+    detail.value = room;
+    currentSite = Sites.of(room.platform!);
+    liveDanmaku = Sites.of(room.platform!).liveSite.getDanmaku();
     onInitPlayerState();
   }
 }

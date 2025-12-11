@@ -1,4 +1,7 @@
+import 'dart:async';
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/common/utils/text_util.dart';
 import 'package:pure_live/common/models/live_room.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -13,12 +16,39 @@ class PlayOther extends StatefulWidget {
 }
 
 class _PlayOtherState extends State<PlayOther> {
-  late final List<LiveRoom> onlineRooms;
-
+  final onlineRooms = <LiveRoom>[].obs;
+  StreamSubscription<dynamic>? subscription;
+  final loadingFinish = false.obs;
   @override
   void initState() {
     super.initState();
-    onlineRooms = widget.controller.settings.favoriteRooms.where((room) => room.liveStatus == LiveStatus.live).toList();
+    var rooms = <LiveRoom>[];
+    rooms = widget.controller.settings.favoriteRooms.where((room) => room.liveStatus != LiveStatus.live).toList();
+    for (var room in rooms) {
+      if (int.tryParse(room.watching!) == null) {
+        room.watching = "0";
+      }
+    }
+    rooms.sort((a, b) => int.parse(b.watching!).compareTo(int.parse(a.watching!)));
+    onlineRooms.value = rooms;
+    loadingFinish.value = true;
+    listenFavorite();
+  }
+
+  void listenFavorite() {
+    // 监听刷新关注页事件
+    subscription = EventBus.instance.listen('refresh_favorite_finish', (data) {
+      loadingFinish.value = true;
+      var rooms = <LiveRoom>[];
+      rooms = widget.controller.settings.favoriteRooms.where((room) => room.liveStatus == LiveStatus.live).toList();
+      for (var room in rooms) {
+        if (int.tryParse(room.watching!) == null) {
+          room.watching = "0";
+        }
+      }
+      rooms.sort((a, b) => int.parse(b.watching!).compareTo(int.parse(a.watching!)));
+      onlineRooms.value = rooms;
+    });
   }
 
   @override
@@ -37,7 +67,7 @@ class _PlayOtherState extends State<PlayOther> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('正在直播', style: Theme.of(context).textTheme.titleMedium),
+                  Row(children: [Text('正在直播', style: Theme.of(context).textTheme.titleMedium)]),
                   IconButton(
                     icon: const Icon(Icons.close, size: 18),
                     onPressed: () {
@@ -49,18 +79,33 @@ class _PlayOtherState extends State<PlayOther> {
             ),
             SizedBox(
               height: 300,
-              child: ListView.builder(
-                itemCount: onlineRooms.length,
-                itemBuilder: (context, index) {
-                  return EnhancedListTile(room: onlineRooms[index], dense: true, onTap: widget.controller.switchRoom);
-                },
+              child: Obx(
+                () => loadingFinish.value
+                    ? ListView.builder(
+                        itemCount: onlineRooms.value.length,
+                        itemBuilder: (context, index) {
+                          return EnhancedListTile(
+                            room: onlineRooms.value[index],
+                            dense: true,
+                            onTap: widget.controller.switchRoom,
+                          );
+                        },
+                      )
+                    : const Center(child: CircularProgressIndicator()),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  TextButton(
+                    onPressed: () {
+                      loadingFinish.value = false;
+                      EventBus.instance.emit('refresh_favorite_rooms', true);
+                    },
+                    child: const Text('刷新'),
+                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();

@@ -2,11 +2,12 @@ import 'dart:io';
 import 'dart:async';
 import 'widgets/index.dart';
 import 'package:get/get.dart';
-import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:pure_live/common/index.dart' hide BackButton;
 import 'package:pure_live/modules/live_play/play_other.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
+import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 
 class LivePlayPage extends GetView<LivePlayController> {
   LivePlayPage({super.key});
@@ -43,9 +44,9 @@ class LivePlayPage extends GetView<LivePlayController> {
           children: [
             Obx(
               () => CircleAvatar(
-                foregroundImage: controller.currentPlayRoom.value.avatar == null
+                foregroundImage: controller.detail.value!.avatar == null
                     ? null
-                    : NetworkImage(controller.currentPlayRoom.value.avatar!),
+                    : NetworkImage(controller.detail.value!.avatar!),
                 radius: 13,
                 backgroundColor: Theme.of(context).disabledColor,
               ),
@@ -67,9 +68,9 @@ class LivePlayPage extends GetView<LivePlayController> {
                     ),
                   ),
                   Text(
-                    controller.currentPlayRoom.value.area!.isEmpty
-                        ? controller.currentPlayRoom.value.platform!.toUpperCase()
-                        : "${controller.currentPlayRoom.value.platform!.toUpperCase()} / ${controller.currentPlayRoom.value.area}",
+                    controller.detail.value!.area!.isEmpty
+                        ? controller.detail.value!.platform!.toUpperCase()
+                        : "${controller.detail.value!.platform!.toUpperCase()} / ${controller.detail.value!.area}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
                   ),
                 ],
@@ -172,7 +173,11 @@ class LivePlayPage extends GetView<LivePlayController> {
       child: Container(
         color: Colors.black,
         child: Obx(
-          () => controller.success.value ? VideoPlayer(controller: controller.videoController!) : buildLoading(),
+          () => controller.success.value
+              ? VideoPlayer(controller: controller.videoController!)
+              : controller.isLiving.value
+              ? buildLoading()
+              : NotLivingVideoWidget(controller: controller, key: UniqueKey()),
         ),
       ),
     );
@@ -426,5 +431,91 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
             },
             child: const Text('关注'),
           );
+  }
+}
+
+class NotLivingVideoWidget extends StatelessWidget {
+  const NotLivingVideoWidget({super.key, required this.controller});
+
+  final LivePlayController controller;
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 55,
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [Colors.transparent, Colors.black45],
+              ),
+            ),
+            child: Row(
+              children: [
+                if (controller.playerState.isFullscreen || controller.playerState.isWindowFullscreen)
+                  GestureDetector(
+                    onTap: () {
+                      controller.setNormalScreen();
+                      controller.playerState.isFullscreen = false;
+                      controller.playerState.isWindowFullscreen = false;
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(12),
+                      child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                    ),
+                  ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      controller.room.title!,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 16, decoration: TextDecoration.none),
+                    ),
+                  ),
+                ),
+                if (controller.playerState.isFullscreen || controller.playerState.isWindowFullscreen) ...[
+                  IconButton(
+                    icon: const Icon(Icons.swap_horiz_outlined),
+                    tooltip: '切换直播间',
+                    color: Colors.white,
+                    onPressed: () {
+                      Get.dialog(PlayOther(controller: Get.find<LivePlayController>()));
+                    },
+                  ),
+                  const DatetimeInfo(),
+                ],
+              ],
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      S.of(context).play_video_failed,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                  const Text("该房间未开播或已下播", style: TextStyle(color: Colors.white, fontSize: 14)),
+                  const Text("请切换其他直播间进行观看吧", style: TextStyle(color: Colors.white, fontSize: 14)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/plugins/event_bus.dart';
 
 class FavoriteController extends GetxController with GetTickerProviderStateMixin {
   final SettingsService settings = Get.find<SettingsService>();
@@ -10,6 +12,7 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
   final tabSiteIndex = 0.obs;
   final tabOnlineIndex = 0.obs;
   bool isFirstLoad = true;
+  StreamSubscription<dynamic>? subscription;
   FavoriteController() {
     tabController = TabController(length: 2, vsync: this);
     tabSiteController = TabController(length: Sites().availableSites().length + 1, vsync: this);
@@ -22,7 +25,7 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     syncRooms();
     // 监听settings rooms变化
     debounce(settings.favoriteRooms, (rooms) => syncRooms(), time: const Duration(milliseconds: 1000));
-    // settings.favoriteRooms.listen((rooms) => syncRooms());
+
     onRefresh();
     tabController.addListener(() {
       tabOnlineIndex.value = tabController.index;
@@ -34,6 +37,15 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
     if (settings.autoRefreshTime.value != 0) {
       Timer.periodic(Duration(minutes: settings.autoRefreshTime.value), (timer) => onRefresh());
     }
+    listenFavorite();
+  }
+
+  void listenFavorite() {
+    // 监听刷新关注页事件
+    subscription = EventBus.instance.listen('refresh_favorite_rooms', (data) {
+      log('listenFavorite');
+      onRefresh();
+    });
   }
 
   final onlineRooms = [].obs;
@@ -82,6 +94,7 @@ class FavoriteController extends GetxController with GetTickerProviderStateMixin
       debugPrint('Error during refresh: $e');
     }
     isFirstLoad = false;
+    EventBus.instance.emit('refresh_favorite_finish', true);
     return false;
   }
 }
