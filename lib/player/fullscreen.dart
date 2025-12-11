@@ -14,7 +14,6 @@ Future<void> landScape() async {
     } else if (Platform.isAndroid || Platform.isIOS) {
       await AutoOrientation.landscapeAutoMode(forceSensor: true);
     } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-      await const MethodChannel('com.alexmercerind/media_kit_video').invokeMethod('Utils.EnterNativeFullscreen');
       windowManager.setFullScreen(true);
     }
   } catch (exception, stacktrace) {
@@ -32,7 +31,7 @@ Future<void> doEnterFullScreen() async {
   if (Platform.isAndroid || Platform.isIOS) {
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   } else {
-    await const MethodChannel('com.alexmercerind/media_kit_video').invokeMethod('Utils.EnterNativeFullscreen');
+    await windowManager.setFullScreen(true);
   }
 }
 
@@ -50,7 +49,7 @@ Future<void> doExitFullScreen() async {
       await SystemChrome.setEnabledSystemUIMode(mode, overlays: SystemUiOverlay.values);
       await SystemChrome.setPreferredOrientations([]);
     } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-      await const MethodChannel('com.alexmercerind/media_kit_video').invokeMethod('Utils.ExitNativeFullscreen');
+      await windowManager.setFullScreen(false);
     }
   } catch (exception, stacktrace) {
     debugPrint(exception.toString());
