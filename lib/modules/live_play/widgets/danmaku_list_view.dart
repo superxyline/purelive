@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:get/get.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/emoji_manager.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
+
+// 假设 LivePlayController, LiveRoom, LiveMessage, parseEmojis 等已定义
 
 class DanmakuListView extends StatefulWidget {
   final LiveRoom room;
@@ -15,27 +18,34 @@ class DanmakuListView extends StatefulWidget {
 }
 
 class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliveClientMixin<DanmakuListView> {
+  // ... (initState, dispose, _scrollToBottom, _userScrollAction 保持不变) ...
   final ScrollController _scrollController = ScrollController();
   bool _scrollHappen = false;
+  late StreamSubscription<List<LiveMessage>> _messagesSubscription;
 
   LivePlayController get controller => Get.find<LivePlayController>();
 
   @override
   void initState() {
     super.initState();
-    controller.messages.listen((p0) {
-      _scrollToBottom();
+    _messagesSubscription = controller.messages.listen((p0) {
+      if (mounted) {
+        _scrollToBottom();
+      }
     });
   }
 
   @override
   void dispose() {
+    _messagesSubscription.cancel();
     _scrollController.dispose();
     super.dispose();
   }
 
   void _scrollToBottom() async {
     if (_scrollHappen) return;
+    if (!mounted) return;
+
     try {
       if (_scrollController.hasClients) {
         await _scrollController.animateTo(
@@ -43,11 +53,13 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
           duration: const Duration(milliseconds: 200),
           curve: Curves.linearToEaseOut,
         );
-        if (!context.mounted) return;
+        if (!mounted) return;
         setState(() {});
       }
     } catch (e) {
-      debugPrint("滚动动画被取消: $e");
+      if (mounted) {
+        debugPrint("滚动动画被取消或 Widget 已卸载: $e");
+      }
     }
   }
 
@@ -62,6 +74,9 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
     }
     return true;
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
@@ -108,75 +123,75 @@ class DanmakuListViewState extends State<DanmakuListView> with AutomaticKeepAliv
             child: ElevatedButton.icon(
               icon: const Icon(Icons.arrow_downward_rounded),
               label: const Text('回到底部'),
+              // 在 onPressed 回调中添加 mounted 检查
               onPressed: () {
-                setState(() => _scrollHappen = false);
-                _scrollToBottom();
+                if (mounted) {
+                  // <--- 关键修复点
+                  setState(() => _scrollHappen = false);
+                  _scrollToBottom();
+                }
               },
             ),
           ),
       ],
     );
   }
+}
 
-  List<InlineSpan> parseEmojis(String text, double fontSize) {
-    final List<InlineSpan> spans = [];
-    final regex = RegExp(r'\[(.*?)\]');
-    int lastIndex = 0;
+List<InlineSpan> parseEmojis(String text, double fontSize) {
+  final List<InlineSpan> spans = [];
+  final regex = RegExp(r'\[(.*?)\]');
+  int lastIndex = 0;
 
-    for (final match in regex.allMatches(text)) {
-      // 添加表情前的文本
-      if (match.start > lastIndex) {
-        spans.add(
-          TextSpan(
-            text: text.substring(lastIndex, match.start),
-            style: TextStyle(fontSize: fontSize),
-          ),
-        );
-      }
-
-      // 处理表情
-      final emojiKey = match.group(0)!;
-      final image = EmojiManager.getEmoji(emojiKey);
-
-      if (image != null) {
-        spans.add(
-          WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: SizedBox(
-              width: fontSize * 1.2,
-              height: fontSize * 1.2,
-              child: CustomPaint(painter: EmojiPainter(image)),
-            ),
-          ),
-        );
-      } else {
-        // 表情不存在时显示原始文本
-        spans.add(
-          TextSpan(
-            text: emojiKey,
-            style: TextStyle(fontSize: fontSize),
-          ),
-        );
-      }
-
-      lastIndex = match.end;
-    }
-
-    // 添加剩余文本
-    if (lastIndex < text.length) {
+  for (final match in regex.allMatches(text)) {
+    if (match.start > lastIndex) {
       spans.add(
         TextSpan(
-          text: text.substring(lastIndex),
+          text: text.substring(lastIndex, match.start),
           style: TextStyle(fontSize: fontSize),
         ),
       );
     }
 
-    return spans;
+    // 处理表情
+    final emojiKey = match.group(0)!;
+    final image = EmojiManager.getEmoji(emojiKey);
+
+    if (image != null) {
+      spans.add(
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: SizedBox(
+            width: fontSize * 1.2,
+            height: fontSize * 1.2,
+            child: CustomPaint(painter: EmojiPainter(image)),
+          ),
+        ),
+      );
+    } else {
+      // 表情不存在时显示原始文本
+      spans.add(
+        TextSpan(
+          text: emojiKey,
+          style: TextStyle(fontSize: fontSize),
+        ),
+      );
+    }
+
+    lastIndex = match.end;
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  // 添加剩余文本
+  if (lastIndex < text.length) {
+    spans.add(
+      TextSpan(
+        text: text.substring(lastIndex),
+        style: TextStyle(fontSize: fontSize),
+      ),
+    );
+  }
+
+  return spans;
 }
 
 class EmojiPainter extends CustomPainter {

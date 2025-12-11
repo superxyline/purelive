@@ -16,6 +16,7 @@ class CountButton extends StatefulWidget {
     this.borderRadius = 12.0,
     required this.onChanged,
     this.valueBuilder,
+    this.textStyle = const TextStyle(fontSize: 15.0, color: Colors.white),
   }) : assert(maxValue > minValue),
        assert(selectedValue >= minValue && selectedValue <= maxValue),
        assert(step > 0);
@@ -46,6 +47,8 @@ class CountButton extends StatefulWidget {
   final Function(double value) onChanged;
 
   final Widget Function(double value)? valueBuilder;
+
+  final TextStyle? textStyle;
 
   @override
   State<CountButton> createState() => _CountButtonState();
@@ -105,10 +108,7 @@ class _CountButtonState extends State<CountButton> {
                 child: Center(
                   child: widget.valueBuilder != null
                       ? widget.valueBuilder!.call(widget.selectedValue.round().toDouble())
-                      : Text(
-                          widget.selectedValue.round().toString(),
-                          style: TextStyle(fontSize: 15.0, color: Colors.white),
-                        ),
+                      : Text(widget.selectedValue.round().toString(), style: widget.textStyle),
                 ),
               ),
             ),

@@ -19,7 +19,6 @@ class _DanmakuTabViewState extends State<DanmakuTabView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // TabBar 区域
         Container(
           color: Get.theme.colorScheme.surface,
           child: TabBar(
@@ -36,24 +35,9 @@ class _DanmakuTabViewState extends State<DanmakuTabView> {
           child: TabBarView(
             controller: controller.tabController,
             children: [
-              Obx(() {
-                if (controller.detail.value == null) {
-                  return const Center(child: Text("直播间信息加载中..."));
-                }
-                return DanmakuListView(room: controller.detail.value!);
-              }),
-              Obx(() {
-                if (controller.detail.value == null) {
-                  return const Center(child: Text("直播间信息加载中..."));
-                }
-                return DanmakuSettingsPage(controller: controller.videoController!);
-              }),
-              Obx(() {
-                if (controller.detail.value == null) {
-                  return const Center(child: Text("直播间信息加载中..."));
-                }
-                return KeywordBlockPage();
-              }),
+              DanmakuListView(room: controller.detail.value!),
+              DanmakuSettingsPage(controller: controller.videoController!),
+              KeywordBlockPage(),
             ],
           ),
         ),

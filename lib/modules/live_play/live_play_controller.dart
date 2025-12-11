@@ -81,6 +81,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
   @override
   void onClose() {
+    success.value = false;
     SwitchableGlobalPlayer().stop();
     tabController.dispose();
     super.onClose();
@@ -88,7 +89,9 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
   @override
   void dispose() {
+    success.value = false;
     SwitchableGlobalPlayer().stop();
+    tabController.dispose();
     super.dispose();
   }
 

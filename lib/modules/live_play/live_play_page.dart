@@ -19,6 +19,7 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (didPop) return;
     var shouldPop = await controller.onBackPressed();
     if (shouldPop) {
+      controller.success.value = false;
       Navigator.of(Get.context!).pop();
     }
   }
@@ -29,6 +30,7 @@ class LivePlayPage extends GetView<LivePlayController> {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
     return PopScope(
+      canPop: true,
       onPopInvokedWithResult: onWillPop,
       child: Obx(() {
         if (controller.screenMode.value == VideoMode.normal) {
@@ -139,7 +141,12 @@ class LivePlayPage extends GetView<LivePlayController> {
                           buildVideoPlayer(),
                           const ResolutionsRow(),
                           const Divider(height: 1),
-                          Expanded(child: Obx(() => DanmakuTabView())),
+                          Obx(() {
+                            if (controller.success.value == false) {
+                              return SizedBox.shrink();
+                            }
+                            return Expanded(child: DanmakuTabView());
+                          }),
                         ],
                       )
                     : Row(
@@ -151,7 +158,12 @@ class LivePlayPage extends GetView<LivePlayController> {
                               children: [
                                 const ResolutionsRow(),
                                 const Divider(height: 1),
-                                Expanded(child: Obx(() => DanmakuListView(room: controller.detail.value!))),
+                                Obx(() {
+                                  if (controller.success.value == false) {
+                                    return SizedBox.shrink();
+                                  }
+                                  return Expanded(child: DanmakuTabView());
+                                }),
                               ],
                             ),
                           ),
