@@ -131,7 +131,11 @@ class LivePlayController extends StateController {
     });
   }
 
-  Future<LiveRoom> onInitPlayerState({ReloadDataType reloadDataType = ReloadDataType.refreash, int line = 0}) async {
+  Future<LiveRoom> onInitPlayerState({
+    ReloadDataType reloadDataType = ReloadDataType.refreash,
+    int line = 0,
+    bool isReCalculate = true,
+  }) async {
     SwitchableGlobalPlayer().dispose();
     var liveRoom = await currentSite.liveSite.getRoomDetail(
       roomId: detail.value!.roomId!,
@@ -140,7 +144,7 @@ class LivePlayController extends StateController {
     if (currentSite.id == Sites.iptvSite) {
       liveRoom = liveRoom.copyWith(title: detail.value!.title!, nick: detail.value!.nick!);
     }
-    handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line);
+    handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, isReCalculate: isReCalculate);
     detail.value = liveRoom;
     if (liveRoom.liveStatus == LiveStatus.unknown) {
       if (Get.currentRoute == '/live_play') {
@@ -191,8 +195,12 @@ class LivePlayController extends StateController {
     screenMode.value = VideoMode.fullscreen;
   }
 
-  void handleCurrentLineAndQuality({ReloadDataType reloadDataType = ReloadDataType.refreash, int line = 0}) {
-    if (reloadDataType == ReloadDataType.changeLine) {
+  void handleCurrentLineAndQuality({
+    ReloadDataType reloadDataType = ReloadDataType.refreash,
+    int line = 0,
+    bool isReCalculate = true,
+  }) {
+    if (reloadDataType == ReloadDataType.changeLine && isReCalculate) {
       if (line == playUrls.length - 1) {
         currentLineIndex.value = 0;
       } else {
@@ -245,14 +253,14 @@ class LivePlayController extends StateController {
     };
   }
 
-  void setResolution(String quality, String index) {
+  void setResolution(ReloadDataType reloadDataType, int qualityIndex, int lineIndex) {
     SwitchableGlobalPlayer().dispose();
     if (videoController != null) {
       videoController!.destory();
     }
-    currentQuality.value = qualites.map((e) => e.quality).toList().indexWhere((e) => e == quality);
-    currentLineIndex.value = int.tryParse(index) ?? 0;
-    onInitPlayerState(reloadDataType: ReloadDataType.changeLine, line: currentLineIndex.value);
+    currentQuality.value = qualityIndex;
+    currentLineIndex.value = lineIndex;
+    onInitPlayerState(reloadDataType: reloadDataType, line: currentLineIndex.value, isReCalculate: false);
   }
 
   /// 初始化播放器

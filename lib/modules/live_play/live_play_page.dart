@@ -4,6 +4,7 @@ import 'widgets/index.dart';
 import 'package:get/get.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/common/index.dart' hide BackButton;
 import 'package:pure_live/modules/live_play/play_other.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
@@ -249,79 +250,133 @@ class ResolutionsRow extends StatefulWidget {
 }
 
 class _ResolutionsRowState extends State<ResolutionsRow> {
-  LivePlayController get controller => Get.find();
+  LivePlayController get controller => Get.find<LivePlayController>();
+
   Widget buildInfoCount() {
-    // controller.detail.value! watching or followers
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         const Icon(Icons.whatshot_rounded, size: 14),
         const SizedBox(width: 4),
-        Text(readableCount(controller.detail.value!.watching!), style: Get.textTheme.bodySmall),
+        Text(
+          controller.detail.value?.watching != null
+              ? readableCount(controller.detail.value!.watching!) // 假设 readableCount 已定义
+              : '0',
+          style: Get.textTheme.bodySmall,
+        ),
       ],
     );
   }
 
-  List<Widget> buildResultionsList() {
-    return controller.qualites
-        .map<Widget>(
-          (rate) => PopupMenuButton(
-            tooltip: rate.quality,
-            color: Get.theme.colorScheme.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            offset: const Offset(0.0, 5.0),
-            position: PopupMenuPosition.under,
-            icon: Text(
-              rate.quality,
-              style: Get.theme.textTheme.labelSmall?.copyWith(
-                color: rate.quality == controller.qualites[controller.currentQuality.value].quality
-                    ? Get.theme.colorScheme.primary
-                    : null,
-              ),
+  Widget _buildResolutionSelector() {
+    return Obx(() {
+      if (!controller.success.value || controller.qualites.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      final currentIndex = controller.currentQuality.value;
+      final currentQualityName = controller.qualites[currentIndex].quality;
+
+      return PopupMenuButton<int>(
+        tooltip: "选择清晰度",
+        color: Get.theme.colorScheme.surfaceContainerHighest,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        offset: const Offset(0.0, 5.0),
+        position: PopupMenuPosition.under,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            currentQualityName,
+            style: Get.theme.textTheme.labelSmall?.copyWith(
+              color: Get.theme.colorScheme.primary, // 高亮当前选项
             ),
-            onSelected: (String index) {
-              controller.setResolution(rate.quality, index);
-            },
-            itemBuilder: (context) {
-              final items = <PopupMenuItem<String>>[];
-              final urls = controller.playUrls;
-              for (int i = 0; i < urls.length; i++) {
-                items.add(
-                  PopupMenuItem<String>(
-                    value: i.toString(),
-                    child: Text(
-                      '线路${i + 1}',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: urls[i] == controller.playUrls[controller.currentLineIndex.value]
-                            ? Get.theme.colorScheme.primary
-                            : null,
-                      ),
-                    ),
-                  ),
-                );
-              }
-              return items;
-            },
           ),
-        )
-        .toList();
+        ),
+        onSelected: (newQualityIndex) {
+          controller.setResolution(ReloadDataType.changeQuality, newQualityIndex, controller.currentLineIndex.value);
+        },
+        itemBuilder: (context) {
+          return List.generate(controller.qualites.length, (index) {
+            final qualityRate = controller.qualites[index];
+            final isSelected = index == currentIndex;
+
+            return PopupMenuItem<int>(
+              value: index,
+              child: Text(
+                qualityRate.quality,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: isSelected ? Get.theme.colorScheme.primary : null),
+              ),
+            );
+          });
+        },
+      );
+    });
+  }
+
+  // 构建播放线路选择器
+  Widget _buildLineSelector() {
+    return Obx(() {
+      if (!controller.success.value || controller.playUrls.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      final currentIndex = controller.currentLineIndex.value;
+      final currentLineName = '线路${currentIndex + 1}';
+
+      return PopupMenuButton<int>(
+        tooltip: "选择播放线路/节点",
+        color: Get.theme.colorScheme.surfaceContainerHighest,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        offset: const Offset(0.0, 5.0),
+        position: PopupMenuPosition.under,
+        // 按钮显示当前选中的线路名称
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            currentLineName,
+            style: Get.theme.textTheme.labelSmall?.copyWith(color: Get.theme.colorScheme.primary),
+          ),
+        ),
+        onSelected: (newLineIndex) {
+          controller.setResolution(ReloadDataType.changeLine, controller.currentQuality.value, newLineIndex);
+        },
+        itemBuilder: (context) {
+          return List.generate(controller.playUrls.length, (index) {
+            final isSelected = index == currentIndex;
+            return PopupMenuItem<int>(
+              value: index,
+              child: Text(
+                '线路${index + 1}',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: isSelected ? Get.theme.colorScheme.primary : null),
+              ),
+            );
+          });
+        },
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Container(
+    return Obx(() {
+      if (!controller.success.value) {
+        return Container(height: 55);
+      }
+      return Container(
         height: 55,
         padding: const EdgeInsets.all(4.0),
         child: Row(
           children: [
             Padding(padding: const EdgeInsets.all(8), child: buildInfoCount()),
             const Spacer(),
-            ...controller.success.value ? buildResultionsList() : [],
+            _buildResolutionSelector(), // 添加清晰度选择器
+            _buildLineSelector(), // 添加线路选择器
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -358,21 +413,17 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
     return isFavorite
         ? FilledButton(
             style: ButtonStyle(
-              // 减小内边距，使按钮更小
               padding: Platform.isWindows
                   ? WidgetStateProperty.all(EdgeInsets.all(12.0))
                   : WidgetStateProperty.all(EdgeInsets.all(5.0)),
-              // 设置背景色
               backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary.withAlpha(125)),
-              // 设置按钮形状，调整圆角半径
               shape: WidgetStateProperty.all(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6.0), // 圆角半径，可根据需要调整
                 ),
               ),
-              // 可选：减小文字大小
               textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 12.0)),
-              minimumSize: WidgetStateProperty.all(Size.zero), // 移除默认最小尺寸
+              minimumSize: WidgetStateProperty.all(Size.zero),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onPressed: () {
