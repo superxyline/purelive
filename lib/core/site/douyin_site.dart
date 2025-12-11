@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:get/get.dart';
+import 'dart:developer' as developer;
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/core/common/core_log.dart';
@@ -582,10 +583,13 @@ class DouyinSite implements LiveSite {
     var requlestUrl = uri.toString();
     var headResp = await HttpClient.instance.head('https://live.douyin.com', header: headers);
     var dyCookie = "";
+    developer.log(headResp.headers["set-cookie"].toString());
     headResp.headers["set-cookie"]?.forEach((element) {
       var cookie = element.split(";")[0];
       if (cookie.contains("ttwid")) {
         dyCookie += "$cookie;";
+      } else {
+        dyCookie += settings.douyinCookie.value;
       }
       if (cookie.contains("__ac_nonce")) {
         dyCookie += "$cookie;";
