@@ -23,28 +23,19 @@ class LivePlayPage extends GetView<LivePlayController> {
     }
   }
 
-  Future<bool> handleBackPress() async {
-    var shouldPop = await controller.onBackPressed();
-    return shouldPop;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (settings.enableScreenKeepOn.value) {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
-    return BackButtonListener(
-      onBackButtonPressed: handleBackPress,
-      child: PopScope(
-        canPop: true,
-        onPopInvokedWithResult: onWillPop,
-        child: Obx(() {
-          if (controller.screenMode.value == VideoMode.normal) {
-            return buildNormalPlayerView(context);
-          }
-          return buildVideoPlayer();
-        }),
-      ),
+    return PopScope(
+      onPopInvokedWithResult: onWillPop,
+      child: Obx(() {
+        if (controller.screenMode.value == VideoMode.normal) {
+          return buildNormalPlayerView(context);
+        }
+        return buildVideoPlayer();
+      }),
     );
   }
 
