@@ -8,7 +8,6 @@ import 'package:rxdart/rxdart.dart';
 import 'unified_player_interface.dart';
 import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 enum PlayerEngine { mediaKit, fijk }
 
@@ -49,8 +48,6 @@ class SwitchableGlobalPlayer {
   Stream<int?> get width => _currentPlayer?.width ?? Stream.value(null);
   Stream<int?> get height => _currentPlayer?.height ?? Stream.value(null);
 
-  // ------------------ 初始化 & 切换 ------------------
-
   Future<void> init(PlayerEngine engine) async {
     if (_currentPlayer != null) return;
     _currentPlayer = _createPlayer(engine);
@@ -74,21 +71,8 @@ class SwitchableGlobalPlayer {
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
   }
 
-  Future<void> initGlopalPlayer() async {
-    final settings = Get.find<SettingsService>();
-    if (PlatformUtils.isDesktop) {
-      await SwitchableGlobalPlayer().init(PlayerEngine.mediaKit);
-    } else {
-      await SwitchableGlobalPlayer().init(PlayerEngine.values[settings.videoPlayerIndex.value]);
-    }
-  }
-
   Future<void> setDataSource(String url, Map<String, String> headers) async {
     try {
-      // 等待初始化完成
-      if (_currentPlayer != null) {
-        await initGlopalPlayer();
-      }
       await Future.delayed(Duration(milliseconds: 20));
       _currentPlayer ??= _createPlayer(_currentEngine);
       _cleanupSubscriptions();
