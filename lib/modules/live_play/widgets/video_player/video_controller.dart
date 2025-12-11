@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:battery_plus/battery_plus.dart';
+import 'package:pure_live/player/fullscreen.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
@@ -14,7 +15,6 @@ import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_option.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:pure_live/pkg/canvas_danmaku/models/danmaku_content_item.dart';
-import 'package:pure_live/modules/live_play/widgets/video_player/fullscreen.dart';
 
 class VideoController with ChangeNotifier {
   final LiveRoom room;
