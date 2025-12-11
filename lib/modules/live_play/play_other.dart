@@ -57,8 +57,8 @@ class _PlayOtherState extends State<PlayOther> {
       insetPadding: const EdgeInsets.all(16.0),
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: SizedBox(
-        width: 500,
+      child: Container(
+        constraints: BoxConstraints(maxWidth: 500, maxHeight: 400),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -77,8 +77,7 @@ class _PlayOtherState extends State<PlayOther> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 300,
+            Expanded(
               child: Obx(
                 () => loadingFinish.value
                     ? ListView.builder(
