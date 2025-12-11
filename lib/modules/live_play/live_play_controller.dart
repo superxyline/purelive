@@ -23,9 +23,9 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
   final String site;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown);
 
-  late Site currentSite = Sites.of(site);
+  late Site currentSite;
 
-  late LiveDanmaku liveDanmaku = Sites.of(site).liveSite.getDanmaku();
+  late LiveDanmaku liveDanmaku;
 
   PlayerInstanceState playerState = PlayerInstanceState();
 
@@ -51,13 +51,13 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
   RxList<LivePlayQuality> qualites = RxList<LivePlayQuality>();
 
   /// 当前清晰度
-  final currentQuality = 0.obs;
+  final RxInt currentQuality = 0.obs;
 
   /// 线路数据
   RxList<String> playUrls = RxList<String>();
 
   /// 当前线路
-  final currentLineIndex = 0.obs;
+  final RxInt currentLineIndex = 0.obs;
 
   var closeTimes = 240.obs;
 
@@ -104,6 +104,8 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
   void onInit() {
     super.onInit();
     detail.value = room;
+    currentSite = Sites.of(site);
+    liveDanmaku = Sites.of(site).liveSite.getDanmaku();
     onInitPlayerState();
     EmojiManager().preload(site);
     debounce(closeTimeFlag, (callback) {
@@ -150,7 +152,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     int line = 0,
     bool isReCalculate = true,
   }) async {
-    SwitchableGlobalPlayer().dispose();
     var liveRoom = await currentSite.liveSite.getRoomDetail(
       roomId: detail.value!.roomId!,
       platform: detail.value!.platform!,
@@ -158,7 +159,9 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     if (currentSite.id == Sites.iptvSite) {
       liveRoom = liveRoom.copyWith(title: detail.value!.title!, nick: detail.value!.nick!);
     }
+
     handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, isReCalculate: isReCalculate);
+    detail.value = null;
     detail.value = liveRoom;
     if (liveRoom.liveStatus == LiveStatus.unknown) {
       if (Get.currentRoute == '/live_play') {
@@ -286,12 +289,14 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
         success.value = false;
         return;
       }
+
       qualites.value = playQualites;
       if (!hasUseDefaultResolution) {
         String userPrefer = settings.preferResolution.value;
         List<String> availableQualities = playQualites.map((e) => e.quality).toList();
         int matchedIndex = availableQualities.indexOf(userPrefer);
         // 尝试直接匹配用户偏好的分辨率
+        log(matchedIndex.toString(), name: "get_play_qualities_error");
         if (matchedIndex != -1) {
           currentQuality.value = matchedIndex;
           hasUseDefaultResolution = true;
@@ -311,7 +316,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
       getPlayUrl();
     } catch (e) {
-      SmartDialog.showToast("无法读取视频信息,请重新获取");
+      SmartDialog.showToast("读取视频信息失败,请重新获取");
       success.value = false;
     }
   }

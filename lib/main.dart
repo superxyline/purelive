@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
       }
     } else {
       Future.delayed(Duration(seconds: 1)).then((value) async {
-        await initGlopalPlayer();
+        initGlopalPlayer();
       });
     }
   }

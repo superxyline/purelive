@@ -22,10 +22,8 @@ class LiveRoom {
   /// 状态
   bool? status;
 
-  /// 附加信息
   dynamic data;
 
-  /// 弹幕附加信息
   dynamic danmakuData;
 
   /// 是否录播
@@ -67,11 +65,13 @@ class LiveRoom {
       watching = json['watching'] ?? '',
       followers = json['followers'] ?? '',
       platform = json['platform'] ?? '',
-      liveStatus = LiveStatus.values[json['liveStatus'] ?? 1],
+      liveStatus = LiveStatus.values.firstWhere((e) => e.index == json['liveStatus'], orElse: () => LiveStatus.unknown),
       status = json['status'] ?? false,
       notice = json['notice'] ?? '',
       introduction = json['introduction'] ?? '',
-      isRecord = json['isRecord'] ?? false;
+      isRecord = json['isRecord'] ?? false,
+      data = json['data'],
+      danmakuData = json['danmakuData'];
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'roomId': roomId,
@@ -84,11 +84,13 @@ class LiveRoom {
     'watching': watching,
     'followers': followers,
     'platform': platform,
-    'liveStatus': liveStatus?.index ?? 1,
+    'liveStatus': liveStatus?.index ?? LiveStatus.offline.index,
     'isRecord': isRecord,
     'status': status,
     'notice': notice,
     'introduction': introduction,
+    'data': data,
+    'danmakuData': danmakuData,
   };
 
   /// 创建一个新的LiveRoom实例，并用提供的值更新指定字段
@@ -139,4 +141,9 @@ class LiveRoom {
 
   @override
   int get hashCode => Object.hash(platform, roomId);
+
+  @override
+  String toString() {
+    return 'LiveRoom{roomId: $roomId, userId: $userId, link: $link, title: $title, nick: $nick, avatar: $avatar, cover: $cover, area: $area, watching: $watching, followers: $followers, platform: $platform, introduction: $introduction, notice: $notice, status: $status, data: $data, danmakuData: $danmakuData, isRecord: $isRecord, liveStatus: $liveStatus}';
+  }
 }
