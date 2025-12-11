@@ -24,6 +24,7 @@ class SwitchableGlobalPlayer {
   final currentVolume = 0.5.obs;
   final isInPipMode = false.obs;
   late Floating floating;
+  bool playerHasInit = false;
 
   // 依赖
   final SettingsService settings = Get.find<SettingsService>();
@@ -52,6 +53,8 @@ class SwitchableGlobalPlayer {
     if (_currentPlayer != null) return;
     _currentPlayer = _createPlayer(engine);
     _currentEngine = engine;
+    _currentPlayer!.init();
+    playerHasInit = true;
   }
 
   UnifiedPlayer _createPlayer(PlayerEngine engine) {
@@ -69,12 +72,16 @@ class SwitchableGlobalPlayer {
     _currentPlayer = _createPlayer(newEngine);
     _currentEngine = newEngine;
     videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
+    _currentPlayer!.init();
+    playerHasInit = true;
   }
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
     try {
-      await Future.delayed(Duration(milliseconds: 20));
-      _currentPlayer ??= _createPlayer(_currentEngine);
+      await Future.delayed(Duration(milliseconds: 100));
+      if (!playerHasInit) {
+        _currentPlayer ??= _createPlayer(_currentEngine);
+      }
       _cleanupSubscriptions();
       videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
       unawaited(
@@ -88,6 +95,7 @@ class SwitchableGlobalPlayer {
 
       try {
         await _currentPlayer!.init();
+        await Future.delayed(Duration(milliseconds: 100));
         await _currentPlayer!.setDataSource(url, headers);
 
         unawaited(
@@ -266,6 +274,7 @@ class SwitchableGlobalPlayer {
     _currentPlayer?.dispose();
     _currentPlayer = null;
     isInitialized.value = false;
+    playerHasInit = false;
   }
 
   void dispose() {

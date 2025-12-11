@@ -37,10 +37,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
       DesktopManager.initializeListeners(this);
     }
     initShareM3uState();
-    // 延迟初始化, 防止出现闪退
-    Future.delayed(Duration(seconds: 3)).then((value) async {
-      await initGlopalPlayer();
-    });
+    initGlopalPlayer();
   }
 
   Future<void> initGlopalPlayer() async {

@@ -8,6 +8,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:pure_live/player/fullscreen.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:pure_live/common/utils/hive_pref_util.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/player/switchable_global_player.dart';
@@ -180,53 +181,53 @@ class VideoController with ChangeNotifier {
   }
 
   void initDanmaku() {
-    hideDanmaku.value = PrefUtil.getBool('hideDanmaku') ?? false;
+    hideDanmaku.value = HivePrefUtil.getBool('hideDanmaku') ?? false;
     hideDanmaku.listen((data) {
       if (data) {
         danmakuController.clear();
       }
-      PrefUtil.setBool('hideDanmaku', data);
+      HivePrefUtil.setBool('hideDanmaku', data);
       settings.hideDanmaku.value = data;
     });
-    danmakuArea.value = PrefUtil.getDouble('danmakuArea') ?? 0.0;
+    danmakuArea.value = HivePrefUtil.getDouble('danmakuArea') ?? 0.0;
     danmakuArea.listen((data) {
-      PrefUtil.setDouble('danmakuArea', data);
+      HivePrefUtil.setDouble('danmakuArea', data);
       settings.danmakuArea.value = data;
       updateDanmaku();
     });
-    danmakuTopArea.value = PrefUtil.getDouble('danmakuTopArea') ?? 0.0;
+    danmakuTopArea.value = HivePrefUtil.getDouble('danmakuTopArea') ?? 0.0;
     danmakuTopArea.listen((data) {
-      PrefUtil.setDouble('danmakuTopArea', data);
+      HivePrefUtil.setDouble('danmakuTopArea', data);
       settings.danmakuTopArea.value = data;
       updateDanmaku();
     });
-    danmakuBottomArea.value = PrefUtil.getDouble('danmakuBottomArea') ?? 0.0;
+    danmakuBottomArea.value = HivePrefUtil.getDouble('danmakuBottomArea') ?? 0.0;
     danmakuBottomArea.listen((data) {
-      PrefUtil.setDouble('danmakuBottomArea', data);
+      HivePrefUtil.setDouble('danmakuBottomArea', data);
       settings.danmakuBottomArea.value = data;
       updateDanmaku();
     });
-    danmakuSpeed.value = PrefUtil.getDouble('danmakuSpeed') ?? 8;
+    danmakuSpeed.value = HivePrefUtil.getDouble('danmakuSpeed') ?? 8;
     danmakuSpeed.listen((data) {
-      PrefUtil.setDouble('danmakuSpeed', data);
+      HivePrefUtil.setDouble('danmakuSpeed', data);
       settings.danmakuSpeed.value = data;
       updateDanmaku();
     });
-    danmakuFontSize.value = PrefUtil.getDouble('danmakuFontSize') ?? 16;
+    danmakuFontSize.value = HivePrefUtil.getDouble('danmakuFontSize') ?? 16;
     danmakuFontSize.listen((data) {
-      PrefUtil.setDouble('danmakuFontSize', data);
+      HivePrefUtil.setDouble('danmakuFontSize', data);
       settings.danmakuFontSize.value = data;
       updateDanmaku();
     });
-    danmakuFontBorder.value = PrefUtil.getDouble('danmakuFontBorder') ?? 4.0;
+    danmakuFontBorder.value = HivePrefUtil.getDouble('danmakuFontBorder') ?? 4.0;
     danmakuFontBorder.listen((data) {
-      PrefUtil.setDouble('danmakuFontBorder', data);
+      HivePrefUtil.setDouble('danmakuFontBorder', data);
       settings.danmakuFontBorder.value = data;
       updateDanmaku();
     });
-    danmakuOpacity.value = PrefUtil.getDouble('danmakuOpacity') ?? 1.0;
+    danmakuOpacity.value = HivePrefUtil.getDouble('danmakuOpacity') ?? 1.0;
     danmakuOpacity.listen((data) {
-      PrefUtil.setDouble('danmakuOpacity', data);
+      HivePrefUtil.setDouble('danmakuOpacity', data);
       settings.danmakuOpacity.value = data;
       updateDanmaku();
     });
