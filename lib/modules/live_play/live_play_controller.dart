@@ -68,6 +68,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
   bool hasUseDefaultResolution = false;
 
   Future<bool> onBackPressed() async {
+    success.value = false;
     if (videoController!.showSettting.value) {
       videoController?.showSettting.toggle();
       return await Future.value(false);

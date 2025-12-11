@@ -31,16 +31,12 @@ class _KeywordBlockPageState extends State<KeywordBlockPage> {
     textEditingController.text = ""; // 清空输入框
   }
 
-  // 移除了 Color get themeColor => ... 的代码，直接使用 Theme.of(context)
-
   void remove(int itemIndex) {
-    // 修复方法调用名称，应为 addShieldList/removeShieldList
     controller.removeShieldList(itemIndex);
   }
 
   @override
   Widget build(BuildContext context) {
-    // 移除 Scaffold 和 AppBar，因为这个 Widget 是用在 TabBarView 里的
     return ListView(
       padding: const EdgeInsets.all(12.0),
       children: [
@@ -49,7 +45,6 @@ class _KeywordBlockPageState extends State<KeywordBlockPage> {
           controller: textEditingController,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.all(12.0),
-            // 使用当前主题的主色作为边框颜色
             border: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).primaryColor)),
             hintText: "请输入关键词",
             suffixIcon: TextButton.icon(onPressed: add, icon: const Icon(Icons.add), label: const Text("添加")),
@@ -67,7 +62,7 @@ class _KeywordBlockPageState extends State<KeywordBlockPage> {
             runSpacing: 12,
             spacing: 12,
             children: controller.shieldList
-                .asMap() // 使用 asMap().entries 来同时获取索引和值
+                .asMap()
                 .entries
                 .map((entry) {
                   final index = entry.key;

@@ -19,9 +19,13 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (didPop) return;
     var shouldPop = await controller.onBackPressed();
     if (shouldPop) {
-      controller.success.value = false;
       Navigator.of(Get.context!).pop();
     }
+  }
+
+  Future<bool> handleBackPress() async {
+    var shouldPop = await controller.onBackPressed();
+    return shouldPop;
   }
 
   @override
@@ -29,15 +33,18 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (settings.enableScreenKeepOn.value) {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: onWillPop,
-      child: Obx(() {
-        if (controller.screenMode.value == VideoMode.normal) {
-          return buildNormalPlayerView(context);
-        }
-        return buildVideoPlayer();
-      }),
+    return BackButtonListener(
+      onBackButtonPressed: handleBackPress,
+      child: PopScope(
+        canPop: true,
+        onPopInvokedWithResult: onWillPop,
+        child: Obx(() {
+          if (controller.screenMode.value == VideoMode.normal) {
+            return buildNormalPlayerView(context);
+          }
+          return buildVideoPlayer();
+        }),
+      ),
     );
   }
 

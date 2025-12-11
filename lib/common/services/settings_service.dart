@@ -14,7 +14,6 @@ import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/common/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
-  // ========== 响应式变量 ==========
   final themeModeName = (HivePrefUtil.getString('themeMode') ?? "System").obs;
   final themeColorSwitch = (HivePrefUtil.getString('themeColorSwitch') ?? Colors.blue.hex).obs;
   final languageName = (HivePrefUtil.getString('language') ?? "简体中文").obs;

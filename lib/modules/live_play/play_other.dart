@@ -23,7 +23,7 @@ class _PlayOtherState extends State<PlayOther> {
   void initState() {
     super.initState();
     var rooms = <LiveRoom>[];
-    rooms = widget.controller.settings.favoriteRooms.where((room) => room.liveStatus != LiveStatus.live).toList();
+    rooms = widget.controller.settings.favoriteRooms.where((room) => room.liveStatus == LiveStatus.live).toList();
     for (var room in rooms) {
       if (int.tryParse(room.watching!) == null) {
         room.watching = "0";
