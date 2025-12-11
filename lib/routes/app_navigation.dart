@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/utils.dart';
@@ -42,9 +43,14 @@ class BackButtonObserver extends RouteObserver<PageRoute<dynamic>> {
     super.didPop(route, previousRoute);
     // 处理路由弹出事件
     if (route.settings.name == RoutePath.kLivePlay) {
-      Get.find<LivePlayController>().onDelete();
-      doExitFullScreen();
-      SwitchableGlobalPlayer().stop();
+      try {
+        SwitchableGlobalPlayer().stop();
+        Get.find<LivePlayController>().success.value = false;
+        doExitFullScreen();
+        Get.find<LivePlayController>().onDelete();
+      } catch (e) {
+        log(e.toString());
+      }
     }
   }
 }

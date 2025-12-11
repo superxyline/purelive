@@ -93,9 +93,6 @@
 		This is used by the Flutter tool to generate GeneratedPluginRegistrant.java
 		-->
     <meta-data android:name="flutterEmbedding" android:value="2" />
-    <meta-data
-        android:name="io.flutter.embedding.android.EnableImpeller"
-        android:value="false" />
     <!-- enable floating window -->
     <service android:name="flutter.overlay.window.flutter_overlay_window.OverlayService"
       android:exported="false" />
