@@ -89,8 +89,6 @@ class LiveRoom {
     'status': status,
     'notice': notice,
     'introduction': introduction,
-    'data': data,
-    'danmakuData': danmakuData,
   };
 
   /// 创建一个新的LiveRoom实例，并用提供的值更新指定字段

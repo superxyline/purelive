@@ -39,7 +39,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
   final isLiving = true.obs;
   // 控制唯一子组件
-  VideoController? videoController;
+  final videoController = Rx<VideoController?>(null);
 
   final LiveRoom room;
 
@@ -67,17 +67,17 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
   bool hasUseDefaultResolution = false;
 
+  final refreshKey = DateTime.now().millisecondsSinceEpoch.obs;
+
   Future<bool> onBackPressed() async {
     unawaited(
       Future.microtask(() {
         success.value = false;
-        if (videoController != null) {
-          if (videoController!.showSettting.value) {
-            videoController?.showSettting.toggle();
-          }
-          if (videoController!.isFullscreen.value) {
-            videoController?.exitFullScreen();
-          }
+        if (videoController.value!.showSettting.value) {
+          videoController.value!.showSettting.toggle();
+        }
+        if (videoController.value!.isFullscreen.value) {
+          videoController.value!.exitFullScreen();
         }
       }),
     );
@@ -136,10 +136,8 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
   void resetRoom(Site site, String roomId) async {
     success.value = false;
-    if (videoController != null) {
-      await videoController?.destory();
-      videoController = null;
-    }
+    await videoController.value!.destory();
+    videoController.value = null;
     Timer(const Duration(milliseconds: 4000), () {
       if (Get.currentRoute == '/live_play') {
         onInitPlayerState();
@@ -163,6 +161,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, isReCalculate: isReCalculate);
     detail.value = null;
     detail.value = liveRoom;
+    refreshKey.value = DateTime.now().millisecondsSinceEpoch;
     if (liveRoom.liveStatus == LiveStatus.unknown) {
       if (Get.currentRoute == '/live_play') {
         SmartDialog.showToast("获取直播间信息失败,请重新获取", displayTime: const Duration(seconds: 2));
@@ -248,12 +247,13 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     messages.add(
       LiveMessage(type: LiveMessageType.chat, userName: "系统消息", message: "开始连接弹幕服务器", color: LiveMessageColor.white),
     );
+    final rxVideoCtrl = videoController;
     liveDanmaku.onMessage = (msg) {
       if (msg.type == LiveMessageType.chat) {
         if (settings.shieldList.every((element) => !msg.message.contains(element))) {
           messages.add(msg);
-          if (videoController != null) {
-            videoController?.sendDanmaku(msg);
+          if (rxVideoCtrl.value != null) {
+            rxVideoCtrl.value!.sendDanmaku(msg);
           }
         }
       }
@@ -272,9 +272,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
   void setResolution(ReloadDataType reloadDataType, int qualityIndex, int lineIndex) {
     SwitchableGlobalPlayer().dispose();
-    if (videoController != null) {
-      videoController!.destory();
-    }
+    videoController.value!.destory();
     currentQuality.value = qualityIndex;
     currentLineIndex.value = lineIndex;
     onInitPlayerState(reloadDataType: reloadDataType, line: currentLineIndex.value, isReCalculate: false);
@@ -296,7 +294,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
         List<String> availableQualities = playQualites.map((e) => e.quality).toList();
         int matchedIndex = availableQualities.indexOf(userPrefer);
         // 尝试直接匹配用户偏好的分辨率
-        log(matchedIndex.toString(), name: "get_play_qualities_error");
         if (matchedIndex != -1) {
           currentQuality.value = matchedIndex;
           hasUseDefaultResolution = true;
@@ -365,7 +362,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     }
 
     playerState = GlobalPlayerState().setCurrentRoom(room.roomId!);
-    videoController = VideoController(
+    videoController.value = VideoController(
       room: detail.value!,
       datasource: playUrls.value[currentLineIndex.value],
       allowScreenKeepOn: settings.enableScreenKeepOn.value,
@@ -424,10 +421,8 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     isLiving.value = true;
     messages.clear();
     liveDanmaku.stop();
-    if (videoController != null) {
-      await videoController?.destory();
-      videoController = null;
-    }
+    await videoController.value!.destory();
+    videoController.value = null;
     hasUseDefaultResolution = false;
     detail.value = room;
     currentSite = Sites.of(room.platform!);

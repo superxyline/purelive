@@ -36,7 +36,7 @@ class _DanmakuTabViewState extends State<DanmakuTabView> {
             controller: controller.tabController,
             children: [
               DanmakuListView(room: controller.detail.value!),
-              DanmakuSettingsPage(controller: controller.videoController!),
+              DanmakuSettingsPage(controller: controller.videoController.value!),
               KeywordBlockPage(),
             ],
           ),

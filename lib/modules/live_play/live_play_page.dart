@@ -186,7 +186,7 @@ class LivePlayPage extends GetView<LivePlayController> {
         color: Colors.black,
         child: Obx(
           () => controller.success.value
-              ? VideoPlayer(controller: controller.videoController!)
+              ? VideoPlayer(controller: controller.videoController.value!)
               : controller.isLiving.value
               ? buildLoading()
               : NotLivingVideoWidget(controller: controller, key: UniqueKey()),

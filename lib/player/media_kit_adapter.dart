@@ -22,15 +22,6 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
     var pp = _player.platform as NativePlayer;
     if (Platform.isAndroid) {
       await pp.setProperty('force-seekable', 'yes');
-    } else if (Platform.isWindows) {
-      await pp.setProperty('cache', 'no');
-      await pp.setProperty('cache-secs', '0');
-      await pp.setProperty('cache-size', '5120');
-      await pp.setProperty('demuxer-seekable-cache', 'no');
-      await pp.setProperty('demuxer-max-back-bytes', '0');
-      await pp.setProperty('demuxer-donate-buffer', 'no');
-      await pp.setProperty('demuxer-lavf-o-set', 'buffer_size=0');
-      await pp.setProperty('network-caching', '100');
     }
 
     _controller = settings.playerCompatMode.value
