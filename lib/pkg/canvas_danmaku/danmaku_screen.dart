@@ -104,6 +104,9 @@ class _DanmakuScreenState extends State<DanmakuScreen> with TickerProviderStateM
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
       pause();
+    } else if (state == AppLifecycleState.resumed) {
+      clearDanmakus();
+      resume();
     }
   }
 
