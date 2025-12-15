@@ -19,7 +19,7 @@ class FijkPlayerAdapter implements UnifiedPlayer {
   final BehaviorSubject<int?> _heightSubject = BehaviorSubject.seeded(null);
   final BehaviorSubject<int?> _widthSubject = BehaviorSubject.seeded(null);
   bool _isPlaying = false;
-
+  bool isInitialized = false;
   @override
   Future<void> init() async {
     _player.addListener(_playerListener);
@@ -29,6 +29,10 @@ class FijkPlayerAdapter implements UnifiedPlayer {
     bool isPlaying = _player.state == FijkState.started;
     if (_isPlaying != isPlaying) {
       _isPlaying = isPlaying;
+    }
+    if (!isInitialized) {
+      isInitialized = true;
+      _player.setVolume(1.0);
     }
     if (_playingSubject.value != isPlaying) {
       _playingSubject.add(isPlaying);

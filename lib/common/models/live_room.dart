@@ -69,9 +69,7 @@ class LiveRoom {
       status = json['status'] ?? false,
       notice = json['notice'] ?? '',
       introduction = json['introduction'] ?? '',
-      isRecord = json['isRecord'] ?? false,
-      data = json['data'],
-      danmakuData = json['danmakuData'];
+      isRecord = json['isRecord'] ?? false;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'roomId': roomId,
@@ -127,8 +125,6 @@ class LiveRoom {
       introduction: introduction ?? this.introduction,
       notice: notice ?? this.notice,
       status: status ?? this.status,
-      data: data ?? this.data,
-      danmakuData: danmakuData ?? this.danmakuData,
       isRecord: isRecord ?? this.isRecord,
       liveStatus: liveStatus ?? this.liveStatus,
     );

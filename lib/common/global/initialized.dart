@@ -30,63 +30,74 @@ class AppInitializer {
 
   // 初始化方法
   Future<void> initialize(List<String> args) async {
-    if (_isInitialized) {
-      // 已经初始化过，直接返回
-      return;
-    }
+    if (_isInitialized) return;
 
-    // 执行初始化操作
     WidgetsFlutterBinding.ensureInitialized();
-    if (PlatformUtils.isDesktopNotMac) {
-      // FlutterSingleInstance may have issues in Release mode for macOS build，but it works fine in debug mode.
-      if (!await FlutterSingleInstance().isFirstInstance()) {
-        log("App is already running");
-        final err = await FlutterSingleInstance().focus();
-        if (err != null) {
-          log("Error focusing running instance: $err");
-        }
-        exit(0);
-      }
-    }
+
+    // 👇 从启动参数获取实例 ID
+    String instanceId = getInstanceIdFromArgs(args);
+
     if (PlatformUtils.isDesktop) {
       await DesktopManager.initialize();
     } else if (PlatformUtils.isMobile) {
       await MobileManager.initialize();
     }
+
     PrefUtil.prefs = await SharedPreferences.getInstance();
+
+    // 👇 每个实例使用独立 Hive 路径
     final appDir = await getApplicationDocumentsDirectory();
-    String path = '${appDir.path}${Platform.pathSeparator}pure_live';
+    String path = '${appDir.path}${Platform.pathSeparator}pure_live${Platform.pathSeparator}$instanceId';
     await Hive.initFlutter(path);
     await HivePrefUtil.init();
     MediaKit.ensureInitialized();
     await SupaBaseManager.getInstance().initial();
+
     if (PlatformUtils.isDesktop) {
       await DesktopManager.postInitialize();
     }
+
     initRefresh();
     initService();
 
     if (PlatformUtils.isDesktopNotMac) {
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      launchAtStartup.setup(
-        appName: packageInfo.appName,
-        appPath: Platform.resolvedExecutable,
-        // 设置 packageName 参数以支持 MSIX。
-        packageName: 'dev.leanflutter.puretech.pure_live',
-      );
-      var settings = Get.find<SettingsService>();
-      if (settings.enableStartUp.value) {
-        await launchAtStartup.isEnabled().then((value) {
-          if (value) {
-            launchAtStartup.enable();
-          } else {
-            launchAtStartup.disable();
-          }
-        });
+      if (instanceId == 'default') {
+        if (!await FlutterSingleInstance().isFirstInstance()) {
+          log("Default instance is already running");
+          exit(0);
+        }
+        await _setupLaunchAtStartup();
       }
     }
-    // 标记为已初始化
     _isInitialized = true;
+  }
+
+  // 提取 launchAtStartup 设置
+  Future<void> _setupLaunchAtStartup() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    launchAtStartup.setup(
+      appName: packageInfo.appName,
+      appPath: Platform.resolvedExecutable,
+      packageName: 'dev.leanflutter.puretech.pure_live',
+    );
+    var settings = Get.find<SettingsService>();
+    if (settings.enableStartUp.value) {
+      bool enabled = await launchAtStartup.isEnabled();
+      if (!enabled) {
+        await launchAtStartup.enable();
+      }
+    }
+  }
+
+  // 工具方法：解析 instanceId
+  String getInstanceIdFromArgs(List<String> args) {
+    for (var arg in args) {
+      if (arg.startsWith('--instance=')) {
+        return arg.split('=')[1];
+      }
+      return 'default';
+    }
+    return 'default';
   }
 
   void initService() {

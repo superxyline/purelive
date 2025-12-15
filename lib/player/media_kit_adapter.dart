@@ -44,6 +44,8 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
           Future.microtask(() {
             _player.setVolume(settings.volume.value * 100);
           });
+        } else {
+          _player.setVolume(100);
         }
       }
     });
