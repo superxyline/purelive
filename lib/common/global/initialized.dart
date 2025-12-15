@@ -48,6 +48,10 @@ class AppInitializer {
     // 👇 每个实例使用独立 Hive 路径
     final appDir = await getApplicationDocumentsDirectory();
     String path = '${appDir.path}${Platform.pathSeparator}pure_live${Platform.pathSeparator}$instanceId';
+    if (instanceId.isEmpty) {
+      path = '${appDir.path}${Platform.pathSeparator}pure_live';
+    }
+
     try {
       await Hive.initFlutter(path);
       await HivePrefUtil.init();
@@ -100,9 +104,9 @@ class AppInitializer {
       if (arg.startsWith('--instance=')) {
         return arg.split('=')[1];
       }
-      return 'default';
+      return '';
     }
-    return 'default';
+    return '';
   }
 
   void initService() {
