@@ -48,8 +48,13 @@ class AppInitializer {
     // 👇 每个实例使用独立 Hive 路径
     final appDir = await getApplicationDocumentsDirectory();
     String path = '${appDir.path}${Platform.pathSeparator}pure_live${Platform.pathSeparator}$instanceId';
-    await Hive.initFlutter(path);
-    await HivePrefUtil.init();
+    try {
+      await Hive.initFlutter(path);
+      await HivePrefUtil.init();
+    } catch (e) {
+      log(e.toString(), name: 'Hive');
+      exit(0);
+    }
     MediaKit.ensureInitialized();
     await SupaBaseManager.getInstance().initial();
 
