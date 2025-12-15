@@ -37,6 +37,17 @@ class AppInitializer {
 
     // 执行初始化操作
     WidgetsFlutterBinding.ensureInitialized();
+    if (PlatformUtils.isDesktopNotMac) {
+      // FlutterSingleInstance may have issues in Release mode for macOS build，but it works fine in debug mode.
+      if (!await FlutterSingleInstance().isFirstInstance()) {
+        log("App is already running");
+        final err = await FlutterSingleInstance().focus();
+        if (err != null) {
+          log("Error focusing running instance: $err");
+        }
+        exit(0);
+      }
+    }
     if (PlatformUtils.isDesktop) {
       await DesktopManager.initialize();
     } else if (PlatformUtils.isMobile) {
@@ -56,16 +67,6 @@ class AppInitializer {
     initService();
 
     if (PlatformUtils.isDesktopNotMac) {
-      // FlutterSingleInstance may have issues in Release mode for macOS build，but it works fine in debug mode.
-      if (!await FlutterSingleInstance().isFirstInstance()) {
-        log("App is already running");
-        final err = await FlutterSingleInstance().focus();
-        if (err != null) {
-          log("Error focusing running instance: $err");
-        }
-        exit(0);
-      }
-
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       launchAtStartup.setup(
         appName: packageInfo.appName,

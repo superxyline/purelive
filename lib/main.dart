@@ -95,6 +95,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
             }
             return GetMaterialApp(
               title: '纯粹直播',
+              debugShowCheckedModeBanner: false,
               themeMode: AppConsts.themeModes[settings.themeModeName.value]!,
               theme: lightTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
               darkTheme: darkTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
