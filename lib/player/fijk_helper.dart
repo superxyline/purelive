@@ -21,7 +21,7 @@ class FijkHelper {
     await player.setOption(FijkOption.formatCategory, 'fflags', 'fastseek');
     await player.setOption(FijkOption.formatCategory, 'rtsp_transport', 'tcp');
     await player.setOption(FijkOption.formatCategory, 'packet-buffering', 1);
-
+    await player.setOption(FijkOption.playerCategory, "min-frames", 25);
     // Set request headers
     String requestHeaders = '';
     headers?.forEach((key, value) {
