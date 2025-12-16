@@ -427,6 +427,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     detail.value = room;
     currentSite = Sites.of(room.platform!);
     liveDanmaku = Sites.of(room.platform!).liveSite.getDanmaku();
+    EmojiManager().preload(room.platform!);
     onInitPlayerState();
   }
 }
