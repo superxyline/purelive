@@ -51,7 +51,7 @@ jobs:
         run: flutter pub get
 
       - name: 打包APK
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi -v
 
       - name: 上传APK至Artifacts
         uses: actions/upload-artifact@v4
@@ -148,7 +148,7 @@ jobs:
         run: flutter pub get
 
       - name: Build macOS
-        run: flutter build macos --release
+        run: flutter build macos --release -v
 
       - name: Get version from pubspec.yaml
         id: get_version

@@ -46,8 +46,8 @@ android {
         applicationId = "com.mystyle.purelive"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = localProperties.getProperty("flutter.versionCode")?.toInt() ?: flutter.versionCode
-        versionName = localProperties.getProperty("flutter.versionName") ?: flutter.versionName
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     signingConfigs {
