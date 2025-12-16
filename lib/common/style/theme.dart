@@ -1,5 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 class MyTheme {
   Color? primaryColor;
@@ -9,7 +10,11 @@ class MyTheme {
   MyTheme({this.primaryColor, this.colorScheme}) : assert(colorScheme == null || primaryColor == null);
 
   ThemeData get lightThemeData {
-    fontFamily = 'PingFang';
+    if (PlatformUtils.isWindows) {
+      fontFamily = 'PingFang';
+    } else if (PlatformUtils.isAndroid) {
+      fontFamily = GoogleFonts.roboto().fontFamily;
+    }
     return ThemeData(
       useMaterial3: true,
       splashFactory: NoSplash.splashFactory,
@@ -23,7 +28,11 @@ class MyTheme {
   }
 
   ThemeData get darkThemeData {
-    fontFamily = 'PingFang';
+    if (PlatformUtils.isWindows) {
+      fontFamily = 'PingFang';
+    } else if (PlatformUtils.isAndroid) {
+      fontFamily = GoogleFonts.roboto().fontFamily;
+    }
     return ThemeData(
       useMaterial3: true,
       colorSchemeSeed: primaryColor,

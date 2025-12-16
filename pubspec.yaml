@@ -1,11 +1,10 @@
 name: pure_live
-description: A new Flutter project.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 
 version: 2.0.7+18
 
 environment:
-  sdk: ^3.8.1
+  sdk: ^3.10.4
 dependencies:
   flutter:
     sdk: flutter
@@ -118,6 +117,7 @@ dependencies:
   hive_ce: ^2.15.1
   hive_ce_flutter: ^2.3.3
   markdown_widget: ^2.3.2+8
+  google_fonts: ^6.3.3
 dependency_overrides:
   media_kit:
     git:

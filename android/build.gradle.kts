@@ -20,7 +20,6 @@ subprojects {
 subprojects {
     afterEvaluate {
         extensions.findByType(BaseExtension::class.java)?.apply {
-            // 配置命名空间
             if (namespace.isNullOrBlank() && project.group != null) {
                 namespace = project.group.toString()
             }
