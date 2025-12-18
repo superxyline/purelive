@@ -148,6 +148,9 @@ class VideoController with ChangeNotifier {
         }
       }
     });
+    globalPlayer.onComplete.listen((bool isComplete) {
+      refresh();
+    });
     Future.delayed(Duration(milliseconds: 1000), () {
       if (settings.enableFullScreenDefault.value) {
         livePlayController.setFullScreen();

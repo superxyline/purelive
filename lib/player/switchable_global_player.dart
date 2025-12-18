@@ -20,6 +20,7 @@ class SwitchableGlobalPlayer {
   final isInitialized = false.obs;
   final isVerticalVideo = false.obs;
   final isPlaying = false.obs;
+  final isComplete = false.obs;
   final hasError = false.obs;
   final currentVolume = 0.5.obs;
   final isInPipMode = false.obs;
@@ -39,12 +40,14 @@ class SwitchableGlobalPlayer {
   StreamSubscription<bool>? _isPlayingSubscription;
   StreamSubscription<String?>? _errorSubscription;
   StreamSubscription<double?>? _volumeSubscription;
+  StreamSubscription<bool>? _isCompleteSubscription;
   StreamSubscription<PiPStatus>? _pipSubscription;
   // Getter（安全访问）
   UnifiedPlayer? get currentPlayer => _currentPlayer;
 
   Stream<bool> get onLoading => _currentPlayer?.onLoading ?? Stream.value(false);
   Stream<bool> get onPlaying => _currentPlayer?.onPlaying ?? Stream.value(false);
+  Stream<bool> get onComplete => _currentPlayer?.onComplete ?? Stream.value(false);
   Stream<String?> get onError => _currentPlayer?.onError ?? Stream.value(null);
   Stream<int?> get width => _currentPlayer?.width ?? Stream.value(null);
   Stream<int?> get height => _currentPlayer?.height ?? Stream.value(null);
@@ -257,6 +260,9 @@ class SwitchableGlobalPlayer {
       hasError.value = error != null;
       log('onError: $error', error: error, name: 'SwitchableGlobalPlayer');
     });
+
+    _isCompleteSubscription = onComplete.listen((complete) => isComplete.value = complete);
+
     if (Platform.isAndroid) {
       _pipSubscription = floating.pipStatusStream.listen((status) {
         isInPipMode.value = status == PiPStatus.enabled;
@@ -270,6 +276,7 @@ class SwitchableGlobalPlayer {
     _errorSubscription?.cancel();
     _volumeSubscription?.cancel();
     _pipSubscription?.cancel();
+    _isCompleteSubscription?.cancel();
   }
 
   void _cleanup() {
