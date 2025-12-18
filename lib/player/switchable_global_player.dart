@@ -261,7 +261,10 @@ class SwitchableGlobalPlayer {
       log('onError: $error', error: error, name: 'SwitchableGlobalPlayer');
     });
 
-    _isCompleteSubscription = onComplete.listen((complete) => isComplete.value = complete);
+    _isCompleteSubscription = onComplete.listen((complete) {
+      log('complete: $complete', name: 'SwitchableGlobalPlayer');
+      isComplete.value = complete;
+    });
 
     if (Platform.isAndroid) {
       _pipSubscription = floating.pipStatusStream.listen((status) {
