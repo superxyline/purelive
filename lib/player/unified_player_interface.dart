@@ -28,6 +28,8 @@ abstract class UnifiedPlayer {
 
   Stream<bool> get onLoading;
 
+  Stream<bool> get onComplete;
+
   Stream<int?> get width;
 
   Stream<int?> get height;

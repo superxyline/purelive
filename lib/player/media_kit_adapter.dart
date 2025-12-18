@@ -1,12 +1,11 @@
 import 'dart:io';
+import 'dart:developer';
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'unified_player_interface.dart';
-import 'package:media_kit/media_kit.dart';
+import 'package:pure_live/common/index.dart';
 import 'package:pure_live/player/player_consts.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
-import 'package:pure_live/common/services/settings_service.dart';
 
 class MediaKitPlayerAdapter implements UnifiedPlayer {
   late Player _player;
@@ -47,6 +46,15 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
         } else {
           _player.setVolume(100);
         }
+      }
+    });
+    _player.stream.error.listen((error) {
+      SmartDialog.showToast('MediaKitPlayer error: $error');
+    });
+
+    _player.stream.completed.listen((bool isComplete) {
+      if (isComplete) {
+        log('MediakitPlayer: The Video is completed');
       }
     });
   }
@@ -100,6 +108,9 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
 
   @override
   Stream<int?> get width => _player.stream.width;
+
+  @override
+  Stream<bool> get onComplete => _player.stream.completed;
 
   @override
   Future<void> setVolume(double value) async {
