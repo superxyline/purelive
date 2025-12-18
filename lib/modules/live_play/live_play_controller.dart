@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/core/site/huya_site.dart';
 import 'widgets/video_player/video_controller.dart';
 import 'package:pure_live/plugins/emoji_manager.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -357,7 +356,7 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
         "referer": "https://live.bilibili.com",
       };
     } else if (currentSite.id == Sites.huyaSite) {
-      var ua = await HuyaSite().getHuYaUA();
+      var ua = "HYSDK(Windows,30000002)_APP(pc_exe&7030003&official)_SDK(trans&2.29.0.5493)";
       headers = {"user-agent": ua, "origin": "https://www.huya.com"};
     }
 

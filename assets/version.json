@@ -1,7 +1,7 @@
 {
-  "version": "2.0.7",
+  "version": "2.0.8",
   "version_num": 10207,
-  "version_desc": "-Fixed: 修复迁移数据直播间数据问题.\n -Added: windows 添加 pure_live.exe --instance=account_name 参数多开.",
+  "version_desc": "-Fixed: 修复虎牙断流",
   "prerelease":false,
   "download_url": "https://github.com/liuchuancong/pure_live/releases"
 }
