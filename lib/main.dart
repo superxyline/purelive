@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/site/huya_site.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:pure_live/common/global/initialized.dart';
@@ -38,6 +39,8 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
     }
     initShareM3uState();
     initGlopalPlayer();
+    var site = (Sites.of(Sites.huyaSite).liveSite as HuyaSite);
+    site.getHuYaUA();
   }
 
   Future<void> initGlopalPlayer() async {

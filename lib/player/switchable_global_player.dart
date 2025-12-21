@@ -42,6 +42,7 @@ class SwitchableGlobalPlayer {
   StreamSubscription<double?>? _volumeSubscription;
   StreamSubscription<bool>? _isCompleteSubscription;
   StreamSubscription<PiPStatus>? _pipSubscription;
+
   // Getter（安全访问）
   UnifiedPlayer? get currentPlayer => _currentPlayer;
 
@@ -80,43 +81,46 @@ class SwitchableGlobalPlayer {
   }
 
   Future<void> setDataSource(String url, Map<String, String> headers) async {
+    if (_currentPlayer != null || playerHasInit) {
+      _currentPlayer!.stop();
+      _cleanup();
+    }
+    await Future.delayed(const Duration(milliseconds: 100));
+    _currentPlayer = _createPlayer(_currentEngine);
+    playerHasInit = false;
+
+    _cleanupSubscriptions();
+    videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
+
+    unawaited(
+      Future.microtask(() {
+        isInitialized.value = false;
+        isPlaying.value = true;
+        hasError.value = false;
+        isVerticalVideo.value = false;
+      }),
+    );
+
     try {
-      await Future.delayed(Duration(milliseconds: 100));
-      if (!playerHasInit) {
-        _currentPlayer ??= _createPlayer(_currentEngine);
-      }
-      _cleanupSubscriptions();
-      videoKey = ValueKey('video_${DateTime.now().millisecondsSinceEpoch}');
+      await _currentPlayer!.init();
+      await Future.delayed(const Duration(milliseconds: 100));
+      await _currentPlayer!.setDataSource(url, headers);
+
       unawaited(
         Future.microtask(() {
-          isInitialized.value = false;
-          isPlaying.value = true;
-          hasError.value = false;
-          isVerticalVideo.value = false;
+          isInitialized.value = true;
+          if (Platform.isAndroid) {
+            floating = Floating();
+          }
+          _subscribeToPlayerEvents();
+          playerHasInit = true;
         }),
       );
-
-      try {
-        await _currentPlayer!.init();
-        await Future.delayed(Duration(milliseconds: 100));
-        await _currentPlayer!.setDataSource(url, headers);
-
-        unawaited(
-          Future.microtask(() {
-            isInitialized.value = true;
-            if (Platform.isAndroid) {
-              floating = Floating();
-            }
-            _subscribeToPlayerEvents();
-          }),
-        );
-      } catch (e, st) {
-        log('setDataSource failed: $e', error: e, stackTrace: st, name: 'SwitchableGlobalPlayer');
-        hasError.value = true;
-        isInitialized.value = false;
-      }
     } catch (e, st) {
       log('setDataSource failed: $e', error: e, stackTrace: st, name: 'SwitchableGlobalPlayer');
+      hasError.value = true;
+      isInitialized.value = false;
+      _cleanup(); // 确保异常时也清理
     }
   }
 
@@ -163,9 +167,7 @@ class SwitchableGlobalPlayer {
           child: Stack(
             fit: StackFit.passthrough,
             children: [
-              Container(
-                color: Colors.black, // 设置你想要的背景色
-              ),
+              Container(color: Colors.black),
               Container(
                 color: Colors.black,
                 child: const Center(
@@ -200,7 +202,6 @@ class SwitchableGlobalPlayer {
           ),
         );
       }
-      // 画中画时只显示视频
       return PiPSwitcher(
         floating: floating,
         childWhenEnabled: KeyedSubtree(
@@ -284,6 +285,7 @@ class SwitchableGlobalPlayer {
 
   void _cleanup() {
     _cleanupSubscriptions();
+    _currentPlayer?.stop();
     _currentPlayer?.dispose();
     _currentPlayer = null;
     isInitialized.value = false;
