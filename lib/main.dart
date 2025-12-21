@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
@@ -39,8 +40,12 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
     }
     initShareM3uState();
     initGlopalPlayer();
-    var site = (Sites.of(Sites.huyaSite).liveSite as HuyaSite);
-    site.getHuYaUA();
+    try {
+      var site = (Sites.of(Sites.huyaSite).liveSite as HuyaSite);
+      site.getHuYaUA();
+    } catch (e) {
+      log(e.toString(), name: "init");
+    }
   }
 
   Future<void> initGlopalPlayer() async {
