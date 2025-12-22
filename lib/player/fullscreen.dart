@@ -14,7 +14,9 @@ Future<void> landScape() async {
     } else if (Platform.isAndroid || Platform.isIOS) {
       await AutoOrientation.landscapeAutoMode(forceSensor: true);
     } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-      windowManager.setFullScreen(true);
+      await windowManager.setHasShadow(false); // 去掉阴影
+      await windowManager.setAsFrameless(); // 设置为无边框模式
+      await windowManager.setFullScreen(true);
     }
   } catch (exception, stacktrace) {
     debugPrint(exception.toString());
@@ -31,6 +33,8 @@ Future<void> doEnterFullScreen() async {
   if (Platform.isAndroid || Platform.isIOS) {
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   } else {
+    await windowManager.setHasShadow(false); // 去掉阴影
+    await windowManager.setAsFrameless(); // 设置为无边框模式
     await windowManager.setFullScreen(true);
   }
 }
@@ -50,6 +54,8 @@ Future<void> doExitFullScreen() async {
       await SystemChrome.setPreferredOrientations([]);
     } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       await windowManager.setFullScreen(false);
+      await windowManager.setHasShadow(true);
+      await windowManager.setTitleBarStyle(TitleBarStyle.normal);
     }
   } catch (exception, stacktrace) {
     debugPrint(exception.toString());
