@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'dart:async';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/core/site/huya_site.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:pure_live/common/global/initialized.dart';
@@ -40,12 +38,6 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
     }
     initShareM3uState();
     initGlopalPlayer();
-    try {
-      var site = (Sites.of(Sites.huyaSite).liveSite as HuyaSite);
-      site.getHuYaUA();
-    } catch (e) {
-      log(e.toString(), name: "init");
-    }
   }
 
   Future<void> initGlopalPlayer() async {
