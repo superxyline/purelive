@@ -29,6 +29,7 @@ class LivePlayPage extends GetView<LivePlayController> {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
     return PopScope(
+      canPop: false,
       onPopInvokedWithResult: onWillPop,
       child: Obx(() {
         if (controller.screenMode.value == VideoMode.normal) {
