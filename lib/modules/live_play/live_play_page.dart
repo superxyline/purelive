@@ -15,29 +15,18 @@ class LivePlayPage extends GetView<LivePlayController> {
   LivePlayPage({super.key});
 
   final SettingsService settings = Get.find<SettingsService>();
-  Future<void> onWillPop(bool didPop, Object? result) async {
-    if (didPop) return;
-    var shouldPop = await controller.onBackPressed();
-    if (shouldPop) {
-      Navigator.of(Get.context!).pop();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     if (settings.enableScreenKeepOn.value) {
       WakelockPlus.toggle(enable: settings.enableScreenKeepOn.value);
     }
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: onWillPop,
-      child: Obx(() {
-        if (controller.screenMode.value == VideoMode.normal) {
-          return buildNormalPlayerView(context);
-        }
-        return buildVideoPlayer();
-      }),
-    );
+    return Obx(() {
+      if (controller.screenMode.value == VideoMode.normal) {
+        return buildNormalPlayerView(context);
+      }
+      return buildVideoPlayer();
+    });
   }
 
   Scaffold buildNormalPlayerView(BuildContext context) {

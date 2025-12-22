@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:screen_retriever/screen_retriever.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:auto_orientation_v2/auto_orientation_v2.dart';
 
@@ -17,6 +18,36 @@ Future<void> landScape() async {
       await windowManager.setHasShadow(false); // 去掉阴影
       await windowManager.setAsFrameless(); // 设置为无边框模式
       await windowManager.setFullScreen(true);
+      // 1. 獲取目前視窗的中心點
+      Rect windowRect = await windowManager.getBounds();
+      Offset center = windowRect.center;
+
+      // 2. 獲取所有顯示器
+      List<Display> displays = await screenRetriever.getAllDisplays();
+
+      // 3. 尋找視窗中心點在哪個顯示器範圍內
+      Display currentDisplay = displays.firstWhere((display) {
+        // 注意：這裡使用 visiblePosition 或 bounds.topLeft
+        final Offset origin = display.visiblePosition ?? Offset.zero;
+        final Size size = display.size;
+
+        return center.dx >= origin.dx &&
+            center.dx <= origin.dx + size.width &&
+            center.dy >= origin.dy &&
+            center.dy <= origin.dy + size.height;
+      }, orElse: () => displays.first);
+
+      // 4. 根據找到的螢幕設定全螢幕範圍
+      await windowManager.setBounds(
+        Rect.fromLTWH(
+          currentDisplay.visiblePosition!.dx,
+          currentDisplay.visiblePosition!.dy,
+          currentDisplay.size.width,
+          currentDisplay.size.height,
+        ),
+      );
+
+      await windowManager.setAlwaysOnTop(true);
     }
   } catch (exception, stacktrace) {
     debugPrint(exception.toString());
@@ -36,6 +67,35 @@ Future<void> doEnterFullScreen() async {
     await windowManager.setHasShadow(false); // 去掉阴影
     await windowManager.setAsFrameless(); // 设置为无边框模式
     await windowManager.setFullScreen(true);
+    // 1. 獲取目前視窗的中心點
+    Rect windowRect = await windowManager.getBounds();
+    Offset center = windowRect.center;
+
+    // 2. 獲取所有顯示器
+    List<Display> displays = await screenRetriever.getAllDisplays();
+
+    // 3. 尋找視窗中心點在哪個顯示器範圍內
+    Display currentDisplay = displays.firstWhere((display) {
+      // 注意：這裡使用 visiblePosition 或 bounds.topLeft
+      final Offset origin = display.visiblePosition ?? Offset.zero;
+      final Size size = display.size;
+
+      return center.dx >= origin.dx &&
+          center.dx <= origin.dx + size.width &&
+          center.dy >= origin.dy &&
+          center.dy <= origin.dy + size.height;
+    }, orElse: () => displays.first);
+
+    // 4. 根據找到的螢幕設定全螢幕範圍
+    await windowManager.setBounds(
+      Rect.fromLTWH(
+        currentDisplay.visiblePosition!.dx,
+        currentDisplay.visiblePosition!.dy,
+        currentDisplay.size.width,
+        currentDisplay.size.height,
+      ),
+    );
+    await windowManager.setAlwaysOnTop(true);
   }
 }
 

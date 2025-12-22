@@ -98,7 +98,14 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
               title: '纯粹直播',
               debugShowCheckedModeBanner: false,
               themeMode: AppConsts.themeModes[settings.themeModeName.value]!,
-              theme: lightTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
+              theme: lightTheme.copyWith(
+                appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent),
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: <TargetPlatform, PageTransitionsBuilder>{
+                    TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+                  },
+                ),
+              ),
               darkTheme: darkTheme.copyWith(appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent)),
               locale: AppConsts.languages[settings.languageName.value]!,
               navigatorObservers: [FlutterSmartDialog.observer, BackButtonObserver()],
@@ -111,7 +118,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
                 GlobalCupertinoLocalizations.delegate,
               ],
               initialRoute: showSplashPage ? RoutePath.kSplash : RoutePath.kInitial,
-              defaultTransition: Platform.isAndroid ? Transition.cupertino : Transition.native,
+              defaultTransition: Transition.native,
               getPages: AppPages.routes,
             );
           });

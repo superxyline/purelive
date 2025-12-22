@@ -15,6 +15,7 @@ import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/player/switchable_global_player.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 
 enum VideoMode { normal, widescreen, fullscreen }
 
@@ -69,26 +70,12 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
   final refreshKey = DateTime.now().millisecondsSinceEpoch.obs;
 
-  Future<bool> onBackPressed() async {
-    unawaited(
-      Future.microtask(() {
-        success.value = false;
-        if (videoController.value!.showSettting.value) {
-          videoController.value!.showSettting.toggle();
-        }
-        if (videoController.value!.isFullscreen.value) {
-          videoController.value!.exitFullScreen();
-        }
-      }),
-    );
-    return await Future.value(true);
-  }
-
   @override
   void onClose() {
     success.value = false;
     SwitchableGlobalPlayer().stop();
     tabController.dispose();
+    BackButtonInterceptor.removeByName("live_play_page");
     super.onClose();
   }
 
@@ -97,12 +84,18 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     success.value = false;
     SwitchableGlobalPlayer().stop();
     tabController.dispose();
+    if (Platform.isAndroid) {
+      BackButtonInterceptor.removeByName("live_play_page");
+    }
     super.dispose();
   }
 
   @override
   void onInit() {
     super.onInit();
+    if (Platform.isAndroid) {
+      BackButtonInterceptor.add(myInterceptor, zIndex: 1, name: "live_play_page");
+    }
     detail.value = room;
     currentSite = Sites.of(site);
     liveDanmaku = Sites.of(site).liveSite.getDanmaku();
@@ -143,6 +136,26 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
         onInitPlayerState();
       }
     });
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    // 1. 如果是全屏，退出全屏
+    if (videoController.value!.isFullscreen.value) {
+      setNormalScreen();
+      videoController.value!.exitFullScreen();
+      return true; // 拦截，不让页面关闭
+    }
+
+    // 2. 如果显示设置面板，隐藏它
+    if (videoController.value!.showSettting.value) {
+      videoController.value!.showSettting.toggle();
+      return true; // 拦截，不让页面关闭
+    }
+
+    // 3. 所有特殊状态都处理完了，现在决定是否允许退出页面
+    // 如果你想直接退出页面：
+    success.value = false;
+    return false; // 不拦截，让系统执行默认的返回（关闭页面）
   }
 
   Future<LiveRoom> onInitPlayerState({
