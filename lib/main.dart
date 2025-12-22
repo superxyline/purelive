@@ -87,6 +87,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
         builder: (lightDynamic, darkDynamic) {
           return Obx(() {
             var themeColor = HexColor(settings.themeColorSwitch.value);
+            var showSplashPage = settings.showSplashPage.value;
             ThemeData lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
             ThemeData darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
             if (settings.enableDynamicTheme.value) {
@@ -109,7 +110,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              initialRoute: RoutePath.kSplash,
+              initialRoute: showSplashPage ? RoutePath.kSplash : RoutePath.kInitial,
               defaultTransition: Platform.isAndroid ? Transition.cupertino : Transition.native,
               getPages: AppPages.routes,
             );

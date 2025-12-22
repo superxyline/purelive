@@ -44,6 +44,7 @@ class SettingsService extends GetxController {
   final enableFullScreenDefault = (HivePrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
   final dontAskExit = (HivePrefUtil.getBool('dontAskExit') ?? false).obs;
   final exitChoose = (HivePrefUtil.getString('exitChoose') ?? '').obs;
+  final showSplashPage = (HivePrefUtil.getBool('showSplashPage') ?? true).obs;
 
   // ==============================
   // ⏰ 自动关机
@@ -294,6 +295,10 @@ class SettingsService extends GetxController {
 
     dontAskExit.listen((value) {
       HivePrefUtil.setBool('dontAskExit', value);
+    });
+
+    showSplashPage.listen((value) {
+      HivePrefUtil.setBool('showSplashPage', value);
     });
 
     exitChoose.listen((value) {
@@ -645,6 +650,7 @@ class SettingsService extends GetxController {
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     huyaCookie.value = json['huyaCookie'] ?? '';
     dontAskExit.value = json['dontAskExit'] ?? false;
+    showSplashPage.value = json['showSplashPage'] ?? true;
     exitChoose.value = json['exitChoose'] ?? '';
     douyinCookie.value = json['douyinCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
@@ -710,6 +716,7 @@ class SettingsService extends GetxController {
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['huyaCookie'] = huyaCookie.value;
     json['dontAskExit'] = dontAskExit.value;
+    json['showSplashPage'] = showSplashPage.value;
     json['exitChoose'] = exitChoose.value;
     json['douyinCookie'] = douyinCookie.value;
     json['shieldList'] = shieldList.map<String>((e) => e.toString()).toList();

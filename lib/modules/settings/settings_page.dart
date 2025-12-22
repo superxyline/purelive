@@ -45,6 +45,15 @@ class SettingsPage extends GetView<SettingsService> {
                 onChanged: (bool value) => controller.dontAskExit.value = value,
               ),
             ),
+          Obx(
+            () => SwitchListTile(
+              title: Text('展示启动页'),
+              subtitle: Text("应用启动后是否显示启动页"),
+              value: controller.showSplashPage.value,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.showSplashPage.value = value,
+            ),
+          ),
           ListTile(
             leading: const Icon(Icons.dark_mode_rounded, size: 32),
             title: Text(S.of(context).change_theme_mode),
@@ -77,6 +86,33 @@ class SettingsPage extends GetView<SettingsService> {
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const BackupPage())),
           ),
           SectionTitle(title: S.of(context).video),
+          if (Platform.isAndroid)
+            Obx(
+              () => ListTile(
+                title: Text('视频播放器'),
+                subtitle: Text('选择视频播放器'),
+                onTap: showVideoSetDialog,
+                trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'IJK播放器'),
+              ),
+            ),
+          Obx(
+            () => SwitchListTile(
+              title: Text(S.of(context).enable_codec),
+              value: controller.enableCodec.value,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.enableCodec.value = value,
+            ),
+          ),
+          if (Platform.isAndroid)
+            Obx(
+              () => SwitchListTile(
+                title: Text('兼容模式'),
+                subtitle: Text('若播放卡顿可尝试打开此选项'),
+                value: controller.playerCompatMode.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.playerCompatMode.value = value,
+              ),
+            ),
           Obx(
             () => SwitchListTile(
               title: Text(S.of(context).enable_background_play),
@@ -96,15 +132,7 @@ class SettingsPage extends GetView<SettingsService> {
                 onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
               ),
             ),
-          // if (Platform.isAndroid)
-          Obx(
-            () => ListTile(
-              title: Text('视频播放器'),
-              subtitle: Text('选择视频播放器'),
-              onTap: showVideoSetDialog,
-              trailing: Text(controller.videoPlayerIndex.value == 0 ? 'Mpv播放器' : 'IJK播放器'),
-            ),
-          ),
+
           Obx(
             () => SwitchListTile(
               title: Text(S.of(context).enable_fullscreen_default),
@@ -190,25 +218,6 @@ class SettingsPage extends GetView<SettingsService> {
               ],
             ),
           ),
-          if (Platform.isAndroid)
-            Obx(
-              () => SwitchListTile(
-                title: Text(S.of(context).enable_codec),
-                value: controller.enableCodec.value,
-                activeThumbColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableCodec.value = value,
-              ),
-            ),
-          if (Platform.isAndroid)
-            Obx(
-              () => SwitchListTile(
-                title: Text('兼容模式'),
-                subtitle: Text('若播放卡顿可尝试打开此选项'),
-                value: controller.playerCompatMode.value,
-                activeThumbColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.playerCompatMode.value = value,
-              ),
-            ),
 
           SectionTitle(title: S.of(context).custom),
           Obx(
