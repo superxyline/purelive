@@ -153,9 +153,13 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                             : controller.globalPlayer.togglePlayPause();
                       }
                     },
-                    onDoubleTap: () => controller.isWindowFullscreen.value
-                        ? controller.toggleWindowFullScreen()
-                        : controller.toggleFullScreen(),
+                    onDoubleTap: () {
+                      if (!controller.showLocked.value) {
+                        controller.isWindowFullscreen.value
+                            ? controller.toggleWindowFullScreen()
+                            : controller.toggleFullScreen();
+                      }
+                    },
                     child: BrightnessVolumnDargArea(controller: controller),
                   ),
                   SettingsPanel(controller: controller),

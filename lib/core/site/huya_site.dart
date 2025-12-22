@@ -166,14 +166,12 @@ class HuyaSite implements LiveSite {
     }
 
     final cancelToken = CancelToken();
-    // 使用 Completer 确保只接收第一个成功的响应
     final completer = Completer<String>();
     bool isAlreadySet = false;
 
     try {
       // 2. 启动并发请求（不等待它们完成）
       for (final url in uaList) {
-        // 这里的 getJson 内部不要让它在 catchError 时吞掉逻辑
         HttpClient.instance
             .getJson("$url?ts=${DateTime.now().millisecondsSinceEpoch}", cancel: cancelToken)
             .then((response) {
@@ -185,22 +183,15 @@ class HuyaSite implements LiveSite {
 
               if (ua != null && !isAlreadySet) {
                 isAlreadySet = true;
-                playUserAgent = ua; // 立即写入全局变量
+                playUserAgent = ua;
                 debugPrint("✅ 获胜线路: $url");
-
-                // 关键：先完成 Future，再取消其他请求
                 if (!completer.isCompleted) completer.complete(ua);
-
-                // 延迟取消，防止正在运行的这行逻辑崩溃
                 Future.microtask(() => cancelToken.cancel("done"));
               }
             })
-            .catchError((_) {
-              // 忽略报错，等待其他线路
-            });
+            .catchError((_) {});
       }
 
-      // 3. 阻塞等待结果或 5 秒超时
       final result = await completer.future.timeout(const Duration(seconds: 5));
       return result;
     } catch (e) {
