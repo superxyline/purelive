@@ -52,8 +52,6 @@ class FijkPlayerAdapter implements UnifiedPlayer {
     // First-time initialization (set volume, etc.)
     if (!isInitialized && (state == FijkState.prepared || state == FijkState.started)) {
       isInitialized = true;
-      // FijkPlayer volume: 0.0 ~ 1.0
-      _player.setVolume(1.0); // 或根据需求扩展
     }
 
     // Handle errors

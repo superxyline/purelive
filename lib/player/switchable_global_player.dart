@@ -22,10 +22,11 @@ class SwitchableGlobalPlayer {
   final isPlaying = false.obs;
   final isComplete = false.obs;
   final hasError = false.obs;
-  final currentVolume = 0.5.obs;
+  final currentVolume = 1.0.obs;
   final isInPipMode = false.obs;
   late Floating floating;
   bool playerHasInit = false;
+  bool hasSetVolume = false;
 
   // 依赖
   final SettingsService settings = Get.find<SettingsService>();
@@ -59,6 +60,7 @@ class SwitchableGlobalPlayer {
     _currentEngine = engine;
     _currentPlayer!.init();
     playerHasInit = true;
+    hasSetVolume = false;
   }
 
   UnifiedPlayer _createPlayer(PlayerEngine engine) {
@@ -97,6 +99,7 @@ class SwitchableGlobalPlayer {
         isInitialized.value = false;
         isPlaying.value = true;
         hasError.value = false;
+        hasSetVolume = false;
         isVerticalVideo.value = false;
       }),
     );
@@ -114,11 +117,13 @@ class SwitchableGlobalPlayer {
           }
           _subscribeToPlayerEvents();
           playerHasInit = true;
+          hasSetVolume = false;
         }),
       );
     } catch (e, st) {
       log('setDataSource failed: $e', error: e, stackTrace: st, name: 'SwitchableGlobalPlayer');
       hasError.value = true;
+      hasSetVolume = false;
       isInitialized.value = false;
       _cleanup(); // 确保异常时也清理
     }
@@ -256,7 +261,13 @@ class SwitchableGlobalPlayer {
       isVerticalVideo.value = isVertical;
     });
 
-    _isPlayingSubscription = onPlaying.listen((playing) => isPlaying.value = playing);
+    _isPlayingSubscription = onPlaying.listen((playing) {
+      isPlaying.value = playing;
+      if (!hasSetVolume && playing) {
+        setVolume(settings.volume.value);
+        hasSetVolume = true;
+      }
+    });
     _errorSubscription = onError.listen((error) {
       hasError.value = error != null;
       log('onError: $error', error: error, name: 'SwitchableGlobalPlayer');

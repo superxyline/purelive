@@ -47,7 +47,7 @@ Future<void> landScape() async {
         ),
       );
 
-      await windowManager.setAlwaysOnTop(true);
+      await windowManager.setAlwaysOnTop(false);
     }
   } catch (exception, stacktrace) {
     debugPrint(exception.toString());
@@ -95,7 +95,7 @@ Future<void> doEnterFullScreen() async {
         currentDisplay.size.height,
       ),
     );
-    await windowManager.setAlwaysOnTop(true);
+    await windowManager.setAlwaysOnTop(false);
   }
 }
 

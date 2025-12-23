@@ -66,7 +66,7 @@ class SettingsService extends GetxController {
   final danmakuFontSize = (HivePrefUtil.getDouble('danmakuFontSize') ?? 16.0).obs;
   final danmakuFontBorder = (HivePrefUtil.getDouble('danmakuFontBorder') ?? 4.0).obs;
   final danmakuOpacity = (HivePrefUtil.getDouble('danmakuOpacity') ?? 1.0).obs;
-  final volume = (HivePrefUtil.getDouble('volume') ?? 0.5).obs;
+  final volume = (HivePrefUtil.getDouble('volume') ?? 1.0).obs;
 
   final videoPlayerIndex = (HivePrefUtil.getInt('videoPlayerIndex') ?? 0).obs;
   final enableCodec = (HivePrefUtil.getBool('enableCodec') ?? true).obs;
@@ -654,7 +654,7 @@ class SettingsService extends GetxController {
     exitChoose.value = json['exitChoose'] ?? '';
     douyinCookie.value = json['douyinCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
-    volume.value = json['volume'] ?? 0.5;
+    volume.value = json['volume'] ?? 1.0;
     customPlayerOutput.value = json['customPlayerOutput'] ?? false;
     videoOutputDriver.value = (json['videoOutputDriver'] == null || json['videoOutputDriver'] == "")
         ? 'gpu'

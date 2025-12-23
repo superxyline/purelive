@@ -7,7 +7,6 @@ import 'unified_player_interface.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/player/player_consts.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 class MediaKitPlayerAdapter implements UnifiedPlayer {
   late Player _player;
@@ -74,11 +73,6 @@ class MediaKitPlayerAdapter implements UnifiedPlayer {
 
       if (!isInitialized) {
         isInitialized = true;
-        Future.microtask(() {
-          if (_disposed) return;
-          final volume = PlatformUtils.isDesktop ? (settings.volume.value * 100).clamp(0.0, 100.0) : 100.0;
-          _player.setVolume(volume);
-        });
       }
     });
 
