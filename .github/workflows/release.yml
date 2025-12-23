@@ -86,9 +86,9 @@ jobs:
         shell: pwsh
         run: |
           # 读取并替换
-          $content = Get-Content make_config.yaml -Raw
-          $content = $content -replace 'certificate_path:\s*.*', "certificate_path: $certPath"
-          Set-Content make_config.yaml $content
+          $content = Get-Content "windows/packaging/msix/make_config.yaml" -Raw
+          $content = $content -replace 'certificate_path:\s*.*', 'certificate_path: certificate.pfx'
+          Set-Content "windows/packaging/msix/make_config.yaml" $content
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
