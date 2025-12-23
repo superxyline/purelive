@@ -1,3 +1,0 @@
-variables:
-  CERTIFICATE: ${CERTIFICATE}
-output: dist/
