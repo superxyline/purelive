@@ -10,6 +10,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:pure_live/common/utils/hive_pref_util.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/player/switchable_global_player.dart';
 import 'package:pure_live/pkg/canvas_danmaku/danmaku_controller.dart';
@@ -136,8 +137,10 @@ class VideoController with ChangeNotifier {
   }
 
   void initVideoController() async {
-    FlutterVolumeController.updateShowSystemUI(false);
-    registerVolumeListener();
+    if (PlatformUtils.isMobile) {
+      FlutterVolumeController.updateShowSystemUI(false);
+      registerVolumeListener();
+    }
     globalPlayer.setDataSource(datasource, headers);
     globalPlayer.onError.listen((error) {
       if (error != null) {
@@ -289,10 +292,10 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> destory() async {
-    if (allowScreenKeepOn) WakelockPlus.disable();
-    FlutterVolumeController.removeListener();
     if (Platform.isAndroid || Platform.isIOS) {
+      if (allowScreenKeepOn) WakelockPlus.disable();
       brightnessController.resetApplicationScreenBrightness();
+      FlutterVolumeController.removeListener();
     }
   }
 
