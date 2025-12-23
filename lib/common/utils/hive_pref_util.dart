@@ -3,7 +3,6 @@ import 'package:hive_ce/hive.dart';
 class HivePrefUtil {
   static late Box _box;
 
-  /// 初始化 Hive box（应在 main 中调用）
   static Future<void> init() async {
     if (!Hive.isBoxOpen('app_settings')) {
       _box = await Hive.openBox('app_settings');

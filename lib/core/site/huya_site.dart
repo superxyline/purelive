@@ -284,25 +284,23 @@ class HuyaSite implements LiveSite {
       //读取可用线路
 
       var baseSteamInfoList = data['stream']['baseSteamInfoList'] as List<dynamic>;
-      List<dynamic> validLines = baseSteamInfoList.where((line) {
-        int pc = line['iPCPriorityRate'] ?? -1;
-        int web = line['iWebPriorityRate'] ?? -1;
-        int mobile = line['iMobilePriorityRate'] ?? -1;
-        return pc > 0 || web > 0 || mobile > 0;
-      }).toList();
 
       var flvLines = data['stream']['flv']['multiLine'];
       var hlsLines = data['stream']['hls']['multiLine'];
       if (flvLines != null) {
         for (var item in flvLines) {
           if ((item["url"]?.toString() ?? "").isNotEmpty) {
-            var currentStream = validLines.firstWhere(
+            var currentStream = baseSteamInfoList.firstWhere(
               (element) => element["sCdnType"] == item["cdnType"],
               orElse: () => null,
             );
             if (currentStream != null) {
-              topSid = currentStream["lChannelId"];
-              subSid = currentStream["lSubChannelId"];
+              topSid = currentStream["lChannelId"].runtimeType == String
+                  ? int.tryParse(currentStream["lChannelId"].toString()) ?? 0
+                  : currentStream["lChannelId"];
+              subSid = currentStream["lSubChannelId"].runtimeType == String
+                  ? int.tryParse(currentStream["lSubChannelId"].toString()) ?? 0
+                  : currentStream["lSubChannelId"];
               huyaLines.add(
                 HuyaLineModel(
                   line: currentStream['sFlvUrl'],
@@ -321,13 +319,17 @@ class HuyaSite implements LiveSite {
       if (hlsLines != null) {
         for (var item in hlsLines) {
           if ((item["url"]?.toString() ?? "").isNotEmpty) {
-            var currentStream = validLines.firstWhere(
+            var currentStream = baseSteamInfoList.firstWhere(
               (element) => element["sCdnType"] == item["cdnType"],
               orElse: () => null,
             );
             if (currentStream != null) {
-              topSid = currentStream["lChannelId"];
-              subSid = currentStream["lSubChannelId"];
+              topSid = currentStream["lChannelId"].runtimeType == String
+                  ? int.tryParse(currentStream["lChannelId"].toString()) ?? 0
+                  : currentStream["lChannelId"];
+              subSid = currentStream["lSubChannelId"].runtimeType == String
+                  ? int.tryParse(currentStream["lSubChannelId"].toString()) ?? 0
+                  : currentStream["lSubChannelId"];
               huyaLines.add(
                 HuyaLineModel(
                   line: currentStream['sHlsUrl'],

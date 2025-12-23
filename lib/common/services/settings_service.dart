@@ -596,15 +596,25 @@ class SettingsService extends GetxController {
   }
 
   void fromJson(Map<String, dynamic> json) {
-    favoriteRooms.value = json['favoriteRooms'] != null
-        ? (json['favoriteRooms'] as List).map<LiveRoom>((e) => LiveRoom.fromJson(jsonDecode(e))).toList()
-        : [];
-    favoriteAreas.value = json['favoriteAreas'] != null
-        ? (json['favoriteAreas'] as List).map<LiveArea>((e) => LiveArea.fromJson(jsonDecode(e))).toList()
-        : [];
-    webDavConfigs.value = json['webDavConfigs'] != null
-        ? (json['webDavConfigs'] as List).map<WebDAVConfig>((e) => WebDAVConfig.fromJson(jsonDecode(e))).toList()
-        : [];
+    // 1. 定義內部輔助解析函數，處理兼容性邏輯
+    List<T> safeParseList<T>(dynamic data, T Function(Map<String, dynamic>) fromJsonFactory) {
+      if (data == null || data is! List) return [];
+      return data.map<T>((e) {
+        if (e is Map<String, dynamic>) {
+          return fromJsonFactory(e);
+        } else if (e is String) {
+          try {
+            return fromJsonFactory(jsonDecode(e));
+          } catch (err) {
+            debugPrint("解析單項數據失敗: $err");
+          }
+        }
+        return fromJsonFactory({}); // 備選方案
+      }).toList();
+    }
+
+    favoriteRooms.value = safeParseList<LiveRoom>(json['favoriteRooms'], (m) => LiveRoom.fromJson(m));
+    favoriteAreas.value = safeParseList<LiveArea>(json['favoriteAreas'], (m) => LiveArea.fromJson(m));
     shieldList.value = json['shieldList'] != null ? (json['shieldList'] as List).map((e) => e.toString()).toList() : [];
     hotAreasList.value = json['hotAreasList'] != null
         ? (json['hotAreasList'] as List).map((e) => e.toString()).toList()
@@ -612,7 +622,7 @@ class SettingsService extends GetxController {
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     currentWebDavConfig.value = json['currentWebDavConfig'] ?? '';
     autoRefreshTime.value = json['autoRefreshTime'] ?? 3;
-    themeModeName.value = json['themeMode'] ?? "System";
+    themeModeName.value = AppConsts.themeModes.keys.firstWhere((e) => e == json['themeMode'], orElse: () => "System");
     enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     enableDynamicTheme.value = json['enableDynamicTheme'] ?? false;
     enableDenseFavorites.value = json['enableDenseFavorites'] ?? false;
@@ -622,9 +632,15 @@ class SettingsService extends GetxController {
     enableScreenKeepOn.value = json['enableScreenKeepOn'] ?? true;
     enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
-    languageName.value = json['languageName'] ?? "简体中文";
-    preferResolution.value = json['preferResolution'] ?? PlayerConsts.resolutions[0];
-    preferPlatform.value = json['preferPlatform'] ?? AppConsts.platforms[0];
+    languageName.value = AppConsts.languages.keys.firstWhere((e) => e == json['languageName'], orElse: () => "简体中文");
+    preferResolution.value = PlayerConsts.resolutions.firstWhere(
+      (e) => e == json['preferResolution'],
+      orElse: () => PlayerConsts.resolutions[0],
+    );
+    preferPlatform.value = AppConsts.platforms.firstWhere(
+      (e) => e == json['preferPlatform'],
+      orElse: () => AppConsts.platforms[0],
+    );
     videoFitIndex.value = json['videoFitIndex'] ?? 0;
     hideDanmaku.value = json['hideDanmaku'] ?? false;
     danmakuTopArea.value = json['danmakuTopArea'] != null
@@ -644,7 +660,6 @@ class SettingsService extends GetxController {
         ? double.parse(json['danmakuFontBorder'].toString())
         : 4.0;
     danmakuOpacity.value = json['danmakuOpacity'] != null ? double.parse(json['danmakuOpacity'].toString()) : 1.0;
-    videoPlayerIndex.value = json['videoPlayerIndex'] ?? 0;
     enableCodec.value = json['enableCodec'] ?? true;
     playerCompatMode.value = json['playerCompatMode'] ?? false;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
@@ -656,15 +671,15 @@ class SettingsService extends GetxController {
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
     volume.value = json['volume'] ?? 1.0;
     customPlayerOutput.value = json['customPlayerOutput'] ?? false;
-    videoOutputDriver.value = (json['videoOutputDriver'] == null || json['videoOutputDriver'] == "")
-        ? 'gpu'
-        : json['videoOutputDriver'];
-    audioOutputDriver.value = (json['audioOutputDriver'] == null || json['audioOutputDriver'] == "")
-        ? 'auto'
-        : json['audioOutputDriver'];
-    videoHardwareDecoder.value = (json['videoHardwareDecoder'] == null || json['videoHardwareDecoder'] == "")
-        ? 'auto'
-        : json['videoHardwareDecoder'];
+    videoOutputDriver.value = PlayerConsts.videoOutputDrivers.keys.contains(json['videoOutputDriver'])
+        ? json['videoOutputDriver']
+        : 'gpu';
+    audioOutputDriver.value = PlayerConsts.audioOutputDrivers.keys.contains(json['audioOutputDriver'])
+        ? json['audioOutputDriver']
+        : 'auto';
+    videoHardwareDecoder.value = PlayerConsts.hardwareDecoder.keys.contains(json['videoHardwareDecoder'])
+        ? json['audioOutputDriver']
+        : 'auto';
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     setBilibiliCookit(bilibiliCookie.value);
