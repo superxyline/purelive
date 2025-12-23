@@ -74,21 +74,39 @@ jobs:
       - name: Decode MSIX Certificate
         shell: pwsh
         run: |
-          $certBase64 = "${{ secrets.CERTIFICATE }}"
-          if ([string]::IsNullOrEmpty($certBase64)) { Write-Error "Secret CERTIFICATE is empty!"; exit 1 }
+          $certBase64 = "${{ secrets.CERTIFICATE }}".Trim() -replace '\s+', ''
+          if ([string]::IsNullOrEmpty($certBase64)) { Write-Error "Secret is empty!"; exit 1 }
           $certBytes = [System.Convert]::FromBase64String($certBase64)
           
-          $certPath = Join-Path -Path (Get-Location) -ChildPath "CERTIFICATE.pfx"
+          # 使用絕對路徑並確保路徑格式一致
+          $certPath = Join-Path -Path (Get-Location) -ChildPath "certificate.pfx"
           [IO.File]::WriteAllBytes($certPath, $certBytes)
           
-          echo "MSIX_CERT_PATH=$certPath" >> $env:GITHUB_ENV
+          # 將路徑存入環境變數供下一步使用（選用）
+          echo "FINAL_CERT_PATH=$certPath" >> $env:GITHUB_ENV
+
       - name: Update make_config.yaml with real cert path
         shell: pwsh
         run: |
-          # 读取并替换
-          $content = Get-Content "windows/packaging/msix/make_config.yaml" -Raw
-          $content = $content -replace 'certificate_path:\s*.*', 'certificate_path: certificate.pfx'
-          Set-Content "windows/packaging/msix/make_config.yaml" $content
+          $configPath = "windows/packaging/msix/make_config.yaml"
+          # 獲取上一步生成的絕對路徑，並將反斜槓轉為正斜槓以避免 YAML 轉義問題
+          $absolutePath = "${{ env.FINAL_CERT_PATH }}".Replace('\', '/')
+          
+          if (Test-Path $configPath) {
+              $content = Get-Content $configPath -Raw
+              # 正則替換：匹配 certificate_path: 後面跟隨的任何內容，替換為絕對路徑
+              $content = $content -replace 'certificate_path:\s*.*', "certificate_path: $absolutePath"
+              
+              # 如果密碼也需要從 Secret 填入，可以在這裡一併處理
+              # $content = $content -replace 'certificate_password:\s*.*', 'certificate_password: ${{ secrets.CERT_PASSWORD }}'
+              
+              Set-Content $configPath $content
+              Write-Host "Success: certificate_path set to $absolutePath"
+          } else {
+              Write-Error "Config file not found!"
+              exit 1
+          }
+
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
