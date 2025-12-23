@@ -142,10 +142,13 @@ class SettingsPage extends GetView<SettingsService> {
               onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
             ),
           ),
-          ListTile(
-            title: Text(S.of(context).prefer_resolution),
-            subtitle: Text(S.of(context).prefer_resolution_subtitle),
-            onTap: showPreferResolutionSelectorDialog,
+          Obx(
+            () => ListTile(
+              title: Text(S.of(context).prefer_resolution),
+              subtitle: Text(S.of(context).prefer_resolution_subtitle),
+              trailing: Text(controller.preferResolution.value),
+              onTap: showPreferResolutionSelectorDialog,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
