@@ -8,6 +8,7 @@ class VersionController extends BaseController {
   final apkUrl = ''.obs;
   final apkUrl2 = ''.obs;
   final windowsUrl = ''.obs;
+  final windowsUrl2 = ''.obs;
   late PackageInfo packageInfo;
   final loading = true.obs;
   @override
@@ -31,6 +32,8 @@ class VersionController extends BaseController {
     var buildNumber = hasNewVersion.value ? int.parse(packageInfo.buildNumber) + 1 : int.parse(packageInfo.buildNumber);
     windowsUrl.value =
         '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/PureLive-${VersionUtil.latestVersion}+${buildNumber.toString()}-windows-x64-setup.exe';
+    windowsUrl2.value =
+        '${VersionUtil.projectUrl}/releases/download/v${VersionUtil.latestVersion}/PureLive-${VersionUtil.latestVersion}+${buildNumber.toString()}-windows-x64.msix';
     loading.value = false;
   }
 }

@@ -41,8 +41,11 @@ class VersionPage extends GetView<VersionController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (PlatformUtils.isDesktop)
-                  _buildDownloadSection(title: 'Windows 下载地址', urls: controller.windowsUrl.value),
+                if (PlatformUtils.isDesktop) ...[
+                  _buildDownloadSection(title: 'Windows (exe) 下载地址', urls: controller.windowsUrl.value),
+
+                  _buildDownloadSection(title: 'Windows (msix) 下载地址', urls: controller.windowsUrl2.value),
+                ],
                 if (PlatformUtils.isMobile) ...[
                   _buildDownloadSection(title: 'ARM64 (arm64-v8a) 版本', urls: controller.apkUrl2.value),
                   const SizedBox(height: 24),
