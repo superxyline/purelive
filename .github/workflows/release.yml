@@ -70,7 +70,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.tag_name || github.ref }}
-
+          
+      - name: Decode MSIX Certificate
+        shell: pwsh
+        run: |
+          $certBase64 = "${{ secrets.CERTIFICATE }}"
+          if ([string]::IsNullOrEmpty($certBase64)) { Write-Error "Secret CERTIFICATE is empty!"; exit 1 }
+          $certBytes = [System.Convert]::FromBase64String($certBase64)
+          
+          $certPath = Join-Path -Path (Get-Location) -ChildPath "CERTIFICATE.pfx"
+          [IO.File]::WriteAllBytes($certPath, $certBytes)
+          
+          echo "MSIX_CERT_PATH=$certPath" >> $env:GITHUB_ENV
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
@@ -100,17 +111,6 @@ jobs:
       - name: Install fastforge
         run: dart pub global activate fastforge
         
-      - name: Decode MSIX Certificate
-        shell: pwsh
-        run: |
-          $certBase64 = "${{ secrets.CERTIFICATE }}"
-          if ([string]::IsNullOrEmpty($certBase64)) { Write-Error "Secret CERTIFICATE is empty!"; exit 1 }
-          $certBytes = [System.Convert]::FromBase64String($certBase64)
-          
-          $certPath = Join-Path -Path (Get-Location) -ChildPath "CERTIFICATE.pfx"
-          [IO.File]::WriteAllBytes($certPath, $certBytes)
-          
-          echo "MSIX_CERT_PATH=$certPath" >> $env:GITHUB_ENV
       - name: Get version from pubspec.yaml
         id: get_version
         shell: pwsh
