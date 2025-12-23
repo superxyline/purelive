@@ -82,6 +82,13 @@ jobs:
           [IO.File]::WriteAllBytes($certPath, $certBytes)
           
           echo "MSIX_CERT_PATH=$certPath" >> $env:GITHUB_ENV
+      - name: Update make_config.yaml with real cert path
+        shell: pwsh
+        run: |
+          # 读取并替换
+          $content = Get-Content make_config.yaml -Raw
+          $content = $content -replace 'certificate_path:\s*.*', "certificate_path: $certPath"
+          Set-Content make_config.yaml $content
       - name: 设置Flutter环境
         uses: subosito/flutter-action@v2
         with:
