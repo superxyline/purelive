@@ -24,6 +24,8 @@ class LivePlayPage extends GetView<LivePlayController> {
     return Obx(() {
       if (controller.screenMode.value == VideoMode.normal) {
         return buildNormalPlayerView(context);
+      } else if (controller.screenMode.value == VideoMode.widescreen) {
+        return buildVideoPlayer();
       }
       return buildVideoPlayer();
     });

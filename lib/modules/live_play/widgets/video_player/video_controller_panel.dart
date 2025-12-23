@@ -640,9 +640,10 @@ class BottomActionBar extends StatelessWidget {
               SizedBox(width: 8),
               OverlayVolumeControl(controller: controller),
               SizedBox(width: 8),
-              if (controller.supportWindowFull && !controller.isFullscreen.value)
+              if (controller.supportWindowFull && !controller.isFullscreen.value) ...[
                 ExpandWindowButton(controller: controller),
-              if (controller.supportWindowFull && !controller.isFullscreen.value) SizedBox(width: 8),
+                SizedBox(width: 8),
+              ],
               if (!controller.isWindowFullscreen.value) ExpandButton(controller: controller),
             ],
           ),
