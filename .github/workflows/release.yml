@@ -99,7 +99,18 @@ jobs:
 
       - name: Install fastforge
         run: dart pub global activate fastforge
-
+        
+      - name: Decode MSIX Certificate
+        shell: pwsh
+        run: |
+          $certBase64 = "${{ secrets.CERTIFICATE }}"
+          if ([string]::IsNullOrEmpty($certBase64)) { Write-Error "Secret CERTIFICATE is empty!"; exit 1 }
+          $certBytes = [System.Convert]::FromBase64String($certBase64)
+          
+          $certPath = Join-Path -Path (Get-Location) -ChildPath "CERTIFICATE.pfx"
+          [IO.File]::WriteAllBytes($certPath, $certBytes)
+          
+          echo "MSIX_CERT_PATH=$certPath" >> $env:GITHUB_ENV
       - name: Get version from pubspec.yaml
         id: get_version
         shell: pwsh
@@ -114,20 +125,38 @@ jobs:
           }
           Write-Error "Version not found"; exit 1
 
-      - name: Package Windows exe
-        run: fastforge package --platform windows --targets exe
+      # 👇 关键修改：同时打包 exe 和 msix
+      - name: Package Windows (exe + msix)
+        run: fastforge package --platform windows --targets exe,msix
 
-      - name: Rename installer
+      - name: Rename installers
+        shell: pwsh
+        env:
+          MSIX_CERT_PATH: ${{ env.MSIX_CERT_PATH }}
+          MSIX_CERT_PASSWORD: xxxx
         run: |
           $VERSION = "${{ steps.get_version.outputs.version }}"
-          $SRC = Get-ChildItem "dist\$VERSION" -Filter "*.exe" | Select-Object -First 1
-          Copy-Item $SRC.FullName "PureLive-$VERSION-windows-x64-setup.exe"
+          $DIST_DIR = "dist"
 
-      - name: 上传Windows安装包
+          # Find and rename .exe
+          $EXE_FILE = Get-ChildItem $DIST_DIR -Recurse -Filter "*.exe" | Select-Object -First 1
+          if ($EXE_FILE) {
+            Copy-Item $EXE_FILE.FullName "PureLive-$VERSION-windows-x64-setup.exe"
+          }
+
+          # Find and rename .msix
+          $MSIX_FILE = Get-ChildItem $DIST_DIR -Recurse -Filter "*.msix" | Select-Object -First 1
+          if ($MSIX_FILE) {
+            Copy-Item $MSIX_FILE.FullName "PureLive-$VERSION-windows-x64.msix"
+          }
+
+      - name: 上传Windows安装包（exe + msix）
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
+          path: |
+            PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
+            PureLive-${{ steps.get_version.outputs.version }}-windows-x64.msix
           retention-days: 1
 
   build-macos:
@@ -214,6 +243,8 @@ jobs:
           |Windows/macOS/Android版|[pure_live](https://github.com/liuchuancong/pure_live/releases/latest)|
 
           ### 🖥️ Windows 版
+          - **EXE 安装包**：适合所有用户，自动创建快捷方式
+          - **MSIX 包**：现代应用格式，支持干净卸载（需 Windows 10/11）
           - 适配：Win10/11 (x64)，自动创建桌面快捷方式
           - 功能：多直播源、WebDAV、弹幕显示
           - 快捷键：空格(播放/暂停) \| ESC(全屏切换) \| 上下键(音量) \| R(刷新)
@@ -244,6 +275,7 @@ jobs:
             artifacts/android-apks/app-arm64-v8a-release.apk
             artifacts/android-apks/app-x86_64-release.apk
             artifacts/windows-installer/*.exe
+            artifacts/windows-installer/*.msix
             artifacts/macos-dmg/*.dmg
 
       - name: 输出状态
