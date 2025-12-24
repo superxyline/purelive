@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
@@ -15,39 +16,7 @@ Future<void> landScape() async {
     } else if (Platform.isAndroid || Platform.isIOS) {
       await AutoOrientation.landscapeAutoMode(forceSensor: true);
     } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-      await windowManager.setHasShadow(false); // 去掉阴影
-      await windowManager.setAsFrameless(); // 设置为无边框模式
-      await windowManager.setFullScreen(true);
-      // 1. 獲取目前視窗的中心點
-      Rect windowRect = await windowManager.getBounds();
-      Offset center = windowRect.center;
-
-      // 2. 獲取所有顯示器
-      List<Display> displays = await screenRetriever.getAllDisplays();
-
-      // 3. 尋找視窗中心點在哪個顯示器範圍內
-      Display currentDisplay = displays.firstWhere((display) {
-        // 注意：這裡使用 visiblePosition 或 bounds.topLeft
-        final Offset origin = display.visiblePosition ?? Offset.zero;
-        final Size size = display.size;
-
-        return center.dx >= origin.dx &&
-            center.dx <= origin.dx + size.width &&
-            center.dy >= origin.dy &&
-            center.dy <= origin.dy + size.height;
-      }, orElse: () => displays.first);
-
-      // 4. 根據找到的螢幕設定全螢幕範圍
-      await windowManager.setBounds(
-        Rect.fromLTWH(
-          currentDisplay.visiblePosition!.dx,
-          currentDisplay.visiblePosition!.dy,
-          currentDisplay.size.width,
-          currentDisplay.size.height,
-        ),
-      );
-
-      await windowManager.setAlwaysOnTop(false);
+      await doEnterWindowFullScreen();
     }
   } catch (exception, stacktrace) {
     debugPrint(exception.toString());
@@ -64,38 +33,7 @@ Future<void> doEnterFullScreen() async {
   if (Platform.isAndroid || Platform.isIOS) {
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   } else {
-    await windowManager.setHasShadow(false); // 去掉阴影
-    await windowManager.setAsFrameless(); // 设置为无边框模式
-    await windowManager.setFullScreen(true);
-    // 1. 獲取目前視窗的中心點
-    Rect windowRect = await windowManager.getBounds();
-    Offset center = windowRect.center;
-
-    // 2. 獲取所有顯示器
-    List<Display> displays = await screenRetriever.getAllDisplays();
-
-    // 3. 尋找視窗中心點在哪個顯示器範圍內
-    Display currentDisplay = displays.firstWhere((display) {
-      // 注意：這裡使用 visiblePosition 或 bounds.topLeft
-      final Offset origin = display.visiblePosition ?? Offset.zero;
-      final Size size = display.size;
-
-      return center.dx >= origin.dx &&
-          center.dx <= origin.dx + size.width &&
-          center.dy >= origin.dy &&
-          center.dy <= origin.dy + size.height;
-    }, orElse: () => displays.first);
-
-    // 4. 根據找到的螢幕設定全螢幕範圍
-    await windowManager.setBounds(
-      Rect.fromLTWH(
-        currentDisplay.visiblePosition!.dx,
-        currentDisplay.visiblePosition!.dy,
-        currentDisplay.size.width,
-        currentDisplay.size.height,
-      ),
-    );
-    await windowManager.setAlwaysOnTop(false);
+    await doEnterWindowFullScreen();
   }
 }
 
@@ -121,4 +59,39 @@ Future<void> doExitFullScreen() async {
     debugPrint(exception.toString());
     debugPrint(stacktrace.toString());
   }
+}
+
+Future<void> doEnterWindowFullScreen() async {
+  // 1. 先彻底移除装饰和阴影
+  await windowManager.setHasShadow(false);
+  await windowManager.setAsFrameless();
+  // 建议增加：隐藏标题栏，防止 Windows 11 顶部出现细线
+  await windowManager.setTitleBarStyle(TitleBarStyle.hidden, windowButtonVisibility: false);
+
+  Rect windowRect = await windowManager.getBounds();
+  Offset center = windowRect.center;
+  List<Display> displays = await screenRetriever.getAllDisplays();
+
+  Display currentDisplay = displays.firstWhere((display) {
+    final Offset origin = display.visiblePosition ?? Offset.zero;
+    final Size size = display.size;
+    return center.dx >= origin.dx &&
+        center.dx <= origin.dx + size.width &&
+        center.dy >= origin.dy &&
+        center.dy <= origin.dy + size.height;
+  }, orElse: () => displays.first);
+
+  final double x = currentDisplay.visiblePosition!.dx.floorToDouble();
+  final double y = currentDisplay.visiblePosition!.dy.floorToDouble();
+  final double width = currentDisplay.size.width.ceilToDouble();
+  final double height = currentDisplay.size.height.ceilToDouble();
+
+  await windowManager.setBounds(Rect.fromLTWH(x, y, width, height));
+
+  if (Platform.isWindows) {
+    await windowManager.setBackgroundColor(Colors.black);
+  }
+
+  await windowManager.setFullScreen(true);
+  await windowManager.setAlwaysOnTop(false);
 }
