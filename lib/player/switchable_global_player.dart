@@ -8,6 +8,7 @@ import 'package:rxdart/rxdart.dart';
 import 'unified_player_interface.dart';
 import 'package:floating/floating.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 enum PlayerEngine { mediaKit, fijk }
 
@@ -264,7 +265,7 @@ class SwitchableGlobalPlayer {
     _isPlayingSubscription = onPlaying.listen((playing) {
       isPlaying.value = playing;
       if (!hasSetVolume && playing) {
-        setVolume(settings.volume.value);
+        setVolume(PlatformUtils.isMobile ? 1.0 : settings.volume.value);
         hasSetVolume = true;
       }
     });
