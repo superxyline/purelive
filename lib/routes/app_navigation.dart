@@ -46,7 +46,7 @@ class BackButtonObserver extends RouteObserver<PageRoute<dynamic>> {
       try {
         SwitchableGlobalPlayer().stop();
         Get.find<LivePlayController>().success.value = false;
-        doExitFullScreen();
+        WindowService().doExitFullScreen();
         Get.find<LivePlayController>().onDelete();
       } catch (e) {
         log(e.toString());

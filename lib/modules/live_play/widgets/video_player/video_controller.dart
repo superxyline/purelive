@@ -306,7 +306,7 @@ class VideoController with ChangeNotifier {
   void exitFullScreen() async {
     isFullscreen.value = false;
     showSettting.value = false;
-    doExitFullScreen();
+    WindowService().doExitFullScreen();
   }
 
   void toggleFullScreen() async {
@@ -317,7 +317,7 @@ class VideoController with ChangeNotifier {
     });
     if (isFullscreen.value) {
       livePlayController.setNormalScreen();
-      doExitFullScreen();
+      WindowService().doExitFullScreen();
     } else {
       livePlayController.setFullScreen();
       enterFullScreen();
@@ -327,11 +327,11 @@ class VideoController with ChangeNotifier {
   }
 
   void enterFullScreen() {
-    doEnterFullScreen();
+    WindowService().doEnterFullScreen();
     if (globalPlayer.isVerticalVideo.value) {
-      verticalScreen();
+      WindowService().verticalScreen();
     } else {
-      landScape();
+      WindowService().landScape();
     }
   }
 
