@@ -75,7 +75,9 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     success.value = false;
     SwitchableGlobalPlayer().stop();
     tabController.dispose();
-    BackButtonInterceptor.removeByName("live_play_page");
+    if (Platform.isAndroid) {
+      BackButtonInterceptor.removeByName("live_play_page");
+    }
     super.onClose();
   }
 

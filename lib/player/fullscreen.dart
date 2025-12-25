@@ -13,7 +13,7 @@ class WindowService {
   WindowService._internal();
 
   // 用于存储进入全屏前的窗口位置和大小
-  Rect? _normalWindowBounds;
+  static Rect? normalWindowBounds;
 
   //横屏
   Future<void> landScape() async {
@@ -72,10 +72,10 @@ class WindowService {
     await windowManager.setHasShadow(true);
     await windowManager.setTitleBarStyle(TitleBarStyle.normal);
 
-    if (_normalWindowBounds != null) {
-      await windowManager.setBounds(_normalWindowBounds!);
+    if (normalWindowBounds != null) {
+      await windowManager.setBounds(normalWindowBounds!);
     } else {
-      await windowManager.setSize(const Size(1280, 720));
+      await windowManager.setSize(const Size(1080, 720));
       await windowManager.center();
     }
     if (Platform.isWindows) {
@@ -85,7 +85,8 @@ class WindowService {
 
   Future<void> doEnterWindowFullScreen() async {
     // 1. 先彻底移除装饰和阴影
-    _normalWindowBounds = await windowManager.getBounds();
+    await Future.delayed(const Duration(milliseconds: 50));
+    normalWindowBounds = await windowManager.getBounds();
     await windowManager.setHasShadow(false);
     // 建议增加：隐藏标题栏，防止 Windows 11 顶部出现细线
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden, windowButtonVisibility: false);
