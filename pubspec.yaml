@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 2.0.22+33
+version: 0.1.0+1
 
 environment:
   sdk: ^3.10.4
@@ -13,31 +13,21 @@ dependencies:
 
 
   crypto: ^3.0.7 # 加密解密工具库
-  uuid: ^4.5.3 # 生成唯一标识符
   html_unescape: ^2.0.0 # HTML转义字符解码
   brotli: ^0.6.0 # Brotli压缩解压
-  equatable: ^2.0.7
-  xml: ^6.5.0
-  archive: ^4.0.4
   string_similarity: ^2.0.0
-  scrollview_observer: ^1.26.3
   flutter_reorderable_grid_view: ^5.6.0
   pro_mpack: ^2.1.0
   share_plus: ^13.1.0
   photo_view: ^0.15.0
   flutter_json: ^0.1.0
   # Local database (SQLite)
-  drift: ^2.33.0
-  # sqlite3_flutter_libs 0.6.0+eol 是 sqlite3 3.x 的官方占位包，保留可阻止旧 0.5.x 原生构建脚本混入。
-  sqlite3_flutter_libs: ^0.6.0+eol
   charset_converter: ^2.3.0
   synchronized: ^3.1.0
   meta: ^1.18.2
   # -------------------------- 网络请求/网络状态 --------------------------
   http: ^1.1.0 # 基础HTTP请求
   dio: ^5.9.0 # 强大的Dart HTTP客户端
-  dio_cookie_manager: ^3.3.0 # Dio的Cookie管理插件
-  cookie_jar: ^4.0.8 # Cookie持久化存储
   web_socket_channel: ^3.0.1 # WebSocket通信
   connectivity_plus: ^6.1.4 # 网络连接状态监听
   webdav_client: ^1.2.2 # WebDAV文件存储客户端
@@ -86,7 +76,6 @@ dependencies:
   flex_color_picker: ^3.7.2 # 颜色选择器
   flutter_color: ^2.1.0 # 颜色工具
   syncfusion_flutter_sliders: ^33.2.5 # 滑块组件
-  markdown_widget: ^2.3.2+8 # Markdown渲染
 
   # -------------------------- 图标/字体 --------------------------
   remixicon: ^4.9.3 # Remix图标库
@@ -228,7 +217,6 @@ dev_dependencies:
   intl_utils: ^2.8.11 # 国际化工具
   flutter_lints: ^6.0.0 # 代码规范检查
   dmg: ^0.1.7 # macOS安装包打包
-  drift_dev: ^2.33.0
 
 # 应用图标配置
 flutter_icons:

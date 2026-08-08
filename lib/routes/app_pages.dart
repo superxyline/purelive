@@ -1,14 +1,12 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/home/home_page.dart';
 import 'package:pure_live/modules/auth/mine_page.dart';
-import 'package:pure_live/modules/iptv/iptv_page.dart';
 import 'package:pure_live/modules/about/about_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/splash/splash_screen.dart';
-import 'package:pure_live/modules/version/version_page.dart';
 import 'package:pure_live/modules/web_dav/web_dav_page.dart';
 import 'package:pure_live/modules/toolbox/toolbox_page.dart';
 import 'package:pure_live/modules/account/account_bing.dart';
@@ -16,12 +14,10 @@ import 'package:pure_live/modules/account/account_page.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/history/history_page.dart';
 import 'package:pure_live/modules/auth/user_manage_page.dart';
-import 'package:pure_live/modules/about/version_history.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/search/web_search_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/settings/settings_page.dart';
-import 'package:pure_live/modules/version/version_binding.dart';
 import 'package:pure_live/modules/web_dav/web_dav_binding.dart';
 import 'package:pure_live/modules/toolbox/boolbox_binding.dart';
 import 'package:pure_live/modules/tags/tag_management_page.dart';
@@ -47,8 +43,6 @@ import 'package:pure_live/modules/account/huya/huya_cookie_binding.dart';
 import 'package:pure_live/recorder/pages/recorder/recorder_binding.dart';
 import 'package:pure_live/modules/account/douyin/douyin_cookie_page.dart';
 import 'package:pure_live/modules/account/douyin/douyin_cookie_binding.dart';
-import 'package:pure_live/modules/account/kuaishou/kuaishou_cookie_page.dart';
-import 'package:pure_live/modules/account/kuaishou/kuaishou_cookie_binding.dart';
 import 'package:pure_live/recorder/pages/record_settings/record_settings_page.dart';
 import 'package:pure_live/recorder/pages/record_settings/record_settings_binding.dart';
 
@@ -69,7 +63,6 @@ class AppPages {
     GetPage(name: RoutePath.kHistory, page: HistoryPage.new),
     GetPage(name: RoutePath.kSearch, page: SearchPage.new, bindings: [SearchBinding()]),
     GetPage(name: RoutePath.kBackup, page: BackupPage.new),
-    GetPage(name: RoutePath.kIptv, page: IptvPage.new),
     GetPage(name: RoutePath.kAbout, page: AboutPage.new),
     GetPage(
       name: RoutePath.kAreaRooms,
@@ -103,8 +96,6 @@ class AppPages {
     ),
     GetPage(name: RoutePath.kSettingsHotAreas, page: () => const HotAreasPage(), bindings: [HotAreasBinding()]),
 
-    GetPage(name: RoutePath.kVersionHistory, page: () => const VersionHistoryPage()),
-
     GetPage(name: RoutePath.kToolbox, page: () => const ToolBoxPage(), bindings: [ToolBoxBinding()]),
 
     GetPage(name: RoutePath.kFavoriteAreas, page: () => const FavoriteAreasPage(), bindings: [FavoriteAreasBinding()]),
@@ -112,12 +103,6 @@ class AppPages {
     GetPage(name: RoutePath.kHuyaCookie, page: () => const HuyaCookiePage(), bindings: [HuyaCookieBinding()]),
 
     GetPage(name: RoutePath.kDouyuCookie, page: () => const DouyinCookiePage(), bindings: [DouyinCookieBinding()]),
-
-    GetPage(
-      name: RoutePath.kKuaishouCookie,
-      page: () => const KuaishouCookiePage(),
-      bindings: [KuaishouCookieBinding()],
-    ),
 
     GetPage(name: RoutePath.kWebDavPage, page: () => WebDavPage(), bindings: [WebDavBinding()]),
 
@@ -157,8 +142,6 @@ class AppPages {
         );
       },
     ),
-    // VersionPage
-    GetPage(name: RoutePath.kVersionPage, page: () => const VersionPage(), bindings: [VersionBinding()]),
     GetPage(name: RoutePath.kRecordPage, page: () => const RecorderPage(), bindings: [RecorderBinding()]),
     GetPage(
       name: RoutePath.kRecordSettings,

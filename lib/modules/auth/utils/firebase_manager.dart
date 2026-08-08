@@ -10,6 +10,7 @@ import 'package:pure_live/plugins/archethic.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pure_live/modules/auth/auth_controller.dart';
 import 'package:pure_live/common/services/settings/backup_controller.dart';
 
@@ -168,12 +169,13 @@ class FirebaseManager {
     final BackupController backup = Get.find<BackupController>();
     final encryptData = ArchethicUtils().encrypt(jsonEncode(backup.exportAllSettings()));
     final formattedTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
     try {
       await firestore.collection('users').doc(userId).set({
         'config': encryptData,
         'email': secureUser.email ?? '',
-        'version': VersionUtil.version,
+        'version': packageInfo.version,
         'update_at': formattedTime,
         'created_at': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));

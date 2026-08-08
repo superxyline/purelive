@@ -204,14 +204,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     final roomId = detail.value?.roomId;
     if (roomId == null) return LiveRoom();
     var liveRoom = await currentSite.liveSite.getRoomDetail(roomId: roomId, platform: detail.value!.platform!);
-    // ================= IPTV =================
-    bool isIptv = currentSite.id == Sites.iptvSite;
-    if (isIptv) {
-      detail.value = null;
-      detail.value = liveRoom;
-      _initIptvPlayer();
-      return detail.value!;
-    }
 
     handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, isReCalculate: isReCalculate);
 
@@ -235,13 +227,8 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
       isLiving.value = true;
 
       await getPlayQualites();
-      if (liveRoom.platform != Sites.iptvSite) {
-        SettingsService.to.history.addRoomToHistory(liveRoom);
-      }
-
-      const except = [Sites.kuaishouSite, Sites.iptvSite, Sites.ccSite];
-
-      if (!except.contains(liveRoom.platform) && SettingsService.to.danmaku.enableDanmakuDisplay.v) {
+              SettingsService.to.history.addRoomToHistory(liveRoom);
+if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
         final needReconnect = _needReconnectDanmaku(liveRoom);
         if (needReconnect) {
           liveDanmaku.stop();
@@ -310,25 +297,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     );
   }
 
-  // ================= IPTV =================
-  void _initIptvPlayer() {
-    final link = detail.value?.link;
-    log(' IPTV link: ${detail.value?.link}');
-    if (link == null || link.isEmpty) {
-      ToastUtil.show(i18n('invalid_play_url'));
-      return;
-    }
-
-    qualites = RxList([LivePlayQuality(quality: '原画')]);
-    currentQuality.value = 0;
-    currentLineIndex.value = 0;
-    playUrls.value = [link];
-
-    setPlayer();
-    if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
-      liveDanmaku.stop();
-    }
-  }
 
   void handleCurrentLineAndQuality({
     ReloadDataType reloadDataType = ReloadDataType.refreash,
@@ -426,10 +394,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     } else if (currentSite.id == Sites.huyaSite) {
       final ua = await HuyaSite().getHuYaUA();
       headers = {"user-agent": ua, "origin": "https://www.huya.com"};
-    } else if (currentSite.id == Sites.iptvSite) {
-      if (SettingsService.to.iptv.customIptvUserAgent.v.isNotEmpty) {
-        headers = {"user-agent": SettingsService.to.iptv.customIptvUserAgent.v};
-      }
     }
 
     GlobalPlayerState().setCurrentRoom(room.roomId!);
@@ -564,14 +528,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
       naviteUrl =
           "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${detail.value?.roomId}";
       webUrl = "https://www.douyu.com/${detail.value?.roomId}";
-    } else if (site == Sites.ccSite) {
-      log(detail.value!.userId.toString(), name: "cc_user_id");
-      naviteUrl = "cc://join-room/${detail.value?.roomId}/${detail.value?.userId}/";
-      webUrl = "https://cc.163.com/${detail.value?.roomId}";
-    } else if (site == Sites.kuaishouSite) {
-      naviteUrl =
-          "kwai://liveaggregatesquare?liveStreamId=${detail.value?.link}&recoStreamId=${detail.value?.link}&recoLiveStreamId=${detail.value?.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
-      webUrl = "https://live.kuaishou.com/u/${detail.value?.roomId}";
     }
     try {
       if (Platform.isAndroid) {

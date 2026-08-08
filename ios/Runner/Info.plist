@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Pure Live</string>
+	<string>纯粹直播（自定义版）</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

@@ -2,9 +2,6 @@ import java.util.Properties // 添加Properties类的导入
 
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
-    id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
@@ -49,7 +46,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.mystyle.purelive"
+        // 自定义构建使用独立包名，可与原作者应用共存安装
+        applicationId = "com.superxyline.purelive"
         minSdk = flutter.minSdkVersion 
         multiDexEnabled = true 
         targetSdk = flutter.targetSdkVersion

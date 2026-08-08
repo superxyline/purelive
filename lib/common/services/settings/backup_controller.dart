@@ -10,7 +10,6 @@ import 'package:pure_live/common/services/settings/window_size_controller.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
 import 'package:pure_live/common/services/settings/font_settings_controller.dart';
-import 'package:pure_live/common/services/settings/iptv_settings_controller.dart';
 import 'package:pure_live/common/services/settings/exit_settings_controller.dart';
 import 'package:pure_live/common/services/settings/page_settings_controller.dart';
 import 'package:pure_live/common/services/settings/refresh_config_controller.dart';
@@ -44,7 +43,6 @@ class BackupController extends GetxController {
       'favorite': Get.find<FavoriteRoomController>().toJson(),
       'history': Get.find<HistoryController>().toJson(),
       'webdav': Get.find<WebDavController>().toJson(),
-      'iptv': Get.find<IptvSettingsController>().toJson(),
       'cookie': Get.find<CookieSettingsController>().toJson(),
       'proxy': Get.find<ProxySettingsController>().toJson(),
       'windowSize': Get.find<WindowSizeController>().toJson(),
@@ -98,8 +96,6 @@ class BackupController extends GetxController {
 
     Get.find<WebDavController>().fromJson(Map<String, dynamic>.from(data['webdav'] ?? {}));
 
-    Get.find<IptvSettingsController>().fromJson(Map<String, dynamic>.from(data['iptv'] ?? {}));
-
     Get.find<CookieSettingsController>().fromJson(Map<String, dynamic>.from(data['cookie'] ?? {}));
 
     Get.find<ProxySettingsController>().fromJson(Map<String, dynamic>.from(data['proxy'] ?? {}));
@@ -134,7 +130,6 @@ class BackupController extends GetxController {
     Get.find<FavoriteRoomController>().fromJson(data);
     Get.find<HistoryController>().fromJson(data);
     Get.find<WebDavController>().fromJson(data);
-    Get.find<IptvSettingsController>().fromJson(data);
     Get.find<CookieSettingsController>().fromJson(data);
     Get.find<ProxySettingsController>().fromJson(data);
     Get.find<WindowSizeController>().fromJson(data);
@@ -182,10 +177,9 @@ class BackupController extends GetxController {
   Map<String, dynamic> exportToTVSettings() {
     final danmaku = Get.find<DanmakuSettingsController>().toJson();
     final cookie = Get.find<CookieSettingsController>().toJson();
-    final iptv = Get.find<IptvSettingsController>().toJson();
     final favorite = Get.find<FavoriteRoomController>().toJson();
     final history = Get.find<HistoryController>().toJson();
 
-    return {...danmaku, ...cookie, ...favorite, ...history, 'customIptvUserAgent': iptv['customIptvUserAgent']};
+    return {...danmaku, ...cookie, ...favorite, ...history};
   }
 }

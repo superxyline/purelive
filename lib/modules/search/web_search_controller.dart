@@ -134,12 +134,6 @@ class WebSearchController extends GetxController {
       } else if (host.endsWith('douyu.com')) {
         final match = RegExp(r'^\/(\d+)').firstMatch(uri.path);
         result = match?.group(1);
-      } else if (host == 'live.kuaishou.com') {
-        final match = RegExp(r'\/u\/([^/?#]+)').firstMatch(uri.path);
-        result = match?.group(1);
-      } else if (host == 'cc.163.com') {
-        final match = RegExp(r'^\/(\d+)').firstMatch(uri.path);
-        result = match?.group(1);
       } else if (host == 'live.bilibili.com') {
         final match = RegExp(r'^\/(\d+)').firstMatch(uri.path);
         result = match?.group(1);

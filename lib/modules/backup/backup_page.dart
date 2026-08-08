@@ -20,7 +20,6 @@ class BackupPage extends StatefulWidget {
 class _BackupPageState extends State<BackupPage> {
   final LogController logController = LogController.to;
   String get backupDirectory => SettingsService.to.backup.backupDirectory.v;
-  String get m3uDirectory => SettingsService.to.iptv.m3uDirectory.v;
 
   Future<void> _openLogDirectory() async {
     try {

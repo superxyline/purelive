@@ -23,12 +23,6 @@ class GeneralSettingsPage extends GetView<SettingsService> {
               icon: Remix.rocket_2_line,
             ),
             context.buildSwitchTile(
-              title: i18n('enable_auto_check_update'),
-              subtitle: "",
-              value: SettingsService.to.app.enableAutoCheckUpdate,
-              icon: Remix.refresh_line,
-            ),
-            context.buildSwitchTile(
               title: i18n('enable_countdown_close'),
               subtitle: i18n('enable_countdown_close_subtitle'),
               value: SettingsService.to.exit.enableAutoShutDownTime,

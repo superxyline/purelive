@@ -18,10 +18,6 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
   String buildSearchUrl(String platform, String keyword) {
     final q = Uri.encodeComponent(keyword);
     switch (platform) {
-      case Sites.ccSite:
-        return "https://cc.163.com/search/all/?query=$q&only=all";
-      case Sites.kuaishouSite:
-        return "https://live.kuaishou.com/search?keyword=$q";
       case Sites.huyaSite:
         return "https://www.huya.com/search?hsk=$q";
       case Sites.bilibiliSite:

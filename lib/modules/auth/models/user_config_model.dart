@@ -44,7 +44,6 @@ class UserConfigModel {
   final Map<String, dynamic> favorite;
   final Map<String, dynamic> history;
   final Map<String, dynamic> webdav;
-  final Map<String, dynamic> iptv;
   final Map<String, dynamic> cookie;
   final Map<String, dynamic> proxy;
   final Map<String, dynamic> windowSize;
@@ -65,7 +64,6 @@ class UserConfigModel {
     required this.favorite,
     required this.history,
     required this.webdav,
-    required this.iptv,
     required this.cookie,
     required this.proxy,
     required this.windowSize,
@@ -88,7 +86,6 @@ class UserConfigModel {
       favorite: Map<String, dynamic>.from(map['favorite'] ?? {}),
       history: Map<String, dynamic>.from(map['history'] ?? {}),
       webdav: Map<String, dynamic>.from(map['webdav'] ?? {}),
-      iptv: Map<String, dynamic>.from(map['iptv'] ?? {}),
       cookie: Map<String, dynamic>.from(map['cookie'] ?? {}),
       proxy: Map<String, dynamic>.from(map['proxy'] ?? {}),
       windowSize: Map<String, dynamic>.from(map['windowSize'] ?? {}),
@@ -112,7 +109,6 @@ class UserConfigModel {
       'favorite': favorite,
       'history': history,
       'webdav': webdav,
-      'iptv': iptv,
       'cookie': cookie,
       'proxy': proxy,
       'windowSize': windowSize,

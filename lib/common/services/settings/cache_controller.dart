@@ -16,8 +16,7 @@ class CacheController extends GetxController {
     final recordsDir = await AppPathManager().recordsDir;
     final imageCacheDir = await AppPathManager().imageCacheDir;
     final downloadDir = await AppPathManager().downloadDir;
-    final iptvCacheDir = await AppPathManager().iptvCacheDir;
-    final List<Directory> targetDirs = [recordsDir, imageCacheDir, downloadDir, iptvCacheDir];
+    final List<Directory> targetDirs = [recordsDir, imageCacheDir, downloadDir];
 
     double totalSizeBytes = 0;
     for (final dir in targetDirs) {
@@ -37,8 +36,7 @@ class CacheController extends GetxController {
     final recordsDir = await AppPathManager().recordsDir;
     final imageCacheDir = await AppPathManager().imageCacheDir;
     final downloadDir = await AppPathManager().downloadDir;
-    final iptvCacheDir = await AppPathManager().iptvCacheDir;
-    final List<Directory> dirs = [recordsDir, imageCacheDir, downloadDir, iptvCacheDir];
+    final List<Directory> dirs = [recordsDir, imageCacheDir, downloadDir];
 
     for (final dir in dirs) {
       if (!dir.existsSync()) continue;

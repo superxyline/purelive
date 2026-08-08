@@ -11,8 +11,6 @@ class AppPathManager {
 
   static const String dirAppData = 'AppData';
   static const String softNameDir = 'PURE_LIVE';
-  static const String dirIptvCache = 'IPTV_CACHE';
-  static const String iptvTable = 'pure_live_tv';
   static const String dirDownload = 'DOWNLOADS';
   static const String dirLogs = 'LOGS';
   static const String dirHiveDB = 'HIVE_DB';
@@ -20,9 +18,6 @@ class AppPathManager {
   static const String dirRecords = 'RECORDS';
   static const String dirEmojiCache = 'EMOJI_CACHE';
   static const String fontCacheDir = 'fontsDir';
-  static const String iptvCategoryFile = 'categories.json';
-  static const String iptvHotFile = 'hot.m3u';
-  static const String iptvHotRemoteFile = 'https://raw.githubusercontent.com/YueChan/Live/main/GNTV.m3u';
 
   String? _basePath;
 
@@ -162,7 +157,6 @@ class AppPathManager {
     return directory;
   }
 
-  Future<Directory> get iptvCacheDir => getDir(dirIptvCache);
   Future<Directory> get downloadDir => getDir(dirDownload);
   Future<Directory> get logsDir => getDir(dirLogs);
   Future<Directory> get hiveDbDir => getDir(dirHiveDB);

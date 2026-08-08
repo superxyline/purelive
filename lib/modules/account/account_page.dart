@@ -63,20 +63,6 @@ class AccountPage extends GetView<AccountController> {
               );
             }),
 
-            Obx(() {
-              final isLogined = cookie.kuaishouCookie.v.isNotEmpty;
-              return _buildAccountTile(
-                context,
-                logo: 'assets/images/kuaishou.png',
-                title: i18n("site_kuaishou"),
-                subtitle: isLogined ? i18n("logined") : i18n("set_cookie"),
-                isLogined: isLogined,
-                onTap: () => isLogined
-                    ? _showPlatformLogoutDialog(context, () => cookie.kuaishouCookie.v = "")
-                    : Get.toNamed(RoutePath.kKuaishouCookie),
-              );
-            }),
-
             _buildAccountTile(
               context,
               logo: 'assets/images/douyu.png',

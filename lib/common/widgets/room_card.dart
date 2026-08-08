@@ -2,7 +2,6 @@ import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/widgets/common_avatar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/common/utils/share_command_handler.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 
@@ -612,42 +611,7 @@ class RoomCard extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     color: isDark ? Colors.grey[850] : Colors.grey[100],
 
-                    child: room.platform == Sites.iptvSite
-                        ? CachedNetworkImage(
-                            imageUrl: room.cover!,
-                            cacheManager: CustomImageCacheManager.instance,
-                            fit: BoxFit.cover,
-                            fadeInDuration: const Duration(milliseconds: 250),
-                            fadeOutDuration: const Duration(milliseconds: 250),
-                            placeholder: (context, url) => Container(
-                              color: Theme.of(context).focusColor,
-                              child: const Center(
-                                child: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: AppStatusView(
-                                    type: AppStatusType.loading,
-                                    title: "",
-                                    subtitle: "",
-                                    isMini: true,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) {
-                              return Container(
-                                color: Theme.of(context).focusColor,
-                                child: Center(
-                                  child: Icon(
-                                    Icons.broken_image_rounded,
-                                    size: dense ? 36 : 60,
-                                    color: Theme.of(context).disabledColor,
-                                  ),
-                                ),
-                              );
-                            },
-                          )
-                        : Image.network(
+                    child: Image.network(
                             room.cover!,
                             fit: BoxFit.cover,
                             gaplessPlayback: false,

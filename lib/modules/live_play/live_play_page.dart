@@ -384,9 +384,8 @@ class LivePlayPage extends GetView<LivePlayController> {
                           buildVideoPlayer(),
                           const ResolutionsRow(),
                           const Divider(height: 1),
-                          // ====================== IPTV 优化 ======================
                           Obx(() {
-                            if (controller.success.isFalse || controller.site == Sites.iptvSite) {
+                            if (controller.success.isFalse) {
                               return const SizedBox.shrink();
                             }
                             final state = GlobalPlayerState.to;
@@ -404,14 +403,13 @@ class LivePlayPage extends GetView<LivePlayController> {
                             bool isRoomExits = controller.detail.value != null;
                             return isRoomExits
                                 ? SizedBox(
-                                    width: controller.detail.value!.platform == Sites.iptvSite ? 0 : 400,
+                                    width: 400,
                                     child: Column(
                                       children: [
                                         const ResolutionsRow(),
                                         const Divider(height: 1),
                                         Obx(() {
-                                          if (controller.success.isFalse ||
-                                              controller.detail.value!.platform == Sites.iptvSite) {
+                                          if (controller.success.isFalse) {
                                             return const SizedBox.shrink();
                                           }
                                           final state = GlobalPlayerState.to;
@@ -640,8 +638,6 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
   LivePlayController get controller => Get.find<LivePlayController>();
 
   Widget buildInfoCount() {
-    // ====================== IPTV 不显示观看人数 ======================
-    if (controller.site == Sites.iptvSite) return const SizedBox.shrink();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

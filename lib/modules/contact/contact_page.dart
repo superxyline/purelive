@@ -10,6 +10,10 @@ class ContactPage extends StatefulWidget {
 }
 
 class _ContactPageState extends State<ContactPage> {
+  static const String _email = '17792321552@163.com';
+  static const String _emailUrl = 'mailto:17792321552@163.com?subject=PureLive Feedback';
+  static const String _projectUrl = 'https://gitee.com/superxyline/purelive';
+
   void clipboard(String text) {
     Clipboard.setData(ClipboardData(text: text)).then((value) => SnackBarUtil.success(i18n('copied_to_clipboard')));
   }
@@ -25,18 +29,18 @@ class _ContactPageState extends State<ContactPage> {
           ListTile(
             leading: const Icon(CustomIcons.mail_squared, size: 34),
             title: Text(i18n("email")),
-            subtitle: const Text(VersionUtil.email),
-            onLongPress: () => clipboard(VersionUtil.email),
+            subtitle: const Text(_email),
+            onLongPress: () => clipboard(_email),
             onTap: () {
-              launchUrl(Uri.parse(VersionUtil.emailUrl), mode: LaunchMode.externalApplication);
+              launchUrl(Uri.parse(_emailUrl), mode: LaunchMode.externalApplication);
             },
           ),
           ListTile(
             leading: const Icon(CustomIcons.github_circled, size: 32),
-            title: Text(i18n("github")),
-            subtitle: const Text(VersionUtil.githubUrl),
+            title: Text(i18n("project_page")),
+            subtitle: const Text(_projectUrl),
             onTap: () {
-              launchUrl(Uri.parse(VersionUtil.githubUrl), mode: LaunchMode.externalApplication);
+              launchUrl(Uri.parse(_projectUrl), mode: LaunchMode.externalApplication);
             },
           ),
         ],

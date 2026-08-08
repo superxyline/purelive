@@ -1,9 +1,8 @@
-import 'widgets/version_dialog.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:markdown_widget/config/configs.dart';
-import 'package:markdown_widget/widget/markdown_block.dart';
 import 'package:remixicon/remixicon.dart'; // 🌟 Imported Remix Icons pack
+
+import 'package:package_info_plus/package_info_plus.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -13,6 +12,22 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
+  static const String _projectUrl = 'https://gitee.com/superxyline/purelive';
+
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() => _appVersion = info.version);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -66,7 +81,7 @@ class _AboutPageState extends State<AboutPage> {
                     border: Border.all(color: theme.dividerColor.withValues(alpha: 0.05), width: 0.5),
                   ),
                   child: Text(
-                    'v${VersionUtil.version}',
+                    'v$_appVersion',
                     style: AppTextStyles.t11.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
@@ -81,28 +96,7 @@ class _AboutPageState extends State<AboutPage> {
           const SizedBox(height: 8),
           context.buildModernCard([
             context.buildTile(
-              icon: Remix.download_cloud_2_line,
-              title: i18n("online_update"),
-              trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  'v${VersionUtil.version}',
-                  style: AppTextStyles.t11.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w600),
-                ),
-              ),
-              onTap: () => Get.toNamed(RoutePath.kVersionPage),
-            ),
-            context.buildTile(
-              icon: Remix.history_line,
-              title: i18n("history"),
-              subtitle: i18n("history_desc"),
-              onTap: () => Get.toNamed(RoutePath.kVersionHistory),
-            ),
-            context.buildTile(icon: Remix.shield_user_line, title: i18n("license"), onTap: openLicensePage),
+              icon: Remix.shield_user_line, title: i18n("license"), onTap: openLicensePage),
           ]),
           const SizedBox(height: 24),
           context.buildGroupTitle(i18n("project")),
@@ -111,10 +105,10 @@ class _AboutPageState extends State<AboutPage> {
             context.buildTile(
               icon: Remix.code_s_slash_line,
               title: i18n("project_page"),
-              subtitle: VersionUtil.projectUrl,
+              subtitle: _projectUrl,
               isLong: true,
               onTap: () {
-                launchUrl(Uri.parse(VersionUtil.projectUrl), mode: LaunchMode.externalApplication);
+                launchUrl(Uri.parse(_projectUrl), mode: LaunchMode.externalApplication);
               },
             ),
             buildTile(
@@ -198,19 +192,13 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  void showCheckUpdateDialog(BuildContext context) async {
-    showDialog(
-      context: Get.context!,
-      builder: (context) => VersionUtil.hasNewVersion() ? NewVersionDialog() : NoNewVersionDialog(),
-    );
-  }
 
   void openLicensePage() {
     showLicensePage(
       context: Get.context!,
       applicationName: i18n("app_name"),
       applicationLegalese: i18n("app_legalese"),
-      applicationVersion: VersionUtil.version,
+      applicationVersion: _appVersion,
       useRootNavigator: true,
       applicationIcon: Padding(
         padding: const EdgeInsets.all(12),
@@ -219,39 +207,4 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  void showNewFeaturesDialog() {
-    final config = Get.isDarkMode ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig;
-    final mediaQuery = MediaQuery.of(context);
-    final maxWidth = mediaQuery.size.width * 0.9;
-    final maxHeight = mediaQuery.size.height * 0.7;
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(i18n("what_is_new")),
-          content: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      launchUrl(Uri.parse('https://github.com'), mode: LaunchMode.externalApplication);
-                    },
-                    child: Text(i18n("open_source_free"), style: AppTextStyles.t20),
-                  ),
-                  MarkdownBlock(data: VersionUtil.latestUpdateLog, config: config),
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-          ),
-          actionsAlignment: MainAxisAlignment.start,
-        );
-      },
-    );
-  }
 }

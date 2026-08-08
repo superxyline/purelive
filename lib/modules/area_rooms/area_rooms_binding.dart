@@ -10,9 +10,6 @@ class AreaRoomsBinding extends Binding {
 
     return [
       Bind.lazyPut<BasePageScrollAndStateBone<LiveRoom>>(() {
-        if (site.id == Sites.kuaishouSite) {
-          return AreaServerAllController(site, subCategory);
-        }
         if (site.id == Sites.douyuSite) {
           return AreaServerFixedController(site, subCategory, fixedSize: 40);
         }

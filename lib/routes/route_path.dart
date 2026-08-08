@@ -37,7 +37,6 @@ class RoutePath {
   static const kAbout = "/about";
 
   /// 版本历史记录
-  static const kVersionHistory = "/version_history";
 
   /// 历史记录
   static const kHistory = "/history";
@@ -83,9 +82,7 @@ class RoutePath {
 
   static const kDouyuCookie = "/douyu_cookie";
 
-  static const kKuaishouCookie = "/kuaishou_cookie";
 
-  static const kVersionPage = "/version_page";
 
   static const kRecordPage = "/record_mannager";
 
@@ -95,7 +92,6 @@ class RoutePath {
 
   static const kWebSearch = "/web_search";
 
-  static const kIptv = "/iptv";
 
   static const kSettingsTags = '/settingTags';
 }

@@ -1,6 +1,5 @@
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/iptv/iptv_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/settings/pages/refresh_settings.dart';
 import 'package:pure_live/modules/settings/pages/theme_settings_page.dart';
@@ -51,16 +50,6 @@ class SettingsPage extends GetView<SettingsService> {
             ),
           ]),
 
-          const SizedBox(height: 20),
-          context.buildGroupTitle(i18n("iptv_settings")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.tv_line,
-              title: i18n("iptv_settings"),
-              subtitle: i18n("manage_iptv_sources"),
-              onTap: () => Get.to(() => const IptvPage()),
-            ),
-          ]),
           const SizedBox(height: 20),
           context.buildGroupTitle(i18n("refresh_settings")),
           context.buildModernCard([

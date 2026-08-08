@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
@@ -9,9 +8,7 @@ import 'package:pure_live/player/utils/player_consts.dart';
 import 'package:pure_live/player/models/player_engine.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
-import 'package:pure_live/core/iptv/services/epg_import_manager.dart';
 import 'package:pure_live/common/global/platform/desktop_manager.dart';
-import 'package:pure_live/core/iptv/services/iptv_import_manager.dart';
 
 void main(List<String> args) async {
   await AppInitializer().initialize(args);
@@ -41,7 +38,6 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
     if (PlatformUtils.isDesktop) {
       DesktopManager.initializeListeners(this);
     }
-    initSharedMediaListener();
     initGlopalPlayer();
   }
 
@@ -66,24 +62,6 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
     }
     GlobalPlayerService.instance.playerManager.dispose();
     super.dispose();
-  }
-
-  Future<void> initSharedMediaListener() async {
-    if (Platform.isAndroid) {
-      final handler = ShareHandler.instance;
-      await handler.getInitialSharedMedia();
-      handler.sharedMediaStream.listen((SharedMedia media) async {
-        final path = media.content?.trim().toLowerCase() ?? '';
-        if (path.isEmpty) return;
-        if (path.endsWith('.m3u') || path.endsWith('.txt') || path.contains('.m3u8')) {
-          await IptvImportManager().importFromSharedMedia(media);
-        } else if (path.endsWith('.xml') || path.endsWith('.gz') || path.endsWith('.json')) {
-          await EpgImportManager().importFromSharedMedia(media);
-        } else {
-          ToastUtil.show(i18n("unsupported_file_format"));
-        }
-      });
-    }
   }
 
   @override
