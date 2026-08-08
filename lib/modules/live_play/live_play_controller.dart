@@ -15,7 +15,6 @@ import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
-import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
 import 'package:pure_live/recorder/pages/recorder/recorder_controller.dart';
 
@@ -88,7 +87,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
   Future<void> _initCore() async {
     _initState();
     _initTab();
-    _initBackInterceptor();
     _initDebounce();
     _initTimer();
     await _preloadEmoji();
@@ -106,12 +104,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
 
   void _initTab() {
     tabController = TabController(length: tabs.length, vsync: this);
-  }
-
-  void _initBackInterceptor() {
-    if (Platform.isAndroid) {
-      BackButtonInterceptor.add(myInterceptor, zIndex: 1, name: "live_play_page");
-    }
   }
 
   void _initPlayer() {
@@ -165,7 +157,8 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     return false;
   }
 
-  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+  /// 返回键处理：返回 true 表示事件已消费，false 表示允许页面正常退出。
+  bool handleBackPress() {
     if (isMenuOpen) {
       Navigator.of(Get.context!).pop();
       isMenuOpen = false;
@@ -191,9 +184,6 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
   void _disposeAll() {
     tabController.dispose();
     _stopWatchTimer.onStopTimer();
-    if (Platform.isAndroid) {
-      BackButtonInterceptor.removeByName("live_play_page");
-    }
     if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
       liveDanmaku.stop();
     }

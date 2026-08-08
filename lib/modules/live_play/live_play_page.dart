@@ -24,49 +24,58 @@ class LivePlayPage extends GetView<LivePlayController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      _updateWakelock();
-      final manager = GlobalPlayerService.instance.playerManager;
-      final isInPip = manager.isInPip.value;
-      final mode = controller.screenMode.value;
-      if (controller.videoController.value != null) {
-        return VideoKeyboardShortcuts(
-          controller: controller.videoController.value!,
-          child: Container(
-            color: Colors.black,
-            width: double.infinity,
-            height: double.infinity,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 50),
-              child: _buildConstrainedChild(isInPip, mode, context),
-              layoutBuilder: (currentChild, previousChildren) {
-                return Stack(
-                  alignment: Alignment.center,
-                  fit: StackFit.expand,
-                  children: <Widget>[...previousChildren, ?currentChild],
-                );
-              },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (!controller.handleBackPress()) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Obx(() {
+        _updateWakelock();
+        final manager = GlobalPlayerService.instance.playerManager;
+        final isInPip = manager.isInPip.value;
+        final mode = controller.screenMode.value;
+        if (controller.videoController.value != null) {
+          return VideoKeyboardShortcuts(
+            controller: controller.videoController.value!,
+            child: Container(
+              color: Colors.black,
+              width: double.infinity,
+              height: double.infinity,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 50),
+                child: _buildConstrainedChild(isInPip, mode, context),
+                layoutBuilder: (currentChild, previousChildren) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    fit: StackFit.expand,
+                    children: <Widget>[...previousChildren, ?currentChild],
+                  );
+                },
+              ),
             ),
+          );
+        }
+        return Container(
+          color: Colors.black,
+          width: double.infinity,
+          height: double.infinity,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 50),
+            child: _buildConstrainedChild(isInPip, mode, context),
+            layoutBuilder: (currentChild, previousChildren) {
+              return Stack(
+                alignment: Alignment.center,
+                fit: StackFit.expand,
+                children: <Widget>[...previousChildren, ?currentChild],
+              );
+            },
           ),
         );
-      }
-      return Container(
-        color: Colors.black,
-        width: double.infinity,
-        height: double.infinity,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 50),
-          child: _buildConstrainedChild(isInPip, mode, context),
-          layoutBuilder: (currentChild, previousChildren) {
-            return Stack(
-              alignment: Alignment.center,
-              fit: StackFit.expand,
-              children: <Widget>[...previousChildren, ?currentChild],
-            );
-          },
-        ),
-      );
-    });
+      }),
+    );
   }
 
   Widget _buildConstrainedChild(bool isInPip, VideoMode mode, BuildContext context) {

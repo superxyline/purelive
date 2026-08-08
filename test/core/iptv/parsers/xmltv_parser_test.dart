@@ -77,7 +77,7 @@ void main() {
       final gz = GZipEncoder().encode(utf8.encode(_xml));
       expect(gz, isNotNull);
 
-      final result = XmltvParser().parseBytes(gz!, sourceId: sourceId);
+      final result = XmltvParser().parseBytes(gz, sourceId: sourceId);
 
       expect(result.channels, hasLength(1));
       expect(result.programmes, hasLength(1));

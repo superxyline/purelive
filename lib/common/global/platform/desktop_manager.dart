@@ -3,7 +3,6 @@ import 'package:pure_live/core/common/log.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/utils.dart';
 import 'package:tray_manager/tray_manager.dart';
