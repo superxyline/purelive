@@ -93,6 +93,7 @@ flutter build apk --release --split-per-abi
 ## 声明与合规
 
 - 本项目为**非营利性开源软件**，遵循仓库内 [LICENSE](LICENSE)（AGPL-3.0）。
+- 内置/依赖的第三方开源组件声明见 **[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)**。
 - **不提供任何 VIP 解锁、视频破解或盗链服务**，高清直播需在对应平台拥有合法账号权限。
 - 所有直播内容（视频、音频、图片等）**版权归属原平台所有**，本软件仅作技术聚合与转码展示。
 - 用户 Cookie 仅用于本地请求身份认证（如 B站高清直播），**不会上传或存储到任何服务器**。

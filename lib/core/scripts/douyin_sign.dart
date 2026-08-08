@@ -1,3 +1,6 @@
+// 本文件内嵌抖音 a_bogus / x-bogus 签名算法。
+// 算法来自社区公开的逆向分析成果，仅用于个人学习与交流，原始出处待核实。
+// 详细声明见仓库根目录 THIRD_PARTY_NOTICES.md。
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:dart_quickjs/dart_quickjs.dart';

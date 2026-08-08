@@ -22,3 +22,9 @@
 - 不要在此目录内重新引入 `package:pure_live/common/...` 等 App 依赖，
   否则框架与 App 再次耦合，无法独立升级。
 - 可运行 `rg -n "package:pure_live/common" lib/get` 检查耦合是否回潮。
+## 许可证
+
+本目录为 GetX（https://github.com/jonataslaw/getx）的源码副本，遵循 MIT License。
+Copyright (c) 2019-2021 GetX authors
+
+MIT License 全文见仓库根目录 THIRD_PARTY_NOTICES.md。

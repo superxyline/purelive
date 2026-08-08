@@ -1,3 +1,6 @@
+// 本文件内嵌 CryptoJS（MIT License）。
+// Copyright (c) 2009-2013 Jeff Mott. https://github.com/brix/crypto-js
+// 详细声明见仓库根目录 THIRD_PARTY_NOTICES.md。
 import 'package:dart_quickjs/dart_quickjs.dart';
 
 class DouyuSign {
