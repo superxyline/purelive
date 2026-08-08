@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'dart:async';
 import 'dart:developer';
 import 'video_controller_panel.dart';
@@ -398,11 +399,11 @@ class VideoController with ChangeNotifier {
 
       currentChannelSchedule.value = dbProgrammes;
 
-      debugPrint(
+      Log.logPrint(
         "📅 [EPG Matrix] Loaded ${currentChannelSchedule.length} total program rows spanning the (-48h to +24h) timeline.",
       );
     } catch (e) {
-      debugPrint("❌ EPG Schedule Loading Failure: $e");
+      Log.logPrint("❌ EPG Schedule Loading Failure: $e");
     }
   }
 

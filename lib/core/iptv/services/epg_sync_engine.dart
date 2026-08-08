@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
 import 'package:pure_live/get/get.dart';
@@ -54,7 +55,7 @@ class EpgSyncEngine {
 
       return success;
     } catch (e) {
-      debugPrint("❌ EPG Sync Process Error (Network or Decode Fails): $e");
+      Log.logPrint("❌ EPG Sync Process Error (Network or Decode Fails): $e");
       if (showTips) {
         ToastUtil.show("${source.name} ${i18n('epg_import_failed')}");
       }
@@ -73,7 +74,7 @@ class EpgSyncEngine {
 
       return matchedItems.isNotEmpty;
     } catch (e) {
-      debugPrint("Database EPG duplication check failure: $e");
+      Log.logPrint("Database EPG duplication check failure: $e");
       return false;
     }
   }
@@ -99,7 +100,7 @@ class EpgSyncEngine {
       }
       return true;
     } catch (e) {
-      debugPrint("Delete epg sources by name crashed: $e");
+      Log.logPrint("Delete epg sources by name crashed: $e");
       return false;
     }
   }

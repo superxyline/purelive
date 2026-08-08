@@ -3,7 +3,6 @@ import '../../get.dart';
 import 'root/get_root.dart';
 import 'dialog/dialog_route.dart';
 import 'package:flutter/material.dart';
-import 'package:pure_live/common/style/app_text_styles.dart';
 import 'package:pure_live/get/get_navigation/src/routes/test_kit.dart';
 
 /// It replaces the Flutter Navigator, but needs no context.
@@ -199,7 +198,8 @@ extension ExtensionDialog on GetInterface {
             },
             child: Text(
               textCancel ?? "Cancel",
-              style: AppTextStyles.t14.copyWith(color: cancelTextColor ?? theme.colorScheme.secondary),
+              // [pure_live fork] 静态字号，避免框架反向依赖 App 代码。
+              style: TextStyle(fontSize: 14, color: cancelTextColor ?? theme.colorScheme.secondary),
             ),
           ),
         );
@@ -218,7 +218,8 @@ extension ExtensionDialog on GetInterface {
             ),
             child: Text(
               textConfirm ?? "Ok",
-              style: AppTextStyles.t16.copyWith(color: confirmTextColor ?? theme.colorScheme.surface),
+              // [pure_live fork] 静态字号，避免框架反向依赖 App 代码。
+              style: TextStyle(fontSize: 16, color: confirmTextColor ?? theme.colorScheme.surface),
             ),
             onPressed: () {
               onConfirm?.call();

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pure_live/core/common/log.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/player_state.dart';
 import '../models/player_exception.dart';
@@ -196,7 +197,7 @@ class BetterPlayerAdapter implements UnifiedPlayer {
         _controller!.dispose();
         _controller = null;
       } catch (e) {
-        debugPrint("BetterPlayer dispose error: $e");
+        Log.logPrint("BetterPlayer dispose error: $e");
       }
     }
 

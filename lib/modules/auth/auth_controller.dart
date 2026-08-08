@@ -98,7 +98,7 @@ class AuthController extends GetxController {
         await FirebaseManager.getInstance().downloadConfig();
       }
     } catch (e) {
-      debugPrint('[AuthController] Error syncing: $e');
+      Log.logPrint('[AuthController] Error syncing: $e');
     }
   }
 
@@ -115,7 +115,7 @@ class AuthController extends GetxController {
       isInitSuccess = result;
     } catch (e) {
       isInitSuccess = false;
-      debugPrint('[FirebasePing] Network lookup timeout or failed: $e');
+      Log.logPrint('[FirebasePing] Network lookup timeout or failed: $e');
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pure_live/core/common/log.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
@@ -304,7 +305,7 @@ class DanmakuItem extends StatelessWidget {
                         await Clipboard.setData(ClipboardData(text: textToCopy));
                         ToastUtil.show(i18n('copied_to_clipboard'));
                       } catch (e) {
-                        debugPrint('Failed to copy to clipboard: $e');
+                        Log.logPrint('Failed to copy to clipboard: $e');
                       }
                     },
                     onDoubleTap: () async {
@@ -313,7 +314,7 @@ class DanmakuItem extends StatelessWidget {
                         await Clipboard.setData(ClipboardData(text: textToCopy));
                         ToastUtil.show(i18n('copied_to_clipboard'));
                       } catch (e) {
-                        debugPrint('Failed to copy to clipboard: $e');
+                        Log.logPrint('Failed to copy to clipboard: $e');
                       }
                     },
                     child: Text.rich(

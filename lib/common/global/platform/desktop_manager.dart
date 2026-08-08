@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -10,7 +11,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
-import 'package:pure_live/plugins/share_command_handler.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
 import 'package:pure_live/common/utils/share_command_handler.dart';
@@ -67,7 +67,7 @@ class DesktopManager {
 
       await _initTray();
     } catch (e) {
-      debugPrint('桌面端初始化失败: $e');
+      Log.logPrint('桌面端初始化失败: $e');
     }
   }
 
@@ -129,7 +129,7 @@ class DesktopManager {
 
       await updateTray();
     } catch (e) {
-      debugPrint('系统托盘初始化失败: $e');
+      Log.logPrint('系统托盘初始化失败: $e');
     }
   }
 
@@ -154,7 +154,7 @@ class DesktopManager {
 
       await trayManager.setContextMenu(menu);
     } catch (e) {
-      debugPrint('${i18n("tray_update_failed")}: $e');
+      Log.logPrint('${i18n("tray_update_failed")}: $e');
     }
   }
 
@@ -174,12 +174,12 @@ class DesktopManager {
         case 'exit_app':
           await windowManager.hide();
           await windowManager.setPreventClose(false);
-          trayManager.destroy().catchError((e) => debugPrint('托盘注销失败: $e'));
-          windowManager.close().catchError((e) => debugPrint('窗口关闭失败: $e'));
+          trayManager.destroy().catchError((e) => Log.logPrint('托盘注销失败: $e'));
+          windowManager.close().catchError((e) => Log.logPrint('窗口关闭失败: $e'));
           break;
       }
     } catch (e) {
-      debugPrint('托盘菜单处理失败: $e');
+      Log.logPrint('托盘菜单处理失败: $e');
     }
   }
 
@@ -203,7 +203,7 @@ class DesktopManager {
         await windowManager.setSkipTaskbar(false);
       }
     } catch (e) {
-      debugPrint('托盘图标点击处理失败: $e');
+      Log.logPrint('托盘图标点击处理失败: $e');
     }
   }
 
@@ -214,7 +214,7 @@ class DesktopManager {
       await updateTray();
       await trayManager.popUpContextMenu();
     } catch (e) {
-      debugPrint('托盘右键点击处理失败: $e');
+      Log.logPrint('托盘右键点击处理失败: $e');
     }
   }
 
@@ -224,7 +224,7 @@ class DesktopManager {
     try {
       await windowManager.hide();
     } catch (e) {
-      debugPrint('隐藏窗口失败: $e');
+      Log.logPrint('隐藏窗口失败: $e');
     }
   }
 
@@ -235,7 +235,7 @@ class DesktopManager {
       await windowManager.show();
       await windowManager.focus();
     } catch (e) {
-      debugPrint('显示窗口失败: $e');
+      Log.logPrint('显示窗口失败: $e');
     }
   }
 }
@@ -487,7 +487,7 @@ mixin DesktopWindowMixin<T extends StatefulWidget> on State<T>
           _showProductSelectionDialog(room);
         }
       } catch (e) {
-        debugPrint(e.toString());
+        Log.logPrint(e.toString());
       }
     });
   }
@@ -595,7 +595,7 @@ mixin DesktopWindowMixin<T extends StatefulWidget> on State<T>
   void onWindowClose() {
     unawaited(
       DesktopManager.handleWindowClose().catchError((e, _) {
-        debugPrint('处理窗口关闭失败: $e');
+        Log.logPrint('处理窗口关闭失败: $e');
       }),
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
@@ -22,7 +23,7 @@ class MobileManager {
         await _initializeAndroid();
       }
     } catch (e) {
-      debugPrint('移动端初始化失败: $e');
+      Log.logPrint('移动端初始化失败: $e');
     }
   }
 
@@ -36,7 +37,7 @@ class MobileManager {
         ),
       );
     } catch (e) {
-      debugPrint('iOS 初始化失败: $e');
+      Log.logPrint('iOS 初始化失败: $e');
     }
   }
 
@@ -57,7 +58,7 @@ class MobileManager {
         DeviceOrientation.landscapeRight,
       ]);
     } catch (e) {
-      debugPrint('Android 初始化失败: $e');
+      Log.logPrint('Android 初始化失败: $e');
     }
   }
 
@@ -84,7 +85,7 @@ class MobileManager {
         );
       }
     } catch (e) {
-      debugPrint('状态栏样式设置失败: $e');
+      Log.logPrint('状态栏样式设置失败: $e');
     }
   }
 }

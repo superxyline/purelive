@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'package:path/path.dart' as p;
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/db_service.dart';
@@ -61,7 +62,7 @@ class IptvSyncEngine {
       }
       return success;
     } catch (e) {
-      debugPrint("❌ IPTV Sync Process Error (Network or IO Fails): $e");
+      Log.logPrint("❌ IPTV Sync Process Error (Network or IO Fails): $e");
       if (tempFile != null && await tempFile.exists()) {
         await tempFile.delete();
       }
@@ -92,7 +93,7 @@ class IptvSyncEngine {
       }
       return true;
     } catch (e) {
-      debugPrint("Delete playlists by name crashed: $e");
+      Log.logPrint("Delete playlists by name crashed: $e");
       return false;
     }
   }

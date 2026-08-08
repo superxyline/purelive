@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pure_live/core/common/log.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -88,7 +89,7 @@ class RaceHttp {
 
           if (!completer.isCompleted) {
             completer.complete(result);
-            debugPrint("🏁 Race winner: $url");
+            Log.logPrint("🏁 Race winner: $url");
           }
         } catch (_) {}
       });

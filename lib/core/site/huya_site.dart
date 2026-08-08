@@ -507,7 +507,7 @@ class HuyaSite implements LiveSite {
       }
     } catch (e) {
       // 在这里可以选择打印错误信息或采取其他措施
-      debugPrint('An error occurred: $e');
+      Log.logPrint('An error occurred: $e');
     }
     // 如果没有找到有效的UID，则生成一个随机数
     final random = Random();

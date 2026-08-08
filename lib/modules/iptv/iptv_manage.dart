@@ -1,4 +1,5 @@
 import 'package:remixicon/remixicon.dart';
+import 'package:pure_live/core/common/log.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/file_utils.dart';
 import 'package:pure_live/plugins/db_service.dart';
@@ -139,7 +140,7 @@ class _IptvManagePageState extends State<IptvManagePage> {
 
       ToastUtil.show(i18n("manage_page_success"));
     } catch (e) {
-      debugPrint("$e");
+      Log.logPrint("$e");
 
       ToastUtil.show(i18n("manage_page_failed"));
     } finally {

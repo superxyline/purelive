@@ -1,4 +1,5 @@
 import 'package:remixicon/remixicon.dart';
+import 'package:pure_live/core/common/log.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/file_utils.dart';
 import 'package:pure_live/plugins/db_service.dart';
@@ -59,7 +60,7 @@ class _IptvPageState extends State<IptvPage> with SingleTickerProviderStateMixin
       final db = Get.find<DbService>().db;
       sources = await db.getAllEpgSources();
     } catch (e) {
-      debugPrint("Dialog source fetch failure: $e");
+      Log.logPrint("Dialog source fetch failure: $e");
     } finally {
       isDialogLoading.value = false;
     }

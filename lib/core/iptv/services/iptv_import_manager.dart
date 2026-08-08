@@ -110,7 +110,7 @@ class IptvImportManager {
       if (await tempFile.exists()) await tempFile.delete();
       return success;
     } catch (e) {
-      debugPrint("Network IPTV Download Failure: $e");
+      Log.logPrint("Network IPTV Download Failure: $e");
       if (tempFile != null && await tempFile.exists()) {
         try {
           await tempFile.delete();
@@ -202,7 +202,7 @@ class IptvImportManager {
       );
       return success;
     } catch (e) {
-      debugPrint("Shared IPTV Import Process Crash: $e");
+      Log.logPrint("Shared IPTV Import Process Crash: $e");
       if (showTips) {
         ToastUtil.show(i18n("local_import_failed"));
       }
@@ -317,7 +317,7 @@ class IptvImportManager {
       }
       return success;
     } catch (e) {
-      debugPrint("IPTV Import Error: $e");
+      Log.logPrint("IPTV Import Error: $e");
       if (showTips) {
         ToastUtil.show('${i18n("sync_failed")}: ${e.toString()}');
       }
@@ -369,7 +369,7 @@ class IptvImportManager {
       await runAutoEpgMapping(providerId: providerId);
       return true;
     } catch (e) {
-      debugPrint("Database Write Error: $e");
+      Log.logPrint("Database Write Error: $e");
       return false;
     }
   }
@@ -433,10 +433,10 @@ class IptvImportManager {
           await db.transaction(() async {
             await db.upsertMappings(mappingBatch);
           });
-          debugPrint("📊 [Auto Mapping] 成功在后台为该直播源生成了 ${mappingBatch.length} 条 EPG 映射记录！");
+          Log.logPrint("📊 [Auto Mapping] 成功在后台为该直播源生成了 ${mappingBatch.length} 条 EPG 映射记录！");
         }
       } catch (e) {
-        debugPrint("Auto Mapping runner process crashed: $e");
+        Log.logPrint("Auto Mapping runner process crashed: $e");
       }
     });
   }

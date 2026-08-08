@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:path/path.dart' as p;
@@ -70,7 +71,7 @@ class EpgImportManager {
       if (await file.exists()) await file.delete();
       return success;
     } catch (e) {
-      debugPrint("Network EPG Download Failure: $e");
+      Log.logPrint("Network EPG Download Failure: $e");
       if (showTips) {
         ToastUtil.show(i18n("epg_import_failed"));
       }
@@ -114,7 +115,7 @@ class EpgImportManager {
       final success = await importEpgFile(file: file, sourceName: FileUtils.getBaseName(file.path));
       return success;
     } catch (e) {
-      debugPrint("Shared EPG Import Process Crash: $e");
+      Log.logPrint("Shared EPG Import Process Crash: $e");
       ToastUtil.show(i18n("epg_import_failed"));
       return false;
     }
@@ -242,7 +243,7 @@ class EpgImportManager {
       }
       return success;
     } catch (e) {
-      debugPrint("EPG Import Failure: $e");
+      Log.logPrint("EPG Import Failure: $e");
       if (showTips) ToastUtil.show(i18n("epg_import_failed"));
       return false;
     }
@@ -318,7 +319,7 @@ class EpgImportManager {
       await db.pruneOldProgrammes(maxAge: const Duration(days: 2));
       return true;
     } catch (e) {
-      debugPrint("EPG Database Exec Commit Crash: $e");
+      Log.logPrint("EPG Database Exec Commit Crash: $e");
       return false;
     }
   }

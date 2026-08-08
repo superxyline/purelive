@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
@@ -40,8 +41,8 @@ class WindowService {
         await doEnterWindowFullScreen();
       }
     } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+      Log.logPrint(exception.toString());
+      Log.logPrint(stacktrace.toString());
     }
   }
 
@@ -75,8 +76,8 @@ class WindowService {
         await doExitWindowFullScreen();
       }
     } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+      Log.logPrint(exception.toString());
+      Log.logPrint(stacktrace.toString());
     }
   }
 

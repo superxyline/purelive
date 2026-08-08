@@ -3,7 +3,6 @@ import 'dart:async';
 import '../../get_navigation.dart';
 import 'package:flutter/material.dart';
 import '../../../get_core/get_core.dart';
-import 'package:pure_live/common/style/app_text_styles.dart';
 
 typedef OnTap = void Function(GetSnackBar snack);
 typedef OnHover = void Function(GetSnackBar snack, SnackHoverState snackHoverState);
@@ -468,7 +467,8 @@ You need to either use message[String], or messageText[Widget] or define a userI
                             widget.titleText ??
                             Text(
                               widget.title ?? "",
-                              style: AppTextStyles.t16.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                              // [pure_live fork] 静态字号，避免框架反向依赖 App 代码。
+                              style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                       )
                     else
@@ -482,7 +482,8 @@ You need to either use message[String], or messageText[Widget] or define a userI
                       ),
                       child:
                           widget.messageText ??
-                          Text(widget.message ?? "", style: AppTextStyles.t14.copyWith(color: Colors.white)),
+                          // [pure_live fork] 静态字号，避免框架反向依赖 App 代码。
+                          Text(widget.message ?? "", style: const TextStyle(fontSize: 14, color: Colors.white)),
                     ),
                   ],
                 ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:pure_live/common/index.dart';
@@ -65,9 +66,9 @@ class FirebaseManager {
       schemeKey.setValue('URL Protocol', const RegistryValue.string(''));
       commandKey.setValue('', RegistryValue.string(command));
 
-      debugPrint('[Protocol Registry] Registered $scheme://');
+      Log.logPrint('[Protocol Registry] Registered $scheme://');
     } catch (e, s) {
-      debugPrint('[Protocol Registry] Failed: $e\n$s');
+      Log.logPrint('[Protocol Registry] Failed: $e\n$s');
     } finally {
       schemeKey?.close();
       commandKey?.close();
@@ -137,7 +138,7 @@ class FirebaseManager {
 
       return canUploadConfig;
     } catch (e) {
-      debugPrint('[FirebaseManager] 从 users 集合读取权限异常(已默认放行): $e');
+      Log.logPrint('[FirebaseManager] 从 users 集合读取权限异常(已默认放行): $e');
       canUploadConfig = true;
       currentUserRole = null;
       return true;

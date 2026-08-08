@@ -36,7 +36,8 @@ android {
     ndkVersion = flutter.ndkVersion
     lint {
         disable.add("NullSafeMutableLiveData")
-        checkReleaseBuilds = false
+        // 对 release 构建也执行 lint 检查（abortOnError 保持 false，避免历史问题阻断打包）
+        checkReleaseBuilds = true
         abortOnError = false
     }
     compileOptions {

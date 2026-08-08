@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -58,7 +59,7 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
         return true;
       }
     } catch (e) {
-      debugPrint("检测 WebView2 失败: $e");
+      Log.logPrint("检测 WebView2 失败: $e");
     }
     return false;
   }

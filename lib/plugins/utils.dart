@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/common/log.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -289,8 +290,8 @@ class Utils {
         Future.microtask(() async {
           await windowManager.hide();
           await windowManager.setPreventClose(false);
-          trayManager.destroy().catchError((e) => debugPrint('托盘注销失败: $e'));
-          windowManager.close().catchError((e) => debugPrint('窗口关闭失败: $e'));
+          trayManager.destroy().catchError((e) => Log.logPrint('托盘注销失败: $e'));
+          windowManager.close().catchError((e) => Log.logPrint('窗口关闭失败: $e'));
         });
       } else if (exitChoose == 'minimize') {
         await _minimizeOrHideDesktopWindow();
@@ -351,8 +352,8 @@ class Utils {
                   await windowManager.hide();
 
                   await windowManager.setPreventClose(false);
-                  trayManager.destroy().catchError((e) => debugPrint('托盘注销失败: $e'));
-                  windowManager.close().catchError((e) => debugPrint('窗口关闭失败: $e'));
+                  trayManager.destroy().catchError((e) => Log.logPrint('托盘注销失败: $e'));
+                  windowManager.close().catchError((e) => Log.logPrint('窗口关闭失败: $e'));
                 },
                 child: Text(i18n("exit_app")),
               ),

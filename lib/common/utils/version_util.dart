@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pure_live/core/common/log.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/race_http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -83,9 +84,9 @@ class VersionUtil {
       _cachedVersionJson = data;
       _applyVersionData(data);
       isHasNewVersion.value = hasNewVersion();
-      debugPrint("🏁 更新线路成功");
+      Log.logPrint("🏁 更新线路成功");
     } catch (e) {
-      debugPrint("⚠️ 更新检查失败: $e");
+      Log.logPrint("⚠️ 更新检查失败: $e");
       latestVersion = version;
       latestUpdateLog = '更新检查失败';
     }
