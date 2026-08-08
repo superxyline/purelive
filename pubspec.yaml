@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 0.1.1+2
+version: 0.1.2+3
 
 environment:
   sdk: ^3.10.4
@@ -104,6 +104,7 @@ dependencies:
   # -------------------------- 数据存储/数据库 --------------------------
   hive_ce: ^2.15.1 # Hive本地数据库
   hive_ce_flutter: ^2.3.3 # Hive Flutter集成
+  flutter_secure_storage: ^11.0.0 # 安全存储（Hive 加密密钥）
   flutter_cache_manager: ^3.4.1 # 通用缓存管理
 
   # -------------------------- 文件/路径/存储 --------------------------
@@ -241,7 +242,6 @@ flutter:
     - assets/images/video/
     - assets/icons/
     - assets/webdav/
-    - assets/keystore/
     - assets/version.json
     - assets/releases.json
     - assets/emo/images/huya/

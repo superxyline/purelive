@@ -15,10 +15,11 @@ class CookieSettingsController extends GetxController {
   }
 
   Map<String, dynamic> toJson() {
+    // 敏感 Cookie 不写入备份/导出，避免明文泄露
     return {
-      'bilibiliCookie': bilibiliCookie.v,
-      'huyaCookie': huyaCookie.v,
-      'douyinCookie': douyinCookie.v,
+      'bilibiliCookie': '',
+      'huyaCookie': '',
+      'douyinCookie': '',
       'bilibiliUid': bilibiliUid.v,
     };
   }

@@ -42,9 +42,10 @@ class WebDavController extends GetxController {
   }
 
   Map<String, dynamic> toJson() {
+    // WebDAV 密码不写入备份/导出，避免明文泄露
     return {
       'currentWebDavConfig': currentWebDavConfig.v,
-      'webDavConfigs': webDavConfigs.v.map((e) => e.toJson()).toList(),
+      'webDavConfigs': webDavConfigs.v.map((e) => {...e.toJson(), 'password': ''}).toList(),
     };
   }
 

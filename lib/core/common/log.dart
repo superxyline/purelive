@@ -34,14 +34,14 @@ class Log {
 
   static Future<int> _getAvailablePort() async {
     try {
-      final socket = await ServerSocket.bind(InternetAddress.anyIPv4, 0);
+      final socket = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
       final port = socket.port;
       await socket.close();
       return port;
     } catch (e) {
       Log.w('获取空闲端口失败，尝试保底端口 8080: $e');
       try {
-        final fallbackSocket = await ServerSocket.bind(InternetAddress.anyIPv4, 47854);
+        final fallbackSocket = await ServerSocket.bind(InternetAddress.loopbackIPv4, 47854);
         await fallbackSocket.close();
         return 47854;
       } catch (fallbackError) {
@@ -56,7 +56,7 @@ class Log {
     try {
       final port = await _getAvailablePort();
       if (port == 0) return;
-      _server = await HttpServer.bind(InternetAddress.anyIPv4, port);
+      _server = await HttpServer.bind(InternetAddress.loopbackIPv4, port);
       String serverAddress = _server!.address.address;
       int serverPort = _server!.port;
       if (Get.isRegistered<LogController>()) {
@@ -296,6 +296,9 @@ class Log {
       processedContent = content.split("\n").join('\n💡 ');
     }
 
+    if (_allLogs.length >= 500) {
+      _allLogs.removeRange(0, _allLogs.length - 499);
+    }
     _allLogs.add(DebugLogModel(DateTime.now(), processedContent, color: color));
   }
 

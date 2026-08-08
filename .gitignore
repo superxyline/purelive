@@ -46,6 +46,9 @@ app.*.map.json
 
 pubspec.lock
 key.properties
+# 签名密钥仅存本机，禁止入库
+android/key.jks
+assets/keystore/
 
 **/*.jks
 

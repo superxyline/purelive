@@ -29,7 +29,8 @@ val keystoreProperties = Properties().apply { // 同样添加了导入
 
 android {
     namespace = "com.mystyle.purelive"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_secure_storage 11 需要 compileSdk 37
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
     lint {
         disable.add("NullSafeMutableLiveData")
