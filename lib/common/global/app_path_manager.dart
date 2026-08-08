@@ -15,7 +15,6 @@ class AppPathManager {
   static const String dirLogs = 'LOGS';
   static const String dirHiveDB = 'HIVE_DB';
   static const String dirImageCache = 'IMAGE_CACHE';
-  static const String dirRecords = 'RECORDS';
   static const String dirEmojiCache = 'EMOJI_CACHE';
   static const String fontCacheDir = 'fontsDir';
 
@@ -161,7 +160,6 @@ class AppPathManager {
   Future<Directory> get logsDir => getDir(dirLogs);
   Future<Directory> get hiveDbDir => getDir(dirHiveDB);
   Future<Directory> get imageCacheDir => getDir(dirImageCache);
-  Future<Directory> get recordsDir => getDir(dirRecords);
   Future<Directory> get emojiCacheDir => getDir(dirEmojiCache);
 
   String get basePath => _basePath ?? (throw StateError("AppPathManager 尚未初始化"));

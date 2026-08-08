@@ -1,9 +1,7 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/home/home_page.dart';
-import 'package:pure_live/modules/auth/mine_page.dart';
 import 'package:pure_live/modules/about/about_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
-import 'package:pure_live/modules/auth/sign_in_page.dart';
 import 'package:pure_live/modules/search/search_page.dart';
 import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/splash/splash_screen.dart';
@@ -13,7 +11,6 @@ import 'package:pure_live/modules/account/account_bing.dart';
 import 'package:pure_live/modules/account/account_page.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/history/history_page.dart';
-import 'package:pure_live/modules/auth/user_manage_page.dart';
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/search/web_search_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
@@ -35,16 +32,12 @@ import 'package:pure_live/modules/shield/danmu_shield_binding.dart';
 import 'package:pure_live/modules/areas/favorite_areas_binding.dart';
 import 'package:pure_live/modules/account/huya/huya_cookie_page.dart';
 import 'package:pure_live/modules/area_rooms/area_rooms_binding.dart';
-import 'package:pure_live/recorder/pages/recorder/recorder_page.dart';
 import 'package:pure_live/modules/account/bilibili/qr_login_page.dart';
 import 'package:pure_live/modules/account/bilibili/bilibili_bings.dart';
 import 'package:pure_live/modules/account/bilibili/web_login_page.dart';
 import 'package:pure_live/modules/account/huya/huya_cookie_binding.dart';
-import 'package:pure_live/recorder/pages/recorder/recorder_binding.dart';
 import 'package:pure_live/modules/account/douyin/douyin_cookie_page.dart';
 import 'package:pure_live/modules/account/douyin/douyin_cookie_binding.dart';
-import 'package:pure_live/recorder/pages/record_settings/record_settings_page.dart';
-import 'package:pure_live/recorder/pages/record_settings/record_settings_binding.dart';
 
 // auth
 
@@ -53,9 +46,6 @@ class AppPages {
 
   static final routes = [
     GetPage(name: RoutePath.kInitial, page: HomePage.new, participatesInRootNavigator: true, preventDuplicates: true),
-    GetPage(name: RoutePath.kSignIn, page: SignInPage.new),
-    GetPage(name: RoutePath.kMine, page: MinePage.new),
-    GetPage(name: RoutePath.kUserManage, page: () => UserManager()),
     GetPage(name: RoutePath.kFavorite, page: FavoritePage.new),
     GetPage(name: RoutePath.kPopular, page: PopularPage.new),
     GetPage(name: RoutePath.kAreas, page: AreasPage.new),
@@ -141,12 +131,6 @@ class AppPages {
           duration: const Duration(seconds: 1),
         );
       },
-    ),
-    GetPage(name: RoutePath.kRecordPage, page: () => const RecorderPage(), bindings: [RecorderBinding()]),
-    GetPage(
-      name: RoutePath.kRecordSettings,
-      page: () => const RecordSettingsPage(),
-      bindings: [RecordSettingsBinding()],
     ),
     GetPage(name: RoutePath.kWebSearch, page: () => const WebSearchPage(), bindings: [WebSearchBinding()]),
 

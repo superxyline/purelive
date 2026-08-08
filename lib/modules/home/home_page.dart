@@ -9,7 +9,6 @@ import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
-import 'package:pure_live/recorder/pages/recorder/recorder_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,7 +27,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     HomeMenu.favorites: FavoritePage(),
     HomeMenu.popular: PopularPage(),
     HomeMenu.areas: AreasPage(),
-    HomeMenu.record: RecorderPage(),
   };
 
   @override
@@ -120,14 +118,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
           return Obx(() {
             final activeMenuIds = List<String>.from(SettingsService.to.app.savedMenuIds.v);
-            if (isTablet) {
-              activeMenuIds.remove(HomeMenu.record.id);
-            }
             if (activeMenuIds.isEmpty) return const Scaffold();
 
             int adjustedIndex = _selectedIndex;
-            if (adjustedIndex >= HomeMenu.values.length ||
-                (isTablet && HomeMenu.values[adjustedIndex] == HomeMenu.record)) {
+            if (adjustedIndex >= HomeMenu.values.length) {
               final fallbackMenu = HomeMenu.fromId(activeMenuIds.first);
               if (fallbackMenu != null) {
                 adjustedIndex = fallbackMenu.index;

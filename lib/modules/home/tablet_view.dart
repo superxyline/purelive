@@ -58,15 +58,6 @@ class HomeTabletView extends StatelessWidget {
                       ),
                     );
                     break;
-                  case HomeMenu.record:
-                    destinations.add(
-                      NavigationRailDestination(
-                        icon: const Icon(Remix.download_2_line),
-                        selectedIcon: const Icon(Remix.download_2_fill),
-                        label: Text(i18n("record_center")),
-                      ),
-                    );
-                    break;
                 }
               }
             }
@@ -100,13 +91,6 @@ class HomeTabletView extends StatelessWidget {
                           child: IconButton(
                             onPressed: () => Get.toNamed(RoutePath.kSearch),
                             icon: const Icon(CustomIcons.search),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 0, bottom: 12, left: 12, right: 12),
-                          child: IconButton(
-                            onPressed: () => Get.toNamed(RoutePath.kRecordPage),
-                            icon: const Icon(Remix.download_2_line),
                           ),
                         ),
                       ],

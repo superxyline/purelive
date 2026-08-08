@@ -6,12 +6,9 @@ list(APPEND FLUTTER_PLUGIN_LIST
   audio_service_win
   battery_plus
   charset_converter
-  cloud_firestore
   connectivity_plus
   dynamic_color
   ffmpeg_kit_extended_flutter
-  firebase_auth
-  firebase_core
   flutter_acrylic
   flutter_inappwebview_windows
   flutter_js

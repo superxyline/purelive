@@ -13,10 +13,9 @@ class CacheController extends GetxController {
   }
 
   Future<double> getCacheSize() async {
-    final recordsDir = await AppPathManager().recordsDir;
     final imageCacheDir = await AppPathManager().imageCacheDir;
     final downloadDir = await AppPathManager().downloadDir;
-    final List<Directory> targetDirs = [recordsDir, imageCacheDir, downloadDir];
+    final List<Directory> targetDirs = [imageCacheDir, downloadDir];
 
     double totalSizeBytes = 0;
     for (final dir in targetDirs) {
@@ -33,10 +32,9 @@ class CacheController extends GetxController {
   }
 
   Future<void> clearCache() async {
-    final recordsDir = await AppPathManager().recordsDir;
     final imageCacheDir = await AppPathManager().imageCacheDir;
     final downloadDir = await AppPathManager().downloadDir;
-    final List<Directory> dirs = [recordsDir, imageCacheDir, downloadDir];
+    final List<Directory> dirs = [imageCacheDir, downloadDir];
 
     for (final dir in dirs) {
       if (!dir.existsSync()) continue;

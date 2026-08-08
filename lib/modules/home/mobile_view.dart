@@ -58,15 +58,6 @@ class HomeMobileView extends StatelessWidget {
                   ),
                 );
                 break;
-              case HomeMenu.record:
-                destinations.add(
-                  NavigationDestination(
-                    icon: const Icon(Remix.download_2_line),
-                    selectedIcon: const Icon(Remix.download_2_fill),
-                    label: i18n("record_center"),
-                  ),
-                );
-                break;
             }
           }
         }
