@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/models/font_model.dart';
-import 'package:pure_live/plugins/font_download_manager.dart';
+import 'package:pure_live/common/services/font_download_manager.dart';
 import 'package:pure_live/common/global/app_path_manager.dart';
 import 'package:pure_live/common/services/medels/download_status.dart';
 import 'package:pure_live/common/services/settings/danmaku_settings_controller.dart';

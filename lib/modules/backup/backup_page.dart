@@ -3,10 +3,10 @@ import 'package:path/path.dart' as path;
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:pure_live/plugins/file_utils.dart';
+import 'package:pure_live/common/utils/file_utils.dart';
 import 'package:pure_live/modules/backup/scan_page.dart';
 import 'package:pure_live/common/global/app_path_manager.dart';
-import 'package:pure_live/plugins/backup_recovery_service.dart';
+import 'package:pure_live/common/services/backup_recovery_service.dart';
 import 'package:pure_live/common/services/settings/log_controller.dart';
 
 class BackupPage extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:pure_live/common/index.dart';
 import 'package:date_format/date_format.dart';
-import 'package:pure_live/plugins/utils.dart';
+import 'package:pure_live/common/utils/utils.dart';
 import 'package:webdav_client/webdav_client.dart' as webdav;
 import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/modules/web_dav/webdav_service.dart';

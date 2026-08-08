@@ -18,7 +18,7 @@ import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/player/utils/fullscreen.dart';
 import 'package:flutter_floating/flutter_floating.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
-import 'package:pure_live/recorder/ffmpeg/ffmpeg_types.dart';
+import 'package:pure_live/core/ffmpeg/ffmpeg_types.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/player/utils/pip_window_widget.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';

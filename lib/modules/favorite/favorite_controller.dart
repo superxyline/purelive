@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/event_bus.dart';
+import 'package:pure_live/common/utils/event_bus.dart';
 import 'package:pure_live/modules/tags/live_tag.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 import 'package:pure_live/common/services/settings/refresh_config_controller.dart';

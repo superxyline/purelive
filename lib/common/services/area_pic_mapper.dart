@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/common/models/live_category.dart';
 import 'package:string_similarity/string_similarity.dart';
 import 'package:pure_live/common/utils/hive_pref_util.dart';
 

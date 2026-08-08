@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/utils.dart';
+import 'package:pure_live/common/utils/utils.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pure_live/routes/app_navigation.dart';

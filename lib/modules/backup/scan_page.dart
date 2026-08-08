@@ -1,7 +1,7 @@
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/file_utils.dart';
+import 'package:pure_live/common/utils/file_utils.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:pure_live/plugins/backup_recovery_service.dart';
+import 'package:pure_live/common/services/backup_recovery_service.dart';
 
 class ScanCodePage extends StatefulWidget {
   const ScanCodePage({super.key});

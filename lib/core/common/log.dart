@@ -5,7 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/utils.dart';
+import 'package:pure_live/common/utils/utils.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:package_info_plus/package_info_plus.dart';

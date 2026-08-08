@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:developer';
-import 'package:pure_live/recorder/ffmpeg/ffmpeg_types.dart';
-import 'package:pure_live/recorder/ffmpeg/ffmpeg_event.dart';
-import 'package:pure_live/recorder/services/ffmpeg_service.dart';
-import 'package:pure_live/recorder/ffmpeg/ffmpeg_command_builder.dart';
-import 'package:pure_live/recorder/services/ffmpeg_header_factory.dart';
+import 'package:pure_live/core/ffmpeg/ffmpeg_types.dart';
+import 'package:pure_live/core/ffmpeg/ffmpeg_event.dart';
+import 'package:pure_live/core/ffmpeg/ffmpeg_service.dart';
+import 'package:pure_live/core/ffmpeg/ffmpeg_command_builder.dart';
+import 'package:pure_live/core/ffmpeg/ffmpeg_header_factory.dart';
 
 class AudioStreamLoader {
   String? _currentTaskId;

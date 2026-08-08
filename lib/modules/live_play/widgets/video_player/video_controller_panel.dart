@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter/gestures.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/event_bus.dart';
+import 'package:pure_live/common/utils/event_bus.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';

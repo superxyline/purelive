@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:developer';
 import 'app_path_manager.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/global.dart';
+import 'package:pure_live/common/utils/global.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:screen_brightness/screen_brightness.dart';

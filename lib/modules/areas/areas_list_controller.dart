@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/model/live_category.dart';
-import 'package:pure_live/plugins/area_pic_mapper.dart';
+import 'package:pure_live/common/models/live_category.dart';
+import 'package:pure_live/common/services/area_pic_mapper.dart';
 
 class AreasListController extends ServerAllPageController<LiveArea> {
   final Site site;

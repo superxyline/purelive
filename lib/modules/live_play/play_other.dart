@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/event_bus.dart';
+import 'package:pure_live/common/utils/event_bus.dart';
 import 'package:pure_live/common/widgets/common_avatar.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 

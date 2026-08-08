@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/model/live_category.dart';
+import 'package:pure_live/common/models/live_category.dart';
 import 'package:pure_live/core/common/core_log.dart';
-import 'package:pure_live/model/live_anchor_item.dart';
+import 'package:pure_live/common/models/live_anchor_item.dart';
 import 'package:pure_live/core/common/http_client.dart';
-import 'package:pure_live/model/live_play_quality.dart';
+import 'package:pure_live/common/models/live_play_quality.dart';
 import 'package:pure_live/core/scripts/douyin_sign.dart';
 import 'package:pure_live/core/interface/live_site.dart';
 import 'package:pure_live/core/common/convert_helper.dart';
