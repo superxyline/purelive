@@ -1,8 +1,8 @@
 import 'package:pure_live/common/index.dart';
 
-class SettingsBinding extends Binding {
+class SettingsBinding extends Bindings {
   @override
-  List<Bind> dependencies() {
-    return [Bind.lazyPut(() => SettingsService())];
+  void dependencies() {
+Get.lazyPut(() => SettingsService());
   }
 }

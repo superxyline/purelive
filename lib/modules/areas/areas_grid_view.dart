@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
@@ -18,6 +19,7 @@ class AreaGridView extends StatefulWidget {
 class _AreaGridViewState extends State<AreaGridView> with TickerProviderStateMixin {
   TabController? _tabController;
   Worker? _listWorker;
+  StreamSubscription<int>? _tabIndexSub;
 
   @override
   void initState() {
@@ -25,7 +27,7 @@ class _AreaGridViewState extends State<AreaGridView> with TickerProviderStateMix
     if (!widget.isFlatten) {
       _listWorker = ever(widget.controller.categories, (_) => _createTabController());
       _createTabController();
-      widget.controller.tabIndex.addListener(_handleExternalIndexChange);
+      _tabIndexSub = widget.controller.tabIndex.listen((_) => _handleExternalIndexChange());
     }
   }
 
@@ -74,7 +76,7 @@ class _AreaGridViewState extends State<AreaGridView> with TickerProviderStateMix
   @override
   void dispose() {
     if (!widget.isFlatten) {
-      widget.controller.tabIndex.removeListener(_handleExternalIndexChange);
+      _tabIndexSub?.cancel();
       _listWorker?.dispose();
       if (_tabController != null) {
         _tabController!.removeListener(_handleInternalTabChange);

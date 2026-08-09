@@ -11,6 +11,7 @@ import 'package:pure_live/common/models/live_play_quality.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
+import 'package:pure_live/player/core/live_audio_service.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -19,7 +20,7 @@ import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
 
 enum VideoMode { normal, widescreen, fullscreen }
 
-class LivePlayController extends StateController with GetSingleTickerProviderStateMixin {
+class LivePlayController extends GetxController with GetSingleTickerProviderStateMixin {
   LivePlayController({required this.room, required this.site});
 
   final String site;
@@ -185,6 +186,14 @@ class LivePlayController extends StateController with GetSingleTickerProviderSta
     if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
       liveDanmaku.stop();
     }
+    // 退出直播间时停止播放，避免残留音频。
+    // 仅音频模式与开启"后台播放"时保留后台播放。
+    if (!isCurrentRoomAudioOnly.value && !SettingsService.to.app.enableBackgroundPlay.v) {
+      videoController.value?.clearListener();
+      unawaited(GlobalPlayerService.instance.playerManager.close());
+      unawaited(LiveAudioService.stop());
+    }
+    videoController.value = null;
   }
 
   void setNormalScreen() => screenMode.value = VideoMode.normal;
@@ -398,7 +407,7 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
 
     videoController.value = VideoController(
       room: detail.value!,
-      playUrs: playUrls.value,
+      playUrs: playUrls,
       datasource: _playUrlSafe,
       allowScreenKeepOn: SettingsService.to.app.enableScreenKeepOn.v,
       headers: headers,

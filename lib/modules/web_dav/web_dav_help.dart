@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pure_live/get/get.dart';
+import 'package:get/get.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -140,7 +140,7 @@ class WebDavHelpPage extends StatelessWidget {
               icon: Icon(Remix.file_copy_line, color: theme.hintColor, size: 18),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: davUrl));
-                Get.snackbar("复制成功", "服务器地址已存入剪贴板", snackPosition: SnackPosition.bottom);
+                Get.snackbar("复制成功", "服务器地址已存入剪贴板", snackPosition: SnackPosition.BOTTOM);
               },
             ),
           ),

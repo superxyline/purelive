@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pure_live/get/get.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:pure_live/common/style/app_text_styles.dart';
 

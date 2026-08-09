@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:pure_live/get/get.dart';
+import 'package:get/get.dart';
 import 'package:pure_live/common/utils/hive_pref_util.dart';
 
 RxBool hiveBool(String key, bool defaultValue) {

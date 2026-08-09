@@ -1,9 +1,9 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/hot_areas/hot_areas_controller.dart';
 
-class HotAreasBinding extends Binding {
+class HotAreasBinding extends Bindings {
   @override
-  List<Bind> dependencies() {
-    return [Bind.lazyPut(() => HotAreasController())];
+  void dependencies() {
+Get.lazyPut(() => HotAreasController());
   }
 }

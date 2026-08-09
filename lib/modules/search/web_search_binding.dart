@@ -1,9 +1,9 @@
 import 'web_search_controller.dart';
 import 'package:pure_live/common/index.dart';
 
-class WebSearchBinding extends Binding {
+class WebSearchBinding extends Bindings {
   @override
-  List<Bind> dependencies() {
-    return [Bind.lazyPut(() => WebSearchController())];
+  void dependencies() {
+Get.lazyPut(() => WebSearchController());
   }
 }

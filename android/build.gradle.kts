@@ -43,6 +43,7 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 
+
 subprojects {
     afterEvaluate {
          if (project.name != "app") {

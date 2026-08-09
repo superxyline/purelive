@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pure_live/get/get.dart';
+import 'package:get/get.dart';
 import 'package:flutter_color/flutter_color.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pure_live/common/utils/locale_helper.dart';

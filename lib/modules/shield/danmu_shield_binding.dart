@@ -1,9 +1,9 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/shield/danmu_shield_controller.dart';
 
-class DanmuShieldBinding extends Binding {
+class DanmuShieldBinding extends Bindings {
   @override
-  List<Bind> dependencies() {
-    return [Bind.lazyPut(() => DanmuShieldController())];
+  void dependencies() {
+Get.lazyPut(() => DanmuShieldController());
   }
 }

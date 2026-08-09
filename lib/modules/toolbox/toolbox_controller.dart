@@ -56,7 +56,7 @@ class ToolBoxController extends GetxController {
       Get.snackbar(
         i18n("toolbox_detect_link"),
         i18n("toolbox_auto_fill"),
-        snackPosition: SnackPosition.bottom,
+        snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
         margin: const EdgeInsets.all(15),
       );

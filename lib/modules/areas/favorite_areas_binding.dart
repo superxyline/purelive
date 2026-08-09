@@ -1,9 +1,9 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/areas/favorite_areas_controller.dart';
 
-class FavoriteAreasBinding extends Binding {
+class FavoriteAreasBinding extends Bindings {
   @override
-  List<Bind> dependencies() {
-    return [Bind.lazyPut(() => FavoriteAreasController())];
+  void dependencies() {
+Get.lazyPut(() => FavoriteAreasController());
   }
 }

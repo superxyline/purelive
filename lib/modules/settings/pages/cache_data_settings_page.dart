@@ -62,7 +62,7 @@ class CacheDataSettingsPage extends StatelessWidget {
                 );
                 if (ok == true) {
                   await SettingsService.to.cache.clearCache();
-                  Get.snackbar(i18n("done"), i18n("cache_cleared"), snackPosition: SnackPosition.bottom);
+                  Get.snackbar(i18n("done"), i18n("cache_cleared"), snackPosition: SnackPosition.BOTTOM);
                 }
               },
             ),

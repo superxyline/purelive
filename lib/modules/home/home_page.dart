@@ -20,6 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   Timer? _debounceTimer;
   final FavoriteController favoriteController = Get.find<FavoriteController>();
+  StreamSubscription? _tabBottomSub;
 
   int _selectedIndex = 0;
 
@@ -46,7 +47,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
       }
     });
 
-    favoriteController.tabBottomIndex.addListener(() {
+    _tabBottomSub = favoriteController.tabBottomIndex.listen((_) {
       if (mounted) {
         setState(() => _selectedIndex = favoriteController.tabBottomIndex.value);
       }
@@ -66,6 +67,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _tabBottomSub?.cancel();
+    super.dispose();
   }
 
   void _syncInitialIndex() {

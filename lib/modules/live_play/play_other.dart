@@ -100,7 +100,7 @@ class _PlayOtherState extends State<PlayOther> with SingleTickerProviderStateMix
                 () => loadingFinish.value
                     ? TabBarView(
                         controller: tabController,
-                        children: [_buildRoomList(onlineRooms.value), _buildRoomList(recordingRooms.value)],
+                        children: [_buildRoomList(onlineRooms), _buildRoomList(recordingRooms)],
                       )
                     : AppStatusView(type: AppStatusType.loading, title: "", subtitle: ""),
               ),

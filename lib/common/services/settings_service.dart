@@ -1,4 +1,4 @@
-import 'package:pure_live/get/get.dart';
+import 'package:get/get.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 import 'package:pure_live/common/services/settings/log_controller.dart';
