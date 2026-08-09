@@ -107,6 +107,14 @@ flutter build apk --release --split-per-abi
 - 用户 Cookie 仅用于本地请求身份认证（如 B站高清直播），**不会上传或存储到任何服务器**。
 - 应用无广告、无追踪、无后台服务。若杀毒软件误报，请自行判断或拒绝使用。
 
+## 实现说明
+
+本自定义版（0.1.4）的功能裁剪、安全加固、代码优化与版本迭代，均由 **Codex（AI 编程助手）与 DeepSeek（AI 模型）** 协作完成，包括但不限于：
+
+- 功能裁剪：更新、IPTV/M3U、网易 CC、快手、直播录制、Firebase 登录
+- 安全加固：签名密钥轮换、本地数据加密、权限精简、明文 HTTP 收紧、日志安全
+- 代码结构优化：GetX 去 vendored、抖音签名 JS 抽离、JS 运行时复用
+- 依赖升级、体积优化与问题修复
 ## 致谢
 
 - 原作者：[liuchuancong/pure_live](https://github.com/liuchuancong/pure_live)
