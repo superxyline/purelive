@@ -7,7 +7,6 @@ import 'package:pure_live/common/services/settings/backup_controller.dart';
 import 'package:pure_live/common/services/settings/history_controller.dart';
 import 'package:pure_live/common/services/settings/web_dav_controller.dart';
 import 'package:pure_live/common/services/settings/startup_controller.dart';
-import 'package:pure_live/common/services/settings/window_size_controller.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/common/services/settings/page_settings_controller.dart';
 import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
@@ -33,7 +32,6 @@ class SettingsService extends GetxService {
   PlayerSettingsController get player => Get.find<PlayerSettingsController>();
   DanmakuSettingsController get danmaku => Get.find<DanmakuSettingsController>();
   FontSettingsController get font => Get.find<FontSettingsController>();
-  WindowSizeController get window => Get.find<WindowSizeController>();
   FavoriteRoomController get fav => Get.find<FavoriteRoomController>();
   HistoryController get history => Get.find<HistoryController>();
   CacheController get cache => Get.find<CacheController>();
@@ -70,7 +68,6 @@ class SettingsService extends GetxService {
     Get.lazyPut(() => lockInject(() => StartupController()), fenix: true);
     Get.lazyPut(() => lockInject(() => AppSettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => ThemeSettingsController()), fenix: true);
-    Get.lazyPut(() => lockInject(() => WindowSizeController()), fenix: true);
     Get.lazyPut(() => lockInject(() => ProxySettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => PlayerSettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => DanmakuSettingsController()), fenix: true);

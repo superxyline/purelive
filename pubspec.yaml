@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 0.1.4+5
+version: 0.1.4+6
 
 environment:
   sdk: ^3.10.4
@@ -53,7 +53,6 @@ dependencies:
       path: ./libs/universal/media_kit_libs_video
   better_player_plus: ^1.3.0 # 高级视频播放器
   audio_service: ^0.18.18 # 后台音频服务
-  audio_service_win: ^0.0.3
   audio_session: ^0.2.3 # 音频会话管理
   ffmpeg_kit_extended_flutter: ^0.5.13
   flv_lzc:
@@ -77,19 +76,7 @@ dependencies:
   google_fonts: ^8.2.1 # 谷歌字体
 
   # -------------------------- 窗口/桌面端控制 --------------------------
-  window_manager: ^0.5.1 # 桌面端窗口管理
-  windows_single_instance:
-    path: ./plugins/windows_single_instance
-  tray_manager: ^0.5.2 # 系统托盘管理
-  flutter_acrylic: ^1.1.4 # 亚克力毛玻璃效果
-  screen_retriever:
-    git: 
-      url: https://github.com/liuchuancong/screen_retriever.git
-      path: ./packages/screen_retriever
-      ref: b246b3963738d6cc159c921764c194c73dbdf2ad
-  win32: ^6.4.0 # Windows系统API
   android_intent_plus: ^6.0.0
-  fullscreen_window: ^1.2.0
 
   # -------------------------- 设备/系统权限/硬件 --------------------------
   screen_brightness: ^2.1.2 # 屏幕亮度控制
@@ -141,7 +128,6 @@ dependencies:
   url_launcher: ^6.1.12 # 打开外部链接
   share_handler: ^0.0.25 # 分享功能
   flutter_exit_app: ^2.0.0 # 退出应用
-  move_to_desktop: ^0.0.2 # 移动到桌面
   package_info_plus: ^10.1.0 # 应用包信息
   stop_watch_timer: ^3.2.2 # 计时器
   floating: ^6.0.0 # 悬浮窗
@@ -169,11 +155,6 @@ dependency_overrides:
       url: https://github.com/Predidit/media-kit.git
       ref: e3d51713f085068da32fb502ee65885547042661
       path: ./libs/universal/media_kit_libs_video
-  media_kit_libs_linux:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: e3d51713f085068da32fb502ee65885547042661
-      path: ./libs/linux/media_kit_libs_linux
   media_kit_libs_ios_video:
     git:
       url: https://github.com/Predidit/media-kit.git
@@ -184,21 +165,6 @@ dependency_overrides:
       url: https://github.com/Predidit/media-kit.git
       ref: e3d51713f085068da32fb502ee65885547042661
       path: ./libs/android/media_kit_libs_android_video
-  media_kit_libs_windows_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: e3d51713f085068da32fb502ee65885547042661
-      path: ./libs/windows/media_kit_libs_windows_video
-  media_kit_libs_macos_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: e3d51713f085068da32fb502ee65885547042661
-      path: ./libs/macos/media_kit_libs_macos_video
-  screen_retriever:
-    git: 
-      url: https://github.com/liuchuancong/screen_retriever.git
-      path: ./packages/screen_retriever
-      ref: b246b3963738d6cc159c921764c194c73dbdf2ad
 
 
 # 开发依赖

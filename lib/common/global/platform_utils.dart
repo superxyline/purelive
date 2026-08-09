@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 
 class PlatformUtils {
   PlatformUtils._();
@@ -22,4 +23,16 @@ class PlatformUtils {
   static T select<T>({required T desktop, required T mobile}) {
     return isDesktop ? desktop : mobile;
   }
+}
+
+/// 桌面/移动端通用的滚动行为（支持鼠标与触控板）。
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.invertedStylus,
+      };
 }

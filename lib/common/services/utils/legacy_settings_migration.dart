@@ -4,7 +4,6 @@ import 'package:pure_live/common/utils/hive_pref_util.dart';
 import 'package:pure_live/common/services/settings/history_controller.dart';
 import 'package:pure_live/common/services/settings/web_dav_controller.dart';
 import 'package:pure_live/common/services/settings/startup_controller.dart';
-import 'package:pure_live/common/services/settings/window_size_controller.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/common/services/settings/font_settings_controller.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
@@ -155,7 +154,6 @@ class LegacySettingsMigration {
     Get.find<WebDavController>().fromJson(legacy);
     Get.find<CookieSettingsController>().fromJson(legacy);
     Get.find<ProxySettingsController>().fromJson(legacy);
-    Get.find<WindowSizeController>().fromJson(legacy);
     Get.find<ExitSettingsController>().fromJson(legacy);
     Get.find<StartupController>().fromJson(legacy);
   }

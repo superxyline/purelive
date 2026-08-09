@@ -15,12 +15,10 @@ import 'package:rxdart/rxdart.dart' hide Rx;
 import 'package:pure_live/common/index.dart';
 import '../interface/unified_player_interface.dart';
 import 'package:pure_live/routes/app_navigation.dart';
-import 'package:pure_live/player/utils/fullscreen.dart';
 import 'package:flutter_floating/flutter_floating.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
 import 'package:pure_live/core/ffmpeg/ffmpeg_types.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
-import 'package:pure_live/player/utils/pip_window_widget.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/player/core/live_audio_service.dart';
 import 'package:pure_live/player/core/audio_stream_loader.dart';
@@ -328,24 +326,16 @@ class PlayerManager {
         final rational = isVerticalVideo.value ? Rational.vertical() : Rational.landscape();
         await floating.enable(ImmediatePiP(aspectRatio: rational));
       }
-    } else if (Platform.isWindows) {
-      await WindowService().enterWinPiP(currentVideoRatio);
-      isInPip.value = true;
     }
   }
 
   Future<void> exitPip() async {
-    if (Platform.isWindows) {
-      await WindowService().exitWinPiP();
-      GlobalPlayerState.to.reset();
-      isInPip.value = false;
-    }
   }
 
   void showAppFloating() {
     floatingManager.disposeFloating(_floatTag);
     _hideTimer?.cancel();
-    double maxSide = Platform.isWindows ? 350 : 220;
+    double maxSide = 220;
     double ratio = currentVideoRatio;
     double floatWidth;
     double floatHeight;
@@ -489,7 +479,6 @@ class PlayerManager {
             children: [
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onPanStart: (_) => windowManager.startDragging(),
                 onDoubleTap: () async {
                   await exitPip();
                 },
@@ -678,8 +667,7 @@ class PlayerManager {
 
   Widget getVideoWidget(int fitIndex, {Widget? controls, required List<BoxFit> fitList}) {
     final LivePlayController livePlayController = Get.find<LivePlayController>();
-    return PureLivePipWidget(
-      child: Container(
+    return Container(
         color: Colors.black,
         padding: const EdgeInsets.all(0),
         child: StreamBuilder<bool>(
@@ -729,7 +717,6 @@ class PlayerManager {
             return PiPSwitcher(floating: floating, childWhenEnabled: content, childWhenDisabled: content);
           },
         ),
-      ),
     );
   }
 

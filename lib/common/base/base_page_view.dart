@@ -185,7 +185,7 @@ class BasePageView<C extends BasePageScrollAndStateBone<T>, T> extends Stateless
                             subtitle: '',
                           );
                         }
-                        return buildActualContent(context, isDesktop);
+                        return buildActualContent(context);
                       });
                     },
                   ),

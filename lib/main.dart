@@ -8,7 +8,6 @@ import 'package:pure_live/player/utils/player_consts.dart';
 import 'package:pure_live/player/models/player_engine.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
-import 'package:pure_live/common/global/platform/desktop_manager.dart';
 
 void main(List<String> args) async {
   await AppInitializer().initialize(args);
@@ -31,13 +30,10 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with DesktopWindowMixin {
+class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    if (PlatformUtils.isDesktop) {
-      DesktopManager.initializeListeners(this);
-    }
     initGlopalPlayer();
   }
 
@@ -47,19 +43,12 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
     final PlayerEngine targetEngine = PlayerConsts.engines[validKey]!;
     final PlayerEngine defaultEngine;
 
-    if (PlatformUtils.isDesktop) {
-      defaultEngine = PlayerEngine.mediaKit;
-    } else {
-      defaultEngine = targetEngine;
-    }
+    defaultEngine = targetEngine;
     GlobalPlayerService.instance.initialize(defaultEngine: defaultEngine);
   }
 
   @override
   void dispose() {
-    if (PlatformUtils.isDesktop) {
-      DesktopManager.disposeListeners();
-    }
     GlobalPlayerService.instance.playerManager.dispose();
     super.dispose();
   }
@@ -102,10 +91,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
             navigatorObservers: [FlutterSmartDialog.observer, BackButtonObserver()],
             builder: FlutterSmartDialog.init(
               builder: (context, child) {
-                Widget resultWidget = child ?? const SizedBox.shrink();
-                if (PlatformUtils.isDesktopNotMac) {
-                  resultWidget = DesktopManager.buildWithTitleBar(resultWidget);
-                }
+                final Widget resultWidget = child ?? const SizedBox.shrink();
                 return MediaQuery(
                   data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(currentFactor)),
                   child: resultWidget,

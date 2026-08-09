@@ -1,39 +1,8 @@
-import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 
 extension BasePageViewContentExtension<C extends BasePageScrollAndStateBone<T>, T> on BasePageView<C, T> {
-  Widget buildActualContent(BuildContext context, bool isDesktop) {
-    if (isDesktop) {
-      return CallbackShortcuts(
-        bindings: <ShortcutActivator, VoidCallback>{
-          const SingleActivator(LogicalKeyboardKey.arrowLeft): () {
-            if (controller.currentPage > 1 && !controller.loadding.value) {
-              controller.goToPage(controller.currentPage - 1);
-            }
-          },
-          const SingleActivator(LogicalKeyboardKey.arrowRight): () {
-            if (controller.canLoadMore.value && !controller.loadding.value && enableLoadMore) {
-              controller.goToPage(controller.currentPage + 1);
-            }
-          },
-        },
-        child: Focus(
-          autofocus: true,
-          child: Column(
-            children: [
-              Expanded(child: contentBuilder(context, controller.list, controller.scrollController)),
-              if (enableLoadMore)
-                DesktopPaginationBar(
-                  controller: controller,
-                  showSelector: showPageSizeSelector,
-                  options: pageSizeOptions,
-                ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      return EasyRefresh(
+  Widget buildActualContent(BuildContext context) {
+    return EasyRefresh(
         controller: controller.easyRefreshController,
         onRefresh: enableRefresh ? controller.refreshData : null,
         onLoad: (enableLoadMore && controller.canLoadMore.value)
@@ -43,7 +12,6 @@ extension BasePageViewContentExtension<C extends BasePageScrollAndStateBone<T>, 
             : null,
         child: contentBuilder(context, controller.list, controller.scrollController),
       );
-    }
   }
 
   Widget buildFloatingButtons(BuildContext context) {

@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:move_to_desktop/move_to_desktop.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
@@ -107,20 +106,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     favoriteController.tabBottomIndex.value = index;
   }
 
-  void onBackButtonPressed(bool didPop, _) async {
-    if (!didPop) {
-      MoveToDesktop().moveToDesktop();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: onBackButtonPressed,
-      child: LayoutBuilder(
-        builder: (context, constraint) {
+    return LayoutBuilder(
+      builder: (context, constraint) {
           final bool isTablet = constraint.maxWidth > 680;
 
           return Obx(() {
@@ -153,7 +143,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                   );
           });
         },
-      ),
     );
   }
 

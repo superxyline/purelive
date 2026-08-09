@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pure_live/common/global/platform/desktop_manager.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 void main() {
   test('MyCustomScrollBehavior supports trackpad and mouse drag scrolling', () {

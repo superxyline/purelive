@@ -2,8 +2,6 @@ import 'dart:io';
 import 'dart:developer';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/utils/utils.dart';
-import 'package:pure_live/player/utils/fullscreen.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 
 /// APP页面跳转封装
@@ -63,9 +61,6 @@ class BackButtonObserver extends RouteObserver<PageRoute<dynamic>> {
           } else {
             manager.close();
           }
-        }
-        if (PlatformUtils.isMobile) {
-          WindowService().doExitFullScreen();
         }
       } catch (e) {
         log("BackButtonObserver Error: ${e.toString()}");

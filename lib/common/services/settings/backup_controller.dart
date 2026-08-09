@@ -6,7 +6,6 @@ import 'package:pure_live/modules/tags/tag_management_controller.dart';
 import 'package:pure_live/common/services/settings/web_dav_controller.dart';
 import 'package:pure_live/common/services/settings/history_controller.dart';
 import 'package:pure_live/common/services/settings/startup_controller.dart';
-import 'package:pure_live/common/services/settings/window_size_controller.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
 import 'package:pure_live/common/services/settings/font_settings_controller.dart';
@@ -45,7 +44,6 @@ class BackupController extends GetxController {
       'webdav': Get.find<WebDavController>().toJson(),
       'cookie': Get.find<CookieSettingsController>().toJson(),
       'proxy': Get.find<ProxySettingsController>().toJson(),
-      'windowSize': Get.find<WindowSizeController>().toJson(),
       'exit': Get.find<ExitSettingsController>().toJson(),
       'startup': Get.find<StartupController>().toJson(),
       'tags': Get.find<TagManagementController>().exportToJson(),
@@ -96,8 +94,6 @@ class BackupController extends GetxController {
 
     Get.find<ProxySettingsController>().fromJson(Map<String, dynamic>.from(data['proxy'] ?? {}));
 
-    Get.find<WindowSizeController>().fromJson(Map<String, dynamic>.from(data['windowSize'] ?? {}));
-
     Get.find<ExitSettingsController>().fromJson(Map<String, dynamic>.from(data['exit'] ?? {}));
 
     Get.find<StartupController>().fromJson(Map<String, dynamic>.from(data['startup'] ?? {}));
@@ -126,7 +122,6 @@ class BackupController extends GetxController {
     Get.find<FavoriteRoomController>().fromJson(data);
     Get.find<HistoryController>().fromJson(data);
     Get.find<ProxySettingsController>().fromJson(data);
-    Get.find<WindowSizeController>().fromJson(data);
     Get.find<ExitSettingsController>().fromJson(data);
     Get.find<StartupController>().fromJson(data);
     Get.find<RefreshConfigController>().fromJson(data);

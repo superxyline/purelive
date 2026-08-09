@@ -6,7 +6,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:pure_live/player/utils/fullscreen.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:pure_live/modules/live_play/load_type.dart';
@@ -373,7 +372,6 @@ class VideoController with ChangeNotifier {
   }
 
   void exitFullScreen() async {
-    WindowService().doExitFullScreen();
     GlobalPlayerState.to.isFullscreen.value = false;
   }
 
@@ -386,8 +384,7 @@ class VideoController with ChangeNotifier {
     });
     if (GlobalPlayerState.to.isFullscreen.value) {
       livePlayController.setNormalScreen();
-      WindowService().doExitFullScreen();
-      GlobalPlayerState.to.isFullscreen.value = false;
+        GlobalPlayerState.to.isFullscreen.value = false;
     } else {
       livePlayController.setFullScreen();
       enterFullScreen();
@@ -397,13 +394,7 @@ class VideoController with ChangeNotifier {
   }
 
   void enterFullScreen() {
-    WindowService().doEnterFullScreen();
     GlobalPlayerState.to.isFullscreen.value = true;
-    if (GlobalPlayerService.instance.playerManager.isVerticalVideo.value) {
-      WindowService().verticalScreen();
-    } else {
-      WindowService().landScape();
-    }
   }
 
   // 半屏显示

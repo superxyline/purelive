@@ -1,7 +1,5 @@
-import 'dart:developer' as dev;
 import 'package:get/get.dart';
 import 'package:pure_live/core/site/huya_site.dart';
-import 'package:pure_live/common/global/win_auto_start.dart';
 import 'package:pure_live/common/services/utils/hive_rx.dart';
 
 class StartupController extends GetxController {
@@ -10,28 +8,11 @@ class StartupController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ever<bool>(enableStartUp, (_) => setupLaunchAtStartup());
     loadHuyaUa();
   }
 
   Future<void> loadHuyaUa() async {
     HuyaSite().getHuYaUA();
-  }
-
-  Future<void> setupLaunchAtStartup() async {
-    try {
-      final isEnabled = WindowsAutoStart.isEnabled();
-
-      if (enableStartUp.v && !isEnabled) {
-        final result = WindowsAutoStart.enable();
-        dev.log("Enable startup result: $result");
-      } else if (!enableStartUp.v && isEnabled) {
-        final result = WindowsAutoStart.disable();
-        dev.log("Disable startup result: $result");
-      }
-    } catch (e) {
-      dev.log("Auto-start error: $e");
-    }
   }
 
   void enableStartup() {

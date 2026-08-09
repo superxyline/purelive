@@ -1,7 +1,6 @@
-import 'dart:io';
-import 'package:pure_live/core/common/log.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:tray_manager/tray_manager.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class Utils {
@@ -27,17 +26,6 @@ class Utils {
     return dateFormatWithYear.format(dt);
   }
 
-  static Future<void> _minimizeOrHideDesktopWindow() async {
-    // macOS 上更符合习惯的是最小化到 Dock；直接 hide 在没有托盘/菜单栏入口时
-    // 容易让用户误以为 App 退出。
-    if (Platform.isMacOS) {
-      await windowManager.minimize();
-    } else {
-      if (await windowManager.isPreventClose()) {
-        await windowManager.hide();
-      }
-    }
-  }
 
   static Future<bool> showAlertDialog(
     String content, {
@@ -284,17 +272,9 @@ class Utils {
 
     if (dontAsk) {
       if (exitChoose == 'exit') {
-        if (await windowManager.isPreventClose()) {
-          await windowManager.setPreventClose(false);
-        }
-        Future.microtask(() async {
-          await windowManager.hide();
-          await windowManager.setPreventClose(false);
-          trayManager.destroy().catchError((e) => Log.logPrint('托盘注销失败: $e'));
-          windowManager.close().catchError((e) => Log.logPrint('窗口关闭失败: $e'));
-        });
+        FlutterExitApp.exitApp();
       } else if (exitChoose == 'minimize') {
-        await _minimizeOrHideDesktopWindow();
+        SystemNavigator.pop();
         return true;
       }
     }
@@ -338,7 +318,7 @@ class Utils {
                   SettingsService.to.exit.exitChoose.v = 'minimize';
                   Navigator.of(context).pop();
                   Future.delayed(const Duration(milliseconds: 200), () async {
-                    await _minimizeOrHideDesktopWindow();
+                    SystemNavigator.pop();
                   });
                 },
                 child: Text(i18n("minimize")),
@@ -349,11 +329,7 @@ class Utils {
                   SettingsService.to.exit.dontAskExit.v = shouldNotAskAgain;
                   SettingsService.to.exit.exitChoose.v = 'exit';
                   Navigator.of(context).pop();
-                  await windowManager.hide();
-
-                  await windowManager.setPreventClose(false);
-                  trayManager.destroy().catchError((e) => Log.logPrint('托盘注销失败: $e'));
-                  windowManager.close().catchError((e) => Log.logPrint('窗口关闭失败: $e'));
+                  FlutterExitApp.exitApp();
                 },
                 child: Text(i18n("exit_app")),
               ),
