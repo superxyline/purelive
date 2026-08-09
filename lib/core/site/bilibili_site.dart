@@ -484,15 +484,21 @@ class BiliBiliSite implements LiveSite {
     );
     List<LiveSuperChatMessage> ls = [];
     for (var item in result["data"]?["list"] ?? []) {
+      final userInfo = (item["user_info"] as Map<String, dynamic>?) ?? <String, dynamic>{};
+      final face = userInfo["face"]?.toString() ?? "";
       var message = LiveSuperChatMessage(
-        backgroundBottomColor: item["background_bottom_color"].toString(),
-        backgroundColor: item["background_color"].toString(),
-        endTime: DateTime.fromMillisecondsSinceEpoch(item["end_time"] * 1000),
-        face: "${item["user_info"]["face"]}@200w.jpg",
-        message: item["message"].toString(),
-        price: item["price"],
-        startTime: DateTime.fromMillisecondsSinceEpoch(item["start_time"] * 1000),
-        userName: item["user_info"]["uname"].toString(),
+        id: (item["id"] as num?)?.toInt() ?? 0,
+        backgroundBottomColor: item["background_bottom_color"]?.toString() ?? '#2A60B2',
+        backgroundColor: item["background_color"]?.toString() ?? '#EDF5FF',
+        backgroundImage: item["background_image"]?.toString(),
+        endTime: DateTime.fromMillisecondsSinceEpoch(((item["end_time"] as num?)?.toInt() ?? 0) * 1000),
+        face: face.isEmpty ? "" : "$face@200w.jpg",
+        message: item["message"]?.toString() ?? "",
+        messageFontColor: item["message_font_color"]?.toString() ?? '#FFFFFF',
+        nameColor: userInfo["name_color"]?.toString() ?? '#FFFFFF',
+        price: (item["price"] as num?)?.toInt() ?? 0,
+        startTime: DateTime.fromMillisecondsSinceEpoch(((item["start_time"] as num?)?.toInt() ?? 0) * 1000),
+        userName: userInfo["uname"]?.toString() ?? "",
       );
       ls.add(message);
     }

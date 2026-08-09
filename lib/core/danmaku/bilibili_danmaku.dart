@@ -215,20 +215,27 @@ class BiliBiliDanmaku implements LiveDanmaku {
         if (obj["data"] == null) {
           return;
         }
+        final data = obj["data"] as Map<String, dynamic>;
+        final userInfo = (data["user_info"] as Map<String, dynamic>?) ?? <String, dynamic>{};
+        final face = userInfo["face"]?.toString() ?? "";
         LiveSuperChatMessage sc = LiveSuperChatMessage(
-          backgroundBottomColor: obj["data"]["background_bottom_color"].toString(),
-          backgroundColor: obj["data"]["background_color"].toString(),
-          endTime: DateTime.fromMillisecondsSinceEpoch(obj["data"]["end_time"] * 1000),
-          face: "${obj["data"]["user_info"]["face"]}@200w.jpg",
-          message: obj["data"]["message"].toString(),
-          price: obj["data"]["price"],
-          startTime: DateTime.fromMillisecondsSinceEpoch(obj["data"]["start_time"] * 1000),
-          userName: obj["data"]["user_info"]["uname"].toString(),
+          id: (data["id"] as num?)?.toInt() ?? 0,
+          backgroundBottomColor: data["background_bottom_color"]?.toString() ?? '#2A60B2',
+          backgroundColor: data["background_color"]?.toString() ?? '#EDF5FF',
+          backgroundImage: data["background_image"]?.toString(),
+          endTime: DateTime.fromMillisecondsSinceEpoch(((data["end_time"] as num?)?.toInt() ?? 0) * 1000),
+          face: face.isEmpty ? "" : "$face@200w.jpg",
+          message: data["message"]?.toString() ?? "",
+          messageFontColor: data["message_font_color"]?.toString() ?? '#FFFFFF',
+          nameColor: userInfo["name_color"]?.toString() ?? '#FFFFFF',
+          price: (data["price"] as num?)?.toInt() ?? 0,
+          startTime: DateTime.fromMillisecondsSinceEpoch(((data["start_time"] as num?)?.toInt() ?? 0) * 1000),
+          userName: userInfo["uname"]?.toString() ?? "",
         );
         var liveMsg = LiveMessage(
           type: LiveMessageType.superChat,
-          userName: "SUPER_CHAT_MESSAGE",
-          message: "SUPER_CHAT_MESSAGE",
+          userName: sc.userName,
+          message: sc.message,
           color: LiveMessageColor.white,
           data: sc,
         );

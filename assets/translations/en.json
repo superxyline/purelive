@@ -431,6 +431,8 @@
     "stream_not_live": "The streamer is offline",
     "stroke": "Stroke",
     "style": "Style",
+    "show_super_chat": "Show Super Chat (Bilibili)",
+    "super_chat": "Super Chat",
     "support_donate": "Donate Support",
     "switch_live_room": "Switch live room",
     "switch_other_room": "Please switch to another room",

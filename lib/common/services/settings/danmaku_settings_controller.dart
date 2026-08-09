@@ -12,6 +12,7 @@ class DanmakuSettingsController extends GetxController {
   final RxDouble danmakuOpacity = hiveDouble('danmakuOpacity', 1.0);
   final RxBool enableDanmakuDisplay = hiveBool('enableDanmakuDisplay', true);
   final RxBool enableDanmakuStroke = hiveBool('enableDanmakuStroke', true);
+  final RxBool showSuperChat = hiveBool('showSuperChat', true);
   final RxInt danmakuFps = hiveInt('danmakuFps', 60);
   final RxString danmakuFontFamilyName = hiveString('danmakuFontFamilyName', 'Default');
 
@@ -28,6 +29,7 @@ class DanmakuSettingsController extends GetxController {
       'enableDanmakuDisplay': enableDanmakuDisplay.v,
       'danmakuFontFamilyName': danmakuFontFamilyName.v,
       'enableDanmakuStroke': enableDanmakuStroke.v,
+      'showSuperChat': showSuperChat.v,
       'danmakuFps': danmakuFps.v,
     };
   }
@@ -44,6 +46,7 @@ class DanmakuSettingsController extends GetxController {
     enableDanmakuDisplay.v = json['enableDanmakuDisplay'] ?? true;
     danmakuFontFamilyName.v = json['danmakuFontFamilyName'] ?? 'Default';
     enableDanmakuStroke.v = json['enableDanmakuStroke'] ?? true;
+    showSuperChat.v = json['showSuperChat'] ?? true;
     danmakuFps.v = json['danmakuFps']?.toInt() ?? 60;
   }
 
@@ -61,6 +64,7 @@ class DanmakuSettingsController extends GetxController {
       'enableDanmakuDisplay': danmaku['enableDanmakuDisplay'] ?? true,
       'danmakuFontFamilyName': danmaku['danmakuFontFamilyName'] ?? 'Default',
       'enableDanmakuStroke': danmaku['enableDanmakuStroke'] ?? true,
+      'showSuperChat': danmaku['showSuperChat'] ?? true,
       'danmakuFps': (danmaku['danmakuFps'] ?? 60).toInt(),
     };
   }

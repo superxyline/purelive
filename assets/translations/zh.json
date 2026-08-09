@@ -432,6 +432,8 @@
     "stream_not_live": "当前主播未开播或已下播",
     "stroke": "描边",
     "style": "样式",
+    "show_super_chat": "显示醒目留言（B站）",
+    "super_chat": "醒目留言",
     "support_donate": "捐赠支持",
     "switch_live_room": "切换直播间",
     "switch_other_room": "请切换其他直播间进行观看吧",

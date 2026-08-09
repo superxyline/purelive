@@ -137,6 +137,21 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
                   digitColor: digitColor,
                 ),
               ]),
+
+              const SizedBox(height: 20),
+
+              context.buildGroupTitle(i18n("super_chat")),
+              const SizedBox(height: 8),
+              context.buildModernCard([
+                _switch(
+                  theme,
+                  title: i18n("show_super_chat"),
+                  value: SettingsService.to.danmaku.showSuperChat.v,
+                  onChanged: (v) => SettingsService.to.danmaku.showSuperChat.v = v,
+                  labelColor: labelColor,
+                ),
+              ]),
+
               const SizedBox(height: 24),
             ],
           ),

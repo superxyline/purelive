@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/site/huya_site.dart';
 import 'widgets/video_player/video_controller.dart';
 import 'package:pure_live/common/utils/emoji_manager.dart';
@@ -346,6 +347,10 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
             rxVideoCtrl.value!.sendDanmaku(msg);
           }
         }
+      } else if (msg.type == LiveMessageType.superChat) {
+        if (currentSite.id == Sites.bilibiliSite && SettingsService.to.danmaku.showSuperChat.v) {
+          _addMessage(msg);
+        }
       }
     };
 
@@ -356,6 +361,10 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
     liveDanmaku.onReady = () {
       messages.add(_systemMsg(i18n('danmaku_connected')));
     };
+
+    if (currentSite.id == Sites.bilibiliSite && SettingsService.to.danmaku.showSuperChat.v) {
+      _loadSuperChatHistory();
+    }
   }
 
   LiveMessage _systemMsg(String text) => LiveMessage(
@@ -368,6 +377,27 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
   void _addMessage(LiveMessage msg) {
     if (messages.length > 100) messages.removeAt(0);
     messages.add(msg);
+  }
+
+  Future<void> _loadSuperChatHistory() async {
+    try {
+      final roomId = detail.value?.roomId;
+      if (roomId == null || roomId.isEmpty) return;
+      final list = await currentSite.liveSite.getSuperChatMessage(roomId: roomId);
+      for (final sc in list) {
+        _addMessage(
+          LiveMessage(
+            type: LiveMessageType.superChat,
+            userName: sc.userName,
+            message: sc.message,
+            color: LiveMessageColor.white,
+            data: sc,
+          ),
+        );
+      }
+    } catch (e) {
+      CoreLog.error(e);
+    }
   }
 
   // =========================================================
