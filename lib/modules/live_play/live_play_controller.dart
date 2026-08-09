@@ -36,6 +36,9 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   final List<String> tabs = [i18n('danmaku_list'), i18n('danmaku_settings'), i18n('block_list')];
 
   final messages = <LiveMessage>[].obs;
+  final fsSC = Rxn<LiveSuperChatMessage>();
+  Timer? _fsSCTimer;
+  final List<Worker> _fsSCWorkers = [];
   final isLiving = true.obs;
   final videoController = Rx<VideoController?>(null);
 
@@ -81,6 +84,14 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   @override
   void onInit() {
     super.onInit();
+    _fsSCWorkers.addAll([
+      ever(GlobalPlayerState.to.isFullscreen, (_) {
+        if (!GlobalPlayerState.to.fullscreenUI) hideFullscreenSC();
+      }),
+      ever(GlobalPlayerState.to.isWindowFullscreen, (_) {
+        if (!GlobalPlayerState.to.fullscreenUI) hideFullscreenSC();
+      }),
+    ]);
     Future.microtask(_initCore);
   }
 
@@ -177,6 +188,11 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   @override
   void onClose() {
+    hideFullscreenSC();
+    for (final worker in _fsSCWorkers) {
+      worker.dispose();
+    }
+    _fsSCWorkers.clear();
     _disposeAll();
     super.onClose();
   }
@@ -271,6 +287,7 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
 
     if (!sameRoom) {
       messages.clear();
+      hideFullscreenSC();
 
       if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
         liveDanmaku.stop();
@@ -350,6 +367,9 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
       } else if (msg.type == LiveMessageType.superChat) {
         if (currentSite.id == Sites.bilibiliSite && SettingsService.to.danmaku.showSuperChat.v) {
           _addMessage(msg);
+          if (msg.data is LiveSuperChatMessage && GlobalPlayerState.to.fullscreenUI) {
+            showFullscreenSC(msg.data as LiveSuperChatMessage);
+          }
         }
       }
     };
@@ -398,6 +418,27 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
     } catch (e) {
       CoreLog.error(e);
     }
+  }
+
+  /// 全屏播放时弹出 SC 卡片，按 SC 有效时间自动消失。
+  void showFullscreenSC(LiveSuperChatMessage sc) {
+    _fsSCTimer?.cancel();
+    fsSC.value = sc;
+    var duration = sc.endTime.difference(DateTime.now());
+    if (duration < const Duration(seconds: 3)) {
+      duration = const Duration(seconds: 3);
+    }
+    _fsSCTimer = Timer(duration, () {
+      if (identical(fsSC.value, sc)) {
+        fsSC.value = null;
+      }
+    });
+  }
+
+  void hideFullscreenSC() {
+    _fsSCTimer?.cancel();
+    _fsSCTimer = null;
+    fsSC.value = null;
   }
 
   // =========================================================
