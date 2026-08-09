@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'video_controller_panel.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:flutter/services.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -371,7 +372,32 @@ class VideoController with ChangeNotifier {
     GlobalPlayerService.instance.playerManager.changeVideoFit(index);
   }
 
+  /// 手机进入全屏强制横屏、退出恢复竖屏；平板始终横屏。
+  Future<void> _updateOrientationForFullscreen(bool entering) async {
+    try {
+      final size = MediaQuery.of(Get.context!).size;
+      final bool isTablet = size.shortestSide >= 600;
+      if (isTablet) {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      } else if (entering) {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      } else {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+      }
+    } catch (_) {}
+  }
+
   void exitFullScreen() async {
+    await _updateOrientationForFullscreen(false);
     GlobalPlayerState.to.isFullscreen.value = false;
   }
 
@@ -384,16 +410,18 @@ class VideoController with ChangeNotifier {
     });
     if (GlobalPlayerState.to.isFullscreen.value) {
       livePlayController.setNormalScreen();
-        GlobalPlayerState.to.isFullscreen.value = false;
+      await _updateOrientationForFullscreen(false);
+      GlobalPlayerState.to.isFullscreen.value = false;
     } else {
       livePlayController.setFullScreen();
-      enterFullScreen();
+      await enterFullScreen();
       GlobalPlayerState.to.isFullscreen.value = true;
     }
     enableController();
   }
 
-  void enterFullScreen() {
+  Future<void> enterFullScreen() async {
+    await _updateOrientationForFullscreen(true);
     GlobalPlayerState.to.isFullscreen.value = true;
   }
 

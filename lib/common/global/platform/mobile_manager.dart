@@ -51,12 +51,23 @@ class MobileManager {
         ),
       );
 
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
+      final size = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
+      final dpr = WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
+      final bool isTablet = (size.shortestSide / dpr).round() >= 600;
+      if (isTablet) {
+        // 平板全程横屏
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      } else {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      }
     } catch (e) {
       Log.logPrint('Android 初始化失败: $e');
     }
