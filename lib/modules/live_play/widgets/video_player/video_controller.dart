@@ -60,6 +60,8 @@ class VideoController with ChangeNotifier {
   StreamSubscription<bool>? _pipSub;
   Timer? showControllerTimer;
   final showController = true.obs;
+  /// 弹幕输入框是否正在编辑（全屏控制条内输入时保持控制条可见）。
+  final inputEditing = false.obs;
   final showLocked = false.obs;
   final danmuKey = GlobalKey();
   final isMenuOpen = false.obs;
@@ -80,7 +82,9 @@ class VideoController with ChangeNotifier {
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 2), () {
-      showController.value = false;
+      if (!inputEditing.value) {
+        showController.value = false;
+      }
     });
     showController.value = true;
   }

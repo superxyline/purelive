@@ -1007,10 +1007,15 @@ class BottomActionBar extends StatelessWidget {
                           ],
                         ),
 
-                        if (controller.livePlayController.currentSite.id == Sites.bilibiliSite)
+                        if (GlobalPlayerState.to.fullscreenUI &&
+                            controller.livePlayController.currentSite.id == Sites.bilibiliSite)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 6),
-                            child: LiveDanmakuInputBar(controller: controller),
+                            child: LiveDanmakuInputBar(
+                              controller: controller.livePlayController,
+                              videoController: controller,
+                              dark: true,
+                            ),
                           ),
 
                         Obx(
