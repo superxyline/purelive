@@ -129,38 +129,19 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 Obx(() {
                   final liveCtr = controller.livePlayController;
                   final sc = liveCtr.fsSC.value;
-                  final bool isFS = GlobalPlayerState.to.fullscreenUI;
-                  final bool locked = controller.showLocked.value;
-                  final bool controlsShown = controller.showController.value && !locked;
-                  final double inputBarBottom = controlsShown ? barHeight + 8 : 8;
-                  if (!isFS || sc == null) {
+                  if (!GlobalPlayerState.to.fullscreenUI || sc == null) {
                     return const SizedBox.shrink();
                   }
                   final width = (MediaQuery.of(context).size.width * 0.6).clamp(260.0, 360.0);
                   return Positioned(
                     left: 16,
-                    bottom: locked ? 24 : inputBarBottom + 48 + 10,
+                    bottom:
+                        (controller.showController.value && !controller.showLocked.value) ? barHeight + 16 : 24,
                     width: width,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: SuperChatCard(key: ValueKey(sc.id), sc: sc),
                     ),
-                  );
-                }),
-                Obx(() {
-                  final liveCtr = controller.livePlayController;
-                  if (!GlobalPlayerState.to.fullscreenUI || controller.showLocked.value) {
-                    return const SizedBox.shrink();
-                  }
-                  final bool controlsShown = controller.showController.value;
-                  return Positioned(
-                    left: 10,
-                    right: 10,
-                    bottom: controlsShown ? barHeight + 8 : 8,
-                    height: 48,
-                    child: liveCtr.currentSite.id == Sites.bilibiliSite
-                        ? LiveDanmakuInputBar(controller: liveCtr, dark: true)
-                        : const SizedBox.shrink(),
                   );
                 }),
               ],
@@ -1025,6 +1006,12 @@ class BottomActionBar extends StatelessWidget {
                             ],
                           ],
                         ),
+
+                        if (controller.livePlayController.currentSite.id == Sites.bilibiliSite)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: LiveDanmakuInputBar(controller: controller),
+                          ),
 
                         Obx(
                           () => Row(

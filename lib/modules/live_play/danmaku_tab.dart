@@ -3,7 +3,6 @@ import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
 import 'package:pure_live/modules/live_play/widgets/keyword_block_page.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_settings_page.dart';
-import 'package:pure_live/modules/live_play/widgets/live_danmaku_input_bar.dart';
 
 class DanmakuTabView extends GetView<LivePlayController> {
   const DanmakuTabView({super.key});
@@ -38,8 +37,6 @@ class DanmakuTabView extends GetView<LivePlayController> {
               ],
             ),
           ),
-          if (controller.currentSite.id == Sites.bilibiliSite)
-            LiveDanmakuInputBar(controller: controller),
         ],
       );
     });
