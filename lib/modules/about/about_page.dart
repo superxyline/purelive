@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:remixicon/remixicon.dart'; // 🌟 Imported Remix Icons pack
 
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pure_live/modules/about/changelog_page.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -97,6 +98,8 @@ class _AboutPageState extends State<AboutPage> {
           context.buildModernCard([
             context.buildTile(
               icon: Remix.shield_user_line, title: i18n("license"), onTap: openLicensePage),
+            context.buildTile(
+              icon: Remix.time_line, title: i18n("update_log"), onTap: openChangelogPage),
           ]),
           const SizedBox(height: 24),
           context.buildGroupTitle(i18n("project")),
@@ -204,6 +207,12 @@ class _AboutPageState extends State<AboutPage> {
         padding: const EdgeInsets.all(12),
         child: SizedBox(width: 60, child: Center(child: Image.asset('assets/icons/icon.png'))),
       ),
+    );
+  }
+
+  void openChangelogPage() {
+    Navigator.of(Get.context!).push(
+      MaterialPageRoute(builder: (_) => const ChangelogPage()),
     );
   }
 
