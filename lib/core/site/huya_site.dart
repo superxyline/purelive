@@ -568,6 +568,12 @@ class HuyaSite implements LiveSite {
     return Future.value([]);
   }
 
+  @override
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) {
+    //尚不支持
+    return Future.value((false, '当前平台暂不支持发送弹幕'));
+  }
+
   // 构造 anticode, python转写
   /// [stream] streamname [presenterUid] 用户id [antiCode] 页面anti
   ///

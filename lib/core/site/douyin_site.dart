@@ -680,6 +680,11 @@ class DouyinSite implements LiveSite {
     return Future.value(<LiveSuperChatMessage>[]);
   }
 
+  @override
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) {
+    return Future.value((false, '当前平台暂不支持发送弹幕'));
+  }
+
   //生成指定长度的16进制随机字符串
   String generateRandomString(int length) {
     var random = math.Random.secure();

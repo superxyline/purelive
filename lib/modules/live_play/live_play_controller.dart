@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/site/huya_site.dart';
+import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
 import 'widgets/video_player/video_controller.dart';
 import 'package:pure_live/common/utils/emoji_manager.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -439,6 +440,39 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
     _fsSCTimer?.cancel();
     _fsSCTimer = null;
     fsSC.value = null;
+  }
+
+  /// 发送 B站直播间弹幕，成功时本地回显一条自己的弹幕。
+  Future<bool> sendLiveDanmaku(String text) async {
+    final message = text.trim();
+    if (message.isEmpty) return false;
+    if (currentSite.id != Sites.bilibiliSite) {
+      ToastUtil.show(i18n('send_danmaku_unsupported'));
+      return false;
+    }
+    if (SettingsService.to.cookieManager.bilibiliCookie.v.isEmpty) {
+      ToastUtil.show(i18n('send_danmaku_need_login'));
+      return false;
+    }
+    final roomId = detail.value?.roomId ?? '';
+    if (roomId.isEmpty) return false;
+
+    final (ok, info) = await currentSite.liveSite.sendDanmaku(roomId: roomId, message: message);
+    if (ok) {
+      ToastUtil.show(i18n('send_success'));
+      final name = BiliBiliAccountService.instance.name.value;
+      final echo = LiveMessage(
+        type: LiveMessageType.chat,
+        userName: name.isEmpty ? i18n('me') : name,
+        message: message,
+        color: LiveMessageColor.white,
+      );
+      _addMessage(echo);
+      videoController.value?.sendDanmaku(echo);
+      return true;
+    }
+    ToastUtil.show(info.isEmpty ? i18n('send_failed') : info);
+    return false;
   }
 
   // =========================================================

@@ -16,6 +16,7 @@ import 'package:pure_live/modules/live_play/play_other.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
+import 'package:pure_live/modules/live_play/widgets/live_danmaku_input_bar.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
@@ -128,19 +129,38 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 Obx(() {
                   final liveCtr = controller.livePlayController;
                   final sc = liveCtr.fsSC.value;
-                  if (!GlobalPlayerState.to.fullscreenUI || sc == null) {
+                  final bool isFS = GlobalPlayerState.to.fullscreenUI;
+                  final bool locked = controller.showLocked.value;
+                  final bool controlsShown = controller.showController.value && !locked;
+                  final double inputBarBottom = controlsShown ? barHeight + 8 : 8;
+                  if (!isFS || sc == null) {
                     return const SizedBox.shrink();
                   }
                   final width = (MediaQuery.of(context).size.width * 0.6).clamp(260.0, 360.0);
                   return Positioned(
                     left: 16,
-                    bottom:
-                        (controller.showController.value && !controller.showLocked.value) ? barHeight + 16 : 24,
+                    bottom: locked ? 24 : inputBarBottom + 48 + 10,
                     width: width,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: SuperChatCard(key: ValueKey(sc.id), sc: sc),
                     ),
+                  );
+                }),
+                Obx(() {
+                  final liveCtr = controller.livePlayController;
+                  if (!GlobalPlayerState.to.fullscreenUI || controller.showLocked.value) {
+                    return const SizedBox.shrink();
+                  }
+                  final bool controlsShown = controller.showController.value;
+                  return Positioned(
+                    left: 10,
+                    right: 10,
+                    bottom: controlsShown ? barHeight + 8 : 8,
+                    height: 48,
+                    child: liveCtr.currentSite.id == Sites.bilibiliSite
+                        ? LiveDanmakuInputBar(controller: liveCtr, dark: true)
+                        : const SizedBox.shrink(),
                   );
                 }),
               ],

@@ -505,6 +505,49 @@ class BiliBiliSite implements LiveSite {
     return ls;
   }
 
+  @override
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) async {
+    try {
+      final csrf = RegExp(r'bili_jct=([^;]+)').firstMatch(cookie)?.group(1) ?? '';
+      if (csrf.isEmpty) {
+        return (false, '请先登录B站账号（Cookie 缺少 bili_jct）');
+      }
+      const sendUrl = "https://api.live.bilibili.com/msg/send";
+      final queryParams = await getWbiSign("$sendUrl?web_location=444.8");
+      final result = await HttpClient.instance.postJson(
+        sendUrl,
+        queryParameters: queryParams,
+        header: await getHeader(),
+        data: {
+          'bubble': 0,
+          'msg': message,
+          'color': 16777215,
+          'mode': 1,
+          'room_type': 0,
+          'jumpfrom': 0,
+          'reply_mid': 0,
+          'reply_attr': 0,
+          'replay_dmid': '',
+          'statistics': '{"appId":100,"platform":5}',
+          'reply_type': 0,
+          'reply_uname': '',
+          'fontsize': 25,
+          'rnd': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          'roomid': roomId,
+          'csrf': csrf,
+          'csrf_token': csrf,
+        },
+        formUrlEncoded: true,
+      );
+      if (result["code"] == 0) {
+        return (true, '发送成功');
+      }
+      return (false, result["message"]?.toString() ?? '发送失败（code=${result["code"]}）');
+    } catch (e) {
+      return (false, '发送失败：$e');
+    }
+  }
+
   Future<Map> getBuvid() async {
     try {
       if (cookie.contains("buvid3")) {
