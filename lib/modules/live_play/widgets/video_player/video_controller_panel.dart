@@ -257,6 +257,7 @@ class TopActionBar extends StatelessWidget {
               ],
               if (!GlobalPlayerState.to.fullscreenUI && PlatformUtils.isAndroid) PIPButton(controller: controller),
               if (PlatformUtils.isWindows) PIPButton(controller: controller),
+              DlnaButton(controller: controller),
             ],
           ),
         ),
@@ -1001,7 +1002,6 @@ class BottomActionBar extends StatelessWidget {
                             PlayPauseButton(controller: controller),
                             RefreshButton(controller: controller),
                             FavoriteButton(controller: controller),
-                            DlnaButton(controller: controller),
                             if (SettingsService.to.danmaku.enableDanmakuDisplay.v) ...[
                               DanmakuButton(controller: controller),
                               SettingsButton(controller: controller),
@@ -1128,7 +1128,7 @@ class DlnaButton extends StatelessWidget {
       onTap: openDlna,
       child: Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.only(right: 6),
+        padding: const EdgeInsets.all(12),
         child: const Icon(Icons.cast, color: Colors.white, size: 22),
       ),
     );
