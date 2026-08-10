@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/site/huya_site.dart';
-import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
 import 'widgets/video_player/video_controller.dart';
 import 'package:pure_live/common/utils/emoji_manager.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -204,6 +204,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   @override
   void onClose() {
+    // 兜底恢复系统状态栏/导航栏，避免全屏残留。
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     hideFullscreenSC();
     for (final worker in _fsSCWorkers) {
       worker.dispose();
@@ -457,7 +459,7 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
     fsSC.value = null;
   }
 
-  /// 发送 B站直播间弹幕，成功时本地回显一条自己的弹幕。
+  /// 发送 B站直播间弹幕。发送成功后由服务器弹幕回包自然显示，无需本地回显。
   Future<bool> sendLiveDanmaku(String text) async {
     final message = text.trim();
     if (message.isEmpty) return false;
@@ -475,15 +477,6 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
     final (ok, info) = await currentSite.liveSite.sendDanmaku(roomId: roomId, message: message);
     if (ok) {
       ToastUtil.show(i18n('send_success'));
-      final name = BiliBiliAccountService.instance.name.value;
-      final echo = LiveMessage(
-        type: LiveMessageType.chat,
-        userName: name.isEmpty ? i18n('me') : name,
-        message: message,
-        color: LiveMessageColor.white,
-      );
-      _addMessage(echo);
-      videoController.value?.sendDanmaku(echo);
       return true;
     }
     ToastUtil.show(info.isEmpty ? i18n('send_failed') : info);

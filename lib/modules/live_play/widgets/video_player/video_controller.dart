@@ -400,8 +400,10 @@ class VideoController with ChangeNotifier {
     } catch (_) {}
   }
 
-  void exitFullScreen() async {
+  Future<void> exitFullScreen() async {
     await _updateOrientationForFullscreen(false);
+    // 退出全屏时恢复系统状态栏/导航栏显示。
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     GlobalPlayerState.to.isFullscreen.value = false;
   }
 
@@ -414,18 +416,18 @@ class VideoController with ChangeNotifier {
     });
     if (GlobalPlayerState.to.isFullscreen.value) {
       livePlayController.setNormalScreen();
-      await _updateOrientationForFullscreen(false);
-      GlobalPlayerState.to.isFullscreen.value = false;
+      await exitFullScreen();
     } else {
       livePlayController.setFullScreen();
       await enterFullScreen();
-      GlobalPlayerState.to.isFullscreen.value = true;
     }
     enableController();
   }
 
   Future<void> enterFullScreen() async {
     await _updateOrientationForFullscreen(true);
+    // 全屏时隐藏系统状态栏/导航栏，沉浸式观看。
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     GlobalPlayerState.to.isFullscreen.value = true;
   }
 

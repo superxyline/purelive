@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/utils/event_bus.dart';
+import 'package:pure_live/common/utils/live_url_tool.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -1000,6 +1001,7 @@ class BottomActionBar extends StatelessWidget {
                             PlayPauseButton(controller: controller),
                             RefreshButton(controller: controller),
                             FavoriteButton(controller: controller),
+                            DlnaButton(controller: controller),
                             if (SettingsService.to.danmaku.enableDanmakuDisplay.v) ...[
                               DanmakuButton(controller: controller),
                               SettingsButton(controller: controller),
@@ -1098,6 +1100,27 @@ class RefreshButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.only(right: 6),
         child: const Icon(Icons.refresh_rounded, color: Colors.white),
+      ),
+    );
+  }
+}
+
+class DlnaButton extends StatelessWidget {
+  const DlnaButton({super.key, required this.controller});
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => LiveUrlTool.castPlayUrlByRoomId(
+        roomId: controller.livePlayController.detail.value?.roomId ?? '',
+        platform: controller.livePlayController.detail.value?.platform ?? '',
+      ),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(right: 6),
+        child: const Icon(Remix.tv_2_line, color: Colors.white, size: 24),
       ),
     );
   }

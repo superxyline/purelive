@@ -18,8 +18,34 @@ import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_keyboard.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 
-class LivePlayPage extends GetView<LivePlayController> {
+class LivePlayPage extends StatefulWidget {
   const LivePlayPage({super.key});
+
+  @override
+  State<LivePlayPage> createState() => _LivePlayPageState();
+}
+
+class _LivePlayPageState extends State<LivePlayPage> with WidgetsBindingObserver {
+  LivePlayController get controller => Get.find<LivePlayController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// 应用级返回拦截：优先级最高，避免预测性返回动画或输入焦点导致返回失效。
+  @override
+  Future<bool> didPopRoute() async {
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return false;
+    return controller.handleBackPress();
+  }
 
   @override
   Widget build(BuildContext context) {
