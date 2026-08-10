@@ -6,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/utils/event_bus.dart';
-import 'package:pure_live/common/utils/live_url_tool.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -17,6 +16,7 @@ import 'package:pure_live/modules/live_play/play_other.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
+import 'package:pure_live/modules/live_play/widgets/live_dlna_dialog.dart';
 import 'package:pure_live/modules/live_play/widgets/live_danmaku_input_bar.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
@@ -1112,15 +1112,24 @@ class DlnaButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void openDlna() {
+      final liveCtr = controller.livePlayController;
+      final urls = liveCtr.playUrls;
+      final index = liveCtr.currentLineIndex.value;
+      final url = urls.isEmpty ? '' : urls[index >= 0 && index < urls.length ? index : 0];
+      if (url.isEmpty) {
+        ToastUtil.show(i18n('toolbox_get_url_failed'));
+        return;
+      }
+      Get.dialog(LiveDlnaPage(datasource: url));
+    }
+
     return GestureDetector(
-      onTap: () => LiveUrlTool.castPlayUrlByRoomId(
-        roomId: controller.livePlayController.detail.value?.roomId ?? '',
-        platform: controller.livePlayController.detail.value?.platform ?? '',
-      ),
+      onTap: openDlna,
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.only(right: 6),
-        child: const Icon(Remix.tv_2_line, color: Colors.white, size: 24),
+        child: const Icon(Icons.cast, color: Colors.white, size: 22),
       ),
     );
   }
@@ -1248,7 +1257,11 @@ class AudioOnlyButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 2),
         alignment: Alignment.center,
         height: 25,
-        child: Icon(controller.isAudioOnly ? Remix.headphone_line : Remix.tv_2_line, color: Colors.white, size: 20),
+        child: Icon(
+          Remix.headphone_line,
+          color: controller.isAudioOnly ? const Color(0xFFFFC107) : Colors.white,
+          size: 20,
+        ),
       ),
     );
   }
