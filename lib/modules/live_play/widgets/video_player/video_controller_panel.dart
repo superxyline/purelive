@@ -16,7 +16,6 @@ import 'package:pure_live/modules/live_play/play_other.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
-import 'package:pure_live/modules/live_play/widgets/live_dlna_dialog.dart';
 import 'package:pure_live/modules/live_play/widgets/live_danmaku_input_bar.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
@@ -257,7 +256,6 @@ class TopActionBar extends StatelessWidget {
               ],
               if (!GlobalPlayerState.to.fullscreenUI && PlatformUtils.isAndroid) PIPButton(controller: controller),
               if (PlatformUtils.isWindows) PIPButton(controller: controller),
-              DlnaButton(controller: controller),
             ],
           ),
         ),
@@ -1100,36 +1098,6 @@ class RefreshButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.only(right: 6),
         child: const Icon(Icons.refresh_rounded, color: Colors.white),
-      ),
-    );
-  }
-}
-
-class DlnaButton extends StatelessWidget {
-  const DlnaButton({super.key, required this.controller});
-
-  final VideoController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    void openDlna() {
-      final liveCtr = controller.livePlayController;
-      final urls = liveCtr.playUrls;
-      final index = liveCtr.currentLineIndex.value;
-      final url = urls.isEmpty ? '' : urls[index >= 0 && index < urls.length ? index : 0];
-      if (url.isEmpty) {
-        ToastUtil.show(i18n('toolbox_get_url_failed'));
-        return;
-      }
-      Get.dialog(LiveDlnaPage(datasource: url));
-    }
-
-    return GestureDetector(
-      onTap: openDlna,
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(12),
-        child: const Icon(Icons.cast, color: Colors.white, size: 22),
       ),
     );
   }

@@ -48,10 +48,23 @@ class MenuListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (leading != null) ...[leading!, const SizedBox(width: 12)],
-        Text(text, style: Theme.of(context).textTheme.labelMedium),
-        if (trailing != null) ...[const SizedBox(width: 24), trailing!],
+        if (leading != null) ...[
+          SizedBox(width: 22, height: 22, child: Center(child: leading!)),
+          const SizedBox(width: 10),
+        ],
+        SizedBox(
+          height: 22,
+          child: Center(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(fontSize: 13, height: 1.0),
+            ),
+          ),
+        ),
+        if (trailing != null) ...[const SizedBox(width: 10), trailing!],
       ],
     );
   }

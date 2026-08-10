@@ -1,6 +1,4 @@
 import 'package:pure_live/common/index.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 class MyTheme {
   final Color? primaryColor;
@@ -20,12 +18,7 @@ class MyTheme {
     if (customFonts.contains(selectedName)) {
       return selectedName;
     }
-    if (PlatformUtils.isWindows) {
-      return 'PingFang';
-    }
-    if (PlatformUtils.isAndroid) {
-      return GoogleFonts.roboto().fontFamily;
-    }
+    // 默认使用系统字体，不内置/指定第三方字体。
     return null;
   }
 
