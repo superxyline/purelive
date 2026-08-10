@@ -170,7 +170,12 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   }
 
   /// 返回键处理：返回 true 表示事件已消费，false 表示允许页面正常退出。
+  /// 返回键优先级最高：先收起输入焦点，再依次处理菜单/全屏/半屏/PiP，最后才退出页面。
   bool handleBackPress() {
+    // 先收起输入焦点，避免输入框或键盘拦截返回键。
+    if (FocusManager.instance.primaryFocus?.hasFocus ?? false) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
     if (isMenuOpen) {
       Navigator.of(Get.context!).pop();
       isMenuOpen = false;
@@ -179,6 +184,16 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     if (GlobalPlayerState.to.isFullscreen.value) {
       setNormalScreen();
       videoController.value?.exitFullScreen();
+      return true;
+    }
+    if (GlobalPlayerState.to.isWindowFullscreen.value) {
+      setNormalScreen();
+      GlobalPlayerState.to.isWindowFullscreen.value = false;
+      videoController.value?.enableController();
+      return true;
+    }
+    if (GlobalPlayerState.to.isPipMode.value) {
+      GlobalPlayerService.instance.playerManager.exitPip();
       return true;
     }
 

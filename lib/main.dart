@@ -82,7 +82,8 @@ class _MyAppState extends State<MyApp> {
               appBarTheme: const AppBarTheme(surfaceTintColor: Colors.transparent),
               pageTransitionsTheme: const PageTransitionsTheme(
                 builders: <TargetPlatform, PageTransitionsBuilder>{
-                  TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+                  // 使用经典转场而非预测性返回，避免 canPop:false 时返回手势被吞掉导致"返回无反应"。
+                  TargetPlatform.android: ZoomPageTransitionsBuilder(),
                 },
               ),
             ),
