@@ -53,7 +53,7 @@ android {
         multiDexEnabled = true 
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
-        versionName = "0.1.5.1"
+        versionName = "0.1.5.2"
     }
 
     signingConfigs {
