@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:pure_live/common/utils/hive_pref_util.dart';
-import 'package:pure_live/common/services/settings/history_controller.dart';
+
 import 'package:pure_live/common/services/settings/web_dav_controller.dart';
 import 'package:pure_live/common/services/settings/startup_controller.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
@@ -119,7 +119,7 @@ class LegacySettingsMigration {
 
         // 收藏、历史、屏蔽
         "favoriteRooms": HivePrefUtil.getStringList("favoriteRooms"),
-        "historyRooms": HivePrefUtil.getStringList("historyRooms"),
+
         "favoriteAreas": HivePrefUtil.getStringList("favoriteAreas"),
         "shieldList": HivePrefUtil.getStringList("shieldList"),
         "hotAreasList": HivePrefUtil.getStringList("hotAreasList"),
@@ -150,7 +150,7 @@ class LegacySettingsMigration {
     Get.find<DanmakuSettingsController>().fromJson(legacy);
     Get.find<VolumeSettingsController>().fromJson(legacy);
     Get.find<FavoriteRoomController>().fromJson(legacy);
-    Get.find<HistoryController>().fromJson(legacy);
+
     Get.find<WebDavController>().fromJson(legacy);
     Get.find<CookieSettingsController>().fromJson(legacy);
     Get.find<ProxySettingsController>().fromJson(legacy);

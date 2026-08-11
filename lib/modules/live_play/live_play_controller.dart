@@ -197,9 +197,13 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       return true;
     }
 
+    return false;
+  }
+
+  /// 页面被系统原生返回弹出后的兜底清理（与 BackButtonObserver 的清理幂等，重复调用无副作用）。
+  void onPagePopCleanup() {
     videoController.value?.clearListener();
     success.value = false;
-    return false;
   }
 
   @override
@@ -269,7 +273,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       isLiving.value = true;
 
       await getPlayQualites();
-              SettingsService.to.history.addRoomToHistory(liveRoom);
+
 if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
         final needReconnect = _needReconnectDanmaku(liveRoom);
         if (needReconnect) {

@@ -1,39 +1,15 @@
-import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 
+/// 主界面左上角按钮：点击直接进入设置页。
 class MenuButton extends StatelessWidget {
   const MenuButton({super.key});
 
-  final menuRoutes = const [RoutePath.kSettings, RoutePath.kAbout, RoutePath.kHistory];
-
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
-      tooltip: i18n('menu'),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      offset: const Offset(12, 0),
-      position: PopupMenuPosition.under,
+    return IconButton(
+      tooltip: i18n('settings_title'),
       icon: const Icon(Icons.menu_rounded),
-      onSelected: (int index) {
-        Get.toNamed(menuRoutes[index]);
-      },
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: MenuListTile(leading: const Icon(Remix.settings_5_line), text: i18n("settings_title")),
-        ),
-        PopupMenuItem(
-          value: 1,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: MenuListTile(leading: const Icon(Remix.information_line), text: i18n("about")),
-        ),
-        PopupMenuItem(
-          value: 2,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: MenuListTile(leading: const Icon(Remix.history_line), text: i18n("history")),
-        ),
-      ],
+      onPressed: () => Get.toNamed(RoutePath.kSettings),
     );
   }
 }

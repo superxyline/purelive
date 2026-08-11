@@ -136,6 +136,17 @@ class SettingsPage extends GetView<SettingsService> {
               onTap: () => Get.to(() => const BackupPage()),
             ),
           ]),
+
+          const SizedBox(height: 20),
+          context.buildGroupTitle(i18n("about")),
+          context.buildModernCard([
+            context.buildTile(
+              icon: Remix.information_line,
+              title: i18n("about"),
+              subtitle: i18n("about_desc"),
+              onTap: () => Get.toNamed(RoutePath.kAbout),
+            ),
+          ]),
           const SizedBox(height: 32),
         ],
       ),

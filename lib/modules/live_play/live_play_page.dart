@@ -25,40 +25,34 @@ class LivePlayPage extends StatefulWidget {
   State<LivePlayPage> createState() => _LivePlayPageState();
 }
 
-class _LivePlayPageState extends State<LivePlayPage> with WidgetsBindingObserver {
+class _LivePlayPageState extends State<LivePlayPage> {
   LivePlayController get controller => Get.find<LivePlayController>();
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  /// 应用级返回拦截：优先级最高，避免预测性返回动画或输入焦点导致返回失效。
-  @override
-  Future<bool> didPopRoute() async {
-    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return false;
-    return controller.handleBackPress();
-  }
+  /// 普通状态（非全屏/半屏/PiP）交还系统原生返回，全面屏手势返回才能稳定生效；
+  /// 仅在全屏/半屏/PiP 等需要拦截的状态才返回 false，由 onPopInvokedWithResult 先处理。
+  bool get _canPopNative =>
+      !GlobalPlayerState.to.isFullscreen.value &&
+      !GlobalPlayerState.to.isWindowFullscreen.value &&
+      !GlobalPlayerState.to.isPipMode.value;
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        if (!controller.handleBackPress()) {
-          Navigator.of(context).pop();
-        }
-      },
-      child: Obx(() {
-        _updateWakelock();
+    return Obx(
+      () => PopScope(
+        canPop: _canPopNative,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            // 系统原生返回已完成，做兜底清理（与 BackButtonObserver 幂等）。
+            controller.onPagePopCleanup();
+            return;
+          }
+          // canPop=false：先处理全屏/半屏/PiP，处理完成后才允许退出页面。
+          if (!controller.handleBackPress()) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Obx(() {
+          _updateWakelock();
         final manager = GlobalPlayerService.instance.playerManager;
         final isInPip = manager.isInPip.value;
         final mode = controller.screenMode.value;
@@ -100,6 +94,7 @@ class _LivePlayPageState extends State<LivePlayPage> with WidgetsBindingObserver
           ),
         );
       }),
+      ),
     );
   }
 

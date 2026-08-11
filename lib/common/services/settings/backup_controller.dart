@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pure_live/common/services/utils/hive_rx.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 import 'package:pure_live/common/services/settings/web_dav_controller.dart';
-import 'package:pure_live/common/services/settings/history_controller.dart';
+
 import 'package:pure_live/common/services/settings/startup_controller.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
@@ -40,7 +40,7 @@ class BackupController extends GetxController {
       'danmaku': Get.find<DanmakuSettingsController>().toJson(),
       'volume': Get.find<VolumeSettingsController>().toJson(),
       'favorite': Get.find<FavoriteRoomController>().toJson(),
-      'history': Get.find<HistoryController>().toJson(),
+
       'webdav': Get.find<WebDavController>().toJson(),
       'cookie': Get.find<CookieSettingsController>().toJson(),
       'proxy': Get.find<ProxySettingsController>().toJson(),
@@ -90,7 +90,7 @@ class BackupController extends GetxController {
 
     Get.find<FavoriteRoomController>().fromJson(Map<String, dynamic>.from(data['favorite'] ?? {}));
 
-    Get.find<HistoryController>().fromJson(Map<String, dynamic>.from(data['history'] ?? {}));
+
 
     Get.find<ProxySettingsController>().fromJson(Map<String, dynamic>.from(data['proxy'] ?? {}));
 
@@ -120,7 +120,7 @@ class BackupController extends GetxController {
     Get.find<DanmakuSettingsController>().fromJson(data);
     Get.find<VolumeSettingsController>().fromJson(data);
     Get.find<FavoriteRoomController>().fromJson(data);
-    Get.find<HistoryController>().fromJson(data);
+
     Get.find<ProxySettingsController>().fromJson(data);
     Get.find<ExitSettingsController>().fromJson(data);
     Get.find<StartupController>().fromJson(data);
@@ -167,8 +167,6 @@ class BackupController extends GetxController {
     final danmaku = Get.find<DanmakuSettingsController>().toJson();
     final cookie = Get.find<CookieSettingsController>().toJson();
     final favorite = Get.find<FavoriteRoomController>().toJson();
-    final history = Get.find<HistoryController>().toJson();
-
-    return {...danmaku, ...cookie, ...favorite, ...history};
+    return {...danmaku, ...cookie, ...favorite};
   }
 }

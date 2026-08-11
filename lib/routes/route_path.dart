@@ -36,10 +36,6 @@ class RoutePath {
   /// 关于
   static const kAbout = "/about";
 
-  /// 版本历史记录
-
-  /// 历史记录
-  static const kHistory = "/history";
 
   /// 捐赠
   static const kDonate = "/donate";

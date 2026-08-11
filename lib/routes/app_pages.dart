@@ -10,7 +10,7 @@ import 'package:pure_live/modules/toolbox/toolbox_page.dart';
 import 'package:pure_live/modules/account/account_bing.dart';
 import 'package:pure_live/modules/account/account_page.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
-import 'package:pure_live/modules/history/history_page.dart';
+
 import 'package:pure_live/modules/search/search_binding.dart';
 import 'package:pure_live/modules/search/web_search_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
@@ -50,7 +50,7 @@ class AppPages {
     GetPage(name: RoutePath.kPopular, page: PopularPage.new),
     GetPage(name: RoutePath.kAreas, page: AreasPage.new),
     GetPage(name: RoutePath.kSettings, page: SettingsPage.new, bindings: [SettingsBinding()]),
-    GetPage(name: RoutePath.kHistory, page: HistoryPage.new),
+
     GetPage(name: RoutePath.kSearch, page: SearchPage.new, bindings: [SearchBinding()]),
     GetPage(name: RoutePath.kBackup, page: BackupPage.new),
     GetPage(name: RoutePath.kAbout, page: AboutPage.new),

@@ -17,7 +17,6 @@ class _LocalConfigPreviewPageState extends State<LocalConfigPreviewPage> {
   String _errorMsg = '';
 
   int _favoriteCount = 0;
-  int _historyCount = 0;
   int _tagCount = 0;
 
   @override
@@ -34,9 +33,6 @@ class _LocalConfigPreviewPageState extends State<LocalConfigPreviewPage> {
       final favoriteRooms = favoriteData['favoriteRooms'] as List? ?? [];
       _favoriteCount = favoriteRooms.length;
 
-      final historyData = data['history'] as Map<String, dynamic>? ?? {};
-      final historyList = historyData['historyRooms'] ?? historyData['historyList'] ?? [];
-      _historyCount = historyList is List ? historyList.length : 0;
 
       final tagData = data['tags'] as Map<String, dynamic>? ?? {};
       final tagList = tagData['tags'] as List? ?? [];
@@ -160,9 +156,9 @@ class _LocalConfigPreviewPageState extends State<LocalConfigPreviewPage> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildCompactMeta(
-                              Remix.history_line,
-                              i18n('history'),
-                              '$_historyCount',
+                              Remix.price_tag_3_line,
+                              i18n('tags'),
+                              '$_tagCount',
                               theme,
                               isPrimaryColor: true,
                             ),
@@ -172,16 +168,6 @@ class _LocalConfigPreviewPageState extends State<LocalConfigPreviewPage> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Expanded(
-                            child: _buildCompactMeta(
-                              Remix.price_tag_3_line,
-                              i18n('tags'),
-                              '$_tagCount',
-                              theme,
-                              isPrimaryColor: true,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
                           Expanded(
                             child: _buildCompactMeta(
                               Remix.file_list_3_line,
@@ -274,9 +260,9 @@ class _LocalConfigPreviewPageState extends State<LocalConfigPreviewPage> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: _buildCompactMeta(
-                                  Remix.history_line,
-                                  i18n('history'),
-                                  '$_historyCount',
+                                  Remix.price_tag_3_line,
+                                  i18n('tags'),
+                                  '$_tagCount',
                                   theme,
                                   isPrimaryColor: true,
                                 ),
@@ -286,16 +272,6 @@ class _LocalConfigPreviewPageState extends State<LocalConfigPreviewPage> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Expanded(
-                                child: _buildCompactMeta(
-                                  Remix.price_tag_3_line,
-                                  i18n('tags'),
-                                  '$_tagCount',
-                                  theme,
-                                  isPrimaryColor: true,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
                               Expanded(
                                 child: _buildCompactMeta(
                                   Remix.file_list_3_line,
