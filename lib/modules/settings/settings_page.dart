@@ -40,6 +40,7 @@ class SettingsPage extends GetView<SettingsService> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
+          // 主题设置
           context.buildGroupTitle(i18n("theme_settings")),
           context.buildModernCard([
             context.buildTile(
@@ -50,16 +51,7 @@ class SettingsPage extends GetView<SettingsService> {
             ),
           ]),
 
-          const SizedBox(height: 20),
-          context.buildGroupTitle(i18n("refresh_settings")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.refresh_line,
-              title: i18n("refresh_settings"),
-              subtitle: i18n("refresh_settings_subtitle"),
-              onTap: () => Get.to(() => const RefreshSettingsPage()),
-            ),
-          ]),
+          // 视频设置（含播放器内核）
           const SizedBox(height: 20),
           context.buildGroupTitle(i18n("video_settings")),
           context.buildModernCard([
@@ -69,11 +61,6 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n("video_desc"),
               onTap: () => Get.to(() => const VideoSettingsPage()),
             ),
-          ]),
-
-          const SizedBox(height: 20),
-          context.buildGroupTitle(i18n("player_kernel_settings")),
-          context.buildModernCard([
             context.buildTile(
               icon: Remix.cpu_line,
               title: i18n("player_kernel"),
@@ -81,17 +68,8 @@ class SettingsPage extends GetView<SettingsService> {
               onTap: () => Get.to(() => const PlayerKernelSettingsPage()),
             ),
           ]),
-          const SizedBox(height: 20),
-          context.buildGroupTitle(i18n("network_proxy_settings")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.global_line,
-              title: i18n("custom_network_proxy"),
-              subtitle: i18n("custom_network_proxy_desc"),
-              onTap: () => Get.to(() => const NetworkProxySettingsPage()),
-            ),
-          ]),
 
+          // 通用设置（含刷新、导航栏显示、平台显示与授权、自定义网络代理）
           const SizedBox(height: 20),
           context.buildGroupTitle(i18n("general_settings")),
           context.buildModernCard([
@@ -100,6 +78,12 @@ class SettingsPage extends GetView<SettingsService> {
               title: i18n("general"),
               subtitle: i18n("general_desc"),
               onTap: () => Get.to(() => const GeneralSettingsPage()),
+            ),
+            context.buildTile(
+              icon: Remix.refresh_line,
+              title: i18n("refresh_settings"),
+              subtitle: i18n("refresh_settings_subtitle"),
+              onTap: () => Get.to(() => const RefreshSettingsPage()),
             ),
             context.buildTile(
               icon: Remix.menu_line,
@@ -113,8 +97,15 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n("platform_settings_desc"),
               onTap: () => Get.to(() => const PlatformSettingsPage()),
             ),
+            context.buildTile(
+              icon: Remix.global_line,
+              title: i18n("custom_network_proxy"),
+              subtitle: i18n("custom_network_proxy_desc"),
+              onTap: () => Get.to(() => const NetworkProxySettingsPage()),
+            ),
           ]),
 
+          // 数据管理
           const SizedBox(height: 20),
           context.buildGroupTitle(i18n("data_manage")),
           context.buildModernCard([
@@ -126,6 +117,7 @@ class SettingsPage extends GetView<SettingsService> {
             ),
           ]),
 
+          // 备份管理
           const SizedBox(height: 20),
           context.buildGroupTitle(i18n("backup_manage")),
           context.buildModernCard([
@@ -137,6 +129,7 @@ class SettingsPage extends GetView<SettingsService> {
             ),
           ]),
 
+          // 关于
           const SizedBox(height: 20),
           context.buildGroupTitle(i18n("about")),
           context.buildModernCard([
