@@ -7,6 +7,47 @@ import 'package:pure_live/common/models/live_message.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 
+/// 斗鱼 STT 转义：消息内容中的 `@` 需转义为 `@A`，`/` 需转义为 `@S`
+String escapeDouyuStt(String content) => content.replaceAll('@', '@A').replaceAll('/', '@S');
+
+/// 斗鱼 STT 反转义
+String unescapeDouyuStt(String str) => str.replaceAll('@S', '/').replaceAll('@A', '@');
+
+/// 序列化斗鱼二进制消息帧（type=689）
+List<int> serializeDouyuFrame(String body) {
+  const int clientSendToServer = 689;
+  const int encrypted = 0;
+  const int reserved = 0;
+
+  List<int> buffer = utf8.encode(body);
+
+  var writer = BinaryWriter([]);
+  writer.writeInt(4 + 4 + buffer.length + 1, 4, endian: Endian.little);
+  writer.writeInt(4 + 4 + buffer.length + 1, 4, endian: Endian.little);
+  writer.writeInt(clientSendToServer, 2, endian: Endian.little);
+  writer.writeInt(encrypted, 1, endian: Endian.little);
+  writer.writeInt(reserved, 1, endian: Endian.little);
+  writer.writeBytes(buffer);
+  writer.writeInt(0, 1, endian: Endian.little);
+  return writer.buffer;
+}
+
+/// 反序列化斗鱼二进制消息帧，返回 STT 字符串
+String? deserializeDouyuFrame(List<int> buffer) {
+  var reader = BinaryReader(Uint8List.fromList(buffer));
+  int fullMsgLength = reader.readInt32(endian: Endian.little); //fullMsgLength
+  reader.readInt32(endian: Endian.little); //fullMsgLength2
+  int bodyLength = fullMsgLength - 9;
+  reader.readShort(endian: Endian.little); //packType
+  reader.readByte(endian: Endian.little); //encrypted
+  reader.readByte(endian: Endian.little); //reserved
+
+  var bytes = reader.readBytes(bodyLength);
+
+  reader.readByte(endian: Endian.little); //固定为0
+  return utf8.decode(bytes);
+}
+
 class DouyuDanmaku implements LiveDanmaku {
   @override
   int heartbeatTime = 45 * 1000;
@@ -113,21 +154,7 @@ class DouyuDanmaku implements LiveDanmaku {
 
   List<int> serializeDouyu(String body) {
     try {
-      const int clientSendToServer = 689;
-      const int encrypted = 0;
-      const int reserved = 0;
-
-      List<int> buffer = utf8.encode(body);
-
-      var writer = BinaryWriter([]);
-      writer.writeInt(4 + 4 + body.length + 1, 4, endian: Endian.little);
-      writer.writeInt(4 + 4 + body.length + 1, 4, endian: Endian.little);
-      writer.writeInt(clientSendToServer, 2, endian: Endian.little);
-      writer.writeInt(encrypted, 1, endian: Endian.little);
-      writer.writeInt(reserved, 1, endian: Endian.little);
-      writer.writeBytes(buffer);
-      writer.writeInt(0, 1, endian: Endian.little);
-      return writer.buffer;
+      return serializeDouyuFrame(body);
     } catch (e) {
       CoreLog.error(e);
       return [];
@@ -136,18 +163,7 @@ class DouyuDanmaku implements LiveDanmaku {
 
   String? deserializeDouyu(List<int> buffer) {
     try {
-      var reader = BinaryReader(Uint8List.fromList(buffer));
-      int fullMsgLength = reader.readInt32(endian: Endian.little); //fullMsgLength
-      reader.readInt32(endian: Endian.little); //fullMsgLength2
-      int bodyLength = fullMsgLength - 9;
-      reader.readShort(endian: Endian.little); //packType
-      reader.readByte(endian: Endian.little); //encrypted
-      reader.readByte(endian: Endian.little); //reserved
-
-      var bytes = reader.readBytes(bodyLength);
-
-      reader.readByte(endian: Endian.little); //固定为0
-      return utf8.decode(bytes);
+      return deserializeDouyuFrame(buffer);
     } catch (e) {
       CoreLog.error(e);
       return null;
@@ -186,7 +202,7 @@ class DouyuDanmaku implements LiveDanmaku {
   }
 
   String unscapeSlashAt(String str) {
-    return str.replaceAll("@S", "/").replaceAll("@A", "@");
+    return unescapeDouyuStt(str);
   }
 
   LiveMessageColor getColor(int type) {

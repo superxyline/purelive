@@ -37,7 +37,6 @@ class ToolBoxPage extends GetView<ToolBoxController> {
             btnIcon: Remix.download_2_line,
             btnLabel: i18n("toolbox_get_parse"),
             onAction: controller.getPlayUrl,
-            extraFooter: _buildDescription(),
           ),
         ],
       ),
@@ -110,25 +109,4 @@ class ToolBoxPage extends GetView<ToolBoxController> {
     );
   }
 
-  Widget _buildDescription() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(height: 1),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Icon(Remix.information_line, size: 14, color: Colors.grey[600]),
-            const SizedBox(width: 6),
-            Text(
-              i18n("toolbox_support_list"),
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SelectableText(i18n("toolbox_support_content"), style: TextStyle(color: Colors.grey, height: 1.6)),
-      ],
-    );
-  }
 }

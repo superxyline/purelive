@@ -1,4 +1,4 @@
-/// 路由路径
+﻿/// 路由路径
 class RoutePath {
   /// 首页
   static const kSplash = "/splash";
@@ -69,6 +69,12 @@ class RoutePath {
   static const kWebDavPage = "/web_dav_page";
 
   static const kDouyuCookie = "/douyu_cookie";
+
+  static const kDouyinCookie = "/douyin_cookie";
+
+  static const kDouyuWebLogin = "/douyu_web_login";
+
+  static const kHuyaWebLogin = "/huya_web_login";
 
 
 

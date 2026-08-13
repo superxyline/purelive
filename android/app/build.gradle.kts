@@ -1,4 +1,4 @@
-import java.util.Properties // 添加Properties类的导入
+﻿import java.util.Properties // 添加Properties类的导入
 
 plugins {
     id("com.android.application")
@@ -53,7 +53,7 @@ android {
         multiDexEnabled = true 
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
-        versionName = "0.1.6"
+        versionName = flutter.versionName
     }
 
     signingConfigs {

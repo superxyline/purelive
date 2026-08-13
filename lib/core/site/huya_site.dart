@@ -54,7 +54,7 @@ class HuyaSite implements LiveSite {
   }
 
   final String kUserAgent =
-      "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36";
+      "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36 Edg/117.0.0.0";
 
   Future<List<LiveArea>> getSubCategores(LiveCategory liveCategory) async {
     var result = await HttpClient.instance.getJson(
@@ -338,7 +338,7 @@ class HuyaSite implements LiveSite {
         liveStatus: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY" ? LiveStatus.live : LiveStatus.offline,
         platform: Sites.huyaSite,
         data: HuyaUrlDataModel(url: "", lines: huyaLines, bitRates: huyaBiterates, uid: "", isXingxiu: isXingxiu),
-        danmakuData: HuyaDanmakuArgs(ayyuid: data["profileInfo"]["yyid"] ?? 0, topSid: topSid, subSid: subSid),
+        danmakuData: HuyaDanmakuArgs(ayyuid: data["profileInfo"]["uid"] ?? 0, topSid: topSid, subSid: subSid),
         link: "https://www.huya.com/$roomId",
       );
     } else {
@@ -569,9 +569,8 @@ class HuyaSite implements LiveSite {
   }
 
   @override
-  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) {
-    //尚不支持
-    return Future.value((false, '当前平台暂不支持发送弹幕'));
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) async {
+    return (false, '当前平台暂不支持发送弹幕');
   }
 
   // 构造 anticode, python转写

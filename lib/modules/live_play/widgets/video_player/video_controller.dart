@@ -401,10 +401,11 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> exitFullScreen() async {
+    // 立即同步复位全屏状态，避免异步切换方向/系统UI期间返回键被反复拦截
+    GlobalPlayerState.to.isFullscreen.value = false;
     await _updateOrientationForFullscreen(false);
     // 退出全屏时恢复系统状态栏/导航栏显示。
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    GlobalPlayerState.to.isFullscreen.value = false;
   }
 
   void toggleFullScreen() async {
@@ -425,10 +426,10 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> enterFullScreen() async {
+    GlobalPlayerState.to.isFullscreen.value = true;
     await _updateOrientationForFullscreen(true);
     // 全屏时隐藏系统状态栏/导航栏，沉浸式观看。
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    GlobalPlayerState.to.isFullscreen.value = true;
   }
 
   // 半屏显示

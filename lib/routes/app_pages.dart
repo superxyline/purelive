@@ -1,4 +1,4 @@
-import 'package:pure_live/common/index.dart';
+﻿import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/home/home_page.dart';
 import 'package:pure_live/modules/about/about_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
@@ -38,6 +38,12 @@ import 'package:pure_live/modules/account/bilibili/web_login_page.dart';
 import 'package:pure_live/modules/account/huya/huya_cookie_binding.dart';
 import 'package:pure_live/modules/account/douyin/douyin_cookie_page.dart';
 import 'package:pure_live/modules/account/douyin/douyin_cookie_binding.dart';
+import 'package:pure_live/modules/account/douyu/douyu_cookie_page.dart';
+import 'package:pure_live/modules/account/douyu/douyu_cookie_binding.dart';
+import 'package:pure_live/modules/account/douyu/douyu_web_login_page.dart';
+import 'package:pure_live/modules/account/douyu/douyu_web_login_binding.dart';
+import 'package:pure_live/modules/account/huya/huya_web_login_page.dart';
+import 'package:pure_live/modules/account/huya/huya_web_login_binding.dart';
 
 // auth
 
@@ -92,7 +98,21 @@ class AppPages {
 
     GetPage(name: RoutePath.kHuyaCookie, page: () => const HuyaCookiePage(), bindings: [HuyaCookieBinding()]),
 
-    GetPage(name: RoutePath.kDouyuCookie, page: () => const DouyinCookiePage(), bindings: [DouyinCookieBinding()]),
+    GetPage(name: RoutePath.kDouyuCookie, page: () => const DouyuCookiePage(), bindings: [DouyuCookieBinding()]),
+
+    GetPage(name: RoutePath.kDouyinCookie, page: () => const DouyinCookiePage(), bindings: [DouyinCookieBinding()]),
+
+    GetPage(
+      name: RoutePath.kDouyuWebLogin,
+      page: () => const DouyuWebLoginPage(),
+      bindings: [DouyuWebLoginBinding()],
+    ),
+
+    GetPage(
+      name: RoutePath.kHuyaWebLogin,
+      page: () => const HuyaWebLoginPage(),
+      bindings: [HuyaWebLoginBinding()],
+    ),
 
     GetPage(name: RoutePath.kWebDavPage, page: () => WebDavPage(), bindings: [WebDavBinding()]),
 

@@ -1,4 +1,4 @@
-import 'package:remixicon/remixicon.dart';
+﻿import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
 import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
@@ -41,7 +41,7 @@ class AccountPage extends GetView<AccountController> {
                 isLogined: isLogined,
                 onTap: () => isLogined
                     ? _showPlatformLogoutDialog(context, () => cookie.huyaCookie.v = "")
-                    : Get.toNamed(RoutePath.kHuyaCookie),
+                    : controller.huyaTap(),
               );
             }),
 
@@ -59,19 +59,23 @@ class AccountPage extends GetView<AccountController> {
                 isLogined: isLogined,
                 onTap: () => isLogined
                     ? _showPlatformLogoutDialog(context, () => cookie.douyinCookie.v = "")
-                    : Get.toNamed(RoutePath.kDouyuCookie),
+                    : Get.toNamed(RoutePath.kDouyinCookie),
               );
             }),
 
-            _buildAccountTile(
-              context,
-              logo: 'assets/images/douyu.png',
-              title: i18n("site_douyu"),
-              subtitle: i18n("set_cookie"),
-              isLogined: false,
-              isEnabled: false,
-              onTap: () => Get.toNamed(RoutePath.kDouyuCookie),
-            ),
+            Obx(() {
+              final isLogined = cookie.douyuCookie.v.isNotEmpty;
+              return _buildAccountTile(
+                context,
+                logo: 'assets/images/douyu.png',
+                title: i18n("site_douyu"),
+                subtitle: isLogined ? i18n("logined") : i18n("set_cookie"),
+                isLogined: isLogined,
+                onTap: () => isLogined
+                    ? _showPlatformLogoutDialog(context, () => cookie.douyuCookie.v = "")
+                    : controller.douyuTap(),
+              );
+            }),
           ]),
           const SizedBox(height: 32),
         ],

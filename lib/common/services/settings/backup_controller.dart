@@ -90,7 +90,7 @@ class BackupController extends GetxController {
 
     Get.find<FavoriteRoomController>().fromJson(Map<String, dynamic>.from(data['favorite'] ?? {}));
 
-
+    Get.find<CookieSettingsController>().fromJson(Map<String, dynamic>.from(data['cookie'] ?? {}));
 
     Get.find<ProxySettingsController>().fromJson(Map<String, dynamic>.from(data['proxy'] ?? {}));
 
@@ -121,6 +121,7 @@ class BackupController extends GetxController {
     Get.find<VolumeSettingsController>().fromJson(data);
     Get.find<FavoriteRoomController>().fromJson(data);
 
+    Get.find<CookieSettingsController>().fromJson(data);
     Get.find<ProxySettingsController>().fromJson(data);
     Get.find<ExitSettingsController>().fromJson(data);
     Get.find<StartupController>().fromJson(data);

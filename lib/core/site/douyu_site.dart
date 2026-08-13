@@ -383,9 +383,8 @@ class DouyuSite implements LiveSite {
   }
 
   @override
-  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) {
-    //尚不支持
-    return Future.value((false, '当前平台暂不支持发送弹幕'));
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) async {
+    return (false, '当前平台暂不支持发送弹幕');
   }
 }
 

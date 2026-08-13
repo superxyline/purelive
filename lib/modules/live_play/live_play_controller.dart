@@ -32,6 +32,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   late Site currentSite;
   late LiveDanmaku liveDanmaku;
+  bool _danmakuInited = false;
   late TabController tabController;
 
   final List<String> tabs = [i18n('danmaku_list'), i18n('danmaku_settings'), i18n('block_list')];
@@ -102,6 +103,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _initDebounce();
     _initTimer();
     await _preloadEmoji();
+    // 预加载表情期间用户可能已退出直播间，此时停止初始化播放器
+    if (isClosed) return;
     _initPlayer();
   }
 
@@ -111,6 +114,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     isCurrentRoomAudioOnly.value = SettingsService.to.player.audioOnly.v;
     if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
       liveDanmaku = currentSite.liveSite.getDanmaku();
+      _danmakuInited = true;
     }
   }
 
@@ -182,6 +186,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       return true;
     }
     if (GlobalPlayerState.to.isFullscreen.value) {
+      // 先同步复位全屏状态，再退出全屏（避免异步退出期间返回键被反复拦截）
+      GlobalPlayerState.to.isFullscreen.value = false;
       setNormalScreen();
       videoController.value?.exitFullScreen();
       return true;
@@ -222,7 +228,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   void _disposeAll() {
     tabController.dispose();
     _stopWatchTimer.onStopTimer();
-    if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
+    if (SettingsService.to.danmaku.enableDanmakuDisplay.v && _danmakuInited) {
       liveDanmaku.stop();
     }
     // 退出直播间时停止播放，避免残留音频。
@@ -250,6 +256,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     final roomId = detail.value?.roomId;
     if (roomId == null) return LiveRoom();
     var liveRoom = await currentSite.liveSite.getRoomDetail(roomId: roomId, platform: detail.value!.platform!);
+    // 请求房间信息期间用户可能已退出直播间
+    if (isClosed) return liveRoom;
 
     handleCurrentLineAndQuality(reloadDataType: reloadDataType, line: line, isReCalculate: isReCalculate);
 
@@ -273,8 +281,10 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       isLiving.value = true;
 
       await getPlayQualites();
+      // 获取清晰度期间用户可能已退出直播间
+      if (isClosed) return liveRoom;
 
-if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
+      if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
         final needReconnect = _needReconnectDanmaku(liveRoom);
         if (needReconnect) {
           liveDanmaku.stop();
@@ -311,7 +321,7 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
       messages.clear();
       hideFullscreenSC();
 
-      if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
+      if (SettingsService.to.danmaku.enableDanmakuDisplay.v && _danmakuInited) {
         liveDanmaku.stop();
       }
       _currentDanmakuRoomId = null;
@@ -324,6 +334,7 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
     isLiving.value = true;
 
     await videoController.value?.destory();
+    if (isClosed) return;
     videoController.value = null;
 
     hasUseDefaultResolution = false;
@@ -335,9 +346,11 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
 
     if (!sameRoom && SettingsService.to.danmaku.enableDanmakuDisplay.v) {
       liveDanmaku = currentSite.liveSite.getDanmaku();
+      _danmakuInited = true;
     }
 
     await EmojiManager.instance.preload(newRoom.platform!);
+    if (isClosed) return;
 
     onInitPlayerState(
       reloadDataType: newRoom.platform == Sites.bilibiliSite ? ReloadDataType.changeLine : ReloadDataType.refreash,
@@ -557,6 +570,8 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
   Future<void> getPlayQualites() async {
     try {
       var playQualites = await currentSite.liveSite.getPlayQualites(detail: detail.value!);
+      // 获取清晰度期间用户可能已退出直播间
+      if (isClosed) return;
 
       if (playQualites.isEmpty) {
         ToastUtil.show(i18n('cannot_read_video_info'));
@@ -569,6 +584,7 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
       if (!hasUseDefaultResolution) {
         String userPrefer;
         final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+        if (isClosed) return;
 
         if (connectivityResult.contains(ConnectivityResult.mobile)) {
           userPrefer = SettingsService.to.player.preferResolutionCellular.v;
@@ -611,6 +627,8 @@ if (SettingsService.to.danmaku.enableDanmakuDisplay.v) {
       detail: detail.value!,
       quality: qualites[currentQuality.value],
     );
+    // 获取播放地址期间用户可能已退出直播间
+    if (isClosed) return;
 
     if (playUrl.isEmpty) {
       ToastUtil.show(i18n('cannot_read_play_url'));

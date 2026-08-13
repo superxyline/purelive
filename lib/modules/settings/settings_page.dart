@@ -40,37 +40,7 @@ class SettingsPage extends GetView<SettingsService> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          // 主题设置
-          context.buildGroupTitle(i18n("theme_settings")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.palette_line,
-              title: i18n("theme_customization"),
-              subtitle: i18n("theme_customization_desc"),
-              onTap: () => Get.to(() => const ThemeSettingsPage()),
-            ),
-          ]),
-
-          // 视频设置（含播放器内核）
-          const SizedBox(height: 20),
-          context.buildGroupTitle(i18n("video_settings")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.film_line,
-              title: i18n("video"),
-              subtitle: i18n("video_desc"),
-              onTap: () => Get.to(() => const VideoSettingsPage()),
-            ),
-            context.buildTile(
-              icon: Remix.cpu_line,
-              title: i18n("player_kernel"),
-              subtitle: i18n("player_kernel_desc"),
-              onTap: () => Get.to(() => const PlayerKernelSettingsPage()),
-            ),
-          ]),
-
           // 通用设置（含刷新、导航栏显示、平台显示与授权、自定义网络代理）
-          const SizedBox(height: 20),
           context.buildGroupTitle(i18n("general_settings")),
           context.buildModernCard([
             context.buildTile(
@@ -102,6 +72,36 @@ class SettingsPage extends GetView<SettingsService> {
               title: i18n("custom_network_proxy"),
               subtitle: i18n("custom_network_proxy_desc"),
               onTap: () => Get.to(() => const NetworkProxySettingsPage()),
+            ),
+          ]),
+
+          // 视频设置（含播放器内核）
+          const SizedBox(height: 20),
+          context.buildGroupTitle(i18n("video_settings")),
+          context.buildModernCard([
+            context.buildTile(
+              icon: Remix.film_line,
+              title: i18n("video"),
+              subtitle: i18n("video_desc"),
+              onTap: () => Get.to(() => const VideoSettingsPage()),
+            ),
+            context.buildTile(
+              icon: Remix.cpu_line,
+              title: i18n("player_kernel"),
+              subtitle: i18n("player_kernel_desc"),
+              onTap: () => Get.to(() => const PlayerKernelSettingsPage()),
+            ),
+          ]),
+
+          // 主题设置
+          const SizedBox(height: 20),
+          context.buildGroupTitle(i18n("theme_settings")),
+          context.buildModernCard([
+            context.buildTile(
+              icon: Remix.palette_line,
+              title: i18n("theme_customization"),
+              subtitle: i18n("theme_customization_desc"),
+              onTap: () => Get.to(() => const ThemeSettingsPage()),
             ),
           ]),
 

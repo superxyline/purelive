@@ -26,7 +26,6 @@ class FavoritePage extends GetView<FavoriteController> {
                 isScrollable: true,
                 tabs: [
                   Tab(text: i18n("online_room_title")),
-                  Tab(text: i18n("recording_room_title")),
                   Tab(text: i18n("offline_room_title")),
                 ],
               ),

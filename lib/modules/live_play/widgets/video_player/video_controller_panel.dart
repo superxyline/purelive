@@ -110,9 +110,18 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    GlobalPlayerService.instance.playerManager.isPlayingNow
-                        ? controller.enableController()
-                        : GlobalPlayerService.instance.playerManager.togglePlayPause();
+                    // 点击画面时取消弹幕输入框焦点，恢复控制栏自动隐藏
+                    if (controller.inputEditing.value) {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      controller.inputEditing.value = false;
+                    }
+                    // 点击画面切换控制栏显隐：显示时点击隐藏，隐藏时点击显示（2秒后自动隐藏）
+                    if (controller.showController.value && !controller.showLocked.value) {
+                      controller.stopHideController();
+                      controller.showController.value = false;
+                    } else {
+                      controller.enableController();
+                    }
                   },
                   onDoubleTap: () {
                     if (!controller.showLocked.value) {
@@ -1007,9 +1016,9 @@ class BottomActionBar extends StatelessWidget {
                           ],
                         ),
 
-                        if (GlobalPlayerState.to.fullscreenUI &&
+                          if (GlobalPlayerState.to.fullscreenUI &&
                             controller.livePlayController.currentSite.id == Sites.bilibiliSite)
-                          Padding(
+                            Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 6),
                             child: LiveDanmakuInputBar(
                               controller: controller.livePlayController,

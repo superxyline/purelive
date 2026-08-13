@@ -33,7 +33,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   void onInit() {
     super.onInit();
 
-    tabController = TabController(length: 3, vsync: this);
+    tabController = TabController(length: 2, vsync: this);
 
     debounce(SettingsService.to.fav.favoriteRooms, (_) => applyLocalFilter(), time: const Duration(milliseconds: 1000));
 
@@ -151,11 +151,8 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
         source = onlineRooms;
         break;
 
-      case 1:
-        source = replayRooms;
-        break;
 
-      case 2:
+      case 1:
         source = offlineRooms;
         break;
 
@@ -211,11 +208,8 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
           target = onlineRooms;
           break;
 
-        case 1:
-          target = replayRooms;
-          break;
 
-        case 2:
+        case 1:
           target = offlineRooms;
           break;
 

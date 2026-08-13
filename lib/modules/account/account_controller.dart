@@ -1,4 +1,4 @@
-import 'package:pure_live/common/index.dart';
+﻿import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/utils/utils.dart';
 import 'package:pure_live/core/common/log.dart';
 import 'package:pure_live/core/site/douyin_site.dart';
@@ -28,6 +28,25 @@ class AccountController extends GetxController {
     }
   }
 
+  Future<void> douyuTap() async {
+    var contents = [i18n("douyu_login"), i18n("set_cookie")];
+    var result = await Utils.showOptionDialog(contents, '', title: i18n("select_login_method"));
+    if (result == i18n("douyu_login")) {
+      await Get.toNamed(RoutePath.kDouyuWebLogin);
+    } else if (result == i18n("set_cookie")) {
+      await Get.toNamed(RoutePath.kDouyuCookie);
+    }
+  }
+
+  Future<void> huyaTap() async {
+    var contents = [i18n("huya_login"), i18n("set_cookie")];
+    var result = await Utils.showOptionDialog(contents, '', title: i18n("select_login_method"));
+    if (result == i18n("huya_login")) {
+      await Get.toNamed(RoutePath.kHuyaWebLogin);
+    } else if (result == i18n("set_cookie")) {
+      await Get.toNamed(RoutePath.kHuyaCookie);
+    }
+  }
   Future<void> loadDouyinAccount() async {
     try {
       final cookie = SettingsService.to.cookieManager;
