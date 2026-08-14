@@ -7,9 +7,12 @@ import 'package:pure_live/common/utils/share_command_handler.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 
 class RoomCard extends StatelessWidget {
-  const RoomCard({super.key, required this.room, this.dense = false});
+  const RoomCard({super.key, required this.room, this.dense = false, this.hideBadges = false});
   final LiveRoom room;
   final bool dense;
+
+  /// 为 true 时隐藏封面角标（热度值 / 开播时长 / 录播），用于"已关注"纯列表展示
+  final bool hideBadges;
 
   void onTap(BuildContext context) async {
     AppNavigator.toLiveRoomDetail(liveRoom: room);
@@ -643,7 +646,7 @@ class RoomCard extends StatelessWidget {
                           ),
                   ),
                 ),
-                if (room.isRecord == true)
+                if (room.isRecord == true && !hideBadges)
                   Positioned(
                     right: 8,
                     top: 8,
@@ -654,7 +657,7 @@ class RoomCard extends StatelessWidget {
                       color: Get.theme.primaryColor,
                     ),
                   ),
-                if (room.isRecord == false && room.liveStatus == LiveStatus.live)
+                if (room.isRecord == false && room.liveStatus == LiveStatus.live && !hideBadges)
                   Positioned(
                     right: 8,
                     bottom: 8,
@@ -665,7 +668,7 @@ class RoomCard extends StatelessWidget {
                       color: Get.theme.primaryColor,
                     ),
                   ),
-                if (room.isRecord == false && room.liveStatus == LiveStatus.live && room.liveStartTime != null)
+                if (room.isRecord == false && room.liveStatus == LiveStatus.live && room.liveStartTime != null && !hideBadges)
                   Positioned(
                     left: 8,
                     top: 8,

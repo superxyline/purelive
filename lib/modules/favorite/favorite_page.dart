@@ -27,6 +27,7 @@ class FavoritePage extends GetView<FavoriteController> {
                 tabs: [
                   Tab(text: i18n("online_room_title")),
                   Tab(text: i18n("offline_room_title")),
+                  Tab(text: i18n("favorites_all")),
                 ],
               ),
             ),
@@ -71,6 +72,7 @@ class FavoritePage extends GetView<FavoriteController> {
                                   isOnline: controller.tabOnlineIndex.value != 1,
                                   scrollController: scrollController,
                                   displayList: list,
+                                  hideBadges: controller.tabOnlineIndex.value == 2,
                                 );
                               }).toList(),
                             );

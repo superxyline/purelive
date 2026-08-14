@@ -24,6 +24,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   final onlineRooms = <LiveRoom>[].obs;
   final offlineRooms = <LiveRoom>[].obs;
   final replayRooms = <LiveRoom>[].obs;
+  final allRooms = <LiveRoom>[].obs;
   final selectedTagId = TagManagementController.allTagKey.obs;
   final visibleTags = <LiveTag>[].obs;
 
@@ -33,7 +34,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   void onInit() {
     super.onInit();
 
-    tabController = TabController(length: 2, vsync: this);
+    tabController = TabController(length: 3, vsync: this);
 
     debounce(SettingsService.to.fav.favoriteRooms, (_) => applyLocalFilter(), time: const Duration(milliseconds: 1000));
 
@@ -156,6 +157,10 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
         source = offlineRooms;
         break;
 
+      case 2:
+        source = allRooms;
+        break;
+
       default:
         source = onlineRooms;
     }
@@ -188,6 +193,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     onlineRooms.clear();
     replayRooms.clear();
     offlineRooms.clear();
+    allRooms.clear();
 
     final List<LiveRoom> roomsBase = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
     onlineRooms.addAll(roomsBase.where((r) => r.liveStatus == LiveStatus.live && r.isRecord == false));
@@ -195,6 +201,8 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     offlineRooms.addAll(roomsBase.where((r) => r.liveStatus != LiveStatus.live));
 
     replayRooms.addAll(roomsBase.where((r) => r.liveStatus == LiveStatus.live && r.isRecord == true));
+
+    allRooms.addAll(roomsBase);
 
     final currentAvailableSites = Sites().availableSites(containsAll: true);
     visibleTags.clear();
@@ -211,6 +219,10 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
 
         case 1:
           target = offlineRooms;
+          break;
+
+        case 2:
+          target = allRooms;
           break;
 
         default:
@@ -236,6 +248,9 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     for (var room in replayRooms) {
       room.watching = int.tryParse(room.watching ?? '')?.toString() ?? '0';
     }
+    for (var room in allRooms) {
+      room.watching = int.tryParse(room.watching ?? '')?.toString() ?? '0';
+    }
 
     onlineRooms.sort((a, b) {
       if (selectedTagId.value == TagManagementController.allTagKey) {
@@ -247,6 +262,19 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
       return int.parse(b.watching!).compareTo(int.parse(a.watching!));
     });
     replayRooms.sort((a, b) {
+      if (selectedTagId.value == TagManagementController.allTagKey) {
+        return int.parse(b.watching!).compareTo(int.parse(a.watching!));
+      }
+      int sa = _getRoomTagScore(a);
+      int sb = _getRoomTagScore(b);
+      if (sa != sb) return sb.compareTo(sa);
+      return int.parse(b.watching!).compareTo(int.parse(a.watching!));
+    });
+    // 全部关注（已关注标签）：直播优先，其次按热度排序
+    allRooms.sort((a, b) {
+      int la = a.liveStatus == LiveStatus.live ? 1 : 0;
+      int lb = b.liveStatus == LiveStatus.live ? 1 : 0;
+      if (la != lb) return lb.compareTo(la);
       if (selectedTagId.value == TagManagementController.allTagKey) {
         return int.parse(b.watching!).compareTo(int.parse(a.watching!));
       }

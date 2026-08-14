@@ -356,7 +356,16 @@ class BiliBiliSite implements LiveSite {
       List<String> serverHosts = (roomDanmakuResult["data"]["host_list"] as List)
           .map<String>((e) => e["host"].toString())
           .toList();
-      final biliLiveTime = asT<int?>(roomInfo["room_info"]["live_time"]) ?? 0;
+      // B站开播时间：room_init 接口（简单稳定，getInfoByRoom 可能被风控 -352）
+      var biliLiveTime = 0;
+      try {
+        final roomInit = await HttpClient.instance.getJson(
+          "https://api.live.bilibili.com/room/v1/Room/room_init",
+          queryParameters: {"id": roomId},
+          header: await getHeader(),
+        );
+        biliLiveTime = asT<int?>(roomInit["data"]?["live_time"]) ?? 0;
+      } catch (_) {}
       return LiveRoom(
         roomId: roomId,
         title: roomInfo["room_info"]["title"].toString(),
