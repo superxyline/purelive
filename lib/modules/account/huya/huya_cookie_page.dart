@@ -70,6 +70,22 @@ class HuyaCookiePage extends GetView<HuyaCookieController> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: OutlinedButton.icon(
+                      onPressed: () => controller.syncFollows(),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Icon(Remix.refresh_line, size: 18),
+                      label: Text(
+                        i18n("sync_follows"),
+                        style: AppTextStyles.t14.copyWith(fontWeight: FontWeight.w600, letterSpacing: 1),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 2.0.0+13
+version: 2.1.0+14
 
 environment:
   sdk: ^3.10.4
@@ -112,7 +112,6 @@ dependencies:
   dart_sm: ^0.1.5 # 工具库
 
   # -------------------------- 网页/JS解析 --------------------------
-  flutter_js: ^0.8.5 # JS引擎执行
   flutter_inappwebview: ^6.2.0-beta.3 # 内置浏览器（注意：6.1 稳定版缺少 CookieManager.flush API，暂保持 beta）
   dart_quickjs:
     git:
@@ -126,7 +125,6 @@ dependencies:
 
   # -------------------------- 功能组件 --------------------------
   url_launcher: ^6.1.12 # 打开外部链接
-  share_handler: ^0.0.25 # 分享功能
   flutter_exit_app: ^2.0.0 # 退出应用
   package_info_plus: ^10.1.0 # 应用包信息
   stop_watch_timer: ^3.2.2 # 计时器
@@ -175,10 +173,8 @@ dev_dependencies:
   json_serializable: ^6.14.1 # JSON序列化
   build_runner: ^2.16.0 # 代码生成器
   flutter_launcher_icons: ^0.14.4 # 应用图标生成
-  msix: ^3.16.12 # Windows安装包打包
   intl_utils: ^2.8.11 # 国际化工具
   flutter_lints: ^6.0.0 # 代码规范检查
-  dmg: ^0.1.7 # macOS安装包打包
 
 # 应用图标配置
 flutter_icons:

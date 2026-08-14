@@ -6,6 +6,15 @@ class ChangelogPage extends StatelessWidget {
 
   static const List<({String version, List<String> items})> _changelog = [
     (
+      version: '2.1.0（构建号 14）',
+      items: [
+        '新增多平台关注同步：账号页与 B站/斗鱼/虎牙 Cookie 设置页新增"同步关注主播"入口，可一键把平台关注的主播同步到应用收藏（按平台+房间号自动去重，只增不删）',
+        'B站：通过关注接口分页拉取并批量解析直播间，保留开播状态',
+        '斗鱼：通过斗鱼网页关注接口拉取（需登录 Cookie）',
+        '虎牙：逆向网页关注接口（TARS 协议）逐主播解析昵称/头像/房间号',
+      ],
+    ),
+    (
       version: '2.0.0（构建号 13）',
       items: [
         '新增斗鱼网页登录：账户页支持网页内嵌登录（WebView）与手动设置 Cookie，登录态本地持久化并纳入备份恢复',

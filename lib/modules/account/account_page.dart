@@ -2,6 +2,7 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
 import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
+import 'package:pure_live/common/services/follow_sync_service.dart';
 
 class AccountPage extends GetView<AccountController> {
   const AccountPage({super.key});
@@ -27,6 +28,7 @@ class AccountPage extends GetView<AccountController> {
                 title: i18n("site_bilibili"),
                 subtitle: isLogined ? accountName : i18n("not_logged_in"),
                 isLogined: isLogined,
+                onSync: isLogined ? _syncBilibili : null,
                 onTap: () => isLogined ? _showLogoutDialog(context) : controller.bilibiliTap(),
               );
             }),
@@ -39,6 +41,7 @@ class AccountPage extends GetView<AccountController> {
                 title: i18n("site_huya"),
                 subtitle: isLogined ? i18n("logined") : i18n("set_cookie"),
                 isLogined: isLogined,
+                onSync: isLogined ? _syncHuya : null,
                 onTap: () => isLogined
                     ? _showPlatformLogoutDialog(context, () => cookie.huyaCookie.v = "")
                     : controller.huyaTap(),
@@ -71,6 +74,7 @@ class AccountPage extends GetView<AccountController> {
                 title: i18n("site_douyu"),
                 subtitle: isLogined ? i18n("logined") : i18n("set_cookie"),
                 isLogined: isLogined,
+                onSync: isLogined ? _syncDouyu : null,
                 onTap: () => isLogined
                     ? _showPlatformLogoutDialog(context, () => cookie.douyuCookie.v = "")
                     : controller.douyuTap(),
@@ -90,6 +94,7 @@ class AccountPage extends GetView<AccountController> {
     required String subtitle,
     required bool isLogined,
     required VoidCallback onTap,
+    VoidCallback? onSync,
     bool isEnabled = true,
   }) {
     final theme = Theme.of(context);
@@ -113,13 +118,37 @@ class AccountPage extends GetView<AccountController> {
         ),
       ),
       trailing: isLogined
-          ? GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Icon(Remix.logout_box_r_line, color: theme.colorScheme.error.withValues(alpha: 0.8), size: 18),
-              ),
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (onSync != null)
+                  InkWell(
+                    onTap: onSync,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Remix.refresh_line, color: theme.colorScheme.primary, size: 15),
+                          const SizedBox(width: 3),
+                          Text(
+                            i18n("sync_short"),
+                            style: AppTextStyles.t12.copyWith(color: theme.colorScheme.primary),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(Remix.logout_box_r_line, color: theme.colorScheme.error.withValues(alpha: 0.8), size: 18),
+                  ),
+                ),
+              ],
             )
           : Icon(Icons.chevron_right_rounded, color: theme.hintColor.withValues(alpha: 0.4), size: 20),
       onTap: onTap,
@@ -144,6 +173,27 @@ class AccountPage extends GetView<AccountController> {
           ),
         ],
       ),
+    );
+  }
+
+  void _syncBilibili() {
+    FollowSyncService.runAndShowResult(
+      task: FollowSyncService.syncBilibili,
+      loadingMsg: i18n("follow_sync_loading_bilibili"),
+    );
+  }
+
+  void _syncDouyu() {
+    FollowSyncService.runAndShowResult(
+      task: FollowSyncService.syncDouyu,
+      loadingMsg: i18n("follow_sync_loading_douyu"),
+    );
+  }
+
+  void _syncHuya() {
+    FollowSyncService.runAndShowResult(
+      task: FollowSyncService.syncHuya,
+      loadingMsg: i18n("follow_sync_loading_huya"),
     );
   }
 
