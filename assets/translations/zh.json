@@ -436,6 +436,8 @@
     "speed": "速度",
     "splash_animation": "启动动画",
     "splash_animation_subtitle": "启动时显示 Logo",
+    "show_live_duration_badge": "显示开播时长",
+    "show_live_duration_badge_subtitle": "在直播封面角标显示主播已开播时长",
     "start_record_now": "立即启动录制",
     "startup": "开机启动",
     "startup_animation": "启动页动画",

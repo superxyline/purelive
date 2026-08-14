@@ -11,6 +11,7 @@ class AppSettingsController extends GetxController {
 
   final RxBool enableFullScreenDefault = hiveBool('enableFullScreenDefault', false);
   final RxBool showSplashPage = hiveBool('showSplashPage', false);
+  final RxBool showLiveDurationBadge = hiveBool('showLiveDurationBadge', true);
 
   late final RxList<String> savedMenuIds = hiveStringList('savedMenuIds', HomeMenu.values.map((e) => e.id).toList());
 
@@ -36,6 +37,7 @@ class AppSettingsController extends GetxController {
       'enableScreenKeepOn': enableScreenKeepOn.v,
       'enableFullScreenDefault': enableFullScreenDefault.v,
       'showSplashPage': showSplashPage.v,
+      'showLiveDurationBadge': showLiveDurationBadge.v,
       'savedMenuIds': savedMenuIds.v,
     };
   }
@@ -48,6 +50,7 @@ class AppSettingsController extends GetxController {
     enableScreenKeepOn.v = json['enableScreenKeepOn'] ?? true;
     enableFullScreenDefault.v = json['enableFullScreenDefault'] ?? false;
     showSplashPage.v = json['showSplashPage'] ?? false;
+    showLiveDurationBadge.v = json['showLiveDurationBadge'] ?? true;
     savedMenuIds.v = List<String>.from(json['savedMenuIds'] ?? HomeMenu.values.map((e) => e.id).toList());
   }
 
@@ -61,6 +64,7 @@ class AppSettingsController extends GetxController {
       'enableScreenKeepOn': app['enableScreenKeepOn'] ?? true,
       'enableFullScreenDefault': app['enableFullScreenDefault'] ?? false,
       'showSplashPage': app['showSplashPage'] ?? false,
+      'showLiveDurationBadge': app['showLiveDurationBadge'] ?? true,
       'savedMenuIds': List<String>.from(app['savedMenuIds'] ?? []),
     };
   }

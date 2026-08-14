@@ -22,6 +22,12 @@ class GeneralSettingsPage extends GetView<SettingsService> {
               icon: Remix.rocket_2_line,
             ),
             context.buildSwitchTile(
+              title: i18n('show_live_duration_badge'),
+              subtitle: i18n("show_live_duration_badge_subtitle"),
+              value: SettingsService.to.app.showLiveDurationBadge,
+              icon: Remix.time_line,
+            ),
+            context.buildSwitchTile(
               title: i18n('enable_countdown_close'),
               subtitle: i18n('enable_countdown_close_subtitle'),
               value: SettingsService.to.exit.enableAutoShutDownTime,

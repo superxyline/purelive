@@ -435,6 +435,8 @@
     "speed": "Speed",
     "splash_animation": "Splash Animation",
     "splash_animation_subtitle": "Show logo on startup",
+    "show_live_duration_badge": "Show Live Duration",
+    "show_live_duration_badge_subtitle": "Show the live duration badge on covers",
     "start_record_now": "Start recording now",
     "startup": "Start on Boot",
     "startup_animation": "Startup Animation",

@@ -668,12 +668,21 @@ class RoomCard extends StatelessWidget {
                       color: Get.theme.primaryColor,
                     ),
                   ),
-                if (room.isRecord == false && room.liveStatus == LiveStatus.live && room.liveStartTime != null && !hideBadges)
-                  Positioned(
-                    left: 8,
-                    top: 8,
-                    child: LiveDurationBadge(startTimeMs: room.liveStartTime!, dense: dense),
-                  ),
+                Obx(() {
+                  final bool showDuration = SettingsService.to.app.showLiveDurationBadge.v;
+                  if (room.isRecord == false &&
+                      room.liveStatus == LiveStatus.live &&
+                      room.liveStartTime != null &&
+                      !hideBadges &&
+                      showDuration) {
+                    return Positioned(
+                      left: 8,
+                      top: 8,
+                      child: LiveDurationBadge(startTimeMs: room.liveStartTime!, dense: dense),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
               ],
             ),
             ListTile(
