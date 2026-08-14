@@ -348,6 +348,9 @@ class DouyinSite implements LiveSite {
     var owner = roomData["owner"];
 
     var roomStatus = (asT<int?>(roomData["status"]) ?? 0) == 2;
+    final douyinStartTime = roomData["create_time"] is num
+        ? (roomData["create_time"] as num).toInt()
+        : int.tryParse(roomData["create_time"]?.toString() ?? '') ?? 0;
 
     // 主要是为了获取cookie,用于弹幕websocket连接
     var headers = await getRequestHeaders();
@@ -362,6 +365,7 @@ class DouyinSite implements LiveSite {
       watching: roomStatus ? roomData["room_view_stats"]["display_value"].toString() : "",
       status: roomStatus,
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+      liveStartTime: roomStatus && douyinStartTime > 0 ? douyinStartTime * 1000 : null,
       link: "https://live.douyin.com/$webRid",
       platform: Sites.douyinSite,
       area: '',
@@ -385,6 +389,9 @@ class DouyinSite implements LiveSite {
     var owner = roomInfo["owner"];
     var anchor = detail["roomStore"]["roomInfo"]["anchor"];
     var roomStatus = (asT<int?>(roomInfo["status"]) ?? 0) == 2;
+    final douyinStartTime = roomInfo["create_time"] is num
+        ? (roomInfo["create_time"] as num).toInt()
+        : int.tryParse(roomInfo["create_time"]?.toString() ?? '') ?? 0;
 
     // 主要是为了获取cookie,用于弹幕websocket连接
     var headers = await getRequestHeaders();
@@ -399,6 +406,7 @@ class DouyinSite implements LiveSite {
           : anchor["avatar_thumb"]["url_list"][0].toString(),
       watching: roomInfo?["room_view_stats"]?["display_value"].toString() ?? '',
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+      liveStartTime: roomStatus && douyinStartTime > 0 ? douyinStartTime * 1000 : null,
       link: "https://live.douyin.com/$webRid",
       area: '',
       status: roomStatus,

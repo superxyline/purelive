@@ -48,6 +48,9 @@ class LiveRoom {
   int? catchUpStart; // 时移开始时间戳
   int? catchUpEnd; // 时移结束时间戳
 
+  /// 开播时间（毫秒时间戳，仅直播中有效）
+  int? liveStartTime;
+
   // 添加未命名的默认构造函数
   LiveRoom({
     this.roomId,
@@ -75,6 +78,7 @@ class LiveRoom {
     this.isCatchUp = false,
     this.catchUpStart,
     this.catchUpEnd,
+    this.liveStartTime,
     List<String>? tagIds,
   }) : tagIds = tagIds ?? [];
 
@@ -102,7 +106,8 @@ class LiveRoom {
       catchUpUrl = json['catchUpUrl'],
       isCatchUp = json['isCatchUp'] ?? false,
       catchUpStart = json['catchUpStart'],
-      catchUpEnd = json['catchUpEnd'];
+      catchUpEnd = json['catchUpEnd'],
+      liveStartTime = json['liveStartTime'];
 
   /// 创建一个新的LiveRoom实例，并用提供的值更新指定字段
   LiveRoom copyWith({
@@ -131,6 +136,7 @@ class LiveRoom {
     bool? isCatchUp,
     int? catchUpStart,
     int? catchUpEnd,
+    int? liveStartTime,
     List<String>? tagIds,
   }) {
     return LiveRoom(
@@ -157,6 +163,7 @@ class LiveRoom {
       isCatchUp: isCatchUp ?? this.isCatchUp,
       catchUpStart: catchUpStart ?? this.catchUpStart,
       catchUpEnd: catchUpEnd ?? this.catchUpEnd,
+      liveStartTime: liveStartTime ?? this.liveStartTime,
       tagIds: tagIds ?? this.tagIds,
     );
   }
@@ -205,6 +212,7 @@ class LiveRoom {
       'isCatchUp': isCatchUp,
       'catchUpStart': catchUpStart,
       'catchUpEnd': catchUpEnd,
+      'liveStartTime': liveStartTime,
     };
   }
 }

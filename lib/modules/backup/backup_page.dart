@@ -8,6 +8,7 @@ import 'package:pure_live/modules/backup/scan_page.dart';
 import 'package:pure_live/common/global/app_path_manager.dart';
 import 'package:pure_live/common/services/backup_recovery_service.dart';
 import 'package:pure_live/common/services/settings/log_controller.dart';
+import 'package:pure_live/modules/transfer/receive_transfer_page.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
@@ -64,6 +65,20 @@ class _BackupPageState extends State<BackupPage> {
                   subtitle: i18n("sync_tv_data_subtitle"),
                   onTap: () => Get.to(() => const ScanCodePage()),
                 ),
+              if (Platform.isAndroid || Platform.isIOS) ...[
+                context.buildTile(
+                  icon: Remix.qr_scan_line,
+                  title: i18n("transfer_send"),
+                  subtitle: i18n("transfer_send_subtitle"),
+                  onTap: () => Get.to(() => const ScanCodePage(transferMode: true)),
+                ),
+                context.buildTile(
+                  icon: Remix.download_2_line,
+                  title: i18n("transfer_receive"),
+                  subtitle: i18n("transfer_receive_subtitle"),
+                  onTap: () => Get.to(() => const ReceiveTransferPage()),
+                ),
+              ],
             ]),
             const SizedBox(height: 20),
             context.buildGroupTitle(i18n("local_backup")),

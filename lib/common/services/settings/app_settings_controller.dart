@@ -10,7 +10,7 @@ class AppSettingsController extends GetxController {
   final RxBool enableScreenKeepOn = hiveBool('enableScreenKeepOn', true);
 
   final RxBool enableFullScreenDefault = hiveBool('enableFullScreenDefault', false);
-  final RxBool showSplashPage = hiveBool('showSplashPage', true);
+  final RxBool showSplashPage = hiveBool('showSplashPage', false);
 
   late final RxList<String> savedMenuIds = hiveStringList('savedMenuIds', HomeMenu.values.map((e) => e.id).toList());
 
@@ -47,7 +47,7 @@ class AppSettingsController extends GetxController {
     enableRotateScreen.v = json['enableRotateScreen'] ?? false;
     enableScreenKeepOn.v = json['enableScreenKeepOn'] ?? true;
     enableFullScreenDefault.v = json['enableFullScreenDefault'] ?? false;
-    showSplashPage.v = json['showSplashPage'] ?? true;
+    showSplashPage.v = json['showSplashPage'] ?? false;
     savedMenuIds.v = List<String>.from(json['savedMenuIds'] ?? HomeMenu.values.map((e) => e.id).toList());
   }
 
@@ -60,7 +60,7 @@ class AppSettingsController extends GetxController {
       'enableRotateScreen': app['enableRotateScreen'] ?? false,
       'enableScreenKeepOn': app['enableScreenKeepOn'] ?? true,
       'enableFullScreenDefault': app['enableFullScreenDefault'] ?? false,
-      'showSplashPage': app['showSplashPage'] ?? true,
+      'showSplashPage': app['showSplashPage'] ?? false,
       'savedMenuIds': List<String>.from(app['savedMenuIds'] ?? []),
     };
   }

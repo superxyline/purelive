@@ -4,12 +4,12 @@ import 'package:pure_live/common/services/utils/hive_rx.dart';
 class DanmakuSettingsController extends GetxController {
   final RxBool hideDanmaku = hiveBool('hideDanmaku', false);
   final RxDouble danmakuTopArea = hiveDouble('danmakuTopArea', 0.0);
-  final RxDouble danmakuArea = hiveDouble('danmakuArea', 1.0);
+  final RxDouble danmakuArea = hiveDouble('danmakuArea', 0.7);
   final RxDouble danmakuBottomArea = hiveDouble('danmakuBottomArea', 0.5);
-  final RxDouble danmakuSpeed = hiveDouble('danmakuSpeed', 8.0);
+  final RxDouble danmakuSpeed = hiveDouble('danmakuSpeed', 100.0);
   final RxDouble danmakuFontSize = hiveDouble('danmakuFontSize', 16.0);
   final RxDouble danmakuFontBorder = hiveDouble('danmakuFontBorder', 4.0);
-  final RxDouble danmakuOpacity = hiveDouble('danmakuOpacity', 1.0);
+  final RxDouble danmakuOpacity = hiveDouble('danmakuOpacity', 0.7);
   final RxBool enableDanmakuDisplay = hiveBool('enableDanmakuDisplay', true);
   final RxBool enableDanmakuStroke = hiveBool('enableDanmakuStroke', true);
   final RxBool showSuperChat = hiveBool('showSuperChat', true);
@@ -37,12 +37,12 @@ class DanmakuSettingsController extends GetxController {
   void fromJson(Map<String, dynamic> json) {
     hideDanmaku.v = json['hideDanmaku'] ?? false;
     danmakuTopArea.v = json['danmakuTopArea']?.toDouble() ?? 0.0;
-    danmakuArea.v = json['danmakuArea']?.toDouble() ?? 1.0;
+    danmakuArea.v = json['danmakuArea']?.toDouble() ?? 0.7;
     danmakuBottomArea.v = json['danmakuBottomArea']?.toDouble() ?? 0.5;
-    danmakuSpeed.v = json['danmakuSpeed']?.toDouble() ?? 8.0;
+    danmakuSpeed.v = json['danmakuSpeed']?.toDouble() ?? 100.0;
     danmakuFontSize.v = json['danmakuFontSize']?.toDouble() ?? 16.0;
     danmakuFontBorder.v = json['danmakuFontBorder']?.toDouble() ?? 4.0;
-    danmakuOpacity.v = json['danmakuOpacity']?.toDouble() ?? 1.0;
+    danmakuOpacity.v = json['danmakuOpacity']?.toDouble() ?? 0.7;
     enableDanmakuDisplay.v = json['enableDanmakuDisplay'] ?? true;
     danmakuFontFamilyName.v = json['danmakuFontFamilyName'] ?? 'Default';
     enableDanmakuStroke.v = json['enableDanmakuStroke'] ?? true;
@@ -55,12 +55,12 @@ class DanmakuSettingsController extends GetxController {
     return {
       'hideDanmaku': danmaku['hideDanmaku'] ?? false,
       'danmakuTopArea': (danmaku['danmakuTopArea'] ?? 0.0).toDouble(),
-      'danmakuArea': (danmaku['danmakuArea'] ?? 1.0).toDouble(),
+      'danmakuArea': (danmaku['danmakuArea'] ?? 0.7).toDouble(),
       'danmakuBottomArea': (danmaku['danmakuBottomArea'] ?? 0.5).toDouble(),
-      'danmakuSpeed': (danmaku['danmakuSpeed'] ?? 8.0).toDouble(),
+      'danmakuSpeed': (danmaku['danmakuSpeed'] ?? 100.0).toDouble(),
       'danmakuFontSize': (danmaku['danmakuFontSize'] ?? 16.0).toDouble(),
       'danmakuFontBorder': (danmaku['danmakuFontBorder'] ?? 4.0).toDouble(),
-      'danmakuOpacity': (danmaku['danmakuOpacity'] ?? 1.0).toDouble(),
+      'danmakuOpacity': (danmaku['danmakuOpacity'] ?? 0.7).toDouble(),
       'enableDanmakuDisplay': danmaku['enableDanmakuDisplay'] ?? true,
       'danmakuFontFamilyName': danmaku['danmakuFontFamilyName'] ?? 'Default',
       'enableDanmakuStroke': danmaku['enableDanmakuStroke'] ?? true,

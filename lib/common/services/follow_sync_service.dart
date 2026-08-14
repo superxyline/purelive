@@ -12,6 +12,7 @@ class FollowSyncResult {
   final int added;
   final int existed;
   final int failed;
+  final int filtered;
   final String? error;
 
   const FollowSyncResult({
@@ -20,6 +21,7 @@ class FollowSyncResult {
     this.added = 0,
     this.existed = 0,
     this.failed = 0,
+    this.filtered = 0,
     this.error,
   });
 
@@ -55,7 +57,13 @@ class FollowSyncService {
 
     final rooms = <LiveRoom>[];
     var failed = 0;
+    var filtered = 0;
     try {
+      // B站"我的关注"接口返回每个关注主播的上次直播结束时间，
+      // 用于过滤掉一周内未直播过的主播（拉取失败时降级为不过滤）。
+      final lastLiveMap = await _bilibiliLastLiveMap(cookie);
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      const weekSeconds = 7 * 24 * 60 * 60;
       var page = 1;
       while (true) {
         final result = await HttpClient.instance.getJson(
@@ -90,6 +98,17 @@ class FollowSyncService {
           final roomMap = await _bilibiliRoomBaseInfo(mids, cookie);
           for (final item in list) {
             final mid = item["mid"]?.toString() ?? "";
+            final lastLive = lastLiveMap[mid];
+            if (lastLive != null) {
+              final hasStreamedThisWeek =
+                  lastLive.liveStatus == 1 ||
+                  (lastLive.recordLiveTime > 0 &&
+                      now - lastLive.recordLiveTime <= weekSeconds);
+              if (!hasStreamedThisWeek) {
+                filtered++;
+                continue;
+              }
+            }
             final info = roomMap[mid];
             if (info == null || (info["room_id"] ?? 0).toString() == "0") {
               failed++;
@@ -121,7 +140,55 @@ class FollowSyncService {
         error: e.toString(),
       );
     }
-    return _commitRooms(rooms, Sites.bilibiliSite, failed);
+    return _commitRooms(rooms, Sites.bilibiliSite, failed, filtered: filtered);
+  }
+
+  /// B站关注主播的上次直播信息（uid -> (直播状态, 上次直播结束时间戳)）。
+  ///
+  /// 使用 B站"我的关注"接口：
+  /// https://api.live.bilibili.com/xlive/web-ucenter/user/following
+  /// 其中 `record_live_time` 为主播上一次直播结束时间戳（秒），正在直播时为 0。
+  /// 拉取失败时返回已获取的部分数据，不阻塞同步流程。
+  static Future<Map<String, ({int liveStatus, int recordLiveTime})>>
+  _bilibiliLastLiveMap(String cookie) async {
+    final result = <String, ({int liveStatus, int recordLiveTime})>{};
+    try {
+      var page = 1;
+      while (true) {
+        final json = await HttpClient.instance.getJson(
+          "https://api.live.bilibili.com/xlive/web-ucenter/user/following",
+          queryParameters: {
+            "page": page,
+            "page_size": 50,
+            "ignoreRecord": 1,
+            "hit_ab": true,
+          },
+          header: {
+            "cookie": cookie,
+            "user-agent": _webUa,
+            "referer": "https://live.bilibili.com/",
+          },
+        );
+        if (json == null || json["code"] != 0) break;
+        final data = (json["data"] as Map?) ?? const {};
+        final list = (data["list"] as List?) ?? const [];
+        for (final item in list) {
+          final uid = item["uid"]?.toString() ?? "";
+          if (uid.isEmpty || uid == "0") continue;
+          result[uid] = (
+            liveStatus: (item["live_status"]?.toString() ?? "0") == "1" ? 1 : 0,
+            recordLiveTime:
+                int.tryParse(item["record_live_time"]?.toString() ?? "") ?? 0,
+          );
+        }
+        final totalPage = (data["totalPage"] as num?)?.toInt() ?? 0;
+        if (list.length < 50 || page >= totalPage) break;
+        page++;
+      }
+    } catch (_) {
+      // 忽略单个接口异常，使用已获取的部分数据
+    }
+    return result;
   }
 
   static Future<Map<String, dynamic>> _bilibiliRoomBaseInfo(
@@ -335,8 +402,9 @@ class FollowSyncService {
   static FollowSyncResult _commitRooms(
     List<LiveRoom> rooms,
     String platform,
-    int failed,
-  ) {
+    int failed, {
+    int filtered = 0,
+  }) {
     var added = 0;
     var existed = 0;
     for (final room in rooms) {
@@ -348,10 +416,11 @@ class FollowSyncService {
     }
     return FollowSyncResult(
       platform: platform,
-      total: rooms.length + failed,
+      total: rooms.length + failed + filtered,
       added: added,
       existed: existed,
       failed: failed,
+      filtered: filtered,
     );
   }
 
@@ -380,15 +449,26 @@ class FollowSyncService {
       return;
     }
 
-    final summary = i18n(
-      "follow_sync_summary",
-      args: {
-        'total': result.total.toString(),
-        'added': result.added.toString(),
-        'existed': result.existed.toString(),
-        'failed': result.failed.toString(),
-      },
-    );
+    final summary = result.filtered > 0
+        ? i18n(
+            "follow_sync_summary_filtered",
+            args: {
+              'total': result.total.toString(),
+              'added': result.added.toString(),
+              'existed': result.existed.toString(),
+              'failed': result.failed.toString(),
+              'filtered': result.filtered.toString(),
+            },
+          )
+        : i18n(
+            "follow_sync_summary",
+            args: {
+              'total': result.total.toString(),
+              'added': result.added.toString(),
+              'existed': result.existed.toString(),
+              'failed': result.failed.toString(),
+            },
+          );
     await Utils.showAlertDialog(summary, title: i18n("follow_sync_title"));
   }
 }

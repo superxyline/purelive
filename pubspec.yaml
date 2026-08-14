@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 2.1.0+14
+version: 2.1.2+16
 
 environment:
   sdk: ^3.10.4
@@ -97,7 +97,7 @@ dependencies:
   # -------------------------- 文件/路径/存储 --------------------------
   path_provider: ^2.1.5 # 获取文件路径
   path: ^1.9.1 # 路径处理
-  file_picker: ^12.0.0-beta.5 # 文件选择器（注意：11.x 稳定版与 win32 ^6 冲突，暂保持 beta）
+  file_picker: 12.0.0-beta.7 # 文件选择器（精确锁定 beta.7：12.0.0 正式版删除了 FilePickerResult，勿升级）
   uri_to_file: ^1.0.0 # URI转文件
   open_filex: ^4.7.0 # 打开本地文件
   mime: ^2.0.0 # MIME类型处理

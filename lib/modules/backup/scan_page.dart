@@ -4,7 +4,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:pure_live/common/services/backup_recovery_service.dart';
 
 class ScanCodePage extends StatefulWidget {
-  const ScanCodePage({super.key});
+  const ScanCodePage({super.key, this.transferMode = false});
+
+  /// 跨端传输模式：扫码后推送关注 + 登录数据（覆盖对方），而非同步 TV 数据
+  final bool transferMode;
 
   @override
   State<ScanCodePage> createState() => _ScanCodePageState();
@@ -110,7 +113,9 @@ class _ScanCodePageState extends State<ScanCodePage> {
                     hasFound = true;
                     syncResult = true;
                   });
-                  final result = await BackupRecoveryService().pushSettingsToRemoteServer(barcodes[0].rawValue!);
+                  final result = widget.transferMode
+                      ? await BackupRecoveryService().pushTransferToRemoteServer(barcodes[0].rawValue!)
+                      : await BackupRecoveryService().pushSettingsToRemoteServer(barcodes[0].rawValue!);
                   ToastUtil.show(result ? i18n("sync_success") : i18n("sync_failed"));
                   setState(() {
                     isSuccess = result;

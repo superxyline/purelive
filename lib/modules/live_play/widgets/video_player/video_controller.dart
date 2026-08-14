@@ -94,13 +94,13 @@ class VideoController with ChangeNotifier {
   }
 
   final hideDanmaku = false.obs;
-  final danmakuArea = 1.0.obs;
+  final danmakuArea = 0.7.obs;
   final danmakuTopArea = 0.0.obs;
   final danmakuBottomArea = 0.0.obs;
-  final danmakuSpeed = 8.0.obs;
+  final danmakuSpeed = 100.0.obs;
   final danmakuFontSize = 16.0.obs;
   final danmakuFontBorder = 4.obs;
-  final danmakuOpacity = 1.0.obs;
+  final danmakuOpacity = 0.7.obs;
   final enableDanmakuStroke = true.obs;
   final danmakuFps = 60.obs;
   final danmakuFontFamilyName = ''.obs;

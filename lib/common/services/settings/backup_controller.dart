@@ -170,4 +170,38 @@ class BackupController extends GetxController {
     final favorite = Get.find<FavoriteRoomController>().toJson();
     return {...danmaku, ...cookie, ...favorite};
   }
+
+  /// 跨端传输导出：关注 + 登录（含真实 Cookie，仅经局域网明文传输，不落盘）
+  Map<String, dynamic> exportTransferData() {
+    final favorite = Get.find<FavoriteRoomController>().toJson();
+    final cookie = Get.find<CookieSettingsController>();
+    return {
+      'transferVersion': 1,
+      'favorite': favorite,
+      'cookie': {
+        'bilibiliCookie': cookie.bilibiliCookie.v,
+        'huyaCookie': cookie.huyaCookie.v,
+        'douyinCookie': cookie.douyinCookie.v,
+        'douyuCookie': cookie.douyuCookie.v,
+        'bilibiliUid': cookie.bilibiliUid.v,
+      },
+    };
+  }
+
+  /// 跨端传输导入：完全覆盖接收方的关注与登录数据
+  bool importTransferData(Map<String, dynamic> data) {
+    try {
+      final favorite = data['favorite'];
+      if (favorite is Map) {
+        Get.find<FavoriteRoomController>().fromJson(Map<String, dynamic>.from(favorite));
+      }
+      final cookie = data['cookie'];
+      if (cookie is Map) {
+        Get.find<CookieSettingsController>().fromJson(Map<String, dynamic>.from(cookie));
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

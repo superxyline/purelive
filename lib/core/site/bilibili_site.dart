@@ -356,6 +356,7 @@ class BiliBiliSite implements LiveSite {
       List<String> serverHosts = (roomDanmakuResult["data"]["host_list"] as List)
           .map<String>((e) => e["host"].toString())
           .toList();
+      final biliLiveTime = asT<int?>(roomInfo["room_info"]["live_time"]) ?? 0;
       return LiveRoom(
         roomId: roomId,
         title: roomInfo["room_info"]["title"].toString(),
@@ -366,6 +367,7 @@ class BiliBiliSite implements LiveSite {
         area: roomInfo['room_info']?['area_name'] ?? '',
         status: (asT<int?>(roomInfo["room_info"]["live_status"]) ?? 0) == 1,
         liveStatus: (asT<int?>(roomInfo["room_info"]["live_status"]) ?? 0) == 1 ? LiveStatus.live : LiveStatus.offline,
+        liveStartTime: biliLiveTime > 0 ? biliLiveTime * 1000 : null,
         link: "https://live.bilibili.com/$roomId",
         introduction: roomInfo["room_info"]["description"].toString(),
         notice: "",

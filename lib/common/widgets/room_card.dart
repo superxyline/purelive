@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
@@ -664,6 +665,12 @@ class RoomCard extends StatelessWidget {
                       color: Get.theme.primaryColor,
                     ),
                   ),
+                if (room.isRecord == false && room.liveStatus == LiveStatus.live && room.liveStartTime != null)
+                  Positioned(
+                    left: 8,
+                    top: 8,
+                    child: LiveDurationBadge(startTimeMs: room.liveStartTime!, dense: dense),
+                  ),
               ],
             ),
             ListTile(
@@ -745,7 +752,6 @@ class _FollowButtonState extends State<FollowButton> {
 
 class CountChip extends StatelessWidget {
   const CountChip({super.key, required this.icon, required this.count, this.dense = false, required this.color});
-
   final IconData icon;
   final String count;
   final bool dense;
@@ -760,14 +766,14 @@ class CountChip extends StatelessWidget {
 
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: dense ? 10 : 12, vertical: dense ? 4 : 6),
+        padding: EdgeInsets.symmetric(horizontal: dense ? 5 : 6, vertical: dense ? 2 : 3),
         child: Row(
           children: [
-            Icon(icon, color: Colors.white, size: dense ? 16 : 18),
-            const SizedBox(width: 4),
+            Icon(icon, color: Colors.white, size: dense ? 8 : 9),
+            const SizedBox(width: 3),
             Text(
               count,
-              style: (dense ? AppTextStyles.t12 : AppTextStyles.t13).copyWith(
+              style: AppTextStyles.t11.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -777,4 +783,59 @@ class CountChip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 已开播时长徽标（每分钟自动刷新一次）
+class LiveDurationBadge extends StatefulWidget {
+  const LiveDurationBadge({super.key, required this.startTimeMs, this.dense = false});
+
+  final int startTimeMs;
+  final bool dense;
+
+  @override
+  State<LiveDurationBadge> createState() => _LiveDurationBadgeState();
+}
+
+class _LiveDurationBadgeState extends State<LiveDurationBadge> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CountChip(
+      icon: Icons.access_time_rounded,
+      count: formatLiveDuration(widget.startTimeMs),
+      dense: widget.dense,
+      color: const Color(0xFFE53935), // 直播红
+    );
+  }
+}
+
+/// 将开播时间戳格式化为中文时长（精确到分钟），如 "2小时15分"
+String formatLiveDuration(int startTimeMs, {DateTime? now}) {
+  final current = now ?? DateTime.now();
+  final duration = current.difference(DateTime.fromMillisecondsSinceEpoch(startTimeMs));
+  if (duration.inMinutes < 1) return '刚刚开播';
+  final days = duration.inDays;
+  final hours = duration.inHours % 24;
+  final minutes = duration.inMinutes % 60;
+  final buf = StringBuffer();
+  if (days > 0) buf.write('$days天');
+  if (hours > 0) buf.write('$hours小时');
+  if (minutes > 0) buf.write('$minutes分');
+  if (buf.isEmpty) buf.write('0分');
+  return buf.toString();
 }

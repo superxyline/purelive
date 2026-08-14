@@ -226,6 +226,9 @@ class DouyuSite implements LiveSite {
         },
       );
       var crptext = json.decode(jsEncResult)["data"]["room$roomId"].toString();
+      final douyuLiveTime = roomInfo["show_time"] is num
+          ? (roomInfo["show_time"] as num).toInt()
+          : int.tryParse(roomInfo["show_time"]?.toString() ?? '') ?? 0;
 
       return LiveRoom(
         cover: roomInfo["room_pic"].toString(),
@@ -239,6 +242,7 @@ class DouyuSite implements LiveSite {
         notice: "",
         liveStatus: roomInfo["show_status"] == 1 ? LiveStatus.live : LiveStatus.offline,
         status: roomInfo["show_status"] == 1,
+        liveStartTime: douyuLiveTime > 0 ? douyuLiveTime * 1000 : null,
         danmakuData: roomInfo["room_id"].toString(),
         data: DouyuSign.getSign(crptext, roomInfo["room_id"].toString()),
         platform: Sites.douyuSite,

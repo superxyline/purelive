@@ -324,6 +324,11 @@ class HuyaSite implements LiveSite {
         }
       }
       bool isXingxiu = data['liveData']['gid'] == 1663;
+      // 虎牙开播时间为 liveData.startTime（秒级时间戳）
+      final huyaStartRaw = data['liveData']?['startTime'];
+      final huyaStartSec = huyaStartRaw is num
+          ? huyaStartRaw.toInt()
+          : int.tryParse(huyaStartRaw?.toString() ?? '') ?? 0;
       return LiveRoom(
         cover: data['liveData']?['screenshot'] ?? '',
         watching: data['liveData']?['userCount']?.toString() ?? '',
@@ -336,6 +341,7 @@ class HuyaSite implements LiveSite {
         notice: data['welcomeText'] ?? '',
         status: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY",
         liveStatus: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY" ? LiveStatus.live : LiveStatus.offline,
+        liveStartTime: huyaStartSec > 0 ? huyaStartSec * 1000 : null,
         platform: Sites.huyaSite,
         data: HuyaUrlDataModel(url: "", lines: huyaLines, bitRates: huyaBiterates, uid: "", isXingxiu: isXingxiu),
         danmakuData: HuyaDanmakuArgs(ayyuid: data["profileInfo"]["uid"] ?? 0, topSid: topSid, subSid: subSid),

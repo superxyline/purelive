@@ -75,4 +75,18 @@ class BackupRecoveryService {
       return false;
     }
   }
+
+  /// 跨端传输：将本机关注 + 登录数据推送到对方（/api/importData），对方将完全覆盖
+  Future<bool> pushTransferToRemoteServer(String httpAddress) async {
+    final backup = Get.find<BackupController>();
+    try {
+      final response = await HttpClient.instance.postJson(
+        '$httpAddress/api/importData',
+        data: backup.exportTransferData(),
+      );
+      return jsonDecode(response)['data'] ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
 }

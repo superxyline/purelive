@@ -1,4 +1,4 @@
-﻿import java.util.Properties // 添加Properties类的导入
+import java.util.Properties // 添加Properties类的导入
 
 plugins {
     id("com.android.application")
@@ -34,8 +34,9 @@ android {
     ndkVersion = flutter.ndkVersion
     lint {
         disable.add("NullSafeMutableLiveData")
-        // 对 release 构建也执行 lint 检查（abortOnError 保持 false，避免历史问题阻断打包）
-        checkReleaseBuilds = true
+        // 提速：release 构建跳过 lint 检查（lintVital 每次全量分析耗时 10+ 分钟，
+        // 且 abortOnError=false 下发现问题也不会阻断构建，纯属拖慢；需要时手动跑 ./gradlew lint）
+        checkReleaseBuilds = false
         abortOnError = false
     }
     compileOptions {
@@ -68,12 +69,10 @@ android {
     buildTypes {
        release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                  getDefaultProguardFile("proguard-android-optimize.txt"),
-                  file("proguard-rules.pro")
-              )
+            // 提速：关闭 R8 混淆与资源收缩（Flutter 的 Dart 代码在 libapp.so 中，R8 仅处理少量 Java/Kotlin 层，
+            // 收益极小但每次全量执行耗时 1-3 分钟；关闭后 APK 略大、功能无影响）
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
        debug {
             signingConfig = signingConfigs.getByName("release")
