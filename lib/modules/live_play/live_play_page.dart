@@ -17,6 +17,9 @@ import 'package:pure_live/common/utils/share_command_handler.dart';
 import 'package:pure_live/modules/live_play/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_keyboard.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
+import 'package:pure_live/modules/live_play/widgets/dual_view/dual_view_picker_sheet.dart';
+import 'package:pure_live/modules/live_play/widgets/dual_view/secondary_window.dart';
+import 'package:pure_live/player/core/secondary_player_service.dart';
 
 class LivePlayPage extends StatefulWidget {
   const LivePlayPage({super.key});
@@ -53,65 +56,81 @@ class _LivePlayPageState extends State<LivePlayPage> {
         },
         child: Obx(() {
           _updateWakelock();
-        final manager = GlobalPlayerService.instance.playerManager;
-        final isInPip = manager.isInPip.value;
-        final mode = controller.screenMode.value;
-        if (controller.videoController.value != null) {
-          return VideoKeyboardShortcuts(
-            controller: controller.videoController.value!,
-            child: Container(
-              color: Colors.black,
-              width: double.infinity,
-              height: double.infinity,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 50),
-                child: _buildConstrainedChild(isInPip, mode, context),
-                layoutBuilder: (currentChild, previousChildren) {
-                  return Stack(
-                    alignment: Alignment.center,
-                    fit: StackFit.expand,
-                    children: <Widget>[...previousChildren, ?currentChild],
-                  );
-                },
+          final manager = GlobalPlayerService.instance.playerManager;
+          final isInPip = manager.isInPip.value;
+          final mode = controller.screenMode.value;
+          if (controller.videoController.value != null) {
+            return VideoKeyboardShortcuts(
+              controller: controller.videoController.value!,
+              child: Container(
+                color: Colors.black,
+                width: double.infinity,
+                height: double.infinity,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 50),
+                  child: _buildConstrainedChild(isInPip, mode, context),
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      fit: StackFit.expand,
+                      children: <Widget>[...previousChildren, ?currentChild],
+                    );
+                  },
+                ),
               ),
+            );
+          }
+          return Container(
+            color: Colors.black,
+            width: double.infinity,
+            height: double.infinity,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 50),
+              child: _buildConstrainedChild(isInPip, mode, context),
+              layoutBuilder: (currentChild, previousChildren) {
+                return Stack(
+                  alignment: Alignment.center,
+                  fit: StackFit.expand,
+                  children: <Widget>[...previousChildren, ?currentChild],
+                );
+              },
             ),
           );
-        }
-        return Container(
-          color: Colors.black,
-          width: double.infinity,
-          height: double.infinity,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 50),
-            child: _buildConstrainedChild(isInPip, mode, context),
-            layoutBuilder: (currentChild, previousChildren) {
-              return Stack(
-                alignment: Alignment.center,
-                fit: StackFit.expand,
-                children: <Widget>[...previousChildren, ?currentChild],
-              );
-            },
-          ),
-        );
-      }),
+        }),
       ),
     );
   }
 
-  Widget _buildConstrainedChild(bool isInPip, VideoMode mode, BuildContext context) {
+  Widget _buildConstrainedChild(
+    bool isInPip,
+    VideoMode mode,
+    BuildContext context,
+  ) {
     final manager = GlobalPlayerService.instance.playerManager;
     if (isInPip) {
       return Theme(
         data: ThemeData.dark(),
-        child: Container(key: const ValueKey('pip'), color: Colors.transparent, child: manager.buildPiPOverlay()),
+        child: Container(
+          key: const ValueKey('pip'),
+          color: Colors.transparent,
+          child: manager.buildPiPOverlay(),
+        ),
       );
     }
 
     if (mode == VideoMode.normal) {
-      return Container(key: const ValueKey('normal'), color: Colors.black, child: buildNormalPlayerView(context));
+      return Container(
+        key: const ValueKey('normal'),
+        color: Colors.black,
+        child: buildNormalPlayerView(context),
+      );
     }
 
-    return Container(key: const ValueKey('widescreen'), color: Colors.black, child: buildVideoPlayer());
+    return Container(
+      key: const ValueKey('widescreen'),
+      color: Colors.black,
+      child: buildVideoPlayer(),
+    );
   }
 
   void _updateWakelock() {
@@ -133,7 +152,9 @@ class _LivePlayPageState extends State<LivePlayPage> {
               final avatar = controller.detail.value?.avatar;
 
               return CircleAvatar(
-                foregroundImage: avatar != null && avatar.isNotEmpty ? CachedNetworkImageProvider(avatar) : null,
+                foregroundImage: avatar != null && avatar.isNotEmpty
+                    ? CachedNetworkImageProvider(avatar)
+                    : null,
                 radius: 16,
                 backgroundColor: Theme.of(context).disabledColor,
               );
@@ -174,7 +195,9 @@ class _LivePlayPageState extends State<LivePlayPage> {
         actions: [
           PopupMenuButton(
             tooltip: i18n("menu"),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             offset: const Offset(12, 0),
             position: PopupMenuPosition.under,
             icon: const Icon(Remix.apps_2_line),
@@ -203,7 +226,11 @@ class _LivePlayPageState extends State<LivePlayPage> {
                   );
                 }
               } else if (index == 6) {
-                ShareCommandHandler.instance.onShareRoomPressed(controller.detail.value!);
+                ShareCommandHandler.instance.onShareRoomPressed(
+                  controller.detail.value!,
+                );
+              } else if (index == 7) {
+                _openDualViewPicker();
               }
               controller.isMenuOpen = false;
             },
@@ -228,17 +255,26 @@ class _LivePlayPageState extends State<LivePlayPage> {
                 PopupMenuItem(
                   value: 2,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: MenuListTile(leading: const Icon(Remix.tv_2_line, size: 20), text: i18n("cast_screen")),
+                  child: MenuListTile(
+                    leading: const Icon(Remix.tv_2_line, size: 20),
+                    text: i18n("cast_screen"),
+                  ),
                 ),
                 PopupMenuItem(
                   value: 3,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: MenuListTile(leading: const Icon(Remix.time_line, size: 20), text: i18n("sleep_timer")),
+                  child: MenuListTile(
+                    leading: const Icon(Remix.time_line, size: 20),
+                    text: i18n("sleep_timer"),
+                  ),
                 ),
                 PopupMenuItem(
                   value: 4,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: MenuListTile(leading: const Icon(Remix.volume_up_line, size: 20), text: i18n("room_volume")),
+                  child: MenuListTile(
+                    leading: const Icon(Remix.volume_up_line, size: 20),
+                    text: i18n("room_volume"),
+                  ),
                 ),
                 PopupMenuItem(
                   value: 5,
@@ -249,11 +285,25 @@ class _LivePlayPageState extends State<LivePlayPage> {
                   ),
                 ),
                 PopupMenuItem(
-                  value: 6, // Make sure to increment the value to avoid duplicate key conflicts
+                  value:
+                      6, // Make sure to increment the value to avoid duplicate key conflicts
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: MenuListTile(
-                    leading: const Icon(RemixIcons.share_forward_line, size: 20),
-                    text: i18n("share"), // Make sure to add "share" to your i18n file
+                    leading: const Icon(
+                      RemixIcons.share_forward_line,
+                      size: 20,
+                    ),
+                    text: i18n(
+                      "share",
+                    ), // Make sure to add "share" to your i18n file
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 7,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: MenuListTile(
+                    leading: const Icon(Icons.splitscreen_rounded, size: 20),
+                    text: i18n("dual_view"),
                   ),
                 ),
               ];
@@ -266,56 +316,79 @@ class _LivePlayPageState extends State<LivePlayPage> {
           return LayoutBuilder(
             builder: (context, constraint) {
               final width = Get.width;
-              return SafeArea(
-                child: width <= 680
-                    ? Column(
-                        children: <Widget>[
-                          buildVideoPlayer(),
-                          const ResolutionsRow(),
-                          const Divider(height: 1),
-                          Obx(() {
-                            if (controller.success.isFalse) {
-                              return const SizedBox.shrink();
-                            }
-                            final state = GlobalPlayerState.to;
-                            if (state.isFullscreen.value || state.isWindowFullscreen.value) {
-                              return const SizedBox.shrink();
-                            }
-                            return Expanded(child: DanmakuTabView(key: ValueKey(state.isFullscreen.value)));
-                          }),
-                        ],
-                      )
-                    : Row(
-                        children: <Widget>[
-                          Expanded(child: buildVideoPlayer()),
-                          Obx(() {
-                            bool isRoomExits = controller.detail.value != null;
-                            return isRoomExits
-                                ? SizedBox(
-                                    width: 400,
-                                    child: Column(
-                                      children: [
-                                        const ResolutionsRow(),
-                                        const Divider(height: 1),
-                                        Obx(() {
-                                          if (controller.success.isFalse) {
-                                            return const SizedBox.shrink();
-                                          }
-                                          final state = GlobalPlayerState.to;
-                                          if (state.isFullscreen.value || state.isWindowFullscreen.value) {
-                                            return const SizedBox.shrink();
-                                          }
-                                          return Expanded(
-                                            child: DanmakuTabView(key: ValueKey(state.isFullscreen.value)),
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                  )
-                                : Container();
-                          }),
-                        ],
-                      ),
+              final bool isNarrow = width <= 680;
+              return Stack(
+                children: [
+                  SafeArea(
+                    child: isNarrow
+                        ? Column(
+                            children: <Widget>[
+                              buildVideoPlayer(),
+                              const ResolutionsRow(),
+                              const Divider(height: 1),
+                              Obx(() {
+                                if (controller.success.isFalse) {
+                                  return const SizedBox.shrink();
+                                }
+                                final state = GlobalPlayerState.to;
+                                if (state.isFullscreen.value ||
+                                    state.isWindowFullscreen.value) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Expanded(
+                                  child: DanmakuTabView(
+                                    key: ValueKey(state.isFullscreen.value),
+                                  ),
+                                );
+                              }),
+                            ],
+                          )
+                        : Row(
+                            children: <Widget>[
+                              Expanded(child: buildVideoPlayer()),
+                              Obx(() {
+                                bool isRoomExits =
+                                    controller.detail.value != null;
+                                return isRoomExits
+                                    ? SizedBox(
+                                        width: 400,
+                                        child: Column(
+                                          children: [
+                                            const ResolutionsRow(),
+                                            const Divider(height: 1),
+                                            Obx(() {
+                                              if (controller.success.isFalse) {
+                                                return const SizedBox.shrink();
+                                              }
+                                              final state =
+                                                  GlobalPlayerState.to;
+                                              if (state.isFullscreen.value ||
+                                                  state
+                                                      .isWindowFullscreen
+                                                      .value) {
+                                                return const SizedBox.shrink();
+                                              }
+                                              return Expanded(
+                                                child: DanmakuTabView(
+                                                  key: ValueKey(
+                                                    state.isFullscreen.value,
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                          ],
+                                        ),
+                                      )
+                                    : Container();
+                              }),
+                            ],
+                          ),
+                  ),
+                  DraggableSecondaryWindow(
+                    maxWidth: constraint.maxWidth,
+                    maxHeight: constraint.maxHeight,
+                  ),
+                ],
               );
             },
           );
@@ -328,6 +401,21 @@ class _LivePlayPageState extends State<LivePlayPage> {
     LiveUrlTool.castPlayUrlByRoomId(
       roomId: controller.detail.value?.roomId ?? '',
       platform: controller.detail.value?.platform ?? '',
+    );
+  }
+
+  /// 打开选择副直播间面板
+  void _openDualViewPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DualViewPickerSheet(
+        onPicked: (room) {
+          Navigator.of(ctx).pop();
+          SecondaryPlayerService.instance.loadRoom(room);
+        },
+      ),
     );
   }
 
@@ -353,7 +441,13 @@ class _LivePlayPageState extends State<LivePlayPage> {
         fit: StackFit.passthrough,
         children: [
           ColoredBox(color: Colors.black),
-          AppStatusView(type: AppStatusType.loading, title: "", subtitle: "", iconColor: Colors.white, isMini: true),
+          AppStatusView(
+            type: AppStatusType.loading,
+            title: "",
+            subtitle: "",
+            iconColor: Colors.white,
+            isMini: true,
+          ),
         ],
       ),
     );
@@ -361,8 +455,10 @@ class _LivePlayPageState extends State<LivePlayPage> {
 
   void showVolumeSettingsDialog(BuildContext context) {
     final RxBool tempMute = SettingsService.to.vol.globalVolumeMute.v.obs;
-    final RxDouble tempMobileVol = SettingsService.to.vol.defaultMobileVolume.v.obs;
-    final RxDouble tempDesktopVol = SettingsService.to.vol.defaultDesktopVolume.v.obs;
+    final RxDouble tempMobileVol =
+        SettingsService.to.vol.defaultMobileVolume.v.obs;
+    final RxDouble tempDesktopVol =
+        SettingsService.to.vol.defaultDesktopVolume.v.obs;
 
     showDialog(
       context: context,
@@ -371,7 +467,11 @@ class _LivePlayPageState extends State<LivePlayPage> {
         return AlertDialog(
           title: Text(i18n("room_volume")),
           content: Container(
-            constraints: BoxConstraints(minWidth: PlatformUtils.isMobile ? Get.mediaQuery.size.width * 0.8 : 500),
+            constraints: BoxConstraints(
+              minWidth: PlatformUtils.isMobile
+                  ? Get.mediaQuery.size.width * 0.8
+                  : 500,
+            ),
             child: Obx(
               () => SingleChildScrollView(
                 child: Column(
@@ -382,7 +482,9 @@ class _LivePlayPageState extends State<LivePlayPage> {
                       title: Text(i18n("global_mute")),
                       secondary: Icon(
                         tempMute.value ? Icons.volume_off : Icons.volume_up,
-                        color: tempMute.value ? theme.colorScheme.error : theme.colorScheme.primary,
+                        color: tempMute.value
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.primary,
                       ),
                       value: tempMute.value,
                       activeThumbColor: theme.colorScheme.primary,
@@ -404,7 +506,9 @@ class _LivePlayPageState extends State<LivePlayPage> {
                           "${(tempMobileVol.value * 100).toInt()}%",
                           style: theme.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: tempMute.value ? theme.disabledColor : theme.colorScheme.primary,
+                            color: tempMute.value
+                                ? theme.disabledColor
+                                : theme.colorScheme.primary,
                           ),
                         ),
                       ],
@@ -413,7 +517,9 @@ class _LivePlayPageState extends State<LivePlayPage> {
                       value: tempMobileVol.value.clamp(0.0, 1.0),
                       min: 0.0,
                       max: 1.0,
-                      onChanged: tempMute.value ? null : (val) => tempMobileVol.value = val,
+                      onChanged: tempMute.value
+                          ? null
+                          : (val) => tempMobileVol.value = val,
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -430,7 +536,9 @@ class _LivePlayPageState extends State<LivePlayPage> {
                           "${(tempDesktopVol.value * 100).toInt()}%",
                           style: theme.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: tempMute.value ? theme.disabledColor : theme.colorScheme.primary,
+                            color: tempMute.value
+                                ? theme.disabledColor
+                                : theme.colorScheme.primary,
                           ),
                         ),
                       ],
@@ -439,7 +547,9 @@ class _LivePlayPageState extends State<LivePlayPage> {
                       value: tempDesktopVol.value.clamp(0.0, 1.0),
                       min: 0.0,
                       max: 1.0,
-                      onChanged: tempMute.value ? null : (val) => tempDesktopVol.value = val,
+                      onChanged: tempMute.value
+                          ? null
+                          : (val) => tempDesktopVol.value = val,
                     ),
                     const SizedBox(height: 16),
                     Align(
@@ -460,19 +570,30 @@ class _LivePlayPageState extends State<LivePlayPage> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: Text(i18n("cancel"))),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(i18n("cancel")),
+            ),
             FilledButton(
               onPressed: () {
                 SettingsService.to.vol.globalVolumeMute.v = tempMute.value;
-                SettingsService.to.vol.defaultMobileVolume.v = tempMobileVol.value.clamp(0.0, 1.0);
-                SettingsService.to.vol.defaultDesktopVolume.v = tempDesktopVol.value.clamp(0.0, 1.0);
+                SettingsService.to.vol.defaultMobileVolume.v = tempMobileVol
+                    .value
+                    .clamp(0.0, 1.0);
+                SettingsService.to.vol.defaultDesktopVolume.v = tempDesktopVol
+                    .value
+                    .clamp(0.0, 1.0);
                 if (tempMute.value) {
                   controller.videoController.value?.setVolume(0.0);
                 } else {
                   if (PlatformUtils.isMobile) {
-                    controller.videoController.value?.setVolume(tempMobileVol.value);
+                    controller.videoController.value?.setVolume(
+                      tempMobileVol.value,
+                    );
                   } else {
-                    controller.videoController.value?.setVolume(tempDesktopVol.value);
+                    controller.videoController.value?.setVolume(
+                      tempDesktopVol.value,
+                    );
                   }
                 }
                 Navigator.pop(context);
@@ -498,16 +619,23 @@ class _LivePlayPageState extends State<LivePlayPage> {
                 contentPadding: EdgeInsets.zero,
                 value: controller.closeTimeFlag.value,
                 activeThumbColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.closeTimeFlag.value = value,
+                onChanged: (bool value) =>
+                    controller.closeTimeFlag.value = value,
               ),
               Slider(
                 min: 0,
                 max: 240,
                 label: i18n("auto_refresh_time"),
                 value: controller.closeTimes.toDouble(),
-                onChanged: (value) => controller.closeTimes.value = value.toInt(),
+                onChanged: (value) =>
+                    controller.closeTimes.value = value.toInt(),
               ),
-              Text(i18n("auto_close_time", args: {"time": controller.closeTimes.toString()})),
+              Text(
+                i18n(
+                  "auto_close_time",
+                  args: {"time": controller.closeTimes.toString()},
+                ),
+              ),
             ],
           ),
         ),
@@ -533,7 +661,9 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
         const Icon(Icons.whatshot_rounded, size: 14),
         const SizedBox(width: 4),
         Text(
-          controller.detail.value?.watching != null ? readableCount(controller.detail.value!.watching!) : '0',
+          controller.detail.value?.watching != null
+              ? readableCount(controller.detail.value!.watching!)
+              : '0',
           style: Get.textTheme.bodySmall,
         ),
       ],
@@ -564,12 +694,18 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
             currentQualityName,
-            style: Get.theme.textTheme.labelSmall?.copyWith(color: Get.theme.colorScheme.primary),
+            style: Get.theme.textTheme.labelSmall?.copyWith(
+              color: Get.theme.colorScheme.primary,
+            ),
           ),
         ),
         onSelected: (newQualityIndex) {
           controller.isMenuOpen = false;
-          controller.setResolution(ReloadDataType.changeQuality, newQualityIndex, controller.currentLineIndex.value);
+          controller.setResolution(
+            ReloadDataType.changeQuality,
+            newQualityIndex,
+            controller.currentLineIndex.value,
+          );
         },
         itemBuilder: (context) {
           return List.generate(controller.qualites.length, (index) {
@@ -579,9 +715,9 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               value: index,
               child: Text(
                 qualityRate.quality,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelSmall?.copyWith(color: isSelected ? Get.theme.colorScheme.primary : null),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: isSelected ? Get.theme.colorScheme.primary : null,
+                ),
               ),
             );
           });
@@ -596,7 +732,10 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
         return const SizedBox.shrink();
       }
       final currentIndex = controller.currentLineIndex.value;
-      final currentLineName = i18n("toolbox_line", args: {"index": (currentIndex + 1).toString()});
+      final currentLineName = i18n(
+        "toolbox_line",
+        args: {"index": (currentIndex + 1).toString()},
+      );
 
       return PopupMenuButton<int>(
         tooltip: i18n("select_play_line"),
@@ -614,12 +753,18 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
             currentLineName,
-            style: Get.theme.textTheme.labelSmall?.copyWith(color: Get.theme.colorScheme.primary),
+            style: Get.theme.textTheme.labelSmall?.copyWith(
+              color: Get.theme.colorScheme.primary,
+            ),
           ),
         ),
         onSelected: (newLineIndex) {
           controller.isMenuOpen = false;
-          controller.setResolution(ReloadDataType.changeLine, controller.currentQuality.value, newLineIndex);
+          controller.setResolution(
+            ReloadDataType.changeLine,
+            controller.currentQuality.value,
+            newLineIndex,
+          );
         },
         itemBuilder: (context) {
           return List.generate(controller.playUrls.length, (index) {
@@ -628,9 +773,9 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
               value: index,
               child: Text(
                 i18n("toolbox_line", args: {"index": (index + 1).toString()}),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelSmall?.copyWith(color: isSelected ? Get.theme.colorScheme.primary : null),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: isSelected ? Get.theme.colorScheme.primary : null,
+                ),
               ),
             );
           });
@@ -696,8 +841,14 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               padding: Platform.isWindows
                   ? WidgetStateProperty.all(EdgeInsets.all(12.0))
                   : WidgetStateProperty.all(EdgeInsets.all(5.0)),
-              backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary.withAlpha(125)),
-              shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0))),
+              backgroundColor: WidgetStateProperty.all(
+                Get.theme.colorScheme.primary.withAlpha(125),
+              ),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                ),
+              ),
               textStyle: WidgetStateProperty.all(AppTextStyles.t12),
               minimumSize: WidgetStateProperty.all(Size.zero),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -706,10 +857,18 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               Get.dialog(
                 AlertDialog(
                   title: Text(i18n("unfollow")),
-                  content: Text(i18n("unfollow_message", args: {"name": widget.room.nick!})),
+                  content: Text(
+                    i18n("unfollow_message", args: {"name": widget.room.nick!}),
+                  ),
                   actions: [
-                    TextButton(onPressed: () => Navigator.of(Get.context!).pop(false), child: Text(i18n("cancel"))),
-                    ElevatedButton(onPressed: () => Navigator.of(Get.context!).pop(true), child: Text(i18n("confirm"))),
+                    TextButton(
+                      onPressed: () => Navigator.of(Get.context!).pop(false),
+                      child: Text(i18n("cancel")),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(Get.context!).pop(true),
+                      child: Text(i18n("confirm")),
+                    ),
                   ],
                 ),
               ).then((value) {
@@ -727,8 +886,14 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
               padding: Platform.isWindows
                   ? WidgetStateProperty.all(EdgeInsets.all(12.0))
                   : WidgetStateProperty.all(EdgeInsets.all(5.0)),
-              backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary),
-              shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0))),
+              backgroundColor: WidgetStateProperty.all(
+                Get.theme.colorScheme.primary,
+              ),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                ),
+              ),
               textStyle: WidgetStateProperty.all(AppTextStyles.t12),
               minimumSize: WidgetStateProperty.all(Size.zero),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -778,7 +943,10 @@ class NotLivingVideoWidget extends StatelessWidget {
                     child: Container(
                       alignment: Alignment.center,
                       padding: const EdgeInsets.all(12),
-                      child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                      child: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 Expanded(
@@ -787,7 +955,10 @@ class NotLivingVideoWidget extends StatelessWidget {
                     child: Text(
                       controller.room.title!,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.t14.copyWith(color: Colors.white, decoration: TextDecoration.none),
+                      style: AppTextStyles.t14.copyWith(
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                      ),
                     ),
                   ),
                 ),
@@ -796,7 +967,9 @@ class NotLivingVideoWidget extends StatelessWidget {
                     icon: const Icon(Icons.swap_horiz_outlined),
                     tooltip: i18n('switch_live_room'),
                     color: Colors.white,
-                    onPressed: () => Get.dialog(PlayOther(controller: Get.find<LivePlayController>())),
+                    onPressed: () => Get.dialog(
+                      PlayOther(controller: Get.find<LivePlayController>()),
+                    ),
                   ),
                   const DatetimeInfo(),
                 ],
@@ -810,10 +983,19 @@ class NotLivingVideoWidget extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(i18n("play_video_failed"), style: AppTextStyles.t16.copyWith(color: Colors.white)),
+                    child: Text(
+                      i18n("play_video_failed"),
+                      style: AppTextStyles.t16.copyWith(color: Colors.white),
+                    ),
                   ),
-                  Text(i18n("room_offline"), style: const TextStyle(color: Colors.white)),
-                  Text(i18n("switch_other_room_hint"), style: AppTextStyles.t14.copyWith(color: Colors.white)),
+                  Text(
+                    i18n("room_offline"),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    i18n("switch_other_room_hint"),
+                    style: AppTextStyles.t14.copyWith(color: Colors.white),
+                  ),
                 ],
               ),
             ),
@@ -823,4 +1005,3 @@ class NotLivingVideoWidget extends StatelessWidget {
     );
   }
 }
-

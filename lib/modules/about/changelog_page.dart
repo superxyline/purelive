@@ -6,6 +6,24 @@ class ChangelogPage extends StatelessWidget {
 
   static const List<({String version, List<String> items})> _changelog = [
     (
+      version: '2.1.4（构建号 18）',
+      items: [
+        '双开小窗可拖动：副窗口支持按住拖动到任意位置（限定在播放页可视范围内），默认停靠右下角，不遮挡主画面与清晰度栏',
+        '整窗轻点仍是互换主副，拖动与点击手势自动区分',
+      ],
+    ),
+
+    (
+      version: '2.1.3（构建号 17）',
+      items: [
+        '新增双开观看：播放页菜单"双开"选择一个副直播间，主+小窗同时观看（副窗口静音，音频始终来自主窗口）',
+        '点副窗口互换主副：主窗口切到副房间出声，副窗口切回原主房间静音',
+        '副窗口支持"换一个"替换副房间、"×"关闭退出双开',
+        '选择面板提供 收藏 / 搜索 两种方式挑选副直播间（分区浏览待后续版本）',
+      ],
+    ),
+
+    (
       version: '2.1.2（构建号 16）',
       items: [
         '关注页直播封面新增"已开播时长"角标：B站/斗鱼/虎牙/抖音正在直播的主播，封面左上角显示中文开播时长（精确到分钟，每分钟自动刷新）',
@@ -72,9 +90,7 @@ class ChangelogPage extends StatelessWidget {
     ),
     (
       version: '0.1.5.1（构建号 9）',
-      items: [
-        '新增 B站全屏 SC 弹层：全屏播放时醒目留言在屏幕左下角弹出，按 SC 有效时间自动消失',
-      ],
+      items: ['新增 B站全屏 SC 弹层：全屏播放时醒目留言在屏幕左下角弹出，按 SC 有效时间自动消失'],
     ),
     (
       version: '0.1.5（构建号 8）',
@@ -85,15 +101,11 @@ class ChangelogPage extends StatelessWidget {
     ),
     (
       version: '0.1.4.2（构建号 7）',
-      items: [
-        '修复手机/平板横竖屏切换：手机进全屏自动横屏、退出恢复竖屏，平板全程横屏平板模式',
-      ],
+      items: ['修复手机/平板横竖屏切换：手机进全屏自动横屏、退出恢复竖屏，平板全程横屏平板模式'],
     ),
     (
       version: '0.1.4.1（构建号 6）',
-      items: [
-        '移除 Windows / macOS / Linux 桌面端支持，专注 Android（含 Android TV）',
-      ],
+      items: ['移除 Windows / macOS / Linux 桌面端支持，专注 Android（含 Android TV）'],
     ),
     (
       version: '0.1.4（构建号 5）',
@@ -130,7 +142,10 @@ class ChangelogPage extends StatelessWidget {
             context.buildModernCard([
               for (final item in entry.items)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 9,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -139,7 +154,10 @@ class ChangelogPage extends StatelessWidget {
                         child: Container(
                           width: 6,
                           height: 6,
-                          decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                          decoration: BoxDecoration(
+                            color: dotColor,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -148,7 +166,9 @@ class ChangelogPage extends StatelessWidget {
                           item,
                           style: AppTextStyles.t13.copyWith(
                             height: 1.45,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.88),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.88,
+                            ),
                           ),
                         ),
                       ),

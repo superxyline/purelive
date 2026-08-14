@@ -21,7 +21,19 @@ class BackupRecoveryService {
     );
     if (selectedDirectory == null) return null;
 
-    final dateStr = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss]);
+    final dateStr = formatDate(DateTime.now(), [
+      yyyy,
+      '-',
+      mm,
+      '-',
+      dd,
+      'T',
+      HH,
+      '_',
+      nn,
+      '_',
+      ss,
+    ]);
     final file = File('$selectedDirectory/purelive_$dateStr.txt');
 
     if (backup.backup(file)) {
@@ -70,7 +82,7 @@ class BackupRecoveryService {
         '$httpAddress/api/setSettings',
         queryParameters: {"settings": jsonEncode(backup.exportToTVSettings())},
       );
-      return jsonDecode(response)['data'] ?? false;
+      return _decodeJsonMap(response)?['data'] ?? false;
     } catch (e) {
       return false;
     }
@@ -84,9 +96,27 @@ class BackupRecoveryService {
         '$httpAddress/api/importData',
         data: backup.exportTransferData(),
       );
-      return jsonDecode(response)['data'] ?? false;
+      return _decodeJsonMap(response)?['data'] ?? false;
     } catch (e) {
       return false;
     }
+  }
+
+  /// 将接口响应体解析为 Map。
+  ///
+  /// dio 在 `ResponseType.json` 下已自动把响应解码成 Map，这里兼容"已解码 Map"
+  /// 与"仍为 JSON 字符串"两种情况，避免对 Map 重复 `jsonDecode` 抛异常导致
+  /// 明明成功却误报失败。
+  Map<String, dynamic>? _decodeJsonMap(dynamic body) {
+    if (body is Map) {
+      return Map<String, dynamic>.from(body);
+    }
+    if (body is String) {
+      final decoded = jsonDecode(body);
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    }
+    return null;
   }
 }
