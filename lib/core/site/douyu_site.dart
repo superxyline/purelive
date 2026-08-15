@@ -262,21 +262,40 @@ class DouyuSite implements LiveSite {
     }
   }
 
+  /// 稳定的匿名标识：只生成一次并复用，避免每次随机 dy_did 触发斗鱼风控
+  static String _stableDid = '';
+
+  Map<String, String> _searchHeaders() {
+    if (_stableDid.isEmpty) {
+      _stableDid = generateRandomString(32);
+    }
+    final loginCookie = SettingsService.to.cookieManager.douyuCookie.v;
+    final cookie = loginCookie.isNotEmpty ? loginCookie : 'dy_did=$_stableDid;acf_did=$_stableDid';
+    return {
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51',
+      'referer': 'https://www.douyu.com/search/',
+      'Cookie': cookie,
+    };
+  }
+
+  String _searchError(Object? msg, int errorCode) {
+    if (errorCode == 8) {
+      return '斗鱼搜索触发风控，请稍后再试，或登录斗鱼账号后重试';
+    }
+    final m = msg?.toString() ?? '';
+    return m.isNotEmpty ? m : '斗鱼搜索失败，请稍后再试';
+  }
+
   @override
   Future<List<LiveRoom>> searchRooms(String keyword, {int page = 1, int pageSize = 30}) async {
-    var did = generateRandomString(32);
     var result = await HttpClient.instance.getJson(
       "https://www.douyu.com/japi/search/api/searchShow",
       queryParameters: {"kw": keyword, "page": page, "pageSize": 20},
-      header: {
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51',
-        'referer': 'https://www.douyu.com/search/',
-        'Cookie': 'dy_did=$did;acf_did=$did',
-      },
+      header: _searchHeaders(),
     );
     if (result['error'] != 0) {
-      throw Exception(result['msg']);
+      throw Exception(_searchError(result['msg'], (result['error'] as num?)?.toInt() ?? 0));
     }
     var items = <LiveRoom>[];
 
@@ -314,17 +333,14 @@ class DouyuSite implements LiveSite {
 
   @override
   Future<List<LiveAnchorItem>> searchAnchors(String keyword, {int page = 1, int pageSize = 30}) async {
-    var did = generateRandomString(32);
     var result = await HttpClient.instance.getJson(
       "https://www.douyu.com/japi/search/api/searchUser",
       queryParameters: {"kw": keyword, "page": page, "pageSize": 20, "filterType": 1},
-      header: {
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51',
-        'referer': 'https://www.douyu.com/search/',
-        'Cookie': 'dy_did=$did;acf_did=$did',
-      },
+      header: _searchHeaders(),
     );
+    if (result['error'] != 0) {
+      throw Exception(_searchError(result['msg'], (result['error'] as num?)?.toInt() ?? 0));
+    }
 
     var items = <LiveAnchorItem>[];
     for (var item in result["data"]["relateUser"]) {

@@ -49,6 +49,10 @@ class _LivePlayPageState extends State<LivePlayPage> {
             controller.onPagePopCleanup();
             return;
           }
+          // 全屏进/退切换进行中：忽略本次快速连续返回，避免竞态导致返回失效或误退出页面。
+          if (controller.videoController.value?.isTransitioningFullScreen.value ?? false) {
+            return;
+          }
           // canPop=false：先处理全屏/半屏/PiP，处理完成后才允许退出页面。
           if (!controller.handleBackPress()) {
             Navigator.of(context).pop();
@@ -937,8 +941,13 @@ class NotLivingVideoWidget extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       controller.setNormalScreen();
-                      GlobalPlayerState.to.isFullscreen.value = false;
                       GlobalPlayerState.to.isWindowFullscreen.value = false;
+                      // 走完整退出全屏逻辑：恢复方向与系统状态栏/导航栏，避免残留沉浸式导致返回失效。
+                      if (GlobalPlayerState.to.isFullscreen.value) {
+                        controller.videoController.value?.exitFullScreen();
+                      } else {
+                        GlobalPlayerState.to.isFullscreen.value = false;
+                      }
                     },
                     child: Container(
                       alignment: Alignment.center,

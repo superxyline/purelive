@@ -63,6 +63,10 @@ class VideoController with ChangeNotifier {
   /// 弹幕输入框是否正在编辑（全屏控制条内输入时保持控制条可见）。
   final inputEditing = false.obs;
   final showLocked = false.obs;
+  /// 全屏进/退令牌：防止快速切换时异步的方向/系统UI操作互相覆盖导致残留沉浸式。
+  int _fullscreenToken = 0;
+  /// 全屏进/退切换是否进行中（用于返回键防抖，避免切换期间返回失效）。
+  final isTransitioningFullScreen = false.obs;
   final danmuKey = GlobalKey();
   final isMenuOpen = false.obs;
   GlobalKey playerKey = GlobalKey();
@@ -401,11 +405,20 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> exitFullScreen() async {
-    // 立即同步复位全屏状态，避免异步切换方向/系统UI期间返回键被反复拦截
-    GlobalPlayerState.to.isFullscreen.value = false;
-    await _updateOrientationForFullscreen(false);
-    // 退出全屏时恢复系统状态栏/导航栏显示。
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    // 捕获令牌：若切换期间又有新的全屏进/退操作，本次异步恢复将作废，交给最新操作处理。
+    final token = ++_fullscreenToken;
+    isTransitioningFullScreen.value = true;
+    try {
+      // 立即同步复位全屏状态，避免异步切换方向/系统UI期间返回键被反复拦截
+      GlobalPlayerState.to.isFullscreen.value = false;
+      await _updateOrientationForFullscreen(false);
+      // 期间若已有更新的全屏切换，放弃本次恢复，避免残留沉浸式导致返回失效。
+      if (token != _fullscreenToken) return;
+      // 退出全屏时恢复系统状态栏/导航栏显示。
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    } finally {
+      if (token == _fullscreenToken) isTransitioningFullScreen.value = false;
+    }
   }
 
   void toggleFullScreen() async {
@@ -426,10 +439,19 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> enterFullScreen() async {
-    GlobalPlayerState.to.isFullscreen.value = true;
-    await _updateOrientationForFullscreen(true);
-    // 全屏时隐藏系统状态栏/导航栏，沉浸式观看。
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    // 捕获令牌：防止与随后立刻的退出全屏竞态，避免沉浸式设置残留覆盖恢复逻辑。
+    final token = ++_fullscreenToken;
+    isTransitioningFullScreen.value = true;
+    try {
+      GlobalPlayerState.to.isFullscreen.value = true;
+      await _updateOrientationForFullscreen(true);
+      // 期间若已退出全屏，放弃本次沉浸式设置，交还原来的普通状态。
+      if (token != _fullscreenToken) return;
+      // 全屏时隐藏系统状态栏/导航栏，沉浸式观看。
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    } finally {
+      if (token == _fullscreenToken) isTransitioningFullScreen.value = false;
+    }
   }
 
   // 半屏显示

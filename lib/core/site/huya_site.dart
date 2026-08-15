@@ -376,6 +376,9 @@ class HuyaSite implements LiveSite {
   Future<List<LiveRoom>> searchRooms(String keyword, {int page = 1, int pageSize = 30}) async {
     var resultText = await HttpClient.instance.getJson(
       "https://search.cdn.huya.com/",
+      header: {
+        if (SettingsService.to.cookieManager.huyaCookie.v.isNotEmpty) 'Cookie': SettingsService.to.cookieManager.huyaCookie.v,
+      },
       queryParameters: {
         "m": "Search",
         "do": "getSearchContent",
@@ -425,6 +428,9 @@ class HuyaSite implements LiveSite {
   Future<List<LiveAnchorItem>> searchAnchors(String keyword, {int page = 1, int pageSize = 30}) async {
     var resultText = await HttpClient.instance.getJson(
       "https://search.cdn.huya.com/",
+      header: {
+        if (SettingsService.to.cookieManager.huyaCookie.v.isNotEmpty) 'Cookie': SettingsService.to.cookieManager.huyaCookie.v,
+      },
       queryParameters: {
         "m": "Search",
         "do": "getSearchContent",

@@ -7,12 +7,21 @@ import 'package:pure_live/common/utils/share_command_handler.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 
 class RoomCard extends StatelessWidget {
-  const RoomCard({super.key, required this.room, this.dense = false, this.hideBadges = false});
+  const RoomCard({
+    super.key,
+    required this.room,
+    this.dense = false,
+    this.hideBadges = false,
+    this.showFollowButton = false,
+  });
   final LiveRoom room;
   final bool dense;
 
   /// 为 true 时隐藏封面角标（热度值 / 开播时长 / 录播），用于"已关注"纯列表展示
   final bool hideBadges;
+
+  /// 为 true 时在卡片尾部显示一个关注/已关注切换按钮（用于搜索结果等场景）
+  final bool showFollowButton;
 
   void onTap(BuildContext context) async {
     AppNavigator.toLiveRoomDetail(liveRoom: room);
@@ -709,27 +718,84 @@ class RoomCard extends StatelessWidget {
                   color: isDark ? Colors.grey[400] : Colors.grey[700],
                 ),
               ),
-              trailing: dense
-                  ? null
-                  : Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.grey[800] : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        room.platform?.toUpperCase() ?? '',
-                        style: AppTextStyles.t11.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.grey[300] : Colors.grey[800],
+              trailing: showFollowButton
+                  ? _FollowToggleButton(room: room)
+                  : dense
+                      ? null
+                      : Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.grey[800] : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            room.platform?.toUpperCase() ?? '',
+                            style: AppTextStyles.t11.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.grey[300] : Colors.grey[800],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+/// 搜索结果卡片上的关注/取消关注切换按钮（不弹层，点击即关注/取关）。
+class _FollowToggleButton extends StatefulWidget {
+  const _FollowToggleButton({required this.room});
+
+  final LiveRoom room;
+
+  @override
+  State<_FollowToggleButton> createState() => _FollowToggleButtonState();
+}
+
+class _FollowToggleButtonState extends State<_FollowToggleButton> {
+  /// 判断是否已关注（同时校验平台，避免跨平台同号误判）
+  bool get _isFavorite {
+    final room = widget.room;
+    return SettingsService.to.fav.favoriteRooms.v.any(
+      (e) => e.platform == room.platform && e.roomId == room.roomId,
+    );
+  }
+
+  void _toggle() {
+    final fav = SettingsService.to.fav;
+    final room = widget.room;
+    final list = fav.favoriteRooms;
+    final isFav = _isFavorite;
+    if (isFav) {
+      final idx = list.v.indexWhere((e) => e.platform == room.platform && e.roomId == room.roomId);
+      if (idx != -1) list.v.removeAt(idx);
+      list.refresh();
+      SmartDialog.showToast(i18n('unfollow'));
+    } else {
+      fav.addRoom(room);
+      SmartDialog.showToast(i18n('follow'));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Obx(() {
+      final isFav = _isFavorite;
+      return IconButton(
+        constraints: const BoxConstraints(),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        tooltip: i18n(isFav ? 'unfollow' : 'follow'),
+        icon: Icon(
+          isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+          size: 22,
+          color: isFav ? theme.colorScheme.primary : theme.disabledColor,
+        ),
+        onPressed: _toggle,
+      );
+    });
   }
 }
 

@@ -36,26 +36,6 @@ class PlayerKernelSettingsPage extends GetView<SettingsService> {
                 ),
               );
             }),
-            Obx(() {
-              String activeKey = SettingsService.to.player.videoPlayerKey.v;
-              if (PlayerConsts.engines[activeKey] == PlayerEngine.exo) {
-                return const SizedBox.shrink();
-              }
-
-              return context.buildTile(
-                icon: Remix.global_line,
-                title: i18n("network_proxy"),
-                subtitle: i18n("network_proxy_subtitle"),
-                onTap: showProxySettingsDialog,
-                trailing: Text(
-                  SettingsService.to.proxy.enableProxy.v ? i18n("enabled") : i18n("disabled"),
-                  style: AppTextStyles.t13.copyWith(
-                    color: SettingsService.to.proxy.enableProxy.v ? theme.colorScheme.primary : theme.hintColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              );
-            }),
             context.buildSwitchTile(
               icon: Remix.music_2_line,
               title: i18n('audio_only_mode'),
@@ -263,57 +243,5 @@ class PlayerKernelSettingsPage extends GetView<SettingsService> {
     );
   }
 
-  // 代理设置弹窗（替换为统一SwitchTile）
-  void showProxySettingsDialog() {
-    final hostController = TextEditingController(text: SettingsService.to.proxy.proxyHost.v);
-    final portController = TextEditingController(text: SettingsService.to.proxy.proxyPort.v.toString());
 
-    showDialog(
-      context: Get.context!,
-      builder: (context) => AlertDialog(
-        title: Text(i18n("proxy_settings")),
-        content: Obx(
-          () => SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                context.buildSwitchTile(
-                  icon: Remix.shield_keyhole_line,
-                  title: i18n("enable_player_proxy"),
-                  value: SettingsService.to.proxy.enableProxy,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: hostController,
-                  enabled: SettingsService.to.proxy.enableProxy.v,
-                  decoration: InputDecoration(
-                    labelText: i18n("proxy_host"),
-                    prefixIcon: const Icon(Remix.global_line, size: 20),
-                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                  ),
-                  onChanged: (value) => SettingsService.to.proxy.proxyHost.v = value,
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: portController,
-                  enabled: SettingsService.to.proxy.enableProxy.v,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: i18n("proxy_port"),
-                    prefixIcon: const Icon(Remix.links_line, size: 20),
-                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                  ),
-                  onChanged: (value) {
-                    int? port = int.tryParse(value);
-                    if (port != null) SettingsService.to.proxy.proxyPort.v = port;
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(i18n("confirm")))],
-      ),
-    );
-  }
 }

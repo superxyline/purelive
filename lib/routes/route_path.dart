@@ -81,8 +81,5 @@ class RoutePath {
 
 
 
-  static const kWebSearch = "/web_search";
-
-
   static const kSettingsTags = '/settingTags';
 }

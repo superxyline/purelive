@@ -405,20 +405,22 @@ class BiliBiliSite implements LiveSite {
 
   @override
   Future<List<LiveRoom>> searchRooms(String keyword, {int page = 1, int pageSize = 30}) async {
-    var result = await HttpClient.instance.getJson(
-      "https://api.bilibili.com/x/web-interface/search/type?context=&search_type=live&cover_type=user_cover",
-      queryParameters: {
-        "order": "",
-        "keyword": keyword,
-        "category_id": "",
-        "__refresh__": "",
-        "_extra": "",
-        "highlight": 0,
-        "single_column": 0,
-        "page": page,
-      },
-      header: await getHeader(),
-    );
+    const baseUrl = "https://api.bilibili.com/x/web-interface/wbi/search/type";
+    final url = Uri.parse(baseUrl).replace(queryParameters: {
+      "context": "",
+      "search_type": "live",
+      "cover_type": "user_cover",
+      "order": "",
+      "keyword": keyword,
+      "category_id": "",
+      "__refresh__": "",
+      "_extra": "",
+      "highlight": "0",
+      "single_column": "0",
+      "page": "$page",
+    }).toString();
+    var queryParams = await getWbiSign(url);
+    var result = await HttpClient.instance.getJson(baseUrl, queryParameters: queryParams, header: await getHeader());
 
     var items = <LiveRoom>[];
     var queryList = result["data"]["result"]["live_room"] ?? [];
@@ -445,20 +447,22 @@ class BiliBiliSite implements LiveSite {
 
   @override
   Future<List<LiveAnchorItem>> searchAnchors(String keyword, {int page = 1, int pageSize = 30}) async {
-    var result = await HttpClient.instance.getJson(
-      "https://api.bilibili.com/x/web-interface/search/type?context=&search_type=live_user&cover_type=user_cover",
-      queryParameters: {
-        "order": "",
-        "keyword": keyword,
-        "category_id": "",
-        "__refresh__": "",
-        "_extra": "",
-        "highlight": 0,
-        "single_column": 0,
-        "page": page,
-      },
-      header: await getHeader(),
-    );
+    const baseUrl = "https://api.bilibili.com/x/web-interface/wbi/search/type";
+    final url = Uri.parse(baseUrl).replace(queryParameters: {
+      "context": "",
+      "search_type": "live_user",
+      "cover_type": "user_cover",
+      "order": "",
+      "keyword": keyword,
+      "category_id": "",
+      "__refresh__": "",
+      "_extra": "",
+      "highlight": "0",
+      "single_column": "0",
+      "page": "$page",
+    }).toString();
+    var queryParams = await getWbiSign(url);
+    var result = await HttpClient.instance.getJson(baseUrl, queryParameters: queryParams, header: await getHeader());
 
     var items = <LiveAnchorItem>[];
     for (var item in result["data"]["result"] ?? []) {

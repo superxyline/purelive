@@ -4,7 +4,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/player/core/live_audio_service.dart';
-import 'package:pure_live/modules/settings/pages/font_family_manager_page.dart';
 
 class VideoSettingsPage extends GetView<SettingsService> {
   const VideoSettingsPage({super.key});
@@ -129,31 +128,6 @@ class VideoSettingsPage extends GetView<SettingsService> {
 
           const SizedBox(height: 20),
 
-          // 弹幕设置
-          context.buildGroupTitle(i18n("danmaku_settings")),
-          context.buildModernCard([
-            context.buildSwitchTile(
-              title: i18n('show_danmaku'),
-              subtitle: i18n('show_danmaku_subtitle'),
-              value: SettingsService.to.danmaku.enableDanmakuDisplay,
-              icon: Remix.chat_smile_2_line,
-            ),
-            Obx(
-              () => context.buildTile(
-                icon: Remix.font_size,
-                title: i18n("change_danmaku_font_family"),
-                subtitle: "${i18n("current_font_prefix")}: ${SettingsService.to.danmaku.danmakuFontFamilyName.v}",
-                onTap: () => Get.to(() => const FontFamilyManagerPage(isDanmakuSettings: true)),
-              ),
-            ),
-
-            context.buildTile(
-              icon: Remix.filter_2_line,
-              title: i18n("danmaku_filter"),
-              subtitle: "",
-              onTap: () => Get.toNamed(RoutePath.kSettingsDanmuShield),
-            ),
-          ]),
           const SizedBox(height: 32),
         ],
       ),

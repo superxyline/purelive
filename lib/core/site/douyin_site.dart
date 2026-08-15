@@ -648,9 +648,17 @@ class DouyinSite implements LiveSite {
         'user-agent': DouyinRequestParams.kDefaultUserAgent,
       },
     );
-    if (result == "" || result == 'blocked') {
-      throw Exception("抖音直播搜索被限制，请稍后再试");
+    if (result is Map) {
+      var statusCode = asT<int?>(result["status_code"]) ?? 0;
+      if (statusCode != 0) {
+        var msg = result["status_msg"]?.toString() ?? '';
+        if (statusCode == 2483 || msg.contains('登录')) {
+          throw Exception('抖音搜索需要登录，请先在账户页登录抖音后重试');
+        }
+        throw Exception('抖音搜索被限制，请稍后再试');
+      }
     }
+
     var items = <LiveRoom>[];
     for (var item in result["data"] ?? []) {
       var itemData = json.decode(item["lives"]["rawdata"].toString());
