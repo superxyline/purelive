@@ -196,20 +196,39 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
   /// 相对默认位置的拖动偏移
   Offset _drag = Offset.zero;
 
-  double get _width {
+  /// 用户双指缩放后的窗口宽度（<=0 表示未缩放，使用默认宽度）
+  double _customWidth = 0;
+
+  /// 手势开始时的基准数据（用于缩放与拖动计算）
+  double _baseWidth = 0;
+  Offset _baseCenter = Offset.zero;
+
+  /// 窗口最小宽度（16:9 高度随宽度联动）
+  double get _minWidth => 130.0;
+
+  /// 窗口最大宽度：不超过可用宽度的 85%，上限 600
+  double get _maxWidth => (widget.maxWidth * 0.85).clamp(_minWidth, 600.0).toDouble();
+
+  double get _defaultWidth {
     final w = widget.maxWidth;
     final isNarrow = w <= 680;
     return (w * (isNarrow ? 0.4 : 0.24) * 1.5).clamp(180.0, 390.0).toDouble();
   }
 
+  double get _width => _customWidth > 0 ? _customWidth : _defaultWidth;
+
   double get _height => _width * 9 / 16;
 
-  /// 默认停靠右下角：右下留边 8 / 12，不遮挡上方主画面与分辨率栏
-  double get _defaultLeft =>
-      (widget.maxWidth - _width - 8).clamp(0.0, double.infinity);
+  /// 默认停靠右下角：右下留边 8 / 12，不遮挡上方主画面与清晰度栏
+  double _defaultLeftFor(double w) =>
+      (widget.maxWidth - w - 8).clamp(0.0, double.infinity);
 
-  double get _defaultTop =>
-      (widget.maxHeight - _height - 12).clamp(0.0, double.infinity);
+  double _defaultTopFor(double h) =>
+      (widget.maxHeight - h - 12).clamp(0.0, double.infinity);
+
+  double get _defaultLeft => _defaultLeftFor(_width);
+
+  double get _defaultTop => _defaultTopFor(_height);
 
   Offset get _pos {
     final maxLeft = (widget.maxWidth - _width).clamp(0.0, double.infinity);
@@ -218,6 +237,30 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
       (_defaultLeft + _drag.dx).clamp(0.0, maxLeft),
       (_defaultTop + _drag.dy).clamp(0.0, maxTop),
     );
+  }
+
+  /// 单指拖动与双指缩放共用缩放手势：scale 调大小、focalPointDelta 移位置
+  void _onScaleStart(ScaleStartDetails details) {
+    _baseWidth = _width;
+    final p = _pos;
+    _baseCenter = Offset(p.dx + _width / 2, p.dy + _height / 2);
+  }
+
+  void _onScaleUpdate(ScaleUpdateDetails details) {
+    setState(() {
+      // 双指缩放：以手势开始时的宽度为基准，按比例调整并限制范围
+      final newWidth = (_baseWidth * details.scale).clamp(_minWidth, _maxWidth).toDouble();
+      _customWidth = newWidth;
+      final newHeight = newWidth * 9 / 16;
+      // 以窗口中心为锚点缩放（同时跟随单指拖动），避免缩大时跑出屏幕
+      final center = _baseCenter + details.focalPointDelta;
+      final newLeft = center.dx - newWidth / 2;
+      final newTop = center.dy - newHeight / 2;
+      _drag = Offset(
+        newLeft - _defaultLeftFor(newWidth),
+        newTop - _defaultTopFor(newHeight),
+      );
+    });
   }
 
   @override
@@ -235,10 +278,8 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
         height: _height,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onPanStart: (_) {},
-          onPanUpdate: (details) {
-            setState(() => _drag += details.delta);
-          },
+          onScaleStart: _onScaleStart,
+          onScaleUpdate: _onScaleUpdate,
           child: Stack(
             fit: StackFit.expand,
             children: [

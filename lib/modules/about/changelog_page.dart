@@ -5,6 +5,9 @@ class ChangelogPage extends StatelessWidget {
   const ChangelogPage({super.key});
 
   static const List<({String version, List<String> items})> _changelog = [
+    (version: '2.6.3（构建号 21）', items: ['双开副播放器支持双指揉合缩放大小：以窗口中心为锚点缩放，仍可单指拖动位置；宽度限制 130~600，不超过屏幕宽的 85%']),
+
+
     (version: '2.6.2（构建号 20）', items: ['修复多平台搜索：B站改用 WBI 签名接口规避风控；斗鱼改用稳定 Cookie 并给出风控提示；抖音搜索需登录并明确提示；搜索失败提示改为具体原因']),
 
     (version: '2.1.5（构建号 19）', items: ['双开副窗口放大至 1.5 倍：小窗更大更易看，默认停靠右下角、可自由拖动']),
