@@ -199,7 +199,7 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
   double get _width {
     final w = widget.maxWidth;
     final isNarrow = w <= 680;
-    return (w * (isNarrow ? 0.4 : 0.24)).clamp(120.0, 260.0).toDouble();
+    return (w * (isNarrow ? 0.4 : 0.24) * 1.5).clamp(180.0, 390.0).toDouble();
   }
 
   double get _height => _width * 9 / 16;

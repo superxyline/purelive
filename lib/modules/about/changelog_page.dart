@@ -5,6 +5,8 @@ class ChangelogPage extends StatelessWidget {
   const ChangelogPage({super.key});
 
   static const List<({String version, List<String> items})> _changelog = [
+    (version: '2.1.5（构建号 19）', items: ['双开副窗口放大至 1.5 倍：小窗更大更易看，默认停靠右下角、可自由拖动']),
+
     (
       version: '2.1.4（构建号 18）',
       items: [
