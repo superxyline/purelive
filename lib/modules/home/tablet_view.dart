@@ -58,6 +58,15 @@ class HomeTabletView extends StatelessWidget {
                       ),
                     );
                     break;
+                  case HomeMenu.esports:
+                    destinations.add(
+                      NavigationRailDestination(
+                        icon: const Icon(Remix.trophy_line),
+                        selectedIcon: const Icon(Remix.trophy_fill),
+                        label: Text(i18n("esports_title")),
+                      ),
+                    );
+                    break;
                 }
               }
             }

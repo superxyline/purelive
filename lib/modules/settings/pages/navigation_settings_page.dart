@@ -10,7 +10,7 @@ class NavigationSettingsPage extends StatelessWidget {
     final theme = Theme.of(context);
 
     // 1. 定义所有菜单（固定不变）
-    final allMenus = [HomeMenu.favorites, HomeMenu.popular, HomeMenu.areas];
+    final allMenus = [HomeMenu.favorites, HomeMenu.popular, HomeMenu.areas, HomeMenu.esports];
 
     return Scaffold(
       appBar: AppBar(title: Text(i18n("navigation_display_settings"))),
@@ -77,6 +77,10 @@ class NavigationSettingsPage extends StatelessWidget {
                     case HomeMenu.areas:
                       titleText = i18n("areas_title");
                       menuIcon = Remix.apps_2_line;
+                      break;
+                    case HomeMenu.esports:
+                      titleText = i18n("esports_title");
+                      menuIcon = Remix.trophy_line;
                       break;
                   }
 

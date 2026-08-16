@@ -13,7 +13,19 @@ class AppSettingsController extends GetxController {
   final RxBool showSplashPage = hiveBool('showSplashPage', false);
   final RxBool showLiveDurationBadge = hiveBool('showLiveDurationBadge', true);
 
-  late final RxList<String> savedMenuIds = hiveStringList('savedMenuIds', HomeMenu.values.map((e) => e.id).toList());
+  late final RxList<String> savedMenuIds = _initSavedMenuIds();
+
+  /// 老版本升级兼容：已保存的菜单列表不会包含新增菜单（如"赛事"），
+  /// 这里自动补全，保证新标签默认显示（用户可在导航设置中随时关闭）。
+  RxList<String> _initSavedMenuIds() {
+    final list = hiveStringList('savedMenuIds', HomeMenu.values.map((e) => e.id).toList());
+    for (final menu in HomeMenu.values) {
+      if (!list.contains(menu.id)) {
+        list.add(menu.id);
+      }
+    }
+    return list;
+  }
 
   void toggleMenuVisibility(HomeMenu menu, bool visible) {
     final ids = List<String>.from(savedMenuIds.v);

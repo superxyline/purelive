@@ -6,6 +6,14 @@ class ChangelogPage extends StatelessWidget {
 
   static const List<({String version, List<String> items})> _changelog = [
     (
+      version: '1.1.0（构建号 25）',
+      items: [
+        '新增"赛事"首页标签：展示从昨天到 7 天后的电竞赛事日程，按日期分组、支持游戏筛选',
+        '赛事数据源（实测打通）：CS2 使用完美世界电竞官方数据中心接口（HMAC 签名），英雄联盟、瓦罗兰特使用 Riot 官方赛事官网赛程数据',
+        'Dota2 赛事数据源暂未接入（完美世界 web 端无 Dota2 赛事接口），筛选时显示占位提示，待后续方案',
+      ],
+    ),
+    (
       version: '1.0.0（构建号 24）',
       items: [
         '修复从搜索进入直播间后返回键失效：输入法状态残留会拦截返回键，进入直播间前主动断开输入法连接，播放器键盘层接管返回键（与左上角返回箭头同一路由，全屏时先退全屏再退直播间）',

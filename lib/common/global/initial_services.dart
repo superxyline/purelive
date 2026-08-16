@@ -1,5 +1,6 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/player_state.dart';
+import 'package:pure_live/modules/esports/esports_controller.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
 import 'package:ffmpeg_kit_extended_flutter/ffmpeg_kit_extended_flutter.dart';
 
@@ -16,6 +17,8 @@ class InitialServices {
     Get.lazyPut(() => PopularController(), fenix: true);
     // 分区
     Get.lazyPut(() => AreasController(), fenix: true);
+    // 赛事
+    Get.lazyPut(() => EsportsController(), fenix: true);
     // 播放器状态
     Get.lazyPut(() => GlobalPlayerState(), fenix: true);
   }

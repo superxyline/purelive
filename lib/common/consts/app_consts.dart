@@ -6,7 +6,8 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 enum HomeMenu {
   favorites('favorites'),
   popular('popular'),
-  areas('areas');
+  areas('areas'),
+  esports('esports');
 
   final String id;
   const HomeMenu(this.id);

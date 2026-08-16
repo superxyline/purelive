@@ -8,6 +8,7 @@ import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
+import 'package:pure_live/modules/esports/esports_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,6 +28,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     HomeMenu.favorites: FavoritePage(),
     HomeMenu.popular: PopularPage(),
     HomeMenu.areas: AreasPage(),
+    HomeMenu.esports: EsportsPage(),
   };
 
   @override
