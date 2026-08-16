@@ -203,6 +203,9 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
   double _baseWidth = 0;
   Offset _baseCenter = Offset.zero;
 
+  /// 手势开始时的焦点位置（用于累计拖动位移）
+  Offset _startFocalPoint = Offset.zero;
+
   /// 窗口最小宽度（16:9 高度随宽度联动）
   double get _minWidth => 130.0;
 
@@ -244,6 +247,7 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
     _baseWidth = _width;
     final p = _pos;
     _baseCenter = Offset(p.dx + _width / 2, p.dy + _height / 2);
+    _startFocalPoint = details.focalPoint;
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
@@ -252,8 +256,10 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
       final newWidth = (_baseWidth * details.scale).clamp(_minWidth, _maxWidth).toDouble();
       _customWidth = newWidth;
       final newHeight = newWidth * 9 / 16;
-      // 以窗口中心为锚点缩放（同时跟随单指拖动），避免缩大时跑出屏幕
-      final center = _baseCenter + details.focalPointDelta;
+      // 以窗口中心为锚点缩放，同时累计拖动位移：
+      // focalPointDelta 是相对上一次 update 的增量，不能直接叠加到基准中心上，
+      // 需用“当前焦点 - 手势起点焦点”得到累计位移，否则单指拖动时窗口几乎不动。
+      final center = _baseCenter + (details.focalPoint - _startFocalPoint);
       final newLeft = center.dx - newWidth / 2;
       final newTop = center.dy - newHeight / 2;
       _drag = Offset(
