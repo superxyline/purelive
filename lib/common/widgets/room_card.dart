@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
@@ -24,6 +25,21 @@ class RoomCard extends StatelessWidget {
   final bool showFollowButton;
 
   void onTap(BuildContext context) async {
+    // 从带输入框的页面（如搜索）进入直播间前，先彻底断开输入法连接并收起键盘：
+    // 在键盘仍显示的状态下断开连接，MIUI 输入法才能正确退出；否则进直播间后输入法进程
+    // 状态残留会持续拦截返回键/音量键等硬件按键（表现为返回键、音量键失效）。
+    final focus = FocusManager.instance.primaryFocus;
+    final hadFocus = focus != null;
+    try {
+      SystemChannels.textInput
+          .invokeMethod<void>('TextInput.clearClient')
+          .catchError((Object _) {});
+    } catch (_) {}
+    focus?.unfocus();
+    if (hadFocus) {
+      // 等软键盘真正收起（约 0.2 秒）再跳转，防止键盘未收完时进直播间，返回键仍被键盘吃掉。
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
     AppNavigator.toLiveRoomDetail(liveRoom: room);
   }
 

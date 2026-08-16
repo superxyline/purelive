@@ -46,8 +46,9 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
   Widget build(BuildContext context) {
     return Material(
       type: MaterialType.transparency,
+      // 注意：不要给这里加 autofocus——直播间打开时抢焦点会导致 Android 键盘事件
+      //（返回键/空格/方向键）无法到达 Flutter，表现为返回键失效。
       child: Focus(
-        autofocus: true,
         child: Obx(() {
           final double currentVolume = controller.room.getSavedVolume();
           final int percentage = (currentVolume * 100).round();

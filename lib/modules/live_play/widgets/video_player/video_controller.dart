@@ -73,11 +73,11 @@ class VideoController with ChangeNotifier {
 
   Timer? _debounceTimer;
   Timer? _hideVolumeTimer;
-  var showVolume = false.obs;
+  final showVolume = false.obs;
 
   void updateVolumn(double volume) {
     _hideVolumeTimer?.cancel();
-    showVolume = true.obs;
+    showVolume.value = true;
     _hideVolumeTimer = Timer(const Duration(seconds: 1), () {
       showVolume.value = false;
     });
@@ -210,18 +210,27 @@ class VideoController with ChangeNotifier {
 
   void initVideoController() async {
     final playerManager = GlobalPlayerService.instance.playerManager;
+    var systemVolume = 0.0;
     if (PlatformUtils.isMobile) {
       _volumeController = VolumeController.instance;
       _volumeController.showSystemUI = false;
       registerVolumeListener();
-      final currentVolume = await _volumeController.getVolume();
-      if (currentVolume > 0.001) {
-        final targetVolume = room.getSavedVolume();
-        _volumeController.setVolume(targetVolume);
+      // 读取当前系统音量（触发初始化回调记录基准），再应用房间记忆音量到系统。
+      systemVolume = await _volumeController.getVolume();
+      if (systemVolume > 0.001) {
+        await _volumeController.setVolume(room.getSavedVolume());
       }
+      // 初始化完成：此前的音量回调只记录基准、不弹音量条；之后的物理按键才同步播放器并弹条。
+      _volumeInitDone = true;
     }
     playerManager.play(datasource, playUrs, headers, room: room, audioOnly: isAudioOnly);
     initPlayerListener();
+    // 播放器就绪后显式应用音量：初始化回调早于 play（且可能被防抖跳过），这里兜底保证音量正确；
+    // 系统静音/全局静音时保持静音，不强行恢复记忆音量。
+    if (PlatformUtils.isMobile) {
+      final target = systemVolume > 0.001 ? room.getSavedVolume() : 0.0;
+      unawaited(playerManager.setVolume(target));
+    }
     // 处理默认全屏
 
     Future.delayed(Duration(milliseconds: 1000), () {
@@ -473,9 +482,28 @@ class VideoController with ChangeNotifier {
   }
 
   // 注册音量变化监听器
+  /// 记录上一次已同步给播放器的音量，避免音量未变化时反复弹音量条/重复设置。
+  double? _lastAppliedVolume;
+  /// 音量初始化是否完成：初始化阶段（进入直播间设置记忆音量期间）的监听回调只记录基准音量，
+  /// 不做播放器同步、不弹音量条，避免进直播间闪音量条或音量错误。
+  bool _volumeInitDone = false;
+
   void registerVolumeListener() {
     _subscription = _volumeController.addListener((volume) {
-      room.saveCurrentVolume(volume);
+      // 物理音量键/系统音量变化：同步到播放器（否则按键只改系统数值、声音不变），
+      // 并弹出应用内音量条提示；同时保存该房间记忆音量。
+      final clamped = volume.clamp(0.0, 1.0).toDouble();
+      room.saveCurrentVolume(clamped);
+      if (!_volumeInitDone) {
+        // 初始化阶段：仅记录基准音量，由 initVideoController 在播放器就绪后统一应用记忆音量。
+        _lastAppliedVolume = clamped;
+        return;
+      }
+      if ((_lastAppliedVolume! - clamped).abs() > 0.001) {
+        _lastAppliedVolume = clamped;
+        GlobalPlayerService.instance.playerManager.setVolume(clamped);
+        updateVolumn(clamped);
+      }
     }, fetchInitialVolume: true);
   }
 

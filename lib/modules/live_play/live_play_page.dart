@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'widgets/index.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
@@ -30,6 +31,43 @@ class LivePlayPage extends StatefulWidget {
 
 class _LivePlayPageState extends State<LivePlayPage> {
   LivePlayController get controller => Get.find<LivePlayController>();
+
+  @override
+  void initState() {
+    super.initState();
+    // 兜底：从搜索等带输入框的入口进入直播间时，若仍有残留的文本输入焦点（软键盘常驻），
+    // 在首帧与 300ms 后各强制收起一次软键盘（unfocus + 直接调用输入法隐藏通道），
+    // 避免系统返回键被软键盘吞掉导致返回失效。仅针对文本输入框，不影响播放器快捷键焦点。
+    _hideResidualKeyboard();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _hideResidualKeyboard();
+    });
+    Future<void>.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _hideResidualKeyboard();
+    });
+  }
+
+  /// 强制收起残留的软件键盘并断开输入法连接：
+  /// 1. 释放输入焦点；
+  /// 2. TextInput.clearClient 彻底断开 Flutter 与系统输入法的连接——仅 hide 只隐藏键盘、
+  ///    连接仍残留（MIUI 上残留连接会拦截返回键/音量键等硬件按键）；
+  /// 3. TextInput.hide 兜底隐藏键盘。
+  void _hideResidualKeyboard() {
+    try {
+      FocusManager.instance.primaryFocus?.unfocus();
+    } catch (_) {}
+    try {
+      SystemChannels.textInput
+          .invokeMethod<void>('TextInput.clearClient')
+          .catchError((Object _) {});
+    } catch (_) {}
+    try {
+      // 即使焦点未落在文本输入框上，该通道也能让输入法收起；失败时静默忽略。
+      SystemChannels.textInput
+          .invokeMethod<void>('TextInput.hide')
+          .catchError((Object _) {});
+    } catch (_) {}
+  }
 
   /// 普通状态（非全屏/半屏/PiP）交还系统原生返回，全面屏手势返回才能稳定生效；
   /// 仅在全屏/半屏/PiP 等需要拦截的状态才返回 false，由 onPopInvokedWithResult 先处理。
