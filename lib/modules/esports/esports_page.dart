@@ -421,6 +421,9 @@ class _MatchCard extends StatelessWidget {
   }
 
   Widget _buildTeam(ThemeData theme, String name, String logo, {required bool alignRight}) {
+    // TBD（无队名）时队标统一用手柄图标占位，即使接口给了 logo URL 也忽略
+    // （TBD 队伍的 logo 通常是无效占位图，手柄图标更美观统一）
+    final bool isTbd = name.isEmpty;
     final Widget nameWidget = Text(
       name.isEmpty ? 'TBD' : name,
       maxLines: 2,
@@ -430,7 +433,7 @@ class _MatchCard extends StatelessWidget {
     );
 
     Widget logoWidget;
-    if (logo.isNotEmpty) {
+    if (!isTbd && logo.isNotEmpty) {
       logoWidget = ClipRRect(
         borderRadius: BorderRadius.circular(6),
         child: CachedNetworkImage(
