@@ -45,11 +45,13 @@ class EsportsPage extends GetView<EsportsController> {
     );
   }
 
-  /// 日程视图：游戏筛选 + 按日期分组列表
+  /// 日程视图：游戏筛选 + 日期筛选 + 赛事筛选 + 按日期分组列表
   Widget _buildScheduleBody(BuildContext context) {
     return Column(
       children: [
         _buildGameFilter(context),
+        _buildDateFilter(context),
+        _buildSeriesFilter(context),
         Expanded(
           child: RefreshIndicator(
             onRefresh: () => controller.loadData(),
@@ -116,7 +118,10 @@ class EsportsPage extends GetView<EsportsController> {
 
   /// 游戏筛选条
   Widget _buildGameFilter(BuildContext context) {
+    // 注意：gameFilter.value 必须在 Obx builder 顶层读取，
+    // 若只在 ListView itemBuilder（惰性闭包）里访问，GetX 会误判"Obx 未使用 Rx"而抛异常。
     return Obx(() {
+      final int currentFilter = controller.gameFilter.value;
       return SizedBox(
         height: 48,
         child: ListView.separated(
@@ -125,17 +130,95 @@ class EsportsPage extends GetView<EsportsController> {
           itemCount: EsportsController.gameFilterKeys.length,
           separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
-            final bool selected = controller.gameFilter.value == index;
+            final bool selected = currentFilter == index;
             return ChoiceChip(
               label: Text(i18n(EsportsController.gameFilterKeys[index])),
               selected: selected,
               showCheckmark: false,
-              onSelected: (_) => controller.gameFilter.value = index,
+              onSelected: (_) => controller.setGameFilter(index),
             );
           },
         ),
       );
     });
+  }
+
+  /// 日期筛选条：昨天 到 +7 天（点击某天只看那天的比赛）
+  Widget _buildDateFilter(BuildContext context) {
+    return Obx(() {
+      final DateTime? currentDate = controller.dateFilter.value;
+      final List<DateTime> options = controller.dateFilterOptions;
+      return SizedBox(
+        height: 44,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          itemCount: options.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final day = options[index];
+            final bool selected =
+                currentDate != null && currentDate.year == day.year && currentDate.month == day.month && currentDate.day == day.day;
+            return ChoiceChip(
+              label: Text(_dateLabel(context, day)),
+              selected: selected,
+              showCheckmark: false,
+              onSelected: (_) {
+                controller.dateFilter.value = selected ? null : day;
+              },
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  /// 赛事名筛选条：当前游戏下的赛事列表（全部 + 各赛事名）
+  Widget _buildSeriesFilter(BuildContext context) {
+    return Obx(() {
+      final List<String> series = controller.availableSeries;
+      if (series.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      final String currentSeries = controller.seriesFilter.value;
+      return SizedBox(
+        height: 44,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          itemCount: series.length + 1,
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return ChoiceChip(
+                label: Text(i18n('esports_filter_all')),
+                selected: currentSeries.isEmpty,
+                showCheckmark: false,
+                onSelected: (_) => controller.seriesFilter.value = '',
+              );
+            }
+            final name = series[index - 1];
+            return ChoiceChip(
+              label: Text(name, overflow: TextOverflow.ellipsis),
+              selected: currentSeries == name,
+              showCheckmark: false,
+              onSelected: (_) => controller.seriesFilter.value = name,
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  /// 日期筛选按钮文案：昨天/今天/明天 用文字，其余用 M/d
+  String _dateLabel(BuildContext context, DateTime day) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final diff = day.difference(today).inDays;
+    if (diff == -1) return i18n('esports_yesterday');
+    if (diff == 0) return i18n('esports_today');
+    if (diff == 1) return i18n('esports_tomorrow');
+    return '${day.month}/${day.day}';
   }
 
   /// 日期分组标题
@@ -323,6 +406,12 @@ class _MatchCard extends StatelessWidget {
           width: 30,
           height: 30,
           fit: BoxFit.cover,
+          // 完美世界队标有防盗链（需 Referer），统一携带 UA + Referer
+          httpHeaders: const {
+            'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+            'Referer': 'https://data.wanmei.com/',
+          },
           errorWidget: (_, _, _) => _buildLogoPlaceholder(theme),
         ),
       );

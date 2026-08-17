@@ -90,6 +90,14 @@ class EsportsMatch {
   /// 是否包含有效对阵（双方队伍名至少一个非空）
   bool get hasTeams => teamAName.isNotEmpty || teamBName.isNotEmpty;
 
+  /// 规范化队标 URL：明文 http 转 https（Android 默认禁明文 HTTP，且 https 均可用）
+  static String normalizeLogoUrl(String url) {
+    if (url.startsWith('http://')) {
+      return 'https://${url.substring(7)}';
+    }
+    return url;
+  }
+
   // ---------------------------------------------------------------------------
   // 完美世界电竞（CS2）解析
   // ---------------------------------------------------------------------------
@@ -132,6 +140,8 @@ class EsportsMatch {
     if (teamALogoUrl.isEmpty) teamALogoUrl = str(teamA['logoBlack']);
     String teamBLogoUrl = str(teamB['logoWhite']);
     if (teamBLogoUrl.isEmpty) teamBLogoUrl = str(teamB['logoBlack']);
+    teamALogoUrl = EsportsMatch.normalizeLogoUrl(teamALogoUrl);
+    teamBLogoUrl = EsportsMatch.normalizeLogoUrl(teamBLogoUrl);
 
     return EsportsMatch(
       matchId: str(item['matchId']),
@@ -181,7 +191,7 @@ class EsportsMatch {
     if (teams.isNotEmpty) {
       final Map<String, dynamic> tA = teams[0] is Map ? Map<String, dynamic>.from(teams[0] as Map) : const {};
       teamAName = str(tA['name']);
-      teamALogo = str(tA['image']);
+      teamALogo = normalizeLogoUrl(str(tA['image']));
       final dynamic rA = tA['result'];
       if (rA is Map) {
         scoreA = rA['gameWins'] is num ? (rA['gameWins'] as num).toInt() : 0;
@@ -190,7 +200,7 @@ class EsportsMatch {
     if (teams.length > 1) {
       final Map<String, dynamic> tB = teams[1] is Map ? Map<String, dynamic>.from(teams[1] as Map) : const {};
       teamBName = str(tB['name']);
-      teamBLogo = str(tB['image']);
+      teamBLogo = normalizeLogoUrl(str(tB['image']));
       final dynamic rB = tB['result'];
       if (rB is Map) {
         scoreB = rB['gameWins'] is num ? (rB['gameWins'] as num).toInt() : 0;
