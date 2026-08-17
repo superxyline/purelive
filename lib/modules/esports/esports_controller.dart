@@ -52,10 +52,14 @@ class EsportsController extends GetxController {
     loadData();
   }
 
-  /// 刷新数据（下拉刷新/重试）
+  /// 刷新数据（首次加载显示转圈；已有数据时后台刷新，旧内容保留到新数据到达）
   Future<void> loadData() async {
     if (loading.value) return;
-    loading.value = true;
+    // 已有数据时视为后台刷新：不置 loading，避免页面主体被替换成加载动画
+    final bool isRefresh = matches.isNotEmpty;
+    if (!isRefresh) {
+      loading.value = true;
+    }
     error.value = '';
     try {
       final now = DateTime.now();

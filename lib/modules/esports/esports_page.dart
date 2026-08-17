@@ -297,7 +297,7 @@ class _MatchCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // 联赛 · 阶段
+          // 第一行：联赛名（左）+ 阶段名（中间列，与时间/比分垂直对齐）
           Row(
             children: [
               Expanded(
@@ -311,15 +311,20 @@ class _MatchCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (_stageText.isNotEmpty)
-                Flexible(
-                  child: Text(
-                    _stageText,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.t12.copyWith(color: theme.hintColor),
-                  ),
-                ),
+              SizedBox(
+                width: 96,
+                child: _stageText.isEmpty
+                    ? null
+                    : Text(
+                        _stageText,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.t12.copyWith(color: theme.hintColor),
+                      ),
+              ),
+              // 右侧占位保持对称（让中间列真正居中）
+              const Expanded(child: SizedBox()),
             ],
           ),
           const SizedBox(height: 10),
