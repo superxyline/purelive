@@ -120,16 +120,24 @@ class EsportsMatch {
     final int startMs = intVal(item['startTime']);
     final int endMs = intVal(item['endTime']);
 
-    // 状态：完美世界 status 3=已结束；有比分且已过结束时间视为已结束
-    int status = intVal(item['status']);
-    final int scoreA = intVal(item['score1']);
-    final int scoreB = intVal(item['score2']);
-    final bool hasScore = scoreA > 0 || scoreB > 0;
-    if (status == 3 || (hasScore && endMs > 0 && endMs < DateTime.now().millisecondsSinceEpoch)) {
+    // 状态判断（完美世界 status 字段实测：2=未开始 3=已结束，无"进行中"枚举，
+    // 因此以时间窗口为主判断，status==3 作为已结束的明确兜底）：
+    //   已结束：status==3 或 已过结束时间
+    //   进行中：已过开始时间且（未到结束时间 或 结束时间未填）
+    //   未开始：其余
+    final int nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final int startSec = startMs > 0 ? startMs ~/ 1000 : 0;
+    final int endSec = endMs > 0 ? endMs ~/ 1000 : 0;
+    int status;
+    if (intVal(item['status']) == 3 || (endSec > 0 && nowSec > endSec)) {
       status = 3;
-    } else if (status != 2 && status != 3) {
+    } else if (startSec > 0 && nowSec >= startSec && (endSec == 0 || nowSec <= endSec)) {
+      status = 2;
+    } else {
       status = 1;
     }
+    final int scoreA = intVal(item['score1']);
+    final int scoreB = intVal(item['score2']);
 
     // 赛事名优先中文
     final String eventNameZh = str(event['nameZh']);

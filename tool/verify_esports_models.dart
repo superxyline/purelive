@@ -38,6 +38,49 @@ void main() {
   final csEmpty = EsportsMatch.fromWanmeiJson(const {});
   check('空字段容错', csEmpty.teamAName == '' && csEmpty.startTime == 0 && csEmpty.matchId == '');
 
+  // 完美世界 status=2 的未开始比赛（实测未来比赛 status=2、endTime=0）
+  final nowMs = DateTime.now().millisecondsSinceEpoch;
+  final futureStart = nowMs + 3600000; // 1 小时后
+  final upcoming = EsportsMatch.fromWanmeiJson({
+    'matchId': 999,
+    'score1': 0,
+    'score2': 0,
+    'startTime': futureStart,
+    'endTime': 0,
+    'status': 2,
+    'team1DTO': {'name': 'GamerLegion'},
+    'team2DTO': {'name': 'MOUZ'},
+  });
+  check('status=2 未开始 → isUpcoming', upcoming.isUpcoming, 'status=${upcoming.status}');
+  check('status=2 未开始 → 非 LIVE', !upcoming.isLive);
+  check('未开始时间正确', upcoming.startTime == futureStart ~/ 1000, '${upcoming.startTime}');
+  check('未开始无比分', upcoming.scoreA == 0 && upcoming.scoreB == 0);
+
+  // 进行中（已过开始时间、结束时间未填）
+  final liveStart = nowMs - 600000; // 10 分钟前开始
+  final live = EsportsMatch.fromWanmeiJson({
+    'matchId': 998,
+    'startTime': liveStart,
+    'endTime': 0,
+    'status': 2,
+    'team1DTO': {'name': 'A'},
+    'team2DTO': {'name': 'B'},
+  });
+  check('已开始且未结束 → isLive', live.isLive, 'status=${live.status}');
+
+  // 已结束（status=3）
+  final ended = EsportsMatch.fromWanmeiJson({
+    'matchId': 997,
+    'startTime': nowMs - 7200000,
+    'endTime': nowMs - 3600000,
+    'status': 3,
+    'score1': 2,
+    'score2': 1,
+    'team1DTO': {'name': 'A'},
+    'team2DTO': {'name': 'B'},
+  });
+  check('status=3 → isEnded', ended.isEnded);
+
   print('=== lolesports LOL 解析器 ===');
   final lolEvent = {
     '__typename': 'EventMatch',
