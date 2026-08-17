@@ -315,12 +315,14 @@ class _MatchCard extends StatelessWidget {
                 width: 96,
                 child: _stageText.isEmpty
                     ? null
-                    : Text(
-                        _stageText,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.t12.copyWith(color: theme.hintColor),
+                    : Center(
+                        child: Text(
+                          _stageText,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.t12.copyWith(color: theme.hintColor),
+                        ),
                       ),
               ),
               // 右侧占位保持对称（让中间列真正居中）
@@ -347,23 +349,34 @@ class _MatchCard extends StatelessWidget {
   }
 
   Widget _buildCenterInfo(ThemeData theme) {
+    // 中间列宽度固定 96，所有内容用 Center 包裹确保水平居中
     if (match.isLive) {
       return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.red.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
               'LIVE',
+              textAlign: TextAlign.center,
               style: AppTextStyles.t11.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
           if (match.scoreA > 0 || match.scoreB > 0) ...[
             const SizedBox(height: 4),
-            Text('${match.scoreA} : ${match.scoreB}', style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w700)),
+            Center(
+              child: Text(
+                '${match.scoreA} : ${match.scoreB}',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
           ],
         ],
       );
@@ -371,14 +384,25 @@ class _MatchCard extends StatelessWidget {
     if (match.isEnded) {
       final bool hasScore = match.scoreA > 0 || match.scoreB > 0;
       return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            i18n('esports_ended'),
-            style: AppTextStyles.t11.copyWith(color: theme.hintColor),
+          Center(
+            child: Text(
+              i18n('esports_ended'),
+              textAlign: TextAlign.center,
+              style: AppTextStyles.t11.copyWith(color: theme.hintColor),
+            ),
           ),
           if (hasScore) ...[
             const SizedBox(height: 4),
-            Text('${match.scoreA} : ${match.scoreB}', style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w700)),
+            Center(
+              child: Text(
+                '${match.scoreA} : ${match.scoreB}',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
           ],
         ],
       );
@@ -387,9 +411,12 @@ class _MatchCard extends StatelessWidget {
     final dt = match.startDateTime;
     final hh = dt.hour.toString().padLeft(2, '0');
     final mm = dt.minute.toString().padLeft(2, '0');
-    return Text(
-      '$hh:$mm',
-      style: AppTextStyles.t16.copyWith(fontWeight: FontWeight.w700, color: theme.colorScheme.primary),
+    return Center(
+      child: Text(
+        '$hh:$mm',
+        textAlign: TextAlign.center,
+        style: AppTextStyles.t16.copyWith(fontWeight: FontWeight.w700, color: theme.colorScheme.primary),
+      ),
     );
   }
 
