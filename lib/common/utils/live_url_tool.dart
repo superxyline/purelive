@@ -68,33 +68,6 @@ class LiveUrlTool {
       return [id, Sites.douyinSite];
     }
 
-    // 快手
-    if (realUrl.contains("live.kuaishou.com") || realUrl.contains("live.kuaishou.cn")) {
-      realUrl = realUrl.trimEndChar('/');
-      var reg = RegExp(r"live\.kuaishou\.(com|cn)/u/([a-zA-Z0-9]+)$");
-      String id = reg.firstMatch(realUrl)?.group(2) ?? "";
-      return [id, Sites.kuaishouSite];
-    }
-
-    // 网易CC
-    if (realUrl.contains("cc.163.com")) {
-      realUrl = realUrl.trimEndChar('/');
-      var reg = RegExp(r"cc\.163\.com/([a-zA-Z0-9]+)$");
-      String id = reg.firstMatch(realUrl)?.group(1) ?? "";
-      return [id, Sites.ccSite];
-    }
-    if (realUrl.contains("twitch.tv/")) {
-      final regExp = RegExp(r'twitch\.tv/([^/?]+)');
-      String id = regExp.firstMatch(url)?.group(1) ?? "";
-      return [id, Sites.twitchSite];
-    }
-    if (realUrl.contains("sooplive.com/") || realUrl.contains("sooplive.co.kr/")) {
-      final regExp = RegExp(r'(?:www\.|play\.)?sooplive\.(?:com|co\.kr)/([^/?]+)');
-
-      final id = regExp.firstMatch(realUrl)?.group(1) ?? "";
-
-      return [id, Sites.soopSite];
-    }
     return [];
   }
 

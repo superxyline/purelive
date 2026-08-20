@@ -1,15 +1,10 @@
 import 'site/huya_site.dart';
-import 'site/soop_site.dart';
 import 'site/douyu_site.dart';
 import 'site/douyin_site.dart';
 import 'interface/live_site.dart';
 
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/core/site/cc_site.dart';
-import 'package:pure_live/core/site/iptv_site.dart';
-import 'package:pure_live/core/site/twitch_site.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
-import 'package:pure_live/core/site/kuaishou_site.dart';
 
 class Sites {
   static const String allSite = "all";
@@ -17,21 +12,11 @@ class Sites {
   static const String douyuSite = "douyu";
   static const String huyaSite = "huya";
   static const String douyinSite = "douyin";
-  static const String kuaishouSite = "kuaishou";
-  static const String ccSite = "cc";
-  static const String iptvSite = "iptv";
-  static const String twitchSite = "twitch";
-  static const String soopSite = 'soop';
   static const Set<String> supportedSiteIds = {
     bilibiliSite,
     douyuSite,
     huyaSite,
     douyinSite,
-    kuaishouSite,
-    ccSite,
-    twitchSite,
-    soopSite,
-    iptvSite,
   };
 
   static bool isSupported(String id) => supportedSiteIds.contains(id.trim().toLowerCase());
@@ -41,11 +26,6 @@ class Sites {
     Site(id: douyuSite, name: i18n("site_douyu"), logo: "assets/images/douyu.png", liveSite: DouyuSite()),
     Site(id: huyaSite, name: i18n("site_huya"), logo: "assets/images/huya.png", liveSite: HuyaSite()),
     Site(id: douyinSite, name: i18n("site_douyin"), logo: "assets/images/douyin.png", liveSite: DouyinSite()),
-    Site(id: kuaishouSite, name: i18n("site_kuaishou"), logo: "assets/images/kuaishou.png", liveSite: KuaishowSite()),
-    Site(id: ccSite, name: i18n("site_cc"), logo: "assets/images/cc.png", liveSite: CCSite()),
-    Site(id: twitchSite, name: i18n("site_twitch"), logo: "assets/images/twitch.png", liveSite: TwitchSite()),
-    Site(id: soopSite, name: i18n("site_soop"), logo: "assets/images/soop.png", liveSite: SoopSite()),
-    Site(id: iptvSite, name: i18n("site_iptv"), logo: "assets/images/logo.png", liveSite: IptvSite()),
   ];
 
   static Site of(String id) {

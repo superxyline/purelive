@@ -1,11 +1,10 @@
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/auth/auth_controller.dart';
 
-class MenuButton extends GetView<AuthController> {
+class MenuButton extends StatelessWidget {
   const MenuButton({super.key});
 
-  final menuRoutes = const [RoutePath.kSettings, RoutePath.kAbout, RoutePath.kHistory];
+  final menuRoutes = const [RoutePath.kSettings, RoutePath.kAbout];
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +27,6 @@ class MenuButton extends GetView<AuthController> {
           value: 1,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(leading: const Icon(Remix.information_line), text: i18n("about")),
-        ),
-        PopupMenuItem(
-          value: 2,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: MenuListTile(leading: const Icon(Remix.history_line), text: i18n("history")),
         ),
       ],
     );

@@ -107,38 +107,6 @@ class LocalInteractionController extends GetxController {
       accentColor: Color(0xFFFE2C55),
       badge: '🎵',
     ),
-    LocalPlatformPack(
-      id: Sites.kuaishouSite,
-      name: '快手',
-      currencyKey: 'local_currency_kuaishou',
-      levelKey: 'local_level_kuaishou',
-      accentColor: Color(0xFFFF4906),
-      badge: '🎬',
-    ),
-    LocalPlatformPack(
-      id: Sites.ccSite,
-      name: '网易 CC',
-      currencyKey: 'local_currency_cc',
-      levelKey: 'local_level_cc',
-      accentColor: Color(0xFFFF4D7D),
-      badge: '🎮',
-    ),
-    LocalPlatformPack(
-      id: Sites.twitchSite,
-      name: 'Twitch',
-      currencyKey: 'local_currency_twitch',
-      levelKey: 'local_level_twitch',
-      accentColor: Color(0xFF9146FF),
-      badge: '💜',
-    ),
-    LocalPlatformPack(
-      id: Sites.soopSite,
-      name: 'SOOP',
-      currencyKey: 'local_currency_soop',
-      levelKey: 'local_level_soop',
-      accentColor: Color(0xFF0675E8),
-      badge: '🎈',
-    ),
   ];
 
   static const _platformGifts = <String, List<LocalGift>>{
@@ -238,102 +206,6 @@ class LocalInteractionController extends GetxController {
         effect: 'full',
       ),
     ],
-    Sites.kuaishouSite: [
-      LocalGift(
-        id: 'ks_beer',
-        nameKey: 'local_gift_ks_beer',
-        emoji: '🍺',
-        price: 10,
-        color: LiveMessageColor(255, 98, 0),
-      ),
-      LocalGift(
-        id: 'ks_arrow',
-        nameKey: 'local_gift_ks_arrow',
-        emoji: '🏹',
-        price: 500,
-        color: LiveMessageColor(255, 74, 0),
-      ),
-      LocalGift(
-        id: 'ks_guard',
-        nameKey: 'local_gift_ks_guard',
-        emoji: '🛡️',
-        price: 1500,
-        color: LiveMessageColor(255, 58, 48),
-        effect: 'full',
-      ),
-    ],
-    Sites.ccSite: [
-      LocalGift(
-        id: 'cc_flower',
-        nameKey: 'local_gift_cc_flower',
-        emoji: '🌺',
-        price: 10,
-        color: LiveMessageColor(255, 92, 155),
-      ),
-      LocalGift(
-        id: 'cc_car',
-        nameKey: 'local_gift_cc_car',
-        emoji: '🏎️',
-        price: 500,
-        color: LiveMessageColor(255, 66, 80),
-      ),
-      LocalGift(
-        id: 'cc_guard',
-        nameKey: 'local_gift_cc_guard',
-        emoji: '👑',
-        price: 1800,
-        color: LiveMessageColor(163, 89, 255),
-        effect: 'full',
-      ),
-    ],
-    Sites.twitchSite: [
-      LocalGift(
-        id: 'twitch_cheer',
-        nameKey: 'local_gift_twitch_cheer',
-        emoji: '💎',
-        price: 10,
-        color: LiveMessageColor(145, 70, 255),
-      ),
-      LocalGift(
-        id: 'twitch_sub',
-        nameKey: 'local_gift_twitch_sub',
-        emoji: '⭐',
-        price: 500,
-        color: LiveMessageColor(169, 112, 255),
-      ),
-      LocalGift(
-        id: 'twitch_hype_train',
-        nameKey: 'local_gift_twitch_hype_train',
-        emoji: '🚂',
-        price: 2000,
-        color: LiveMessageColor(112, 44, 190),
-        effect: 'full',
-      ),
-    ],
-    Sites.soopSite: [
-      LocalGift(
-        id: 'soop_star_balloon',
-        nameKey: 'local_gift_soop_star_balloon',
-        emoji: '⭐',
-        price: 10,
-        color: LiveMessageColor(6, 117, 232),
-      ),
-      LocalGift(
-        id: 'soop_sticker',
-        nameKey: 'local_gift_soop_sticker',
-        emoji: '🎟️',
-        price: 300,
-        color: LiveMessageColor(52, 147, 245),
-      ),
-      LocalGift(
-        id: 'soop_signature_balloon',
-        nameKey: 'local_gift_soop_signature_balloon',
-        emoji: '🎈',
-        price: 2000,
-        color: LiveMessageColor(0, 88, 190),
-        effect: 'full',
-      ),
-    ],
   };
 
   static const titles = <String>['listener', 'night_owl', 'supporter', 'guardian'];
@@ -371,10 +243,6 @@ class LocalInteractionController extends GetxController {
     Sites.douyuSite => 'local_badge_douyu',
     Sites.huyaSite => 'local_badge_huya',
     Sites.douyinSite => 'local_badge_douyin',
-    Sites.kuaishouSite => 'local_badge_kuaishou',
-    Sites.ccSite => 'local_badge_cc',
-    Sites.twitchSite => 'local_badge_twitch',
-    Sites.soopSite => 'local_badge_soop',
     _ => 'local_badge_generic',
   };
 

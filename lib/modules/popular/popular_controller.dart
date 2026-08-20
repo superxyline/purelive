@@ -27,22 +27,11 @@ class PopularController extends GetxController with GetTickerProviderStateMixin 
 
       if (!Get.isRegistered<BasePageScrollAndStateBone<LiveRoom>>(tag: tag)) {
         Get.lazyPut<BasePageScrollAndStateBone<LiveRoom>>(() {
-          if (site.id == Sites.iptvSite) {
-            return PopularLocalReactiveController(site);
-          }
-
-          if (site.id == Sites.kuaishouSite) {
-            return PopularServerAllController(site);
-          }
-
           if (site.id == Sites.douyuSite) {
             return PopularServerFixedController(site, fixedSize: 40);
           }
           if (site.id == Sites.huyaSite) {
             return PopularServerFixedController(site, fixedSize: 120);
-          }
-          if (site.id == Sites.soopSite) {
-            return PopularServerFixedController(site, fixedSize: 60);
           }
           if (site.id == Sites.douyinSite) {
             return PopularServerFixedController(site, fixedSize: 20);
