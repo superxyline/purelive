@@ -9,8 +9,6 @@ import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
-import 'package:pure_live/modules/about/widgets/version_dialog.dart';
-import 'package:pure_live/recorder/pages/recorder/recorder_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,7 +27,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     HomeMenu.favorites: FavoritePage(),
     HomeMenu.popular: PopularPage(),
     HomeMenu.areas: AreasPage(),
-    HomeMenu.record: RecorderPage(),
   };
 
   @override
@@ -48,8 +45,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       }
     });
-
-    addToOverlay();
 
     favoriteController.tabBottomIndex.addListener(() {
       if (mounted) {
@@ -103,30 +98,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
       setState(() => _selectedIndex = index);
     }
     favoriteController.tabBottomIndex.value = index;
-  }
-
-  Future<void> addToOverlay() async {
-    final overlay = Overlay.maybeOf(context);
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (context) => Container(
-        alignment: Alignment.center,
-        color: Colors.black54,
-        child: NewVersionDialog(entry: entry),
-      ),
-    );
-    await VersionUtil.initPackageInfo();
-    await VersionUtil().checkUpdate();
-    bool isHasNerVersion = SettingsService.to.app.enableAutoCheckUpdate.v && VersionUtil.hasNewVersion();
-    if (mounted) {
-      if (overlay != null && isHasNerVersion) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => overlay.insert(entry));
-      } else {
-        if (overlay != null && isHasNerVersion) {
-          overlay.insert(entry);
-        }
-      }
-    }
   }
 
   void onBackButtonPressed(bool didPop, _) async {

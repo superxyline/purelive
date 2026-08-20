@@ -51,10 +51,6 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
   String buildSearchUrl(String platform, String keyword) {
     final q = Uri.encodeComponent(keyword);
     switch (platform) {
-      case Sites.ccSite:
-        return "https://cc.163.com/search/all/?query=$q&only=all";
-      case Sites.kuaishouSite:
-        return "https://live.kuaishou.com/search?keyword=$q";
       case Sites.huyaSite:
         return "https://www.huya.com/search?hsk=$q";
       case Sites.bilibiliSite:
@@ -63,10 +59,6 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
         return "https://www.douyu.com/search?kw=$q&dyshid=0-ed88b042da9bbc4cf4abc97500021601";
       case Sites.douyinSite:
         return "https://www.douyin.com/search/$q?type=live";
-      case Sites.twitchSite:
-        return "https://www.twitch.tv/search?term=$q";
-      case Sites.soopSite:
-        return "https://www.sooplive.co.kr/?szKeyword=$q";
       default:
         return "https://www.baidu.com/s?wd=$q&rsv_spt=1&rsv_iqid=0x84b83a1e077a0c1a&issp=1&f=8&rsv_bp=1&rsv_idx=2&ie=utf-8&tn=baiduhome_pg&rsv_dl=tb_click&rsv_enter=1&rsv_sug3=3&rsv_sug1=2&rsv_sug7=100&rsv_btype=i&prefixsug=12&rsp=0&inputT=1112&rsv_sug4=1287";
     }

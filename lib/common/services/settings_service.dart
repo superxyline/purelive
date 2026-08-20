@@ -4,17 +4,14 @@ import 'package:pure_live/modules/tags/tag_management_controller.dart';
 import 'package:pure_live/common/services/settings/log_controller.dart';
 import 'package:pure_live/common/services/settings/cache_controller.dart';
 import 'package:pure_live/common/services/settings/backup_controller.dart';
-import 'package:pure_live/common/services/settings/history_controller.dart';
 import 'package:pure_live/common/services/settings/web_dav_controller.dart';
 import 'package:pure_live/common/services/settings/startup_controller.dart';
-import 'package:pure_live/common/services/settings/window_size_controller.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/common/services/settings/page_settings_controller.dart';
 import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
 import 'package:pure_live/common/services/settings/exit_settings_controller.dart';
 import 'package:pure_live/common/services/settings/font_settings_controller.dart';
-import 'package:pure_live/common/services/settings/iptv_settings_controller.dart';
 import 'package:pure_live/common/services/settings/refresh_config_controller.dart';
 import 'package:pure_live/common/services/settings/proxy_settings_controller.dart';
 import 'package:pure_live/common/services/settings/theme_settings_controller.dart';
@@ -34,13 +31,10 @@ class SettingsService extends GetxService {
   PlayerSettingsController get player => Get.find<PlayerSettingsController>();
   DanmakuSettingsController get danmaku => Get.find<DanmakuSettingsController>();
   FontSettingsController get font => Get.find<FontSettingsController>();
-  WindowSizeController get window => Get.find<WindowSizeController>();
   FavoriteRoomController get fav => Get.find<FavoriteRoomController>();
-  HistoryController get history => Get.find<HistoryController>();
   CacheController get cache => Get.find<CacheController>();
   CookieSettingsController get cookieManager => Get.find<CookieSettingsController>();
   WebDavController get webdav => Get.find<WebDavController>();
-  IptvSettingsController get iptv => Get.find<IptvSettingsController>();
   VolumeSettingsController get vol => Get.find<VolumeSettingsController>();
   ThemeSettingsController get theme => Get.find<ThemeSettingsController>();
   ProxySettingsController get proxy => Get.find<ProxySettingsController>();
@@ -72,15 +66,12 @@ class SettingsService extends GetxService {
     Get.lazyPut(() => lockInject(() => StartupController()), fenix: true);
     Get.lazyPut(() => lockInject(() => AppSettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => ThemeSettingsController()), fenix: true);
-    Get.lazyPut(() => lockInject(() => WindowSizeController()), fenix: true);
     Get.lazyPut(() => lockInject(() => ProxySettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => PlayerSettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => DanmakuSettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => VolumeSettingsController()), fenix: true);
-    Get.lazyPut(() => lockInject(() => HistoryController()), fenix: true);
     Get.lazyPut(() => lockInject(() => RefreshConfigController()), fenix: true);
     Get.lazyPut(() => lockInject(() => FavoriteRoomController()), fenix: true);
-    Get.lazyPut(() => lockInject(() => IptvSettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => CacheController()), fenix: true);
     Get.lazyPut(() => lockInject(() => CookieSettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => PageSettingsController()), fenix: true);
@@ -92,6 +83,5 @@ class SettingsService extends GetxService {
     Get.lazyPut(() => lockInject(() => LogController()), fenix: true);
 
     Get.put(ExitSettingsController(), permanent: true);
-    Get.put(IptvSettingsController(), permanent: true);
   }
 }

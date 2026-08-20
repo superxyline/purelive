@@ -9,17 +9,12 @@ import 'package:pure_live/common/index.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:pure_live/plugins/db_service.dart';
-import 'package:pure_live/player/utils/fullscreen.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:pure_live/player/core/player_manager.dart';
-import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:pure_live/player/models/player_exception.dart';
 import 'package:pure_live/player/models/player_error_type.dart';
 import 'package:pure_live/modules/live_play/states/load_type.dart';
-import 'package:pure_live/core/iptv/local/database.dart' as database;
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_message_actions.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -36,9 +31,6 @@ class PlatformHelper {
   static bool get supportsVolumeController => Platform.isAndroid || Platform.isIOS;
   static bool get supportsBatteryMonitoring => Platform.isAndroid || Platform.isIOS;
 }
-
-// 回放URL类型枚举
-enum CatchupUrlType { default_, playseek, offset }
 
 // 弹幕管理器
 class DanmakuManager {
@@ -210,8 +202,6 @@ class VideoController with ChangeNotifier {
   static const _controllerHideDelay = Duration(seconds: 2);
   static const _fullscreenDelay = Duration(milliseconds: 1000);
   static const _volumeHideDelay = Duration(seconds: 1);
-  static const _epgLookBackDays = 2;
-  static const _epgLookForwardDays = 1;
 
   // 依赖注入
   final LiveRoom room;
@@ -228,7 +218,6 @@ class VideoController with ChangeNotifier {
 
   final Battery _battery;
   final SettingsService _settingsService;
-  final DbService _dbService;
   final PlayerManager _playerManager;
   final LivePlayController _livePlayController;
 
@@ -261,12 +250,6 @@ class VideoController with ChangeNotifier {
   final enableDanmakuStroke = true.obs;
   final danmakuFps = 60.obs;
   final danmakuFontFamilyName = ''.obs;
-
-  // EPG相关
-  final RxList<database.EpgProgramme> currentChannelSchedule = <database.EpgProgramme>[].obs;
-  final ScrollController scheduleScrollController = createPureLiveScrollController();
-  late ListObserverController scheduleObserverController;
-  bool hasScrolledToLive = false;
 
   // 控制器
   late final VolumeController _volumeController;
@@ -309,12 +292,10 @@ class VideoController with ChangeNotifier {
     Battery? battery,
     PlayerManager? playerManager,
     SettingsService? settingsService,
-    DbService? dbService,
     LivePlayController? livePlayController,
   }) : _battery = battery ?? Battery(),
        _playerManager = playerManager ?? GlobalPlayerService.instance.playerManager,
        _settingsService = settingsService ?? SettingsService.to,
-       _dbService = dbService ?? Get.find<DbService>(),
        _livePlayController = livePlayController ?? Get.find<LivePlayController>() {
     currentVolume.value = room.getSavedVolume();
     _initControllers();
@@ -334,7 +315,6 @@ class VideoController with ChangeNotifier {
   }
 
   void _initPagesConfig() {
-    scheduleObserverController = ListObserverController(controller: scheduleScrollController);
     _danmakuManager.setupWorkers();
 
     if (allowScreenKeepOn) WakelockPlus.enable();
@@ -357,10 +337,6 @@ class VideoController with ChangeNotifier {
 
     initPlayerListener();
     _setupDefaultFullscreen();
-
-    if (room.platform == Sites.iptvSite) {
-      await loadFullChannelSchedule(room.epgId);
-    }
 
     _setStatus(PlayerStatus.playing);
   }
@@ -631,101 +607,6 @@ class VideoController with ChangeNotifier {
     pipDanmakuController.clear();
   }
 
-  // EPG管理
-  Future<void> loadFullChannelSchedule(String? epgId) async {
-    currentChannelSchedule.clear();
-    if (epgId == null || epgId.isEmpty) return;
-
-    try {
-      final programmes = await _fetchEpgProgrammes(epgId);
-      currentChannelSchedule.value = programmes;
-      _logEpgLoadSuccess(programmes.length);
-    } catch (e, stackTrace) {
-      _logEpgLoadError(e, stackTrace);
-    }
-  }
-
-  Future<List<database.EpgProgramme>> _fetchEpgProgrammes(String epgId) async {
-    final db = _dbService.db;
-    final now = DateTime.now();
-    final startTime = now.subtract(const Duration(days: _epgLookBackDays));
-    final endTime = now.add(const Duration(days: _epgLookForwardDays));
-
-    return db.getProgrammes(epgChannelId: epgId, start: startTime, end: endTime);
-  }
-
-  void _logEpgLoadSuccess(int count) {
-    debugPrint(
-      "📅 [EPG Matrix] Loaded $count total program rows spanning the (-${_epgLookBackDays}h to +${_epgLookForwardDays}h) timeline.",
-    );
-  }
-
-  void _logEpgLoadError(Object error, StackTrace stackTrace) {
-    debugPrint("❌ EPG Schedule Loading Failure: $error");
-    log('EPG load error', error: error, stackTrace: stackTrace);
-  }
-
-  // 回放URL生成
-  String generateCatchupUrl({
-    required String originalUrl,
-    required database.EpgProgramme programme,
-    CatchupUrlType type = CatchupUrlType.default_,
-  }) {
-    final Uri uri = Uri.parse(originalUrl);
-    final formatter = DateFormat('yyyyMMddHHmmss');
-    final String startStr = formatter.format(programme.start);
-    final String stopStr = formatter.format(programme.stop);
-
-    switch (type) {
-      case CatchupUrlType.playseek:
-        final Map<String, String> newParams = Map<String, String>.from(uri.queryParameters);
-        newParams['playseek'] = '$startStr-$stopStr';
-        return uri.replace(queryParameters: newParams).toString();
-
-      case CatchupUrlType.offset:
-        final int offsetSeconds = DateTime.now().difference(programme.start).inSeconds;
-        final Map<String, String> newParams = Map<String, String>.from(uri.queryParameters);
-        newParams['catchup'] = 'default';
-        newParams['offset'] = offsetSeconds.toString();
-        return uri.replace(queryParameters: newParams).toString();
-
-      case CatchupUrlType.default_:
-        return originalUrl.contains('?') ? '$originalUrl&timeshift=$startStr' : '$originalUrl?timeshift=$startStr';
-    }
-  }
-
-  void onProgrammeTapped(database.EpgProgramme programme) async {
-    final now = DateTime.now();
-
-    if (programme.start.isAfter(now)) {
-      ToastUtil.show(i18n('program_scheduled_hint'));
-      return;
-    }
-
-    if (programme.start.isBefore(now) && programme.stop.isAfter(now)) {
-      Navigator.of(Get.context!).pop();
-      return;
-    }
-
-    String catchupUrl = generateCatchupUrl(
-      originalUrl: room.link!,
-      programme: programme,
-      type: CatchupUrlType.playseek,
-    );
-
-    Navigator.of(Get.context!).pop();
-    await _reloadWithCatchup(catchupUrl, programme);
-
-    ToastUtil.show('${i18n('playing_catchup')}: ${programme.title}');
-  }
-
-  Future<void> _reloadWithCatchup(String catchupUrl, database.EpgProgramme programme) async {
-    clearListener();
-    await _playerManager.close();
-    await destory();
-    _livePlayController.startCatchUp(catchUpUrl: catchupUrl, startTime: programme.start.millisecondsSinceEpoch);
-  }
-
   // 播放控制
   bool _audioModeSwitching = false;
 
@@ -789,7 +670,6 @@ class VideoController with ChangeNotifier {
 
   // 全屏管理
   void exitFullScreen() async {
-    WindowService().doExitFullScreen();
     GlobalPlayerState.to.isFullscreen.value = false;
   }
 
@@ -806,7 +686,6 @@ class VideoController with ChangeNotifier {
 
     if (GlobalPlayerState.to.isFullscreen.value) {
       _livePlayController.setNormalScreen();
-      WindowService().doExitFullScreen();
       GlobalPlayerState.to.isFullscreen.value = false;
     } else {
       _livePlayController.setFullScreen();
@@ -817,14 +696,7 @@ class VideoController with ChangeNotifier {
   }
 
   void enterFullScreen() {
-    WindowService().doEnterFullScreen();
     GlobalPlayerState.to.isFullscreen.value = true;
-
-    if (_playerManager.isVerticalVideo.value) {
-      WindowService().verticalScreen();
-    } else {
-      WindowService().landScape();
-    }
   }
 
   void toggleWindowFullScreen() {
@@ -873,7 +745,6 @@ class VideoController with ChangeNotifier {
     _playerManager.detachVideoController(this);
     _danmakuManager.dispose();
     _cancelAllTimers();
-    scheduleScrollController.dispose();
     _isMouseOverController = false;
     _isMouseOverPlayer = false;
     // 异步清理

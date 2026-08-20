@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 
 import 'package:pure_live/common/index.dart';
@@ -10,9 +9,6 @@ import 'package:pure_live/player/utils/player_consts.dart';
 import 'package:pure_live/player/models/player_engine.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
-import 'package:pure_live/core/iptv/services/epg_import_manager.dart';
-import 'package:pure_live/common/global/platform/desktop_manager.dart';
-import 'package:pure_live/core/iptv/services/iptv_import_manager.dart';
 
 void main(List<String> args) async {
   await AppInitializer().initialize(args);
@@ -35,16 +31,10 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with DesktopWindowMixin {
-  StreamSubscription<SharedMedia>? _sharedMediaSubscription;
-
+class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    if (PlatformUtils.isDesktop) {
-      DesktopManager.initializeListeners(this);
-    }
-    unawaited(initSharedMediaListener());
     unawaited(initGlobalPlayer());
   }
 
@@ -64,31 +54,8 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
 
   @override
   void dispose() {
-    if (PlatformUtils.isDesktop) {
-      DesktopManager.disposeListeners();
-    }
-    final subscription = _sharedMediaSubscription;
-    if (subscription != null) unawaited(subscription.cancel());
     unawaited(GlobalPlayerService.instance.dispose());
     super.dispose();
-  }
-
-  Future<void> initSharedMediaListener() async {
-    if (Platform.isAndroid) {
-      final handler = ShareHandler.instance;
-      await handler.getInitialSharedMedia();
-      _sharedMediaSubscription = handler.sharedMediaStream.listen((SharedMedia media) async {
-        final path = media.content?.trim().toLowerCase() ?? '';
-        if (path.isEmpty) return;
-        if (path.endsWith('.m3u') || path.endsWith('.txt') || path.contains('.m3u8')) {
-          await IptvImportManager().importFromSharedMedia(media);
-        } else if (path.endsWith('.xml') || path.endsWith('.gz') || path.endsWith('.json')) {
-          await EpgImportManager().importFromSharedMedia(media);
-        } else {
-          ToastUtil.show(i18n("unsupported_file_format"));
-        }
-      });
-    }
   }
 
   @override
@@ -113,7 +80,6 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
 
           return GetMaterialApp(
             title: i18n('app_name'),
-            scrollBehavior: MyCustomScrollBehavior(),
             debugShowCheckedModeBanner: false,
             themeMode: AppConsts.themeModes[SettingsService.to.theme.themeModeName.v]!,
             theme: lightTheme.copyWith(
@@ -138,10 +104,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
             navigatorObservers: [FlutterSmartDialog.observer, BackButtonObserver()],
             builder: FlutterSmartDialog.init(
               builder: (context, child) {
-                Widget resultWidget = child ?? const SizedBox.shrink();
-                if (PlatformUtils.isDesktopNotMac) {
-                  resultWidget = DesktopManager.buildWithTitleBar(resultWidget);
-                }
+                final Widget resultWidget = child ?? const SizedBox.shrink();
                 return MediaQuery(
                   data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(currentFactor)),
                   child: resultWidget,

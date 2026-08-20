@@ -9,7 +9,6 @@ import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/common/utils/live_url_tool.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/index.dart' hide BackButton;
-import 'package:pure_live/recorder/models/record_status.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/states/ui_state.dart';
 import 'package:pure_live/modules/live_play/states/load_type.dart';
@@ -162,144 +161,6 @@ class LivePlayPage extends GetView<LivePlayController> {
               ),
             );
           }),
-          Obx(() {
-            final room = controller.state.value.room.detail;
-            if (room == null) return const SizedBox.shrink();
-            final task = controller.recorderController.tasks.firstWhereOrNull(
-              (t) => t.platform == room.platform && t.roomId == room.roomId,
-            );
-            final bool exists = task != null;
-            final bool isRunning =
-                task?.status == RecordStatus.running ||
-                task?.status == RecordStatus.reconnecting ||
-                task?.status == RecordStatus.preparing;
-            final theme = Theme.of(Get.context!);
-            final label = isRunning
-                ? i18n("recording")
-                : exists
-                ? i18n("monitored")
-                : i18n("record");
-            final icon = isRunning
-                ? Remix.record_circle_fill
-                : exists
-                ? Remix.checkbox_circle_fill
-                : Remix.record_circle_line;
-            return Tooltip(
-              message: label,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOut,
-                width: compactHeader ? 40 : null,
-                height: 38,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: isRunning
-                        ? Colors.redAccent.withValues(alpha: 0.12)
-                        : exists
-                        ? theme.colorScheme.primary.withValues(alpha: 0.10)
-                        : theme.colorScheme.surfaceContainerHighest,
-                    foregroundColor: isRunning
-                        ? Colors.redAccent
-                        : exists
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurfaceVariant,
-                    padding: compactHeader ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 8),
-                    minimumSize: compactHeader ? const Size(38, 38) : null,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: compactHeader
-                      ? Icon(icon, size: 18)
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(icon, size: 14),
-                            const SizedBox(width: 4),
-                            Text(
-                              label,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.1,
-                              ),
-                            ),
-                          ],
-                        ),
-                  onPressed: () async {
-                    if (!exists) {
-                      await controller.recorderController.addTask(room: room);
-                      ToastUtil.show(i18n("record_task_added"));
-                      return;
-                    }
-                    final action = await showDialog<String>(
-                      context: Get.context!,
-                      builder: (context) {
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                          title: Row(
-                            children: [
-                              Icon(
-                                isRunning ? Remix.record_circle_fill : Remix.checkbox_circle_fill,
-                                color: isRunning ? Colors.redAccent : theme.colorScheme.primary,
-                                size: 22,
-                              ),
-                              const SizedBox(width: 10),
-                              Text(isRunning ? i18n("recording") : i18n("record_task")),
-                            ],
-                          ),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _ActionTile(
-                                icon: Icons.video_library_rounded,
-                                title: i18n("go_record_center"),
-                                color: theme.colorScheme.primary,
-                                onTap: () => Navigator.pop(context, "page"),
-                              ),
-                              if (!isRunning)
-                                _ActionTile(
-                                  icon: Icons.play_arrow_rounded,
-                                  title: i18n("start_record_now"),
-                                  color: Colors.green,
-                                  onTap: () => Navigator.pop(context, "start"),
-                                ),
-                              if (isRunning)
-                                _ActionTile(
-                                  icon: Icons.stop_circle_outlined,
-                                  title: i18n("stop_record"),
-                                  color: Colors.orange,
-                                  onTap: () => Navigator.pop(context, "stop"),
-                                ),
-                              _ActionTile(
-                                icon: Icons.delete_outline_rounded,
-                                title: i18n("remove_monitor"),
-                                color: Colors.redAccent,
-                                onTap: () => Navigator.pop(context, "delete"),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                    switch (action) {
-                      case "page":
-                        Get.toNamed(RoutePath.kRecordPage);
-                        break;
-                      case "start":
-                        controller.recorderController.forceStartTask(task);
-                        break;
-                      case "stop":
-                        controller.recorderController.stopTask(task);
-                        break;
-                      case "delete":
-                        controller.recorderController.unRecorder(task);
-                        break;
-                    }
-                  },
-                ),
-              ),
-            );
-          }),
           PopupMenuButton(
             tooltip: i18n("menu"),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -426,7 +287,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                           const Divider(height: 1),
                           Obx(() {
                             final state = controller.state.value;
-                            if (!state.room.success || controller.site == Sites.iptvSite) {
+                            if (!state.room.success) {
                               return const SizedBox.shrink();
                             }
                             final globalState = GlobalPlayerState.to;
@@ -446,9 +307,6 @@ class LivePlayPage extends GetView<LivePlayController> {
                             if (detail == null) {
                               return Container();
                             }
-                            if (detail.platform == Sites.iptvSite) {
-                              return const SizedBox.shrink();
-                            }
 
                             return SizedBox(
                               width: 400,
@@ -456,7 +314,6 @@ class LivePlayPage extends GetView<LivePlayController> {
                                 children: [
                                   const ResolutionsRow(),
                                   const Divider(height: 1),
-                                  // 检查是否显示弹幕列表
                                   if (state.room.success) ...[
                                     Obx(() {
                                       final globalState = GlobalPlayerState.to;
@@ -722,7 +579,6 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
   LivePlayController get controller => Get.find<LivePlayController>();
 
   Widget buildInfoCount() {
-    if (controller.site == Sites.iptvSite) return const SizedBox.shrink();
     return Obx(() {
       final room = controller.state.value.room.detail;
       if (room == null) return const SizedBox.shrink();
@@ -1068,47 +924,6 @@ class NotLivingVideoWidget extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ActionTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _ActionTile({required this.icon, required this.title, required this.color, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withValues(alpha: 0.12)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: color),
-                ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.7)),
-            ],
-          ),
-        ),
       ),
     );
   }

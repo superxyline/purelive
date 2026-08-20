@@ -231,10 +231,9 @@ class DanmakuController extends GetxController {
     if (!_initialized) return;
     final room = _state.room.detail;
     if (room == null) return;
-    const except = [Sites.kuaishouSite, Sites.iptvSite, Sites.ccSite];
     final settings = SettingsService.to.danmaku;
     try {
-      if (except.contains(room.platform) || (!settings.enableDanmakuDisplay.v && !settings.enablePipDanmaku.v)) {
+      if (!settings.enableDanmakuDisplay.v && !settings.enablePipDanmaku.v) {
         await stopDanmaku();
       } else {
         await connectRoom(room);

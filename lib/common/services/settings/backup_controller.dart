@@ -4,13 +4,10 @@ import 'package:pure_live/get/get.dart';
 import 'package:pure_live/common/services/utils/hive_rx.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 import 'package:pure_live/common/services/settings/web_dav_controller.dart';
-import 'package:pure_live/common/services/settings/history_controller.dart';
 import 'package:pure_live/common/services/settings/startup_controller.dart';
-import 'package:pure_live/common/services/settings/window_size_controller.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
 import 'package:pure_live/common/services/settings/font_settings_controller.dart';
-import 'package:pure_live/common/services/settings/iptv_settings_controller.dart';
 import 'package:pure_live/common/services/settings/exit_settings_controller.dart';
 import 'package:pure_live/common/services/settings/page_settings_controller.dart';
 import 'package:pure_live/common/services/settings/refresh_config_controller.dart';
@@ -43,10 +40,7 @@ class BackupController extends GetxController {
       'danmaku': Get.find<DanmakuSettingsController>().toJson(),
       'volume': Get.find<VolumeSettingsController>().toJson(),
       'favorite': Get.find<FavoriteRoomController>().toJson(),
-      'history': Get.find<HistoryController>().toJson(),
-      'iptv': Get.find<IptvSettingsController>().toJson(),
       'proxy': Get.find<ProxySettingsController>().toJson(),
-      'windowSize': Get.find<WindowSizeController>().toJson(),
       'exit': Get.find<ExitSettingsController>().toJson(),
       'startup': Get.find<StartupController>().toJson(),
       'tags': Get.find<TagManagementController>().exportToJson(),
@@ -123,19 +117,11 @@ class BackupController extends GetxController {
       Map<String, dynamic>.from(data['favorite'] ?? {}),
     );
 
-    Get.find<HistoryController>().fromJson(
-      Map<String, dynamic>.from(data['history'] ?? {}),
-    );
-
     if (data.containsKey('webdav')) {
       Get.find<WebDavController>().fromJson(
         Map<String, dynamic>.from(data['webdav'] ?? {}),
       );
     }
-
-    Get.find<IptvSettingsController>().fromJson(
-      Map<String, dynamic>.from(data['iptv'] ?? {}),
-    );
 
     if (data.containsKey('cookie')) {
       Get.find<CookieSettingsController>().fromJson(
@@ -145,10 +131,6 @@ class BackupController extends GetxController {
 
     Get.find<ProxySettingsController>().fromJson(
       Map<String, dynamic>.from(data['proxy'] ?? {}),
-    );
-
-    Get.find<WindowSizeController>().fromJson(
-      Map<String, dynamic>.from(data['windowSize'] ?? {}),
     );
 
     Get.find<ExitSettingsController>().fromJson(
@@ -187,12 +169,9 @@ class BackupController extends GetxController {
     Get.find<DanmakuSettingsController>().fromJson(data);
     Get.find<VolumeSettingsController>().fromJson(data);
     Get.find<FavoriteRoomController>().fromJson(data);
-    Get.find<HistoryController>().fromJson(data);
     Get.find<WebDavController>().fromJson(data);
-    Get.find<IptvSettingsController>().fromJson(data);
     Get.find<CookieSettingsController>().fromJson(data);
     Get.find<ProxySettingsController>().fromJson(data);
-    Get.find<WindowSizeController>().fromJson(data);
     Get.find<ExitSettingsController>().fromJson(data);
     Get.find<StartupController>().fromJson(data);
     Get.find<RefreshConfigController>().fromJson(data);
@@ -238,15 +217,11 @@ class BackupController extends GetxController {
 
   Map<String, dynamic> exportToTVSettings({bool includeSensitiveData = false}) {
     final danmaku = Get.find<DanmakuSettingsController>().toJson();
-    final iptv = Get.find<IptvSettingsController>().toJson();
     final favorite = Get.find<FavoriteRoomController>().toJson();
-    final history = Get.find<HistoryController>().toJson();
 
     final data = <String, dynamic>{
       ...danmaku,
       ...favorite,
-      ...history,
-      'customIptvUserAgent': iptv['customIptvUserAgent'],
     };
     if (includeSensitiveData) {
       data.addAll(Get.find<CookieSettingsController>().toJson());

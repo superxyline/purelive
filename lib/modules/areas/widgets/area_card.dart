@@ -1,5 +1,4 @@
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/cache_manager.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/plugins/area_pic_mapper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -32,7 +31,6 @@ class _AreaCardState extends State<AreaCard> {
             cacheKey: imageUrl,
             imageUrl: imageUrl,
             httpHeaders: networkImageHeaders(imageUrl),
-            cacheManager: CustomImageCacheManager.instance,
             fit: BoxFit.cover,
             filterQuality: FilterQuality.low,
             memCacheWidth: cacheWidth,
@@ -65,23 +63,7 @@ class _AreaCardState extends State<AreaCard> {
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
         onTap: () {
-          if (widget.category.platform == Sites.iptvSite) {
-            var roomItem = LiveRoom(
-              roomId: widget.category.areaId,
-              title: widget.category.typeName,
-              cover: '',
-              nick: widget.category.areaName,
-              watching: '',
-              avatar: 'https://img95.699pic.com/xsj/0q/x6/7p.jpg%21/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast',
-              area: '',
-              liveStatus: LiveStatus.live,
-              status: true,
-              platform: 'iptv',
-            );
-            AppNavigator.toLiveRoomDetail(liveRoom: roomItem);
-          } else {
-            AppNavigator.toCategoryDetail(site: Sites.of(widget.category.platform!), category: widget.category);
-          }
+          AppNavigator.toCategoryDetail(site: Sites.of(widget.category.platform!), category: widget.category);
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,

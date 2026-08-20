@@ -18,7 +18,6 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:pure_live/modules/live_play/states/live_play_state.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
-import 'package:pure_live/recorder/pages/recorder/recorder_controller.dart';
 import 'package:pure_live/modules/live_play/local_interaction_controller.dart';
 import 'package:pure_live/modules/live_play/local_message_delivery_queue.dart';
 import 'package:pure_live/modules/live_play/controllers/timer_controller.dart';
@@ -39,7 +38,6 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   late final DanmakuController danmakuController;
   late final PlayerController playerController;
 
-  final RecorderController recorderController = Get.find<RecorderController>();
   final LocalInteractionController localInteractionController = Get.find<LocalInteractionController>();
 
   final Rx<LivePlayState> state = const LivePlayState().obs;
@@ -357,12 +355,6 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       final liveRoom = fetchedRoom.withAudienceFallbackFrom(state.value.room.detail!);
       if (!_isRoomLoadCurrent(loadEpoch, roomId, requestedPlatform)) return liveRoom;
 
-      if (currentSite.id == Sites.iptvSite) {
-        updateRoom(detail: liveRoom);
-        _initIptvPlayer();
-        return liveRoom;
-      }
-
       _handleCurrentLineAndQuality(reloadDataType, line, isReCalculate);
 
       updateRoom(detail: liveRoom);
@@ -405,16 +397,12 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       await playerController.getPlayQualites();
       if (loadEpoch != _roomLoadEpoch) return;
 
-      if (liveRoom.platform != Sites.iptvSite) {
-        SettingsService.to.history.addRoomToHistory(liveRoom);
-        SettingsService.to.fav.updateRoom(liveRoom);
-        EventBus.instance.emit('refresh_room_changed', true);
-      }
+      SettingsService.to.fav.updateRoom(liveRoom);
+      EventBus.instance.emit('refresh_room_changed', true);
 
-      const except = [Sites.kuaishouSite, Sites.iptvSite, Sites.ccSite];
       final danmakuSettings = SettingsService.to.danmaku;
       final shouldConnectDanmaku = danmakuSettings.enableDanmakuDisplay.v || danmakuSettings.enablePipDanmaku.v;
-      if (!except.contains(liveRoom.platform) && shouldConnectDanmaku) {
+      if (shouldConnectDanmaku) {
         await danmakuController.connectRoom(liveRoom);
       } else {
         await danmakuController.stopDanmaku();
@@ -435,10 +423,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     setNormalScreen();
     GlobalPlayerState.to.isFullscreen.value = false;
     GlobalPlayerState.to.isWindowFullscreen.value = false;
-    if (liveRoom.platform != Sites.iptvSite) {
-      SettingsService.to.fav.updateRoom(liveRoom);
-      EventBus.instance.emit('refresh_room_changed', true);
-    }
+    SettingsService.to.fav.updateRoom(liveRoom);
+    EventBus.instance.emit('refresh_room_changed', true);
     ToastUtil.show(
       liveRoom.liveStatus == LiveStatus.banned ? i18n('server_error_retry_later') : i18n('stream_not_live'),
     );
@@ -460,26 +446,6 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       final newLineIndex = (state.value.player.currentLineIndex + 1) % state.value.player.playUrls.length;
       updatePlayer(currentLineIndex: newLineIndex);
     }
-  }
-
-  void _initIptvPlayer() {
-    final link = state.value.room.detail?.link;
-    if (link == null || link.isEmpty) {
-      ToastUtil.show(i18n('invalid_play_url'));
-      return;
-    }
-
-    updatePlayer(
-      qualites: [LivePlayQuality(quality: '原画')],
-      currentQuality: 0,
-      currentLineIndex: 0,
-      playUrls: [link],
-    );
-
-    playerController.setPlayer(roomId: state.value.room.detail!.roomId!);
-    updateRoom(success: true);
-
-    unawaited(danmakuController.stopDanmaku());
   }
 
   void _restoreQualityAndLines() {
@@ -566,23 +532,6 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       case Sites.douyuSite:
         nativeUrl = "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${detail.roomId}";
         webUrl = "https://www.douyu.com/${detail.roomId}";
-        break;
-      case Sites.ccSite:
-        nativeUrl = "cc://join-room/${detail.roomId}/${detail.userId}/";
-        webUrl = "https://cc.163.com/${detail.roomId}";
-        break;
-      case Sites.twitchSite:
-        nativeUrl = "https://www.twitch.tv/${detail.roomId}";
-        webUrl = "https://www.twitch.tv/${detail.roomId}";
-        break;
-      case Sites.soopSite:
-        nativeUrl = "https://play.sooplive.co.kr/${detail.roomId}";
-        webUrl = nativeUrl;
-        break;
-      case Sites.kuaishouSite:
-        nativeUrl =
-            "kwai://liveaggregatesquare?liveStreamId=${detail.link}&recoStreamId=${detail.link}&recoLiveStreamId=${detail.link}&liveSquareSource=28&path=/rest/n/live/feed/sharePage/slide/more&mt_product=H5_OUTSIDE_CLIENT_SHARE";
-        webUrl = "https://live.kuaishou.com/u/${detail.roomId}";
         break;
     }
 

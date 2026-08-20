@@ -161,11 +161,7 @@ dependencies:
   flutter_js:
     path: plugins/built_in_kotlin/flutter_js
   html: ^0.15.4 # HTML解析
-  flutter_inappwebview:
-    git:
-      url: https://github.com/guide-inc-org/guide-flutter_inappwebview.git
-      path: flutter_inappwebview
-      ref: sbi_fx_pc/v6.2.0-beta.3
+  flutter_inappwebview: ^6.2.0-beta.3 # 内置浏览器（hosted 源，避免私有 git 源拉取受限）
   dart_quickjs:
     git:
       url: https://github.com/liuchuancong/dart_quickjs.git
