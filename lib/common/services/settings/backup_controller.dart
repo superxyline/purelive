@@ -228,4 +228,42 @@ class BackupController extends GetxController {
     }
     return data;
   }
+
+  /// 跨端传输导出：关注 + 登录（真实 Cookie）+ 全部设置项（WebDAV 含明文密码）。
+  /// 仅经局域网明文传输、不落盘；接收方将完全覆盖。
+  /// includeSensitiveData=true 时 webdav/cookie 直接以真实值吐出（不脱敏），
+  /// 因此无需再手动覆盖 cookie/webdav，避免依赖当前登录模块尚未补齐的字段。
+  Map<String, dynamic> exportTransferData() {
+    final all = exportAllSettings(includeSensitiveData: true);
+    all['transferVersion'] = 2;
+    return all;
+  }
+
+  /// 跨端传输导入：完全覆盖接收方的关注、登录与全部设置项
+  bool importTransferData(Map<String, dynamic> data) {
+    try {
+      if (data['transferVersion'] == 2) {
+        // 新版：完整导入（关注 + 登录 + 全部设置项）
+        importAllSettings(data);
+        // 备份恢复原本不导入 WebDAV，跨端传输单独补上（含明文密码）
+        final webdav = data['webdav'];
+        if (webdav is Map) {
+          Get.find<WebDavController>().fromJson(Map<String, dynamic>.from(webdav));
+        }
+        return true;
+      }
+      // 兼容旧版发送端（v1：仅关注 + 登录）
+      final favorite = data['favorite'];
+      if (favorite is Map) {
+        Get.find<FavoriteRoomController>().fromJson(Map<String, dynamic>.from(favorite));
+      }
+      final cookie = data['cookie'];
+      if (cookie is Map) {
+        Get.find<CookieSettingsController>().fromJson(Map<String, dynamic>.from(cookie));
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

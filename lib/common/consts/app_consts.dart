@@ -7,7 +7,7 @@ enum HomeMenu {
   favorites('favorites'),
   popular('popular'),
   areas('areas'),
-  record('record');
+  esports('esports');
 
   final String id;
   const HomeMenu(this.id);

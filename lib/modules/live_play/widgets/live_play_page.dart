@@ -21,6 +21,10 @@ import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
+import 'package:pure_live/player/core/secondary_player_service.dart';
+import 'package:pure_live/modules/live_play/widgets/dual_view/dual_view_picker_sheet.dart';
+import 'package:pure_live/modules/live_play/widgets/dual_view/secondary_window.dart';
+import 'package:pure_live/modules/live_play/widgets/live_danmaku_input_bar.dart';
 
 class LivePlayPage extends GetView<LivePlayController> {
   const LivePlayPage({super.key});
@@ -207,6 +211,8 @@ class LivePlayPage extends GetView<LivePlayController> {
                         controller.emitLocalMessage(message, showAsDanmaku: showAsDanmaku),
                   ),
                 );
+              } else if (index == 8) {
+                _openDualViewPicker(context);
               }
               controller.updateUI(isMenuOpen: false);
             },
@@ -268,6 +274,14 @@ class LivePlayPage extends GetView<LivePlayController> {
                       text: i18n('local_interaction_title'),
                     ),
                   ),
+                PopupMenuItem(
+                  value: 8,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: MenuListTile(
+                    leading: const Icon(Icons.picture_in_picture_alt_rounded, size: 20),
+                    text: i18n("dual_view_title"),
+                  ),
+                ),
               ];
             },
           ),
@@ -296,6 +310,8 @@ class LivePlayPage extends GetView<LivePlayController> {
                             }
                             return Expanded(child: DanmakuTabView(key: ValueKey(globalState.isFullscreen.value)));
                           }),
+                          // 竖屏：弹幕发送输入条（播放器外独立放置）
+                          LiveDanmakuInputBar(controller: controller),
                         ],
                       )
                     : Row(
@@ -344,22 +360,51 @@ class LivePlayPage extends GetView<LivePlayController> {
     LiveUrlTool.castPlayUrlByRoomId(roomId: detail?.roomId ?? '', platform: detail?.platform ?? '');
   }
 
+  /// 打开"双开/副窗口"的选择面板：挑一个房间作为副直播间显示在小窗中。
+  void _openDualViewPicker(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DualViewPickerSheet(
+        onPicked: (room) {
+          Navigator.of(ctx).pop();
+          SecondaryPlayerService.instance.loadRoom(room);
+        },
+      ),
+    );
+  }
+
   Widget buildVideoPlayer() {
     return AspectRatio(
       aspectRatio: 16 / 9,
-      child: ColoredBox(
-        color: Colors.black,
-        child: Obx(() {
-          final state = controller.state.value;
-          final videoController = state.player.videoController;
-          if (state.room.success && videoController != null) {
-            return VideoPlayer(controller: videoController);
-          }
-          if (state.room.isLoading || state.room.isLiving) {
-            return buildLoading();
-          }
-          return NotLivingVideoWidget(controller: controller);
-        }),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              ColoredBox(
+                color: Colors.black,
+                child: Obx(() {
+                  final state = controller.state.value;
+                  final videoController = state.player.videoController;
+                  if (state.room.success && videoController != null) {
+                    return VideoPlayer(controller: videoController);
+                  }
+                  if (state.room.isLoading || state.room.isLiving) {
+                    return buildLoading();
+                  }
+                  return NotLivingVideoWidget(controller: controller);
+                }),
+              ),
+              // 双开副窗口（小窗）叠加在视频区域上，默认停靠右下角
+              DraggableSecondaryWindow(
+                maxWidth: constraints.maxWidth,
+                maxHeight: constraints.maxHeight,
+              ),
+            ],
+          );
+        },
       ),
     );
   }

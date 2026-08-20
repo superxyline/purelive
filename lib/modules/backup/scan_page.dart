@@ -1,10 +1,16 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/file_utils.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:pure_live/plugins/backup_recovery_service.dart';
+import 'package:pure_live/common/services/settings/backup_controller.dart';
 
 class ScanCodePage extends StatefulWidget {
-  const ScanCodePage({super.key});
+  const ScanCodePage({super.key, this.transferMode = false});
+
+  /// 跨端传输模式：扫码后把本机关注 + 登录 + 全部设置推送到对方（覆盖对方）
+  final bool transferMode;
 
   @override
   State<ScanCodePage> createState() => _ScanCodePageState();
@@ -15,6 +21,26 @@ class _ScanCodePageState extends State<ScanCodePage> {
   bool hasFound = false;
   bool syncResult = false;
   bool isSuccess = false;
+
+  /// 跨端传输模式：把本机关注 + 登录 + 全部设置 POST 到对方接收服务（/api/importData）
+  Future<bool> _pushTransferData(String httpAddress) async {
+    final client = HttpClient();
+    try {
+      final request = await client.postUrl(Uri.parse('$httpAddress/api/importData'));
+      request.headers.contentType = ContentType.json;
+      request.write(jsonEncode(Get.find<BackupController>().exportTransferData()));
+      final response = await request.close();
+      final body = await response.transform(utf8.decoder).join();
+      await response.drain<void>();
+      final decoded = jsonDecode(body);
+      return decoded is Map && decoded['data'] == true;
+    } catch (_) {
+      return false;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,7 +136,9 @@ class _ScanCodePageState extends State<ScanCodePage> {
                     hasFound = true;
                     syncResult = true;
                   });
-                  final result = await BackupRecoveryService().pushSettingsToRemoteServer(barcodes[0].rawValue!);
+                  final result = widget.transferMode
+                      ? await _pushTransferData(barcodes[0].rawValue!)
+                      : await BackupRecoveryService().pushSettingsToRemoteServer(barcodes[0].rawValue!);
                   ToastUtil.show(result ? i18n("sync_success") : i18n("sync_failed"));
                   setState(() {
                     isSuccess = result;

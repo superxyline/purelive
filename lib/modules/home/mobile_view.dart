@@ -58,7 +58,7 @@ class HomeMobileView extends StatelessWidget {
                   ),
                 );
                 break;
-              case HomeMenu.record:
+              case HomeMenu.esports:
                 destinations.add(
                   NavigationDestination(
                     icon: const Icon(Remix.download_2_line),

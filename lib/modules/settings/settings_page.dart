@@ -13,6 +13,8 @@ import 'package:pure_live/modules/settings/pages/cache_data_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/network_proxy_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/player_kernel_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/local_interaction_settings_page.dart';
+import 'package:pure_live/modules/settings/pages/language_settings_page.dart';
+import 'package:pure_live/modules/settings/pages/font_and_text_page.dart';
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -49,6 +51,23 @@ class SettingsPage extends GetView<SettingsService> {
               title: i18n("theme_customization"),
               subtitle: i18n("theme_customization_desc"),
               onTap: () => Get.to(() => const ThemeSettingsPage()),
+            ),
+          ]),
+
+          const SizedBox(height: 20),
+          context.buildGroupTitle(i18n("font_text_settings")),
+          context.buildModernCard([
+            context.buildTile(
+              icon: Remix.font_size_2,
+              title: i18n("font_text_settings"),
+              subtitle: i18n("font_text_settings_desc"),
+              onTap: () => Get.to(() => const FontAndTextPage()),
+            ),
+            context.buildTile(
+              icon: Remix.translate,
+              title: i18n("language_settings"),
+              subtitle: i18n("language_settings_desc"),
+              onTap: () => Get.to(() => const LanguageSettingsPage()),
             ),
           ]),
 
