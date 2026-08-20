@@ -306,6 +306,29 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     addDanmakuMessage(msg);
   }
 
+  /// 发送弹幕（弹幕输入条调用）。
+  ///
+  /// 2.1.4 定制版未实现真正联网发送（B站/斗鱼/虎牙/抖音的服务器发送协议
+  /// 需要登录凭据 + csrf 校验，此处仅保留 fork 输入条的同名接口，改为本地
+  /// 回显：把输入内容作为一条本地弹幕展示在弹幕列表并渲染到画面，方便预览。
+  /// 需要在未来接入真实发送时，只需替换本方法的实现，无需改动输入条 UI。
+  Future<bool> sendLiveDanmaku(String text) async {
+    final content = text.trim();
+    if (content.isEmpty) return false;
+    final local = localInteractionController;
+    if (!local.enabled.v) {
+      addSystemMessage(i18n('danmaku_send_unavailable'));
+      return false;
+    }
+    emitLocalMessage(
+      local.createChat(content, platform: site),
+      showAsDanmaku: true,
+      delay: LivePlayController.localChatDeliveryDelay,
+    );
+    ToastUtil.show(i18n('local_message_queued'));
+    return true;
+  }
+
   void clearDanmakuMessages() {
     _danmakuFlushTimer?.cancel();
     _danmakuFlushTimer = null;

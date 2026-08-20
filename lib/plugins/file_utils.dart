@@ -49,6 +49,22 @@ class FileUtils {
     return RegExp(r"^\d+$").hasMatch(value);
   }
 
+  /// 获取局域网 IPv4 地址（首个非回环地址）
+  static Future<String?> getLocalIpv4() async {
+    try {
+      final interfaces = await NetworkInterface.list(
+        type: InternetAddressType.IPv4,
+        includeLoopback: false,
+      );
+      for (final ni in interfaces) {
+        for (final addr in ni.addresses) {
+          if (!addr.isLoopback) return addr.address;
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
   /// 请求外部存储管理权限
   static Future<bool> requestStoragePermission() async {
     if (Platform.isAndroid || Platform.isIOS) {

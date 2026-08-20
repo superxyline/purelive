@@ -230,6 +230,8 @@ class VideoController with ChangeNotifier {
   PlayerStatus get status => _status;
   final isVertical = false.obs;
   final showController = true.obs;
+  // 弹幕输入条在全屏控制条内输入时置为 true，避免控制条自动隐藏打断输入。
+  final inputEditing = false.obs;
   final showLocked = false.obs;
   final isMenuOpen = false.obs;
   final showVolume = false.obs;
@@ -500,6 +502,8 @@ class VideoController with ChangeNotifier {
   void enableController() {
     showControllerTimer?.cancel();
     showController.value = true;
+
+    if (inputEditing.value) return; // 弹幕输入期间保持控制条常显，不自动隐藏
 
     if (!_isMouseOverController && !_isMouseOverPlayer) {
       showControllerTimer = Timer(const Duration(seconds: 2), () {
