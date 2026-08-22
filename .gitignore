@@ -70,3 +70,4 @@ app.*.map.json
 /HANDOFF_*.md
 /CUSTOM_DEV_SUMMARY.md
 /analyze_out.txt
+/.codex/
