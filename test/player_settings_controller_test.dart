@@ -3,12 +3,13 @@ import 'package:pure_live/common/services/settings/player_settings_controller.da
 
 void main() {
   group('player settings migration', () {
-    test('retires the legacy global audio-only default', () {
+    test('keeps the global audio-only switch from backups', () {
       final config = PlayerSettingsController.extractConfig({
         'player': <String, dynamic>{'audioOnly': true, 'floatPlay': true},
       });
 
-      expect(config['audioOnly'], isFalse);
+      // 全局"纯音频模式"是有效设置（定制版 2.0.0 恢复），不再做 legacy 退役。
+      expect(config['audioOnly'], isTrue);
       expect(config['floatPlay'], isTrue);
     });
 

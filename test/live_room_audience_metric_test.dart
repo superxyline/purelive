@@ -7,11 +7,12 @@ void main() {
       expect(LiveRoom(platform: 'bilibili').effectiveAudienceMetricType, AudienceMetricType.popularity);
       expect(LiveRoom(platform: 'douyu').effectiveAudienceMetricType, AudienceMetricType.popularity);
       expect(LiveRoom(platform: 'huya').effectiveAudienceMetricType, AudienceMetricType.popularity);
-      expect(LiveRoom(platform: 'kuaishou').effectiveAudienceMetricType, AudienceMetricType.onlineViewers);
-      expect(LiveRoom(platform: 'twitch').effectiveAudienceMetricType, AudienceMetricType.onlineViewers);
-      expect(LiveRoom(platform: 'twitch').supportsRealOnlineCount, isTrue);
-      expect(LiveRoom(platform: 'soop').effectiveAudienceMetricType, AudienceMetricType.onlineViewers);
-      expect(LiveRoom(platform: 'soop').supportsRealOnlineCount, isTrue);
+      // 裁剪定制版下线了 kuaishou/twitch/soop，未支持平台回退为 unknown。
+      expect(LiveRoom(platform: 'kuaishou').effectiveAudienceMetricType, AudienceMetricType.unknown);
+      expect(LiveRoom(platform: 'twitch').effectiveAudienceMetricType, AudienceMetricType.unknown);
+      expect(LiveRoom(platform: 'twitch').supportsRealOnlineCount, isFalse);
+      expect(LiveRoom(platform: 'soop').effectiveAudienceMetricType, AudienceMetricType.unknown);
+      expect(LiveRoom(platform: 'soop').supportsRealOnlineCount, isFalse);
       expect(LiveRoom(platform: 'douyin').effectiveAudienceMetricType, AudienceMetricType.totalViewers);
       expect(LiveRoom(platform: 'huya', onlineViewers: '3210').supportsRealOnlineCount, isFalse);
       expect(LiveRoom(platform: 'huya').supportsRealOnlineCount, isFalse);

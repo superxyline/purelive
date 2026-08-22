@@ -97,9 +97,11 @@ void main() {
 
   test('declares native and web-only platform search coverage', () {
     expect(LiveSearchCapabilities.forPlatform('bilibili').mayIncludeOffline, isTrue);
-    expect(LiveSearchCapabilities.forPlatform('twitch').mayIncludeOffline, isTrue);
-    expect(LiveSearchCapabilities.forPlatform('soop').coverage, NativeSearchCoverage.liveOnly);
-    expect(LiveSearchCapabilities.forPlatform('kuaishou').supportsNativeSearch, isFalse);
+    expect(LiveSearchCapabilities.forPlatform('douyu').mayIncludeOffline, isTrue);
+    expect(LiveSearchCapabilities.forPlatform('huya').coverage, NativeSearchCoverage.liveOnly);
+    expect(LiveSearchCapabilities.forPlatform('douyin').coverage, NativeSearchCoverage.liveOnly);
+    // 裁剪定制版以外的平台不提供原生搜索（web-only）。
+    expect(LiveSearchCapabilities.forPlatform('twitch').supportsNativeSearch, isFalse);
     expect(LiveSearchCapabilities.forPlatform('iptv').supportsPagination, isFalse);
   });
 }

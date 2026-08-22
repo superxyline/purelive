@@ -44,7 +44,8 @@ void main() {
         },
       });
 
-      expect(config['realOnlinePlatforms'], ['douyin', 'kuaishou', 'cc']);
+      // 裁剪定制版仅 douyin 提供真人在线数值，其余平台（含已下线的 kuaishou/cc）被剔除。
+      expect(config['realOnlinePlatforms'], ['douyin']);
     });
   });
 }

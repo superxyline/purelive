@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:pure_live/common/services/settings/danmaku_settings_controller.dart';
@@ -17,6 +18,12 @@ void main() {
   late Directory hiveDirectory;
 
   setUpAll(() async {
+    // 测试环境没有 flutter_secure_storage 的原生实现：HivePrefUtil.init() 会用它
+    // 读写加密 key，这里 mock 掉 channel，read 返回 null、write 静默成功。
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (call) async => null,
+    );
     hiveDirectory = await Directory.systemTemp.createTemp('pure-live-pip-preview-test-');
     SharedPreferences.setMockInitialValues({});
     await EasyLocalization.ensureInitialized();
