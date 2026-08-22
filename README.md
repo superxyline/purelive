@@ -1,19 +1,49 @@
-# 纯粹直播（Pure Live）定制版
+# 纯粹直播（纯净版）
 
 <p align="center">
-  <img src="assets/icons/icon.png" width="150" alt="Pure Live 图标"/>
+  <img src="assets/icons/icon.png" width="150" alt="纯粹直播（纯净版）图标"/>
 </p>
 
-<h4 align="center">基于 Flutter 的安卓多平台直播聚合播放器（专注哔哩哔哩 / 斗鱼 / 虎牙 / 抖音）</h4>
+<h4 align="center">基于 Flutter 的安卓多平台直播聚合播放器（自用修改版）</h4>
 
-基于开源项目 [pure_live](https://github.com/liuchuancong/pure_live) 深度定制，在保留四平台直播、弹幕、播放等核心能力的基础上，移植并新增了大量实用功能。
+本项目是开源项目 [pure_live](https://github.com/liuchuancong/pure_live) 的**个人自用修改版**，在原版基础上做了大量裁剪与功能增强，专注 Android 平台，仅保留哔哩哔哩 / 斗鱼 / 虎牙 / 抖音四大平台。
 
 - **当前版本**：`2.0.0`
 - **应用包名**：`com.superxyline.purelive`
-- **目标平台**：Android（以 arm64 为主）
+- **目标平台**：Android（arm64）
 - **代码仓库**：[https://gitee.com/superxyline/purelive](https://gitee.com/superxyline/purelive)
 
 ![Pure Live 界面预览](assets/images/banner.png)
+
+> 本仓库**不提供预编译安装包**，如需使用请自行构建，详见下方「自行构建」章节。
+
+---
+
+## 🔄 原版与自用修改版的区别
+
+| 项目 | 原版 pure_live | 自用修改版（纯净版） |
+| --- | --- | --- |
+| 定位 | 通用开源项目，多平台 | 个人自用，专注安卓 |
+| 目标平台 | Android / Windows / Linux / macOS / iOS | 仅 Android（arm64） |
+| 直播平台 | B站、斗鱼、虎牙、抖音、快手、网易CC、Twitch、SOOP、IPTV 等 | 仅 B站、斗鱼、虎牙、抖音 |
+| 直播录制 | 支持 | 已移除 |
+| 历史记录 | 支持 | 已移除 |
+| 桌面端 | 支持 | 已移除 |
+| 关注页签 | 单一关注列表 | 已开播 / 未开播 / 已关注 三态页签 |
+| 开播时长角标 | 无 | 关注列表实时显示开播时长，可开关 |
+| 赛事中心 | 无 | CS / LOL / VALORANT 赛程赛果与关注 |
+| 醒目留言（SuperChat） | 无 | B站 SC 卡片 + 全屏醒目留言弹窗 |
+| 真实发送弹幕 | 仅本地回显 | 登录 B站后可真实发送弹幕 |
+| 双开观看 | 无 | 副窗口同时观看两场直播，小窗可拖动/互换 |
+| PiP 小窗弹幕 | 无 | 画中画 / 悬浮窗继续看弹幕 |
+| 本地互动 | 无 | 本地用户资料、礼物、等级与经验体系 |
+| 本地数据加密 | 明文存储 | AES + 系统密钥加密存储 |
+| 多平台网页登录 | 部分 | B站 / 斗鱼 / 虎牙 / 抖音 网页登录 |
+| 跨端数据同步 | 无 | WebDAV 云端备份 + 局域网扫码一键同步 |
+| 横竖屏 | 跟随系统 | 平板恒横屏，手机全屏 / 竖屏智能切换 |
+| 观看数据口径 | 固定 | 热度 / 真实在线人数按平台自由切换 |
+| 主题与字体 | 基础 | 动态取色、加载动画、字体库、字号精细调节 |
+| 已知修复 | — | 直播间返回失效、小米手势条兼容、斗鱼纯音频等 |
 
 ---
 
@@ -58,33 +88,6 @@
 
 ---
 
-## ▶️ 播放器内核
-
-支持多种播放内核，当某个播放器出现黑屏、卡顿、硬解兼容性问题或特定直播流无法播放时，可在：
-
-**设置 → 视频与播放 → 播放器内核**
-
-中切换。支持首选清晰度、后台播放、悬浮窗、ASMR 助眠模式（自动进入纯音频）。
-
----
-
-## 💬 弹幕系统
-
-- 弹幕过滤、用户屏蔽、关键词屏蔽
-- 弹幕描边、透明度、字号、速度、显示区域调整
-- 最大弹幕数量、发送间隔、刷新 FPS
-- 平台原始颜色 / 统一弹幕颜色
-- 弹幕点击与长按操作
-- 房间会话隔离、消息 ID 去重、过期队列淘汰
-
----
-
-## 🪟 小窗弹幕
-
-支持 Android 系统画中画与应用内悬浮窗，弹幕样式、字号、透明度、速度、显示区域均可独立配置，不污染主播放器弹幕队列。
-
----
-
 ## 🎧 ASMR / 助眠模式
 
 支持新房间自动进入纯音频、媒体保活、自定义自动停止时间、后台持续播放。房间内的耳机图标可单独切换当前房间的纯音频状态。
@@ -101,27 +104,41 @@
 
 ---
 
-## 🔧 构建（Android arm64）
+## 🔧 自行构建（不提供安装包）
 
-环境要求：
+本仓库**不提供预编译 APK**，请克隆源码后自行构建。
+
+### 环境要求
 
 - Flutter SDK（3.x）
-- Android SDK / JDK 17+
+- Android SDK（API 34+）
+- JDK 17+
 
-构建命令：
+### 构建步骤
 
 ```bash
+# 1. 克隆仓库
+git clone https://gitee.com/superxyline/purelive.git
+cd purelive
+
+# 2. 安装依赖
 flutter pub get
+
+# 3. 构建 arm64 release APK
 flutter build apk --release --target-platform android-arm64
 ```
 
-产物位于 `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`。
+构建产物位于：
 
----
+```
+build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+```
 
-## 📥 下载
+### 构建说明
 
-前往 [Gitee 仓库](https://gitee.com/superxyline/purelive) 获取最新安装包。
+- 默认只构建 **arm64-v8a**（主流安卓手机 / 平板均为 64 位 ARM）
+- 如需其他架构，可调整 `--target-platform` 参数（如 `android-arm`、`android-x64`）
+- 正式签名使用仓库内 `android/key.jks`（请妥善保管密钥，勿外传）
 
 ---
 

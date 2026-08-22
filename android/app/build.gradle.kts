@@ -49,7 +49,7 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         targetSdk = 37
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders["appLabel"] = "纯粹直播"
+        manifestPlaceholders["appLabel"] = "纯粹直播（纯净版）"
     }
 
     signingConfigs {
