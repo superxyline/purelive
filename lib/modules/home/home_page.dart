@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:move_to_desktop/move_to_desktop.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
+import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
 import 'package:pure_live/modules/home/mobile_view.dart';
 import 'package:pure_live/modules/home/tablet_view.dart';
@@ -43,12 +44,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       if (Platform.isAndroid) {
-        SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            systemNavigationBarColor: Theme.of(context).navigationBarTheme.backgroundColor,
-          ),
-        );
+        // 统一系统栏样式：状态栏/导航栏透明 + 图标亮度随主题。不要把导航栏设成
+        // navigationBarTheme 背景色，否则平板横屏下底部手势条区域会出现黑条。
+        MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       }
     });

@@ -3,6 +3,7 @@ import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:pure_live/common/services/settings/font_settings_controller.dart';
+import 'package:pure_live/common/global/platform/mobile_manager.dart';
 
 class ThemeSettingsController extends GetxController {
   final RxString themeModeName = hiveString('themeMode', "System");
@@ -32,6 +33,8 @@ class ThemeSettingsController extends GetxController {
   void changeThemeMode(String mode) {
     themeModeName.v = mode;
     Get.changeThemeMode(themeMode);
+    // 切换明暗主题后同步系统栏图标亮度（状态栏/导航栏依旧透明）。
+    MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
   }
 
   void changeThemeColorSwitch(String hex) {

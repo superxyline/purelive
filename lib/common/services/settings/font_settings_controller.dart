@@ -8,6 +8,7 @@ import 'package:pure_live/common/models/font_model.dart';
 import 'package:pure_live/plugins/font_download_manager.dart';
 import 'package:pure_live/common/global/app_path_manager.dart';
 import 'package:pure_live/common/utils/hive_pref_util.dart';
+import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/common/services/medels/download_status.dart';
 import 'package:pure_live/common/services/settings/danmaku_settings_controller.dart';
 
@@ -129,6 +130,8 @@ class FontSettingsController extends GetxController {
   void refreshSystemTheme() {
     final theme = MyTheme(primaryColor: Get.theme.primaryColor);
     Get.changeTheme(Get.isDarkMode ? theme.darkThemeData : theme.lightThemeData);
+    // 主题刷新后同步系统栏图标亮度（状态栏/导航栏依旧透明）。
+    MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
   }
 
   Map<String, dynamic> toJson() {

@@ -73,6 +73,13 @@ class MobileManager {
     }
   }
 
+  /// 应用移动端系统栏样式：状态栏与导航栏（手势条区）均透明，图标亮度随明暗主题。
+  ///
+  /// 这是"恢复系统栏"的统一入口：退出全屏、回到首页、退出直播间兜底等所有
+  /// 恢复系统 UI 的时机都应调用它。不能用只含状态栏字段的 [SystemUiOverlayStyle]
+  /// 覆盖（Flutter 会把未提供的字段重置为默认值，其中导航栏默认为黑色——在
+  /// 小米平板 HyperOS 横屏等手势导航不做强制半透明补偿的设备上，底部小横条
+  /// 区域就会显示成一条黑条）。
   static void setStatusBarStyle({required bool isDarkTheme}) {
     if (!PlatformUtils.isMobile) return;
 
@@ -90,6 +97,7 @@ class MobileManager {
           SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarDividerColor: Colors.transparent,
             statusBarIconBrightness: isDarkTheme ? Brightness.light : Brightness.dark,
             systemNavigationBarIconBrightness: isDarkTheme ? Brightness.light : Brightness.dark,
           ),

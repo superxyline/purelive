@@ -14,6 +14,7 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:pure_live/player/core/player_manager.dart';
 import 'package:pure_live/player/utils/fullscreen.dart';
+import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/player/models/player_exception.dart';
 import 'package:pure_live/player/models/player_error_type.dart';
 import 'package:pure_live/modules/live_play/states/load_type.dart';
@@ -691,6 +692,8 @@ class VideoController with ChangeNotifier {
       if (token != _fullscreenToken) return;
       // 退出全屏恢复系统状态栏/导航栏（edge-to-edge 下小米手势条恢复半透明正常显示）。
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      // 恢复完整系统栏样式，导航栏显式透明，避免平板横屏底部手势条区域变黑。
+      MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
     } catch (_) {
     } finally {
       if (token == _fullscreenToken) isTransitioningFullScreen.value = false;

@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 
 import 'package:pure_live/common/index.dart';
 import 'package:flutter/services.dart';
+import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:pure_live/plugins/emoji_manager.dart';
@@ -725,6 +726,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
     // 兜底恢复系统状态栏/导航栏，避免全屏残留（edge-to-edge 下小米手势条正常显示）。
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    // 恢复完整系统栏样式：导航栏显式透明，防止被覆盖成黑色（平板横屏底部黑条）。
+    MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
 
     final keepForAppFloating = GlobalPlayerService.instance.playerManager.shouldKeepDanmakuForAppFloating;
     if (!keepForAppFloating) {
