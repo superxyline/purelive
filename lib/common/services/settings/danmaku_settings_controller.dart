@@ -20,6 +20,7 @@ class DanmakuSettingsController extends GetxController {
 
   final RxBool hideDanmaku = hiveBool('hideDanmaku', false);
   final RxBool noEmojiMode = hiveBool('noEmojiMode', defaultNoEmojiMode);
+  final RxBool showSuperChat = hiveBool('showSuperChat', true);
   final RxDouble danmakuTopArea = hiveDouble('danmakuTopArea', 0.0);
   final RxDouble danmakuArea = hiveDouble('danmakuArea', 1.0);
   final RxDouble danmakuBottomArea = hiveDouble('danmakuBottomArea', 0.5);
@@ -96,6 +97,7 @@ class DanmakuSettingsController extends GetxController {
     return {
       'hideDanmaku': hideDanmaku.v,
       'noEmojiMode': noEmojiMode.v,
+      'showSuperChat': showSuperChat.v,
       'danmakuTopArea': danmakuTopArea.v,
       'danmakuArea': danmakuArea.v,
       'danmakuBottomArea': danmakuBottomArea.v,
@@ -132,6 +134,7 @@ class DanmakuSettingsController extends GetxController {
   void fromJson(Map<String, dynamic> json) {
     hideDanmaku.v = json['hideDanmaku'] ?? false;
     noEmojiMode.v = json['noEmojiMode'] ?? defaultNoEmojiMode;
+    showSuperChat.v = json['showSuperChat'] ?? true;
     danmakuTopArea.v = json['danmakuTopArea']?.toDouble() ?? 0.0;
     danmakuArea.v = json['danmakuArea']?.toDouble() ?? 1.0;
     danmakuBottomArea.v = json['danmakuBottomArea']?.toDouble() ?? 0.5;
@@ -179,6 +182,7 @@ class DanmakuSettingsController extends GetxController {
     return {
       'hideDanmaku': danmaku['hideDanmaku'] ?? false,
       'noEmojiMode': danmaku['noEmojiMode'] ?? defaultNoEmojiMode,
+      'showSuperChat': danmaku['showSuperChat'] ?? true,
       'danmakuTopArea': (danmaku['danmakuTopArea'] ?? 0.0).toDouble(),
       'danmakuArea': (danmaku['danmakuArea'] ?? 1.0).toDouble(),
       'danmakuBottomArea': (danmaku['danmakuBottomArea'] ?? 0.5).toDouble(),

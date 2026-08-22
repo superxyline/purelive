@@ -6,17 +6,18 @@ import 'package:pure_live/common/consts/app_consts.dart';
 
 class AppSettingsController extends GetxController {
   static const int maxSleepMinutes = 525600;
-  static const List<String> defaultRealOnlinePlatforms = ['douyin', 'kuaishou', 'cc', 'twitch'];
+  static const List<String> defaultRealOnlinePlatforms = ['douyin'];
+
+  /// 定制版保留的平台（真实在线人数开关只对这些平台生效）
+  static const List<String> supportedRealOnlinePlatforms = ['bilibili', 'douyu', 'huya', 'douyin'];
 
   Worker? _highRefreshRateWorker;
 
-  final RxInt autoRefreshTime = hiveInt('autoRefreshTime', 3);
   final RxBool enableDenseFavorites = hiveBool('enableDenseFavorites', true);
+  final RxBool showLiveDurationBadge = hiveBool('showLiveDurationBadge', true);
   final RxBool enableBackgroundPlay = hiveBool('enableBackgroundPlay', false);
   final RxBool enableAsmrSleepMode = hiveBool('enableAsmrSleepMode', false);
   final RxInt asmrSleepMinutes = hiveInt('asmrSleepMinutes', 60);
-  final RxBool enableRotateScreen = hiveBool('enableRotateScreen', false);
-
   final RxBool enableScreenKeepOn = hiveBool('enableScreenKeepOn', true);
 
   final RxBool enableAutoCheckUpdate = hiveBool('enableAutoCheckUpdate', true);
@@ -25,17 +26,12 @@ class AppSettingsController extends GetxController {
   final RxBool enableHighRefreshRate = hiveBool('enableHighRefreshRate', true);
   final RxBool preferRealOnlineCounts = hiveBool('preferRealOnlineCounts', false);
   late final RxList<String> realOnlinePlatforms = hiveStringList('realOnlinePlatforms', defaultRealOnlinePlatforms);
-  final RxInt audienceMetricMigration = hiveInt('audienceMetricMigration', 0);
 
   late final RxList<String> savedMenuIds = hiveStringList('savedMenuIds', HomeMenu.values.map((e) => e.id).toList());
 
   @override
   void onInit() {
     super.onInit();
-    if (audienceMetricMigration.v < 1) {
-      if (!realOnlinePlatforms.contains('twitch')) realOnlinePlatforms.add('twitch');
-      audienceMetricMigration.v = 1;
-    }
     _removeUnsupportedOnlinePlatforms();
     if (Platform.isAndroid) {
       unawaited(DisplayModeService.setHighRefreshRate(enableHighRefreshRate.v));
@@ -60,7 +56,9 @@ class AppSettingsController extends GetxController {
 
   static List<String> normalizeRealOnlinePlatforms(Iterable<String> platforms) {
     return platforms
-        .where((platform) => LiveRoom.audienceCapabilityFor(platform).supportsConcurrentOnline)
+        .where((platform) =>
+            LiveRoom.audienceCapabilityFor(platform).supportsConcurrentOnline &&
+            supportedRealOnlinePlatforms.contains(platform))
         .toSet()
         .toList();
   }
@@ -100,12 +98,11 @@ class AppSettingsController extends GetxController {
   // ======================
   Map<String, dynamic> toJson() {
     return {
-      'autoRefreshTime': autoRefreshTime.v,
       'enableDenseFavorites': enableDenseFavorites.v,
+      'showLiveDurationBadge': showLiveDurationBadge.v,
       'enableBackgroundPlay': enableBackgroundPlay.v,
       'enableAsmrSleepMode': enableAsmrSleepMode.v,
       'asmrSleepMinutes': asmrSleepMinutes.v,
-      'enableRotateScreen': enableRotateScreen.v,
       'enableScreenKeepOn': enableScreenKeepOn.v,
       'enableAutoCheckUpdate': enableAutoCheckUpdate.v,
       'enableFullScreenDefault': enableFullScreenDefault.v,
@@ -118,12 +115,11 @@ class AppSettingsController extends GetxController {
   }
 
   void fromJson(Map<String, dynamic> json) {
-    autoRefreshTime.v = json['autoRefreshTime'] ?? 3;
     enableDenseFavorites.v = json['enableDenseFavorites'] ?? true;
+    showLiveDurationBadge.v = json['showLiveDurationBadge'] ?? true;
     enableBackgroundPlay.v = json['enableBackgroundPlay'] ?? false;
     enableAsmrSleepMode.v = json['enableAsmrSleepMode'] ?? false;
     asmrSleepMinutes.v = (((json['asmrSleepMinutes'] as num?)?.toInt() ?? 60).clamp(1, maxSleepMinutes)).toInt();
-    enableRotateScreen.v = json['enableRotateScreen'] ?? false;
     enableScreenKeepOn.v = json['enableScreenKeepOn'] ?? true;
     enableAutoCheckUpdate.v = json['enableAutoCheckUpdate'] ?? true;
     enableFullScreenDefault.v = json['enableFullScreenDefault'] ?? false;
@@ -138,12 +134,11 @@ class AppSettingsController extends GetxController {
   static Map<String, dynamic> extractConfig(Map<String, dynamic>? rootConfig) {
     final app = rootConfig?['app'] as Map<String, dynamic>? ?? {};
     return {
-      'autoRefreshTime': app['autoRefreshTime'] ?? 3,
       'enableDenseFavorites': app['enableDenseFavorites'] ?? true,
+      'showLiveDurationBadge': app['showLiveDurationBadge'] ?? true,
       'enableBackgroundPlay': app['enableBackgroundPlay'] ?? false,
       'enableAsmrSleepMode': app['enableAsmrSleepMode'] ?? false,
       'asmrSleepMinutes': (((app['asmrSleepMinutes'] as num?)?.toInt() ?? 60).clamp(1, maxSleepMinutes)).toInt(),
-      'enableRotateScreen': app['enableRotateScreen'] ?? false,
       'enableScreenKeepOn': app['enableScreenKeepOn'] ?? true,
       'enableAutoCheckUpdate': app['enableAutoCheckUpdate'] ?? true,
       'enableFullScreenDefault': app['enableFullScreenDefault'] ?? false,

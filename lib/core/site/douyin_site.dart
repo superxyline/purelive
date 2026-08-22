@@ -320,6 +320,11 @@ class DouyinSite implements LiveSite {
     // 主要是为了获取cookie,用于弹幕websocket连接
     var headers = await getRequestHeaders();
 
+    // 抖音开播时间为 create_time（秒级时间戳）
+    final douyinStartTime = room["create_time"] is num
+        ? (room["create_time"] as num).toInt()
+        : int.tryParse(room["create_time"]?.toString() ?? '') ?? 0;
+
     return LiveRoom(
       roomId: webRid,
       title: room["title"].toString(),
@@ -335,6 +340,7 @@ class DouyinSite implements LiveSite {
       platform: Sites.douyinSite,
       area: '',
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+      liveStartTime: roomStatus && douyinStartTime > 0 ? douyinStartTime * 1000 : null,
       introduction: owner["signature"].toString(),
       notice: "",
       danmakuData: DouyinDanmakuArgs(webRid: webRid, roomId: roomId, userId: userUniqueId, cookie: headers["cookie"]),
@@ -377,6 +383,12 @@ class DouyinSite implements LiveSite {
 
     // 主要是为了获取cookie,用于弹幕websocket连接
     var headers = await getRequestHeaders();
+
+    // 抖音开播时间为 create_time（秒级时间戳）
+    final douyinStartTime = roomData["create_time"] is num
+        ? (roomData["create_time"] as num).toInt()
+        : int.tryParse(roomData["create_time"]?.toString() ?? '') ?? 0;
+
     return LiveRoom(
       roomId: webRid,
       title: roomData["title"].toString(),
@@ -391,6 +403,7 @@ class DouyinSite implements LiveSite {
       audienceMetricType: AudienceMetricType.totalViewers,
       status: roomStatus,
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+      liveStartTime: roomStatus && douyinStartTime > 0 ? douyinStartTime * 1000 : null,
       link: "https://live.douyin.com/$webRid",
       platform: Sites.douyinSite,
       area: '',
@@ -418,6 +431,11 @@ class DouyinSite implements LiveSite {
     // 主要是为了获取cookie,用于弹幕websocket连接
     var headers = await getRequestHeaders();
 
+    // 抖音开播时间为 create_time（秒级时间戳）
+    final douyinStartTime = roomInfo["create_time"] is num
+        ? (roomInfo["create_time"] as num).toInt()
+        : int.tryParse(roomInfo["create_time"]?.toString() ?? '') ?? 0;
+
     return LiveRoom(
       roomId: roomId,
       title: roomInfo["title"].toString(),
@@ -431,6 +449,7 @@ class DouyinSite implements LiveSite {
       onlineViewers: _douyinOnlineViewers(roomInfo),
       audienceMetricType: AudienceMetricType.totalViewers,
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
+      liveStartTime: roomStatus && douyinStartTime > 0 ? douyinStartTime * 1000 : null,
       link: "https://live.douyin.com/$webRid",
       area: '',
       status: roomStatus,
@@ -713,6 +732,11 @@ class DouyinSite implements LiveSite {
   @override
   Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
     return Future.value(<LiveSuperChatMessage>[]);
+  }
+
+  @override
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) async {
+    return (false, i18n('send_danmaku_unsupported'));
   }
 
   //生成指定长度的16进制随机字符串

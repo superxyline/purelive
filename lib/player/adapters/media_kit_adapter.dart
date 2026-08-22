@@ -91,14 +91,13 @@ class MediaKitAdapter implements UnifiedPlayer {
 
         await native.setProperty('protocol_whitelist', 'httpproxy,udp,rtp,tcp,tls,data,file,http,https,crypto');
 
-        await native.setProperty('demuxer-lavf-probesize', '2097152');
+        await native.setProperty('demuxer-lavf-probsize', '2097152');
 
-        // Live FLV/HLS streams need a short probe rather than a long-file
-        // analysis pass.  This reduces the black-screen interval before the
-        // first decoded frame while retaining enough data for codec detection.
-        await native.setProperty('demuxer-lavf-analyzeduration', '2');
+        // 恢复 1.1.1 的探测/超时配置：过短的 analyzeduration 对斗鱼 http-flv 流
+        // 解析不稳（纯音频偶发重复片段），1.1.1 使用 10s 探测 + 30s 网络超时。
+        await native.setProperty('demuxer-lavf-analyzeduration', '10');
 
-        await native.setProperty('network-timeout', '15');
+        await native.setProperty('network-timeout', '30');
 
         if (SettingsService.to.player.customPlayerOutput.v) {
           await native.setProperty('ao', SettingsService.to.player.audioOutputDriver.v);

@@ -69,7 +69,7 @@ foreach ($asset in $mediaKitAssets) {
         -Name $asset.Name `
         -Destination (Join-Path $repoRoot "build\media_kit_libs_android_video\v1.2.7\$($asset.Name)") `
         -CachePath (Join-Path $persistentRoot "media-kit\v1.2.7\$($asset.Name)") `
-        -Url "https://github.com/Predidit/libmpv-android-video-build/releases/download/v1.2.7/$($asset.Name)" `
+        -Url "https://ghfast.top/https://github.com/Predidit/libmpv-android-video-build/releases/download/v1.2.7/$($asset.Name)" `
         -Sha256 $asset.Sha256
 }
 
@@ -81,5 +81,5 @@ Install-VerifiedAsset `
     -Name $ffmpegName `
     -Destination (Join-Path $repoRoot ".dart_tool\hooks_runner\shared\ffmpeg_kit_extended_flutter\build\ffmpeg_kit_cache\android\$ffmpegName") `
     -CachePath (Join-Path $persistentRoot "ffmpeg-kit\v0.10.5-android\$ffmpegName") `
-    -Url "https://github.com/akashskypatel/ffmpeg-kit-builders/releases/download/v0.10.5-android/$ffmpegName" `
+    -Url "https://ghfast.top/https://github.com/akashskypatel/ffmpeg-kit-builders/releases/download/v0.10.5-android/$ffmpegName" `
     -Sha256 'c3cc680706a24669a41cb078f2d9983aac3d17188ebef1db50c73b388471000d'

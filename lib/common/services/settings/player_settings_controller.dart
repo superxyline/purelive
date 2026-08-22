@@ -18,9 +18,9 @@ class PlayerSettingsController extends GetxController {
 
   final RxBool floatPlay = hiveBool('floatPlay', false);
   final RxBool windowsPipAlwaysOnTop = hiveBool('windowsPipAlwaysOnTop', false);
-  // Kept as an inert compatibility field for old backups. Audio-only is now
-  // room-scoped and controlled by the headphone action or ASMR auto-start.
-  final RxBool audioOnly = false.obs;
+  // 全局"纯音频模式"开关（参照 1.1.1）：开启后进入直播间即关闭画面仅播放声音；
+  // 直播间内的耳机按钮仍可单独切换当前房间，切换结果不覆盖此全局开关。
+  final RxBool audioOnly = hiveBool('audioOnly', false);
   final RxBool useHardStopOnExit = hiveBool('useHardStopOnExit', false);
 
   List<BoxFit> get videoFitArray => AppConsts().videoFitType.map((e) => e['attr'] as BoxFit).toList();
@@ -63,7 +63,7 @@ class PlayerSettingsController extends GetxController {
       'videoHardwareDecoder': videoHardwareDecoder.v,
       'floatPlay': floatPlay.v,
       'windowsPipAlwaysOnTop': windowsPipAlwaysOnTop.v,
-      'audioOnly': false,
+      'audioOnly': audioOnly.v,
       'useHardStopOnExit': useHardStopOnExit.v,
     };
   }
@@ -81,7 +81,7 @@ class PlayerSettingsController extends GetxController {
     videoHardwareDecoder.v = json['videoHardwareDecoder'] ?? 'auto';
     floatPlay.v = json['floatPlay'] ?? false;
     windowsPipAlwaysOnTop.v = json['windowsPipAlwaysOnTop'] ?? false;
-    audioOnly.v = false;
+    audioOnly.v = json['audioOnly'] ?? false;
     useHardStopOnExit.v = json['useHardStopOnExit'] ?? false;
   }
 
@@ -100,7 +100,7 @@ class PlayerSettingsController extends GetxController {
       'videoHardwareDecoder': player['videoHardwareDecoder'] ?? 'auto',
       'floatPlay': player['floatPlay'] ?? false,
       'windowsPipAlwaysOnTop': player['windowsPipAlwaysOnTop'] ?? false,
-      'audioOnly': false,
+      'audioOnly': player['audioOnly'] ?? false,
       'useHardStopOnExit': player['useHardStopOnExit'] ?? false,
     };
   }

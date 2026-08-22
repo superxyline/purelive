@@ -19,6 +19,7 @@ import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
+import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
 
 class VideoControllerPanel extends StatefulWidget {
   final VideoController controller;
@@ -134,6 +135,25 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 LockButton(controller: controller),
                 TopActionBar(controller: controller, barHeight: barHeight),
                 BottomActionBar(controller: controller, barHeight: barHeight),
+                Obx(() {
+                  final liveCtr = controller.livePlayController;
+                  final sc = liveCtr.fsSC.value;
+                  if (!GlobalPlayerState.to.fullscreenUI || sc == null) {
+                    return const SizedBox.shrink();
+                  }
+                  final width = (MediaQuery.of(context).size.width * 0.6).clamp(260.0, 360.0);
+                  return Positioned(
+                    left: 16,
+                    bottom: (controller.showController.value && !controller.showLocked.value)
+                        ? barHeight + 16
+                        : 24,
+                    width: width,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: SuperChatCard(key: ValueKey(sc.id), sc: sc),
+                    ),
+                  );
+                }),
               ],
             ),
           );

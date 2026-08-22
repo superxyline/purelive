@@ -9,10 +9,6 @@ class AudienceMetricSettingsPage extends StatelessWidget {
     (id: 'douyu', name: '斗鱼', detailKey: 'audience_douyu_detail'),
     (id: 'huya', name: '虎牙', detailKey: 'audience_huya_detail'),
     (id: 'douyin', name: '抖音', detailKey: 'audience_douyin_detail'),
-    (id: 'kuaishou', name: '快手', detailKey: 'audience_kuaishou_detail'),
-    (id: 'cc', name: '网易 CC', detailKey: 'audience_cc_detail'),
-    (id: 'twitch', name: 'Twitch', detailKey: 'audience_twitch_detail'),
-    (id: 'soop', name: 'SOOP', detailKey: 'audience_soop_detail'),
   ];
 
   @override

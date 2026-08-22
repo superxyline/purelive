@@ -57,6 +57,12 @@ class GeneralSettingsPage extends GetView<SettingsService> {
               onTap: () => Get.to(() => const AudienceMetricSettingsPage()),
             ),
             context.buildSwitchTile(
+              title: i18n('show_live_duration'),
+              subtitle: i18n('show_live_duration_desc'),
+              value: SettingsService.to.app.showLiveDurationBadge,
+              icon: Icons.access_time_rounded,
+            ),
+            context.buildSwitchTile(
               title: i18n('splash_animation'),
               subtitle: i18n("splash_animation_subtitle"),
               value: SettingsService.to.app.showSplashPage,
@@ -117,6 +123,16 @@ class GeneralSettingsPage extends GetView<SettingsService> {
                 value: SettingsService.to.exit.dontAskExit,
                 icon: Remix.error_warning_line,
               ),
+              Obx(
+                () => context.buildTile(
+                  icon: Remix.logout_box_r_line,
+                  title: i18n("exit_action"),
+                  subtitle: SettingsService.to.exit.exitChoose.v == 'exit'
+                      ? i18n("exit_action_exit")
+                      : i18n("exit_action_minimize"),
+                  onTap: () => _showExitActionDialog(context),
+                ),
+              ),
             ],
           ]),
           const SizedBox(height: 32),
@@ -124,6 +140,44 @@ class GeneralSettingsPage extends GetView<SettingsService> {
       ),
     );
   }
+
+  void _showExitActionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(i18n('exit_action')),
+          children: [
+            Obx(
+              () => RadioGroup<String>(
+                groupValue: SettingsService.to.exit.exitChoose.v,
+                onChanged: (String? value) {
+                  if (value != null) {
+                    SettingsService.to.exit.exitChoose.v = value;
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    RadioListTile<String>(
+                      value: 'minimize',
+                      title: Text(i18n('exit_action_minimize')),
+                    ),
+                    RadioListTile<String>(
+                      value: 'exit',
+                      title: Text(i18n('exit_action_exit')),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showCountdownDurationDialog(BuildContext context) {
     final List<int> minutesOptions = [15, 30, 45, 60, 90, 120, 180];
     final int currentValue = SettingsService.to.exit.autoShutDownTime.v;

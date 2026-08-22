@@ -34,7 +34,7 @@ class LiveAudioService {
         config: AudioServiceConfig(
           androidNotificationChannelId: 'com.mystyle.purelive.audio',
           androidNotificationChannelName: i18n("audio_channel_name"),
-          androidNotificationOngoing: true,
+          androidNotificationOngoing: false,
           // Keep the media foreground service alive across short interruptions
           // so screen-off playback can resume without recreating the process.
           androidStopForegroundOnPause: false,

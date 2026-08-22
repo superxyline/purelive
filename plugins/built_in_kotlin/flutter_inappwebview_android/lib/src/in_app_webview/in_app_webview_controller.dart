@@ -2545,7 +2545,7 @@ class AndroidInAppWebViewController extends PlatformInAppWebViewController
   Future<String?> saveWebArchive(
       {required String filePath, bool autoname = false}) async {
     if (!autoname) {
-      assert(filePath.endsWith("." + WebArchiveFormat.MHT.toNativeValue()));
+      assert(filePath.endsWith("." + WebArchiveFormat.MHT.toNativeValue()!));
     }
 
     Map<String, dynamic> args = <String, dynamic>{};

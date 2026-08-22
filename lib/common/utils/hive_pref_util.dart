@@ -1,14 +1,65 @@
+import 'dart:convert';
+import 'dart:math';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_ce/hive.dart';
 
 class HivePrefUtil {
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static const String _encryptionKeyName = 'hive_encryption_key_v1';
+
   static late Box _box;
 
   static Future<void> init() async {
-    if (!Hive.isBoxOpen('app_settings')) {
-      _box = await Hive.openBox('app_settings');
-    } else {
+    if (Hive.isBoxOpen('app_settings')) {
       _box = Hive.box('app_settings');
+      return;
     }
+    final key = await _getOrCreateEncryptionKey();
+    Box box;
+    try {
+      box = await Hive.openBox('app_settings',
+          encryptionCipher: HiveAesCipher(key));
+      // 探测读取：强制校验磁盘帧能否用该密钥解密。若磁盘上仍是旧版本地
+      // 明文库（未加密），此处会在读取数据帧时抛出解密错误，从而触发
+      // 【明文 → 加密】兼容迁移，避免升级后丢失用户设置。
+      box.toMap();
+    } catch (_) {
+      box = await _migratePlaintextToEncrypted(key);
+    }
+    _box = box;
+  }
+
+  /// 从系统安全存储获取（或首次生成并保存）Hive 加密密钥。
+  /// 密钥由 Android Keystore / iOS Keychain 等平台安全存储持久化，
+  /// 避免把加密密钥与密文存放在同一明文文件中。
+  static Future<List<int>> _getOrCreateEncryptionKey() async {
+    final String? stored = await _secureStorage.read(key: _encryptionKeyName);
+    if (stored != null && stored.isNotEmpty) {
+      return base64Url.decode(stored);
+    }
+
+    final Random random = Random.secure();
+    final List<int> key = List<int>.generate(32, (_) => random.nextInt(256));
+    await _secureStorage.write(key: _encryptionKeyName, value: base64Url.encode(key));
+    return key;
+  }
+
+  /// 【明文 → 加密】兼容迁移：读取旧版未加密的 app_settings 数据，
+  /// 删除旧明文文件，再以新密钥重新打开加密库并写回全部数据。
+  static Future<Box> _migratePlaintextToEncrypted(List<int> key) async {
+    // 1. 以明文方式打开旧库并读取全部数据（type 注册表开放，因此可存任意值）。
+    final plain = await Hive.openBox('app_settings');
+    final Map<dynamic, dynamic> data = Map<dynamic, dynamic>.from(plain.toMap());
+    // 2. 关闭并删除旧明文库文件，避免与新加密库的 .hive 文件冲突。
+    await Hive.deleteBoxFromDisk('app_settings');
+    // 3. 以加密方式重建空库。
+    final Box box = await Hive.openBox('app_settings',
+        encryptionCipher: HiveAesCipher(key));
+    if (data.isNotEmpty) {
+      await box.putAll(data);
+      await box.flush();
+    }
+    return box;
   }
 
   static dynamic getAnyPref(String key) {

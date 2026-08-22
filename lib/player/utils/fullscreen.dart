@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
@@ -47,9 +48,31 @@ class WindowService {
     }
   }
 
-  //竖屏
+  //竖屏/恢复竖屏：手机恢复竖屏（portraitUp/portraitDown）；平板保持横屏（全程横屏）。
   Future<void> verticalScreen() async {
-    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    await setPortraitOrTabletLandscape();
+  }
+
+  // 平板判定：物理尺寸 shortestSide/dpr >= 600 视为平板（与 mobile_manager 一致）。
+  static bool isTablet() {
+    try {
+      final view = WidgetsBinding.instance.platformDispatcher.views.first;
+      final dpr = view.devicePixelRatio;
+      if (dpr <= 0) return false;
+      return (view.physicalSize.shortestSide / dpr).round() >= 600;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // 手机：竖屏（portraitUp/portraitDown）；平板：保持横屏。
+  Future<void> setPortraitOrTabletLandscape() async {
+    if (isTablet()) {
+      await SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    } else {
+      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    }
   }
 
   Future<void> doEnterFullScreen() async {
@@ -67,12 +90,14 @@ class WindowService {
       if (kIsWeb) {
         document.exitFullscreen();
       } else if (Platform.isAndroid || Platform.isIOS) {
-        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+        // 退出全屏恢复系统状态栏/导航栏（edge-to-edge 下小米手势条半透明正常显示，不被强制实心条遮挡）。
+        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         await Future.microtask(() {});
         SystemChrome.setSystemUIOverlayStyle(
           const SystemUiOverlayStyle(statusBarIconBrightness: Brightness.dark, statusBarBrightness: Brightness.light),
         );
-        await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+        // 退出全屏恢复竖屏；平板保持横屏（不再放开为四方向自由）。
+        await setPortraitOrTabletLandscape();
       } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
         await doExitWindowFullScreen();
       }

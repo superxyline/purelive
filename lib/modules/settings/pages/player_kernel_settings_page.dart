@@ -37,6 +37,12 @@ class PlayerKernelSettingsPage extends GetView<SettingsService> {
                 ),
               );
             }),
+            context.buildSwitchTile(
+              icon: Remix.music_2_line,
+              title: i18n('audio_only_mode'),
+              subtitle: i18n("audio_only_mode_subtitle"),
+              value: SettingsService.to.player.audioOnly,
+            ),
             Obx(() {
               String activeKey = SettingsService.to.player.videoPlayerKey.v;
               if (PlayerConsts.engines[activeKey] == PlayerEngine.exo) {

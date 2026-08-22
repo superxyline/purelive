@@ -27,7 +27,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
 
   final onlineRooms = <LiveRoom>[].obs;
   final offlineRooms = <LiveRoom>[].obs;
-  final replayRooms = <LiveRoom>[].obs;
+  final allRooms = <LiveRoom>[].obs;
   final selectedTagId = TagManagementController.allTagKey.obs;
   final visibleTags = <LiveTag>[].obs;
 
@@ -169,11 +169,11 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
         break;
 
       case 1:
-        source = replayRooms;
+        source = offlineRooms;
         break;
 
       case 2:
-        source = offlineRooms;
+        source = allRooms;
         break;
 
       default:
@@ -206,15 +206,15 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
 
   void syncRooms() {
     onlineRooms.clear();
-    replayRooms.clear();
     offlineRooms.clear();
+    allRooms.clear();
 
     final List<LiveRoom> roomsBase = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
     onlineRooms.addAll(roomsBase.where((r) => r.liveStatus == LiveStatus.live && r.isRecord == false));
 
     offlineRooms.addAll(roomsBase.where((r) => r.liveStatus != LiveStatus.live));
 
-    replayRooms.addAll(roomsBase.where((r) => r.liveStatus == LiveStatus.live && r.isRecord == true));
+    allRooms.addAll(roomsBase);
 
     final currentAvailableSites = Sites().availableSites(containsAll: true);
     visibleTags.clear();
@@ -229,11 +229,11 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
           break;
 
         case 1:
-          target = replayRooms;
+          target = offlineRooms;
           break;
 
         case 2:
-          target = offlineRooms;
+          target = allRooms;
           break;
 
         default:
@@ -262,7 +262,11 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
       if (sa != sb) return sb.compareTo(sa);
       return _audienceSortValue(b).compareTo(_audienceSortValue(a));
     });
-    replayRooms.sort((a, b) {
+    // 全部关注（已关注标签）：直播优先，其次按热度排序
+    allRooms.sort((a, b) {
+      int la = a.liveStatus == LiveStatus.live ? 1 : 0;
+      int lb = b.liveStatus == LiveStatus.live ? 1 : 0;
+      if (la != lb) return lb.compareTo(la);
       if (selectedTagId.value == TagManagementController.allTagKey) {
         return _audienceSortValue(b).compareTo(_audienceSortValue(a));
       }

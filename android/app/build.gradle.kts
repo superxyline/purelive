@@ -43,7 +43,7 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         targetCompatibility = JavaVersion.VERSION_17
     }
     defaultConfig {
-        applicationId = "com.mystyle.purelive"
+        applicationId = "com.superxyline.purelive"
         minSdk = flutter.minSdkVersion 
         multiDexEnabled = true 
         targetSdk = 37
