@@ -10,6 +10,8 @@ import 'package:pure_live/modules/home/tablet_view.dart';
 import 'package:pure_live/modules/popular/popular_page.dart';
 import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/esports/esports_page.dart';
+import 'package:pure_live/modules/esports/esports_controller.dart';
+import 'package:pure_live/modules/esports/favorite_match_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,6 +36,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   @override
   void initState() {
     super.initState();
+    // 注册赛事页控制器：EsportsPage 为 GetView，未注册会因 Get.find 失败导致灰屏。
+    Get.lazyPut(() => EsportsController());
+    Get.lazyPut(() => FavoriteMatchController());
     _syncInitialIndex();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
@@ -120,14 +125,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
           return Obx(() {
             final activeMenuIds = List<String>.from(SettingsService.to.app.savedMenuIds.v);
-            if (isTablet) {
-              activeMenuIds.remove(HomeMenu.esports.id);
-            }
             if (activeMenuIds.isEmpty) return const Scaffold();
 
             int adjustedIndex = _selectedIndex;
-            if (adjustedIndex >= HomeMenu.values.length ||
-                (isTablet && HomeMenu.values[adjustedIndex] == HomeMenu.esports)) {
+            if (adjustedIndex >= HomeMenu.values.length) {
               final fallbackMenu = HomeMenu.fromId(activeMenuIds.first);
               if (fallbackMenu != null) {
                 adjustedIndex = fallbackMenu.index;

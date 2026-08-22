@@ -26,8 +26,8 @@ class FavoritePage extends GetView<FavoriteController> {
                 isScrollable: true,
                 tabs: [
                   Tab(text: i18n("online_room_title")),
-                  Tab(text: i18n("recording_room_title")),
                   Tab(text: i18n("offline_room_title")),
+                  Tab(text: i18n("favorites_all")),
                 ],
               ),
             ),
@@ -115,6 +115,7 @@ class _FavoriteSiteTabsState extends State<_FavoriteSiteTabs> {
                     isOnline: controller.tabOnlineIndex.value != 1,
                     scrollController: scrollController,
                     displayList: list,
+                    hideBadges: controller.tabOnlineIndex.value == 2,
                   );
                 }).toList(),
               );

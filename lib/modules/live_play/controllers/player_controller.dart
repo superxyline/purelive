@@ -6,6 +6,7 @@ import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
+import 'package:pure_live/modules/live_play/states/load_type.dart';
 import 'package:pure_live/modules/live_play/states/live_play_state.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -154,14 +155,9 @@ class PlayerController extends GetxController {
     await GlobalPlayerService.instance.playerManager.hardDispose();
     await destroyPlayer();
     _main.updatePlayer(isCurrentRoomAudioOnly: value);
-
-    final room = currentRoom;
-    if (room != null && _state.player.playUrls.isNotEmpty) {
-      await setPlayer(roomId: room.roomId!);
-      _main.updateRoom(success: true);
-      return;
-    }
-    await _main.onInitPlayerState();
+    // 参照 1.1.1：切换时重新拉取房间与播放地址。斗鱼等平台直播地址有时效，
+    // 直接用缓存的旧地址重建播放器会因地址过期而报"播放源异常"。
+    await _main.onInitPlayerState(reloadDataType: ReloadDataType.refreash);
   }
 
   Future<void> destroyPlayer() async {

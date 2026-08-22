@@ -50,12 +50,24 @@ class MobileManager {
         ),
       );
 
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
+      // 物理尺寸判定平板（shortestSide/dpr >= 600）：平板启动即锁横屏，实现全程横屏；
+      // 手机保持四方向自由（现状）。
+      final view = WidgetsBinding.instance.platformDispatcher.views.first;
+      final dpr = view.devicePixelRatio;
+      final bool isTablet = dpr > 0 && (view.physicalSize.shortestSide / dpr).round() >= 600;
+      if (isTablet) {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      } else {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      }
     } catch (e) {
       debugPrint('Android 初始化失败: $e');
     }

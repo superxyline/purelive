@@ -133,6 +133,7 @@ class DanmakuController extends GetxController {
   void _installCallbacks(LiveDanmaku engine, LiveRoom room, String key, int token) {
     engine.onMessage = (msg) {
       if (!_acceptsCallback(engine, key, token)) return;
+      debugPrint('DBG onMessage type=${msg.type} user=${msg.userName} msg=${msg.message}');
       if (msg.type == LiveMessageType.chat) {
         if (!_messageGate.accepts(msg) || _isBlocked(msg)) return;
         if (!_maskedNameNoticeShown &&
@@ -145,6 +146,9 @@ class DanmakuController extends GetxController {
         _state.player.videoController?.sendDanmaku(msg);
       } else if (msg.type == LiveMessageType.online) {
         _main.updateRuntimeAudience(msg.data);
+      } else if (msg.type == LiveMessageType.superChat) {
+        final sc = msg.data;
+        if (sc is LiveSuperChatMessage) _main.handleSuperChatMessage(sc);
       }
     };
 

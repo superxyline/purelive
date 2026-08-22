@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
@@ -42,6 +43,7 @@ class DanmakuListViewState extends State<DanmakuListView> {
   Timer? throttleTimer;
   Worker? fullscreenWorker;
   Worker? windowFullscreenWorker;
+  Worker? superChatWorker;
   StreamSubscription? messagesSub;
 
   LivePlayController get controller => Get.find<LivePlayController>();
@@ -65,6 +67,11 @@ class DanmakuListViewState extends State<DanmakuListView> {
       if (value == false && _autoScrollEnabled) {
         WidgetsBinding.instance.addPostFrameCallback((_) => forceScrollToBottom());
       }
+    });
+
+    // 醒目留言显示开关变化时刷新列表（不依赖响应式组件包裹，避免破坏列表更新）
+    superChatWorker = ever(SettingsService.to.danmaku.showSuperChat, (_) {
+      if (mounted) setState(() {});
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => forceScrollToBottom());
@@ -112,6 +119,7 @@ class DanmakuListViewState extends State<DanmakuListView> {
     messagesSub?.cancel();
     fullscreenWorker?.dispose();
     windowFullscreenWorker?.dispose();
+    superChatWorker?.dispose();
     throttleTimer?.cancel();
     _composerController.dispose();
     _pendingMessageCount.dispose();
@@ -218,6 +226,10 @@ class DanmakuListViewState extends State<DanmakuListView> {
                       itemCount: _visibleMessages.length,
                       itemBuilder: (_, index) {
                         final msg = _visibleMessages[_visibleMessages.length - 1 - index];
+                        final showSC = SettingsService.to.danmaku.showSuperChat.v;
+                        if (msg.type == LiveMessageType.superChat && !showSC) {
+                          return const SizedBox.shrink();
+                        }
                         return DanmakuItem(key: ObjectKey(msg), danmaku: msg);
                       },
                     ),
@@ -306,6 +318,10 @@ class DanmakuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (danmaku.type == LiveMessageType.superChat && danmaku.data is LiveSuperChatMessage) {
+      return SuperChatCard(sc: danmaku.data as LiveSuperChatMessage);
+    }
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -372,6 +388,115 @@ class DanmakuItem extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SuperChatCard extends StatelessWidget {
+  final LiveSuperChatMessage sc;
+
+  const SuperChatCard({super.key, required this.sc});
+
+  Color _color(String? hex, Color fallback) {
+    if (hex == null || hex.isEmpty) return fallback;
+    var value = hex.trim();
+    if (!value.startsWith('#')) value = '#$value';
+    try {
+      return HexColor(value);
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  String _timeText(DateTime time) {
+    String two(int v) => v.toString().padLeft(2, '0');
+    final hm = '${two(time.hour)}:${two(time.minute)}';
+    final now = DateTime.now();
+    final sameDay = time.year == now.year && time.month == now.month && time.day == now.day;
+    return sameDay ? hm : '${two(time.month)}-${two(time.day)} $hm';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomColor = _color(sc.backgroundBottomColor, const Color(0xFF2A60B2));
+    final bgColor = _color(sc.backgroundColor, const Color(0xFFEDF5FF));
+    final fontColor = _color(sc.messageFontColor, Colors.white);
+    final nameColor = _color(sc.nameColor, Colors.white);
+
+    Widget placeholder() => Container(
+      width: 40,
+      height: 40,
+      color: Colors.black26,
+      child: const Icon(Icons.person, color: Colors.white70),
+    );
+
+    final avatar = ClipOval(
+      child: sc.face.isEmpty
+          ? placeholder()
+          : CachedNetworkImage(
+              imageUrl: sc.face,
+              width: 40,
+              height: 40,
+              fit: BoxFit.cover,
+              placeholder: (_, _) => placeholder(),
+              errorWidget: (_, _, _) => placeholder(),
+            ),
+    );
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: bottomColor, width: 1),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: bgColor,
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              children: [
+                avatar,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        sc.userName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: nameColor, fontWeight: FontWeight.w700, fontSize: 14),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '￥${sc.price}',
+                        style: TextStyle(color: bottomColor, fontWeight: FontWeight.w800, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  _timeText(sc.startTime),
+                  style: TextStyle(color: bottomColor, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            color: bottomColor,
+            padding: const EdgeInsets.all(10),
+            child: Text.rich(
+              TextSpan(children: parseEmojis(sc.message, 14, fontColor)),
+              style: TextStyle(color: fontColor, height: 1.4),
+            ),
+          ),
+        ],
       ),
     );
   }

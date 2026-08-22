@@ -111,7 +111,6 @@ class LegacySettingsMigration {
         "bilibiliCookie": HivePrefUtil.getString("bilibiliCookie"),
         "huyaCookie": HivePrefUtil.getString("huyaCookie"),
         "douyinCookie": HivePrefUtil.getString("douyinCookie"),
-        "kuaishouCookie": HivePrefUtil.getString("kuaishouCookie"),
 
         // 代理
         "enableProxy": HivePrefUtil.getBool("enableProxy"),

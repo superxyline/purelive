@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer' as developer;
+
 import 'package:pure_live/common/index.dart';
+import 'package:flutter/services.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:pure_live/plugins/emoji_manager.dart';
@@ -10,11 +12,11 @@ import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/player/core/live_audio_service.dart';
+import 'package:pure_live/player/core/secondary_player_service.dart';
 import 'package:pure_live/modules/live_play/states/ui_state.dart';
 import 'package:pure_live/modules/live_play/states/load_type.dart';
 import 'package:pure_live/modules/live_play/states/room_state.dart';
 import 'package:pure_live/modules/live_play/states/player_state.dart';
-import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:pure_live/modules/live_play/states/live_play_state.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
@@ -24,7 +26,6 @@ import 'package:pure_live/modules/live_play/controllers/timer_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/player_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/danmaku_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
-
 
 // live_play_controller.dart
 
@@ -43,6 +44,11 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   final Rx<LivePlayState> state = const LivePlayState().obs;
   final RxList<LiveMessage> danmakuMessages = <LiveMessage>[].obs;
   final Rxn<LiveMessage> localGiftEffect = Rxn<LiveMessage>();
+
+  /// 醒目留言(SC)全屏弹出状态。UI 监听它做全屏左下角卡片展示，
+  /// 非空时显示，null 时隐藏。参见 [showFullscreenSC] / [hideFullscreenSC]。
+  final Rxn<LiveSuperChatMessage> fsSC = Rxn<LiveSuperChatMessage>();
+  Timer? _fsSCTimer;
 
   late Site currentSite;
   late TabController tabController;
@@ -77,9 +83,9 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _asmrSessionActive = autoStartAsmr;
     state.value = LivePlayState(
       room: RoomState(detail: room),
-      // ASMR is the only automatic audio-only entry point. Manual headphone
-      // switching is scoped to the current room and is never persisted.
-      player: PlayerState(isCurrentRoomAudioOnly: autoStartAsmr),
+      // 纯音频：全局"纯音频模式"开关或 ASMR 自动开启时进入直播间即关闭画面仅播放声音；
+      // 直播间内耳机按钮可单独切换当前房间，不影响全局开关。
+      player: PlayerState(isCurrentRoomAudioOnly: autoStartAsmr || SettingsService.to.player.audioOnly.v),
       ui: UIState(closeTimes: 60, closeTimeFlag: false),
     );
     unawaited(
@@ -116,15 +122,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   }
 
   Future<void> _initCore() async {
-    _initBackInterceptor();
     await _preloadEmoji();
     await onInitPlayerState();
-  }
-
-  void _initBackInterceptor() {
-    if (Platform.isAndroid) {
-      BackButtonInterceptor.add(myInterceptor, zIndex: 1, name: "live_play_page");
-    }
   }
 
   Future<void> _preloadEmoji() async {
@@ -132,20 +131,42 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     await EmojiManager().preload(site);
   }
 
-  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+  /// 返回键处理：返回 true 表示事件已消费，false 表示允许页面正常退出。
+  /// 返回键优先级最高：先收起输入焦点，再依次处理菜单/全屏/半屏/PiP，最后才退出页面。
+  bool handleBackPress() {
+    // 先收起输入焦点，避免输入框或键盘拦截返回键。
+    if (FocusManager.instance.primaryFocus?.hasFocus ?? false) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
     if (state.value.ui.isMenuOpen) {
       Navigator.of(Get.context!).pop();
       updateUI(isMenuOpen: false);
       return true;
     }
     if (GlobalPlayerState.to.isFullscreen.value) {
+      // 先同步复位全屏状态，再退出全屏（避免异步退出期间返回键被反复拦截）。
+      GlobalPlayerState.to.isFullscreen.value = false;
       setNormalScreen();
       state.value.player.videoController?.exitFullScreen();
       return true;
     }
-
-    state.value.player.videoController?.clearListener();
+    if (GlobalPlayerState.to.isWindowFullscreen.value) {
+      setNormalScreen();
+      GlobalPlayerState.to.isWindowFullscreen.value = false;
+      state.value.player.videoController?.enableController();
+      return true;
+    }
+    if (GlobalPlayerState.to.isPipMode.value) {
+      GlobalPlayerService.instance.playerManager.exitPip();
+      return true;
+    }
     return false;
+  }
+
+  /// 页面被系统原生返回弹出后的兜底清理（与返回键处理幂等，重复调用无副作用）。
+  void onPagePopCleanup() {
+    state.value.player.videoController?.clearListener();
+    updateRoom(success: false);
   }
 
   void updateRoom({LiveRoom? detail, bool? isLiving, bool? success, bool? isLoading, String? loadError}) {
@@ -217,6 +238,9 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   void _flushDanmakuMessages() {
     _danmakuFlushTimer = null;
+    debugPrint(
+      'DBG flush total=${danmakuMessages.length} pending=${_pendingDanmakuMessages.length} isClosed=$isClosed',
+    );
     if (_pendingDanmakuMessages.isEmpty || isClosed) return;
     final next = <LiveMessage>[...danmakuMessages, ..._pendingDanmakuMessages];
     _pendingDanmakuMessages.clear();
@@ -308,25 +332,80 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   /// 发送弹幕（弹幕输入条调用）。
   ///
-  /// 2.1.4 定制版未实现真正联网发送（B站/斗鱼/虎牙/抖音的服务器发送协议
-  /// 需要登录凭据 + csrf 校验，此处仅保留 fork 输入条的同名接口，改为本地
-  /// 回显：把输入内容作为一条本地弹幕展示在弹幕列表并渲染到画面，方便预览。
-  /// 需要在未来接入真实发送时，只需替换本方法的实现，无需改动输入条 UI。
+  /// 真正联网发送：调用 [currentSite.liveSite.sendDanmaku]（B站会真实发送并
+  /// 返回 (是否成功, 提示)）。发送成功后由服务器弹幕回包自然显示，无需本地回显。
   Future<bool> sendLiveDanmaku(String text) async {
     final content = text.trim();
     if (content.isEmpty) return false;
-    final local = localInteractionController;
-    if (!local.enabled.v) {
-      addSystemMessage(i18n('danmaku_send_unavailable'));
+    if (site != Sites.bilibiliSite) {
+      ToastUtil.show(i18n('send_danmaku_unsupported'));
       return false;
     }
-    emitLocalMessage(
-      local.createChat(content, platform: site),
-      showAsDanmaku: true,
-      delay: LivePlayController.localChatDeliveryDelay,
+    if (SettingsService.to.cookieManager.bilibiliCookie.v.trim().isEmpty) {
+      ToastUtil.show(i18n('send_danmaku_need_login'));
+      return false;
+    }
+    final roomId = room.roomId ?? '';
+    if (roomId.isEmpty) return false;
+
+    final (ok, info) = await currentSite.liveSite.sendDanmaku(roomId: roomId, message: content);
+    if (ok) {
+      ToastUtil.show(i18n('send_success'));
+      return true;
+    }
+    ToastUtil.show(info.isEmpty ? i18n('send_failed') : info);
+    return false;
+  }
+
+  /// 往弹幕列表添加一条醒目留言(SC)并按需触发全屏弹出。
+  ///
+  /// 供 danmaku 收流端（[DanmakuController.engine.onMessage] 的 superChat 分支）
+  /// 调用。当前分支收流点在 danmaku_controller，本类不持有该回调，因此暴露此
+  /// 公开方法作为挂载约定，调用方式：
+  /// ```dart
+  /// } else if (msg.type == LiveMessageType.superChat) {
+  ///   final sc = msg.data;
+  ///   if (sc is LiveSuperChatMessage) _main.handleSuperChatMessage(sc);
+  /// }
+  /// ```
+  /// 默认始终展示（当前分支尚无 showSuperChat 开关，直接显示）。
+  void handleSuperChatMessage(LiveSuperChatMessage sc) {
+    if (isClosed) return;
+    addDanmakuMessage(
+      LiveMessage(
+        type: LiveMessageType.superChat,
+        userName: sc.userName,
+        message: sc.message,
+        color: LiveMessageColor.white,
+        data: sc,
+      ),
     );
-    ToastUtil.show(i18n('local_message_queued'));
-    return true;
+    if (GlobalPlayerState.to.fullscreenUI) {
+      showFullscreenSC(sc);
+    }
+  }
+
+  /// 全屏左下角弹出 SC 卡片，按 SC 有效时间（至少 3 秒）自动消失。
+  void showFullscreenSC(LiveSuperChatMessage sc) {
+    _fsSCTimer?.cancel();
+    fsSC.value = sc;
+    var duration = sc.endTime.difference(DateTime.now());
+    if (duration < const Duration(seconds: 3)) {
+      duration = const Duration(seconds: 3);
+    }
+    _fsSCTimer = Timer(duration, () {
+      if (identical(fsSC.value, sc)) {
+        fsSC.value = null;
+      }
+      _fsSCTimer = null;
+    });
+  }
+
+  /// 隐藏全屏 SC 卡片并取消计时。
+  void hideFullscreenSC() {
+    _fsSCTimer?.cancel();
+    _fsSCTimer = null;
+    fsSC.value = null;
   }
 
   void clearDanmakuMessages() {
@@ -503,7 +582,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       enabled: autoStartAsmr,
       minutes: SettingsService.to.app.asmrSleepMinutes.v,
     );
-    updatePlayer(isCurrentRoomAudioOnly: autoStartAsmr);
+    updatePlayer(isCurrentRoomAudioOnly: autoStartAsmr || SettingsService.to.player.audioOnly.v);
 
     updateRoom(detail: newRoom);
     currentSite = Sites.of(newRoom.platform!);
@@ -637,14 +716,15 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _ownerClosed = true;
     _roomLoadEpoch++;
     _localGiftEffectTimer?.cancel();
+    _fsSCTimer?.cancel();
+    _fsSCTimer = null;
     _localMessageDeliveryQueue.dispose();
     _danmakuFlushTimer?.cancel();
     _pendingDanmakuMessages.clear();
     tabController.dispose();
 
-    if (Platform.isAndroid) {
-      BackButtonInterceptor.removeByName("live_play_page");
-    }
+    // 兜底恢复系统状态栏/导航栏，避免全屏残留（edge-to-edge 下小米手势条正常显示）。
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
     final keepForAppFloating = GlobalPlayerService.instance.playerManager.shouldKeepDanmakuForAppFloating;
     if (!keepForAppFloating) {
@@ -652,6 +732,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       _releaseChildControllers();
       _closeReactiveState();
     }
+    // 退出直播间时结束双开副窗口，避免再次进入直播间时残留
+    unawaited(SecondaryPlayerService.instance.close());
     super.onClose();
   }
 }

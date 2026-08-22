@@ -79,8 +79,8 @@ class NavigationSettingsPage extends StatelessWidget {
                       menuIcon = Remix.apps_2_line;
                       break;
                     case HomeMenu.esports:
-                      titleText = i18n("record_center");
-                      menuIcon = Remix.download_2_fill;
+                      titleText = i18n("esports_title");
+                      menuIcon = Remix.trophy_fill;
                       break;
                   }
 

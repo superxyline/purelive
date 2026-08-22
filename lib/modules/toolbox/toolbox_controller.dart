@@ -49,7 +49,7 @@ class ToolBoxController extends GetxController {
     String? text = data?.text;
     if (text == null || text.isEmpty) return;
 
-    final bool isLiveUrl = RegExp(r"bilibili|huya|douyu|douyin|kuaishou|163").hasMatch(text);
+    final bool isLiveUrl = RegExp(r"bilibili|huya|douyu|douyin").hasMatch(text);
     if (isLiveUrl) {
       roomJumpToController.text = text;
       getUrlController.text = text;

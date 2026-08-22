@@ -487,6 +487,16 @@ class BiliBiliSite implements LiveSite {
           refresh: () => _discoverDanmaku(int.tryParse(realRoomId) ?? 0),
         );
       }
+      // 直播开播时间：room_init 接口（简单稳定，getInfoByRoom 可能被风控）
+      var biliLiveTime = 0;
+      try {
+        final roomInit = await HttpClient.instance.getJson(
+          "https://api.live.bilibili.com/room/v1/Room/room_init",
+          queryParameters: {"id": roomId},
+          header: await getHeader(),
+        );
+        biliLiveTime = asT<int?>(roomInit["data"]?["live_time"]) ?? 0;
+      } catch (_) {}
       return LiveRoom(
         roomId: roomId,
         title: roomInfo["room_info"]["title"].toString(),
@@ -499,6 +509,7 @@ class BiliBiliSite implements LiveSite {
         area: roomInfo['room_info']?['area_name'] ?? '',
         status: (asT<int?>(roomInfo["room_info"]["live_status"]) ?? 0) == 1,
         liveStatus: (asT<int?>(roomInfo["room_info"]["live_status"]) ?? 0) == 1 ? LiveStatus.live : LiveStatus.offline,
+        liveStartTime: biliLiveTime > 0 ? biliLiveTime * 1000 : null,
         link: "https://live.bilibili.com/$roomId",
         introduction: roomInfo["room_info"]["description"].toString(),
         notice: "",
@@ -611,6 +622,7 @@ class BiliBiliSite implements LiveSite {
     List<LiveSuperChatMessage> ls = [];
     for (var item in result["data"]?["list"] ?? []) {
       var message = LiveSuperChatMessage(
+        id: (item["id"] as num?)?.toInt() ?? 0,
         backgroundBottomColor: item["background_bottom_color"].toString(),
         backgroundColor: item["background_color"].toString(),
         endTime: DateTime.fromMillisecondsSinceEpoch(item["end_time"] * 1000),
@@ -623,6 +635,49 @@ class BiliBiliSite implements LiveSite {
       ls.add(message);
     }
     return ls;
+  }
+
+  @override
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) async {
+    try {
+      final csrf = RegExp(r'bili_jct=([^;]+)').firstMatch(cookie)?.group(1) ?? '';
+      if (csrf.isEmpty) {
+        return (false, '请先在设置中登录B站账号');
+      }
+      const sendUrl = "https://api.live.bilibili.com/msg/send";
+      final queryParams = await getWbiSign("$sendUrl?web_location=444.8");
+      final result = await HttpClient.instance.postJson(
+        sendUrl,
+        queryParameters: queryParams,
+        header: await getHeader(),
+        data: {
+          'bubble': 0,
+          'msg': message,
+          'color': 16777215,
+          'mode': 1,
+          'room_type': 0,
+          'jumpfrom': 0,
+          'reply_mid': 0,
+          'reply_attr': 0,
+          'replay_dmid': '',
+          'statistics': '{"appId":100,"platform":5}',
+          'reply_type': 0,
+          'reply_uname': '',
+          'fontsize': 25,
+          'rnd': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          'roomid': roomId,
+          'csrf': csrf,
+          'csrf_token': csrf,
+        },
+        formUrlEncoded: true,
+      );
+      if (result["code"] == 0) {
+        return (true, '发送成功');
+      }
+      return (false, result["message"]?.toString() ?? '发送失败（code=${result["code"]}）');
+    } catch (e) {
+      return (false, '发送失败：$e');
+    }
   }
 
   Future<Map> getBuvid() async {

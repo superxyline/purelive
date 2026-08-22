@@ -344,6 +344,11 @@ class HuyaSite implements LiveSite {
       }
       bool isXingxiu = data['liveData']['gid'] == 1663;
       final audience = parseRoomAudience(Map<String, dynamic>.from(data['liveData'] as Map));
+      // 虎牙开播时间为 liveData.startTime（秒级时间戳）
+      final huyaStartRaw = data['liveData']?['startTime'];
+      final huyaStartSec = huyaStartRaw is num
+          ? huyaStartRaw.toInt()
+          : int.tryParse(huyaStartRaw?.toString() ?? '') ?? 0;
       return LiveRoom(
         cover: data['liveData']?['screenshot'] ?? '',
         watching: audience.popularity,
@@ -359,6 +364,7 @@ class HuyaSite implements LiveSite {
         notice: data['welcomeText'] ?? '',
         status: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY",
         liveStatus: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY" ? LiveStatus.live : LiveStatus.offline,
+        liveStartTime: huyaStartSec > 0 ? huyaStartSec * 1000 : null,
         platform: Sites.huyaSite,
         data: HuyaUrlDataModel(url: "", lines: huyaLines, bitRates: huyaBiterates, uid: "", isXingxiu: isXingxiu),
         danmakuData: HuyaDanmakuArgs(
@@ -592,6 +598,11 @@ class HuyaSite implements LiveSite {
   Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
     //尚不支持
     return Future.value([]);
+  }
+
+  @override
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) async {
+    return (false, i18n('send_danmaku_unsupported'));
   }
 
   // 构造 anticode, python转写

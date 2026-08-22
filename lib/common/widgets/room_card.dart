@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
@@ -7,9 +9,10 @@ import 'package:pure_live/common/utils/share_command_handler.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 
 class RoomCard extends StatelessWidget {
-  const RoomCard({super.key, required this.room, this.dense = false});
+  const RoomCard({super.key, required this.room, this.dense = false, this.hideBadges = false});
   final LiveRoom room;
   final bool dense;
+  final bool hideBadges;
 
   Widget _buildCover(BuildContext context, bool isDark) {
     final coverUrl = normalizeNetworkImageUrl(room.cover);
@@ -674,7 +677,7 @@ class RoomCard extends StatelessWidget {
                       child: _buildCover(context, isDark),
                     ),
                   ),
-                  if (room.isRecord == true)
+                  if (room.isRecord == true && !hideBadges)
                     Positioned(
                       right: 8,
                       top: 8,
@@ -685,7 +688,7 @@ class RoomCard extends StatelessWidget {
                         color: Get.theme.primaryColor,
                       ),
                     ),
-                  if (room.isRecord == false && room.liveStatus == LiveStatus.live)
+                  if (room.isRecord == false && room.liveStatus == LiveStatus.live && !hideBadges)
                     Positioned(
                       right: 8,
                       bottom: 8,
@@ -719,6 +722,21 @@ class RoomCard extends StatelessWidget {
                         );
                       }),
                     ),
+                  Obx(() {
+                    final bool showDuration = SettingsService.to.app.showLiveDurationBadge.v;
+                    if (room.isRecord == false &&
+                        room.liveStatus == LiveStatus.live &&
+                        room.liveStartTime != null &&
+                        showDuration &&
+                        !hideBadges) {
+                      return Positioned(
+                        left: 8,
+                        top: 8,
+                        child: LiveDurationBadge(startTimeMs: room.liveStartTime!, dense: dense),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
                 ],
               ),
               ListTile(
@@ -833,4 +851,58 @@ class CountChip extends StatelessWidget {
       ),
     );
   }
+}
+
+class LiveDurationBadge extends StatefulWidget {
+  const LiveDurationBadge({super.key, required this.startTimeMs, this.dense = false});
+
+  final int startTimeMs;
+  final bool dense;
+
+  @override
+  State<LiveDurationBadge> createState() => _LiveDurationBadgeState();
+}
+
+class _LiveDurationBadgeState extends State<LiveDurationBadge> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CountChip(
+      icon: Icons.access_time_rounded,
+      count: formatLiveDuration(widget.startTimeMs),
+      dense: widget.dense,
+      color: const Color(0xFFE53935), // 直播红
+    );
+  }
+}
+
+/// 将开播时间戳格式化为中文时长（精确到分钟），如 "2小时15分"
+String formatLiveDuration(int startTimeMs, {DateTime? now}) {
+  final current = now ?? DateTime.now();
+  final duration = current.difference(DateTime.fromMillisecondsSinceEpoch(startTimeMs));
+  if (duration.inMinutes < 1) return i18n('live_duration_just_started');
+  final days = duration.inDays;
+  final hours = duration.inHours % 24;
+  final minutes = duration.inMinutes % 60;
+  final buf = StringBuffer();
+  if (days > 0) buf.write('$days${i18n('live_duration_days')}');
+  if (hours > 0) buf.write('$hours${i18n('live_duration_hours')}');
+  if (minutes > 0) buf.write('$minutes${i18n('live_duration_minutes')}');
+  if (buf.isEmpty) buf.write('0${i18n('live_duration_minutes')}');
+  return buf.toString();
 }

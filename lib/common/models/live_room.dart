@@ -48,30 +48,6 @@ class LiveRoom {
       hasTotalViewers: true,
       onlineAvailability: AudienceOnlineAvailability.roomList,
     ),
-    'kuaishou': AudiencePlatformCapability(
-      hasPopularity: false,
-      hasTotalViewers: false,
-      onlineAvailability: AudienceOnlineAvailability.roomList,
-    ),
-    'cc': AudiencePlatformCapability(
-      hasPopularity: false,
-      hasTotalViewers: false,
-      onlineAvailability: AudienceOnlineAvailability.roomList,
-    ),
-    // Twitch GraphQL exposes viewersCount as the concurrent viewer count in
-    // directory, search and room metadata responses.
-    'twitch': AudiencePlatformCapability(
-      hasPopularity: false,
-      hasTotalViewers: false,
-      onlineAvailability: AudienceOnlineAvailability.roomList,
-    ),
-    // SOOP list/detail fields are named view_cnt/current_view_cnt and expose
-    // the current viewers rather than a separate platform heat score.
-    'soop': AudiencePlatformCapability(
-      hasPopularity: false,
-      hasTotalViewers: false,
-      onlineAvailability: AudienceOnlineAvailability.roomList,
-    ),
   };
 
   static const AudiencePlatformCapability _unknownAudienceCapability = AudiencePlatformCapability(
@@ -140,6 +116,9 @@ class LiveRoom {
   int? catchUpStart; // 时移开始时间戳
   int? catchUpEnd; // 时移结束时间戳
 
+  /// 开播时间（毫秒时间戳，直播中有效）
+  int? liveStartTime;
+
   // 添加未命名的默认构造函数
   LiveRoom({
     this.roomId,
@@ -171,6 +150,7 @@ class LiveRoom {
     this.isCatchUp = false,
     this.catchUpStart,
     this.catchUpEnd,
+    this.liveStartTime,
     List<String>? tagIds,
   }) : tagIds = tagIds ?? [];
 
@@ -205,7 +185,8 @@ class LiveRoom {
       catchUpUrl = json['catchUpUrl'],
       isCatchUp = json['isCatchUp'] ?? false,
       catchUpStart = json['catchUpStart'],
-      catchUpEnd = json['catchUpEnd'] {
+      catchUpEnd = json['catchUpEnd'],
+      liveStartTime = json['liveStartTime'] {
     // Earlier builds stored Huya's userCount/URI 8006 popularity in the
     // concurrent-viewer field. Current captures confirm both are popularity.
     if (platform == 'huya' && _hasExplicitAudienceValue(onlineViewers)) {
@@ -249,6 +230,7 @@ class LiveRoom {
     bool? isCatchUp,
     int? catchUpStart,
     int? catchUpEnd,
+    int? liveStartTime,
     List<String>? tagIds,
   }) {
     return LiveRoom(
@@ -281,6 +263,7 @@ class LiveRoom {
       isCatchUp: isCatchUp ?? this.isCatchUp,
       catchUpStart: catchUpStart ?? this.catchUpStart,
       catchUpEnd: catchUpEnd ?? this.catchUpEnd,
+      liveStartTime: liveStartTime ?? this.liveStartTime,
       tagIds: tagIds ?? this.tagIds,
     );
   }
@@ -333,6 +316,7 @@ class LiveRoom {
       'isCatchUp': isCatchUp,
       'catchUpStart': catchUpStart,
       'catchUpEnd': catchUpEnd,
+      'liveStartTime': liveStartTime,
     };
   }
 
@@ -342,7 +326,6 @@ class LiveRoom {
     }
     return switch (platform) {
       'bilibili' || 'douyu' => AudienceMetricType.popularity,
-      'kuaishou' || 'twitch' || 'soop' => AudienceMetricType.onlineViewers,
       'huya' => AudienceMetricType.popularity,
       'douyin' => AudienceMetricType.totalViewers,
       _ => AudienceMetricType.unknown,

@@ -6,12 +6,14 @@ import 'video_controller_panel.dart';
 
 import 'package:flutter/scheduler.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:flutter/services.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:pure_live/player/core/player_manager.dart';
+import 'package:pure_live/player/utils/fullscreen.dart';
 import 'package:pure_live/player/models/player_exception.dart';
 import 'package:pure_live/player/models/player_error_type.dart';
 import 'package:pure_live/modules/live_play/states/load_type.dart';
@@ -228,6 +230,10 @@ class VideoController with ChangeNotifier {
   // 状态
   PlayerStatus _status = PlayerStatus.idle;
   PlayerStatus get status => _status;
+  // 全屏切换令牌：捕获进/退全屏异步方向切换，防止连续快速进/退造成竞态。
+  int _fullscreenToken = 0;
+  // 全屏进/退切换进行中标记：返回拦截在切换期间忽略快速连续返回，避免竞态。
+  final isTransitioningFullScreen = false.obs;
   final isVertical = false.obs;
   final showController = true.obs;
   // 弹幕输入条在全屏控制条内输入时置为 true，避免控制条自动隐藏打断输入。
@@ -673,8 +679,22 @@ class VideoController with ChangeNotifier {
   }
 
   // 全屏管理
-  void exitFullScreen() async {
+  Future<void> exitFullScreen() async {
+    // 捕获令牌：若切换期间又发生新的进/退全屏，本次异步恢复作废，交给最新操作处理。
+    final token = ++_fullscreenToken;
+    isTransitioningFullScreen.value = true;
     GlobalPlayerState.to.isFullscreen.value = false;
+    try {
+      // 退出全屏：手机恢复竖屏（portraitUp/portraitDown），平板保持横屏。
+      await WindowService().verticalScreen();
+      // 期间若已有更新的全屏切换，放弃后续处理，避免覆盖。
+      if (token != _fullscreenToken) return;
+      // 退出全屏恢复系统状态栏/导航栏（edge-to-edge 下小米手势条恢复半透明正常显示）。
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    } catch (_) {
+    } finally {
+      if (token == _fullscreenToken) isTransitioningFullScreen.value = false;
+    }
   }
 
   void toggleFullScreen() async {
@@ -690,17 +710,30 @@ class VideoController with ChangeNotifier {
 
     if (GlobalPlayerState.to.isFullscreen.value) {
       _livePlayController.setNormalScreen();
-      GlobalPlayerState.to.isFullscreen.value = false;
+      await exitFullScreen();
     } else {
       _livePlayController.setFullScreen();
-      enterFullScreen();
-      GlobalPlayerState.to.isFullscreen.value = true;
+      await enterFullScreen();
     }
     enableController();
   }
 
-  void enterFullScreen() {
+  Future<void> enterFullScreen() async {
+    // 捕获令牌：防止与随后立刻的退出全屏竞态，避免方向残留覆盖恢复逻辑。
+    final token = ++_fullscreenToken;
+    isTransitioningFullScreen.value = true;
     GlobalPlayerState.to.isFullscreen.value = true;
+    try {
+      // 进入全屏：强制横屏（平板本就恒横屏）。
+      await WindowService().landScape();
+      // 期间若已退出全屏，放弃本次设置，交还原来的方向。
+      if (token != _fullscreenToken) return;
+      // 全屏时隐藏系统状态栏/导航栏/手势条，沉浸式观看。
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    } catch (_) {
+    } finally {
+      if (token == _fullscreenToken) isTransitioningFullScreen.value = false;
+    }
   }
 
   void toggleWindowFullScreen() {

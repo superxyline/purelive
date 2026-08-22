@@ -67,4 +67,9 @@ class LiveSite {
   Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) async {
     return Future.value([]);
   }
+
+  /// 发送弹幕，返回 (是否成功, 提示信息)。
+  Future<(bool, String)> sendDanmaku({required String roomId, required String message}) async {
+    return (false, '当前平台暂不支持发送弹幕');
+  }
 }

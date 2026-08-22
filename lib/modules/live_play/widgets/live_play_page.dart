@@ -31,25 +31,62 @@ class LivePlayPage extends GetView<LivePlayController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      width: double.infinity,
-      height: double.infinity,
-      child: Obx(() {
-        final manager = GlobalPlayerService.instance.playerManager;
-        final isInPip = manager.isInPip.value || manager.isPipPreparing.value;
-        final state = controller.state.value;
-        final mode = state.ui.screenMode;
-        final videoController = state.player.videoController;
+    return Obx(
+      () => PopScope(
+        canPop:
+            !GlobalPlayerState.to.isFullscreen.value &&
+            !GlobalPlayerState.to.isWindowFullscreen.value &&
+            !GlobalPlayerState.to.isPipMode.value,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            // 系统原生返回已完成，做兜底清理。
+            controller.onPagePopCleanup();
+            return;
+          }
+          // 全屏进/退切换进行中：忽略本次快速连续返回，避免竞态导致返回失效。
+          if (controller.state.value.player.videoController?.isTransitioningFullScreen.value ?? false) {
+            return;
+          }
+          // canPop=false：先处理全屏/半屏/PiP，处理完成后才允许退出页面。
+          if (!controller.handleBackPress()) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Container(
+          color: Colors.black,
+          width: double.infinity,
+          height: double.infinity,
+          child: LayoutBuilder(
+            builder: (context, constraints) => Stack(
+              fit: StackFit.expand,
+              children: [
+                Obx(() {
+                  final manager = GlobalPlayerService.instance.playerManager;
+                  final isInPip = manager.isInPip.value || manager.isPipPreparing.value;
+                  final state = controller.state.value;
+                  final mode = state.ui.screenMode;
+                  final videoController = state.player.videoController;
 
-        final child = _withLocalGiftEffect(_buildConstrainedChild(isInPip, mode, context));
+                  final child = _withLocalGiftEffect(_buildConstrainedChild(isInPip, mode, context));
 
-        if (videoController == null) {
-          return child;
-        }
+                  if (videoController == null) {
+                    return child;
+                  }
 
-        return VideoKeyboardShortcuts(controller: videoController, child: child);
-      }),
+                  return VideoKeyboardShortcuts(controller: videoController, child: child);
+                }),
+                // 双开小窗提升到页面顶层，支持在整个直播页范围内拖动
+                Obx(() {
+                  final manager = GlobalPlayerService.instance.playerManager;
+                  final isInPip = manager.isInPip.value || manager.isPipPreparing.value;
+                  if (isInPip) return const SizedBox.shrink();
+                  return DraggableSecondaryWindow(maxWidth: constraints.maxWidth, maxHeight: constraints.maxHeight);
+                }),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -396,11 +433,6 @@ class LivePlayPage extends GetView<LivePlayController> {
                   }
                   return NotLivingVideoWidget(controller: controller);
                 }),
-              ),
-              // 双开副窗口（小窗）叠加在视频区域上，默认停靠右下角
-              DraggableSecondaryWindow(
-                maxWidth: constraints.maxWidth,
-                maxHeight: constraints.maxHeight,
               ),
             ],
           );

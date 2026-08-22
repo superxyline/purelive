@@ -9,12 +9,14 @@ class RoomGridView extends GetView<FavoriteController> {
     required this.isOnline,
     required this.scrollController,
     required this.displayList,
+    this.hideBadges = false,
   });
 
   final String site;
   final bool isOnline;
   final ScrollController scrollController;
   final List<LiveRoom> displayList;
+  final bool hideBadges;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +109,7 @@ class RoomGridView extends GetView<FavoriteController> {
                   itemCount: displayList.length,
                   itemBuilder: (context, index) {
                     final room = displayList[index];
-                    return RoomCard(key: ValueKey('${room.platform}:${room.roomId}'), room: room, dense: dense);
+                    return RoomCard(key: ValueKey('${room.platform}:${room.roomId}'), room: room, dense: dense, hideBadges: hideBadges);
                   },
                 );
               }),

@@ -113,6 +113,7 @@ class LiveMessageColor {
 }
 
 class LiveSuperChatMessage {
+  final int id;
   final String userName;
   final String face;
   final String message;
@@ -121,7 +122,10 @@ class LiveSuperChatMessage {
   final DateTime endTime;
   final String backgroundColor;
   final String backgroundBottomColor;
+  final String? messageFontColor;
+  final String? nameColor;
   LiveSuperChatMessage({
+    this.id = 0,
     required this.backgroundBottomColor,
     required this.backgroundColor,
     required this.endTime,
@@ -130,5 +134,7 @@ class LiveSuperChatMessage {
     required this.price,
     required this.startTime,
     required this.userName,
+    this.messageFontColor,
+    this.nameColor,
   });
 }
