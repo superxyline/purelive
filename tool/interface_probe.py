@@ -547,29 +547,6 @@ def main() -> int:
                 "datas",
             ),
         ),
-        (
-            "kuaishou.categories",
-            lambda: require_path(
-                request_json("https://live.kuaishou.com/live_api/category/data", {"type": 1, "page": 1, "size": 30}),
-                "data",
-                "list",
-            ),
-        ),
-        (
-            "kuaishou.home",
-            lambda: require_path(request_json("https://live.kuaishou.com/live_api/home/list"), "data", "list"),
-        ),
-        (
-            "cc.categories",
-            lambda: require_path(request_json("https://cc.163.com/category/", {"format": "json"}), "game_list"),
-        ),
-        (
-            "cc.recommend",
-            lambda: require_path(
-                request_json("https://cc.163.com/api/category/live/", {"format": "json", "start": 0, "size": 30}),
-                "lives",
-            ),
-        ),
         ("bilibili.recommend", bilibili_recommend_probe),
         ("bilibili.danmaku", bilibili_danmaku_probe),
         ("huya.danmaku_identity", huya_danmaku_identity_probe),
@@ -604,57 +581,6 @@ def main() -> int:
                 "response",
             ),
         ),
-        (
-            "cc.search",
-            lambda: require_path(
-                request_json("https://cc.163.com/search/anchor", {"query": "ASMR", "size": 20, "page": 1}),
-                "webcc_anchor",
-                "result",
-            ),
-        ),
-        ("twitch.categories", twitch_categories_probe),
-        ("twitch.directory", twitch_directory_probe),
-        ("twitch.search", twitch_search_probe),
-        ("twitch.room", twitch_room_probe),
-        ("twitch.playback", twitch_playback_probe),
-        (
-            "soop.categories",
-            lambda: require_path(
-                request_json(
-                    "https://sch.sooplive.co.kr/api.php",
-                    {
-                        "m": "categoryList",
-                        "szKeyword": "",
-                        "szOrder": "view_cnt",
-                        "nPageNo": 1,
-                        "nListCnt": 5,
-                        "nOffset": 0,
-                        "szPlatform": "pc",
-                    },
-                ),
-                "data",
-                "list",
-            ),
-        ),
-        (
-            "soop.recommend",
-            lambda: require_path(
-                request_json(
-                    "https://live.sooplive.co.kr/api/main_broad_list_api.php",
-                    {
-                        "selectType": "action",
-                        "selectValue": "all",
-                        "orderType": "view_cnt",
-                        "pageNo": 1,
-                        "lang": "ko_KR",
-                    },
-                ),
-                "broad",
-            ),
-        ),
-        ("soop.search", soop_search_probe),
-        ("soop.room", soop_room_probe),
-        ("soop.playback_token", soop_playback_probe),
     ]
 
     failures: list[str] = []
