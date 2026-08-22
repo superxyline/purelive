@@ -180,6 +180,19 @@ class DanmakuListViewState extends State<DanmakuListView> {
     }
   }
 
+  /// 是否已登录 B站：登录后弹幕输入自动切换为真实发送。
+  bool get _canSendRealDanmaku =>
+      controller.site == Sites.bilibiliSite &&
+      SettingsService.to.cookieManager.bilibiliCookie.v.trim().isNotEmpty;
+
+  /// 真实发送到 B站服务器，成功后由服务器弹幕回包自然显示。
+  Future<void> _sendRealDanmaku() async {
+    final text = _composerController.text.trim();
+    if (text.isEmpty) return;
+    final ok = await controller.sendLiveDanmaku(text);
+    if (ok && mounted) _composerController.clear();
+  }
+
   void _sendLocalMessage() {
     final text = _composerController.text.trim();
     final local = controller.localInteractionController;
@@ -191,6 +204,15 @@ class DanmakuListViewState extends State<DanmakuListView> {
     );
     _composerController.clear();
     ToastUtil.show(i18n('local_message_queued'));
+  }
+
+  /// 统一入口：已登录 B站走真实发送，否则本地回显。
+  void _onSendPressed() {
+    if (_canSendRealDanmaku) {
+      _sendRealDanmaku();
+    } else {
+      _sendLocalMessage();
+    }
   }
 
   @override
@@ -263,7 +285,9 @@ class DanmakuListViewState extends State<DanmakuListView> {
               ),
             ),
             Obx(() {
-              if (!controller.localInteractionController.enabled.v) return const SizedBox.shrink();
+              final local = controller.localInteractionController;
+              // 本地互动开启，或已登录 B站可真实发送弹幕时，显示输入框。
+              if (!local.enabled.v && !_canSendRealDanmaku) return const SizedBox.shrink();
               return Material(
                 color: Theme.of(context).colorScheme.surfaceContainerLow,
                 child: SafeArea(
@@ -276,19 +300,22 @@ class DanmakuListViewState extends State<DanmakuListView> {
                           child: TextField(
                             controller: _composerController,
                             textInputAction: TextInputAction.send,
-                            onSubmitted: (_) => _sendLocalMessage(),
+                            onSubmitted: (_) => _onSendPressed(),
                             decoration: InputDecoration(
                               isDense: true,
-                              hintText: i18n('local_message_hint'),
-                              prefixIcon: const Icon(Icons.auto_awesome_rounded, size: 19),
+                              hintText: _canSendRealDanmaku ? i18n('send_danmaku_hint') : i18n('local_message_hint'),
+                              prefixIcon: Icon(
+                                _canSendRealDanmaku ? Icons.chat_bubble_outline_rounded : Icons.auto_awesome_rounded,
+                                size: 19,
+                              ),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(22)),
                             ),
                           ),
                         ),
                         const SizedBox(width: 6),
                         IconButton.filled(
-                          tooltip: i18n('local_send_message'),
-                          onPressed: _sendLocalMessage,
+                          tooltip: _canSendRealDanmaku ? i18n('send') : i18n('local_send_message'),
+                          onPressed: _onSendPressed,
                           icon: const Icon(Icons.send_rounded),
                         ),
                       ],

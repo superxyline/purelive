@@ -24,7 +24,6 @@ import 'package:pure_live/modules/live_play/widgets/video_player/video_controlle
 import 'package:pure_live/player/core/secondary_player_service.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/dual_view_picker_sheet.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/secondary_window.dart';
-import 'package:pure_live/modules/live_play/widgets/live_danmaku_input_bar.dart';
 
 class LivePlayPage extends GetView<LivePlayController> {
   const LivePlayPage({super.key});
@@ -347,8 +346,6 @@ class LivePlayPage extends GetView<LivePlayController> {
                             }
                             return Expanded(child: DanmakuTabView(key: ValueKey(globalState.isFullscreen.value)));
                           }),
-                          // 竖屏：弹幕发送输入条（播放器外独立放置）
-                          LiveDanmakuInputBar(controller: controller),
                         ],
                       )
                     : Row(
