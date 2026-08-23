@@ -3,13 +3,11 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
-    id("com.google.gms.google-services") apply false
     // END: FlutterFire Configuration
     // AGP 9 provides Built-in Kotlin; the standalone Kotlin Gradle Plugin is no longer applied.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-apply(plugin = "com.google.gms.google-services")
 
 // 加载签名配置
 val keystorePropertiesFile = rootProject.file("key.properties")
