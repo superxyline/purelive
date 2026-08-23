@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
@@ -25,11 +26,9 @@ import 'package:pure_live/common/index.dart';
 import '../interface/unified_player_interface.dart';
 
 import 'package:pure_live/routes/app_navigation.dart';
-import 'package:pure_live/player/utils/fullscreen.dart';
 import 'package:flutter_floating/flutter_floating.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
-import 'package:pure_live/player/utils/pip_window_widget.dart';
 import 'package:pure_live/player/core/live_audio_service.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -394,9 +393,6 @@ class PlayerManager {
         isPipPreparing.value = false;
         _pipTransitionInFlight = false;
       }
-    } else if (Platform.isWindows) {
-      await WindowService().enterWinPiP(currentVideoRatio);
-      isInPip.value = true;
     }
   }
 
@@ -416,7 +412,6 @@ class PlayerManager {
 
   Future<void> exitPip() async {
     if (Platform.isWindows) {
-      await WindowService().exitWinPiP();
       GlobalPlayerState.to.reset();
       isInPip.value = false;
     }
@@ -576,7 +571,7 @@ class PlayerManager {
             children: [
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onPanStart: (_) => windowManager.startDragging(),
+                onPanStart: (_) { if (Platform.isWindows) windowManager.startDragging(); },
                 onDoubleTap: () async {
                   await exitPip();
                 },
@@ -778,8 +773,7 @@ class PlayerManager {
     final LivePlayController livePlayController = Get.find<LivePlayController>();
     return RepaintBoundary(
       key: _pipSourceKey,
-      child: PureLivePipWidget(
-        child: Container(
+      child: Container(
           color: Colors.black,
           padding: const EdgeInsets.all(0),
           child: StreamBuilder<bool>(
@@ -831,7 +825,6 @@ class PlayerManager {
             },
           ),
         ),
-      ),
     );
   }
 

@@ -33,10 +33,7 @@ class LivePlayPage extends GetView<LivePlayController> {
   Widget build(BuildContext context) {
     return Obx(
       () => PopScope(
-        canPop:
-            !GlobalPlayerState.to.isFullscreen.value &&
-            !GlobalPlayerState.to.isWindowFullscreen.value &&
-            !GlobalPlayerState.to.isPipMode.value,
+        canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (didPop) {
             // 系统原生返回已完成，做兜底清理。

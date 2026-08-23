@@ -52,5 +52,5 @@ Package locally with `tool/build_local_release.ps1`; see `docs/BUILD_AND_RELEASE
 
 - Never commit signing files, `android/key.properties`, Cookie values, WebDAV credentials, private stream lists or real backup data.
 - Keep Android JKS and other release keys outside the repository; inject them through local configuration or GitHub Secrets.
-- Firebase client configuration is public application metadata, not a server credential. Administrative credentials and service-account keys must remain external.
+- No cloud service credentials are used; all sync features rely on user-configured WebDAV.
 - Report vulnerabilities through the private GitHub Security Advisory form described in `SECURITY.md`.

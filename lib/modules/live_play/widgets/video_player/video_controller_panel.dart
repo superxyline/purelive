@@ -115,6 +115,11 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 GestureDetector(
                   onTapDown: (details) => _lastTapPosition = details.globalPosition,
                   onTap: () {
+                    // 弹幕输入框聚焦时，点击空白处仅取消焦点（收起键盘），不触发播放控制。
+                    if (FocusManager.instance.primaryFocus?.hasFocus ?? false) {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      return;
+                    }
                     final position = _lastTapPosition;
                     if (position != null && controller.handleDanmakuPointer(position, longPress: false)) return;
                     GlobalPlayerService.instance.playerManager.isPlayingNow

@@ -107,16 +107,6 @@ class ThemeSettingsPage extends GetView<SettingsService> {
             ]),
           ],
 
-          const SizedBox(height: 20),
-          context.buildGroupTitle(i18n("localization_settings")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.global_line,
-              title: i18n("change_language"),
-              subtitle: i18n("change_language_subtitle"),
-              onTap: showLanguageSelecterDialog,
-            ),
-          ]),
           const SizedBox(height: 32),
         ],
       ),
@@ -207,50 +197,6 @@ class ThemeSettingsPage extends GetView<SettingsService> {
       Get.context!,
       actionsPadding: const EdgeInsets.all(16),
       constraints: const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
-    );
-  }
-
-  void showLanguageSelecterDialog() {
-    showDialog(
-      context: Get.context!,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text(i18n("change_language")),
-          children: [
-            RadioGroup<String>(
-              groupValue: SettingsService.to.theme.languageName.v,
-              onChanged: (String? value) {
-                if (value != null) {
-                  SettingsService.to.theme.changeLanguage(value);
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(top: 0, bottom: 10, left: 16, right: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: AppConsts.languages.keys.map<Widget>((name) {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Radio<String>(value: name, activeColor: Theme.of(context).colorScheme.primary),
-                        GestureDetector(
-                          onTap: () {
-                            SettingsService.to.theme.changeLanguage(name);
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 
