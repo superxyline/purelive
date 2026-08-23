@@ -31,8 +31,7 @@ class LivePlayPage extends GetView<LivePlayController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => PopScope(
+    return PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (didPop) {
@@ -83,7 +82,6 @@ class LivePlayPage extends GetView<LivePlayController> {
             ),
           ),
         ),
-      ),
     );
   }
 
