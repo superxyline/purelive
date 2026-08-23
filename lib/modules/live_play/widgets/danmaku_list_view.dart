@@ -9,6 +9,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
+import 'package:pure_live/modules/live_play/widgets/danmaku_composer.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_message_actions.dart';
 
 bool isDanmakuUserScrollStart(ScrollNotification notification) {
@@ -28,7 +29,6 @@ class DanmakuListView extends StatefulWidget {
 
 class DanmakuListViewState extends State<DanmakuListView> {
   final ScrollController _scrollController = createPureLiveScrollController();
-  final TextEditingController _composerController = TextEditingController();
 
   static const Duration throttleDuration = Duration(milliseconds: 80);
 
@@ -121,7 +121,6 @@ class DanmakuListViewState extends State<DanmakuListView> {
     windowFullscreenWorker?.dispose();
     superChatWorker?.dispose();
     throttleTimer?.cancel();
-    _composerController.dispose();
     _pendingMessageCount.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -165,7 +164,11 @@ class DanmakuListViewState extends State<DanmakuListView> {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
     final distanceToBottom = position.pixels - position.minScrollExtent;
-
+    final atBottom = distanceToBottom <= 40;
+    if (atBottom && !_autoScrollEnabled) {
+      _resumeAutoScroll();
+      return;
+    }
     // A UserScrollNotification is emitted before the first drag has produced a
     // useful pixel distance. Waiting for a 24 px offset let the 80 ms live
     // update jump the list back to the bottom, so Android users had to swipe
@@ -182,38 +185,7 @@ class DanmakuListViewState extends State<DanmakuListView> {
 
   /// 是否已登录 B站：登录后弹幕输入自动切换为真实发送。
   bool get _canSendRealDanmaku =>
-      controller.site == Sites.bilibiliSite &&
-      SettingsService.to.cookieManager.bilibiliCookie.v.trim().isNotEmpty;
-
-  /// 真实发送到 B站服务器，成功后由服务器弹幕回包自然显示。
-  Future<void> _sendRealDanmaku() async {
-    final text = _composerController.text.trim();
-    if (text.isEmpty) return;
-    final ok = await controller.sendLiveDanmaku(text);
-    if (ok && mounted) _composerController.clear();
-  }
-
-  void _sendLocalMessage() {
-    final text = _composerController.text.trim();
-    final local = controller.localInteractionController;
-    if (!local.enabled.v || text.isEmpty) return;
-    controller.emitLocalMessage(
-      local.createChat(text, platform: controller.site),
-      showAsDanmaku: local.showAsDanmaku.v,
-      delay: LivePlayController.localChatDeliveryDelay,
-    );
-    _composerController.clear();
-    ToastUtil.show(i18n('local_message_queued'));
-  }
-
-  /// 统一入口：已登录 B站走真实发送，否则本地回显。
-  void _onSendPressed() {
-    if (_canSendRealDanmaku) {
-      _sendRealDanmaku();
-    } else {
-      _sendLocalMessage();
-    }
-  }
+      controller.site == Sites.bilibiliSite && SettingsService.to.cookieManager.bilibiliCookie.v.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -288,41 +260,7 @@ class DanmakuListViewState extends State<DanmakuListView> {
               final local = controller.localInteractionController;
               // 本地互动开启，或已登录 B站可真实发送弹幕时，显示输入框。
               if (!local.enabled.v && !_canSendRealDanmaku) return const SizedBox.shrink();
-              return Material(
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _composerController,
-                            textInputAction: TextInputAction.send,
-                            onSubmitted: (_) => _onSendPressed(),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              hintText: _canSendRealDanmaku ? i18n('send_danmaku_hint') : i18n('local_message_hint'),
-                              prefixIcon: Icon(
-                                _canSendRealDanmaku ? Icons.chat_bubble_outline_rounded : Icons.auto_awesome_rounded,
-                                size: 19,
-                              ),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(22)),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        IconButton.filled(
-                          tooltip: _canSendRealDanmaku ? i18n('send') : i18n('local_send_message'),
-                          onPressed: _onSendPressed,
-                          icon: const Icon(Icons.send_rounded),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
+              return DanmakuComposer(controller: controller);
             }),
           ],
         ),
@@ -508,10 +446,7 @@ class SuperChatCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(
-                  _timeText(sc.startTime),
-                  style: TextStyle(color: bottomColor, fontSize: 12),
-                ),
+                Text(_timeText(sc.startTime), style: TextStyle(color: bottomColor, fontSize: 12)),
               ],
             ),
           ),

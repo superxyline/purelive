@@ -8,6 +8,7 @@ class LocalGift {
     required this.price,
     required this.color,
     this.effect = 'ticker',
+    this.anim = 'float',
   });
 
   final String id;
@@ -15,7 +16,12 @@ class LocalGift {
   final String emoji;
   final int price;
   final LiveMessageColor color;
+
+  /// 卡片样式：ticker 小卡 / full 大横幅（历史字段，兼容旧数据）。
   final String effect;
+
+  /// 动画类型：float 上浮粒子 / launch 升空 / fly 横穿 / full 全屏大字报。
+  final String anim;
 }
 
 class LocalPlatformPack {
@@ -64,6 +70,7 @@ class LocalInteractionController extends GetxController {
       emoji: '🚀',
       price: 500,
       color: LiveMessageColor(255, 165, 0),
+      anim: 'launch',
     ),
     LocalGift(
       id: 'castle',
@@ -71,6 +78,7 @@ class LocalInteractionController extends GetxController {
       emoji: '🏰',
       price: 2000,
       color: LiveMessageColor(138, 43, 226),
+      anim: 'full',
     ),
   ];
 
@@ -124,6 +132,7 @@ class LocalInteractionController extends GetxController {
         emoji: '📺',
         price: 100,
         color: LiveMessageColor(84, 197, 248),
+        anim: 'full',
       ),
       LocalGift(
         id: 'bili_voyage',
@@ -132,6 +141,7 @@ class LocalInteractionController extends GetxController {
         price: 1980,
         color: LiveMessageColor(255, 99, 146),
         effect: 'full',
+        anim: 'full',
       ),
     ],
     Sites.douyuSite: [
@@ -143,11 +153,20 @@ class LocalInteractionController extends GetxController {
         color: LiveMessageColor(255, 144, 0),
       ),
       LocalGift(
+        id: 'douyu_plane',
+        nameKey: 'local_gift_douyu_plane',
+        emoji: '✈️',
+        price: 400,
+        color: LiveMessageColor(84, 197, 248),
+        anim: 'fly',
+      ),
+      LocalGift(
         id: 'douyu_rocket',
         nameKey: 'local_gift_douyu_rocket',
         emoji: '🚀',
         price: 500,
         color: LiveMessageColor(255, 123, 0),
+        anim: 'launch',
       ),
       LocalGift(
         id: 'douyu_super_rocket',
@@ -156,6 +175,7 @@ class LocalInteractionController extends GetxController {
         price: 2000,
         color: LiveMessageColor(255, 76, 0),
         effect: 'full',
+        anim: 'full',
       ),
     ],
     Sites.huyaSite: [
@@ -172,6 +192,7 @@ class LocalInteractionController extends GetxController {
         emoji: '⚔️',
         price: 300,
         color: LiveMessageColor(255, 174, 0),
+        anim: 'fly',
       ),
       LocalGift(
         id: 'huya_one',
@@ -180,6 +201,16 @@ class LocalInteractionController extends GetxController {
         price: 1000,
         color: LiveMessageColor(255, 128, 0),
         effect: 'full',
+        anim: 'full',
+      ),
+      LocalGift(
+        id: 'huya_treasure',
+        nameKey: 'local_gift_huya_treasure',
+        emoji: '🗺️',
+        price: 3000,
+        color: LiveMessageColor(255, 215, 64),
+        effect: 'full',
+        anim: 'full',
       ),
     ],
     Sites.douyinSite: [
@@ -196,6 +227,7 @@ class LocalInteractionController extends GetxController {
         emoji: '🎖️',
         price: 200,
         color: LiveMessageColor(255, 86, 124),
+        anim: 'fly',
       ),
       LocalGift(
         id: 'douyin_carnival',
@@ -204,6 +236,7 @@ class LocalInteractionController extends GetxController {
         price: 3000,
         color: LiveMessageColor(254, 44, 85),
         effect: 'full',
+        anim: 'full',
       ),
     ],
   };
@@ -284,6 +317,9 @@ class LocalInteractionController extends GetxController {
         'local': true,
         'platform': platform,
         'effect': enableGiftEffects.v ? gift.effect : 'none',
+        'anim': enableGiftEffects.v ? gift.anim : 'none',
+        'emoji': gift.emoji,
+        'giftName': giftName,
       },
       color: gift.color,
       userLevel: showLevelBadge.v ? level.toString() : '',

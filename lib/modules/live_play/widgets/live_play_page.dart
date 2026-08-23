@@ -17,6 +17,7 @@ import 'package:pure_live/modules/live_play/widgets/play_other.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_tab.dart';
 import 'package:pure_live/modules/live_play/widgets/video_keyboard.dart';
 import 'package:pure_live/modules/live_play/local_interaction_sheet.dart';
+import 'package:pure_live/modules/live_play/widgets/local_gift_effect.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -92,37 +93,12 @@ class LivePlayPage extends GetView<LivePlayController> {
   Widget _withLocalGiftEffect(Widget child) {
     final message = controller.localGiftEffect.value;
     if (message == null) return child;
-    final color = Color.fromARGB(255, message.color.r, message.color.g, message.color.b);
-    final fullEffect = message.data is Map && message.data['effect'] == 'full';
     return Stack(
       fit: StackFit.expand,
       children: [
         child,
         IgnorePointer(
-          child: Center(
-            child: TweenAnimationBuilder<double>(
-              key: ValueKey(message),
-              tween: Tween(begin: .72, end: 1),
-              duration: const Duration(milliseconds: 420),
-              curve: Curves.easeOutBack,
-              builder: (context, scale, effectChild) => Transform.scale(scale: scale, child: effectChild),
-              child: Container(
-                constraints: BoxConstraints(maxWidth: fullEffect ? 440 : 320),
-                padding: EdgeInsets.symmetric(horizontal: fullEffect ? 28 : 20, vertical: fullEffect ? 24 : 14),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [color.withValues(alpha: .94), Colors.black.withValues(alpha: .78)]),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.white.withValues(alpha: .45)),
-                  boxShadow: [BoxShadow(color: color.withValues(alpha: .55), blurRadius: fullEffect ? 42 : 24)],
-                ),
-                child: Text(
-                  message.message,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: fullEffect ? 20 : 16, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-          ),
+          child: LocalGiftEffectView(key: ValueKey(message), message: message),
         ),
       ],
     );
@@ -258,7 +234,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                   value: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: MenuListTile(
-                    leading: const Icon(Icons.open_in_new_rounded, size: 16),
+                    leading: const Icon(Icons.open_in_new_rounded, size: 20),
                     text: i18n("open_live_room"),
                   ),
                 ),

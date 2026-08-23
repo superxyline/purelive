@@ -19,6 +19,7 @@ import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
+import 'package:pure_live/modules/live_play/widgets/danmaku_composer.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
 
 class VideoControllerPanel extends StatefulWidget {
@@ -144,9 +145,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   final width = (MediaQuery.of(context).size.width * 0.6).clamp(260.0, 360.0);
                   return Positioned(
                     left: 16,
-                    bottom: (controller.showController.value && !controller.showLocked.value)
-                        ? barHeight + 16
-                        : 24,
+                    bottom: (controller.showController.value && !controller.showLocked.value) ? barHeight + 16 : 24,
                     width: width,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
@@ -273,7 +272,6 @@ class TopActionBar extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class DatetimeInfo extends StatefulWidget {
@@ -909,7 +907,7 @@ class ResolutionSelectorButton extends StatelessWidget {
         return GestureDetector(onTap: () => _showMobileDialog(context), child: _buildButtonChild());
       }
 
-            // Windows 桌面端样式
+      // Windows 桌面端样式
       final qualityCount = controller.livePlayController.state.value.player.qualites.length;
       const double itemHeight = 40.0;
       final double totalMenuHeight = (qualityCount * itemHeight) + 32;
@@ -1028,6 +1026,21 @@ class BottomActionBar extends StatelessWidget {
                             ],
                           ],
                         ),
+
+                        // 全屏时在正下方控制条嵌入弹幕输入条（与弹幕开关同一水平线），
+                        // 输入聚焦期间保持控制条常显，失焦后 4 秒自动隐藏。
+                        if (GlobalPlayerState.to.fullscreenUI &&
+                            (controller.livePlayController.localInteractionController.enabled.v ||
+                                (controller.livePlayController.site == Sites.bilibiliSite &&
+                                    SettingsService.to.cookieManager.bilibiliCookie.v.trim().isNotEmpty)))
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: DanmakuComposer(
+                              controller: controller.livePlayController,
+                              videoController: controller,
+                              dark: true,
+                            ),
+                          ),
 
                         Obx(
                           () => Row(
@@ -1588,7 +1601,7 @@ class DanmakuSetting extends StatelessWidget {
                 ),
                 trailingWidget: Text(controller.danmakuFontBorder.value.toStringAsFixed(2), style: digitStyle),
               ),
-                            _buildRowContainer(
+              _buildRowContainer(
                 labelText: i18n("danmaku_fps"),
                 valueWidget: SfSlider(
                   min: 30.0,
