@@ -1,44 +1,11 @@
-import 'dart:io';
 
 import 'package:pure_live/common/index.dart';
-import 'package:tray_manager/tray_manager.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:pure_live/common/utils/hive_pref_util.dart';
-import 'package:pure_live/modules/account/bilibili/web_login_controller.dart';
 
 class Utils {
   static DateFormat dateFormat = DateFormat("MM-dd HH:mm");
   static DateFormat dateFormatWithYear = DateFormat("yyyy-MM-dd HH:mm");
   static DateFormat timeFormat = DateFormat("HH:mm:ss");
-
-  static Future<void> exitDesktopApplication() async {
-    if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) return;
-
-    try {
-      await HivePrefUtil.flush().timeout(const Duration(seconds: 2));
-    } catch (e) {
-      debugPrint('设置落盘超时: $e');
-    }
-    await windowManager.hide();
-    if (await windowManager.isPreventClose()) {
-      await windowManager.setPreventClose(false);
-    }
-    if (Get.isRegistered<BiliBiliWebLoginController>()) {
-      final controller = Get.find<BiliBiliWebLoginController>();
-      controller.showWebView.value = false;
-      await Future.delayed(const Duration(milliseconds: 300));
-    }
-    try {
-      await trayManager.destroy().timeout(const Duration(seconds: 2));
-    } catch (e) {
-      debugPrint('托盘注销超时: $e');
-    }
-    try {
-      await windowManager.destroy().timeout(const Duration(seconds: 2));
-    } catch (e) {
-      debugPrint('窗口销毁超时: $e');
-    }
-  }
 
   /// 处理时间
   static String parseTime(DateTime? dt) {
@@ -56,18 +23,6 @@ class Utils {
     }
 
     return dateFormatWithYear.format(dt);
-  }
-
-  static Future<void> _minimizeOrHideDesktopWindow() async {
-    // macOS 上更符合习惯的是最小化到 Dock；直接 hide 在没有托盘/菜单栏入口时
-    // 容易让用户误以为 App 退出。
-    if (Platform.isMacOS) {
-      await windowManager.minimize();
-    } else {
-      if (await windowManager.isPreventClose()) {
-        await windowManager.hide();
-      }
-    }
   }
 
   static Future<bool> showAlertDialog(
@@ -309,82 +264,4 @@ class Utils {
     return result;
   }
 
-  static Future<bool> showExitDialog() async {
-    final dontAsk = SettingsService.to.exit.dontAskExit.v;
-    final exitChoose = SettingsService.to.exit.exitChoose.v;
-
-    if (dontAsk) {
-      if (exitChoose == 'exit') {
-        if (await windowManager.isPreventClose()) {
-          await windowManager.setPreventClose(false);
-        }
-        Future.microtask(exitDesktopApplication);
-        return true;
-      } else if (exitChoose == 'minimize') {
-        await _minimizeOrHideDesktopWindow();
-        return true;
-      }
-    }
-    bool shouldNotAskAgain = false;
-    var result = await Get.dialog<bool>(
-      StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text(i18n("tip"), style: Get.textTheme.titleLarge),
-            content: Container(
-              constraints: const BoxConstraints(maxHeight: 400),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(i18n("confirm_exit"), style: Get.textTheme.titleMedium),
-                      SizedBox(height: 12),
-                      const Divider(height: 1),
-                      CheckboxListTile(
-                        title: Text(i18n("dont_ask_again"), style: Get.textTheme.titleSmall),
-                        value: shouldNotAskAgain,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            shouldNotAskAgain = value!;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            actionsAlignment: MainAxisAlignment.spaceBetween,
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  SettingsService.to.exit.dontAskExit.v = shouldNotAskAgain;
-                  SettingsService.to.exit.exitChoose.v = 'minimize';
-                  Navigator.of(context).pop();
-                  Future.delayed(const Duration(milliseconds: 200), () async {
-                    await _minimizeOrHideDesktopWindow();
-                  });
-                },
-                child: Text(i18n("minimize")),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
-                onPressed: () async {
-                  SettingsService.to.exit.dontAskExit.v = shouldNotAskAgain;
-                  SettingsService.to.exit.exitChoose.v = 'exit';
-                  Navigator.of(context).pop();
-                  await exitDesktopApplication();
-                },
-                child: Text(i18n("exit_app")),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    return result ?? false;
-  }
 }

@@ -432,11 +432,30 @@ class SuperChatCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        sc.userName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: nameColor, fontWeight: FontWeight.w700, fontSize: 14),
+                      Stack(
+                        children: [
+                          // 黑色描底层：保证任何背景色下用户名都清晰可见
+                          Text(
+                            sc.userName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              foreground: Paint()
+                                ..style = PaintingStyle.stroke
+                                ..strokeWidth = 3
+                                ..strokeJoin = StrokeJoin.round
+                                ..color = Colors.black,
+                            ),
+                          ),
+                          Text(
+                            sc.userName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: nameColor, fontWeight: FontWeight.w700, fontSize: 14),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 2),
                       Text(

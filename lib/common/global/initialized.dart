@@ -12,7 +12,6 @@ import 'package:pure_live/common/utils/hive_pref_util.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/global/initial_services.dart';
 import 'package:pure_live/common/services/utils/settings_upgrade_migration.dart';
-import 'package:windows_single_instance/windows_single_instance.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
 
 class AppInitializer {
@@ -29,7 +28,6 @@ class AppInitializer {
 
     WidgetsFlutterBinding.ensureInitialized();
     final String instanceId = _getInstanceIdFromArgs(args);
-    await _initWindowsSingleInstance(args, instanceId);
 
     await AppPathManager().initialize(instanceId: instanceId);
     await EasyLocalization.ensureInitialized();
@@ -82,16 +80,6 @@ class AppInitializer {
       }
     }
     return '';
-  }
-
-  Future<void> _initWindowsSingleInstance(List<String> args, String instanceId) async {
-    if (!Platform.isWindows) return;
-    try {
-      final safeId = instanceId.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
-      await WindowsSingleInstance.ensureSingleInstance(args, "PureLive_InstanceID_$safeId", bringWindowToFront: true);
-    } catch (e) {
-      log('WindowsSingleInstance initialization failed: $e');
-    }
   }
 
   void _initWindowsScreenBrightness() {

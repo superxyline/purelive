@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/player/utils/window_helper.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -12,23 +11,6 @@ class WindowService {
   static final WindowService _instance = WindowService._internal();
   factory WindowService() => _instance;
   WindowService._internal();
-  Future<void> enterWinPiP(double videoRatio) async {
-    if (!Platform.isWindows) return;
-    if (GlobalPlayerState.to.isFullscreen.value) {
-      final livePlayController = Get.find<LivePlayController>();
-      final videoController = livePlayController.state.value.player.videoController;
-      videoController?.toggleFullScreen();
-    }
-    Future.microtask(() {
-      WindowHelper.instance.enterPiP(videoRatio);
-    });
-  }
-
-  Future<void> exitWinPiP() async {
-    if (!Platform.isWindows) return;
-    WindowHelper.instance.exitPiP();
-  }
-
   //横屏
   Future<void> landScape() async {
     dynamic document;
