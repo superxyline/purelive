@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
@@ -571,7 +570,7 @@ class PlayerManager {
             children: [
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onPanStart: (_) { if (Platform.isWindows) windowManager.startDragging(); },
+                onPanStart: (_) {},
                 onDoubleTap: () async {
                   await exitPip();
                 },
