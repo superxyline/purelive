@@ -86,7 +86,7 @@ class _MyAppState extends State<MyApp> {
               appBarTheme: const AppBarTheme(surfaceTintColor: Colors.transparent),
               pageTransitionsTheme: const PageTransitionsTheme(
                 builders: <TargetPlatform, PageTransitionsBuilder>{
-                  TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+                  TargetPlatform.android: ZoomPageTransitionsBuilder(),
                   TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
                 },
               ),
@@ -95,7 +95,7 @@ class _MyAppState extends State<MyApp> {
               appBarTheme: const AppBarTheme(surfaceTintColor: Colors.transparent),
               pageTransitionsTheme: const PageTransitionsTheme(
                 builders: <TargetPlatform, PageTransitionsBuilder>{
-                  TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+                  TargetPlatform.android: ZoomPageTransitionsBuilder(),
                   TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
                 },
               ),

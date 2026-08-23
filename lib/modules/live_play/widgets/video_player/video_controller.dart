@@ -202,7 +202,7 @@ class DanmakuManager {
 
 class VideoController with ChangeNotifier {
   // 常量定义
-  static const _controllerHideDelay = Duration(seconds: 2);
+  static const _controllerHideDelay = Duration(seconds: 4);
   static const _fullscreenDelay = Duration(milliseconds: 1000);
   static const _volumeHideDelay = Duration(seconds: 1);
 
@@ -513,7 +513,7 @@ class VideoController with ChangeNotifier {
     if (inputEditing.value) return; // 弹幕输入期间保持控制条常显，不自动隐藏
 
     if (!_isMouseOverController && !_isMouseOverPlayer) {
-      showControllerTimer = Timer(const Duration(seconds: 2), () {
+      showControllerTimer = Timer(const Duration(seconds: 4), () {
         if (!_isMouseOverController && !_isMouseOverPlayer) {
           showController.value = false;
         }

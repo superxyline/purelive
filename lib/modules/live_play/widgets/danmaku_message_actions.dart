@@ -25,6 +25,15 @@ class DanmakuMessageActions {
                 ToastUtil.show(i18n('copied_to_clipboard'));
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.plus_one_rounded),
+              title: Text(i18n('danmaku_plus_one')),
+              subtitle: Text(message.message, maxLines: 1, overflow: TextOverflow.ellipsis),
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                await sendPlusOne(message);
+              },
+            ),
             if (!message.isLocal && message.userName.trim().isNotEmpty)
               ListTile(
                 leading: const Icon(Icons.person_off_rounded),
@@ -54,6 +63,35 @@ class DanmakuMessageActions {
         ),
       ),
     );
+  }
+
+  /// 加一：把该条弹幕内容直接发出去。
+  ///
+  /// 已登录 B站（且当前为 B站直播间）时真实发送到 B站服务器；
+  /// 否则走本地互动回显（需要开启本地互动）。两者都不可用时给出提示。
+  static Future<void> sendPlusOne(LiveMessage message) async {
+    final text = message.message.trim();
+    if (text.isEmpty) return;
+    if (!Get.isRegistered<LivePlayController>()) return;
+    final controller = Get.find<LivePlayController>();
+    final canSendReal =
+        controller.site == Sites.bilibiliSite &&
+        SettingsService.to.cookieManager.bilibiliCookie.v.trim().isNotEmpty;
+    if (canSendReal) {
+      await controller.sendLiveDanmaku(text);
+      return;
+    }
+    final local = controller.localInteractionController;
+    if (!local.enabled.v) {
+      ToastUtil.show(i18n('danmaku_plus_one_unavailable'));
+      return;
+    }
+    controller.emitLocalMessage(
+      local.createChat(text, platform: controller.site),
+      showAsDanmaku: local.showAsDanmaku.v,
+      delay: LivePlayController.localChatDeliveryDelay,
+    );
+    ToastUtil.show(i18n('local_message_queued'));
   }
 
   static Future<void> showKeywordDialog(BuildContext context, String message) async {
