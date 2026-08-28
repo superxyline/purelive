@@ -28,7 +28,7 @@ if (requireReleaseSigning && !hasReleaseSigning) {
 }
 
 extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
-    namespace = "com.mystyle.purelive"
+    namespace = "com.superxyline.purelive"
     compileSdk = 37
     ndkVersion = flutter.ndkVersion
     lint {
@@ -41,6 +41,7 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         targetCompatibility = JavaVersion.VERSION_17
     }
     defaultConfig {
+        // 正式包名（用户最终选定）：后续任何改动/构建一律使用 com.superxyline.purelive。
         applicationId = "com.superxyline.purelive"
         minSdk = flutter.minSdkVersion 
         multiDexEnabled = true 

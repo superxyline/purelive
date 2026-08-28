@@ -158,7 +158,7 @@ jobs:
             "built_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "source_commit": "$GITHUB_SHA",
             "tracked_files_dirty": false,
-            "android_package": "com.mystyle.purelive",
+            "android_package": "com.superxyline.purelive",
             "android_signing": "release",
             "windows_signing": "not-built",
             "build_source": "github-hosted-fallback"
