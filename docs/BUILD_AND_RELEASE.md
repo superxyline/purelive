@@ -68,7 +68,7 @@ keyPassword=...
 keyAlias=...
 ```
 
-Android 始终使用 `com.mystyle.purelive` 和“纯粹直播”名称。未配置发布密钥时，本地 release 构建使用 Android 调试签名，文件名包含 `debug-signed`；本地发布脚本默认阻止调试签名 APK 进入正式 Release。
+Android 始终使用 `com.superxyline.purelive` 和“纯粹直播”名称。未配置发布密钥时，本地 release 构建使用 Android 调试签名，文件名包含 `debug-signed`；本地发布脚本默认阻止调试签名 APK 进入正式 Release。
 
 将本地 APK 安装到已连接的 Android 设备并完成启动探测：
 

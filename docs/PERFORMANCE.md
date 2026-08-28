@@ -41,9 +41,9 @@ adb shell dumpsys display | Select-String -Pattern "mMode|supportedModes|refresh
 检查应用渲染帧统计：
 
 ```powershell
-adb shell dumpsys gfxinfo com.mystyle.purelive reset
+adb shell dumpsys gfxinfo com.superxyline.purelive reset
 # 在手机上连续滚动首页、收藏页并进入/退出直播间
-adb shell dumpsys gfxinfo com.mystyle.purelive framestats > .\local-artifacts\gfxinfo-framestats.txt
+adb shell dumpsys gfxinfo com.superxyline.purelive framestats > .\local-artifacts\gfxinfo-framestats.txt
 ```
 
 重点观察：

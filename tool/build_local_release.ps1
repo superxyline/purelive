@@ -147,7 +147,7 @@ try {
         built_at_utc = [DateTime]::UtcNow.ToString('o')
         source_commit = $sourceCommit
         tracked_files_dirty = $trackedDirty
-        android_package = if ($androidSigning -eq 'not-built') { $null } else { 'com.mystyle.purelive' }
+        android_package = if ($androidSigning -eq 'not-built') { $null } else { 'com.superxyline.purelive' }
         android_signing = $androidSigning
         windows_signing = $windowsSigning
         build_source = 'local'

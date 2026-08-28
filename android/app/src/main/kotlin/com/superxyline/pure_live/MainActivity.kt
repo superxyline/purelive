@@ -1,4 +1,4 @@
-package com.mystyle.purelive
+package com.superxyline.purelive
 
 import android.content.Context
 import android.hardware.display.DisplayManager

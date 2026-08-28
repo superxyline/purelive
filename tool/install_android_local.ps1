@@ -43,22 +43,22 @@ if (-not $ApkPath) {
 if (-not $ApkPath -or -not (Test-Path -LiteralPath $ApkPath)) { throw 'A matching local APK was not found. Run tool/build_local_release.ps1 first.' }
 
 $badging = & $aapt dump badging $ApkPath
-if ($LASTEXITCODE -or ($badging -join "`n") -notmatch "package: name='com\.mystyle\.purelive'") {
+if ($LASTEXITCODE -or ($badging -join "`n") -notmatch "package: name='com\.superxyline\.purelive'") {
     throw 'The selected APK does not use the formal Pure Live package id.'
 }
 
 & $adb -s $Device install -r $ApkPath
 if ($LASTEXITCODE) { throw 'adb install failed.' }
-& $adb -s $Device shell monkey -p com.mystyle.purelive -c android.intent.category.LAUNCHER 1 | Out-Host
+& $adb -s $Device shell monkey -p com.superxyline.purelive -c android.intent.category.LAUNCHER 1 | Out-Host
 if ($LASTEXITCODE) { throw 'The Pure Live launcher activity did not start.' }
 Start-Sleep -Seconds 3
-$packageState = & $adb -s $Device shell dumpsys package com.mystyle.purelive
+$packageState = & $adb -s $Device shell dumpsys package com.superxyline.purelive
 $versionMatch = [regex]::Match(($packageState -join "`n"), 'versionName=([^\s]+)')
 if (-not $versionMatch.Success) { throw 'The installed Pure Live package was not found after launch.' }
 [pscustomobject]@{
     Device = $Device
     Apk = (Resolve-Path -LiteralPath $ApkPath).Path
-    Package = 'com.mystyle.purelive'
+    Package = 'com.superxyline.purelive'
     Version = $versionMatch.Groups[1].Value
-    ProcessId = (& $adb -s $Device shell pidof com.mystyle.purelive).Trim()
+    ProcessId = (& $adb -s $Device shell pidof com.superxyline.purelive).Trim()
 }

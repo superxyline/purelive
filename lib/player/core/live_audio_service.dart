@@ -32,7 +32,7 @@ class LiveAudioService {
       _handler = await AudioService.init(
         builder: () => LiveAudioHandler(),
         config: AudioServiceConfig(
-          androidNotificationChannelId: 'com.mystyle.purelive.audio',
+          androidNotificationChannelId: 'com.superxyline.purelive.audio',
           androidNotificationChannelName: i18n("audio_channel_name"),
           androidNotificationOngoing: false,
           // Keep the media foreground service alive across short interruptions
