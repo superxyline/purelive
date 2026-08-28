@@ -22,6 +22,7 @@ import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
+import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/player/core/secondary_player_service.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/dual_view_picker_sheet.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/secondary_window.dart';
@@ -31,21 +32,36 @@ class LivePlayPage extends GetView<LivePlayController> {
 
   @override
   Widget build(BuildContext context) {
+    // 构建时解析一次控制器实例：路由弹出、GetX 注销控制器后页面在退出动画期间仍可能
+    // 重建 Obx，直接使用 GetView.controller（内部 Get.find）会抛 "LivePlayController not
+    // found" 导致灰屏，因此这里缓存引用供后续闭包使用。
+    final ctrl = controller;
     return PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (didPop) {
+            // 判定是否在全屏状态下被绕过 canPop 直接弹出（例如滑动返回连发事件
+            // 或 GetX 手势直 pop），是则兜底重新进入直播间，保证“退出全屏”而不是“退出直播间”。
+            final wasFullscreenOnPop = ctrl.isFullscreenActive;
             // 系统原生返回已完成，做兜底清理。
-            controller.onPagePopCleanup();
+            ctrl.onPagePopCleanup();
+            if (wasFullscreenOnPop) {
+              final room = ctrl.room;
+              // 等当前弹出手续完成后再打开新的直播间（默认普通模式）。
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                unawaited(AppNavigator.toLiveRoomDetail(liveRoom: room));
+              });
+            }
             return;
           }
           // 全屏进/退切换进行中：忽略本次快速连续返回，避免竞态导致返回失效。
-          if (controller.state.value.player.videoController?.isTransitioningFullScreen.value ?? false) {
+          if (ctrl.state.value.player.videoController?.isTransitioningFullScreen.value ?? false) {
             return;
           }
           // canPop=false：先处理全屏/半屏/PiP，处理完成后才允许退出页面。
-          if (!controller.handleBackPress()) {
-            Navigator.of(context).pop();
+          if (!ctrl.handleBackPress()) {
+            // 走 GetX 路由退出：由 RouterDelegate 移除页面，保持与 Navigator 路由栈一致。
+            Get.back();
           }
         },
         child: Container(
@@ -57,19 +73,28 @@ class LivePlayPage extends GetView<LivePlayController> {
               fit: StackFit.expand,
               children: [
                 Obx(() {
-                  final manager = GlobalPlayerService.instance.playerManager;
-                  final isInPip = manager.isInPip.value || manager.isPipPreparing.value;
-                  final state = controller.state.value;
-                  final mode = state.ui.screenMode;
-                  final videoController = state.player.videoController;
+                  // 兜底：控制器已被 GetX 注销（页面正在退出）时不再渲染直播间内容，
+                  // 避免退出动画期间重建抛异常导致灰屏；极端竞态下也一律回退为空。
+                  try {
+                    if (!Get.isRegistered<LivePlayController>()) {
+                      return const SizedBox.shrink();
+                    }
+                    final manager = GlobalPlayerService.instance.playerManager;
+                    final isInPip = manager.isInPip.value || manager.isPipPreparing.value;
+                    final state = ctrl.state.value;
+                    final mode = state.ui.screenMode;
+                    final videoController = state.player.videoController;
 
-                  final child = _withLocalGiftEffect(_buildConstrainedChild(isInPip, mode, context));
+                    final child = _withLocalGiftEffect(_buildConstrainedChild(isInPip, mode, context));
 
-                  if (videoController == null) {
-                    return child;
+                    if (videoController == null) {
+                      return child;
+                    }
+
+                    return VideoKeyboardShortcuts(controller: videoController, child: child);
+                  } catch (_) {
+                    return const SizedBox.shrink();
                   }
-
-                  return VideoKeyboardShortcuts(controller: videoController, child: child);
                 }),
                 // 双开小窗提升到页面顶层，支持在整个直播页范围内拖动
                 Obx(() {

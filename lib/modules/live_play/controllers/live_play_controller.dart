@@ -5,6 +5,7 @@ import 'dart:developer' as developer;
 import 'package:pure_live/common/index.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:pure_live/plugins/emoji_manager.dart';
@@ -27,6 +28,7 @@ import 'package:pure_live/modules/live_play/controllers/timer_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/player_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/danmaku_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
+import 'package:pure_live/player/utils/fullscreen.dart';
 
 // live_play_controller.dart
 
@@ -67,6 +69,12 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   final List<LiveMessage> _pendingDanmakuMessages = <LiveMessage>[];
   late final LocalMessageDeliveryQueue _localMessageDeliveryQueue;
   late final String _controllerTag;
+
+  /// 滑动返回在部分设备上会连报两次返回事件：第一次用于退出全屏，
+  /// 第二次若未拦截会直接把直播间退出。记录上次退出全屏的时间，
+  /// 短暂窗口内再次收到返回一律吞掉。
+  static const Duration _fullscreenExitGrace = Duration(milliseconds: 600);
+  DateTime? _lastFullscreenExitAt;
 
   static const int _maxDanmakuHistory = 500;
   static const int _maxPendingDanmakuBatch = 200;
@@ -132,6 +140,13 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     await EmojiManager().preload(site);
   }
 
+  /// 当前是否处于全屏/半屏展示（供 PopScope 兜底判断；
+  /// 被绕过 canPop 直接弹出时据此恢复直播间而不是停在首页）。
+  bool get isFullscreenActive =>
+      GlobalPlayerState.to.isFullscreen.value ||
+      GlobalPlayerState.to.isWindowFullscreen.value ||
+      state.value.ui.screenMode != VideoMode.normal;
+
   /// 返回键处理：返回 true 表示事件已消费，false 表示允许页面正常退出。
   /// 返回键优先级最高：先收起输入焦点，再依次处理菜单/全屏/半屏/PiP，最后才退出页面。
   bool handleBackPress() {
@@ -144,21 +159,35 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       updateUI(isMenuOpen: false);
       return true;
     }
-    if (GlobalPlayerState.to.isFullscreen.value) {
-      // 先同步复位全屏状态，再退出全屏（避免异步退出期间返回键被反复拦截）。
+    // 双重检测：Rx标志与UI实际模式任一为全屏，都先恢复全屏前的状态，
+    // 避免状态不同步导致返回键直接退出直播间。
+    final isFullscreenUi =
+        GlobalPlayerState.to.isFullscreen.value || state.value.ui.screenMode == VideoMode.fullscreen;
+    if (isFullscreenUi) {
       GlobalPlayerState.to.isFullscreen.value = false;
       setNormalScreen();
       state.value.player.videoController?.exitFullScreen();
+      // 直接兜底恢复方向与系统栏，不依赖 videoController 是否已初始化。
+      unawaited(_restoreMobileScreenUi());
+      // 记录退出时刻，用于拦截滑动返回连发的第二次返回事件。
+      _lastFullscreenExitAt = DateTime.now();
       return true;
     }
     if (GlobalPlayerState.to.isWindowFullscreen.value) {
       setNormalScreen();
       GlobalPlayerState.to.isWindowFullscreen.value = false;
       state.value.player.videoController?.enableController();
+      _lastFullscreenExitAt = DateTime.now();
       return true;
     }
     if (GlobalPlayerState.to.isPipMode.value) {
       GlobalPlayerService.instance.playerManager.exitPip();
+      return true;
+    }
+    // 全屏/半屏刚退出后的短暂窗口内再收到返回（滑动返回通常连发两次事件），
+    // 直接吞掉，避免第二次返回把直播间整个退出。
+    final lastExitAt = _lastFullscreenExitAt;
+    if (lastExitAt != null && DateTime.now().difference(lastExitAt) < _fullscreenExitGrace) {
       return true;
     }
     return false;
@@ -167,7 +196,28 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   /// 页面被系统原生返回弹出后的兜底清理（与返回键处理幂等，重复调用无副作用）。
   void onPagePopCleanup() {
     state.value.player.videoController?.clearListener();
-    updateRoom(success: false);
+    // 注意：这里不要再改 state（如 updateRoom）——页面仍在退出动画中，它的 Obx 会因此
+    // 重建，而此时 GetX 可能已注销本控制器，触发 "LivePlayController not found" 灰屏。
+    // 房间信息刷新由 BackButtonObserver 兜底。
+    // 兜底复位全局全屏标志，避免绕过返回键处理直接弹出页面时全屏状态残留
+    // 到下一个直播间或首页。
+    GlobalPlayerState.to.isFullscreen.value = false;
+    GlobalPlayerState.to.isWindowFullscreen.value = false;
+    // 无论以何种路径离开直播间，都兜底恢复手机竖屏与系统栏，
+    // 防止横屏沉浸状态泄漏到首页（表现为横屏平板样式列表）。
+    unawaited(_restoreMobileScreenUi());
+  }
+
+  /// 恢复移动端竖屏与系统栏（仅移动端生效，幂等可重复调用）。
+  Future<void> _restoreMobileScreenUi() async {
+    try {
+      if (PlatformUtils.isDesktop) return;
+      await WindowService().verticalScreen();
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
+    } catch (_) {
+      // 恢复失败不应影响页面退出流程。
+    }
   }
 
   void updateRoom({LiveRoom? detail, bool? isLiving, bool? success, bool? isLoading, String? loadError}) {
@@ -724,10 +774,12 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _pendingDanmakuMessages.clear();
     tabController.dispose();
 
-    // 兜底恢复系统状态栏/导航栏，避免全屏残留（edge-to-edge 下小米手势条正常显示）。
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    // 恢复完整系统栏样式：导航栏显式透明，防止被覆盖成黑色（平板横屏底部黑条）。
-    MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
+    // 兜底复位全局全屏标志（覆盖绕过返回键处理直接弹出页面的路径）。
+    GlobalPlayerState.to.isFullscreen.value = false;
+    GlobalPlayerState.to.isWindowFullscreen.value = false;
+    // 兜底恢复竖屏与系统状态栏/导航栏，避免全屏残留
+    // （edge-to-edge 下小米手势条正常显示，手机不再横屏挂着首页）。
+    unawaited(_restoreMobileScreenUi());
 
     final keepForAppFloating = GlobalPlayerService.instance.playerManager.shouldKeepDanmakuForAppFloating;
     if (!keepForAppFloating) {

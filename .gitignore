@@ -71,3 +71,4 @@ app.*.map.json
 /CUSTOM_DEV_SUMMARY.md
 /analyze_out.txt
 /.codex/
+/docs/HANDOVER_*.md
