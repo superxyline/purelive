@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/utils.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
+import 'package:pure_live/player/utils/fullscreen.dart';
 
 /// APP页面跳转封装
 /// * 需要参数的页面都应使用此类
@@ -100,6 +102,9 @@ class BackButtonObserver extends RouteObserver<PageRoute<dynamic>> {
       } catch (e) {
         log("BackButtonObserver Error: ${e.toString()}");
       }
+      // 任何路径离开直播间都兜底恢复手机竖屏与系统栏，
+      // 防止被绕过全屏处理直接弹出时横屏状态泄漏到首页。
+      unawaited(restoreMobileScreenAfterLeaveRoom());
     }
   }
 

@@ -57,6 +57,9 @@ class AppPages {
       name: RoutePath.kLivePlay,
       page: () => LivePlayPage(),
       preventDuplicates: false,
+      // 直播间返回统一走页面内 PopScope（含全屏/半屏/PiP 分级处理）；
+      // 显式关闭 GetX 手势直 pop 路径，避免滑动返回绕过全屏判断直接退出直播间。
+      popGesture: false,
       bindings: [LivePlayBinding()],
     ),
     //账号设置

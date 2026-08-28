@@ -3,6 +3,22 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
+import 'package:pure_live/common/global/platform/mobile_manager.dart';
+
+/// 直播间退出兜底：任何路径离开直播间后调用，恢复手机竖屏与系统栏，
+/// 防止横屏沉浸状态泄漏到首页（表现为手机横屏显示直播间列表）。
+/// 幂等，可重复调用，失败不影响页面退出流程。
+Future<void> restoreMobileScreenAfterLeaveRoom() async {
+  try {
+    if (PlatformUtils.isDesktop) return;
+    await WindowService().verticalScreen();
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
+  } catch (_) {
+    // 恢复失败不应影响页面退出流程。
+  }
+}
 
 class WindowService {
   static final WindowService _instance = WindowService._internal();

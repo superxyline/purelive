@@ -37,6 +37,18 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
 
   VideoController get controller => widget.controller;
 
+  /// 当前焦点是否在真正的文本输入框上（弹幕输入条等）。
+  ///
+  /// 播放器面板根节点带 Focus(autofocus: true) 用于接收键盘快捷键，
+  /// 它也会长期持有 primaryFocus，但不能据此吞掉普通点击。
+  bool _isTextInputFocused() {
+    final primaryFocus = FocusManager.instance.primaryFocus;
+    if (primaryFocus == null || !primaryFocus.hasFocus || primaryFocus.context == null) {
+      return false;
+    }
+    return primaryFocus.context!.widget is EditableText;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -115,8 +127,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 GestureDetector(
                   onTapDown: (details) => _lastTapPosition = details.globalPosition,
                   onTap: () {
-                    // 弹幕输入框聚焦时，点击空白处仅取消焦点（收起键盘），不触发播放控制。
-                    if (FocusManager.instance.primaryFocus?.hasFocus ?? false) {
+                    // 仅当真正的弹幕输入框（EditableText）聚焦时，点击空白才收键盘；
+                    // 播放器自身的 Focus(autofocus:true) 也会持有焦点，不能让它
+                    // 吞掉普通点击（否则点空白不唤出控制条、点弹幕不弹菜单）。
+                    if (_isTextInputFocused()) {
                       FocusManager.instance.primaryFocus?.unfocus();
                       return;
                     }
