@@ -6,6 +6,7 @@ import 'video_controller_panel.dart';
 
 import 'package:flutter/scheduler.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/player/core/secondary_player_service.dart';
 import 'package:flutter/services.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flame_barrage/flame_barrage.dart';
@@ -371,6 +372,11 @@ class VideoController with ChangeNotifier {
   void _setupDefaultFullscreen() {
     final timer = Timer(_fullscreenDelay, () {
       if (_isDisposed) return;
+      // 双开副窗口激活期间不自动进全屏：切换主副会重建播放器并重新武装本定时器，
+      // 若用户此时已手动退出全屏，1 秒后会被强制拉回全屏，表现为"退出全屏没生效"。
+      if (SecondaryPlayerService.instance.isActive.value) {
+        return;
+      }
       if (_settingsService.app.enableFullScreenDefault.v) {
         _enterFullscreenMode();
       }
@@ -687,11 +693,13 @@ class VideoController with ChangeNotifier {
     GlobalPlayerState.to.isFullscreen.value = false;
     try {
       // 退出全屏：手机恢复竖屏（portraitUp/portraitDown），平板保持横屏。
-      await WindowService().verticalScreen();
+      // 加超时：MIUI 上键盘收起/系统栏动画期间该调用可能长时间不返回，
+      // 一旦挂起 isTransitioningFullScreen 永不复位，后续返回事件全部失效。
+      await WindowService().verticalScreen().timeout(const Duration(seconds: 3));
       // 期间若已有更新的全屏切换，放弃后续处理，避免覆盖。
       if (token != _fullscreenToken) return;
       // 退出全屏恢复系统状态栏/导航栏（edge-to-edge 下小米手势条恢复半透明正常显示）。
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge).timeout(const Duration(seconds: 3));
       // 恢复完整系统栏样式，导航栏显式透明，避免平板横屏底部手势条区域变黑。
       MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);
     } catch (_) {
@@ -713,6 +721,7 @@ class VideoController with ChangeNotifier {
 
     if (GlobalPlayerState.to.isFullscreen.value) {
       _livePlayController.setNormalScreen();
+      _livePlayController.markFullscreenExit();
       await exitFullScreen();
     } else {
       _livePlayController.setFullScreen();
@@ -727,12 +736,12 @@ class VideoController with ChangeNotifier {
     isTransitioningFullScreen.value = true;
     GlobalPlayerState.to.isFullscreen.value = true;
     try {
-      // 进入全屏：强制横屏（平板本就恒横屏）。
-      await WindowService().landScape();
+      // 进入全屏：强制横屏（平板本就恒横屏）。超时保护同 exitFullScreen。
+      await WindowService().landScape().timeout(const Duration(seconds: 3));
       // 期间若已退出全屏，放弃本次设置，交还原来的方向。
       if (token != _fullscreenToken) return;
       // 全屏时隐藏系统状态栏/导航栏/手势条，沉浸式观看。
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky).timeout(const Duration(seconds: 3));
     } catch (_) {
     } finally {
       if (token == _fullscreenToken) isTransitioningFullScreen.value = false;
@@ -750,6 +759,7 @@ class VideoController with ChangeNotifier {
 
     if (GlobalPlayerState.to.isWindowFullscreen.value) {
       _livePlayController.setNormalScreen();
+      _livePlayController.markFullscreenExit();
       GlobalPlayerState.to.isWindowFullscreen.value = false;
     } else {
       _livePlayController.setWidescreen();
