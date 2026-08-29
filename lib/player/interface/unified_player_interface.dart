@@ -4,6 +4,14 @@ import '../models/player_exception.dart';
 import 'package:pure_live/common/models/live_room.dart';
 
 abstract class UnifiedPlayer {
+  /// 当前视频宽度（不支持时为 null，用于直播间信息 OSD）
+  int? get videoWidth => null;
+
+  /// 当前视频高度
+  int? get videoHeight => null;
+
+  /// 当前音频码率 kbps（不支持时为 null）
+  int? get audioBitrateKbps => null;
   Future<void> init({bool audioOnly = false});
 
   /// 设置数据源

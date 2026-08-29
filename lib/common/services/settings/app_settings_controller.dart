@@ -15,6 +15,7 @@ class AppSettingsController extends GetxController {
 
   final RxBool enableDenseFavorites = hiveBool('enableDenseFavorites', true);
   final RxBool showLiveDurationBadge = hiveBool('showLiveDurationBadge', true);
+  final RxBool showRoomInfoOsd = hiveBool('showRoomInfoOsd', false);
   final RxBool enableBackgroundPlay = hiveBool('enableBackgroundPlay', false);
   final RxBool enableAsmrSleepMode = hiveBool('enableAsmrSleepMode', false);
   final RxInt asmrSleepMinutes = hiveInt('asmrSleepMinutes', 60);
@@ -100,6 +101,7 @@ class AppSettingsController extends GetxController {
     return {
       'enableDenseFavorites': enableDenseFavorites.v,
       'showLiveDurationBadge': showLiveDurationBadge.v,
+      'showRoomInfoOsd': showRoomInfoOsd.v,
       'enableBackgroundPlay': enableBackgroundPlay.v,
       'enableAsmrSleepMode': enableAsmrSleepMode.v,
       'asmrSleepMinutes': asmrSleepMinutes.v,
@@ -117,6 +119,7 @@ class AppSettingsController extends GetxController {
   void fromJson(Map<String, dynamic> json) {
     enableDenseFavorites.v = json['enableDenseFavorites'] ?? true;
     showLiveDurationBadge.v = json['showLiveDurationBadge'] ?? true;
+    showRoomInfoOsd.v = json['showRoomInfoOsd'] ?? false;
     enableBackgroundPlay.v = json['enableBackgroundPlay'] ?? false;
     enableAsmrSleepMode.v = json['enableAsmrSleepMode'] ?? false;
     asmrSleepMinutes.v = (((json['asmrSleepMinutes'] as num?)?.toInt() ?? 60).clamp(1, maxSleepMinutes)).toInt();

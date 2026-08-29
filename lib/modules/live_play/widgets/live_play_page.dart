@@ -95,6 +95,16 @@ class LivePlayPage extends GetView<LivePlayController> {
                     return const SizedBox.shrink();
                   }
                 }),
+                // 直播间信息 OSD：菜单开关控制，显示平台/房间/清晰度/分辨率/音频码率
+                Positioned(
+                  top: 70,
+                  left: 10,
+                  child: Obx(() {
+                    if (!SettingsService.to.app.showRoomInfoOsd.v) return const SizedBox.shrink();
+                    if (!Get.isRegistered<LivePlayController>()) return const SizedBox.shrink();
+                    return _RoomInfoOsd(controller: ctrl);
+                  }),
+                ),
                 // 双开小窗提升到页面顶层，支持在整个直播页范围内拖动
                 Obx(() {
                   final manager = GlobalPlayerService.instance.playerManager;
@@ -244,6 +254,10 @@ class LivePlayPage extends GetView<LivePlayController> {
                 );
               } else if (index == 8) {
                 _openDualViewPicker(context);
+              } else if (index == 9) {
+                final osd = SettingsService.to.app.showRoomInfoOsd;
+                osd.v = !osd.v;
+                ToastUtil.show(osd.v ? i18n('room_info_osd_on') : i18n('room_info_osd_off'));
               }
               controller.updateUI(isMenuOpen: false);
             },
@@ -311,6 +325,23 @@ class LivePlayPage extends GetView<LivePlayController> {
                   child: MenuListTile(
                     leading: const Icon(Icons.picture_in_picture_alt_rounded, size: 20),
                     text: i18n("dual_view_title"),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 9,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: MenuListTile(
+                    leading: const Icon(Icons.info_outline_rounded, size: 20),
+                    text: i18n('room_info_osd'),
+                    trailing: Obx(() {
+                      final on = SettingsService.to.app.showRoomInfoOsd.v;
+                      return Text(
+                        on ? i18n('room_info_osd_on') : i18n('room_info_osd_off'),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: on ? Theme.of(context).colorScheme.primary : Theme.of(context).hintColor,
+                            ),
+                      );
+                    }),
                   ),
                 ),
               ];
@@ -997,6 +1028,96 @@ class NotLivingVideoWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 直播间信息悬浮层：展示平台/房间号/清晰度/分辨率/音频码率/内核。
+class _RoomInfoOsd extends StatefulWidget {
+  const _RoomInfoOsd({required this.controller});
+
+  final LivePlayController controller;
+
+  @override
+  State<_RoomInfoOsd> createState() => _RoomInfoOsdState();
+}
+
+class _RoomInfoOsdState extends State<_RoomInfoOsd> {
+  Timer? _timer;
+  int? _width;
+  int? _height;
+  int? _lastBitrate;
+
+  @override
+  void initState() {
+    super.initState();
+    _sample();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) _sample();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _sample() {
+    int? width;
+    int? height;
+    int? audioBitrate;
+    try {
+      final player = GlobalPlayerService.instance.playerManager.currentPlayer;
+      width = player?.videoWidth;
+      height = player?.videoHeight;
+      audioBitrate = player?.audioBitrateKbps;
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() {
+      _width = width;
+      _height = height;
+      _lastBitrate = audioBitrate;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = widget.controller.state.value;
+    final detail = state.room.detail;
+    final theme = Theme.of(context);
+    final quality = state.player.currentQuality >= 0 &&
+            state.player.qualites.length > state.player.currentQuality
+        ? state.player.qualites[state.player.currentQuality].quality
+        : '';
+    final bitrate = _lastBitrate;
+    final rows = <String, String>{
+      i18n('osd_platform'): detail?.platform ?? '-',
+      i18n('osd_room'): detail?.roomId ?? '-',
+      i18n('osd_quality'): quality.isEmpty ? '-' : quality,
+      i18n('osd_resolution'):
+          _width != null && _height != null ? '$_width×$_height' : '-',
+      i18n('osd_audio_bitrate'):
+          (bitrate != null && bitrate > 0) ? '$bitrate kbps' : '-',
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: rows.entries
+            .map(
+              (entry) => Text(
+                '${entry.key}: ${entry.value}',
+                style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, height: 1.5),
+              ),
+            )
+            .toList(),
       ),
     );
   }

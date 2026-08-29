@@ -1265,5 +1265,20 @@
   "settings_group_account": "Account & Sync",
   "settings_group_data_maintenance": "Data & Maintenance",
   "account_sync_none_logged": "No platform logged in. Tap to log in and sync follows",
-  "account_sync_logged": "Logged in: {platforms}"
+  "account_sync_logged": "Logged in: {platforms}",
+  "watch_stats_title": "Watch stats",
+  "watch_stats_total": "Total watch time",
+  "watch_stats_week": "Last 7 days",
+  "watch_stats_top": "Most watched",
+  "watch_stats_clear": "Clear watch stats",
+  "watch_stats_cleared": "Watch stats cleared",
+  "watch_stats_none": "No watch history yet",
+  "room_info_osd": "Room info",
+  "room_info_osd_on": "On",
+  "room_info_osd_off": "Off",
+  "osd_platform": "Platform",
+  "osd_room": "Room",
+  "osd_quality": "Quality",
+  "osd_resolution": "Resolution",
+  "osd_audio_bitrate": "Audio bitrate"
 }

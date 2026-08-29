@@ -187,12 +187,77 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
                     ),
                   ),
                 ]),
+                const SizedBox(height: 20),
+                context.buildGroupTitle(i18n('watch_stats_title')),
+                context.buildModernCard([
+                  Builder(
+                    builder: (context) {
+                      final service = WatchStatsService.instance;
+                      final entries = service.sortedEntries();
+                      if (entries.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Text(i18n('watch_stats_none'), style: Theme.of(context).textTheme.bodySmall),
+                        );
+                      }
+                      final total = formatWatchDuration(service.totalSeconds());
+                      final week = formatWatchDuration(service.weekSeconds());
+                      final topLines = entries
+                          .take(3)
+                          .map((e) {
+                            final nick = (e.value['nick'] as String?) ?? '';
+                            final secs = (e.value['total'] as int?) ?? 0;
+                            return '· $nick（${formatWatchDuration(secs)}）';
+                          })
+                          .join('\n');
+                      return Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _watchStatRow(context, i18n('watch_stats_total'), total),
+                            const SizedBox(height: 6),
+                            _watchStatRow(context, i18n('watch_stats_week'), week),
+                            const SizedBox(height: 10),
+                            Text(
+                              '${i18n('watch_stats_top')}:\n$topLines',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.6),
+                            ),
+                            const SizedBox(height: 10),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  service.clearAll();
+                                  setState(() {});
+                                  ToastUtil.show(i18n('watch_stats_cleared'));
+                                },
+                                icon: const Icon(Icons.delete_sweep_outlined, size: 18),
+                                label: Text(i18n('watch_stats_clear')),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ]),
               ],
             );
           }),
           const SizedBox(height: 32),
         ],
       ),
+    );
+  }
+
+  Widget _watchStatRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.bodyMedium),
+        Text(value, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+      ],
     );
   }
 

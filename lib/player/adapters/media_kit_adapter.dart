@@ -528,6 +528,15 @@ class MediaKitAdapter implements UnifiedPlayer {
   bool get isPlayingNow => _playingSubject.value;
 
   @override
+  int? get videoWidth => _widthSubject.value;
+
+  @override
+  int? get videoHeight => _heightSubject.value;
+
+  @override
+  int? get audioBitrateKbps => _player.state.audioBitrate?.toInt();
+
+  @override
   bool get isReusable => false;
 
   @override
