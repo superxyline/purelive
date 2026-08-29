@@ -60,6 +60,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     unawaited(initGlobalPlayer());
+    Get.put(RecentRoomsService());
+    Get.put(WatchStatsService());
     // 冷启动后台预取赛事数据：延后几秒避开首页首屏的网络竞争，
     // 用户点击赛事标签时大概率已就绪，直接命中缓存秒开。
     Future.delayed(const Duration(seconds: 5), () {

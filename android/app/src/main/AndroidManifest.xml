@@ -38,6 +38,8 @@
       android:windowSoftInputMode="adjustResize">
       <meta-data android:name="io.flutter.embedding.android.NormalTheme"
         android:resource="@style/NormalTheme" />
+      <meta-data android:name="android.app.shortcuts"
+        android:resource="@xml/shortcuts" />
       <meta-data android:name="android.allow_multiple_resumed_activities" android:value="true" />
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -67,7 +69,6 @@
       </intent-filter>
       <meta-data android:name="android.service.chooser.chooser_target_service"
         android:value="androidx.sharetarget.ChooserTargetServiceCompat" />
-      <meta-data android:name="android.app.shortcuts" android:resource="@xml/share_targets" />
     </activity>
     <meta-data android:name="flutterEmbedding" android:value="2" />
     <meta-data android:name="ic_notification" android:resource="@drawable/ic_launcher_foreground" />
