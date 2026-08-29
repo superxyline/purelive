@@ -218,6 +218,15 @@ class BetterPlayerAdapter implements UnifiedPlayer {
   bool get isInitialized => _initialized;
   @override
   bool get isPlayingNow => _playingSubject.value;
+
+  @override
+  int? get videoWidth => null;
+
+  @override
+  int? get videoHeight => null;
+
+  @override
+  int? get audioBitrateKbps => null;
   @override
   bool get isReusable => true;
 

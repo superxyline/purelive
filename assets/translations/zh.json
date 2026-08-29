@@ -1265,5 +1265,20 @@
   "settings_group_account": "账号与同步",
   "settings_group_data_maintenance": "数据与维护",
   "account_sync_none_logged": "未登录任何平台，点按登录并同步关注",
-  "account_sync_logged": "已登录：{platforms}"
+  "account_sync_logged": "已登录：{platforms}",
+  "watch_stats_title": "观看统计",
+  "watch_stats_total": "累计观看",
+  "watch_stats_week": "近 7 天",
+  "watch_stats_top": "最常观看",
+  "watch_stats_clear": "清除观看统计",
+  "watch_stats_cleared": "观看统计已清除",
+  "watch_stats_none": "暂无观看记录，去直播间看看吧",
+  "room_info_osd": "直播间信息",
+  "room_info_osd_on": "已开启",
+  "room_info_osd_off": "已关闭",
+  "osd_platform": "平台",
+  "osd_room": "房间号",
+  "osd_quality": "清晰度",
+  "osd_resolution": "分辨率",
+  "osd_audio_bitrate": "音频码率"
 }
