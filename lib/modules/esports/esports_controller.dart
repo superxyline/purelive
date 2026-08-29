@@ -78,6 +78,42 @@ class EsportsController extends GetxController {
   }
 
   /// 刷新数据（首次加载显示转圈；已有数据时后台刷新，旧内容保留到新数据到达）
+  /// 是否已应用过"默认热度赛事"筛选（每次控制器生命周期只应用一次，
+  /// 之后用户手动切回"全部"不会被覆盖）
+  bool _defaultSeriesApplied = false;
+
+  /// CS 赛事加载完成后，默认选中热度最高的赛事（而非显示全部）。
+  /// 热度评分：进行中 > 官方重要 > 官方热门 > T1/T2 > 即将开赛。
+  String? _pickHottestSeries() {
+    final csMatches = matches.where((m) => m.gameKey == 'cs').toList();
+    if (csMatches.isEmpty) return null;
+    final bySeries = <String, List<EsportsMatch>>{};
+    for (final m in csMatches) {
+      bySeries.putIfAbsent(m.seriesName, () => []).add(m);
+    }
+    String? best;
+    var bestScore = -1;
+    bySeries.forEach((name, list) {
+      var score = 0;
+      for (final m in list) {
+        if (m.isLive) score += 30;
+        if (m.eventImportant) score += 10;
+        if (m.eventHot) score += 5;
+        if (m.eventLevel == 'T1') {
+          score += 8;
+        } else if (m.eventLevel == 'T2') {
+          score += 3;
+        }
+        if (m.isUpcoming) score += 1;
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        best = name;
+      }
+    });
+    return best;
+  }
+
   Future<void> loadData() async {
     if (loading.value) return;
     // 冷启动预取命中：直接渲染缓存数据（不转圈），随后走一次后台刷新保持新鲜
@@ -107,6 +143,23 @@ class EsportsController extends GetxController {
       matches.assignAll(list);
       loadedFrom = from;
       loadedTo = to;
+      // CS 默认选中热度最高赛事：避免"全部+按时间排序"淹没重点比赛。
+      // 若该赛事当天没有比赛，则自动放开日期筛选，保证有内容展示。
+      if (!_defaultSeriesApplied && gameFilter.value == 1 && list.isNotEmpty) {
+        _defaultSeriesApplied = true;
+        final hottest = _pickHottestSeries();
+        if (hottest != null && hottest.isNotEmpty && seriesFilter.value.isEmpty) {
+          seriesFilter.value = hottest;
+          final day = dateFilter.value;
+          final hasMatchToday = day == null ||
+              matches.any((m) =>
+                  m.gameKey == 'cs' && m.seriesName == hottest &&
+                  (m.startDateTime.year == day.year &&
+                      m.startDateTime.month == day.month &&
+                      m.startDateTime.day == day.day));
+          if (!hasMatchToday) dateFilter.value = null;
+        }
+      }
       if (list.isEmpty) {
         error.value = 'esports_load_failed';
       }

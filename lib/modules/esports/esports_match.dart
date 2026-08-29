@@ -55,8 +55,26 @@ class EsportsMatch {
   /// 比赛标题（部分赛事只有标题没有对阵）
   final String matchName;
 
+  /// 跳转直播间：平台标识（douyu/huya/bilibili，仅进行中且官方给出直播间时非空）
+  final String livePlatform;
+
+  /// 跳转直播间：房间号
+  final String liveRoomId;
+
+  /// 赛事级别（完美世界：T1/T2/T3， Riot 系为空）
+  final String eventLevel;
+
+  /// 是否官方标记的重要赛事
+  final bool eventImportant;
+
+  /// 是否官方标记的热门赛事
+  final bool eventHot;
+
   const EsportsMatch({
     required this.matchId,
+    required this.eventLevel,
+    required this.eventImportant,
+    required this.eventHot,
     required this.gameName,
     required this.gameKey,
     required this.seriesName,
@@ -73,6 +91,8 @@ class EsportsMatch {
     required this.scoreB,
     required this.roomId,
     required this.matchName,
+    this.livePlatform = '',
+    this.liveRoomId = '',
   });
 
   /// 本地时区的开赛时间
@@ -151,8 +171,40 @@ class EsportsMatch {
     teamALogoUrl = EsportsMatch.normalizeLogoUrl(teamALogoUrl);
     teamBLogoUrl = EsportsMatch.normalizeLogoUrl(teamBLogoUrl);
 
+    // 直播间信息（进行中的比赛由官方填充；形状做防御性解析）
+    String livePlatform = '';
+    String liveRoomId = str(item['roomId'] ?? '');
+    final dynamic liveInfo = item['liveRoomInfo'];
+    final dynamic liveList = item['liveRoomInfoList'];
+    final maps = <Map<String, dynamic>>[
+      if (liveInfo is Map && liveInfo.isNotEmpty) Map<String, dynamic>.from(liveInfo),
+      if (liveList is List)
+        for (final e in liveList)
+          if (e is Map) Map<String, dynamic>.from(e),
+    ];
+    for (final m in maps) {
+      String str2(dynamic v) => v == null ? '' : v.toString().trim();
+      livePlatform = (str2(m['platform']).isEmpty ? str2(m['type']) : str2(m['platform'])).toLowerCase();
+      liveRoomId = str2(m['roomId']).isEmpty ? str2(m['room']) : str2(m['roomId']);
+      if (liveRoomId.isEmpty) {
+        // 形如 https://www.douyu.com/63136 的链接 → 提取数字房间号
+        final url = str2(m['url']).isEmpty ? str2(m['link']) : str2(m['url']);
+        liveRoomId = RegExp(r'(\d{4,})').firstMatch(url)?.group(1) ?? '';
+      }
+      if (livePlatform.isNotEmpty && liveRoomId.isNotEmpty) break;
+    }
+    if (livePlatform.isEmpty && liveRoomId.isNotEmpty) {
+      final p2 = str(item['platform']).toLowerCase();
+      if (p2 == 'douyu' || p2 == 'huya' || p2 == 'bilibili') livePlatform = p2;
+    }
+
     return EsportsMatch(
       matchId: str(item['matchId']),
+      livePlatform: livePlatform,
+      liveRoomId: liveRoomId,
+      eventLevel: str(event['level']),
+      eventImportant: event['important'] == true,
+      eventHot: event['hot'] == true,
       gameName: 'CS',
       gameKey: 'cs',
       seriesName: seriesName,
@@ -231,6 +283,9 @@ class EsportsMatch {
     final String seriesName = tournamentName.isNotEmpty ? tournamentName : leagueName;
 
     return EsportsMatch(
+      eventLevel: '',
+      eventImportant: false,
+      eventHot: false,
       matchId: str(event['id']),
       gameName: gameName,
       gameKey: gameKey,

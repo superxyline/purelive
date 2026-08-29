@@ -236,7 +236,96 @@ class EsportsService {
     try {
       all.addAll(await fetchValorantMatches(from: from, to: to));
     } catch (_) {}
+    try {
+      all.addAll(await fetchDota2Matches());
+    } catch (_) {}
     all.sort((a, b) => a.startTime.compareTo(b.startTime));
     return all;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Liquipedia（DOTA2）
+  // ---------------------------------------------------------------------------
+
+  /// Liquipedia 要求 gzip 压缩 + 带 contact 的 UA，且限频 2 次/秒；
+  /// 本方法每次刷新只请求 1 次，满足要求。
+  static const String kLiquipediaDota2Url =
+      'https://liquipedia.net/dota2/api.php?action=parse&page=Liquipedia%3AMatches&format=json&prop=text';
+  static const String kLiquipediaUa =
+      'PureLiveApp/2.0 (personal streaming app; contact: user at gitee)';
+
+  /// 抓取 Liquipedia 的 DOTA2 近期赛程（未开始/进行中）。
+  /// 返回 HTML 为 MediaWiki parse 结果，按 data-timestamp 分块解析。
+  Future<List<EsportsMatch>> fetchDota2Matches() async {
+    final raw = await HttpClient.instance.getText(
+      kLiquipediaDota2Url,
+      header: {
+        'user-agent': kLiquipediaUa,
+        'accept-encoding': 'gzip',
+        'accept': 'application/json',
+      },
+    );
+    if (raw.isEmpty) return [];
+    final dynamic decoded = jsonDecode(raw);
+    if (decoded is! Map<String, dynamic>) return [];
+    final parse = decoded['parse'] is Map ? Map<String, dynamic>.from(decoded['parse'] as Map) : const {};
+    final text = parse['text'] is Map ? ((parse['text'] as Map)['*']?.toString() ?? '') : '';
+    if (text.isEmpty) return [];
+
+    final List<EsportsMatch> list = [];
+    // 按 data-timestamp 分块：每块是一场比赛
+    final chunks = text.split('data-timestamp="');
+    for (var i = 1; i < chunks.length; i++) {
+      final chunk = chunks[i];
+      final tsMatch = RegExp(r'^(\d+)').firstMatch(chunk);
+      if (tsMatch == null) continue;
+      final startTime = int.tryParse(tsMatch.group(1)!) ?? 0;
+      if (startTime <= 0) continue;
+
+      // 队伍名：team-template-text 文本（前两个为对阵双方）
+      final teams = RegExp(r'<span class="team-template-text"[^>]*>([^<]+)</span>')
+          .allMatches(chunk)
+          .map((m) => m.group(1)!.trim())
+          .where((t) => t.isNotEmpty)
+          .toList();
+      final teamA = teams.isNotEmpty ? teams[0] : '';
+      final teamB = teams.length > 1 ? teams[1] : '';
+
+      // 赛事名：块内第一个 wiki 链接的路径（如 /dota2/BLAST/SLAM/8/Europe）
+      final link = RegExp(r'href="/dota2/([^"#]+)').firstMatch(chunk)?.group(1) ?? '';
+      final seriesName = link
+          .split('/')
+          .where((seg) => seg.isNotEmpty)
+          .map((seg) => seg.replaceAll('_', ' ').trim())
+          .join(' ');
+
+      if (teamA.isEmpty && teamB.isEmpty) continue;
+      final matchId = 'liquipedia:$startTime:$teamA:$teamB';
+      list.add(
+        EsportsMatch(
+          matchId: matchId,
+          eventLevel: '',
+          eventImportant: false,
+          eventHot: false,
+          gameKey: 'dota2',
+          gameName: 'DOTA2',
+          seriesName: seriesName.isEmpty ? 'DOTA2' : seriesName,
+          seriesShortName: seriesName.isEmpty ? 'DOTA2' : seriesName,
+          gameStage: '',
+          startTime: startTime,
+          endTime: 0,
+          status: 1,
+          teamAName: teamA,
+          teamALogo: '',
+          teamBName: teamB,
+          teamBLogo: '',
+          scoreA: 0,
+          scoreB: 0,
+          roomId: '',
+          matchName: '',
+        ),
+      );
+    }
+    return list;
   }
 }
