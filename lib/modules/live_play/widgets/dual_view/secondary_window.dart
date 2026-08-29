@@ -1,4 +1,5 @@
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/utils/hive_pref_util.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/player/core/secondary_player_service.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/dual_view_picker_sheet.dart';
@@ -196,6 +197,16 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
   /// 相对默认位置的拖动偏移
   Offset _drag = Offset.zero;
 
+  /// 记忆的窗口宽度（本地持久化，下次触发双开时沿用）
+  static const String _prefWidthKey = 'dualWindowCustomWidth';
+
+  @override
+  void initState() {
+    super.initState();
+    final saved = HivePrefUtil.getDouble(_prefWidthKey) ?? 0;
+    if (saved > 0) _customWidth = saved;
+  }
+
   /// 用户双指缩放后的窗口宽度（<=0 表示未缩放，使用默认宽度）
   double _customWidth = 0;
 
@@ -286,6 +297,7 @@ class _DraggableSecondaryWindowState extends State<DraggableSecondaryWindow> {
           behavior: HitTestBehavior.opaque,
           onScaleStart: _onScaleStart,
           onScaleUpdate: _onScaleUpdate,
+          onScaleEnd: (_) => HivePrefUtil.setDouble(_prefWidthKey, _customWidth),
           child: Stack(
             fit: StackFit.expand,
             children: [

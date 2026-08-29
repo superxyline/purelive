@@ -11,7 +11,7 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  static const String kProjectUrl = 'https://gitee.com/superxyline';
+  static const String kProjectUrl = 'https://gitee.com/superxyline/purelive';
   String _version = '';
   /// 定制版特色功能介绍
   static const List<({IconData icon, String title, String desc})> _features = [
@@ -38,7 +38,12 @@ class _AboutPageState extends State<AboutPage> {
     (icon: Remix.global_line, title: '网络代理', desc: '应用与播放器独立代理设置'),
     (icon: Remix.tools_line, title: '工具箱', desc: '剪贴板链接识别、直播源解析'),
     (icon: Remix.login_box_line, title: '多端网页登录', desc: 'B站 / 斗鱼 / 虎牙 / 抖音网页登录'),
-    (icon: Remix.logout_box_r_line, title: '退出方式', desc: '桌面端支持最小化到后台或直接退出'),
+    (icon: Remix.logout_box_r_line, title: '退出方式', desc: '支持最小化到后台继续播放或直接退出'),
+    (icon: Remix.user_3_line, title: '账号关注同步', desc: '登录 B站 / 斗鱼 / 虎牙 / 抖音后，一键把账号关注同步到本地'),
+    (icon: Remix.bar_chart_grouped_line, title: '观看统计', desc: '本地累计观看时长，近 7 天趋势与最常观看主播'),
+    (icon: Remix.information_line, title: '直播间信息', desc: '直播间菜单开启后悬浮显示清晰度 / 分辨率 / 音频码率'),
+    (icon: Remix.layout_bottom_2_line, title: '桌面快捷方式', desc: '长按图标直达最近三个直播间与赛事中心'),
+    (icon: Remix.fire_line, title: 'CS 热度筛选', desc: '赛事页默认选中当前热度最高的 CS 赛事，不错过焦点战'),
   ];
 
   @override
