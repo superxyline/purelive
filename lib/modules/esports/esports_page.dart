@@ -3,14 +3,15 @@ import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/common_appbar_actions.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
+import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/modules/esports/esports_match.dart';
 import 'package:pure_live/modules/esports/favorite_match.dart';
 import 'package:pure_live/modules/esports/favorite_match_controller.dart';
 
 /// 赛事页：展示从昨天到 7 天后的电竞赛事日程。
 ///
-/// 数据源：完美世界电竞（CS2）+ lolesports 官方（LOL）。
-/// Dota2 数据源暂未接入，筛选时显示占位提示。
+/// 数据源：完美世界电竞（CS2）+ lolesports 官方（LOL/VALORANT）
+/// + Liquipedia（DOTA2）。
 class EsportsPage extends GetView<EsportsController> {
   const EsportsPage({super.key});
 
@@ -57,23 +58,6 @@ class EsportsPage extends GetView<EsportsController> {
           child: RefreshIndicator(
             onRefresh: () => controller.loadData(),
             child: Obx(() {
-              // Dota2 暂未接入数据源
-              if (controller.isDota2Filter) {
-                return ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    SizedBox(
-                      height: 300,
-                      child: AppStatusView(
-                        type: AppStatusType.empty,
-                        icon: Remix.trophy_line,
-                        title: i18n('esports_dota2_pending'),
-                        subtitle: i18n('esports_dota2_pending_subtitle'),
-                      ),
-                    ),
-                  ],
-                );
-              }
               final filtered = controller.filteredMatches;
               if (filtered.isEmpty) {
                 return ListView(
@@ -436,6 +420,40 @@ class _MatchCard extends StatelessWidget {
                 '${match.scoreA} : ${match.scoreB}',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+          // 官方给出了直播间且比赛进行中：提供跳转
+          if (match.livePlatform.isNotEmpty && match.liveRoomId.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            InkWell(
+              onTap: () => AppNavigator.toLiveRoomDetail(
+                liveRoom: LiveRoom(
+                  roomId: match.liveRoomId,
+                  platform: match.livePlatform,
+                  nick: '${match.teamAName} vs ${match.teamBName}'.trim(),
+                  title: match.seriesName,
+                  status: true,
+                ),
+              ),
+              borderRadius: BorderRadius.circular(6),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.live_tv_rounded, size: 12, color: theme.colorScheme.primary),
+                    const SizedBox(width: 3),
+                    Text(
+                      '${i18n('esports_watch_live')}·${Sites.of(match.livePlatform).name}',
+                      style: AppTextStyles.t11.copyWith(color: theme.colorScheme.primary),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
