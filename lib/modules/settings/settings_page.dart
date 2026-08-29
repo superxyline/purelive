@@ -15,6 +15,7 @@ import 'package:pure_live/modules/settings/pages/player_kernel_settings_page.dar
 import 'package:pure_live/modules/settings/pages/local_interaction_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/language_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/font_and_text_page.dart';
+import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -44,37 +45,36 @@ class SettingsPage extends GetView<SettingsService> {
         physics: const PureLiveScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          // ===== 外观与主题 =====
-          context.buildGroupTitle(i18n("settings_group_appearance")),
+          // ===== 账号与同步（高频：登录、同步关注都在这） =====
+          context.buildGroupTitle(i18n("settings_group_account")),
           context.buildModernCard([
+            Obx(() {
+              final cookie = SettingsService.to.cookieManager;
+              final loggedPlatforms = <String>[
+                if (BiliBiliAccountService.instance.logined.v) i18n("site_bilibili"),
+                if (cookie.huyaCookie.v.isNotEmpty) i18n("site_huya"),
+                if (cookie.douyuCookie.v.isNotEmpty) i18n("site_douyu"),
+                if (cookie.douyinCookie.v.isNotEmpty) i18n("site_douyin"),
+              ];
+              final subtitle = loggedPlatforms.isEmpty
+                  ? i18n("account_sync_none_logged")
+                  : i18n("account_sync_logged", args: {"platforms": loggedPlatforms.join("、")});
+              return context.buildTile(
+                icon: Remix.user_3_line,
+                title: i18n('third_party_auth'),
+                subtitle: subtitle,
+                onTap: () => Get.toNamed(RoutePath.kSettingsAccount),
+              );
+            }),
             context.buildTile(
-              icon: Remix.palette_line,
-              title: i18n("theme_customization"),
-              subtitle: i18n("theme_customization_desc"),
-              onTap: () => Get.to(() => const ThemeSettingsPage()),
+              icon: Remix.price_tag_3_line,
+              title: i18n('tag_management'),
+              onTap: () => Get.toNamed(RoutePath.kSettingsTags),
             ),
           ]),
 
           const SizedBox(height: 20),
-          // ===== 字体与语言 =====
-          context.buildGroupTitle(i18n("settings_group_font_language")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.font_size_2,
-              title: i18n("font_text_settings"),
-              subtitle: i18n("font_text_settings_desc"),
-              onTap: () => Get.to(() => const FontAndTextPage()),
-            ),
-            context.buildTile(
-              icon: Remix.translate,
-              title: i18n("language_settings"),
-              subtitle: i18n("language_settings_desc"),
-              onTap: () => Get.to(() => const LanguageSettingsPage()),
-            ),
-          ]),
-
-          const SizedBox(height: 20),
-          // ===== 视频与播放 =====
+          // ===== 播放体验 =====
           context.buildGroupTitle(i18n("settings_group_video_playback")),
           context.buildModernCard([
             context.buildTile(
@@ -94,6 +94,12 @@ class SettingsPage extends GetView<SettingsService> {
               title: i18n("player_kernel"),
               subtitle: i18n("player_kernel_desc"),
               onTap: () => Get.to(() => const PlayerKernelSettingsPage()),
+            ),
+            context.buildTile(
+              icon: Icons.auto_awesome_rounded,
+              title: i18n('local_interaction_title'),
+              subtitle: i18n('local_interaction_settings_desc'),
+              onTap: () => Get.to(() => const LocalInteractionSettingsPage()),
             ),
           ]),
 
@@ -128,38 +134,32 @@ class SettingsPage extends GetView<SettingsService> {
           ]),
 
           const SizedBox(height: 20),
-          // ===== 网络 =====
-          context.buildGroupTitle(i18n("settings_group_network")),
+          // ===== 外观与文字 =====
+          context.buildGroupTitle(i18n("settings_group_appearance")),
           context.buildModernCard([
             context.buildTile(
-              icon: Remix.global_line,
-              title: i18n("custom_network_proxy"),
-              subtitle: i18n("custom_network_proxy_desc"),
-              onTap: () => Get.to(() => const NetworkProxySettingsPage()),
+              icon: Remix.palette_line,
+              title: i18n("theme_customization"),
+              subtitle: i18n("theme_customization_desc"),
+              onTap: () => Get.to(() => const ThemeSettingsPage()),
+            ),
+            context.buildTile(
+              icon: Remix.font_size_2,
+              title: i18n("font_text_settings"),
+              subtitle: i18n("font_text_settings_desc"),
+              onTap: () => Get.to(() => const FontAndTextPage()),
+            ),
+            context.buildTile(
+              icon: Remix.translate,
+              title: i18n("language_settings"),
+              subtitle: i18n("language_settings_desc"),
+              onTap: () => Get.to(() => const LanguageSettingsPage()),
             ),
           ]),
 
           const SizedBox(height: 20),
-          // ===== 互动与通用 =====
-          context.buildGroupTitle(i18n("settings_group_interaction_general")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Icons.auto_awesome_rounded,
-              title: i18n('local_interaction_title'),
-              subtitle: i18n('local_interaction_settings_desc'),
-              onTap: () => Get.to(() => const LocalInteractionSettingsPage()),
-            ),
-            context.buildTile(
-              icon: Remix.settings_4_line,
-              title: i18n("general"),
-              subtitle: i18n("general_desc"),
-              onTap: () => Get.to(() => const GeneralSettingsPage()),
-            ),
-          ]),
-
-          const SizedBox(height: 20),
-          // ===== 数据与备份 =====
-          context.buildGroupTitle(i18n("settings_group_data_backup")),
+          // ===== 数据与维护 =====
+          context.buildGroupTitle(i18n("settings_group_data_maintenance")),
           context.buildModernCard([
             context.buildTile(
               icon: Remix.database_2_line,
@@ -172,6 +172,24 @@ class SettingsPage extends GetView<SettingsService> {
               title: i18n("backup_recover"),
               subtitle: i18n("backup_recover_desc"),
               onTap: () => Get.to(() => const BackupPage()),
+            ),
+            context.buildTile(
+              icon: Remix.global_line,
+              title: i18n("custom_network_proxy"),
+              subtitle: i18n("custom_network_proxy_desc"),
+              onTap: () => Get.to(() => const NetworkProxySettingsPage()),
+            ),
+          ]),
+
+          const SizedBox(height: 20),
+          // ===== 通用 =====
+          context.buildGroupTitle(i18n("general")),
+          context.buildModernCard([
+            context.buildTile(
+              icon: Remix.settings_4_line,
+              title: i18n("general"),
+              subtitle: i18n("general_desc"),
+              onTap: () => Get.to(() => const GeneralSettingsPage()),
             ),
           ]),
 

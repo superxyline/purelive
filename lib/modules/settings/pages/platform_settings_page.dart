@@ -28,21 +28,6 @@ class PlatformSettingsPage extends GetView<SettingsService> {
                 onTap: showPreferPlatformSelectorDialog,
               ),
             ),
-            context.buildTile(
-              icon: Remix.accessibility_line,
-              title: i18n('third_party_auth'),
-              subtitle: i18n('third_party_auth_subtitle'),
-              onTap: () {
-                Get.toNamed(RoutePath.kSettingsAccount);
-              },
-            ),
-            context.buildTile(
-              icon: Remix.price_tag_3_line,
-              title: i18n('tag_management'),
-              onTap: () {
-                Get.toNamed(RoutePath.kSettingsTags);
-              },
-            ),
           ]),
           const SizedBox(height: 32),
         ],

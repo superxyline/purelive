@@ -392,6 +392,89 @@ class FollowSyncService {
     return match?.group(1)?.trim() ?? "";
   }
 
+  // ---------------- 抖音 ----------------
+  /// 同步抖音账号关注的主播（正在直播的）。
+  ///
+  /// 使用网页端"关注直播"接口 webcast/web/feed/follow/，与 webcast/user/me/
+  /// 同域，携带登录 cookie 即可访问（无需 a_bogus 签名）。
+  /// 该接口只返回正在直播的关注主播，离线主播需 aweme 签名接口，暂不拉取。
+  static Future<FollowSyncResult> syncDouyin() async {
+    final cookie = SettingsService.to.cookieManager.douyinCookie.v;
+    if (cookie.isEmpty) {
+      return const FollowSyncResult(
+        platform: Sites.douyinSite,
+        error: "not_login",
+      );
+    }
+
+    final rooms = <LiveRoom>[];
+    var failed = 0;
+    try {
+      var cursor = 0;
+      var page = 0;
+      while (true) {
+        final result = await HttpClient.instance.getJson(
+          "https://live.douyin.com/webcast/web/feed/follow/",
+          queryParameters: {
+            "aid": 6383,
+            "device_platform": "webapp",
+            "count": 20,
+            "cursor": cursor,
+            "scene": "aweme_pc_follow_top",
+          },
+          header: {
+            "cookie": cookie,
+            "user-agent": _webUa,
+            "referer": "https://live.douyin.com/",
+          },
+        );
+        if (result == null ||
+            ((result["status_code"] ?? result["code"] ?? -1) != 0)) {
+          return FollowSyncResult(
+            platform: Sites.douyinSite,
+            error:
+                result?["status_msg"]?.toString() ?? result?["data"]?.toString() ?? "api_error",
+          );
+        }
+        final data = (result["data"] as Map?) ?? const {};
+        final list = (data["data"] as List?) ?? const [];
+        for (final item in list) {
+          final webRid = item["web_rid"]?.toString() ?? "";
+          if (webRid.isEmpty) {
+            failed++;
+            continue;
+          }
+          final owner = (item["owner"] as Map?) ?? const {};
+          final avatarList = (owner["avatar_thumb"]?["url_list"] as List?) ?? const [];
+          rooms.add(
+            LiveRoom(
+              roomId: webRid,
+              userId: owner["id_str"]?.toString() ?? owner["sec_uid"]?.toString() ?? "",
+              nick: owner["nickname"]?.toString() ?? "",
+              avatar: avatarList.isNotEmpty ? avatarList.first.toString() : "",
+              title: item["title"]?.toString() ?? "",
+              watching: item["user_count"]?.toString() ?? "0",
+              platform: Sites.douyinSite,
+              liveStatus: LiveStatus.live,
+              status: true,
+            ),
+          );
+        }
+        // 分页字段各端表现不一，优先取服务端游标，取不到则按 count 递增并限页数兜底
+        final nextCursor =
+            (data["next_cursor"] ?? data["cursor"] ?? data["extra"]?["next_cursor"]);
+        final hasMore = ((data["has_more"] ?? data["extra"]?["has_more"] ?? 0)).toString() == "1";
+        if (!hasMore || list.isEmpty) break;
+        cursor = int.tryParse(nextCursor?.toString() ?? "") ?? cursor + 20;
+        page++;
+        if (page > 20) break;
+      }
+    } catch (e) {
+      return FollowSyncResult(platform: Sites.douyinSite, error: e.toString());
+    }
+    return _commitRooms(rooms, Sites.douyinSite, failed);
+  }
+
   // ---------------- 公共 ----------------
   static int _addRoom(LiveRoom room) {
     final fav = SettingsService.to.fav;

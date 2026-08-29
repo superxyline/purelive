@@ -27,6 +27,10 @@ class AccountPage extends GetView<AccountController> {
                 title: i18n("site_bilibili"),
                 subtitle: isLogined ? accountName : i18n("not_logged_in"),
                 isLogined: isLogined,
+                onSync: () => FollowSyncService.runAndShowResult(
+                  task: FollowSyncService.syncBilibili,
+                  loadingMsg: i18n("follow_syncing"),
+                ),
                 onTap: () => isLogined ? _showLogoutDialog(context) : controller.bilibiliTap(),
               );
             }),
@@ -37,11 +41,19 @@ class AccountPage extends GetView<AccountController> {
                 context,
                 logo: 'assets/images/huya.png',
                 title: i18n("site_huya"),
-                subtitle: isLogined ? i18n("logined") : i18n("set_cookie"),
+                subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
                 isLogined: isLogined,
+                onSync: () => FollowSyncService.runAndShowResult(
+                  task: FollowSyncService.syncHuya,
+                  loadingMsg: i18n("follow_syncing"),
+                ),
                 onTap: () => isLogined
                     ? _showPlatformLogoutDialog(context, () => cookie.huyaCookie.v = "")
-                    : Get.toNamed(RoutePath.kHuyaCookie),
+                    : _showLoginChoiceDialog(
+                        context,
+                        onWebLogin: () => Get.toNamed(RoutePath.kHuyaWebLogin),
+                        onManual: () => Get.toNamed(RoutePath.kHuyaCookie),
+                      ),
               );
             }),
 
@@ -55,22 +67,38 @@ class AccountPage extends GetView<AccountController> {
                     ? controller.douyinNickName.value.isNotEmpty
                           ? controller.douyinNickName.value
                           : i18n("logined")
-                    : i18n("set_cookie"),
+                    : i18n("not_logged_in"),
                 isLogined: isLogined,
+                onSync: () => FollowSyncService.runAndShowResult(
+                  task: FollowSyncService.syncDouyin,
+                  loadingMsg: i18n("follow_syncing"),
+                ),
                 onTap: () => isLogined
                     ? _showPlatformLogoutDialog(context, () => cookie.douyinCookie.v = "")
-                    : Get.toNamed(RoutePath.kDouyuCookie),
+                    : _showLoginChoiceDialog(
+                        context,
+                        onWebLogin: () => Get.toNamed(RoutePath.kDouyinWebLogin),
+                        onManual: () => Get.toNamed(RoutePath.kDouyinCookie),
+                      ),
               );
             }),
-            _buildAccountTile(
-              context,
-              logo: 'assets/images/douyu.png',
-              title: i18n("site_douyu"),
-              subtitle: i18n("set_cookie"),
-              isLogined: false,
-              isEnabled: false,
-              onTap: () => Get.toNamed(RoutePath.kDouyuCookie),
-            ),
+            Obx(() {
+              final isLogined = cookie.douyuCookie.v.isNotEmpty;
+              return _buildAccountTile(
+                context,
+                logo: 'assets/images/douyu.png',
+                title: i18n("site_douyu"),
+                subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
+                isLogined: isLogined,
+                onSync: () => FollowSyncService.runAndShowResult(
+                  task: FollowSyncService.syncDouyu,
+                  loadingMsg: i18n("follow_syncing"),
+                ),
+                onTap: () => isLogined
+                    ? _showPlatformLogoutDialog(context, () => cookie.douyuCookie.v = "")
+                    : Get.toNamed(RoutePath.kDouyuWebLogin),
+              );
+            }),
           ]),
           const SizedBox(height: 32),
         ],
@@ -85,6 +113,7 @@ class AccountPage extends GetView<AccountController> {
     required String subtitle,
     required bool isLogined,
     required VoidCallback onTap,
+    VoidCallback? onSync,
     bool isEnabled = true,
   }) {
     final theme = Theme.of(context);
@@ -108,17 +137,73 @@ class AccountPage extends GetView<AccountController> {
         ),
       ),
       trailing: isLogined
-          ? GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Icon(Remix.logout_box_r_line, color: theme.colorScheme.error.withValues(alpha: 0.8), size: 18),
-              ),
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (onSync != null)
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onSync,
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(Remix.refresh_line, color: theme.colorScheme.primary.withValues(alpha: 0.85), size: 18),
+                    ),
+                  ),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(Remix.logout_box_r_line, color: theme.colorScheme.error.withValues(alpha: 0.8), size: 18),
+                  ),
+                ),
+              ],
             )
           : Icon(Icons.chevron_right_rounded, color: theme.hintColor.withValues(alpha: 0.4), size: 20),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+    );
+  }
+
+  /// 未登录时选择登录方式：网页登录（自动取 cookie）或手动填写 cookie
+  void _showLoginChoiceDialog(
+    BuildContext context, {
+    required VoidCallback onWebLogin,
+    VoidCallback? onManual,
+  }) {
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(i18n("choose_login_method")),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Remix.global_line, color: theme.colorScheme.primary),
+              title: Text(i18n("web_login")),
+              subtitle: Text(i18n("web_login_desc")),
+              onTap: () {
+                Navigator.pop(context);
+                onWebLogin();
+              },
+            ),
+            if (onManual != null)
+              ListTile(
+                leading: const Icon(Remix.clipboard_line),
+                title: Text(i18n("manual_input")),
+                subtitle: Text(i18n("set_cookie")),
+                onTap: () {
+                  Navigator.pop(context);
+                  onManual();
+                },
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(i18n("cancel"))),
+        ],
+      ),
     );
   }
 
