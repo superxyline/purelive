@@ -224,6 +224,10 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   }
 
   void updateRoom({LiveRoom? detail, bool? isLiving, bool? success, bool? isLoading, String? loadError}) {
+    // 观看统计：房间详情就绪即开始计时（服务内部按房间去重）
+    if (detail != null && Get.isRegistered<WatchStatsService>()) {
+      WatchStatsService.instance.startSession(detail);
+    }
     state.value = state.value.copyWith(
       room: state.value.room.copyWith(
         detail: detail,
@@ -786,6 +790,10 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _pendingDanmakuMessages.clear();
     tabController.dispose();
 
+    // 观看统计：结算当前观看会话
+    if (Get.isRegistered<WatchStatsService>()) {
+      WatchStatsService.instance.stopSession();
+    }
     // 兜底复位全局全屏标志（覆盖绕过返回键处理直接弹出页面的路径）。
     GlobalPlayerState.to.isFullscreen.value = false;
     GlobalPlayerState.to.isWindowFullscreen.value = false;
