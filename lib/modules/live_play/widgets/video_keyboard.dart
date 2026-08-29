@@ -28,6 +28,14 @@ class _VideoKeyboardShortcutsState extends State<VideoKeyboardShortcuts> {
 
   bool _handleGlobalKey(KeyEvent event) {
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape) {
+      // Android 系统返回键会被引擎映射为 escape。画中画标志（isInPip，由
+      // pipStatusStream 驱动）可能因流丢事件而卡在 true，此处若直接吞掉事件，
+      // 之后所有返回键都会无声失效（表现为"滑动返回没反应"）。
+      // 因此画中画状态下不消费事件，交给框架返回路径（房间 PopScope →
+      // handleBackPress 的 PiP 分支负责退出画中画并复位标志）。
+      if (GlobalPlayerState.to.isPipMode.value) {
+        return false;
+      }
       _handleEscExit();
       return true;
     }

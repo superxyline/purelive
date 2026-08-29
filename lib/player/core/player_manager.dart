@@ -412,8 +412,11 @@ class PlayerManager {
   Future<void> exitPip() async {
     if (Platform.isWindows) {
       GlobalPlayerState.to.reset();
-      isInPip.value = false;
     }
+    // isInPip 由 pipStatusStream 驱动，但流可能丢事件导致标志卡在 true
+    // （之后返回键会被 escape 处理器按画中画状态静默吞掉）。主动退出时
+    // 强制复位，让状态自愈；若真仍在画中画，后续流事件会纠正回来。
+    isInPip.value = false;
   }
 
   void showAppFloating() {

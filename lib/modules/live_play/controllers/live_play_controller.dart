@@ -193,9 +193,12 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     return false;
   }
 
+  /// 按钮路径退出全屏后同样纳入连发保护窗口：
+  /// 否则点按钮退全屏后紧跟的滑动返回会因已非全屏而直接退出直播间。
+  void markFullscreenExit() => _lastFullscreenExitAt = DateTime.now();
+
   /// 页面被系统原生返回弹出后的兜底清理（与返回键处理幂等，重复调用无副作用）。
-  void onPagePopCleanup() {
-    state.value.player.videoController?.clearListener();
+  void onPagePopCleanup() {    state.value.player.videoController?.clearListener();
     // 注意：这里不要再改 state（如 updateRoom）——页面仍在退出动画中，它的 Obx 会因此
     // 重建，而此时 GetX 可能已注销本控制器，触发 "LivePlayController not found" 灰屏。
     // 房间信息刷新由 BackButtonObserver 兜底。
@@ -613,9 +616,18 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     final sameRoom =
         state.value.room.detail?.roomId == newRoom.roomId && state.value.room.detail?.platform == newRoom.platform;
 
+    final danmakuSettings = SettingsService.to.danmaku;
+    final shouldConnectDanmaku = danmakuSettings.enableDanmakuDisplay.v || danmakuSettings.enablePipDanmaku.v;
     if (!sameRoom) {
       clearDanmakuMessages();
-      await danmakuController.stopDanmaku();
+      if (shouldConnectDanmaku) {
+        // 主副切换/换房：挂起旧弹幕连接并复用缓存连接。
+        // 不销毁重建——斗鱼等平台对同房间快速二次登录会静默限流，
+        // 导致切换后弹幕永远收不到消息。
+        await danmakuController.switchRoomDanmaku(newRoom);
+      } else {
+        await danmakuController.stopDanmaku();
+      }
     }
 
     final manager = GlobalPlayerService.instance.playerManager;
@@ -639,7 +651,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     currentSite = Sites.of(newRoom.platform!);
     playerController.initSite(currentSite);
 
-    if (!sameRoom) {
+    if (!sameRoom && !shouldConnectDanmaku) {
       await danmakuController.replaceDanmaku(currentSite.liveSite.getDanmaku());
     }
 

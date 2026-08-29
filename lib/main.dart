@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
@@ -9,9 +10,32 @@ import 'package:pure_live/player/utils/player_consts.dart';
 import 'package:pure_live/player/models/player_engine.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
+import 'package:pure_live/modules/esports/esports_controller.dart';
+
+/// 安卓返回键修复：MIUI 手势返回有时以按键事件（KEYCODE_BACK→goBack）形式
+/// 送入 Flutter 键盘管线，而引擎对该键的"重派发→onBackPressed"链路存在丢事件
+/// 的情况（表现为滑动返回偶尔完全无反应）。这里在 Dart 层直接接管 goBack 键，
+/// 走与系统返回一致的 RouterDelegate.popRoute（尊重 PopScope/弹窗/全屏拦截）。
+/// 处理后返回 true 告知引擎"已处理"，避免引擎重派发造成双击返回。
+bool _backKeyHandler(KeyEvent event) {
+  if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.goBack) {
+    return false;
+  }
+  final context = Get.context;
+  if (context == null) return false;
+  final routerState = Router.maybeOf(context);
+  final delegate = routerState?.routerDelegate;
+  if (delegate is GetDelegate) {
+    unawaited(delegate.popRoute());
+    return true;
+  }
+  return false;
+}
 
 void main(List<String> args) async {
   await AppInitializer().initialize(args);
+
+  HardwareKeyboard.instance.addHandler(_backKeyHandler);
 
   runApp(
     EasyLocalization(
@@ -36,6 +60,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     unawaited(initGlobalPlayer());
+    // 冷启动后台预取赛事数据：延后几秒避开首页首屏的网络竞争，
+    // 用户点击赛事标签时大概率已就绪，直接命中缓存秒开。
+    Future.delayed(const Duration(seconds: 5), () {
+      unawaited(EsportsController.prefetch());
+    });
   }
 
   Future<void> initGlobalPlayer() async {

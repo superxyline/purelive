@@ -755,17 +755,17 @@ class GetDelegate extends RouterDelegate<RouteDecoder>
     // 先交给 Navigator 处理：尊重页面内 PopScope 的 canPop（如直播间的全屏拦截），
     // 否则直接改 pages 会绕过 PopScope 把页面弹掉。
     if (nav != null && nav.canPop()) {
-      // maybePop 的返回值无法区分「真弹出」与「被 PopScope 拦截」：
+      // maybePop 的返回值无法区分「真弹出」与「被 PopScope 拦截」——
       // Flutter navigator.dart 的 doNotPop 分支在回调 onPopInvokedWithResult(false)
       // 之后同样 return true。真弹出时 Navigator 必经 onPopPage（_onPopVisualRoute），
       // 其内部 _popWithResult() 已同步 _activePages 并 notifyListeners，这里不能
       // 再重复删栈——否则拦截场景会把页面从 GetX 栈误删，触发 pages 重建把路由真弹掉。
-      await nav.maybePop(result);
-      // 无论是否被 PopScope 拦截，返回事件均视为已消费（拦截时页面已在回调内处理）。
-      return true;
-    }
+    await nav.maybePop(result);
+    // 无论是否被 PopScope 拦截，返回事件均视为已消费（拦截时页面已在回调内处理）。
+    return true;
+  }
 
-    return super.popRoute();
+  return super.popRoute();
   }
 
   @override

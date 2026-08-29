@@ -54,11 +54,10 @@ class LivePlayPage extends GetView<LivePlayController> {
             }
             return;
           }
-          // 全屏进/退切换进行中：忽略本次快速连续返回，避免竞态导致返回失效。
-          if (ctrl.state.value.player.videoController?.isTransitioningFullScreen.value ?? false) {
-            return;
-          }
           // canPop=false：先处理全屏/半屏/PiP，处理完成后才允许退出页面。
+          // 注意不要在 isTransitioningFullScreen 时直接吞掉事件：该标志依赖平台
+          // 通道调用完成后复位，一旦卡住会把后续所有返回事件无声吞掉（表现为
+          // 滑动返回失效）。handleBackPress 自身幂等且有 600ms 连发保护。
           if (!ctrl.handleBackPress()) {
             // 走 GetX 路由退出：由 RouterDelegate 移除页面，保持与 Navigator 路由栈一致。
             Get.back();
@@ -947,8 +946,12 @@ class NotLivingVideoWidget extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       controller.setNormalScreen();
+                      controller.markFullscreenExit();
                       GlobalPlayerState.to.isFullscreen.value = false;
                       GlobalPlayerState.to.isWindowFullscreen.value = false;
+                      // 箭头路径同样要恢复竖屏与系统栏：
+                      // 只翻标志位会让手机停留在横屏沉浸状态，看起来像"点了没反应"。
+                      controller.state.value.player.videoController?.exitFullScreen();
                     },
                     child: Container(
                       alignment: Alignment.center,

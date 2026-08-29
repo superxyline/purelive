@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/utils.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -32,6 +33,11 @@ class AppNavigator {
         : liveRoom.copyWith(platform: platform, roomId: roomId);
     _openingLiveRoom = true;
     try {
+      // 从搜索等带输入框的页面进入时，先清除输入焦点并收起键盘：
+      // 活跃的输入连接会让系统把返回手势优先用于收起键盘（事件到不了应用），
+      // 同时残留在下层页面的编辑焦点会干扰返回处理，表现为“返回失效”。
+      FocusManager.instance.primaryFocus?.unfocus();
+      unawaited(SystemChannels.textInput.invokeMethod('TextInput.hide'));
       await Get.toNamed(RoutePath.kLivePlay, arguments: normalizedRoom, parameters: {"site": platform});
     } finally {
       _openingLiveRoom = false;
