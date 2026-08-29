@@ -9,9 +9,15 @@ class DanmakuMessageActions {
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
+      // 全屏横屏时屏幕高度有限，非受控底部弹窗被限制在 9/16 屏高，
+      // 菜单项会被裁掉。改为受控 + 可滚动，内容多时在弹窗内滚动。
+      isScrollControlled: true,
       builder: (sheetContext) => SafeArea(
-        child: Wrap(
-          children: [
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.85),
+          child: SingleChildScrollView(
+            child: Wrap(
+              children: [
             ListTile(
               title: Text('${message.userName}: ${message.message}'),
               subtitle: message.userLevel.isEmpty ? null : Text('Lv.${message.userLevel}'),
@@ -59,7 +65,9 @@ class DanmakuMessageActions {
                 showKeywordDialog(context, message.message);
               },
             ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

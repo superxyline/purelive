@@ -71,12 +71,22 @@ class _FavoriteSiteTabsState extends State<_FavoriteSiteTabs> {
 
   void _handleTabChanged() {
     final tabController = _tabController;
-    if (tabController == null || tabController.indexIsChanging) return;
-    final controller = widget.controller;
-    if (controller.tabSiteIndex.value == tabController.index) return;
+    if (tabController == null) return;
+    // 点击标签：indexIsChanging=true 时 index 已是目标页，立即切换数据源，
+    // 否则动画期间目标标签会显示上一个站点的旧内容，动画结束才刷新。
+    if (tabController.indexIsChanging) {
+      _applyTab(tabController.index);
+      return;
+    }
+    // 滑动切换：拖动过程中 index 逐帧变化，落定后再切换数据源。
+    _applyTab(tabController.index);
+  }
 
+  void _applyTab(int index) {
+    final controller = widget.controller;
+    if (controller.tabSiteIndex.value == index) return;
     controller.selectedTagId.value = TagManagementController.allTagKey;
-    controller.tabSiteIndex.value = tabController.index;
+    controller.tabSiteIndex.value = index;
     controller.currentPage = 1;
   }
 

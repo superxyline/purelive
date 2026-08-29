@@ -362,6 +362,13 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
             // 平台详情接口不认识本地标签；刷新时保留它们。整个刷新周期
             // 只提交一次 Hive，避免每个房间各写一份完整收藏列表。
             updated.tagIds = List<String>.from(persistedRooms[idx].tagIds);
+            // 开播中的房间若本次刷新没取到开播时间（多为接口被风控降级），
+            // 保留上一次的值，避免角标被静默清掉。
+            if (updated.liveStartTime == null &&
+                updated.liveStatus == LiveStatus.live &&
+                persistedRooms[idx].liveStartTime != null) {
+              updated.liveStartTime = persistedRooms[idx].liveStartTime;
+            }
             persistedRooms[idx] = updated;
             changed = true;
           }

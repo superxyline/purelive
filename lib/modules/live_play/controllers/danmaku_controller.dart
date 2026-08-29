@@ -35,6 +35,12 @@ class DanmakuController extends GetxController {
   Set<String> _blockedUsers = const <String>{};
   List<String> _blockedKeywords = const <String>[];
 
+  /// 双开主副切换时挂起的存活连接（roomKey → 引擎）。
+  /// 只摘回调不关 socket，心跳继续，切回时直接复用——
+  /// 斗鱼等平台对同一房间几秒内的二次登录会静默限流
+  /// （连接成功但永不下发消息），销毁重建会让切换后弹幕消失。
+  final Map<String, LiveDanmaku> _idleEngines = {};
+
   LivePlayState get _state => _main.state.value;
   bool get _initialized => _liveDanmaku != null;
   LiveDanmaku get liveDanmaku => _liveDanmaku!;
@@ -127,6 +133,88 @@ class DanmakuController extends GetxController {
     return _serialize(() async {
       if (request != _requestEpoch) return;
       await _disconnectInternal(clearRenderer: clearRenderer);
+      // 真正停止时清空挂起缓存，避免泄漏空闲连接。
+      for (final engine in _idleEngines.values) {
+        try {
+          await engine.stop();
+        } catch (error, stackTrace) {
+          CoreLog.e(error.toString(), stackTrace);
+        }
+      }
+      _idleEngines.clear();
+    });
+  }
+
+  /// 主副切换/换房专用：挂起当前连接（保活），优先复用目标房间的缓存连接，
+  /// 未命中才新建。避免同房间快速重连被平台静默限流。
+  Future<void> switchRoomDanmaku(LiveRoom room) async {
+    final request = ++_requestEpoch;
+    final key = _roomKey(room);
+    await _serialize(() async {
+      if (request != _requestEpoch) return;
+
+      // 1. 挂起当前连接：只摘回调，socket 与心跳保持存活。
+      final current = _liveDanmaku;
+      final currentKey = _sessionKey ?? _connectingKey;
+      if (current != null && currentKey != null && currentKey != key) {
+        _detachCallbacks(current);
+        _idleEngines[currentKey] = current;
+        _sessionKey = null;
+        _connectingKey = null;
+        _main.updateDanmakuRoomId(null);
+      }
+      if (request != _requestEpoch) return;
+
+      if (_gateRoomKey != key) {
+        _messageGate.clear();
+        _gateRoomKey = key;
+      }
+
+      // 2. 命中缓存：直接复用存活连接，重挂回调即可。
+      final cached = _idleEngines.remove(key);
+      if (cached != null) {
+        _liveDanmaku = cached;
+        final token = ++_sessionToken;
+        _installCallbacks(cached, room, key, token);
+        _connectingKey = null;
+        _sessionKey = key;
+        _main.updateDanmakuRoomId(room.roomId?.toString());
+        return;
+      }
+
+      // 3. 未命中：新建引擎连接。
+      final engine = Sites.of(room.platform!).liveSite.getDanmaku();
+      _liveDanmaku = engine;
+      final token = ++_sessionToken;
+      _maskedNameNoticeShown = false;
+      _installCallbacks(engine, room, key, token);
+      _addStatusMessage(i18n('connect_danmaku_server'));
+      try {
+        await engine.start(room.danmakuData);
+      } catch (error, stackTrace) {
+        CoreLog.e(error.toString(), stackTrace);
+        if (_acceptsCallback(engine, key, token)) {
+          _connectingKey = null;
+          _sessionKey = null;
+          _main.updateDanmakuRoomId(null);
+        }
+      }
+
+      if (request != _requestEpoch || !_acceptsCallback(engine, key, token)) {
+        _detachCallbacks(engine);
+        await engine.stop();
+      }
+
+      // 4. 淘汰多余的挂起连接（保留最近 2 个：主房间 + 副房间）。
+      while (_idleEngines.length > 2) {
+        final oldestKey = _idleEngines.keys.first;
+        final evicted = _idleEngines.remove(oldestKey);
+        try {
+          await evicted?.stop();
+        } catch (error, stackTrace) {
+          CoreLog.e(error.toString(), stackTrace);
+        }
+      }
     });
   }
 

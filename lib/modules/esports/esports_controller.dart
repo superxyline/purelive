@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:pure_live/get/get.dart';
 import 'package:pure_live/modules/esports/esports_match.dart';
 import 'package:pure_live/modules/esports/favorite_match_controller.dart';
@@ -50,6 +52,22 @@ class EsportsController extends GetxController {
     4: 'valorant',
   };
 
+  /// 冷启动预取缓存：App 启动后在后台预取赛事数据，进入赛事页时直接命中缓存，
+  /// 省去点击标签后的转圈等待。缓存一次性使用，命中后即清空。
+  static List<EsportsMatch>? _prefetchedMatches;
+
+  /// 后台预取（冷启动后调用）。失败静默，不影响进入页面后的正常加载流程。
+  static Future<void> prefetch() async {
+    if (_prefetchedMatches != null) return;
+    try {
+      final now = DateTime.now();
+      final from = DateTime(now.year, now.month, now.day);
+      final to = from.add(const Duration(days: 8)).subtract(const Duration(seconds: 1));
+      final list = await EsportsService().fetchMatches(from: from, to: to);
+      if (list.isNotEmpty) _prefetchedMatches = list;
+    } catch (_) {}
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -62,6 +80,19 @@ class EsportsController extends GetxController {
   /// 刷新数据（首次加载显示转圈；已有数据时后台刷新，旧内容保留到新数据到达）
   Future<void> loadData() async {
     if (loading.value) return;
+    // 冷启动预取命中：直接渲染缓存数据（不转圈），随后走一次后台刷新保持新鲜
+    final prefetched = _prefetchedMatches;
+    if (matches.isEmpty && prefetched != null) {
+      _prefetchedMatches = null;
+      final now = DateTime.now();
+      final from = DateTime(now.year, now.month, now.day);
+      final to = from.add(const Duration(days: 8)).subtract(const Duration(seconds: 1));
+      matches.assignAll(prefetched);
+      loadedFrom = from;
+      loadedTo = to;
+      unawaited(loadData());
+      return;
+    }
     // 已有数据时视为后台刷新：不置 loading，避免页面主体被替换成加载动画
     final bool isRefresh = matches.isNotEmpty;
     if (!isRefresh) {

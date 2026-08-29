@@ -487,7 +487,9 @@ class BiliBiliSite implements LiveSite {
           refresh: () => _discoverDanmaku(int.tryParse(realRoomId) ?? 0),
         );
       }
-      // 直播开播时间：room_init 接口（简单稳定，getInfoByRoom 可能被风控）
+      // 直播开播时间：room_init 接口（简单稳定，getInfoByRoom 可能被风控）。
+      // 必须校验 code：风控时返回 code=-352 的 JSON（data 为 null），
+      // 不校验会把开播时间静默置空并随刷新持久化，导致角标消失。
       var biliLiveTime = 0;
       try {
         final roomInit = await HttpClient.instance.getJson(
@@ -495,7 +497,9 @@ class BiliBiliSite implements LiveSite {
           queryParameters: {"id": roomId},
           header: await getHeader(),
         );
-        biliLiveTime = asT<int?>(roomInit["data"]?["live_time"]) ?? 0;
+        if ((asT<int?>(roomInit["code"]) ?? -1) == 0) {
+          biliLiveTime = asT<int?>(roomInit["data"]?["live_time"]) ?? 0;
+        }
       } catch (_) {}
       return LiveRoom(
         roomId: roomId,
