@@ -41,6 +41,8 @@ import 'package:pure_live/modules/account/douyin/douyin_web_login_page.dart';
 import 'package:pure_live/modules/account/douyin/douyin_web_login_binding.dart';
 import 'package:pure_live/modules/live_play/bindings/live_play_binding.dart';
 import 'package:pure_live/modules/account/douyin/douyin_cookie_binding.dart';
+import 'package:pure_live/modules/esports/esports_binding.dart';
+import 'package:pure_live/modules/esports/esports_page.dart';
 
 class AppPages {
   AppPages._();
@@ -52,6 +54,8 @@ class AppPages {
     GetPage(name: RoutePath.kAreas, page: AreasPage.new),
     GetPage(name: RoutePath.kSettings, page: SettingsPage.new, bindings: [SettingsBinding()]),
     GetPage(name: RoutePath.kSearch, page: SearchPage.new, bindings: [SearchBinding()]),
+
+    GetPage(name: RoutePath.kEsports, page: () => const EsportsPage(), bindings: [EsportsBinding()]),
     GetPage(name: RoutePath.kBackup, page: BackupPage.new),
     GetPage(name: RoutePath.kAbout, page: AboutPage.new),
     GetPage(

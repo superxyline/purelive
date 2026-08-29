@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 赛事中心静态快捷方式：常驻，冷启动/热启动均通过 extra 传递 -->
+    <shortcut
+        android:shortcutId="esports"
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:shortcutShortLabel="@string/shortcut_esports"
+        android:shortcutLongLabel="@string/shortcut_esports">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.superxyline.purelive"
+            android:targetClass="com.superxyline.purelive.MainActivity">
+            <extra android:name="pure_live.shortcut.ROOM" android:value="esports" />
+        </intent>
+    </shortcut>
+    <!-- 分享目标（androidx sharetarget，保持原 share_targets.xml 内容） -->
+    <share-target android:targetClass="com.superxyline.purelive.MainActivity">
+        <data android:mimeType="*/*" />
+        <category android:name="com.superxyline.purelive.dynamic_share_target" />
+    </share-target>
+</shortcuts>

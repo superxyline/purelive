@@ -1,6 +1,10 @@
 package com.superxyline.purelive
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
 import android.hardware.display.DisplayManager
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -16,12 +20,16 @@ class MainActivity : AudioServiceActivity() {
     companion object {
         private const val DISPLAY_MODE_CHANNEL = "pure_live/display_mode"
         private const val BACKGROUND_PLAYBACK_CHANNEL = "pure_live/background_playback"
+        private const val APP_SHORTCUTS_CHANNEL = "pure_live/app_shortcuts"
+        private const val EXTRA_SHORTCUT_ROOM = "pure_live.shortcut.ROOM"
         private var playbackWakeLock: PowerManager.WakeLock? = null
         private var playbackWifiLock: WifiManager.WifiLock? = null
     }
 
     private var highRefreshRateEnabled = true
     private var displayModeChannel: MethodChannel? = null
+    private var appShortcutsChannel: MethodChannel? = null
+    private var pendingShortcutRoom: String? = null
     private var displayListenerRegistered = false
     private val mainHandler = Handler(Looper.getMainLooper())
     private val displayModeRefresh = Runnable {
@@ -43,6 +51,23 @@ class MainActivity : AudioServiceActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        appShortcutsChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            APP_SHORTCUTS_CHANNEL,
+        ).also { channel ->
+            channel.setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "setShortcuts" -> {
+                        val items = call.argument<ArrayList<HashMap<String, String>>>("items")
+                        setRecentRoomShortcuts(items ?: arrayListOf())
+                        result.success(true)
+                    }
+                    "getPendingShortcut" -> result.success(consumePendingShortcutRoom())
+                    else -> result.notImplemented()
+                }
+            }
+        }
+        pendingShortcutRoom = intent?.getStringExtra(EXTRA_SHORTCUT_ROOM)
         displayModeChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             DISPLAY_MODE_CHANNEL,
@@ -78,6 +103,46 @@ class MainActivity : AudioServiceActivity() {
         super.onStart()
         registerDisplayListener()
         scheduleDisplayModeRefresh(delayMillis = 0)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val shortcutRoom = intent.getStringExtra(EXTRA_SHORTCUT_ROOM)
+        if (!shortcutRoom.isNullOrEmpty()) {
+            pendingShortcutRoom = shortcutRoom
+            appShortcutsChannel?.invokeMethod("onShortcut", shortcutRoom)
+        }
+    }
+
+    private fun consumePendingShortcutRoom(): String? {
+        val value = pendingShortcutRoom
+        pendingShortcutRoom = null
+        return value
+    }
+
+    /// 更新桌面长按快捷方式：最近打开的直播间（最多 3 个）。
+    private fun setRecentRoomShortcuts(items: List<Map<String, String>>) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
+        val manager = getSystemService(ShortcutManager::class.java) ?: return
+        try {
+            val shortcuts = items.take(3).mapNotNull { item ->
+                val id = item["id"] ?: return@mapNotNull null
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    action = Intent.ACTION_VIEW
+                    putExtra(EXTRA_SHORTCUT_ROOM, id)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+                ShortcutInfo.Builder(this, id)
+                    .setShortLabel(item["label"] ?: "")
+                    .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_foreground))
+                    .setIntent(intent)
+                    .build()
+            }
+            manager.removeAllDynamicShortcuts()
+            manager.setDynamicShortcuts(shortcuts)
+        } catch (e: Exception) {
+            // 桌面不支持动态快捷方式或应用处于后台，忽略。
+        }
     }
 
     @Suppress("DEPRECATION")

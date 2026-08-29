@@ -24,6 +24,9 @@ class RoutePath {
   /// 播放页面
   static const kLivePlay = "/live_play";
 
+  /// 赛事中心（桌面快捷方式直达）
+  static const kEsports = "/esports";
+
   /// 搜索
   static const kSearch = "/search";
 

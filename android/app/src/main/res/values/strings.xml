@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="AppName">纯粹直播</string>
+    <string name="shortcut_esports">赛事中心</string>
 </resources>
