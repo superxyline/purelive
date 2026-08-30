@@ -164,20 +164,18 @@ class DanmakuListViewState extends State<DanmakuListView> {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
     final distanceToBottom = position.pixels - position.minScrollExtent;
-    final atBottom = distanceToBottom <= 40;
-    if (atBottom && !_autoScrollEnabled) {
-      _resumeAutoScroll();
-      return;
-    }
-    // A UserScrollNotification is emitted before the first drag has produced a
-    // useful pixel distance. Waiting for a 24 px offset let the 80 ms live
-    // update jump the list back to the bottom, so Android users had to swipe
-    // repeatedly. Claim a real drag (or mouse wheel) immediately.
+    final atBottom = distanceToBottom <= 60;
+    // 用户拖动/滚轮：立即暂停自动滚动。拖动初期 offset 仍贴近底部，
+    // 此时不能因"贴近底部"而恢复，否则自动滚动会和用户抢滚动条，
+    // 表现为列表抖动并弹回底部，无法回看历史弹幕。
     if (isDanmakuUserScrollStart(notification)) {
       _pauseAutoScroll();
-    } else if ((notification is ScrollEndNotification ||
+      return;
+    }
+    // 仅在滚动结束/静止后，且仍贴近底部，才恢复自动滚动
+    if ((notification is ScrollEndNotification ||
             (notification is UserScrollNotification && notification.direction == ScrollDirection.idle)) &&
-        distanceToBottom <= 12 &&
+        atBottom &&
         !_autoScrollEnabled) {
       _resumeAutoScroll();
     }

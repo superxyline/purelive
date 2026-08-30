@@ -224,6 +224,11 @@ class DanmakuController extends GetxController {
       debugPrint('DBG onMessage type=${msg.type} user=${msg.userName} msg=${msg.message}');
       if (msg.type == LiveMessageType.chat) {
         if (!_messageGate.accepts(msg) || _isBlocked(msg)) return;
+        // B站服务器会把自己发送的弹幕回显回来：按 uid 标记 isLocal，
+        // 视频画面加框突出（发送端不再本地合成，避免重复显示）
+        if (room.platform == Sites.bilibiliSite && _main.isOwnBilibiliMessage(msg.userId)) {
+          msg = _main.rebuildMessageAsLocal(msg);
+        }
         if (!_maskedNameNoticeShown &&
             room.platform == Sites.bilibiliSite &&
             RegExp(r'\*{2,}|＊{2,}').hasMatch(msg.userName)) {

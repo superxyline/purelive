@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
@@ -393,6 +392,29 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   ///
   /// 真正联网发送：调用 [currentSite.liveSite.sendDanmaku]（B站会真实发送并
   /// 返回 (是否成功, 提示)）。发送成功后由服务器弹幕回包自然显示，无需本地回显。
+  /// 是否为当前登录 B站账号发送的弹幕（服务器会回显自己的弹幕）
+  bool isOwnBilibiliMessage(String? userId) {
+    final uid = int.tryParse(userId?.trim() ?? '') ?? 0;
+    final myUid = SettingsService.to.cookieManager.bilibiliUid.v;
+    return myUid > 0 && uid > 0 && uid == myUid;
+  }
+
+  /// 将服务器回显的自己的弹幕重建为 isLocal 标记版本
+  LiveMessage rebuildMessageAsLocal(LiveMessage msg) {
+    return LiveMessage(
+      type: msg.type,
+      userName: msg.userName,
+      message: msg.message,
+      color: msg.color,
+      userLevel: msg.userLevel,
+      userId: msg.userId,
+      messageId: msg.messageId,
+      sentAt: msg.sentAt,
+      isLocal: true,
+      data: msg.data,
+    );
+  }
+
   Future<bool> sendLiveDanmaku(String text) async {
     final content = text.trim();
     if (content.isEmpty) return false;
@@ -409,18 +431,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
     final (ok, info) = await currentSite.liveSite.sendDanmaku(roomId: roomId, message: content);
     if (ok) {
-      // B站弹幕服务器不回显自己发送的弹幕：本地合成一条带 isLocal 标记的
-      // 回显（列表 + 视频画面均显示，画面上加框突出，与本地回显一致）
-      final uname = BiliBiliAccountService.instance.name.v;
-      final echo = LiveMessage(
-        type: LiveMessageType.chat,
-        userName: uname.isNotEmpty ? uname : 'me',
-        message: content,
-        color: LiveMessageColor.white,
-        isLocal: true,
-      );
-      addDanmakuMessage(echo, immediate: true);
-      state.value.player.videoController?.sendDanmaku(echo);
+      // B站服务器会回显自己发送的弹幕（弹幕收流端按 uid 标记 isLocal 并加框），
+      // 这里不再本地合成，避免列表/画面重复显示
       ToastUtil.show(i18n('send_success'));
       return true;
     }

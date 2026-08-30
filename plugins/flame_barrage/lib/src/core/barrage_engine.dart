@@ -453,7 +453,20 @@ class BarrageEngine extends FlameGame with TapCallbacks {
         if (!entry.active || entry.picture == null) continue;
         canvas.save();
         canvas.translate(entry.x, entry.y);
+        // 自己发送的弹幕：半透明底 + 圆角描边框突出显示
+        if (entry.item.isOwn) _drawOwnFrame(canvas, entry);
         canvas.drawPicture(entry.picture!);
+        if (entry.item.isOwn) {
+          final frameRect = Rect.fromLTWH(-3, -3, entry.width + 6, entry.height + 6);
+          final rrect = RRect.fromRectAndRadius(frameRect, const Radius.circular(5));
+          canvas.drawRRect(
+            rrect,
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2.0
+              ..color = const Color(0xFF4A9EFF),
+          );
+        }
         canvas.restore();
       }
     } else {
@@ -465,13 +478,32 @@ class BarrageEngine extends FlameGame with TapCallbacks {
         if (!entry.active || entry.picture == null) continue;
         canvas.save();
         canvas.translate(entry.x, entry.y);
-        final bounds = Rect.fromLTWH(0, 0, entry.width, entry.height);
+        final bounds = Rect.fromLTWH(-3, -3, entry.width + 6, entry.height + 6);
         canvas.saveLayer(bounds, opacityPaint);
+        // 自己发送的弹幕：半透明底 + 圆角描边框
+        if (entry.item.isOwn) _drawOwnFrame(canvas, entry);
         canvas.drawPicture(entry.picture!);
+        if (entry.item.isOwn) {
+          final frameRect = Rect.fromLTWH(-3, -3, entry.width + 6, entry.height + 6);
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(frameRect, const Radius.circular(5)),
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2.0
+              ..color = const Color(0xFF4A9EFF),
+          );
+        }
         canvas.restore();
         canvas.restore();
       }
     }
+  }
+
+  /// 自己发送的弹幕：绘制半透明深色底，突出描边框内的内容
+  void _drawOwnFrame(Canvas canvas, BarrageEntry entry) {
+    final bounds = Rect.fromLTWH(-3, -3, entry.width + 6, entry.height + 6);
+    final rrect = RRect.fromRectAndRadius(bounds, const Radius.circular(5));
+    canvas.drawRRect(rrect, Paint()..color = const Color(0x59000000));
   }
 
   void clear() {
