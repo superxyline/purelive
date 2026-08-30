@@ -164,6 +164,7 @@ class DanmakuManager {
           content: msg.message,
           userId: msg.userId,
           userName: msg.userName,
+          isOwn: msg.isLocal,
           textColor: originalColor,
           // A single px/s value keeps portrait, landscape and desktop motion
           // consistent. Lane collision avoidance is handled by the engine.
@@ -178,7 +179,7 @@ class DanmakuManager {
 
     if (settings.enablePipDanmaku.v && isCompactMode) {
       final compactColor = settings.pipDanmakuUseOriginalColor.v ? originalColor : Color(settings.pipDanmakuColor.v);
-      pipController.send(BarrageItem(content: msg.message, textColor: compactColor));
+      pipController.send(BarrageItem(content: msg.message, isOwn: msg.isLocal, textColor: compactColor));
     }
   }
 

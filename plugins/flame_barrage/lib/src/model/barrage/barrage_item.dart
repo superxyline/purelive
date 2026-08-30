@@ -25,12 +25,16 @@ class BarrageItem {
     this.onLongTapDown,
     this.onTapUp,
     this.onTapCancel,
+    this.isOwn = false,
   });
 
   final String content;
   final BarrageType type;
   final String? userId;
   final String? userName;
+
+  /// 是否为用户自己发送的弹幕（本地回显/实际发出），渲染时加框突出
+  final bool isOwn;
   final int priority;
 
   final Color? textColor;
