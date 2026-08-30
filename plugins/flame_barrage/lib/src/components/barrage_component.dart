@@ -53,6 +53,19 @@ class BarrageComponent extends PositionComponent with HasGameReference<BarrageEn
   void render(Canvas canvas) {
     if (opacity <= 0.0) return;
     canvas.drawPicture(picture);
+    // 自己发送的弹幕：绘制圆角描边框突出显示（框在内容外围 3px，
+    // flame 组件默认不裁剪，可画出 bounds 之外）
+    if (entry.item.isOwn) {
+      final framePaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..color = const Color(0xCC4A9EFF);
+      final frameRect = Rect.fromLTWH(-3, -3, size.x + 6, size.y + 6);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(frameRect, const Radius.circular(4)),
+        framePaint,
+      );
+    }
   }
 
   @override

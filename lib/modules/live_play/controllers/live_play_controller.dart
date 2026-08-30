@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
@@ -408,6 +409,18 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
     final (ok, info) = await currentSite.liveSite.sendDanmaku(roomId: roomId, message: content);
     if (ok) {
+      // B站弹幕服务器不回显自己发送的弹幕：本地合成一条带 isLocal 标记的
+      // 回显（列表 + 视频画面均显示，画面上加框突出，与本地回显一致）
+      final uname = BiliBiliAccountService.instance.name.v;
+      final echo = LiveMessage(
+        type: LiveMessageType.chat,
+        userName: uname.isNotEmpty ? uname : 'me',
+        message: content,
+        color: LiveMessageColor.white,
+        isLocal: true,
+      );
+      addDanmakuMessage(echo, immediate: true);
+      state.value.player.videoController?.sendDanmaku(echo);
       ToastUtil.show(i18n('send_success'));
       return true;
     }
