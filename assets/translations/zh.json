@@ -1280,5 +1280,6 @@
   "osd_room": "房间号",
   "osd_quality": "清晰度",
   "osd_resolution": "分辨率",
-  "osd_audio_bitrate": "音频码率"
+  "osd_audio_bitrate": "音频码率",
+  "esports_watch_live": "观看直播"
 }

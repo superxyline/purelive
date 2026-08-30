@@ -1092,32 +1092,68 @@ class _RoomInfoOsdState extends State<_RoomInfoOsd> {
         ? state.player.qualites[state.player.currentQuality].quality
         : '';
     final bitrate = _lastBitrate;
+    // 观看人数按平台口径展示（B站为人气值，其余为真实在线）
+    final audience = detail == null
+        ? ''
+        : switch (detail.audienceMetricType ?? AudienceMetricType.unknown) {
+            AudienceMetricType.totalViewers => detail.totalViewers ?? '',
+            AudienceMetricType.onlineViewers => detail.onlineViewers ?? '',
+            _ => (detail.watching?.isNotEmpty == true ? detail.watching : detail.popularity) ?? '',
+          };
     final rows = <String, String>{
       i18n('osd_platform'): detail?.platform ?? '-',
       i18n('osd_room'): detail?.roomId ?? '-',
+      i18n('osd_anchor'): detail?.nick?.isNotEmpty == true ? detail!.nick! : '-',
       i18n('osd_quality'): quality.isEmpty ? '-' : quality,
+      i18n('osd_line'): '${state.player.currentLineIndex + 1}',
       i18n('osd_resolution'):
           _width != null && _height != null ? '$_width×$_height' : '-',
       i18n('osd_audio_bitrate'):
           (bitrate != null && bitrate > 0) ? '$bitrate kbps' : '-',
+      if (audience.isNotEmpty) i18n('osd_online'): audience,
     };
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: rows.entries
-            .map(
-              (entry) => Text(
-                '${entry.key}: ${entry.value}',
-                style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, height: 1.5),
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                i18n('room_info_osd'),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            )
-            .toList(),
+              const SizedBox(height: 2),
+              ...rows.entries.map(
+                (entry) => Text(
+                  '${entry.key}: ${entry.value}',
+                  style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, height: 1.5),
+                ),
+              ),
+            ],
+          ),
+          // 面板内关闭按钮：无需再进菜单开关
+          Positioned(
+            top: 0,
+            right: 0,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => SettingsService.to.app.showRoomInfoOsd.v = false,
+              child: Padding(
+                padding: const EdgeInsets.all(2),
+                child: Icon(Icons.close_rounded, size: 14, color: Colors.white70),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
