@@ -1280,5 +1280,6 @@
   "osd_room": "Room",
   "osd_quality": "Quality",
   "osd_resolution": "Resolution",
-  "osd_audio_bitrate": "Audio bitrate"
+  "osd_audio_bitrate": "Audio bitrate",
+  "esports_watch_live": "Watch live"
 }
