@@ -68,21 +68,11 @@ class BackupRecoveryService {
   Future<bool> pushSettingsToRemoteServer(String httpAddress) async {
     final backup = Get.find<BackupController>();
     try {
-      // 使用 /api/importData 端点（与跨端传输一致），接收方只监听此端点
-      final client = HttpClient();
-      try {
-        final request = await client.postUrl(Uri.parse('$httpAddress/api/importData'));
-        request.headers.contentType = ContentType.json;
-        // 使用 exportTransferData 格式（包含 transferVersion 标记）
-        request.write(jsonEncode(backup.exportTransferData()));
-        final response = await request.close();
-        final body = await response.transform(utf8.decoder).join();
-        await response.drain<void>();
-        final decoded = jsonDecode(body);
-        return decoded is Map && decoded['data'] == true;
-      } finally {
-        client.close(force: true);
-      }
+      final response = await HttpClient.instance.postJson(
+        '$httpAddress/api/setSettings',
+        queryParameters: {"settings": jsonEncode(backup.exportToTVSettings())},
+      );
+      return jsonDecode(response)['data'] ?? false;
     } catch (e) {
       return false;
     }
