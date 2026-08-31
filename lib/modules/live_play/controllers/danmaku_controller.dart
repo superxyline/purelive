@@ -34,6 +34,8 @@ class DanmakuController extends GetxController {
   bool _maskedNameNoticeShown = false;
   Set<String> _blockedUsers = const <String>{};
   List<String> _blockedKeywords = const <String>[];
+  List<RegExp> _blockedRegexps = const <RegExp>[];
+  List<String> _blockedWildcards = const <String>[];
 
   /// 双开主副切换时挂起的存活连接（roomKey → 引擎）。
   /// 只摘回调不关 socket，心跳继续，切回时直接复用——
@@ -275,7 +277,29 @@ class DanmakuController extends GetxController {
     final user = message.userName.trim().toLowerCase();
     if (user.isNotEmpty && _blockedUsers.contains(user)) return true;
     final text = message.message.toLowerCase();
-    return _blockedKeywords.any(text.contains);
+
+    // 普通关键词：字符串包含匹配
+    if (_blockedKeywords.any(text.contains)) return true;
+
+    // 正则表达式匹配
+    if (_blockedRegexps.any((re) => re.hasMatch(message.message))) return true;
+
+    // 通配符匹配（* 匹配任意字符，? 匹配单个字符）
+    for (final pattern in _blockedWildcards) {
+      if (_matchWildcard(text, pattern)) return true;
+    }
+
+    return false;
+  }
+
+  /// 通配符匹配：* 匹配任意字符序列，? 匹配单个字符
+  bool _matchWildcard(String text, String pattern) {
+    // 将通配符模式转换为正则表达式
+    final regexStr = pattern
+        .replaceAll(RegExp(r'([.+^${}()|[\]\\])'), r'\\$1') // 转义正则特殊字符
+        .replaceAll('*', '.*')
+        .replaceAll('?', '.');
+    return RegExp('^$regexStr\$', caseSensitive: false).hasMatch(text);
   }
 
   void _refreshFilters() {
@@ -284,10 +308,38 @@ class DanmakuController extends GetxController {
         .map((user) => user.trim().toLowerCase())
         .where((user) => user.isNotEmpty)
         .toSet();
-    _blockedKeywords = favorite.shieldList
-        .map((keyword) => keyword.trim().toLowerCase())
-        .where((keyword) => keyword.isNotEmpty)
-        .toList(growable: false);
+
+    final plainKeywords = <String>[];
+    final regexps = <RegExp>[];
+    final wildcards = <String>[];
+
+    for (final raw in favorite.shieldList) {
+      final keyword = raw.trim();
+      if (keyword.isEmpty) continue;
+
+      // 正则表达式：以 / 开头和结尾，如 /模式/flags
+      if (keyword.length >= 2 && keyword.startsWith('/') && keyword.endsWith('/')) {
+        try {
+          final pattern = keyword.substring(1, keyword.length - 1);
+          regexps.add(RegExp(pattern, caseSensitive: false));
+        } catch (_) {
+          // 无效正则，降级为普通关键词
+          plainKeywords.add(keyword.toLowerCase());
+        }
+      }
+      // 通配符：包含 * 或 ?
+      else if (keyword.contains('*') || keyword.contains('?')) {
+        wildcards.add(keyword.toLowerCase());
+      }
+      // 普通关键词
+      else {
+        plainKeywords.add(keyword.toLowerCase());
+      }
+    }
+
+    _blockedKeywords = plainKeywords;
+    _blockedRegexps = regexps;
+    _blockedWildcards = wildcards;
   }
 
   void _addStatusMessage(String text) {

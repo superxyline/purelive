@@ -27,21 +27,19 @@ class DanmakuMessageActions {
       await showDialog<void>(
         context: context,
         barrierColor: Colors.black54,
-        builder: (sheetContext) => Align(
+        builder: (sheetContext) => Dialog(
           alignment: Alignment.centerRight,
-          child: Material(
-            color: Theme.of(sheetContext).colorScheme.surface,
-            elevation: 8,
-            child: SafeArea(
-              child: Container(
-                width: 280,
-                constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.92),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: _buildEntries(context, sheetContext, message),
-                  ),
+          insetPadding: const EdgeInsets.symmetric(vertical: 48),
+          clipBehavior: Clip.antiAlias,
+          child: SafeArea(
+            child: Container(
+              width: 280,
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.92),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _buildEntries(context, sheetContext, message),
                 ),
               ),
             ),
@@ -147,34 +145,199 @@ Future<void> sendPlusOne(LiveMessage message) async {
   ToastUtil.show(i18n('local_message_queued'));
 }
 
+/// 将弹幕内容按标点和空格分词
+List<String> _tokenizeDanmaku(String text) {
+  if (text.trim().isEmpty) return [];
+  // 按中英文标点、空格分隔，过滤空串
+  final tokens = text
+      .split(RegExp(r'[，。！？、；：""''「」【】（）\s,\.!?;:\'"()\[\]{}]+'))
+      .where((t) => t.trim().isNotEmpty)
+      .toList();
+  return tokens;
+}
+
+/// 添加屏蔽词并清除已匹配弹幕
+void _applyBlockedKeywords(List<String> keywords) {
+  for (final kw in keywords) {
+    final trimmed = kw.trim();
+    if (trimmed.isEmpty) continue;
+    SettingsService.to.fav.addShieldList(trimmed);
+    if (Get.isRegistered<LivePlayController>()) {
+      Get.find<LivePlayController>().removeDanmakuWhere(
+            (item) => item.message.toLowerCase().contains(trimmed.toLowerCase()),
+          );
+    }
+  }
+}
+
 Future<void> showKeywordDialog(BuildContext context, String message) async {
-  final textController = TextEditingController(text: message);
-  final keyword = await showDialog<String>(
+  final result = await showDialog<List<String>>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
+    builder: (dialogContext) => _KeywordBlockDialog(message: message),
+  );
+  if (result == null || result.isEmpty) return;
+  _applyBlockedKeywords(result);
+  ToastUtil.show(i18n('danmaku_keyword_blocked'));
+}
+
+/// 关键词屏蔽对话框：分词点选 + 手动输入
+class _KeywordBlockDialog extends StatefulWidget {
+  final String message;
+  const _KeywordBlockDialog({required this.message});
+
+  @override
+  State<_KeywordBlockDialog> createState() => _KeywordBlockDialogState();
+}
+
+class _KeywordBlockDialogState extends State<_KeywordBlockDialog> {
+  late final List<String> _tokens;
+  late final Set<int> _selected;
+  final TextEditingController _inputController = TextEditingController();
+  final Set<String> _manualKeywords = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _tokens = _tokenizeDanmaku(widget.message);
+    _selected = {};
+  }
+
+  @override
+  void dispose() {
+    _inputController.dispose();
+    super.dispose();
+  }
+
+  void _confirm() {
+    final result = <String>[
+      // 分词选中的
+      ..._selected.map((i) => _tokens[i]),
+      // 手动输入的
+      ..._manualKeywords,
+    ];
+    Navigator.of(context).pop(result);
+  }
+
+  void _addManualKeyword() {
+    final text = _inputController.text.trim();
+    if (text.isEmpty) return;
+    if (_manualKeywords.add(text)) {
+      _inputController.clear();
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hasTokens = _tokens.isNotEmpty;
+
+    return AlertDialog(
       title: Text(i18n('block_danmaku_keyword')),
-      content: TextField(
-        controller: textController,
-        autofocus: true,
-        maxLength: 40,
-        decoration: InputDecoration(hintText: i18n('please_enter_keyword')),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 分词选择区
+              if (hasTokens) ...[
+                Text(
+                  i18n('tap_to_select_keyword'),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: List.generate(_tokens.length, (i) {
+                    final isSelected = _selected.contains(i);
+                    return FilterChip(
+                      label: Text(_tokens[i]),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            _selected.add(i);
+                          } else {
+                            _selected.remove(i);
+                          }
+                        });
+                      },
+                    );
+                  }),
+                ),
+                const SizedBox(height: 12),
+                Divider(color: theme.colorScheme.outlineVariant),
+                const SizedBox(height: 12),
+              ],
+
+              // 手动输入区
+              Text(
+                i18n('or_enter_custom_keyword'),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              // 格式说明
+              Text(
+                i18n('keyword_format_hint'),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                  fontSize: 11,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _inputController,
+                maxLength: 40,
+                decoration: InputDecoration(
+                  hintText: i18n('please_enter_keyword'),
+                  isDense: true,
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.add_circle_outline, size: 20),
+                    onPressed: _addManualKeyword,
+                    tooltip: i18n('add'),
+                  ),
+                ),
+                onSubmitted: (_) => _addManualKeyword(),
+              ),
+
+              // 已添加的手动关键词列表
+              if (_manualKeywords.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: _manualKeywords.map((kw) {
+                    return Chip(
+                      label: Text(kw, style: const TextStyle(fontSize: 12)),
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      onDeleted: () {
+                        setState(() => _manualKeywords.remove(kw));
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(i18n('cancel'))),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(i18n('cancel')),
+        ),
         FilledButton(
-          onPressed: () => Navigator.of(dialogContext).pop(textController.text.trim()),
+          onPressed: (_selected.isEmpty && _manualKeywords.isEmpty) ? null : _confirm,
           child: Text(i18n('confirm')),
         ),
       ],
-    ),
-  );
-  textController.dispose();
-  if (keyword == null || keyword.isEmpty) return;
-  SettingsService.to.fav.addShieldList(keyword);
-  if (Get.isRegistered<LivePlayController>()) {
-    Get.find<LivePlayController>().removeDanmakuWhere(
-      (item) => item.message.toLowerCase().contains(keyword.toLowerCase()),
     );
   }
-  ToastUtil.show(i18n('danmaku_keyword_blocked'));
 }

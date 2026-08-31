@@ -137,7 +137,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     final position = _lastTapPosition;
                     if (position != null && controller.handleDanmakuPointer(position, longPress: false)) return;
                     GlobalPlayerService.instance.playerManager.isPlayingNow
-                        ? controller.enableController()
+                        ? controller.toggleController()
                         : GlobalPlayerService.instance.playerManager.togglePlayPause();
                   },
                   onLongPressStart: (details) {
