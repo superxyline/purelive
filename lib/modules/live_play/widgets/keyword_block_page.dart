@@ -127,25 +127,64 @@ class _KeywordBlockPageState extends State<KeywordBlockPage> {
           sliver: SliverList.separated(
             itemCount: items.length,
             separatorBuilder: (_, _) => const SizedBox(height: 6),
-            itemBuilder: (context, index) => RepaintBoundary(
-              child: Material(
-                color: theme.colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(12),
-                child: ListTile(
-                  dense: true,
-                  leading: Icon(icon, size: 19, color: theme.colorScheme.primary),
-                  title: Text(items[index], maxLines: 2, overflow: TextOverflow.ellipsis),
-                  trailing: IconButton(
-                    tooltip: i18n('click_to_remove'),
-                    icon: const Icon(Remix.close_line, size: 18),
-                    onPressed: () => onRemove(index),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              final typeInfo = _getKeywordTypeInfo(item);
+              return RepaintBoundary(
+                child: Material(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(12),
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(icon, size: 19, color: theme.colorScheme.primary),
+                    title: Row(
+                      children: [
+                        Flexible(
+                          child: Text(item, maxLines: 2, overflow: TextOverflow.ellipsis),
+                        ),
+                        if (typeInfo != null) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: typeInfo.$2.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              typeInfo.$1,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: typeInfo.$2,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    trailing: IconButton(
+                      tooltip: i18n('click_to_remove'),
+                      icon: const Icon(Remix.close_line, size: 18),
+                      onPressed: () => onRemove(index),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ],
     );
+  }
+
+  /// 获取关键词类型信息：(类型名, 标签颜色)
+  (String, Color)? _getKeywordTypeInfo(String keyword) {
+    if (keyword.length >= 2 && keyword.startsWith('/') && keyword.endsWith('/')) {
+      return ('REGEX', Colors.purple);
+    }
+    if (keyword.contains('*') || keyword.contains('?')) {
+      return ('WILDCARD', Colors.teal);
+    }
+    return null; // 普通关键词不显示标签
   }
 }
