@@ -172,6 +172,57 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     ),
                   );
                 }),
+                // 全屏礼物卡片堆叠显示（同屏最多3个）
+                Obx(() {
+                  final liveCtr = controller.livePlayController;
+                  final gifts = liveCtr.fsGifts;
+                  if (!GlobalPlayerState.to.fullscreenUI || gifts.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  final width = (MediaQuery.of(context).size.width * 0.6).clamp(260.0, 360.0);
+                  // 计算基础底部位置：SC卡片下方（如果有SC则在SC下方，否则在控制栏上方）
+                  final sc = liveCtr.fsSC.value;
+                  final double baseBottom;
+                  if (controller.showController.value && !controller.showLocked.value) {
+                    baseBottom = sc != null ? barHeight + 180 : barHeight + 16;
+                  } else {
+                    baseBottom = sc != null ? 180 : 24;
+                  }
+                  // 构建堆叠的礼物卡片列表
+                  final List<Widget> giftCards = [];
+                  for (int i = 0; i < gifts.length; i++) {
+                    final gift = gifts[i];
+                    // 每个卡片向上偏移（最新的在最下面）
+                    final offset = (gifts.length - 1 - i) * LivePlayController.giftCardHeight;
+                    giftCards.add(
+                      Positioned(
+                        left: 16,
+                        bottom: baseBottom + offset,
+                        width: width,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, 1),
+                                end: Offset.zero,
+                              ).animate(CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOutCubic,
+                              )),
+                              child: child,
+                            );
+                          },
+                          child: GiftCard(
+                            key: ValueKey(gift.sentAt?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch),
+                            message: gift,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return Stack(children: giftCards);
+                }),
               ],
             ),
           );

@@ -312,14 +312,15 @@ class LocalInteractionController extends GetxController {
       message: message,
       data: {
         'giftId': gift.id,
+        'giftCount': 1, // 与网络礼物字段保持一致
+        'giftName': giftName,
+        'giftIcon': '', // 本地礼物无网络图标
         'price': gift.price,
-        'count': 1,
         'local': true,
         'platform': platform,
         'effect': enableGiftEffects.v ? gift.effect : 'none',
         'anim': enableGiftEffects.v ? gift.anim : 'none',
         'emoji': gift.emoji,
-        'giftName': giftName,
       },
       color: gift.color,
       userLevel: showLevelBadge.v ? level.toString() : '',

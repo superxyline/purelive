@@ -53,6 +53,31 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   final Rxn<LiveSuperChatMessage> fsSC = Rxn<LiveSuperChatMessage>();
   Timer? _fsSCTimer;
 
+  /// 礼物全屏弹出状态列表。支持多个礼物卡片堆叠显示。
+  /// 手机最多3个，平板最多7个。新礼物从底部弹出，旧礼物向上移动。
+  /// 参见 [showFullscreenGift] / [hideFullscreenGift]。
+  final RxList<LiveMessage> fsGifts = <LiveMessage>[].obs;
+  final List<Timer?> _fsGiftTimers = List.filled(7, null); // 最大容量7
+  static const int _maxFullscreenGiftsPhone = 3;
+  static const int _maxFullscreenGiftsTablet = 7;
+
+  /// 当前设备的最大显示数量（手机3个，平板7个）
+  int get _maxFullscreenGifts {
+    try {
+      final view = WidgetsBinding.instance.platformDispatcher.views.first;
+      final dpr = view.devicePixelRatio;
+      if (dpr <= 0) return _maxFullscreenGiftsPhone;
+      return (view.physicalSize.shortestSide / dpr).round() >= 600
+          ? _maxFullscreenGiftsTablet
+          : _maxFullscreenGiftsPhone;
+    } catch (_) {
+      return _maxFullscreenGiftsPhone;
+    }
+  }
+
+  /// 礼物卡片高度常量（用于计算堆叠位置）
+  static const double giftCardHeight = 72.0;
+
   late Site currentSite;
   late TabController tabController;
 
@@ -360,10 +385,24 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     final msg = delivery.message;
     addDanmakuMessage(msg, immediate: true);
     if (delivery.showAsDanmaku) state.value.player.videoController?.sendDanmaku(msg);
-    if (msg.type == LiveMessageType.gift && localInteractionController.enableGiftEffects.v) {
+    // 本地礼物全屏动效（如果开关打开）
+    if (msg.type == LiveMessageType.gift &&
+        localInteractionController.enableGiftEffects.v &&
+        SettingsService.to.danmaku.showLocalGiftFullscreenEffect.v) {
       localGiftEffect.v = msg;
       _localGiftEffectTimer?.cancel();
       _localGiftEffectTimer = Timer(const Duration(seconds: 3), () => localGiftEffect.v = null);
+    }
+    // 本地礼物全屏左下角卡片（如果开关打开）
+    if (msg.type == LiveMessageType.gift && SettingsService.to.danmaku.showFullscreenGiftCard.v) {
+      try {
+        final isFullscreen = GlobalPlayerState.to.fullscreenUI;
+        if (isFullscreen) {
+          showFullscreenGift(msg);
+        }
+      } catch (e) {
+        debugPrint('DBG local gift fullscreen card error: $e');
+      }
     }
   }
 
@@ -489,6 +528,152 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _fsSCTimer?.cancel();
     _fsSCTimer = null;
     fsSC.value = null;
+  }
+
+  /// 全屏左下角弹出礼物卡片，支持多个卡片堆叠显示（手机最多3个，平板最多7个）。
+  /// 延迟3秒显示，3秒内同一用户同一礼物会合并数量。
+  /// 根据礼物价值决定显示时长：
+  /// - 普通礼物（价格<=10）：3秒
+  /// - 中等礼物（10<价格<=100）：5秒
+  /// - 贵重礼物（100<价格<=1000）：8秒
+  /// - 超级礼物（价格>1000）：12秒
+  final List<LiveMessage> _pendingGifts = [];
+  Timer? _giftDelayTimer;
+
+  void showFullscreenGift(LiveMessage msg) {
+    _pendingGifts.add(msg);
+
+    // 取消之前的延迟计时器，重新开始3秒计时
+    _giftDelayTimer?.cancel();
+    _giftDelayTimer = Timer(const Duration(seconds: 3), () {
+      _flushPendingGifts();
+    });
+  }
+
+  /// 将待处理的礼物合并并显示
+  void _flushPendingGifts() {
+    if (_pendingGifts.isEmpty) return;
+
+    // 按用户+礼物名称分组合并
+    final Map<String, LiveMessage> merged = {};
+    final Map<String, int> countMap = {};
+
+    for (final msg in _pendingGifts) {
+      final giftData = msg.data is Map ? msg.data as Map : {};
+      final giftName = giftData['giftName']?.toString() ?? '';
+      final key = '${msg.userName}_$giftName';
+
+      if (merged.containsKey(key)) {
+        // 合并数量
+        countMap[key] = (countMap[key] ?? 1) + 1;
+      } else {
+        merged[key] = msg;
+        countMap[key] = 1;
+      }
+    }
+
+    // 显示合并后的礼物
+    for (final entry in merged.entries) {
+      final msg = entry.value;
+      final count = countMap[entry.key] ?? 1;
+      _addFullscreenGift(msg, count);
+    }
+
+    _pendingGifts.clear();
+  }
+
+  /// 添加单个礼物到全屏显示
+  void _addFullscreenGift(LiveMessage msg, int count) {
+    // 获取礼物价格
+    int price = 0;
+    if (msg.data is Map) {
+      final data = msg.data as Map;
+      final priceValue = data['price'];
+      if (priceValue is int) {
+        price = priceValue;
+      } else if (priceValue is String) {
+        price = int.tryParse(priceValue) ?? 0;
+      }
+    }
+
+    // 根据价格计算显示时长
+    Duration duration;
+    if (price <= 10) {
+      duration = const Duration(seconds: 3); // 普通礼物
+    } else if (price <= 100) {
+      duration = const Duration(seconds: 5); // 中等礼物
+    } else if (price <= 1000) {
+      duration = const Duration(seconds: 8); // 贵重礼物
+    } else {
+      duration = const Duration(seconds: 12); // 超级礼物
+    }
+
+    // 如果数量大于1，更新消息中的giftCount
+    if (count > 1 && msg.data is Map) {
+      final data = Map<String, dynamic>.from(msg.data as Map);
+      data['giftCount'] = count;
+      // 创建新消息，更新data
+      final mergedMsg = LiveMessage(
+        type: msg.type,
+        userName: msg.userName,
+        userId: msg.userId,
+        message: msg.message,
+        data: data,
+        color: msg.color,
+        userLevel: msg.userLevel,
+        fansLevel: msg.fansLevel,
+        fansName: msg.fansName,
+        isLocal: msg.isLocal,
+        messageId: msg.messageId,
+        sentAt: msg.sentAt,
+      );
+      msg = mergedMsg;
+    }
+
+    final giftData = msg.data is Map ? msg.data as Map : {};
+    debugPrint('DBG showFullscreenGift: user=${msg.userName} gift=${giftData['giftName']} count=$count price=$price dur=${duration.inSeconds}s');
+
+    // 如果已达到最大数量，移除最早的
+    if (fsGifts.length >= _maxFullscreenGifts) {
+      _removeGiftAt(0);
+    }
+
+    // 添加新礼物到列表
+    fsGifts.add(msg);
+    final index = fsGifts.length - 1;
+
+    // 为每个礼物设置独立的计时器
+    _fsGiftTimers[index] = Timer(duration, () {
+      _removeGift(msg);
+    });
+  }
+
+  /// 移除指定位置的礼物卡片
+  void _removeGiftAt(int index) {
+    if (index < 0 || index >= fsGifts.length) return;
+    _fsGiftTimers[index]?.cancel();
+    _fsGiftTimers[index] = null;
+    fsGifts.removeAt(index);
+  }
+
+  /// 移除指定的礼物卡片
+  void _removeGift(LiveMessage msg) {
+    final index = fsGifts.indexOf(msg);
+    if (index >= 0) {
+      _removeGiftAt(index);
+    }
+  }
+
+  /// 隐藏所有全屏礼物卡片并取消计时。
+  void hideFullscreenGift() {
+    _giftDelayTimer?.cancel();
+    _giftDelayTimer = null;
+    _pendingGifts.clear();
+    for (var i = 0; i < _fsGiftTimers.length; i++) {
+      _fsGiftTimers[i]?.cancel();
+      _fsGiftTimers[i] = null;
+    }
+    fsGifts.clear();
   }
 
   void clearDanmakuMessages() {
@@ -810,6 +995,14 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _localGiftEffectTimer?.cancel();
     _fsSCTimer?.cancel();
     _fsSCTimer = null;
+    _giftDelayTimer?.cancel();
+    _giftDelayTimer = null;
+    _pendingGifts.clear();
+    for (var i = 0; i < _fsGiftTimers.length; i++) {
+      _fsGiftTimers[i]?.cancel();
+      _fsGiftTimers[i] = null;
+    }
+    fsGifts.clear();
     _localMessageDeliveryQueue.dispose();
     _danmakuFlushTimer?.cancel();
     _pendingDanmakuMessages.clear();

@@ -176,6 +176,8 @@ class DouyinDanmaku implements LiveDanmaku {
         unPackWebcastChatMessage(msg.payload, envelopeMessageId: msg.msgId.toString());
       } else if (msg.method == 'WebcastRoomUserSeqMessage') {
         unPackWebcastRoomUserSeqMessage(msg.payload);
+      } else if (msg.method == 'WebcastGiftMessage') {
+        unPackWebcastGiftMessage(msg.payload);
       }
     }
   }
@@ -226,6 +228,49 @@ class DouyinDanmaku implements LiveDanmaku {
         userName: "",
       ),
     );
+  }
+
+  void unPackWebcastGiftMessage(List<int> payload) {
+    try {
+      var giftMessage = GiftMessage.fromBuffer(payload);
+      final common = giftMessage.common;
+      final commonRoomId = common.hasRoomId() ? common.roomId.toString() : '';
+      if (commonRoomId.isNotEmpty && commonRoomId != '0' && commonRoomId != danmakuArgs.roomId) return;
+
+      final giftName = giftMessage.gift.hasName() ? giftMessage.gift.name : '';
+      final giftId = giftMessage.giftId.toInt().toString();
+      final giftCount = giftMessage.repeatCount.toInt();
+      final userName = giftMessage.user.hasNickName() ? giftMessage.user.nickName : '';
+      final userId = giftMessage.user.hasId() ? giftMessage.user.id.toString() : '';
+      // 抖音礼物图标URL（从GiftStruct.image.urlListList获取第一个URL）
+      String giftIcon = '';
+      if (giftMessage.gift.hasImage() && giftMessage.gift.image.urlListList.isNotEmpty) {
+        giftIcon = giftMessage.gift.image.urlListList.first;
+      }
+
+      // 抖音礼物价格（从giftMessage中获取，如果有）
+      final price = giftMessage.hasRepeatCount() ? giftMessage.repeatCount.toInt() : 1;
+
+      onMessage?.call(
+        LiveMessage(
+          type: LiveMessageType.gift,
+          userName: userName,
+          userId: userId,
+          message: giftName,
+          color: const LiveMessageColor(255, 100, 150), // 抖音礼物粉色
+          data: {
+            'giftId': giftId,
+            'giftCount': giftCount,
+            'giftName': giftName,
+            'giftIcon': giftIcon,
+            'price': price,
+            'platform': 'douyin',
+          },
+        ),
+      );
+    } catch (e) {
+      CoreLog.error('Failed to parse douyin gift message: $e');
+    }
   }
 
   void sendAck(dynamic logId, String internalExt) {

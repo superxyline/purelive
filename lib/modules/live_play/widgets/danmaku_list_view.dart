@@ -284,6 +284,9 @@ class DanmakuItem extends StatelessWidget {
     if (danmaku.type == LiveMessageType.superChat && danmaku.data is LiveSuperChatMessage) {
       return SuperChatCard(sc: danmaku.data as LiveSuperChatMessage);
     }
+    if (danmaku.type == LiveMessageType.gift && danmaku.data is Map) {
+      return GiftCard(message: danmaku);
+    }
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -557,6 +560,208 @@ List<InlineSpan> parseEmojis(String text, double size, Color color) {
   }
 
   return spans;
+}
+
+/// 礼物卡片组件（支持B站/抖音/虎牙/斗鱼）
+class GiftCard extends StatelessWidget {
+  final LiveMessage message;
+
+  const GiftCard({super.key, required this.message});
+
+  Map get _data => message.data is Map ? message.data as Map : const {};
+
+  String get _giftName {
+    final value = _data['giftName'];
+    if (value is String && value.isNotEmpty) return value;
+    return i18n('local_gift_center');
+  }
+
+  int get _giftCount {
+    final value = _data['giftCount'];
+    if (value is int) return value > 0 ? value : 1;
+    if (value is String) return int.tryParse(value) ?? 1;
+    if (value is num) return value.toInt() > 0 ? value.toInt() : 1;
+    return 1;
+  }
+
+  String get _giftIconUrl {
+    final value = _data['giftIcon'];
+    if (value is String && value.isNotEmpty) return value;
+    return '';
+  }
+
+  String get _emoji {
+    // 优先使用本地礼物的emoji字段
+    final localEmoji = _data['emoji'];
+    if (localEmoji is String && localEmoji.isNotEmpty) return localEmoji;
+
+    // 根据礼物名称返回对应emoji
+    final giftName = _giftName;
+
+    // 通用礼物名称匹配（斗鱼 + 虎牙 + 抖音 + B站）
+    if (giftName.contains('火箭') || giftName.contains('火箭')) return '🚀';
+    if (giftName.contains('飞机')) return '✈️';
+    if (giftName.contains('游艇') || giftName.contains('游轮')) return '🛥️';
+    if (giftName.contains('城堡')) return '🏰';
+    if (giftName.contains('摩天轮')) return '🎡';
+    if (giftName.contains('钻戒') || giftName.contains('戒指')) return '💍';
+    if (giftName.contains('花园') || giftName.contains('玫瑰')) return '🌹';
+    if (giftName.contains('情书') || giftName.contains('告白')) return '💌';
+    if (giftName.contains('守护')) return '🛡️';
+    if (giftName.contains('天使')) return '👼';
+    if (giftName.contains('恶魔')) return '😈';
+    if (giftName.contains('骑士') || giftName.contains('战士')) return '⚔️';
+    if (giftName.contains('剑') || giftName.contains('刀')) return '🗡️';
+    if (giftName.contains('锤') || giftName.contains('斧')) return '🔨';
+    if (giftName.contains('枪') || giftName.contains('炮')) return '🔫';
+    if (giftName.contains('炸弹') || giftName.contains('手雷')) return '💣';
+    if (giftName.contains('超火') || giftName.contains('火焰')) return '🔥';
+    if (giftName.contains('荧光棒') || giftName.contains('棒')) return '🔦';
+    if (giftName.contains('办卡') || giftName.contains('卡')) return '💳';
+    if (giftName.contains('弱鸡') || giftName.contains('鸡')) return '🐔';
+    if (giftName.contains('电影票') || giftName.contains('电影')) return '🎬';
+    if (giftName.contains('魔法书') || giftName.contains('书')) return '📖';
+    if (giftName.contains('老虎') || giftName.contains('虎牙')) return '🐯';
+    if (giftName.contains('鱼')) return '🐟';
+    if (giftName.contains('花') || giftName.contains('草')) return '🌸';
+    if (giftName.contains('星') || giftName.contains('星星')) return '⭐';
+    if (giftName.contains('月') || giftName.contains('月亮')) return '🌙';
+    if (giftName.contains('太阳') || giftName.contains('日')) return '☀️';
+    if (giftName.contains('彩虹')) return '🌈';
+    if (giftName.contains('皇冠')) return '👑';
+    if (giftName.contains('钻石')) return '💎';
+    if (giftName.contains('蛋糕') || giftName.contains('甜')) return '🍰';
+    if (giftName.contains('音乐') || giftName.contains('音符')) return '🎵';
+    if (giftName.contains('爱') || giftName.contains('心') || giftName.contains('❤')) return '❤️';
+
+    return '🎁';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final platform = _data['platform']?.toString() ?? '';
+    final isLocal = _data['local'] == true;
+
+    // 本地礼物使用LiveMessage的颜色，网络礼物根据平台设置颜色
+    Color accentColor;
+    if (isLocal) {
+      // 本地礼物：使用消息中的颜色
+      accentColor = Color.fromARGB(255, message.color.r, message.color.g, message.color.b);
+    } else {
+      // 网络礼物：根据平台设置颜色
+      switch (platform) {
+        case 'bilibili':
+          accentColor = const Color(0xFFFF6B35); // B站橙色
+          break;
+        case 'douyin':
+          accentColor = const Color(0xFFFF2C55); // 抖音红色
+          break;
+        case 'huya':
+          accentColor = const Color(0xFFFFC107); // 虎牙金色
+          break;
+        case 'douyu':
+          accentColor = const Color(0xFFFFC107); // 斗鱼金色
+          break;
+        default:
+          accentColor = const Color(0xFFFFC107); // 默认金色
+      }
+    }
+
+    final cardBgColor = isDark
+        ? accentColor.withValues(alpha: 0.15)
+        : accentColor.withValues(alpha: 0.1);
+    final textColor = isDark ? Colors.white70 : Colors.black87;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      decoration: BoxDecoration(
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 0.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 礼物图标（优先使用网络图片，否则使用emoji）
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: _giftIconUrl.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        _giftIconUrl,
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => Center(
+                          child: Text(_emoji, style: const TextStyle(fontSize: 20)),
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: Text(
+                        _emoji,
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 10),
+            // 用户名和礼物信息
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 用户名
+                  Text(
+                    message.userName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: accentColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  // 礼物信息
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${i18n('local_sent_gift')} ',
+                          style: TextStyle(color: textColor, fontSize: 12),
+                        ),
+                        TextSpan(
+                          text: '$_giftName ×$_giftCount',
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class EmojiPainter extends CustomPainter {
