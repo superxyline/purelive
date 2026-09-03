@@ -4,11 +4,13 @@ import 'package:pure_live/get/get.dart';
 import 'package:pure_live/modules/esports/esports_match.dart';
 import 'package:pure_live/modules/esports/favorite_match_controller.dart';
 import 'package:pure_live/modules/esports/esports_service.dart';
+import 'package:pure_live/modules/esports/esports_reminder_service.dart';
 
 /// 赛事页控制器：加载 完美世界(CS) + lolesports(LOL/Valorant) 赛事日程。
 /// Dota2 数据源暂未接入，筛选时显示占位提示。
 class EsportsController extends GetxController {
   final EsportsService _service = EsportsService();
+  final EsportsReminderService _reminderService = EsportsReminderService();
 
   /// 游戏筛选：0=全部 1=CS 2=Dota2 3=英雄联盟 4=Valorant
   final RxInt gameFilter = 1.obs;
@@ -164,6 +166,8 @@ class EsportsController extends GetxController {
       if (list.isEmpty) {
         error.value = 'esports_load_failed';
       }
+      // 数据加载完成后更新赛事提醒
+      _reminderService.scheduleReminders();
     } catch (_) {
       matches.clear();
       error.value = 'esports_load_failed';
