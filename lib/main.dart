@@ -11,6 +11,7 @@ import 'package:pure_live/player/models/player_engine.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
+import 'package:pure_live/modules/esports/esports_reminder_service.dart';
 
 /// 安卓返回键修复：MIUI 手势返回有时以按键事件（KEYCODE_BACK→goBack）形式
 /// 送入 Flutter 键盘管线，而引擎对该键的"重派发→onBackPressed"链路存在丢事件
@@ -66,6 +67,8 @@ class _MyAppState extends State<MyApp> {
     // 用户点击赛事标签时大概率已就绪，直接命中缓存秒开。
     Future.delayed(const Duration(seconds: 5), () {
       unawaited(EsportsController.prefetch());
+      // 初始化赛事提醒服务
+      unawaited(EsportsReminderService().init());
     });
   }
 

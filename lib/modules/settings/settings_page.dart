@@ -158,30 +158,6 @@ class SettingsPage extends GetView<SettingsService> {
           ]),
 
           const SizedBox(height: 20),
-          // ===== 数据与维护 =====
-          context.buildGroupTitle(i18n("settings_group_data_maintenance")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.database_2_line,
-              title: i18n("cache_and_data"),
-              subtitle: i18n("cache_and_data_desc"),
-              onTap: () => Get.to(() => const CacheDataSettingsPage()),
-            ),
-            context.buildTile(
-              icon: Remix.cloud_line,
-              title: i18n("backup_recover"),
-              subtitle: i18n("backup_recover_desc"),
-              onTap: () => Get.to(() => const BackupPage()),
-            ),
-            context.buildTile(
-              icon: Remix.global_line,
-              title: i18n("custom_network_proxy"),
-              subtitle: i18n("custom_network_proxy_desc"),
-              onTap: () => Get.to(() => const NetworkProxySettingsPage()),
-            ),
-          ]),
-
-          const SizedBox(height: 20),
           // ===== 通用 =====
           context.buildGroupTitle(i18n("general")),
           context.buildModernCard([
@@ -190,6 +166,18 @@ class SettingsPage extends GetView<SettingsService> {
               title: i18n("general"),
               subtitle: i18n("general_desc"),
               onTap: () => Get.to(() => const GeneralSettingsPage()),
+            ),
+            context.buildTile(
+              icon: Remix.translate,
+              title: i18n("language_settings"),
+              subtitle: i18n("language_settings_desc"),
+              onTap: () => Get.to(() => const LanguageSettingsPage()),
+            ),
+            context.buildTile(
+              icon: Remix.global_line,
+              title: i18n("custom_network_proxy"),
+              subtitle: i18n("custom_network_proxy_desc"),
+              onTap: () => Get.to(() => const NetworkProxySettingsPage()),
             ),
           ]),
 

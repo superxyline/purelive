@@ -172,7 +172,7 @@ class VideoSettingsPage extends GetView<SettingsService> {
 
           const SizedBox(height: 20),
 
-          // 弹幕设置
+          // 弹幕设置入口
           context.buildGroupTitle(i18n("danmaku_settings")),
           context.buildModernCard([
             context.buildSwitchTile(
@@ -180,28 +180,6 @@ class VideoSettingsPage extends GetView<SettingsService> {
               subtitle: i18n('show_danmaku_subtitle'),
               value: SettingsService.to.danmaku.enableDanmakuDisplay,
               icon: Remix.chat_smile_2_line,
-            ),
-            context.buildTile(
-              icon: Remix.picture_in_picture_2_line,
-              title: i18n('pip_danmaku'),
-              subtitle: i18n('pip_danmaku_desc'),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => Get.to(() => const PipDanmakuSettingsPage()),
-            ),
-            Obx(
-              () => context.buildTile(
-                icon: Remix.font_size,
-                title: i18n("change_danmaku_font_family"),
-                subtitle: "${i18n("current_font_prefix")}: ${SettingsService.to.danmaku.danmakuFontFamilyName.v}",
-                onTap: () => Get.to(() => const FontFamilyManagerPage(isDanmakuSettings: true)),
-              ),
-            ),
-
-            context.buildTile(
-              icon: Remix.filter_2_line,
-              title: i18n("danmaku_filter"),
-              subtitle: "",
-              onTap: () => Get.toNamed(RoutePath.kSettingsDanmuShield),
             ),
           ]),
           const SizedBox(height: 32),
