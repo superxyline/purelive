@@ -132,6 +132,40 @@ class DouyuDanmaku implements LiveDanmaku {
           );
 
           onMessage?.call(liveMsg);
+        } else if (type == "dgb") {
+          // 斗鱼礼物消息
+          final packetRoomId = jsonData['rid']?.toString() ?? '';
+          if (packetRoomId.isNotEmpty && _roomId.isNotEmpty && packetRoomId != _roomId) continue;
+          final giftId = jsonData['gfid']?.toString() ?? '';
+          final giftCount = int.tryParse(jsonData['gs']?.toString() ?? '') ?? 1;
+          // 斗鱼礼物名称字段：优先 gfn，回退 gn
+          final giftName = (jsonData['gfn']?.toString() ?? jsonData['gn']?.toString() ?? '').trim();
+          final userName = jsonData['nn']?.toString() ?? '';
+          final userLevel = jsonData['el']?.toString() ?? '';
+          final rawTimestamp = int.tryParse(jsonData['cst']?.toString() ?? '');
+          final sentAt = rawTimestamp == null
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(rawTimestamp > 100000000000 ? rawTimestamp : rawTimestamp * 1000);
+
+          final liveMsg = LiveMessage(
+            type: LiveMessageType.gift,
+            userName: userName,
+            userId: jsonData['uid']?.toString() ?? '',
+            message: giftName,
+            userLevel: userLevel,
+            color: const LiveMessageColor(255, 200, 0), // 金色表示礼物
+            data: {
+              'giftId': giftId,
+              'giftCount': giftCount,
+              'giftName': giftName,
+              'giftIcon': '',
+              'price': 1, // 斗鱼礼物默认价格（协议中无直接价格字段）
+              'platform': 'douyu',
+            },
+            sentAt: sentAt,
+          );
+
+          onMessage?.call(liveMsg);
         }
       }
     } catch (e) {

@@ -84,8 +84,8 @@ class EsportsController extends GetxController {
 
   /// CS 赛事加载完成后，默认选中热度最高的赛事（而非显示全部）。
   /// 热度评分：进行中 > 官方重要 > 官方热门 > T1/T2 > 即将开赛。
-  String? _pickHottestSeries() {
-    final csMatches = matches.where((m) => m.gameKey == 'cs').toList();
+  String? _pickHottestSeries(List<EsportsMatch> allMatches) {
+    final csMatches = allMatches.where((m) => m.gameKey == 'cs').toList();
     if (csMatches.isEmpty) return null;
     final bySeries = <String, List<EsportsMatch>>{};
     for (final m in csMatches) {
@@ -140,19 +140,19 @@ class EsportsController extends GetxController {
       final from = DateTime(now.year, now.month, now.day);
       final to = DateTime(now.year, now.month, now.day).add(const Duration(days: 8)).subtract(const Duration(seconds: 1));
       final list = await _service.fetchMatches(from: from, to: to);
-      matches.assignAll(list);
       loadedFrom = from;
       loadedTo = to;
       // CS 默认选中热度最高赛事：避免"全部+按时间排序"淹没重点比赛。
       // 若该赛事当天没有比赛，则自动放开日期筛选，保证有内容展示。
+      // 注意：必须在 matches.assignAll 之前设置 seriesFilter，这样 Obx 一次性更新UI
       if (!_defaultSeriesApplied && gameFilter.value == 1 && list.isNotEmpty) {
         _defaultSeriesApplied = true;
-        final hottest = _pickHottestSeries();
+        final hottest = _pickHottestSeries(list);
         if (hottest != null && hottest.isNotEmpty && seriesFilter.value.isEmpty) {
           seriesFilter.value = hottest;
           final day = dateFilter.value;
           final hasMatchToday = day == null ||
-              matches.any((m) =>
+              list.any((m) =>
                   m.gameKey == 'cs' && m.seriesName == hottest &&
                   (m.startDateTime.year == day.year &&
                       m.startDateTime.month == day.month &&
@@ -160,6 +160,7 @@ class EsportsController extends GetxController {
           if (!hasMatchToday) dateFilter.value = null;
         }
       }
+      matches.assignAll(list);
       if (list.isEmpty) {
         error.value = 'esports_load_failed';
       }

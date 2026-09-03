@@ -374,6 +374,40 @@ class BiliBiliDanmaku implements LiveDanmaku {
           data: sc,
         );
         onMessage?.call(liveMsg);
+      } else if (cmd == "SEND_GIFT") {
+        // B站礼物消息
+        if (obj["data"] == null) {
+          return;
+        }
+        final data = obj["data"];
+        final giftName = data["giftName"]?.toString() ?? '';
+        final giftCount = data["num"] ?? 1;
+        final giftId = data["giftId"]?.toString() ?? '';
+        final userName = data["user_info"]?["uname"]?.toString() ?? '';
+        final userId = data["uid"]?.toString() ?? '';
+        final action = data["action"]?.toString() ?? '投喂';
+        // B站礼物价格（gold coin价格，单位0.1元）
+        final price = data["price"] ?? 1;
+        // B站礼物图标URL：优先使用服务端返回的 gift_cover 字段
+        final giftIcon = data["gift_cover"]?.toString() ?? '';
+
+        var liveMsg = LiveMessage(
+          type: LiveMessageType.gift,
+          userName: userName,
+          userId: userId,
+          message: '$action $giftName',
+          color: const LiveMessageColor(255, 150, 50), // B站礼物橙色
+          data: {
+            'giftId': giftId,
+            'giftCount': giftCount,
+            'giftName': giftName,
+            'giftIcon': giftIcon,
+            'price': price,
+            'platform': 'bilibili',
+            'action': action,
+          },
+        );
+        onMessage?.call(liveMsg);
       }
     } catch (e) {
       CoreLog.error(e);

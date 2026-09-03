@@ -188,6 +188,34 @@ class HuyaDanmaku implements LiveDanmaku {
           messageId: messageId > 0 ? 'huya:$messageId' : '',
         ),
       );
+    } else if (uri == 8200) {
+      // 虎牙礼物消息 (SendItemNetMessage)
+      try {
+        final giftNotice = HYSendItemNetMessage();
+        giftNotice.readFrom(TarsInputStream(Uint8List.fromList(payload)));
+        // 虎牙礼物图标URL（需要根据实际API确认格式）
+        final giftIcon = 'https://huya.hdslb.com/gift/${giftNotice.iItemType}.png';
+        onMessage?.call(
+          LiveMessage(
+            type: LiveMessageType.gift,
+            userName: giftNotice.sSenderName,
+            userId: giftNotice.iSenderUid.toString(),
+            message: giftNotice.sGiftName,
+            color: const LiveMessageColor(255, 200, 0), // 金色表示礼物
+            data: {
+              'giftId': giftNotice.iItemType.toString(),
+              'giftCount': giftNotice.iItemCount,
+              'giftName': giftNotice.sGiftName,
+              'giftIcon': giftIcon,
+              'price': 1, // 虎牙礼物默认价格（协议中无直接价格字段）
+              'platform': 'huya',
+            },
+            messageId: messageId > 0 ? 'huya:$messageId' : '',
+          ),
+        );
+      } catch (e) {
+        CoreLog.error('Failed to parse huya gift message: $e');
+      }
     }
   }
 }
@@ -357,6 +385,47 @@ class HYBulletFormat extends TarsStruct {
       ..fontSize = fontSize
       ..textSpeed = textSpeed
       ..transitionType = transitionType;
+  }
+
+  @override
+  void displayAsString(StringBuffer sb, int level) {}
+}
+
+/// 虎牙礼物消息结构 (SendItemNetMessage)
+/// uri == 8200
+class HYSendItemNetMessage extends TarsStruct {
+  String sSenderName = ""; // tag 0 - 发送者昵称
+  int iSenderUid = 0; // tag 1 - 发送者UID (int64)
+  int iItemType = 0; // tag 2 - 礼物类型ID (int64)
+  String sGiftName = ""; // tag 3 - 礼物名称
+  int iItemCount = 1; // tag 4 - 礼物数量
+
+  @override
+  void readFrom(TarsInputStream inputStream) {
+    sSenderName = inputStream.read(sSenderName, 0, false);
+    iSenderUid = inputStream.read(iSenderUid, 1, false);
+    iItemType = inputStream.read(iItemType, 2, false);
+    sGiftName = inputStream.read(sGiftName, 3, false);
+    iItemCount = inputStream.read(iItemCount, 4, false);
+  }
+
+  @override
+  void writeTo(TarsOutputStream outputStream) {
+    outputStream.write(sSenderName, 0);
+    outputStream.write(iSenderUid, 1);
+    outputStream.write(iItemType, 2);
+    outputStream.write(sGiftName, 3);
+    outputStream.write(iItemCount, 4);
+  }
+
+  @override
+  Object deepCopy() {
+    return HYSendItemNetMessage()
+      ..sSenderName = sSenderName
+      ..iSenderUid = iSenderUid
+      ..iItemType = iItemType
+      ..sGiftName = sGiftName
+      ..iItemCount = iItemCount;
   }
 
   @override

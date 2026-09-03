@@ -84,6 +84,69 @@ void main() {
       expect(update.kind, LiveAudienceMetricKind.totalViewers);
       expect(update.value, 18342);
     });
+
+    test('parses SEND_GIFT message with gift_cover', () {
+      final danmaku = BiliBiliDanmaku();
+      final received = <LiveMessage>[];
+      danmaku.onMessage = received.add;
+      final body = json.encode({
+        'cmd': 'SEND_GIFT',
+        'data': {
+          'giftName': '小花花',
+          'num': 1,
+          'giftId': 20004,
+          'uid': 12345,
+          'user_info': {'uname': '测试用户'},
+          'action': '投喂',
+          'price': 100,
+          'gift_cover': 'https://i0.hdslb.com/bfs/liveabled/gift/20004.png',
+        },
+      });
+
+      danmaku.decodeMessage(_packet(utf8.encode(body), operation: 5));
+
+      final gift = received.single;
+      expect(gift.type, LiveMessageType.gift);
+      expect(gift.userName, '测试用户');
+      expect(gift.message, '投喂 小花花');
+
+      final data = gift.data as Map;
+      expect(data['giftName'], '小花花');
+      expect(data['giftCount'], 1);
+      expect(data['giftId'], '20004');
+      expect(data['price'], 100);
+      expect(data['giftIcon'], 'https://i0.hdslb.com/bfs/liveabled/gift/20004.png');
+      expect(data['platform'], 'bilibili');
+    });
+
+    test('handles SEND_GIFT without gift_cover gracefully', () {
+      final danmaku = BiliBiliDanmaku();
+      final received = <LiveMessage>[];
+      danmaku.onMessage = received.add;
+      final body = json.encode({
+        'cmd': 'SEND_GIFT',
+        'data': {
+          'giftName': '辣条',
+          'num': 5,
+          'giftId': 1,
+          'uid': 67890,
+          'user_info': {'uname': '另一位用户'},
+          'action': '投喂',
+          'price': 1,
+        },
+      });
+
+      danmaku.decodeMessage(_packet(utf8.encode(body), operation: 5));
+
+      final gift = received.single;
+      expect(gift.type, LiveMessageType.gift);
+
+      final data = gift.data as Map;
+      expect(data['giftName'], '辣条');
+      expect(data['giftCount'], 5);
+      expect(data['giftIcon'], '');
+      expect(data['platform'], 'bilibili');
+    });
   });
 }
 

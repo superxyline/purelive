@@ -137,6 +137,29 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
 
             const SizedBox(height: 20),
 
+            context.buildGroupTitle(i18n('gift_effects')),
+            const SizedBox(height: 8),
+            reactiveCard(
+              () => [
+                _switch(
+                  theme,
+                  title: i18n('local_gift_fullscreen_effect'),
+                  value: SettingsService.to.danmaku.showLocalGiftFullscreenEffect.v,
+                  onChanged: (v) => SettingsService.to.danmaku.showLocalGiftFullscreenEffect.v = v,
+                  labelColor: labelColor,
+                ),
+                _switch(
+                  theme,
+                  title: i18n('fullscreen_gift_card'),
+                  value: SettingsService.to.danmaku.showFullscreenGiftCard.v,
+                  onChanged: (v) => SettingsService.to.danmaku.showFullscreenGiftCard.v = v,
+                  labelColor: labelColor,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
             context.buildGroupTitle(i18n("position")),
             const SizedBox(height: 8),
             reactiveCard(
