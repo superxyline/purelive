@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -8,7 +10,7 @@ class DanmakuMessageActions {
 
   /// 面板布局选择：
   /// - 手机非全屏：底部弹窗（保持原交互）；
-  /// - 全屏（手机/平板）：从画面右侧滑出的窄面板；
+  /// - 全屏（手机/平板）：从画面右侧滑出的窄面板（毛玻璃质感）；
   /// - 平板非全屏：覆盖右侧弹幕列表的窄面板。
   static bool _shouldUseRightPanel() {
     if (Get.width > 680) return true;
@@ -23,23 +25,36 @@ class DanmakuMessageActions {
 
   static Future<void> show(BuildContext context, LiveMessage message) async {
     if (_shouldUseRightPanel()) {
-      // 右侧窄面板：全屏/平板下不遮挡主画面
+      final theme = Theme.of(context);
+      // 右侧窄面板：全屏/平板下不遮挡主画面。
+      // 毛玻璃质感：背景模糊 + 半透明主题色底 + 细描边（全屏视频上微微透出画面）。
       await showDialog<void>(
         context: context,
         barrierColor: Colors.black54,
         builder: (sheetContext) => Dialog(
           alignment: Alignment.centerRight,
           insetPadding: const EdgeInsets.symmetric(vertical: 48),
-          clipBehavior: Clip.antiAlias,
+          backgroundColor: Colors.transparent,
           child: SafeArea(
             child: Container(
               width: 280,
+              clipBehavior: Clip.antiAlias,
               constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.92),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: _buildEntries(context, sheetContext, message),
+              decoration: ShapeDecoration(
+                color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.72),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
+                ),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: _buildEntries(context, sheetContext, message),
+                  ),
                 ),
               ),
             ),
@@ -49,7 +64,7 @@ class DanmakuMessageActions {
       return;
     }
 
-    // 手机非全屏：底部弹窗
+    // 手机非全屏：底部弹窗（跟随主题 bottomSheetTheme：圆角24 + 拖动手柄）
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -64,13 +79,56 @@ class DanmakuMessageActions {
   }
 }
 
+/// 菜单头部：展示被点击的弹幕内容（用户名 / 等级徽章 / 消息正文）。
+/// 底部弹窗与右侧面板共用，风格随主题。
+Widget _buildMessageHeader(BuildContext context, LiveMessage message) {
+  final theme = Theme.of(context);
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                message.userName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (message.userLevel.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'Lv.${message.userLevel}',
+                  style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(message.message, style: theme.textTheme.bodyMedium?.copyWith(height: 1.3)),
+        const SizedBox(height: 10),
+        Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ],
+    ),
+  );
+}
+
 /// 菜单条目（底部弹窗与右侧面板共用）
 List<Widget> _buildEntries(BuildContext context, BuildContext sheetContext, LiveMessage message) {
-  return [
-    ListTile(
-      title: Text('${message.userName}: ${message.message}'),
-      subtitle: message.userLevel.isEmpty ? null : Text('Lv.${message.userLevel}'),
-    ),
+  final actions = <Widget>[
     ListTile(
       leading: const Icon(Icons.copy_all_rounded),
       title: Text(i18n('copy')),
@@ -114,6 +172,16 @@ List<Widget> _buildEntries(BuildContext context, BuildContext sheetContext, Live
         showKeywordDialog(context, message.message);
       },
     ),
+  ];
+
+  return [
+    _buildMessageHeader(context, message),
+    // 操作项左右内边距，让主题自带的 ListTile 圆角悬浮效果完整呈现
+    Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: actions),
+    ),
+    const SizedBox(height: 8),
   ];
 }
 

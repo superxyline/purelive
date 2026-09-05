@@ -98,6 +98,63 @@ class EsportsMatch {
   /// 本地时区的开赛时间
   DateTime get startDateTime => DateTime.fromMillisecondsSinceEpoch(startTime * 1000);
 
+  /// 序列化到本地缓存（字段与构造函数一一对应，全部为简单类型）
+  Map<String, dynamic> toJson() => {
+        'matchId': matchId,
+        'gameName': gameName,
+        'gameKey': gameKey,
+        'seriesName': seriesName,
+        'seriesShortName': seriesShortName,
+        'gameStage': gameStage,
+        'startTime': startTime,
+        'endTime': endTime,
+        'status': status,
+        'teamAName': teamAName,
+        'teamALogo': teamALogo,
+        'teamBName': teamBName,
+        'teamBLogo': teamBLogo,
+        'scoreA': scoreA,
+        'scoreB': scoreB,
+        'roomId': roomId,
+        'matchName': matchName,
+        'livePlatform': livePlatform,
+        'liveRoomId': liveRoomId,
+        'eventLevel': eventLevel,
+        'eventImportant': eventImportant,
+        'eventHot': eventHot,
+      };
+
+  /// 从本地缓存反序列化；字段缺失或类型异常时按缺省值兜底。
+  factory EsportsMatch.fromJson(Map<String, dynamic> json) {
+    String str(dynamic v) => v == null ? '' : v.toString();
+    int intVal(dynamic v) => v is num ? v.toInt() : (v is String ? int.tryParse(v) ?? 0 : 0);
+    bool boolVal(dynamic v) => v == true;
+    return EsportsMatch(
+      matchId: str(json['matchId']),
+      eventLevel: str(json['eventLevel']),
+      eventImportant: boolVal(json['eventImportant']),
+      eventHot: boolVal(json['eventHot']),
+      gameName: str(json['gameName']),
+      gameKey: str(json['gameKey']),
+      seriesName: str(json['seriesName']),
+      seriesShortName: str(json['seriesShortName']),
+      gameStage: str(json['gameStage']),
+      startTime: intVal(json['startTime']),
+      endTime: intVal(json['endTime']),
+      status: intVal(json['status']),
+      teamAName: str(json['teamAName']),
+      teamALogo: str(json['teamALogo']),
+      teamBName: str(json['teamBName']),
+      teamBLogo: str(json['teamBLogo']),
+      scoreA: intVal(json['scoreA']),
+      scoreB: intVal(json['scoreB']),
+      roomId: str(json['roomId']),
+      matchName: str(json['matchName']),
+      livePlatform: str(json['livePlatform']),
+      liveRoomId: str(json['liveRoomId']),
+    );
+  }
+
   /// 是否已结束
   bool get isEnded => status == 3;
 

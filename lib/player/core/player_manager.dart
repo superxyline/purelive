@@ -78,6 +78,42 @@ class PlayerManager {
   final RxInt videoFitIndex = 0.obs;
   Rx<ValueKey> videoKey = Rx<ValueKey>(const ValueKey("video_0"));
 
+  /// 全屏双指缩放画面的变换（B站客户端效果）。
+  /// 仅作用于视频画面层（控件面板不缩放），identity 表示原始画面。
+  /// 参见 [resetPinchZoom]；手势处理在 VideoControllerPanel 的
+  /// BrightnessVolumnDargArea（双指捏合缩放、单指保留亮度/音量拖动）。
+  final TransformationController pinchTransform = TransformationController();
+  Ticker? _pinchResetTicker;
+
+  /// 是否处于缩放状态（非原始画面）
+  bool get isPinchZoomed => !MatrixUtils.isIdentity(pinchTransform.value);
+
+  /// 还原画面到原始大小。默认带 180ms 缓动动画。
+  void resetPinchZoom({bool animated = true}) {
+    final from = pinchTransform.value;
+    if (MatrixUtils.isIdentity(from)) return;
+    _pinchResetTicker?.stop();
+    _pinchResetTicker = null;
+    if (!animated) {
+      pinchTransform.value = Matrix4.identity();
+      return;
+    }
+    final begin = from.clone();
+    final target = Matrix4.identity();
+    final tween = Matrix4Tween(begin: begin, end: target);
+    _pinchResetTicker = Ticker((elapsed) {
+      const duration = Duration(milliseconds: 180);
+      final t = (elapsed.inMicroseconds / duration.inMicroseconds).clamp(0.0, 1.0);
+      pinchTransform.value = tween.transform(Curves.easeOutCubic.transform(t));
+      if (t >= 1.0) {
+        _pinchResetTicker?.stop();
+        _pinchResetTicker = null;
+        pinchTransform.value = target;
+      }
+    })
+      ..start();
+  }
+
   final _stateSubject = BehaviorSubject<PlayerState>.seeded(PlayerState.idle);
   final _playingSubject = BehaviorSubject<bool>.seeded(false);
   final _loadingSubject = BehaviorSubject<bool>.seeded(false);
@@ -800,16 +836,24 @@ class PlayerManager {
                         Positioned.fill(
                           child: Container(
                             color: Colors.black,
-                            child: FittedBox(
-                              fit: boxFit,
-                              clipBehavior: Clip.hardEdge,
-                              child: StreamBuilder<List<int?>>(
-                                stream: CombineLatestStream.list([width, height]),
-                                builder: (context, snapshot) {
-                                  final vW = snapshot.data?[0]?.toDouble() ?? 1920.0;
-                                  final vH = snapshot.data?[1]?.toDouble() ?? 1080.0;
-                                  return SizedBox(width: vW, height: vH, child: _currentPlayer!.getVideoWidget());
-                                },
+                            child: ValueListenableBuilder<Matrix4>(
+                              valueListenable: pinchTransform,
+                              // ClipRect：缩放/平移矩阵残留时把溢出部分裁在视频窗口内，
+                              // 避免画面绘制到相邻布局（如弹幕列表）上方。
+                              builder: (context, transform, videoChild) => ClipRect(
+                                child: Transform(transform: transform, child: videoChild),
+                              ),
+                              child: FittedBox(
+                                fit: boxFit,
+                                clipBehavior: Clip.hardEdge,
+                                child: StreamBuilder<List<int?>>(
+                                  stream: CombineLatestStream.list([width, height]),
+                                  builder: (context, snapshot) {
+                                    final vW = snapshot.data?[0]?.toDouble() ?? 1920.0;
+                                    final vH = snapshot.data?[1]?.toDouble() ?? 1080.0;
+                                    return SizedBox(width: vW, height: vH, child: _currentPlayer!.getVideoWidget());
+                                  },
+                                ),
                               ),
                             ),
                           ),
@@ -840,6 +884,9 @@ class PlayerManager {
   Future<void> close() async {
     _sessionId++;
     _isClosing = true;
+    _pinchResetTicker?.stop();
+    _pinchResetTicker = null;
+    pinchTransform.value = Matrix4.identity();
     await LiveAudioService.stop();
     SettingsService.to.player.useHardStopOnExit.v ? await hardDispose() : await softStop();
     _isClosing = false;

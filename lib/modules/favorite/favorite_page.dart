@@ -1,5 +1,6 @@
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/favorite/favorite_tag_bar.dart';
 import 'package:pure_live/modules/favorite/room_grid_view.dart';
 import 'package:pure_live/common/widgets/common_appbar_actions.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
@@ -103,6 +104,8 @@ class _FavoriteSiteTabsState extends State<_FavoriteSiteTabs> {
     return Column(
       children: [
         TabBar(isScrollable: true, tabs: availableSitesList.map((e) => Tab(text: e.name)).toList()),
+        // 标签筛选行固定在滚动区之外：下拉刷新/上拉加载的浮动指示器不再与标签名重叠
+        const FavoriteTagBar(),
         Expanded(
           child: BasePageView<FavoriteController, LiveRoom>(
             controller: controller,

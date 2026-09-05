@@ -566,7 +566,11 @@ List<InlineSpan> parseEmojis(String text, double size, Color color) {
 class GiftCard extends StatelessWidget {
   final LiveMessage message;
 
-  const GiftCard({super.key, required this.message});
+  /// 液体玻璃样式：模糊背后画面并叠加深色染色渐变（用于全屏视频背景上，
+  /// 提升卡片与文字可读性）。弹幕列表等普通背景使用默认样式即可。
+  final bool glassEffect;
+
+  const GiftCard({super.key, required this.message, this.glassEffect = false});
 
   Map get _data => message.data is Map ? message.data as Map : const {};
 
@@ -576,13 +580,8 @@ class GiftCard extends StatelessWidget {
     return i18n('local_gift_center');
   }
 
-  int get _giftCount {
-    final value = _data['giftCount'];
-    if (value is int) return value > 0 ? value : 1;
-    if (value is String) return int.tryParse(value) ?? 1;
-    if (value is num) return value.toInt() > 0 ? value.toInt() : 1;
-    return 1;
-  }
+  /// 数量解析与控制器共用 LiveMessageGiftX.giftCount，保证两侧一致。
+  int get _giftCount => message.giftCount;
 
   String get _giftIconUrl {
     final value = _data['giftIcon'];
@@ -599,7 +598,7 @@ class GiftCard extends StatelessWidget {
     final giftName = _giftName;
 
     // 通用礼物名称匹配（斗鱼 + 虎牙 + 抖音 + B站）
-    if (giftName.contains('火箭') || giftName.contains('火箭')) return '🚀';
+    if (giftName.contains('火箭')) return '🚀';
     if (giftName.contains('飞机')) return '✈️';
     if (giftName.contains('游艇') || giftName.contains('游轮')) return '🛥️';
     if (giftName.contains('城堡')) return '🏰';
@@ -669,18 +668,48 @@ class GiftCard extends StatelessWidget {
       }
     }
 
-    final cardBgColor = isDark
-        ? accentColor.withValues(alpha: 0.15)
-        : accentColor.withValues(alpha: 0.1);
-    final textColor = isDark ? Colors.white70 : Colors.black87;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      decoration: BoxDecoration(
+    // 玻璃版（全屏视频背景）：深色染色渐变底 + 提亮文字，保证可读性；
+    // 普通版（弹幕列表）：维持原有低饱和底色与文字颜色。
+    final Decoration cardDecoration;
+    final Color nameColor;
+    final Color infoColor;
+    final List<Shadow> textShadows;
+    final double iconBgAlpha;
+    if (glassEffect) {
+      cardDecoration = BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(accentColor.withValues(alpha: 0.30), Colors.black.withValues(alpha: 0.52)),
+            Color.alphaBlend(accentColor.withValues(alpha: 0.15), Colors.black.withValues(alpha: 0.64)),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 0.8),
+      );
+      // 平台色整体偏暗（如抖音红），向白色提亮 35% 保证深色底上可读
+      nameColor = Color.lerp(accentColor, Colors.white, 0.35)!;
+      infoColor = Colors.white.withValues(alpha: 0.95);
+      textShadows = [Shadow(color: Colors.black.withValues(alpha: 0.55), blurRadius: 3)];
+      iconBgAlpha = 0.25;
+    } else {
+      final cardBgColor = isDark
+          ? accentColor.withValues(alpha: 0.15)
+          : accentColor.withValues(alpha: 0.1);
+      cardDecoration = BoxDecoration(
         color: cardBgColor,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 0.5),
-      ),
+      );
+      nameColor = accentColor;
+      infoColor = isDark ? Colors.white70 : Colors.black87;
+      textShadows = const [];
+      iconBgAlpha = 0.2;
+    }
+
+    Widget card = Container(
+      decoration: cardDecoration,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
@@ -691,7 +720,7 @@ class GiftCard extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.2),
+                color: accentColor.withValues(alpha: iconBgAlpha),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: _giftIconUrl.isNotEmpty
@@ -727,9 +756,10 @@ class GiftCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: accentColor,
+                      color: nameColor,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
+                      shadows: textShadows,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -739,14 +769,15 @@ class GiftCard extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: '${i18n('local_sent_gift')} ',
-                          style: TextStyle(color: textColor, fontSize: 12),
+                          style: TextStyle(color: infoColor, fontSize: 12, shadows: textShadows),
                         ),
                         TextSpan(
                           text: '$_giftName ×$_giftCount',
                           style: TextStyle(
-                            color: textColor,
+                            color: infoColor,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
+                            shadows: textShadows,
                           ),
                         ),
                       ],
@@ -758,6 +789,24 @@ class GiftCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+
+    if (!glassEffect) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: card,
+      );
+    }
+    // 液体玻璃效果：先模糊背后画面（视频），再叠加染色渐变与描边
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: card,
         ),
       ),
     );

@@ -5,7 +5,6 @@ import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/modules/live_play/controllers/danmaku_message_gate.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
-import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/states/live_play_state.dart';
 
 /// Owns exactly one room-bound danmaku session.
@@ -248,15 +247,7 @@ class DanmakuController extends GetxController {
       } else if (msg.type == LiveMessageType.gift) {
         // 礼物消息：添加到弹幕列表 + 全屏时显示礼物卡片（如果开关打开）
         _main.addDanmakuMessage(msg);
-        try {
-          final isFullscreen = GlobalPlayerState.to.fullscreenUI;
-          final showGiftCard = SettingsService.to.danmaku.showFullscreenGiftCard.v;
-          if (isFullscreen && showGiftCard) {
-            _main.showFullscreenGift(msg);
-          }
-        } catch (e) {
-          debugPrint('DBG gift fullscreen error: $e');
-        }
+        _main.handleGiftCard(msg);
       }
     };
 

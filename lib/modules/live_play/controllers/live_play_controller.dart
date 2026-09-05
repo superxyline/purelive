@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:developer' as developer;
 
+import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
@@ -57,12 +58,22 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   /// 手机最多3个，平板最多7个。新礼物从底部弹出，旧礼物向上移动。
   /// 参见 [showFullscreenGift] / [hideFullscreenGift]。
   final RxList<LiveMessage> fsGifts = <LiveMessage>[].obs;
-  final List<Timer?> _fsGiftTimers = List.filled(7, null); // 最大容量7
+  /// 每张已显示卡片的独立显示时长计时器（按卡片消息对象区分）。
+  final Map<LiveMessage, Timer> _fsGiftTimers = {};
+  /// 合并窗口：窗口期内同一用户同一礼物的后续消息只累加数量、
+  /// 不弹新卡。条目自带当前对应的已显示卡片引用。key 见 [_giftComboKey]。
+  final Map<String, _GiftMergeWindow> _giftMergeWindows = {};
+  /// 全屏状态监听（见 [onInit]）：非全屏时挂起的本地礼物卡片，
+  /// 进入全屏后统一开始计时，保证用户能看到自己送的礼物。
+  final List<Worker> _fullscreenGiftWorkers = [];
   static const int _maxFullscreenGiftsPhone = 3;
   static const int _maxFullscreenGiftsTablet = 7;
+  int? _maxFullscreenGiftsCache;
 
-  /// 当前设备的最大显示数量（手机3个，平板7个）
-  int get _maxFullscreenGifts {
+  /// 当前设备的最大显示数量（手机3个，平板7个）。设备屏幕不变，首次计算后缓存。
+  int get _maxFullscreenGifts => _maxFullscreenGiftsCache ??= _computeMaxFullscreenGifts();
+
+  int _computeMaxFullscreenGifts() {
     try {
       final view = WidgetsBinding.instance.platformDispatcher.views.first;
       final dpr = view.devicePixelRatio;
@@ -77,6 +88,9 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   /// 礼物卡片高度常量（用于计算堆叠位置）
   static const double giftCardHeight = 72.0;
+
+  /// 同一用户同一礼物的合并窗口时长。
+  static const Duration giftMergeWindow = Duration(seconds: 3);
 
   late Site currentSite;
   late TabController tabController;
@@ -129,6 +143,12 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _initControllers();
     _initTab();
     _updateWakelock();
+    // 非全屏时挂起的本地礼物卡片，进入全屏后立即开始显示计时；
+    // 同时退出全屏时还原双指缩放的画面
+    _fullscreenGiftWorkers.addAll([
+      ever<bool>(GlobalPlayerState.to.isFullscreen, (_) => _onFullscreenToggled()),
+      ever<bool>(GlobalPlayerState.to.isWindowFullscreen, (_) => _onFullscreenToggled()),
+    ]);
     Future.microtask(_initCore);
   }
 
@@ -321,9 +341,11 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   void _flushDanmakuMessages() {
     _danmakuFlushTimer = null;
-    debugPrint(
-      'DBG flush total=${danmakuMessages.length} pending=${_pendingDanmakuMessages.length} isClosed=$isClosed',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'DBG flush total=${danmakuMessages.length} pending=${_pendingDanmakuMessages.length} isClosed=$isClosed',
+      );
+    }
     if (_pendingDanmakuMessages.isEmpty || isClosed) return;
     final next = <LiveMessage>[...danmakuMessages, ..._pendingDanmakuMessages];
     _pendingDanmakuMessages.clear();
@@ -393,16 +415,10 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       _localGiftEffectTimer?.cancel();
       _localGiftEffectTimer = Timer(const Duration(seconds: 3), () => localGiftEffect.v = null);
     }
-    // 本地礼物全屏左下角卡片（如果开关打开）
-    if (msg.type == LiveMessageType.gift && SettingsService.to.danmaku.showFullscreenGiftCard.v) {
-      try {
-        final isFullscreen = GlobalPlayerState.to.fullscreenUI;
-        if (isFullscreen) {
-          showFullscreenGift(msg);
-        }
-      } catch (e) {
-        debugPrint('DBG local gift fullscreen card error: $e');
-      }
+    // 本地礼物全屏左下角卡片：无条件进入卡片队列，非全屏时挂起，
+    // 进入全屏后开始显示并计时（参见 _startGiftDisplayTimer）。
+    if (msg.type == LiveMessageType.gift) {
+      handleGiftCard(msg, fromLocal: true);
     }
   }
 
@@ -530,130 +546,184 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     fsSC.value = null;
   }
 
+  /// 礼物卡片统一入口：按开关与来源决定是否进入全屏左下角卡片队列。
+  ///
+  /// 弹幕列表的添加由调用方负责（网络礼物与本地礼物的 immediate 语义不同）。
+  /// [fromLocal] 为 true 表示本地（自己发送的）礼物：无条件进入卡片队列，
+  /// 非全屏时挂起、进入全屏后再显示；网络礼物仅在当前全屏时入队。
+  void handleGiftCard(LiveMessage msg, {bool fromLocal = false}) {
+    if (!SettingsService.to.danmaku.showFullscreenGiftCard.v) return;
+    if (!fromLocal && !GlobalPlayerState.to.fullscreenUI) return;
+    try {
+      showFullscreenGift(msg);
+    } catch (e) {
+      if (kDebugMode) debugPrint('DBG gift fullscreen card error: $e');
+    }
+  }
+
   /// 全屏左下角弹出礼物卡片，支持多个卡片堆叠显示（手机最多3个，平板最多7个）。
-  /// 延迟3秒显示，3秒内同一用户同一礼物会合并数量。
-  /// 根据礼物价值决定显示时长：
-  /// - 普通礼物（价格<=10）：3秒
-  /// - 中等礼物（10<价格<=100）：5秒
-  /// - 贵重礼物（100<价格<=1000）：8秒
-  /// - 超级礼物（价格>1000）：12秒
-  final List<LiveMessage> _pendingGifts = [];
-  Timer? _giftDelayTimer;
-
+  ///
+  /// 时序：礼物消息到达后**立即弹出**卡片；弹出后开启一个 [giftMergeWindow]
+  /// 合并窗口，窗口期内同一用户同一礼物的后续消息只累加数量并刷新已显示的
+  /// 卡片，不再弹出新卡。每张卡片按礼物价格独立计时消失（见
+  /// [_giftDurationTiers]）。
   void showFullscreenGift(LiveMessage msg) {
-    _pendingGifts.add(msg);
-
-    // 取消之前的延迟计时器，重新开始3秒计时
-    _giftDelayTimer?.cancel();
-    _giftDelayTimer = Timer(const Duration(seconds: 3), () {
-      _flushPendingGifts();
-    });
+    final key = _giftComboKey(msg);
+    final window = _giftMergeWindows[key];
+    if (window != null) {
+      // 合并窗口内同用户同礼物：累加数量并刷新已显示的卡片
+      _mergeFullscreenGift(key, msg);
+      return;
+    }
+    // 新礼物：立即弹出，并开启合并窗口
+    _giftMergeWindows[key] = _GiftMergeWindow(
+      card: msg,
+      timer: Timer(giftMergeWindow, () => _giftMergeWindows.remove(key)),
+    );
+    _addFullscreenGift(msg, msg.giftCount);
   }
 
-  /// 将待处理的礼物合并并显示
-  void _flushPendingGifts() {
-    if (_pendingGifts.isEmpty) return;
-
-    // 按用户+礼物名称分组合并
-    final Map<String, LiveMessage> merged = {};
-    final Map<String, int> countMap = {};
-
-    for (final msg in _pendingGifts) {
-      final giftData = msg.data is Map ? msg.data as Map : {};
-      final giftName = giftData['giftName']?.toString() ?? '';
-      final key = '${msg.userName}_$giftName';
-
-      if (merged.containsKey(key)) {
-        // 合并数量
-        countMap[key] = (countMap[key] ?? 1) + 1;
-      } else {
-        merged[key] = msg;
-        countMap[key] = 1;
-      }
-    }
-
-    // 显示合并后的礼物
-    for (final entry in merged.entries) {
-      final msg = entry.value;
-      final count = countMap[entry.key] ?? 1;
-      _addFullscreenGift(msg, count);
-    }
-
-    _pendingGifts.clear();
+  /// 合并窗口内的礼物：数量累加到已显示的卡片上并刷新 UI，
+  /// 同时重置该卡片的显示时长计时器。
+  void _mergeFullscreenGift(String key, LiveMessage msg) {
+    final card = _giftMergeWindows[key]?.card;
+    if (card == null) return;
+    final index = fsGifts.indexOf(card);
+    if (index < 0) return;
+    final newCount = card.giftCount + msg.giftCount;
+    final updated = _copyGiftMessage(card, count: newCount);
+    fsGifts[index] = updated;
+    _giftMergeWindows[key]?.card = updated;
+    // 数量变化后重新计时，让合并后的卡片完整展示。
+    // 若此刻恰好已退出全屏，重试会静默失败（非全屏不启动计时），
+    // 由 [_startPendingGiftTimers] 在下次进入全屏时兜底补计时。
+    _fsGiftTimers.remove(card)?.cancel();
+    _startGiftDisplayTimer(updated);
   }
 
-  /// 添加单个礼物到全屏显示
-  void _addFullscreenGift(LiveMessage msg, int count) {
-    // 获取礼物价格
-    int price = 0;
-    if (msg.data is Map) {
-      final data = msg.data as Map;
-      final priceValue = data['price'];
-      if (priceValue is int) {
-        price = priceValue;
-      } else if (priceValue is String) {
-        price = int.tryParse(priceValue) ?? 0;
-      }
-    }
-
-    // 根据价格计算显示时长
-    Duration duration;
-    if (price <= 10) {
-      duration = const Duration(seconds: 3); // 普通礼物
-    } else if (price <= 100) {
-      duration = const Duration(seconds: 5); // 中等礼物
-    } else if (price <= 1000) {
-      duration = const Duration(seconds: 8); // 贵重礼物
-    } else {
-      duration = const Duration(seconds: 12); // 超级礼物
-    }
-
-    // 如果数量大于1，更新消息中的giftCount
-    if (count > 1 && msg.data is Map) {
-      final data = Map<String, dynamic>.from(msg.data as Map);
-      data['giftCount'] = count;
-      // 创建新消息，更新data
-      final mergedMsg = LiveMessage(
-        type: msg.type,
-        userName: msg.userName,
-        userId: msg.userId,
-        message: msg.message,
-        data: data,
-        color: msg.color,
-        userLevel: msg.userLevel,
-        fansLevel: msg.fansLevel,
-        fansName: msg.fansName,
-        isLocal: msg.isLocal,
-        messageId: msg.messageId,
-        sentAt: msg.sentAt,
-      );
-      msg = mergedMsg;
-    }
-
+  /// 组合 key：同一用户同一礼物归为一组。
+  String _giftComboKey(LiveMessage msg) {
     final giftData = msg.data is Map ? msg.data as Map : {};
-    debugPrint('DBG showFullscreenGift: user=${msg.userName} gift=${giftData['giftName']} count=$count price=$price dur=${duration.inSeconds}s');
+    final giftName = giftData['giftName']?.toString() ?? '';
+    final user = msg.userId.isNotEmpty ? msg.userId : msg.userName;
+    return '$user|$giftName';
+  }
+
+  /// 复制礼物消息：可写入新的礼物数量；[sentAt] 为 null 时保留原时间戳。
+  LiveMessage _copyGiftMessage(LiveMessage msg, {int? count, DateTime? sentAt}) {
+    Map data;
+    if (msg.data is Map) {
+      data = Map<String, dynamic>.from(msg.data as Map);
+      if (count != null) data['giftCount'] = count;
+    } else {
+      data = {'giftCount': count ?? 1};
+    }
+    return LiveMessage(
+      type: msg.type,
+      userName: msg.userName,
+      userId: msg.userId,
+      message: msg.message,
+      data: data,
+      color: msg.color,
+      userLevel: msg.userLevel,
+      fansLevel: msg.fansLevel,
+      fansName: msg.fansName,
+      isLocal: msg.isLocal,
+      messageId: msg.messageId,
+      sentAt: sentAt ?? msg.sentAt,
+    );
+  }
+
+  /// 添加单个礼物卡片到全屏显示（立即弹出）。
+  void _addFullscreenGift(LiveMessage msg, int count) {
+    // 数量大于1时写入合并数量；缺失时间戳时补上当前时间，
+    // 保证 UI 侧 ValueKey 稳定（合并刷新时不重播弹出动画）。
+    if (count > 1 || msg.sentAt == null) {
+      msg = _copyGiftMessage(msg, count: count, sentAt: msg.sentAt ?? DateTime.now());
+    }
 
     // 如果已达到最大数量，移除最早的
     if (fsGifts.length >= _maxFullscreenGifts) {
       _removeGiftAt(0);
     }
 
-    // 添加新礼物到列表
     fsGifts.add(msg);
-    final index = fsGifts.length - 1;
-
-    // 为每个礼物设置独立的计时器
-    _fsGiftTimers[index] = Timer(duration, () {
-      _removeGift(msg);
-    });
+    if (kDebugMode) {
+      debugPrint(
+        'DBG showFullscreenGift: user=${msg.userName} '
+        'gift=${msg.data is Map ? (msg.data as Map)['giftName'] : ''} '
+        'count=${msg.giftCount} dur=${_giftDisplayDuration(msg).inSeconds}s '
+        'pendingFullscreen=${!GlobalPlayerState.to.fullscreenUI}',
+      );
+    }
+    _startGiftDisplayTimer(msg);
   }
 
-  /// 移除指定位置的礼物卡片
+  /// 读取消息中的礼物价格（data.price，缺失或非法按 0 计）。
+  int _giftPriceOf(LiveMessage msg) {
+    if (msg.data is! Map) return 0;
+    final priceValue = (msg.data as Map)['price'];
+    if (priceValue is int) return priceValue;
+    if (priceValue is String) return int.tryParse(priceValue) ?? 0;
+    return 0;
+  }
+
+  /// 根据礼物价格决定显示时长（价格上限, 秒数）。
+  static const List<(int, int)> _giftDurationTiers = [
+    (10, 3), // 普通礼物
+    (100, 5), // 中等礼物
+    (1000, 8), // 贵重礼物
+  ];
+
+  Duration _giftDisplayDuration(LiveMessage msg) {
+    final price = _giftPriceOf(msg);
+    for (final (maxPrice, seconds) in _giftDurationTiers) {
+      if (price <= maxPrice) return Duration(seconds: seconds);
+    }
+    return const Duration(seconds: 12); // 超级礼物
+  }
+
+  /// 启动卡片的显示时长计时器。
+  /// 非全屏时不启动（卡片挂起），等进入全屏后由 [_startPendingGiftTimers]
+  /// 统一启动，保证本地礼物在进入全屏后仍能看到。
+  void _startGiftDisplayTimer(LiveMessage msg) {
+    if (_fsGiftTimers.containsKey(msg)) return;
+    if (!GlobalPlayerState.to.fullscreenUI) return;
+    _fsGiftTimers[msg] = Timer(_giftDisplayDuration(msg), () => _removeGift(msg));
+  }
+
+  /// 进入全屏时，为所有尚未启动计时的挂起卡片开始计时。
+  /// 这是非全屏期间卡片不计时这一规则的唯一兜底路径：
+  /// 挂起、合并刷新后重启失败等情况都依赖这里补计时。
+  void _startPendingGiftTimers() {
+    if (!GlobalPlayerState.to.fullscreenUI) return;
+    for (final msg in fsGifts) {
+      _startGiftDisplayTimer(msg);
+    }
+  }
+
+  /// 全屏状态切换：进入全屏补挂起卡片计时，退出全屏还原双指缩放的画面。
+  void _onFullscreenToggled() {
+    if (GlobalPlayerState.to.fullscreenUI) {
+      _startPendingGiftTimers();
+      return;
+    }
+    try {
+      if (Get.isRegistered<GlobalPlayerService>()) {
+        GlobalPlayerService.instance.playerManager.resetPinchZoom(animated: false);
+      }
+    } catch (_) {}
+  }
+
+  /// 移除指定位置的礼物卡片。
   void _removeGiftAt(int index) {
     if (index < 0 || index >= fsGifts.length) return;
-    _fsGiftTimers[index]?.cancel();
-    _fsGiftTimers[index] = null;
-    fsGifts.removeAt(index);
+    final msg = fsGifts.removeAt(index);
+    _fsGiftTimers.remove(msg)?.cancel();
+    // 卡片消失后关闭其合并窗口，后续同组合礼物将弹出新卡片
+    for (final key in _giftMergeWindows.keys.where((k) => identical(_giftMergeWindows[k]?.card, msg)).toList()) {
+      _giftMergeWindows.remove(key)?.timer.cancel();
+    }
   }
 
   /// 移除指定的礼物卡片
@@ -666,13 +736,14 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   /// 隐藏所有全屏礼物卡片并取消计时。
   void hideFullscreenGift() {
-    _giftDelayTimer?.cancel();
-    _giftDelayTimer = null;
-    _pendingGifts.clear();
-    for (var i = 0; i < _fsGiftTimers.length; i++) {
-      _fsGiftTimers[i]?.cancel();
-      _fsGiftTimers[i] = null;
+    for (final window in _giftMergeWindows.values) {
+      window.timer.cancel();
     }
+    _giftMergeWindows.clear();
+    for (final timer in _fsGiftTimers.values) {
+      timer.cancel();
+    }
+    _fsGiftTimers.clear();
     fsGifts.clear();
   }
 
@@ -995,14 +1066,11 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _localGiftEffectTimer?.cancel();
     _fsSCTimer?.cancel();
     _fsSCTimer = null;
-    _giftDelayTimer?.cancel();
-    _giftDelayTimer = null;
-    _pendingGifts.clear();
-    for (var i = 0; i < _fsGiftTimers.length; i++) {
-      _fsGiftTimers[i]?.cancel();
-      _fsGiftTimers[i] = null;
+    for (final worker in _fullscreenGiftWorkers) {
+      worker.dispose();
     }
-    fsGifts.clear();
+    _fullscreenGiftWorkers.clear();
+    hideFullscreenGift();
     _localMessageDeliveryQueue.dispose();
     _danmakuFlushTimer?.cancel();
     _pendingDanmakuMessages.clear();
@@ -1029,4 +1097,13 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     unawaited(SecondaryPlayerService.instance.close());
     super.onClose();
   }
+}
+
+/// 礼物合并窗口条目：同一用户同一礼物的汇总窗口，
+/// 自带窗口计时器和当前对应的已显示卡片引用。
+class _GiftMergeWindow {
+  _GiftMergeWindow({required this.card, required this.timer});
+
+  LiveMessage card;
+  final Timer timer;
 }

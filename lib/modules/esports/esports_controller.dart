@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:pure_live/get/get.dart';
 import 'package:pure_live/modules/esports/esports_match.dart';
 import 'package:pure_live/modules/esports/favorite_match_controller.dart';
 import 'package:pure_live/modules/esports/esports_service.dart';
 import 'package:pure_live/modules/esports/esports_reminder_service.dart';
+import 'package:pure_live/common/utils/hive_pref_util.dart';
 
 /// 赛事页控制器：加载 完美世界(CS) + lolesports(LOL/Valorant) 赛事日程。
 /// Dota2 数据源暂未接入，筛选时显示占位提示。
@@ -58,6 +60,37 @@ class EsportsController extends GetxController {
   /// 省去点击标签后的转圈等待。缓存一次性使用，命中后即清空。
   static List<EsportsMatch>? _prefetchedMatches;
 
+  /// 持久化缓存：网络加载成功后写入本地，跨启动生效。
+  /// 下次启动先展示缓存内容（不转圈），随后后台刷新覆盖。
+  static const String _cacheStorageKey = 'esportsMatchesCacheV1';
+
+  static void _writeDiskCache(List<EsportsMatch> list) {
+    if (list.isEmpty) return;
+    try {
+      final payload = jsonEncode({
+        'fetchedAt': DateTime.now().millisecondsSinceEpoch,
+        'matches': list.map((m) => m.toJson()).toList(),
+      });
+      HivePrefUtil.setString(_cacheStorageKey, payload);
+    } catch (_) {}
+  }
+
+  /// 读取持久化缓存；损坏或为空时返回 null。
+  static List<EsportsMatch>? _readDiskCache() {
+    try {
+      final raw = HivePrefUtil.getString(_cacheStorageKey);
+      if (raw == null || raw.isEmpty) return null;
+      final payload = jsonDecode(raw) as Map<String, dynamic>;
+      final list = (payload['matches'] as List? ?? const [])
+          .map((item) => EsportsMatch.fromJson(Map<String, dynamic>.from(item as Map)))
+          .where((m) => m.matchId.isNotEmpty)
+          .toList();
+      return list.isEmpty ? null : list;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// 后台预取（冷启动后调用）。失败静默，不影响进入页面后的正常加载流程。
   static Future<void> prefetch() async {
     if (_prefetchedMatches != null) return;
@@ -66,7 +99,10 @@ class EsportsController extends GetxController {
       final from = DateTime(now.year, now.month, now.day);
       final to = from.add(const Duration(days: 8)).subtract(const Duration(seconds: 1));
       final list = await EsportsService().fetchMatches(from: from, to: to);
-      if (list.isNotEmpty) _prefetchedMatches = list;
+      if (list.isNotEmpty) {
+        _prefetchedMatches = list;
+        _writeDiskCache(list);
+      }
     } catch (_) {}
   }
 
@@ -118,18 +154,20 @@ class EsportsController extends GetxController {
 
   Future<void> loadData() async {
     if (loading.value) return;
-    // 冷启动预取命中：直接渲染缓存数据（不转圈），随后走一次后台刷新保持新鲜
-    final prefetched = _prefetchedMatches;
-    if (matches.isEmpty && prefetched != null) {
-      _prefetchedMatches = null;
-      final now = DateTime.now();
-      final from = DateTime(now.year, now.month, now.day);
-      final to = from.add(const Duration(days: 8)).subtract(const Duration(seconds: 1));
-      matches.assignAll(prefetched);
-      loadedFrom = from;
-      loadedTo = to;
-      unawaited(loadData());
-      return;
+    // 冷启动预取/持久缓存命中：直接渲染本地数据（不转圈），随后走一次后台刷新保持新鲜
+    if (matches.isEmpty) {
+      final cached = _prefetchedMatches ?? _readDiskCache();
+      if (cached != null) {
+        _prefetchedMatches = null;
+        final now = DateTime.now();
+        final from = DateTime(now.year, now.month, now.day);
+        final to = from.add(const Duration(days: 8)).subtract(const Duration(seconds: 1));
+        matches.assignAll(cached);
+        loadedFrom = from;
+        loadedTo = to;
+        unawaited(loadData());
+        return;
+      }
     }
     // 已有数据时视为后台刷新：不置 loading，避免页面主体被替换成加载动画
     final bool isRefresh = matches.isNotEmpty;
@@ -165,12 +203,17 @@ class EsportsController extends GetxController {
       matches.assignAll(list);
       if (list.isEmpty) {
         error.value = 'esports_load_failed';
+      } else {
+        // 加载成功：写入持久缓存，供下次冷启动秒开
+        _writeDiskCache(list);
       }
       // 数据加载完成后更新赛事提醒
       _reminderService.scheduleReminders();
     } catch (_) {
-      matches.clear();
-      error.value = 'esports_load_failed';
+      // 后台刷新失败时保留现有内容（含持久缓存展示的数据），不白屏
+      if (matches.isEmpty) {
+        error.value = 'esports_load_failed';
+      }
     } finally {
       loading.value = false;
     }
