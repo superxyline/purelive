@@ -18,6 +18,43 @@ bool isDanmakuUserScrollStart(ScrollNotification notification) {
       (notification is UserScrollNotification && notification.direction != ScrollDirection.idle);
 }
 
+/// 点击礼物卡片：确认后屏蔽该礼物在本直播间的卡片展示。
+/// 屏蔽立即生效（已显示的全屏卡片立即消失），可在弹幕"屏蔽列表"中恢复。
+Future<void> onGiftCardTap(BuildContext context, LiveMessage message) async {
+  final data = message.data is Map ? message.data as Map : const {};
+  final giftName = data['giftName']?.toString() ?? '';
+  if (giftName.isEmpty) return;
+  final theme = Theme.of(context);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      backgroundColor: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Text(i18n('block_gift_card_title'), style: AppTextStyles.t16Bold),
+      content: Text(
+        i18n('block_gift_card_confirm', args: {'name': giftName}),
+        style: AppTextStyles.t14.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: Text(i18n('cancel'), style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: theme.colorScheme.primary),
+          onPressed: () => Navigator.pop(dialogContext, true),
+          child: Text(i18n('block_gift_card_action')),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+  final controller = Get.find<LivePlayController>();
+  RoomGiftBlockService.instance.blockGift(controller.site, controller.room.roomId, giftName);
+  controller.removeFullscreenGiftsByGiftName(giftName);
+  ToastUtil.show(i18n('gift_card_blocked', args: {'name': giftName}));
+}
+
 class DanmakuListView extends StatefulWidget {
   final LiveRoom room;
 
@@ -312,7 +349,7 @@ class DanmakuItem extends StatelessWidget {
       return SuperChatCard(sc: danmaku.data as LiveSuperChatMessage);
     }
     if (danmaku.type == LiveMessageType.gift && danmaku.data is Map) {
-      return GiftCard(message: danmaku);
+      return GiftCard(message: danmaku, onTap: () => onGiftCardTap(context, danmaku));
     }
 
     final theme = Theme.of(context);
@@ -597,7 +634,10 @@ class GiftCard extends StatelessWidget {
   /// 提升卡片与文字可读性）。弹幕列表等普通背景使用默认样式即可。
   final bool glassEffect;
 
-  const GiftCard({super.key, required this.message, this.glassEffect = false});
+  /// 点击卡片：弹出"屏蔽该礼物卡片展示"确认框（本直播间维度）
+  final VoidCallback? onTap;
+
+  const GiftCard({super.key, required this.message, this.glassEffect = false, this.onTap});
 
   Map get _data => message.data is Map ? message.data as Map : const {};
 
@@ -819,6 +859,10 @@ class GiftCard extends StatelessWidget {
         ),
       ),
     );
+
+    if (onTap != null) {
+      card = GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque, child: card);
+    }
 
     if (!glassEffect) {
       return Container(

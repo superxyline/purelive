@@ -559,6 +559,9 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   /// 非全屏时挂起、进入全屏后再显示；网络礼物仅在当前全屏时入队。
   void handleGiftCard(LiveMessage msg, {bool fromLocal = false}) {
     if (!SettingsService.to.danmaku.showFullscreenGiftCard.v) return;
+    // 本直播间被屏蔽的礼物：全屏左下角卡片不展示（弹幕列表卡片不受影响）
+    final giftName = msg.data is Map ? (msg.data as Map)['giftName']?.toString() : null;
+    if (RoomGiftBlockService.instance.isBlocked(site, room.roomId, giftName)) return;
     if (!fromLocal && !GlobalPlayerState.to.fullscreenUI) return;
     try {
       showFullscreenGift(msg);
@@ -751,6 +754,17 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     }
     _fsGiftTimers.clear();
     fsGifts.clear();
+  }
+
+  /// 屏蔽礼物名后调用：立即移除当前已显示的同礼物卡片（含计时器与合并窗口）。
+  void removeFullscreenGiftsByGiftName(String giftName) {
+    for (var i = fsGifts.length - 1; i >= 0; i--) {
+      final msg = fsGifts[i];
+      final name = msg.data is Map ? (msg.data as Map)['giftName']?.toString() : null;
+      if (name == giftName) {
+        _removeGiftAt(i);
+      }
+    }
   }
 
   void clearDanmakuMessages() {

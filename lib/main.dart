@@ -64,6 +64,8 @@ class _MyAppState extends State<MyApp> {
     // 观看统计先于快捷方式注册：快捷方式的数据源是观看时长 Top3 主播
     Get.put(WatchStatsService());
     Get.put(RecentRoomsService());
+    // 按直播间维度的礼物卡片屏蔽
+    Get.put(RoomGiftBlockService());
     // 冷启动后台预取赛事数据：延后几秒避开首页首屏的网络竞争，
     // 用户点击赛事标签时大概率已就绪，直接命中缓存秒开。
     Future.delayed(const Duration(seconds: 5), () {
