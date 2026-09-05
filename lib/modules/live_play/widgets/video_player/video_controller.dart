@@ -206,6 +206,8 @@ class VideoController with ChangeNotifier {
   // 常量定义
   static const _controllerHideDelay = Duration(seconds: 4);
   static const _fullscreenDelay = Duration(milliseconds: 1000);
+  // 路由显式请求全屏（"全屏播放"入口）时的等待时长
+  static const _explicitFullscreenDelay = Duration(milliseconds: 500);
   static const _volumeHideDelay = Duration(seconds: 1);
 
   // 依赖注入
@@ -371,14 +373,18 @@ class VideoController with ChangeNotifier {
   }
 
   void _setupDefaultFullscreen() {
-    final timer = Timer(_fullscreenDelay, () {
+    // 路由显式请求全屏（长按卡片菜单"全屏播放"）时缩短等待，让全屏来得更快。
+    final delay = _livePlayController.startInFullscreen
+        ? _explicitFullscreenDelay
+        : _fullscreenDelay;
+    final timer = Timer(delay, () {
       if (_isDisposed) return;
       // 双开副窗口激活期间不自动进全屏：切换主副会重建播放器并重新武装本定时器，
       // 若用户此时已手动退出全屏，1 秒后会被强制拉回全屏，表现为"退出全屏没生效"。
       if (SecondaryPlayerService.instance.isActive.value) {
         return;
       }
-      if (_settingsService.app.enableFullScreenDefault.v) {
+      if (_settingsService.app.enableFullScreenDefault.v || _livePlayController.startInFullscreen) {
         _enterFullscreenMode();
       }
     });

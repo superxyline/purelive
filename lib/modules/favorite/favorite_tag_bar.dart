@@ -26,15 +26,24 @@ class FavoriteTagBar extends GetView<FavoriteController> {
           itemCount: controller.visibleTags.length + 1,
           itemBuilder: (context, index) {
             final isAll = index == 0;
+            final tag = isAll ? null : controller.visibleTags[index - 1];
             final isSelected = isAll
                 ? controller.selectedTagId.value == TagManagementController.allTagKey
-                : controller.selectedTagId.value == controller.visibleTags[index - 1].id;
-            final String label = isAll ? (i18n('recorder_tab_all')) : controller.visibleTags[index - 1].name;
+                : controller.selectedTagId.value == tag!.id;
+            final String label = isAll ? (i18n('recorder_tab_all')) : tag!.name;
+            // 分区自动标签带角标图标，与用户手动创建的标签区分开
+            final isAreaTag = tag != null && TagManagementController.isAreaTag(tag.id);
             return Padding(
               padding: const EdgeInsets.only(right: 6),
               child: ChoiceChip(
                 showCheckmark: false,
-                avatar: null,
+                avatar: isAreaTag
+                    ? Icon(
+                        Icons.category_rounded,
+                        size: 14,
+                        color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurfaceVariant,
+                      )
+                    : null,
                 label: Text(
                   label,
                   style: AppTextStyles.t12.copyWith(
@@ -54,9 +63,7 @@ class FavoriteTagBar extends GetView<FavoriteController> {
                 ),
                 onSelected: (bool selected) {
                   if (selected) {
-                    final targetTagId = isAll
-                        ? TagManagementController.allTagKey
-                        : controller.visibleTags[index - 1].id;
+                    final targetTagId = isAll ? TagManagementController.allTagKey : tag!.id;
                     controller.changeSelectedTag(targetTagId);
                   }
                 },

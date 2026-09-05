@@ -185,7 +185,9 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 Obx(() {
                   final liveCtr = controller.livePlayController;
                   final gifts = liveCtr.fsGifts;
-                  if (!GlobalPlayerState.to.fullscreenUI || gifts.isEmpty) {
+                  if (!GlobalPlayerState.to.fullscreenUI ||
+                      gifts.isEmpty ||
+                      !SettingsService.to.danmaku.showFullscreenGiftCard.v) {
                     return const SizedBox.shrink();
                   }
                   final width = _fullscreenCardWidth(context);
@@ -1245,6 +1247,7 @@ class BottomActionBar extends StatelessWidget {
                               DanmakuButton(controller: controller),
                               SettingsButton(controller: controller),
                             ],
+                            GiftCardButton(controller: controller),
                           ],
                         ),
 
@@ -1396,6 +1399,38 @@ class SettingsButton extends StatelessWidget {
           'assets/images/video/danmu_setting.svg',
           // ignore: deprecated_member_use
           color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+/// 全屏礼物卡片快捷开关：切换后立即生效——关闭时清空当前已显示的卡片，
+/// 打开时后续礼物按正常时序弹出（与弹幕设置页的全屏礼物卡片开关同一数据源）。
+class GiftCardButton extends StatelessWidget {
+  const GiftCardButton({super.key, required this.controller});
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        final settings = SettingsService.to.danmaku;
+        settings.showFullscreenGiftCard.v = !settings.showFullscreenGiftCard.v;
+        if (!settings.showFullscreenGiftCard.v) {
+          controller.livePlayController.hideFullscreenGift();
+        }
+      },
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(right: 6, left: 6),
+        child: Obx(
+          () => Icon(
+            SettingsService.to.danmaku.showFullscreenGiftCard.v ? Remix.gift_fill : Remix.gift_line,
+            color: Colors.white,
+            size: 21,
+          ),
         ),
       ),
     );

@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -10,7 +8,7 @@ class DanmakuMessageActions {
 
   /// 面板布局选择：
   /// - 手机非全屏：底部弹窗（保持原交互）；
-  /// - 全屏（手机/平板）：从画面右侧滑出的窄面板（毛玻璃质感）；
+  /// - 全屏（手机/平板）：从画面右侧滑出的窄面板；
   /// - 平板非全屏：覆盖右侧弹幕列表的窄面板。
   static bool _shouldUseRightPanel() {
     if (Get.width > 680) return true;
@@ -26,8 +24,7 @@ class DanmakuMessageActions {
   static Future<void> show(BuildContext context, LiveMessage message) async {
     if (_shouldUseRightPanel()) {
       final theme = Theme.of(context);
-      // 右侧窄面板：全屏/平板下不遮挡主画面。
-      // 毛玻璃质感：背景模糊 + 半透明主题色底 + 细描边（全屏视频上微微透出画面）。
+      // 右侧窄面板：全屏/平板下不遮挡主画面。不透明主题色底（无背景模糊）。
       await showDialog<void>(
         context: context,
         barrierColor: Colors.black54,
@@ -41,20 +38,17 @@ class DanmakuMessageActions {
               clipBehavior: Clip.antiAlias,
               constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.92),
               decoration: ShapeDecoration(
-                color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.72),
+                color: theme.colorScheme.surfaceContainerHigh,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
-                  side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
+                  side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.4)),
                 ),
               ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: _buildEntries(context, sheetContext, message),
-                  ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _buildEntries(context, sheetContext, message),
                 ),
               ),
             ),
