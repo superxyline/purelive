@@ -38,11 +38,6 @@ class AppNavigator {
       // 同时残留在下层页面的编辑焦点会干扰返回处理，表现为“返回失效”。
       FocusManager.instance.primaryFocus?.unfocus();
       unawaited(SystemChannels.textInput.invokeMethod('TextInput.hide'));
-      try {
-        if (Get.isRegistered<RecentRoomsService>()) {
-          RecentRoomsService.instance.record(normalizedRoom);
-        }
-      } catch (_) {}
       await Get.toNamed(RoutePath.kLivePlay, arguments: normalizedRoom, parameters: {"site": platform});
     } finally {
       _openingLiveRoom = false;

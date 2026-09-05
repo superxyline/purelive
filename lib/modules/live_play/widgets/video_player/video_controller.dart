@@ -721,6 +721,8 @@ class VideoController with ChangeNotifier {
     GlobalPlayerState.to.isWindowFullscreen.value = false;
 
     if (GlobalPlayerState.to.isFullscreen.value) {
+      // 退出全屏时还原双指缩放的画面（直接调用，不依赖状态监听时序）
+      _playerManager.resetPinchZoom(animated: false);
       _livePlayController.setNormalScreen();
       _livePlayController.markFullscreenExit();
       await exitFullScreen();
@@ -759,6 +761,8 @@ class VideoController with ChangeNotifier {
     _addTimer(timer);
 
     if (GlobalPlayerState.to.isWindowFullscreen.value) {
+      // 退出窗口全屏时还原双指缩放的画面（直接调用，不依赖状态监听时序）
+      _playerManager.resetPinchZoom(animated: false);
       _livePlayController.setNormalScreen();
       _livePlayController.markFullscreenExit();
       GlobalPlayerState.to.isWindowFullscreen.value = false;

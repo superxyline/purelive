@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/utils/hive_pref_util.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 
-/// 最近打开的直播间：桌面长按图标快捷方式（最多 3 个）。
+/// 桌面长按图标快捷方式（最多 3 个）：**累计观看时长最长的 3 位主播**。
 ///
-/// 进入直播间时调用 [record] 记录并实时更新快捷方式；桌面点击快捷方式
-/// （冷启动经 `getPendingShortcut`，热启动经 `onShortcut` 通道回调）后，
-/// 等路由就绪再进入对应直播间。
+/// 数据来自 [WatchStatsService]（按房间累计观看秒数），启动时与每次观看
+/// 结算后刷新快捷方式。桌面点击快捷方式（冷启动经 `getPendingShortcut`，
+/// 热启动经 `onShortcut` 通道回调）后，等路由就绪再进入对应直播间。
 class RecentRoomsService extends GetxService {
   static const int maxRooms = 3;
-  static const String _storageKey = 'recentOpenRooms';
   static const String _channelName = 'pure_live/app_shortcuts';
 
   final RxList<LiveRoom> rooms = <LiveRoom>[].obs;
@@ -27,10 +24,12 @@ class RecentRoomsService extends GetxService {
   void onInit() {
     super.onInit();
     _instance = this;
-    _loadFromStorage();
     _channel = const MethodChannel(_channelName);
     _channel?.setMethodCallHandler(_onNativeCall);
-    _syncShortcuts();
+    if (Get.isRegistered<WatchStatsService>()) {
+      WatchStatsService.instance.onStatsCommitted = _refreshFromWatchStats;
+    }
+    _refreshFromWatchStats();
     _handlePendingShortcut();
   }
 
@@ -40,32 +39,27 @@ class RecentRoomsService extends GetxService {
     super.onClose();
   }
 
-  void _loadFromStorage() {
+  /// 从观看统计重建快捷方式列表：按累计观看时长降序取前 3 位主播。
+  void _refreshFromWatchStats() {
     try {
-      final raw = HivePrefUtil.getString(_storageKey);
-      if (raw == null || raw.isEmpty) return;
-      final list = (jsonDecode(raw) as List? ?? const [])
-          .map((item) => LiveRoom.fromJson(Map<String, dynamic>.from(item as Map)))
+      final entries = Get.isRegistered<WatchStatsService>()
+          ? WatchStatsService.instance.sortedEntries().take(maxRooms)
+          : const <MapEntry<String, Map<String, dynamic>>>[];
+      final list = entries
+          .map((entry) {
+            final value = entry.value;
+            return LiveRoom(
+              platform: ((value['platform'] as String?) ?? '').trim(),
+              roomId: ((value['roomId'] as String?) ?? '').trim(),
+              nick: (value['nick'] as String?) ?? '',
+            );
+          })
+          .where((room) => (room.platform?.isNotEmpty == true) && (room.roomId?.isNotEmpty == true))
           .toList();
       rooms.assignAll(list);
     } catch (_) {
-      // 存量数据损坏时静默忽略，后续 record 会重建
+      // 统计数据异常时保留现有列表，后续结算会再刷新
     }
-  }
-
-  /// 进入直播间时记录：最新在前、按 platform+roomId 去重、超限裁剪。
-  void record(LiveRoom room) {
-    final platform = room.platform?.trim() ?? '';
-    final roomId = room.roomId?.trim() ?? '';
-    if (platform.isEmpty || roomId.isEmpty) return;
-    rooms.removeWhere((e) => e.platform == platform && e.roomId == roomId);
-    rooms.insert(0, room);
-    while (rooms.length > maxRooms) {
-      rooms.removeLast();
-    }
-    try {
-      HivePrefUtil.setString(_storageKey, jsonEncode(rooms.map((e) => e.toJson()).toList()));
-    } catch (_) {}
     _syncShortcuts();
   }
 
@@ -127,6 +121,16 @@ class RecentRoomsService extends GetxService {
     try {
       if (room == null) {
         await Get.toNamed(RoutePath.kEsports);
+        // 启动竞态兜底：若冷启动的 offAllNamed(首页) 恰在本次导航前后才完成，
+        // 赛事页会被整个冲掉（表现为落在首页）。稍候校验，被冲掉则重推一次。
+        await Future.delayed(const Duration(milliseconds: 900));
+        if (Get.currentRoute != RoutePath.kEsports && attempt < 20) {
+          _pendingNavigationTimer?.cancel();
+          _pendingNavigationTimer = Timer(const Duration(milliseconds: 300), () {
+            _navigateWhenReady(room, attempt + 1);
+          });
+          return;
+        }
       } else {
         await AppNavigator.toLiveRoomDetail(liveRoom: room);
       }
@@ -150,7 +154,7 @@ class RecentRoomsService extends GetxService {
           .toList();
       await _channel?.invokeMethod('setShortcuts', {'items': items});
     } catch (_) {
-      // 原生侧未就绪（如启动极早期）时忽略，下次 record 会再同步
+      // 原生侧未就绪（如启动极早期）时忽略，下次刷新会再同步
     }
   }
 }

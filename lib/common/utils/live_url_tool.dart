@@ -279,31 +279,16 @@ class LiveUrlTool {
       final detail = await Sites.of(platform).liveSite.getRoomDetail(roomId: roomId, platform: platform);
 
       final qualities = await Sites.of(platform).liveSite.getPlayQualites(detail: detail);
-      SmartDialog.dismiss(status: SmartStatus.loading);
 
       if (qualities.isEmpty) {
+        SmartDialog.dismiss(status: SmartStatus.loading);
         ToastUtil.show(i18n("toolbox_quality_failed"));
         return;
       }
 
-      final selectedQuality = await Get.dialog(
-        SimpleDialog(
-          title: Text(i18n("toolbox_select_quality")),
-          children: qualities
-              .map(
-                (e) => ListTile(
-                  title: Text(e.quality, textAlign: TextAlign.center),
-                  onTap: () {
-                    Navigator.pop(Get.context!, e);
-                  },
-                ),
-              )
-              .toList(),
-        ),
-      );
-      if (selectedQuality == null) return;
+      // 自动选择最高画质
+      final selectedQuality = qualities.first;
 
-      SmartDialog.showLoading(msg: "");
       final playUrls = await Sites.of(platform).liveSite.getPlayUrls(detail: detail, quality: selectedQuality);
       SmartDialog.dismiss(status: SmartStatus.loading);
 
@@ -312,29 +297,11 @@ class LiveUrlTool {
         return;
       }
 
-      final selectedUrl = await Get.dialog(
-        SimpleDialog(
-          title: Text(i18n("toolbox_select_line")),
-          children: playUrls
-              .asMap()
-              .entries
-              .map(
-                (entry) => ListTile(
-                  title: Text(i18n("toolbox_line", args: {"index": "${entry.key + 1}"})),
-                  subtitle: Text(entry.value, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  onTap: () {
-                    Navigator.pop(Get.context!, entry.value);
-                  },
-                ),
-              )
-              .toList(),
-        ),
-      );
+      // 自动选择第一条线路
+      final selectedUrl = playUrls.first;
 
-      // 选中url后直接投屏
-      if (selectedUrl != null && selectedUrl.isNotEmpty) {
-        Get.dialog(LiveDlnaPage(datasource: selectedUrl));
-      }
+      // 直接打开DLNA设备搜索弹窗
+      Get.dialog(LiveDlnaPage(datasource: selectedUrl));
     } catch (e) {
       SmartDialog.dismiss(status: SmartStatus.loading);
       ToastUtil.show(i18n("toolbox_get_url_failed"));

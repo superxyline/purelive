@@ -17,6 +17,7 @@ import 'package:pure_live/modules/live_play/states/load_type.dart';
 import 'package:pure_live/modules/live_play/widgets/play_other.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
+import 'package:pure_live/player/core/player_manager.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/volume_control.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_composer.dart';
@@ -33,6 +34,14 @@ class VideoControllerPanel extends StatefulWidget {
 
 class _VideoControllerPanelState extends State<VideoControllerPanel> {
   static const barHeight = 56.0;
+
+  /// SC 卡片在左下角堆叠布局中预留的高度估计值（SC 卡片实际高度随内容变化）。
+  static const double _scCardSpaceEstimate = 180.0;
+
+  /// 全屏左下角卡片（SC / 礼物）的统一宽度。
+  static double _fullscreenCardWidth(BuildContext context) =>
+      (MediaQuery.of(context).size.width * 0.6).clamp(260.0, 360.0);
+
   Offset? _lastTapPosition;
 
   VideoController get controller => widget.controller;
@@ -161,7 +170,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   if (!GlobalPlayerState.to.fullscreenUI || sc == null) {
                     return const SizedBox.shrink();
                   }
-                  final width = (MediaQuery.of(context).size.width * 0.6).clamp(260.0, 360.0);
+                  final width = _fullscreenCardWidth(context);
                   return Positioned(
                     left: 16,
                     bottom: (controller.showController.value && !controller.showLocked.value) ? barHeight + 16 : 24,
@@ -179,23 +188,26 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   if (!GlobalPlayerState.to.fullscreenUI || gifts.isEmpty) {
                     return const SizedBox.shrink();
                   }
-                  final width = (MediaQuery.of(context).size.width * 0.6).clamp(260.0, 360.0);
+                  final width = _fullscreenCardWidth(context);
                   // 计算基础底部位置：SC卡片下方（如果有SC则在SC下方，否则在控制栏上方）
                   final sc = liveCtr.fsSC.value;
                   final double baseBottom;
                   if (controller.showController.value && !controller.showLocked.value) {
-                    baseBottom = sc != null ? barHeight + 180 : barHeight + 16;
+                    baseBottom = sc != null ? barHeight + _scCardSpaceEstimate : barHeight + 16;
                   } else {
-                    baseBottom = sc != null ? 180 : 24;
+                    baseBottom = sc != null ? _scCardSpaceEstimate : 24;
                   }
                   // 构建堆叠的礼物卡片列表
                   final List<Widget> giftCards = [];
                   for (int i = 0; i < gifts.length; i++) {
                     final gift = gifts[i];
-                    // 每个卡片向上偏移（最新的在最下面）
+                    // 每个卡片向上偏移（最新的在最下面）；
+                    // AnimatedPositioned 让新卡片加入时旧卡片平滑上移。
                     final offset = (gifts.length - 1 - i) * LivePlayController.giftCardHeight;
                     giftCards.add(
-                      Positioned(
+                      AnimatedPositioned(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
                         left: 16,
                         bottom: baseBottom + offset,
                         width: width,
@@ -214,8 +226,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                             );
                           },
                           child: GiftCard(
-                            key: ValueKey(gift.sentAt?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch),
+                            // 控制器保证 fsGifts 中的卡片均带 sentAt（缺失时已补当前时间）
+                            key: ValueKey(gift.sentAt!.millisecondsSinceEpoch),
                             message: gift,
+                            glassEffect: true,
                           ),
                         ),
                       ),
@@ -223,6 +237,37 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   }
                   return Stack(children: giftCards);
                 }),
+                // 双指缩放后的“还原画面”按钮（仅全屏且画面非原始比例时显示）
+                ValueListenableBuilder<Matrix4>(
+                  valueListenable: GlobalPlayerService.instance.playerManager.pinchTransform,
+                  builder: (context, transform, _) => Obx(() {
+                    // 与松手自动弹回的阈值保持一致：超过 1.02 倍即视为已缩放
+                    final zoomed = transform.getMaxScaleOnAxis() > 1.02;
+                    if (!GlobalPlayerState.to.fullscreenUI || !zoomed || controller.showLocked.value) {
+                      return const SizedBox.shrink();
+                    }
+                    return Positioned(
+                      top: barHeight + 20,
+                      right: 16,
+                      child: AnimatedOpacity(
+                        opacity: controller.showController.value ? 1.0 : 0.35,
+                        duration: const Duration(milliseconds: 200),
+                        child: Material(
+                          color: Colors.black38,
+                          shape: const CircleBorder(),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onTap: () => GlobalPlayerService.instance.playerManager.resetPinchZoom(),
+                            child: const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Icon(Icons.close_fullscreen, color: Colors.white, size: 22),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
               ],
             ),
           );
@@ -525,6 +570,16 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
   bool _isDargLeft = true;
   double _updateDargVarVal = 1.0;
 
+  // ---- 全屏双指缩放画面（B站客户端效果）----
+  /// 双指手势进行中（从第二指按下到全部抬起；期间剩余单指继续平移画面）
+  bool _pinchActive = false;
+  /// 上一帧手势的累计缩放值（用于计算本帧的缩放增量）
+  double _lastGestureScale = 1.0;
+  static const double _minPinchScale = 1.0;
+  static const double _maxPinchScale = 4.0;
+
+  PlayerManager get _playerManager => GlobalPlayerService.instance.playerManager;
+
   @override
   void initState() {
     super.initState();
@@ -597,6 +652,100 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
     }
   }
 
+  /// 双指缩放/平移（增量式，每帧在当前变换上叠加）：
+  /// 1. 焦点位移 [ScaleUpdateDetails.focalPointDelta] —— 双指（或激活后剩余单指）
+  ///    滑动时拖动画面位置；
+  /// 2. 围绕当前焦点的缩放增量 —— 捏合放大/缩小。
+  /// 缩放范围 [_minPinchScale, _maxPinchScale]，平移按放大后的画面边界裁剪。
+  void _updatePinchTransform(ScaleUpdateDetails details) {
+    final current = _playerManager.pinchTransform.value;
+    final currentScale = current.getMaxScaleOnAxis();
+
+    // 本帧目标缩放（钳制到允许范围），换算成本帧缩放增量
+    final targetScale = (currentScale * details.scale / _lastGestureScale)
+        .clamp(_minPinchScale, _maxPinchScale);
+    _lastGestureScale = details.scale;
+    if (targetScale <= _minPinchScale) {
+      _playerManager.pinchTransform.value = Matrix4.identity();
+      return;
+    }
+    final scaleStep = targetScale / currentScale;
+
+    final focal = details.localFocalPoint;
+    // 1. 平移：焦点位移
+    Matrix4 next = current.clone()
+      ..translateByDouble(details.focalPointDelta.dx, details.focalPointDelta.dy, 0, 1);
+    // 2. 缩放：围绕当前焦点
+    next = Matrix4.identity()
+      ..translateByDouble(focal.dx, focal.dy, 0, 1)
+      ..scaleByDouble(scaleStep, scaleStep, 1, 1)
+      ..translateByDouble(-focal.dx, -focal.dy, 0, 1)
+      ..multiply(next);
+    next = _clampPinchPan(next, targetScale, MediaQuery.of(context).size);
+    _playerManager.pinchTransform.value = next;
+  }
+
+  /// 把平移量限制在放大后的画面范围内，避免画面被拖离屏幕。
+  Matrix4 _clampPinchPan(Matrix4 matrix, double scale, Size areaSize) {
+    if (scale <= _minPinchScale) return Matrix4.identity();
+    final minOffset = Offset(areaSize.width - areaSize.width * scale, areaSize.height - areaSize.height * scale);
+    final translation = matrix.getTranslation();
+    return matrix.clone()
+      ..setTranslationRaw(
+        translation.x.clamp(minOffset.dx, 0.0),
+        translation.y.clamp(minOffset.dy, 0.0),
+        0,
+      );
+  }
+
+  /// 双指全部抬起：缩放回落到接近 1 倍时自动还原画面。
+  void _onPinchEnd() {
+    _pinchActive = false;
+    _lastGestureScale = 1.0;
+    final scale = _playerManager.pinchTransform.value.getMaxScaleOnAxis();
+    if (scale <= _minPinchScale + 0.05) {
+      _playerManager.resetPinchZoom();
+    }
+  }
+
+  /// 双指手势入口：仅在移动端全屏时启用缩放。
+  void _onScaleStart(ScaleStartDetails details) {
+    if (!PlatformUtils.isMobile || controller.showLocked.value) return;
+    if (!GlobalPlayerState.to.fullscreenUI) return;
+    if (details.pointerCount >= 2) {
+      _activatePinch();
+    }
+  }
+
+  /// 激活缩放状态，手势累计缩放从 1 开始。
+  void _activatePinch() {
+    if (_pinchActive) return;
+    _pinchActive = true;
+    _lastGestureScale = 1.0;
+  }
+
+  void _onScaleUpdate(ScaleUpdateDetails details) {
+    if (!PlatformUtils.isMobile || controller.showLocked.value) return;
+    if (!GlobalPlayerState.to.fullscreenUI) return;
+    if (details.pointerCount >= 2) {
+      // 双指（及以上）：激活缩放。不依赖 onScaleStart——不同框架版本对
+      // "指针数量变化是否重发 onScaleStart"行为不一致，在 update 里兜底。
+      _activatePinch();
+      _updatePinchTransform(details);
+      return;
+    }
+    if (!_pinchActive) {
+      // 单指垂直拖动：左侧亮度 / 右侧音量（原有行为）
+      _onVerticalDragUpdate(details.localFocalPoint, details.focalPointDelta);
+    }
+  }
+
+  void _onScaleEnd(ScaleEndDetails details) {
+    if (_pinchActive) {
+      _onPinchEnd();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     IconData iconData;
@@ -623,7 +772,9 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
         }
       },
       child: GestureDetector(
-        onVerticalDragUpdate: (details) => _onVerticalDragUpdate(details.localPosition, details.delta),
+        onScaleStart: _onScaleStart,
+        onScaleUpdate: _onScaleUpdate,
+        onScaleEnd: _onScaleEnd,
         child: Container(
           color: Colors.transparent,
           alignment: Alignment.center,

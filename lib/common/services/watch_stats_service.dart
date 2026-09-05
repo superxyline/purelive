@@ -19,6 +19,10 @@ class WatchStatsService extends GetxService {
   /// key（platform|roomId）→ 统计条目 {nick, platform, roomId, total, daily}
   final Map<String, Map<String, dynamic>> stats = {};
 
+  /// 统计结算回调（每次写入后触发）。桌面快捷方式等依赖观看时长的
+  /// 功能据此刷新。回调在结算同步流程内执行，保持轻量。
+  void Function()? onStatsCommitted;
+
   static WatchStatsService? _instance;
   static WatchStatsService get instance => _instance!;
 
@@ -98,6 +102,7 @@ class WatchStatsService extends GetxService {
     daily[today] = (daily[today] ?? 0) + seconds;
     entry['daily'] = daily;
     _save();
+    onStatsCommitted?.call();
   }
 
   /// 清除全部统计（当前会话从现在重新累计）。

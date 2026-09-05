@@ -77,6 +77,19 @@ class LiveMessage {
   });
 }
 
+/// 礼物消息的字段解析扩展。控制器（合并数量）与 UI（GiftCard 显示数量）
+/// 共用同一实现，避免两侧对非法值/缺省值的判断不一致。
+extension LiveMessageGiftX on LiveMessage {
+  /// 礼物数量（data.giftCount）。int/String/num 均可，缺失或非法按 1 计。
+  int get giftCount {
+    final value = data is Map ? (data as Map)['giftCount'] : null;
+    if (value is int) return value > 0 ? value : 1;
+    if (value is String) return int.tryParse(value) ?? 1;
+    if (value is num) return value.toInt() > 0 ? value.toInt() : 1;
+    return 1;
+  }
+}
+
 class LiveMessageColor {
   final int r, g, b;
   const LiveMessageColor(this.r, this.g, this.b);

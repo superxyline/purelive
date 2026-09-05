@@ -168,13 +168,13 @@ class SettingsPage extends GetView<SettingsService> {
               onTap: () => Get.to(() => const GeneralSettingsPage()),
             ),
             context.buildTile(
-              icon: Remix.translate,
+              icon: Remix.translate_2,
               title: i18n("language_settings"),
               subtitle: i18n("language_settings_desc"),
               onTap: () => Get.to(() => const LanguageSettingsPage()),
             ),
             context.buildTile(
-              icon: Remix.global_line,
+              icon: Remix.shield_keyhole_line,
               title: i18n("custom_network_proxy"),
               subtitle: i18n("custom_network_proxy_desc"),
               onTap: () => Get.to(() => const NetworkProxySettingsPage()),
