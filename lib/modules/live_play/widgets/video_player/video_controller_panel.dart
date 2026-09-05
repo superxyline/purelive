@@ -232,6 +232,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                             key: ValueKey(gift.sentAt!.millisecondsSinceEpoch),
                             message: gift,
                             glassEffect: true,
+                            onTap: () => onGiftCardTap(context, gift),
                           ),
                         ),
                       ),

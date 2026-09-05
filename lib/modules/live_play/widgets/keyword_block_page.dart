@@ -1,4 +1,5 @@
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 
@@ -68,6 +69,22 @@ class _KeywordBlockPageState extends State<KeywordBlockPage> {
             items: users,
             icon: Icons.person_off_rounded,
             onRemove: SettingsService.to.fav.removeBlockedDanmakuUser,
+          );
+        }),
+        // 本直播间礼物卡片屏蔽：删除即恢复该礼物的卡片展示，立即生效
+        Obx(() {
+          final liveController = Get.find<LivePlayController>();
+          final gifts = RoomGiftBlockService.instance.blockedGiftsOf(liveController.site, liveController.room.roomId);
+          return _buildBlockSliver(
+            theme,
+            title: i18n('blocked_gifts_in_room', args: {'count': '${gifts.length}'}),
+            items: gifts,
+            icon: Icons.card_giftcard_rounded,
+            onRemove: (index) => RoomGiftBlockService.instance.unblockGift(
+              liveController.site,
+              liveController.room.roomId,
+              gifts[index],
+            ),
           );
         }),
         const SliverToBoxAdapter(child: SizedBox(height: 24)),
