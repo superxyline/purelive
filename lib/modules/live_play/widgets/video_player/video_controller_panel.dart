@@ -380,6 +380,7 @@ class TopActionBar extends StatelessWidget {
                 const DatetimeInfo(),
                 BatteryInfo(controller: controller),
               ],
+              TempMuteButton(controller: controller),
               AudioOnlyButton(controller: controller),
               if (PlatformUtils.isAndroid) CastButton(controller: controller),
               if (!GlobalPlayerState.to.fullscreenUI && PlatformUtils.isAndroid) PIPButton(controller: controller),
@@ -1484,6 +1485,33 @@ class ExpandButton extends StatelessWidget {
               size: 26,
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 右上角一键静音：仅静音播放器（内核音量置 0），不影响系统媒体音量。
+/// 再次点击、滑动调音量、音量键、退出直播间均会恢复声音。
+class TempMuteButton extends StatelessWidget {
+  const TempMuteButton({super.key, required this.controller});
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => IconButton(
+        tooltip: i18n(controller.tempMuted.value ? 'temp_unmute' : 'temp_mute'),
+        visualDensity: VisualDensity.compact,
+        iconSize: 21,
+        color: controller.tempMuted.value ? const Color(0xFFFFD166) : Colors.white,
+        onPressed: () {
+          controller.enableController();
+          controller.toggleTempMute();
+        },
+        icon: Icon(
+          controller.tempMuted.value ? Icons.volume_off_rounded : Icons.volume_up_rounded,
         ),
       ),
     );

@@ -206,6 +206,8 @@
   "block_gift_card_action": "屏蔽",
   "gift_card_blocked": "已屏蔽礼物卡片：{name}",
   "blocked_gifts_in_room": "本直播间礼物屏蔽（{count}）",
+  "temp_mute": "临时静音",
+  "temp_unmute": "取消临时静音",
   "enable_play_proxy": "启用播放代理",
   "enable_player_proxy": "启用播放代理",
   "enable_polling": "启用开播检测",
