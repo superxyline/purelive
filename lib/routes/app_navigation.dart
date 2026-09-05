@@ -20,7 +20,8 @@ class AppNavigator {
   }
 
   /// 跳转至直播间
-  static Future<void> toLiveRoomDetail({required LiveRoom liveRoom}) async {
+  /// [startFullscreen] 为 true 时播放启动后自动进入横屏全屏（长按卡片菜单的"全屏播放"入口）
+  static Future<void> toLiveRoomDetail({required LiveRoom liveRoom, bool startFullscreen = false}) async {
     if (_openingLiveRoom) return;
     final platform = (liveRoom.platform?.trim() ?? '').toLowerCase();
     final roomId = liveRoom.roomId?.trim() ?? '';
@@ -38,7 +39,10 @@ class AppNavigator {
       // 同时残留在下层页面的编辑焦点会干扰返回处理，表现为“返回失效”。
       FocusManager.instance.primaryFocus?.unfocus();
       unawaited(SystemChannels.textInput.invokeMethod('TextInput.hide'));
-      await Get.toNamed(RoutePath.kLivePlay, arguments: normalizedRoom, parameters: {"site": platform});
+      await Get.toNamed(RoutePath.kLivePlay, arguments: normalizedRoom, parameters: {
+        "site": platform,
+        if (startFullscreen) "fullscreen": "1",
+      });
     } finally {
       _openingLiveRoom = false;
     }

@@ -131,6 +131,16 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     return List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
   }
 
+  bool _roomMatchesSelectedTag(LiveRoom room) {
+    final tagId = selectedTagId.value;
+    // 分区自动标签按 room.area 匹配（跨平台同分区归到同一标签，如斗鱼/虎牙的 CS2）
+    final areaName = TagManagementController.areaNameFromTagId(tagId);
+    if (areaName != null) {
+      return room.area?.trim() == areaName;
+    }
+    return tagController.getTagsForRoom(room).contains(tagId);
+  }
+
   List<LiveRoom> getFilteredRoomsIgnoringLiveStatus() {
     final List<LiveRoom> source = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
 
@@ -152,10 +162,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
       return siteFiltered;
     }
 
-    return siteFiltered.where((room) {
-      final List<String> ids = tagController.getTagsForRoom(room);
-      return ids.contains(selectedTagId.value);
-    }).toList();
+    return siteFiltered.where(_roomMatchesSelectedTag).toList();
   }
 
   List<LiveRoom> getFilteredRooms() {
@@ -198,10 +205,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
       return siteFiltered;
     }
 
-    return siteFiltered.where((room) {
-      final List<String> ids = tagController.getTagsForRoom(room);
-      return ids.contains(selectedTagId.value);
-    }).toList();
+    return siteFiltered.where(_roomMatchesSelectedTag).toList();
   }
 
   void syncRooms() {
@@ -240,17 +244,25 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
           target = onlineRooms;
       }
       final Set<String> tagIds = {};
+      final Set<String> areaNames = {};
 
       for (var room in target) {
         if (activeSite.id == Sites.allSite || room.platform?.toUpperCase() == activeSite.id.toUpperCase()) {
-          final ids = tagController.getTagsForRoom(room);
-          tagIds.addAll(ids);
+          tagIds.addAll(tagController.getTagsForRoom(room));
+          final area = room.area?.trim() ?? '';
+          if (area.isNotEmpty) areaNames.add(area);
         }
       }
 
       final tags = tagController.tags.where((t) => tagIds.contains(t.id)).toList();
       tags.sort((a, b) => a.order.compareTo(b.order));
-      visibleTags.assignAll(tags);
+      // 分区自动标签：来源于房间自身的 area 字段，动态生成不落盘，
+      // 排在用户自定义标签之后，按名称排序。
+      final areaTags = areaNames
+          .map((name) => LiveTag(id: TagManagementController.areaTagId(name), name: name))
+          .toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
+      visibleTags.assignAll(tags + areaTags);
     }
 
     onlineRooms.sort((a, b) {

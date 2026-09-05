@@ -168,6 +168,16 @@ class RoomCard extends StatelessWidget {
             IconButton(
               constraints: const BoxConstraints(),
               padding: const EdgeInsets.all(6),
+              tooltip: i18n('fullscreen_play'),
+              icon: Icon(Remix.fullscreen_line, size: 20, color: theme.colorScheme.primary),
+              onPressed: () {
+                Navigator.pop(context);
+                AppNavigator.toLiveRoomDetail(liveRoom: room, startFullscreen: true);
+              },
+            ),
+            IconButton(
+              constraints: const BoxConstraints(),
+              padding: const EdgeInsets.all(6),
               icon: Icon(RemixIcons.share_forward_line, size: 20, color: theme.colorScheme.primary),
               onPressed: () {
                 Navigator.pop(context);

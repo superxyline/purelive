@@ -10,6 +10,14 @@ class TagManagementController extends GetxController {
   static const Map<String, String> allTag = {'all': '全部'};
   static String get allTagKey => allTag.keys.first;
   static String get allTagLabel => allTag.values.first;
+
+  /// 分区自动标签的虚拟 id 前缀。分区标签不写入标签体系，仅在关注页
+  /// 按 room.area 动态生成/过滤，id = 'area:' + 分区名，与时间戳 id 不冲突。
+  static const String areaTagPrefix = 'area:';
+  static String areaTagId(String area) => '$areaTagPrefix$area';
+  static bool isAreaTag(String id) => id.startsWith(areaTagPrefix);
+  static String? areaNameFromTagId(String id) =>
+      isAreaTag(id) ? id.substring(areaTagPrefix.length) : null;
   @override
   void onInit() {
     super.onInit();

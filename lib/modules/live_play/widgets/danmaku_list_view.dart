@@ -32,8 +32,12 @@ class DanmakuListViewState extends State<DanmakuListView> {
 
   static const Duration throttleDuration = Duration(milliseconds: 80);
 
+  /// 回看历史暂停自动滚动后，无任何操作自动恢复滚动的等待时长。
+  static const Duration resumeIdleDelay = Duration(seconds: 10);
+
   bool userScrolling = false;
   bool _autoScrollEnabled = true;
+  Timer? _resumeTimer;
   final ValueNotifier<int> _pendingMessageCount = ValueNotifier<int>(0);
   int _lastControllerLength = 0;
   LiveMessage? _lastControllerTail;
@@ -121,6 +125,7 @@ class DanmakuListViewState extends State<DanmakuListView> {
     windowFullscreenWorker?.dispose();
     superChatWorker?.dispose();
     throttleTimer?.cancel();
+    _resumeTimer?.cancel();
     _pendingMessageCount.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -131,13 +136,31 @@ class DanmakuListViewState extends State<DanmakuListView> {
     await SchedulerBinding.instance.endOfFrame;
     if (!mounted || !_scrollController.hasClients) return;
     final position = _scrollController.position;
-    if (!position.hasContentDimensions) return;
+    if (!position.hasContentDimensions) {
+      // 列表条目数突增（如恢复自动滚动时整体换快照）后的首帧，
+      // position 尺寸可能尚未就绪；此时直接放弃会让恢复动作停在旧
+      // 位置且不再自动贴底，表现为"恢复了却不滚动"。延迟一帧重试。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) forceScrollToBottom();
+      });
+      return;
+    }
     if ((position.pixels - position.minScrollExtent).abs() > 0.5) {
       _scrollController.jumpTo(position.minScrollExtent);
     }
   }
 
+  void _restartResumeTimer() {
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(resumeIdleDelay, () {
+      _resumeTimer = null;
+      if (mounted && !_autoScrollEnabled) _resumeAutoScroll();
+    });
+  }
+
   void _pauseAutoScroll() {
+    // 已处于暂停状态时也要重置无操作计时：持续浏览历史期间不能被超时打断。
+    _restartResumeTimer();
     if (!_autoScrollEnabled) return;
     throttleTimer?.cancel();
     throttleTimer = null;
@@ -150,6 +173,8 @@ class DanmakuListViewState extends State<DanmakuListView> {
   }
 
   Future<void> _resumeAutoScroll() async {
+    _resumeTimer?.cancel();
+    _resumeTimer = null;
     setState(() {
       _visibleMessages = List<LiveMessage>.from(controller.danmakuMessages);
       _autoScrollEnabled = true;
@@ -164,7 +189,9 @@ class DanmakuListViewState extends State<DanmakuListView> {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
     final distanceToBottom = position.pixels - position.minScrollExtent;
-    final atBottom = distanceToBottom <= 60;
+    // 阈值放宽到 150px：用户慢速滑回底部时很难精确停在 60px 内，
+    // 差一点就永远不满足恢复条件，表现为"滑回底部也不继续滚动"。
+    final atBottom = distanceToBottom <= 150;
     // 用户拖动/滚轮：立即暂停自动滚动。拖动初期 offset 仍贴近底部，
     // 此时不能因"贴近底部"而恢复，否则自动滚动会和用户抢滚动条，
     // 表现为列表抖动并弹回底部，无法回看历史弹幕。

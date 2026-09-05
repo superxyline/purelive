@@ -199,6 +199,7 @@
   "enable_dynamic_color_subtitle": "Enable Monet dynamic color",
   "enable_fullscreen_default": "Auto Full Screen",
   "enable_fullscreen_default_subtitle": "When enter live play, auto into full screen",
+  "fullscreen_play": "Play Fullscreen",
   "enable_play_proxy": "Enable Proxy",
   "enable_player_proxy": "Enable Player Proxy",
   "enable_polling": "Enable Live Detection",

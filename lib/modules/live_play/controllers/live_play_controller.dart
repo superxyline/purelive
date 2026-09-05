@@ -34,10 +34,16 @@ import 'package:pure_live/player/utils/fullscreen.dart';
 // live_play_controller.dart
 
 class LivePlayController extends GetxController with GetSingleTickerProviderStateMixin {
-  LivePlayController({required this.room, required this.site});
+  LivePlayController({required this.room, required this.site})
+    : startInFullscreen = Get.parameters['fullscreen'] == '1';
 
   final String site;
   final LiveRoom room;
+
+  /// 路由参数请求的"进入即全屏"（长按卡片菜单的全屏播放入口）。
+  /// VideoController 在播放启动后读取它决定是否自动进全屏，
+  /// 独立于设置里的 enableFullScreenDefault 全局开关。
+  final bool startInFullscreen;
 
   late final TimerController timerController;
   late final DanmakuController danmakuController;
