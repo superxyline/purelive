@@ -205,6 +205,8 @@
   "block_gift_card_action": "Block",
   "gift_card_blocked": "Gift card blocked: {name}",
   "blocked_gifts_in_room": "Blocked Gifts in This Room ({count})",
+  "temp_mute": "Temp Mute",
+  "temp_unmute": "Unmute",
   "enable_play_proxy": "Enable Proxy",
   "enable_player_proxy": "Enable Player Proxy",
   "enable_polling": "Enable Live Detection",

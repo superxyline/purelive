@@ -83,4 +83,20 @@ class RoomGiftBlockService extends GetxService {
     }
     _save();
   }
+
+  /// 备份/跨端传输序列化（挂在 BackupController 的统一导出导入中）
+  Map<String, dynamic> toJson() => {
+    for (final entry in blockedGifts.entries) entry.key: List<String>.from(entry.value),
+  };
+
+  void fromJson(dynamic json) {
+    if (json is! Map) return;
+    blockedGifts.clear();
+    json.forEach((key, value) {
+      if (value is List) {
+        blockedGifts[key.toString()] = value.map((e) => e.toString()).toList();
+      }
+    });
+    _save();
+  }
 }

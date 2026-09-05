@@ -471,10 +471,39 @@ class VideoController with ChangeNotifier {
 
   // 音量管理
   void registerVolumeListener() {
-    final volumeSub = _volumeController.addListener((volume) {
+    final volumeSub = _volumeController.addListener((volume) async {
+      // 音量键等系统音量变化：临时静音自动解除（用户主动调音量即视为取消静音）
+      await _unmuteIfTempMuted();
       room.saveCurrentVolume(volume);
     }, fetchInitialVolume: true);
     _addSubscription(volumeSub);
+  }
+
+  /// 右上角一键静音：仅把播放器内核音量置 0（移动端内核音量恒为 1.0，
+  /// 响度由系统媒体音量决定），不动系统音量、不写房间音量记忆。
+  /// 任何音量调整（滑动手势/音量键）或再次点击都会恢复；切房即销毁复位。
+  final RxBool tempMuted = false.obs;
+
+  Future<void> toggleTempMute() async {
+    if (tempMuted.value) {
+      await _restoreTempMute();
+      return;
+    }
+    tempMuted.value = true;
+    await _playerManager.setVolume(0.0);
+  }
+
+  Future<void> _restoreTempMute() async {
+    if (!tempMuted.value) return;
+    tempMuted.value = false;
+    // 移动端恢复内核 1.0（响度交回系统音量）；桌面端恢复房间保存音量
+    await _playerManager.setVolume(
+      PlatformHelper.isDesktop ? room.getSavedVolume().clamp(0.0, 1.0) : 1.0,
+    );
+  }
+
+  Future<void> _unmuteIfTempMuted() async {
+    if (tempMuted.value) await _restoreTempMute();
   }
 
   void updateVolumn(double volume) {
@@ -494,6 +523,8 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> setVolume(double value) async {
+    // 用户主动调整音量（滑动手势等）：临时静音自动解除
+    await _unmuteIfTempMuted();
     final resolved = value.clamp(0.0, 1.0).toDouble();
     if (PlatformHelper.isDesktop) {
       await _playerManager.setVolume(resolved);
