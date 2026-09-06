@@ -264,14 +264,29 @@ class BiliBiliSite implements LiveSite {
   }
 
   Future<Map<String, dynamic>> getRoomInfo({required String roomId}) async {
-    var url = "https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=$roomId";
-    var queryParams = await getWbiSign(url);
-    var result = await HttpClient.instance.getJson(
-      "https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom",
-      queryParameters: queryParams,
-      header: await getHeader(),
-    );
-    return result["data"];
+    const baseUrl = "https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom";
+    final url = "$baseUrl?room_id=$roomId";
+    // WBI key 过期时该接口会返回 code=-352（风控）：重试一次并在重试前
+    // 强制刷新 WBI key（上游 v3.1.2 同款处理）。
+    Object? lastError;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        final queryParams = await getWbiSign(url, forceRefresh: attempt > 0);
+        final result = await HttpClient.instance.getJson(
+          baseUrl,
+          queryParameters: queryParams,
+          header: await getHeader(),
+        );
+        if (result is Map && result['code'] != 0) {
+          throw StateError('getInfoByRoom code=${result['code']}');
+        }
+        return result["data"];
+      } catch (error) {
+        lastError = error;
+        if (attempt == 0) await Future<void>.delayed(const Duration(milliseconds: 180));
+      }
+    }
+    throw StateError('Bilibili room info failed after WBI refresh: $lastError');
   }
 
   static String kImgKey = '';

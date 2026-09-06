@@ -767,6 +767,12 @@ String _douyinOnlineViewers(dynamic room) {
   final stats = room['room_view_stats'];
   final roomStats = room['stats'];
   final candidates = <dynamic>[
+    // 匿名首页 Feed 把并发在线人数放在 room 顶层（上游 v2.9.7 优化），
+    // 顶层字段须排在嵌套兼容字段之前，避免过期的嵌套占位值掩盖真实在线数。
+    room['user_count'],
+    room['user_count_str'],
+    room['online_user_count'],
+    room['online_user_for_anchor'],
     if (stats is Map) stats['user_count'],
     if (stats is Map) stats['online_user_count'],
     if (stats is Map) stats['online_user_for_anchor'],
