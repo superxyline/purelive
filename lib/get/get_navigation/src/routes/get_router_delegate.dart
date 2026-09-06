@@ -31,6 +31,12 @@ class GetDelegate extends RouterDelegate<RouteDecoder>
   final PopMode backButtonPopMode;
   final PreventDuplicateHandlingMode preventDuplicateHandlingMode;
 
+  /// 上次 popRoute 的时间戳。MIUI 等厂商的手势返回可能同时经键盘管线
+  /// （goBack 键事件）与引擎 back 通道各触发一次 popRoute，导致返回时
+  /// 连弹两层（如设置二级页返回直达首页）。短窗口内的第二次调用吞掉。
+  DateTime? _lastPopRouteAt;
+  static const Duration _popRouteDebounce = Duration(milliseconds: 120);
+
   final GetPage notFoundRoute;
 
   final List<NavigatorObserver>? navigatorObservers;
@@ -747,7 +753,15 @@ class GetDelegate extends RouterDelegate<RouteDecoder>
 
   @override
   Future<bool> popRoute({Object? result, PopMode? popMode}) async {
-    //Returning false will cause the entire app to be popped.
+    // Returning false will cause the entire app to be popped.
+    // 双通道防抖：120ms 内的第二次 popRoute 直接吞掉（视为已消费）。
+    final now = DateTime.now();
+    final lastAt = _lastPopRouteAt;
+    if (lastAt != null && now.difference(lastAt) < _popRouteDebounce) {
+      return true;
+    }
+    _lastPopRouteAt = now;
+
     final wasPopup = await handlePopupRoutes(result: result);
     if (wasPopup) return true;
 
