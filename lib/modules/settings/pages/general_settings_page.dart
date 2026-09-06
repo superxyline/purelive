@@ -74,6 +74,18 @@ class GeneralSettingsPage extends GetView<SettingsService> {
               value: SettingsService.to.app.enableAutoCheckUpdate,
               icon: Remix.refresh_line,
             ),
+            // 赛事提醒：提前分钟数（开关即赛事页的星标关注）
+            Obx(() {
+              final lead = SettingsService.to.app.esportsReminderLeadMinutes.v;
+              return context.buildTile(
+                title: i18n('esports_reminder_lead'),
+                subtitle: i18n('esports_reminder_lead_subtitle', args: {'minutes': '$lead'}),
+                icon: Remix.trophy_line,
+                isLong: true,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => _showReminderLeadDialog(context),
+              );
+            }),
             context.buildSwitchTile(
               title: i18n('enable_countdown_close'),
               subtitle: i18n('enable_countdown_close_subtitle'),
@@ -138,6 +150,54 @@ class GeneralSettingsPage extends GetView<SettingsService> {
           const SizedBox(height: 32),
         ],
       ),
+    );
+  }
+
+  void _showReminderLeadDialog(BuildContext context) {
+    final List<int> options = [5, 10, 15, 30, 60];
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(i18n('esports_reminder_lead')),
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: options.map<Widget>((minutes) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: ChoiceChip(
+                    label: Text("$minutes ${i18n('minutes')}"),
+                    selected: SettingsService.to.app.esportsReminderLeadMinutes.v == minutes,
+                    selectedColor: Theme.of(context).colorScheme.primaryContainer,
+                    labelStyle: TextStyle(
+                      color: SettingsService.to.app.esportsReminderLeadMinutes.v == minutes
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onSelected: (bool selected) {
+                      if (selected) {
+                        SettingsService.to.app.esportsReminderLeadMinutes.v = minutes;
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
+              child: Text(
+                i18n('esports_reminder_lead_hint'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -91,6 +91,18 @@ class VideoSettingsPage extends GetView<SettingsService> {
                 ),
               ),
             ),
+            context.buildSwitchTile(
+              icon: Remix.film_line,
+              title: i18n("prefer_hevc"),
+              subtitle: i18n("prefer_hevc_subtitle"),
+              value: SettingsService.to.player.preferHEVC,
+            ),
+            context.buildSwitchTile(
+              icon: Remix.radar_line,
+              title: i18n("cdn_speed_test"),
+              subtitle: i18n("cdn_speed_test_subtitle"),
+              value: SettingsService.to.player.enableCdnSpeedTest,
+            ),
           ]),
 
           const SizedBox(height: 20),

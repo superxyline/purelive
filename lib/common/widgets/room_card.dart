@@ -259,6 +259,17 @@ class RoomCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 FollowButton(room: room),
+                // 纯音频播放：进入直播间（非全屏）直接以纯音频状态播放
+                IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(6),
+                  tooltip: i18n('audio_only_play'),
+                  icon: Icon(Remix.headphone_line, size: 20, color: theme.colorScheme.primary),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    AppNavigator.toLiveRoomDetail(liveRoom: room, startAudioOnly: true);
+                  },
+                ),
                 TextButton(
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

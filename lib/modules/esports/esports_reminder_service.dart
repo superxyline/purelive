@@ -8,7 +8,7 @@ import 'package:pure_live/routes/route_path.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 
-/// 赛事提醒服务：在关注的赛事开始前10分钟通过通知提醒
+/// 赛事提醒服务：在关注的赛事开始前（提前分钟数可在设置中调整，默认10分钟）通过通知提醒
 class EsportsReminderService {
   static final EsportsReminderService _instance = EsportsReminderService._internal();
   factory EsportsReminderService() => _instance;
@@ -83,11 +83,12 @@ class EsportsReminderService {
       
       for (final match in matches) {
         if (!favoriteIds.contains(match.matchId)) continue;
-        
-        final reminderTime = match.startDateTime.subtract(const Duration(minutes: 10));
-        
+
+        final leadMinutes = SettingsService.to.app.esportsReminderLeadMinutes.v;
+        final reminderTime = match.startDateTime.subtract(Duration(minutes: leadMinutes));
+
         if (reminderTime.isAfter(now)) {
-          await _scheduleReminder(match, reminderTime);
+          await _scheduleReminder(match, reminderTime, leadMinutes);
         }
       }
     } catch (e) {
@@ -96,10 +97,10 @@ class EsportsReminderService {
   }
 
   /// 设置单个赛事提醒
-  Future<void> _scheduleReminder(EsportsMatch match, DateTime reminderTime) async {
+  Future<void> _scheduleReminder(EsportsMatch match, DateTime reminderTime, int leadMinutes) async {
     final gameName = _getGameName(match.gameKey);
     final title = '$gameName 赛事即将开始';
-    final body = '${match.seriesName} 将在10分钟后开始';
+    final body = '${match.seriesName} 将在$leadMinutes分钟后开始';
     
     final payload = '${match.gameKey}_${match.matchId}_${match.seriesName}';
     

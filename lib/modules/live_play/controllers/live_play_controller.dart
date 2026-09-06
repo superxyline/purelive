@@ -35,7 +35,8 @@ import 'package:pure_live/player/utils/fullscreen.dart';
 
 class LivePlayController extends GetxController with GetSingleTickerProviderStateMixin {
   LivePlayController({required this.room, required this.site})
-    : startInFullscreen = Get.parameters['fullscreen'] == '1';
+    : startInFullscreen = Get.parameters['fullscreen'] == '1',
+      startAudioOnly = Get.parameters['audioOnly'] == '1';
 
   final String site;
   final LiveRoom room;
@@ -44,6 +45,10 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   /// VideoController 在播放启动后读取它决定是否自动进全屏，
   /// 独立于设置里的 enableFullScreenDefault 全局开关。
   final bool startInFullscreen;
+
+  /// 路由参数请求的"进入即纯音频"（长按卡片菜单的纯音频播放入口）。
+  /// 仅影响本房间首次进入；切房后按全局设置/ASMR 规则重置。
+  final bool startAudioOnly;
 
   late final TimerController timerController;
   late final DanmakuController danmakuController;
@@ -139,7 +144,11 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       room: RoomState(detail: room),
       // 纯音频：全局"纯音频模式"开关或 ASMR 自动开启时进入直播间即关闭画面仅播放声音；
       // 直播间内耳机按钮可单独切换当前房间，不影响全局开关。
-      player: PlayerState(isCurrentRoomAudioOnly: autoStartAsmr || SettingsService.to.player.audioOnly.v),
+      // 纯音频：全局"纯音频模式"开关、ASMR 自动开启或路由"纯音频播放"入口时
+      // 进入直播间即关闭画面仅播放声音；直播间内耳机按钮可单独切换当前房间。
+      player: PlayerState(
+        isCurrentRoomAudioOnly: autoStartAsmr || SettingsService.to.player.audioOnly.v || startAudioOnly,
+      ),
       ui: UIState(closeTimes: 60, closeTimeFlag: false),
     );
     unawaited(

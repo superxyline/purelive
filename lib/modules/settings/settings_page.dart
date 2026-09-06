@@ -15,6 +15,7 @@ import 'package:pure_live/modules/settings/pages/player_kernel_settings_page.dar
 import 'package:pure_live/modules/settings/pages/local_interaction_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/language_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/font_and_text_page.dart';
+import 'package:pure_live/modules/settings/pages/settings_search_page.dart';
 import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
 
 class SettingsPage extends GetView<SettingsService> {
@@ -31,6 +32,11 @@ class SettingsPage extends GetView<SettingsService> {
         scrolledUnderElevation: screenWidth > 640 ? 0 : null,
         title: Text(i18n("settings_title")),
         actions: [
+          IconButton(
+            tooltip: i18n('settings_search'),
+            icon: const Icon(Remix.search_line, size: 20),
+            onPressed: () => Get.to(() => const SettingsSearchPage()),
+          ),
           TextButton(
             onPressed: () => Get.to(() => LocalConfigPreviewPage()),
             child: Row(

@@ -26,7 +26,8 @@ class UpdateChecker {
       final remoteVersion = match?.group(1)?.trim();
       if (remoteVersion == null || remoteVersion.isEmpty) return;
       final remoteBuild = int.tryParse(remoteVersion.split('+').last) ?? 0;
-      if (remoteBuild <= localBuild) return;
+      // 本地更新过、或用户已对该版本选择"忽略此版本"，均不再提醒
+      if (remoteBuild <= localBuild || remoteBuild <= SettingsService.to.app.updateIgnoredBuild.v) return;
       final remoteName = remoteVersion.split('+').first;
 
       await Get.dialog(
@@ -42,7 +43,11 @@ class UpdateChecker {
           ),
           actions: [
             TextButton(
-              onPressed: () => Get.back(),
+              onPressed: () {
+                // 忽略此版本：记住该构建号，之后不再对该版本弹提醒
+                SettingsService.to.app.updateIgnoredBuild.v = remoteBuild;
+                Get.back();
+              },
               child: Text(i18n('update_later'), style: TextStyle(color: Get.theme.colorScheme.onSurfaceVariant)),
             ),
             FilledButton(

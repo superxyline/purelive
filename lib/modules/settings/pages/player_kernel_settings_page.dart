@@ -176,6 +176,42 @@ class PlayerKernelSettingsPage extends GetView<SettingsService> {
           ),
           Obx(
             () => context.buildMenuTile<String>(
+              title: i18n('anime4k_super_resolution'),
+              subtitle: i18n('anime4k_super_resolution_subtitle'),
+              icon: Remix.sparkling_2_line,
+              value: SettingsService.to.player.superResolution.v,
+              valueMap: const {
+                'off': 'super_resolution_off',
+                'efficiency': 'super_resolution_efficiency',
+                'quality': 'super_resolution_quality',
+              },
+              onChanged: (e) => SettingsService.to.player.superResolution.v = e,
+            ),
+          ),
+          Obx(
+            () => context.buildMenuTile<String>(
+              title: i18n('live_buffer_size'),
+              subtitle: i18n('live_buffer_size_subtitle'),
+              icon: Remix.database_2_line,
+              value: '${SettingsService.to.player.liveBufferSizeMB.v}',
+              valueMap: const {
+                '16': 'live_buffer_16',
+                '32': 'live_buffer_32',
+                '64': 'live_buffer_64',
+                '128': 'live_buffer_128',
+                '256': 'live_buffer_256',
+              },
+              onChanged: (e) => SettingsService.to.player.liveBufferSizeMB.v = int.tryParse(e) ?? 64,
+            ),
+          ),
+          context.buildSwitchTile(
+            icon: Remix.sound_module_line,
+            title: i18n('volume_normalization'),
+            subtitle: i18n('volume_normalization_subtitle'),
+            value: SettingsService.to.player.enableVolumeNormalization,
+          ),
+          Obx(
+            () => context.buildMenuTile<String>(
               title: i18n("video_output_driver"),
               icon: Remix.movie_line,
               value: SettingsService.to.player.videoOutputDriver.v,
