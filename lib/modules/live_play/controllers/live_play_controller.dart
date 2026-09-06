@@ -146,6 +146,12 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       LiveAudioService.configureSleepTimer(enabled: autoStartAsmr, minutes: SettingsService.to.app.asmrSleepMinutes.v),
     );
 
+    // 路由"全屏播放入口：初始化即进入全屏，不等播放器创建，
+    // 避免先以非全屏渲染、播放启动后再切换的闪烁（页面首帧即为全屏布局）。
+    if (startInFullscreen) {
+      _enterFullscreenOnStartup();
+    }
+
     _initControllers();
     _initTab();
     _updateWakelock();
@@ -1042,6 +1048,21 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   void setNormalScreen() => updateUI(screenMode: VideoMode.normal);
   void setWidescreen() => updateUI(screenMode: VideoMode.widescreen);
   void setFullScreen() => updateUI(screenMode: VideoMode.fullscreen);
+
+  /// "全屏播放"入口专用：不依赖播放器（VideoController 尚未创建），
+  /// 直接设置全屏 UI 状态、强制横屏与沉浸式系统栏。
+  /// 与 VideoController.enterFullScreen 的差异：不触碰其令牌/过渡状态，
+  /// 后续页面内的全屏切换逻辑不受影响。
+  void _enterFullscreenOnStartup() {
+    try {
+      setFullScreen();
+      GlobalPlayerState.to.isFullscreen.value = true;
+      unawaited(WindowService().landScape());
+      unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky));
+    } catch (_) {
+      // 原生调用失败时退化为普通进入，用户可手动点全屏
+    }
+  }
 
   void prepareAppFloating() {
     GlobalPlayerService.instance.playerManager.prepareAppFloating(onClose: disposeAppFloatingResources);

@@ -172,7 +172,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   }
                   final width = _fullscreenCardWidth(context);
                   return Positioned(
-                    left: 16,
+                    left: 16 + MediaQuery.of(context).padding.left,
                     bottom: (controller.showController.value && !controller.showLocked.value) ? barHeight + 16 : 24,
                     width: width,
                     child: AnimatedSwitcher(
@@ -210,7 +210,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                       AnimatedPositioned(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeOutCubic,
-                        left: 16,
+                        left: 16 + MediaQuery.of(context).padding.left,
                         bottom: baseBottom + offset,
                         width: width,
                         child: AnimatedSwitcher(
@@ -251,7 +251,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     }
                     return Positioned(
                       top: barHeight + 20,
-                      right: 16,
+                      right: 16 + MediaQuery.of(context).padding.right,
                       child: AnimatedOpacity(
                         opacity: controller.showController.value ? 1.0 : 0.35,
                         duration: const Duration(milliseconds: 200),
@@ -322,17 +322,19 @@ class TopActionBar extends StatelessWidget {
         right: 0,
         height: barHeight,
         duration: const Duration(milliseconds: 300),
-        child: Container(
-          height: barHeight,
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [Colors.transparent, Colors.black45],
+        child: SafeArea(
+          // 刘海屏适配：横屏沉浸时画面延伸进刘海/挖孔区，控制栏按钮避让挖孔
+          child: Container(
+            height: barHeight,
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [Colors.transparent, Colors.black45],
+              ),
             ),
-          ),
           child: Row(
             children: [
               if (GlobalPlayerState.to.fullscreenUI) BackButton(controller: controller),
@@ -387,6 +389,7 @@ class TopActionBar extends StatelessWidget {
               if (PlatformUtils.isWindows) PIPButton(controller: controller),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -1214,7 +1217,9 @@ class BottomActionBar extends StatelessWidget {
         right: 0,
         height: barHeight,
         duration: const Duration(milliseconds: 300),
-        child: Container(
+        child: SafeArea(
+          // 刘海屏适配：横屏沉浸时画面延伸进刘海/挖孔区，控制栏按钮避让挖孔
+          child: Container(
           height: barHeight,
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -1302,6 +1307,7 @@ class BottomActionBar extends StatelessWidget {
               );
             },
           ),
+        ),
         ),
       );
     });

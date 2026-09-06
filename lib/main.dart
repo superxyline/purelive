@@ -11,6 +11,7 @@ import 'package:pure_live/player/models/player_engine.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
+import 'package:pure_live/common/utils/update_checker.dart';
 import 'package:pure_live/modules/esports/esports_reminder_service.dart';
 
 /// 安卓返回键修复：MIUI 手势返回有时以按键事件（KEYCODE_BACK→goBack）形式
@@ -72,6 +73,8 @@ class _MyAppState extends State<MyApp> {
       unawaited(EsportsController.prefetch());
       // 初始化赛事提醒服务
       unawaited(EsportsReminderService().init());
+      // 检查 gitee 上是否有新版本（弹窗提醒，可跳转项目主页）
+      unawaited(UpdateChecker.check());
     });
   }
 
