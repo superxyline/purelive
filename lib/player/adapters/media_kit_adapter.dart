@@ -9,6 +9,7 @@ import '../models/player_error_type.dart';
 import 'package:pure_live/common/index.dart';
 
 import '../interface/unified_player_interface.dart';
+import '../utils/shader_utils.dart';
 
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:media_kit/media_kit.dart' hide PlayerState;
@@ -113,6 +114,11 @@ class MediaKitAdapter implements UnifiedPlayer {
           await native.setProperty('hwdec', 'no');
         }
       }
+
+      // 画质增强（直播缓冲 / 音量均衡 / Anime4K 超分），仅 mpv 内核
+      await _applyMpvEnhancements();
+
+      _bindEnhancementListeners();
 
       // =========================
       // controller
@@ -363,6 +369,61 @@ class MediaKitAdapter implements UnifiedPlayer {
     _heightSub = null;
     _completeSub = null;
     _errorSub = null;
+
+    for (final sub in _enhancementSubs) {
+      await sub.cancel();
+    }
+    _enhancementSubs.clear();
+  }
+
+  // =========================
+  // 画质增强（仅 mpv 内核）
+  // =========================
+
+  final List<StreamSubscription> _enhancementSubs = [];
+
+  void _bindEnhancementListeners() {
+    final player = SettingsService.to.player;
+    // 设置变更即时生效：超分/缓冲/音量均衡任一变化都重新下发整组属性
+    _enhancementSubs.addAll([
+      player.superResolution.listen((_) => _applyMpvEnhancements()),
+      player.liveBufferSizeMB.listen((_) => _applyMpvEnhancements()),
+      player.enableVolumeNormalization.listen((_) => _applyMpvEnhancements()),
+    ]);
+  }
+
+  Future<void> _applyMpvEnhancements() async {
+    if (_disposed) return;
+    if (_player.platform is! NativePlayer) return;
+    final native = _player.platform as dynamic;
+    try {
+      // 直播缓冲：预读缓冲放大抗抖动（越大延迟越高），回退缓冲清零（直播无需回看）
+      final bufferMB = SettingsService.to.player.liveBufferSizeMB.v;
+      await native.setProperty('demuxer-max-bytes', (bufferMB * 2 * 1024 * 1024).toString());
+      await native.setProperty('demuxer-max-back-bytes', '0');
+
+      // 音量均衡：拉平不同直播间之间与直播过程中的音量波动
+      final normalize = SettingsService.to.player.enableVolumeNormalization.v;
+      await native.setProperty('af', normalize ? 'loudnorm=I=-16:LRA=11:TP=-1.5' : '');
+
+      // Anime4K 超分（纯音频模式无画面，跳过）
+      final mode = SettingsService.to.player.superResolution.v;
+      if (!_isAudioOnly && (mode == 'quality' || mode == 'efficiency')) {
+        final paths = await ShaderUtils.shaderPathsFor(mode);
+        if (paths != null && paths.isNotEmpty) {
+          await native.command([
+            'change-list',
+            'glsl-shaders',
+            'set',
+            paths.join(ShaderUtils.listSeparator),
+          ]);
+        }
+      } else {
+        await native.command(['change-list', 'glsl-shaders', 'clr', '']);
+      }
+    } catch (_) {
+      // 属性下发失败不影响播放
+    }
   }
 
   // =========================

@@ -312,7 +312,11 @@ class _MatchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
+    return InkWell(
+      // 进行中的比赛：点击卡片任意位置跳转观赛直播间
+      onTap: match.isLive ? () => _openLiveRoom(context) : null,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -389,9 +393,57 @@ class _MatchCard extends StatelessWidget {
             ],
           ),
         ],
+        ),
       ),
     );
   }
+
+  /// 点击进行中的比赛跳转观赛直播间：
+  /// - 官方数据带直播间（livePlatform/liveRoomId）时直接跳转；
+  /// - 完美世界接口不返回直播房间（实测 liveRoomInfo 恒为空），此时与
+  ///   赛事通知跳转逻辑一致，弹窗选择 CS 官方直播间（斗鱼/虎牙）。
+  Future<void> _openLiveRoom(BuildContext context) async {
+    if (match.livePlatform.isNotEmpty && match.liveRoomId.isNotEmpty) {
+      _navigateToRoom(context, match.livePlatform, match.liveRoomId);
+      return;
+    }
+    final selected = await showDialog<({String platform, String roomId})>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(i18n('esports_select_live_room')),
+        children: [
+          for (final room in _csOfficialRooms)
+            ListTile(
+              leading: Icon(Icons.live_tv_rounded, color: Theme.of(dialogContext).colorScheme.primary),
+              title: Text(room.label),
+              subtitle: Text(room.roomId),
+              onTap: () => Navigator.of(dialogContext).pop(room),
+            ),
+        ],
+      ),
+    );
+    if (selected != null && context.mounted) {
+      _navigateToRoom(context, selected.platform, selected.roomId);
+    }
+  }
+
+  void _navigateToRoom(BuildContext context, String platform, String roomId) {
+    AppNavigator.toLiveRoomDetail(
+      liveRoom: LiveRoom(
+        roomId: roomId,
+        platform: platform,
+        nick: '${match.teamAName} vs ${match.teamBName}'.trim(),
+        title: match.seriesName,
+        status: true,
+      ),
+    );
+  }
+
+  // CS 官方赛事直播间（与赛事通知跳转的兜底目标一致）
+  static const List<({String platform, String roomId, String label})> _csOfficialRooms = [
+    (platform: 'douyu', roomId: '6657', label: '斗鱼'),
+    (platform: 'huya', roomId: '123321', label: '虎牙'),
+  ];
 
   Widget _buildCenterInfo(ThemeData theme) {
     // 中间列宽度固定 96，所有内容用 Center 包裹确保水平居中

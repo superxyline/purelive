@@ -21,7 +21,12 @@ class AppNavigator {
 
   /// 跳转至直播间
   /// [startFullscreen] 为 true 时播放启动后自动进入横屏全屏（长按卡片菜单的"全屏播放"入口）
-  static Future<void> toLiveRoomDetail({required LiveRoom liveRoom, bool startFullscreen = false}) async {
+  /// [startAudioOnly] 为 true 时直接以纯音频状态播放（长按卡片菜单的"纯音频播放"入口）
+  static Future<void> toLiveRoomDetail({
+    required LiveRoom liveRoom,
+    bool startFullscreen = false,
+    bool startAudioOnly = false,
+  }) async {
     if (_openingLiveRoom) return;
     final platform = (liveRoom.platform?.trim() ?? '').toLowerCase();
     final roomId = liveRoom.roomId?.trim() ?? '';
@@ -42,6 +47,7 @@ class AppNavigator {
       await Get.toNamed(RoutePath.kLivePlay, arguments: normalizedRoom, parameters: {
         "site": platform,
         if (startFullscreen) "fullscreen": "1",
+        if (startAudioOnly) "audioOnly": "1",
       });
     } finally {
       _openingLiveRoom = false;

@@ -11,6 +11,7 @@ import 'package:pure_live/core/common/convert_helper.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/danmaku/bilibili_danmaku.dart';
 import 'package:pure_live/modules/live_play/controllers/player_controller.dart';
+import 'package:pure_live/player/utils/cdn_speed_test.dart';
 
 class BiliBiliSite implements LiveSite {
   @override
@@ -121,7 +122,7 @@ class BiliBiliSite implements LiveSite {
         "room_id": detail.roomId,
         "protocol": "0,1",
         "format": "0,1,2",
-        "codec": "0",
+        "codec": "0,1",
         "platform": "html5",
         "dolby": "5",
       },
@@ -141,14 +142,13 @@ class BiliBiliSite implements LiveSite {
   @override
   Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
     try {
-      List<String> urls = [];
       var result = await HttpClient.instance.getJson(
         "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo",
         queryParameters: {
           "room_id": detail.roomId,
           "protocol": "0,1",
           "format": "0,1,2",
-          "codec": "0",
+          "codec": "0,1",
           "platform": "html5",
           "dolby": "5",
           "qn": quality.data,
@@ -156,6 +156,9 @@ class BiliBiliSite implements LiveSite {
         header: await getHeader(),
       );
 
+      // 展开 协议(stream)→格式(format)→编码(codec)→CDN(host) 全部组合，
+      // 保留 codec 与 host 供排序：编码偏好（HEVC 省流量）+ CDN 测速优选。
+      final entries = <({String url, String codec, String host})>[];
       var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
       for (var streamItem in streamList) {
         var formatList = streamItem["format"];
@@ -164,21 +167,48 @@ class BiliBiliSite implements LiveSite {
           for (var codecItem in codecList) {
             var urlList = codecItem["url_info"];
             var baseUrl = codecItem["base_url"].toString();
+            final codec = (codecItem["codec_name"] ?? "").toString().toLowerCase();
             for (var urlItem in urlList) {
-              urls.add("${urlItem["host"]}$baseUrl${urlItem["extra"]}");
+              final host = urlItem["host"].toString();
+              entries.add((
+                url: "$host$baseUrl${urlItem["extra"]}",
+                codec: codec,
+                host: host,
+              ));
             }
           }
         }
       }
-      // 对链接进行排序，包含mcdn的在后
-      urls.sort((a, b) {
-        if (a.contains("mcdn")) {
-          return 1;
-        } else {
-          return -1;
+
+      final preferHEVC = SettingsService.to.player.preferHEVC.v;
+      Map<String, int> latency = const {};
+      if (SettingsService.to.player.enableCdnSpeedTest.v && entries.isNotEmpty) {
+        try {
+          latency = await CdnSpeedTest.measure(entries.map((e) => e.host));
+        } catch (_) {
+          // 测速失败不影响取流，退化为默认排序
         }
+      }
+
+      int rank({required String url, required String codec, required String host}) {
+        // mCDN 是 P2P 回源节点，稳定性差，一律沉底
+        if (url.contains("mcdn")) return 3;
+        // 编码偏好：非偏好编码排后（同清晰度 HEVC 省约一半带宽）
+        final preferCodec = preferHEVC ? 'hevc' : 'avc';
+        if (codec.isNotEmpty && codec != preferCodec) return 1;
+        // CDN 延迟（未测速/未知时 0，不参与）
+        final l = latency[host] ?? 0;
+        if (l > 0) return 100 + (l ~/ 100).clamp(0, 50);
+        return 0;
+      }
+
+      entries.sort((a, b) {
+        final ra = rank(url: a.url, codec: a.codec, host: a.host);
+        final rb = rank(url: b.url, codec: b.codec, host: b.host);
+        if (ra != rb) return ra.compareTo(rb);
+        return 0;
       });
-      return urls;
+      return entries.map((e) => e.url).toList();
     } catch (e) {
       throw Exception(e.toString());
     }

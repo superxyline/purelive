@@ -23,6 +23,26 @@ class PlayerSettingsController extends GetxController {
   final RxBool audioOnly = hiveBool('audioOnly', false);
   final RxBool useHardStopOnExit = hiveBool('useHardStopOnExit', false);
 
+  // ======================
+  // 画质增强（仅 media_kit/mpv 内核生效）
+  // ======================
+  /// Anime4K 超分：off / efficiency（效率优先）/ quality（质量优先）
+  final RxString superResolution = hiveString('superResolution', 'off');
+
+  /// 直播缓冲大小（MB）：作用于 mpv demuxer-max-bytes，越大抗抖动越强、延迟越高
+  final RxInt liveBufferSizeMB = hiveInt('liveBufferSizeMB', 64);
+  static const int maxLiveBufferSizeMB = 512;
+
+  /// 音量均衡（mpv af loudnorm）：解决不同直播间音量忽大忽小
+  final RxBool enableVolumeNormalization = hiveBool('enableVolumeNormalization', false);
+
+  /// B站编码偏好：HEVC(H.265) 优先——同清晰度省约一半带宽，需设备硬解支持；
+  /// 线路列表会按偏好把对应编码的流排到前面，可用线路切换手动选择
+  final RxBool preferHEVC = hiveBool('preferHEVC', false);
+
+  /// CDN 测速：取流前对各 CDN 主机做 TCP 连接测速，线路按延迟自动排序
+  final RxBool enableCdnSpeedTest = hiveBool('enableCdnSpeedTest', false);
+
   List<BoxFit> get videoFitArray => AppConsts().videoFitType.map((e) => e['attr'] as BoxFit).toList();
 
   void changePreferResolution(String resolution) {
@@ -47,6 +67,11 @@ class PlayerSettingsController extends GetxController {
     preferResolution.v = PlayerConsts.resolutions.first;
     preferResolutionCellular.v = PlayerConsts.resolutions.first;
     useHardStopOnExit.v = false;
+    superResolution.v = 'off';
+    liveBufferSizeMB.v = 64;
+    enableVolumeNormalization.v = false;
+    preferHEVC.v = false;
+    enableCdnSpeedTest.v = false;
   }
 
   Map<String, dynamic> toJson() {
@@ -65,6 +90,11 @@ class PlayerSettingsController extends GetxController {
       'windowsPipAlwaysOnTop': windowsPipAlwaysOnTop.v,
       'audioOnly': audioOnly.v,
       'useHardStopOnExit': useHardStopOnExit.v,
+      'superResolution': superResolution.v,
+      'liveBufferSizeMB': liveBufferSizeMB.v,
+      'enableVolumeNormalization': enableVolumeNormalization.v,
+      'preferHEVC': preferHEVC.v,
+      'enableCdnSpeedTest': enableCdnSpeedTest.v,
     };
   }
 
@@ -83,6 +113,12 @@ class PlayerSettingsController extends GetxController {
     windowsPipAlwaysOnTop.v = json['windowsPipAlwaysOnTop'] ?? false;
     audioOnly.v = json['audioOnly'] ?? false;
     useHardStopOnExit.v = json['useHardStopOnExit'] ?? false;
+    superResolution.v = json['superResolution'] ?? 'off';
+    liveBufferSizeMB.v =
+        (((json['liveBufferSizeMB'] as num?)?.toInt() ?? 64).clamp(8, maxLiveBufferSizeMB)).toInt();
+    enableVolumeNormalization.v = json['enableVolumeNormalization'] ?? false;
+    preferHEVC.v = json['preferHEVC'] ?? false;
+    enableCdnSpeedTest.v = json['enableCdnSpeedTest'] ?? false;
   }
 
   static Map<String, dynamic> extractConfig(Map<String, dynamic>? rootConfig) {
@@ -102,6 +138,11 @@ class PlayerSettingsController extends GetxController {
       'windowsPipAlwaysOnTop': player['windowsPipAlwaysOnTop'] ?? false,
       'audioOnly': player['audioOnly'] ?? false,
       'useHardStopOnExit': player['useHardStopOnExit'] ?? false,
+      'superResolution': player['superResolution'] ?? 'off',
+      'liveBufferSizeMB': (((player['liveBufferSizeMB'] as num?)?.toInt() ?? 64).clamp(8, maxLiveBufferSizeMB)).toInt(),
+      'enableVolumeNormalization': player['enableVolumeNormalization'] ?? false,
+      'preferHEVC': player['preferHEVC'] ?? false,
+      'enableCdnSpeedTest': player['enableCdnSpeedTest'] ?? false,
     };
   }
 

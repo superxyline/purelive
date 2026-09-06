@@ -22,6 +22,11 @@ class AppSettingsController extends GetxController {
   final RxBool enableScreenKeepOn = hiveBool('enableScreenKeepOn', true);
 
   final RxBool enableAutoCheckUpdate = hiveBool('enableAutoCheckUpdate', true);
+  /// 更新提醒里用户选择"忽略此版本"时记录的构建号：不再对该构建号弹提醒
+  final RxInt updateIgnoredBuild = hiveInt('updateIgnoredBuild', 0);
+  /// 赛事提醒提前分钟数（关注的赛事开始前提前多久通知）
+  final RxInt esportsReminderLeadMinutes = hiveInt('esportsReminderLeadMinutes', 10);
+  static const int maxEsportsReminderLeadMinutes = 120;
   final RxBool enableFullScreenDefault = hiveBool('enableFullScreenDefault', false);
   final RxBool showSplashPage = hiveBool('showSplashPage', true);
   final RxBool enableHighRefreshRate = hiveBool('enableHighRefreshRate', true);
@@ -107,6 +112,8 @@ class AppSettingsController extends GetxController {
       'asmrSleepMinutes': asmrSleepMinutes.v,
       'enableScreenKeepOn': enableScreenKeepOn.v,
       'enableAutoCheckUpdate': enableAutoCheckUpdate.v,
+      'updateIgnoredBuild': updateIgnoredBuild.v,
+      'esportsReminderLeadMinutes': esportsReminderLeadMinutes.v,
       'enableFullScreenDefault': enableFullScreenDefault.v,
       'showSplashPage': showSplashPage.v,
       'enableHighRefreshRate': enableHighRefreshRate.v,
@@ -125,6 +132,10 @@ class AppSettingsController extends GetxController {
     asmrSleepMinutes.v = (((json['asmrSleepMinutes'] as num?)?.toInt() ?? 60).clamp(1, maxSleepMinutes)).toInt();
     enableScreenKeepOn.v = json['enableScreenKeepOn'] ?? true;
     enableAutoCheckUpdate.v = json['enableAutoCheckUpdate'] ?? true;
+    updateIgnoredBuild.v = ((json['updateIgnoredBuild'] as num?)?.toInt() ?? 0).clamp(0, 1 << 30);
+    esportsReminderLeadMinutes.v = (((json['esportsReminderLeadMinutes'] as num?)?.toInt() ?? 10)
+        .clamp(1, maxEsportsReminderLeadMinutes))
+        .toInt();
     enableFullScreenDefault.v = json['enableFullScreenDefault'] ?? false;
     showSplashPage.v = json['showSplashPage'] ?? true;
     enableHighRefreshRate.v = json['enableHighRefreshRate'] ?? true;
@@ -144,6 +155,9 @@ class AppSettingsController extends GetxController {
       'asmrSleepMinutes': (((app['asmrSleepMinutes'] as num?)?.toInt() ?? 60).clamp(1, maxSleepMinutes)).toInt(),
       'enableScreenKeepOn': app['enableScreenKeepOn'] ?? true,
       'enableAutoCheckUpdate': app['enableAutoCheckUpdate'] ?? true,
+      'esportsReminderLeadMinutes': (((app['esportsReminderLeadMinutes'] as num?)?.toInt() ?? 10)
+          .clamp(1, maxEsportsReminderLeadMinutes))
+          .toInt(),
       'enableFullScreenDefault': app['enableFullScreenDefault'] ?? false,
       'showSplashPage': app['showSplashPage'] ?? true,
       'enableHighRefreshRate': app['enableHighRefreshRate'] ?? true,
