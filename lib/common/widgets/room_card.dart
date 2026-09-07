@@ -6,6 +6,7 @@ import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/widgets/common_avatar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/common/utils/share_command_handler.dart';
+import 'package:pure_live/modules/live_play/widgets/live_room_info_page.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 
 class RoomCard extends StatelessWidget {
@@ -259,6 +260,17 @@ class RoomCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 FollowButton(room: room),
+                // 直播间信息：拉取详情后以对话框展示（含简介）
+                IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(6),
+                  tooltip: i18n('live_room_info'),
+                  icon: Icon(Remix.information_line, size: 20, color: theme.colorScheme.primary),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showRoomInfoDialog(context);
+                  },
+                ),
                 // 纯音频播放：进入直播间（非全屏）直接以纯音频状态播放
                 IconButton(
                   constraints: const BoxConstraints(),
@@ -283,6 +295,60 @@ class RoomCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 长按菜单"直播间信息"：卡片列表数据没有简介，现场拉一次详情
+  /// （B站风控等失败时回退展示卡片已有字段，简介显示暂无）。
+  Future<void> _showRoomInfoDialog(BuildContext context) async {
+    SmartDialog.showLoading(msg: '');
+    LiveRoom detail = room;
+    try {
+      detail = await Sites.of(room.platform!).liveSite.getRoomDetail(platform: room.platform!, roomId: room.roomId ?? '');
+    } catch (_) {}
+    SmartDialog.dismiss(status: SmartStatus.loading);
+    if (!context.mounted) return;
+    final theme = Theme.of(context);
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 6,
+        shadowColor: Colors.black.withValues(alpha: 0.12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        title: Text(
+          i18n('live_room_info'),
+          style: AppTextStyles.t16.copyWith(fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface),
+        ),
+        content: SizedBox(
+          width: 380,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.6),
+            child: LiveRoomInfoView(detail: detail),
+          ),
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  i18n('close'),
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
         ],
       ),

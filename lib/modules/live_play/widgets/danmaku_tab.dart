@@ -2,6 +2,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_list_view.dart';
 import 'package:pure_live/modules/live_play/widgets/keyword_block_page.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_settings_page.dart';
+import 'package:pure_live/modules/live_play/widgets/live_room_info_page.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 
 class DanmakuTabView extends GetView<LivePlayController> {
@@ -28,6 +29,7 @@ class DanmakuTabView extends GetView<LivePlayController> {
             child: TabBarView(
               controller: controller.tabController,
               children: [
+                const LiveRoomInfoPage(),
                 SettingsService.to.danmaku.enableDanmakuDisplay.v
                     ? DanmakuListView(room: state.room.detail!)
                     : Center(
