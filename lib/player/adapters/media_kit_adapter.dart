@@ -66,6 +66,12 @@ class MediaKitAdapter implements UnifiedPlayer {
 
   StreamSubscription? _errorSub;
 
+  // mpv 启动阶段的可恢复错误（解码器/VO 初始化瞬态失败后内核自动回退继续播）
+  // 采用延迟确认：到期仍未恢复播放才真正上报。
+  Timer? _transientErrorTimer;
+
+  PlayerException? _pendingTransientError;
+
   // =========================
   // init
   // =========================
@@ -200,6 +206,9 @@ class MediaKitAdapter implements UnifiedPlayer {
     _isAudioOnly = audioOnly;
     _currentUrl = url;
 
+    // 新播放会话开始：上一次会话挂起的瞬态错误不再对本次上报
+    _discardTransientError();
+
     try {
       _loadingSubject.add(true);
 
@@ -261,6 +270,11 @@ class MediaKitAdapter implements UnifiedPlayer {
         if (_disposed) return;
 
         _playingSubject.add(playing);
+
+        // 播放已实际恢复：启动阶段挂起的瞬态错误不再上报（mpv 内核已自行回退）
+        if (playing) {
+          _discardTransientError();
+        }
 
         if (!_loadingSubject.value) {
           _stateSubject.add(playing ? PlayerState.playing : PlayerState.paused);
@@ -340,9 +354,7 @@ class MediaKitAdapter implements UnifiedPlayer {
 
       final type = _mapErrorType(error.toString());
 
-      _safeAddError(PlayerException(message: error.toString(), type: type));
-
-      _stateSubject.add(PlayerState.error);
+      _scheduleTransientError(PlayerException(message: error.toString(), type: type));
     });
 
     // =========================
@@ -424,6 +436,34 @@ class MediaKitAdapter implements UnifiedPlayer {
     } catch (_) {
       // 属性下发失败不影响播放
     }
+  }
+
+  // =========================
+  // transient error confirm
+  // =========================
+
+  /// mpv 在直播流启动阶段常报可恢复错误（如硬件解码器/VO 初始化瞬态失败，
+  /// 内核自动回退软解后声音先出、画面稍后跟上）。立即上报会误弹"解码失败"
+  /// 提示并触发无谓的内核回退。这里延迟确认：到期仍未恢复播放才上报。
+  void _scheduleTransientError(PlayerException exception) {
+    _pendingTransientError = exception;
+    _transientErrorTimer?.cancel();
+    _transientErrorTimer = Timer(const Duration(milliseconds: 2500), () {
+      _transientErrorTimer = null;
+      if (_disposed) return;
+      final pending = _pendingTransientError;
+      _pendingTransientError = null;
+      if (pending == null) return;
+      _safeAddError(pending);
+      _stateSubject.add(PlayerState.error);
+    });
+  }
+
+  /// 播放已实际恢复，丢弃挂起的瞬态错误
+  void _discardTransientError() {
+    _pendingTransientError = null;
+    _transientErrorTimer?.cancel();
+    _transientErrorTimer = null;
   }
 
   // =========================
@@ -550,6 +590,8 @@ class MediaKitAdapter implements UnifiedPlayer {
     if (_disposed) return;
 
     _disposed = true;
+
+    _discardTransientError();
 
     _initialized = false;
 

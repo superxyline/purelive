@@ -106,7 +106,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   late Site currentSite;
   late TabController tabController;
 
-  final List<String> tabs = [i18n('danmaku_list'), i18n('danmaku_settings'), i18n('block_list')];
+  final List<String> tabs = [i18n('live_room_info'), i18n('danmaku_list'), i18n('danmaku_settings'), i18n('block_list')];
 
   bool _floatingResourcesReleased = false;
   bool _ownerClosed = false;
@@ -193,7 +193,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   }
 
   void _initTab() {
-    tabController = TabController(length: tabs.length, vsync: this);
+    // 默认仍展示弹幕列表（index 1），直播间信息页放在最前供主动查看
+    tabController = TabController(length: tabs.length, initialIndex: 1, vsync: this);
   }
 
   Future<void> _initCore() async {
