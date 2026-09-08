@@ -27,22 +27,22 @@ void main() {
     await folder.delete(recursive: true);
   });
 
-  test('version seven adds only Kilakila and disabling survives disk reopen', () async {
+  test('version seven adds Kilakila and later Huajiao and disabling survives disk reopen', () async {
     await HivePrefUtil.setInt('siteCatalogMigration', 7);
     await HivePrefUtil.setStringList('hotAreasList', ['huya', 'inke']);
     final settings = Get.put(FavoriteRoomController());
-    expect(settings.hotAreasList, ['huya', 'inke', 'kilakila']);
-    expect(settings.siteCatalogMigration.value, 8);
+    expect(settings.hotAreasList, ['huya', 'inke', 'kilakila', 'huajiao']);
+    expect(settings.siteCatalogMigration.value, 9);
     settings.hotAreasList.remove('kilakila');
     settings.onInit();
-    expect(settings.hotAreasList, ['huya', 'inke']);
+    expect(settings.hotAreasList, ['huya', 'inke', 'huajiao']);
     await Hive.box<dynamic>('app_settings').flush();
     Get.reset();
     await Hive.close();
     await HivePrefUtil.init();
     final reopened = Get.put(FavoriteRoomController());
-    expect(reopened.siteCatalogMigration.value, 8);
-    expect(reopened.hotAreasList, ['huya', 'inke']);
+    expect(reopened.siteCatalogMigration.value, 9);
+    expect(reopened.hotAreasList, ['huya', 'inke', 'huajiao']);
   });
 
   test('backup normalization retains Kilakila order and does not duplicate it', () async {
