@@ -27,22 +27,22 @@ void main() {
     await folder.delete(recursive: true);
   });
 
-  test('version six adds only Inke and disabling survives disk reopen', () async {
+  test('version six adds Inke and subsequent platforms and disabling survives disk reopen', () async {
     await HivePrefUtil.setInt('siteCatalogMigration', 6);
     await HivePrefUtil.setStringList('hotAreasList', ['huya', 'missevan']);
     final settings = Get.put(FavoriteRoomController());
-    expect(settings.hotAreasList, ['huya', 'missevan', 'inke']);
-    expect(settings.siteCatalogMigration.value, 7);
+    expect(settings.hotAreasList, ['huya', 'missevan', 'inke', 'kilakila']);
+    expect(settings.siteCatalogMigration.value, 8);
     settings.hotAreasList.remove('inke');
     settings.onInit();
-    expect(settings.hotAreasList, ['huya', 'missevan']);
+    expect(settings.hotAreasList, ['huya', 'missevan', 'kilakila']);
     await Hive.box<dynamic>('app_settings').flush();
     Get.reset();
     await Hive.close();
     await HivePrefUtil.init();
     final reopened = Get.put(FavoriteRoomController());
-    expect(reopened.siteCatalogMigration.value, 7);
-    expect(reopened.hotAreasList, ['huya', 'missevan']);
+    expect(reopened.siteCatalogMigration.value, 8);
+    expect(reopened.hotAreasList, ['huya', 'missevan', 'kilakila']);
   });
 
   test('backup normalization retains Inke order and does not duplicate it', () async {
