@@ -27,15 +27,15 @@ void main() {
     expect(folder.absolute.path.startsWith(Directory.systemTemp.absolute.path), true);
     await folder.delete(recursive: true);
   });
-  test('catalog twelve adds only niconico once, preserving hidden sites and audience settings', () async {
+  test('catalog twelve adds niconico and later Weibo once, preserving hidden sites and audience settings', () async {
     await HivePrefUtil.setInt('siteCatalogMigration', 12);
     await HivePrefUtil.setStringList('hotAreasList', ['huya', 'ttinglive']);
     await HivePrefUtil.setInt('audienceMetricMigration', 7);
     await HivePrefUtil.setStringList('realOnlinePlatforms', ['twitch']);
     final favorites = Get.put(FavoriteRoomController());
     final app = Get.put(AppSettingsController());
-    expect(favorites.hotAreasList, ['huya', 'ttinglive', 'niconico']);
-    expect(favorites.siteCatalogMigration.value, 13);
+    expect(favorites.hotAreasList, ['huya', 'ttinglive', 'niconico', 'weibo']);
+    expect(favorites.siteCatalogMigration.value, 14);
     expect(app.realOnlinePlatforms, ['twitch']);
     expect(app.audienceMetricMigration.value, 7);
     favorites.hotAreasList.remove('niconico');
@@ -43,7 +43,7 @@ void main() {
     Get.reset();
     await Hive.close();
     await HivePrefUtil.init();
-    expect(Get.put(FavoriteRoomController()).hotAreasList, ['huya', 'ttinglive']);
+    expect(Get.put(FavoriteRoomController()).hotAreasList, ['huya', 'ttinglive', 'weibo']);
     expect(Get.put(AppSettingsController()).realOnlinePlatforms, ['twitch']);
   });
   test('backup preserves exact broadcast string and tags without inventing owner identity', () {
