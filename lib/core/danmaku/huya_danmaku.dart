@@ -188,26 +188,27 @@ class HuyaDanmaku implements LiveDanmaku {
           messageId: messageId > 0 ? 'huya:$messageId' : '',
         ),
       );
-    } else if (uri == 8200) {
-      // 虎牙礼物消息 (SendItemNetMessage)
+    } else if (uri == 6501) {
+      // 虎牙礼物消息 (SendItemSubBroadcastPacket)
       try {
-        final giftNotice = HYSendItemNetMessage();
-        giftNotice.readFrom(TarsInputStream(Uint8List.fromList(payload)));
-        // 虎牙礼物图标URL（需要根据实际API确认格式）
-        final giftIcon = 'https://huya.hdslb.com/gift/${giftNotice.iItemType}.png';
+        final gift = HuyaSendItemSubBroadcastPacket();
+        gift.readFrom(TarsInputStream(Uint8List.fromList(payload)));
+        final giftName = gift.sPropsName.trim();
         onMessage?.call(
           LiveMessage(
             type: LiveMessageType.gift,
-            userName: giftNotice.sSenderName,
-            userId: giftNotice.iSenderUid.toString(),
-            message: giftNotice.sGiftName,
+            userName: gift.sSenderNick,
+            userId: gift.lSenderUid > 0 ? gift.lSenderUid.toString() : '',
+            message: giftName,
             color: const LiveMessageColor(255, 200, 0), // 金色表示礼物
             data: {
-              'giftId': giftNotice.iItemType.toString(),
-              'giftCount': giftNotice.iItemCount,
-              'giftName': giftNotice.sGiftName,
-              'giftIcon': giftIcon,
-              'price': 1, // 虎牙礼物默认价格（协议中无直接价格字段）
+              'giftId': gift.iItemType.toString(),
+              'giftCount': gift.iItemCount > 0 ? gift.iItemCount : 1,
+              'giftName': giftName,
+              // 图标留空：虎牙礼物图标需按 iItemType 查礼物目录，
+              // 缺失时卡片回退内置 emoji（与斗鱼一致）
+              'giftIcon': '',
+              'price': gift.lPayTotal > 0 ? gift.lPayTotal : 1, // 100 = 1 虎牙币
               'platform': 'huya',
             },
             messageId: messageId > 0 ? 'huya:$messageId' : '',
@@ -391,41 +392,83 @@ class HYBulletFormat extends TarsStruct {
   void displayAsString(StringBuffer sb, int level) {}
 }
 
-/// 虎牙礼物消息结构 (SendItemNetMessage)
-/// uri == 8200
-class HYSendItemNetMessage extends TarsStruct {
-  String sSenderName = ""; // tag 0 - 发送者昵称
-  int iSenderUid = 0; // tag 1 - 发送者UID (int64)
-  int iItemType = 0; // tag 2 - 礼物类型ID (int64)
-  String sGiftName = ""; // tag 3 - 礼物名称
-  int iItemCount = 1; // tag 4 - 礼物数量
+/// 虎牙礼物消息结构 (SendItemSubBroadcastPacket)
+/// uri == 6501；字段按 tag 升序读取，与线上协议一致。
+class HuyaSendItemSubBroadcastPacket extends TarsStruct {
+  int iItemType = 0; // tag 0 - 礼物ID (int32)
+  String strPayId = ""; // tag 1 - 支付流水号
+  int iItemCount = 1; // tag 2 - 礼物数量 (int32)
+  int lPresenterUid = 0; // tag 3 - 主播UID (int64)
+  int lSenderUid = 0; // tag 4 - 送礼者UID (int64)
+  String sPresenterNick = ""; // tag 5 - 主播昵称
+  String sSenderNick = ""; // tag 6 - 送礼者昵称
+  String sSendContent = ""; // tag 7 - 附言
+  String sPropsName = ""; // tag 20 - 礼物名称（旧版消息可能为空）
+  int lPayTotal = 0; // tag 41 - 实付总额（100 = 1 虎牙币）
 
   @override
   void readFrom(TarsInputStream inputStream) {
-    sSenderName = inputStream.read(sSenderName, 0, false);
-    iSenderUid = inputStream.read(iSenderUid, 1, false);
-    iItemType = inputStream.read(iItemType, 2, false);
-    sGiftName = inputStream.read(sGiftName, 3, false);
-    iItemCount = inputStream.read(iItemCount, 4, false);
+    // 逐字段容错读取：单个字段缺失或类型不符时保留默认值，
+    // 避免一个字段解析失败导致整条礼物消息被丢弃。
+    try {
+      iItemType = inputStream.read(iItemType, 0, false);
+    } catch (_) {}
+    try {
+      strPayId = inputStream.read(strPayId, 1, false);
+    } catch (_) {}
+    try {
+      iItemCount = inputStream.read(iItemCount, 2, false);
+    } catch (_) {}
+    try {
+      lPresenterUid = inputStream.read(lPresenterUid, 3, false);
+    } catch (_) {}
+    try {
+      lSenderUid = inputStream.read(lSenderUid, 4, false);
+    } catch (_) {}
+    try {
+      sPresenterNick = inputStream.read(sPresenterNick, 5, false);
+    } catch (_) {}
+    try {
+      sSenderNick = inputStream.read(sSenderNick, 6, false);
+    } catch (_) {}
+    try {
+      sSendContent = inputStream.read(sSendContent, 7, false);
+    } catch (_) {}
+    try {
+      sPropsName = inputStream.read(sPropsName, 20, false);
+    } catch (_) {}
+    try {
+      lPayTotal = inputStream.read(lPayTotal, 41, false);
+    } catch (_) {}
   }
 
   @override
   void writeTo(TarsOutputStream outputStream) {
-    outputStream.write(sSenderName, 0);
-    outputStream.write(iSenderUid, 1);
-    outputStream.write(iItemType, 2);
-    outputStream.write(sGiftName, 3);
-    outputStream.write(iItemCount, 4);
+    outputStream.write(iItemType, 0);
+    outputStream.write(strPayId, 1);
+    outputStream.write(iItemCount, 2);
+    outputStream.write(lPresenterUid, 3);
+    outputStream.write(lSenderUid, 4);
+    outputStream.write(sPresenterNick, 5);
+    outputStream.write(sSenderNick, 6);
+    outputStream.write(sSendContent, 7);
+    outputStream.write(sPropsName, 20);
+    outputStream.write(lPayTotal, 41);
   }
 
   @override
   Object deepCopy() {
-    return HYSendItemNetMessage()
-      ..sSenderName = sSenderName
-      ..iSenderUid = iSenderUid
+    return HuyaSendItemSubBroadcastPacket()
       ..iItemType = iItemType
-      ..sGiftName = sGiftName
-      ..iItemCount = iItemCount;
+      ..strPayId = strPayId
+      ..iItemCount = iItemCount
+      ..lPresenterUid = lPresenterUid
+      ..lSenderUid = lSenderUid
+      ..sPresenterNick = sPresenterNick
+      ..sSenderNick = sSenderNick
+      ..sSendContent = sSendContent
+      ..sPropsName = sPropsName
+      ..lPayTotal = lPayTotal;
   }
 
   @override

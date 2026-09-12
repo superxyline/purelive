@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:move_to_desktop/move_to_desktop.dart';
@@ -26,6 +27,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   final FavoriteController favoriteController = Get.find<FavoriteController>();
 
   int _selectedIndex = 0;
+
+  /// 双击页签检测：记录上一次点击的页签索引与时间。
+  int? _lastTappedMenuIndex;
+  DateTime? _lastTappedAt;
 
   final Map<HomeMenu, Widget> _pageMap = const {
     HomeMenu.favorites: FavoritePage(),
@@ -94,15 +99,44 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     });
   }
 
-  void handMoveRefresh() {
-    favoriteController.refreshData();
-  }
-
+  /// 底部页签点击：单击切换页面，双击（[kDoubleTapTimeout] 内再次点击同一页签）
+  /// 刷新该页面。检测放在这里而不是页签图标上，手机端 NavigationBar 与平板端
+  /// NavigationRail 因此共用同一套逻辑。
   void onDestinationSelected(int index) {
+    final now = DateTime.now();
+    final isDoubleTap =
+        _lastTappedMenuIndex == index &&
+        _lastTappedAt != null &&
+        now.difference(_lastTappedAt!) <= kDoubleTapTimeout;
+    _lastTappedMenuIndex = index;
+    _lastTappedAt = now;
+
     if (mounted) {
       setState(() => _selectedIndex = index);
     }
     favoriteController.tabBottomIndex.value = index;
+
+    if (isDoubleTap) {
+      _refreshMenuAt(index);
+    }
+  }
+
+  /// 双击页签时刷新对应页面：关注重新拉取房间详情，热门强制重载当前平台。
+  void _refreshMenuAt(int index) {
+    if (index < 0 || index >= HomeMenu.values.length) return;
+    switch (HomeMenu.values[index]) {
+      case HomeMenu.favorites:
+        favoriteController.refreshData();
+        break;
+      case HomeMenu.popular:
+        if (Get.isRegistered<PopularController>()) {
+          Get.find<PopularController>().refreshCurrent();
+        }
+        break;
+      case HomeMenu.areas:
+      case HomeMenu.esports:
+        break;
+    }
   }
 
   void onBackButtonPressed(bool didPop, _) async {
@@ -141,7 +175,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                     body: currentWidget,
                     index: adjustedIndex,
                     onDestinationSelected: onDestinationSelected,
-                    onFavoriteDoubleTap: handMoveRefresh,
                   )
                 : HomeTabletView(
                     body: currentWidget,

@@ -1,3 +1,24 @@
+# Pure Live v2.0.6
+
+本版本聚焦四平台服务器礼物解析与首页页签交互：修复虎牙 / B站 / 抖音礼物卡片收不到或字段错误的问题，并为首页「关注」「热门」页签加入双击刷新。
+
+## 礼物解析修复
+
+- 虎牙：礼物消息 uri 由无公开依据的 8200 修正为 6501（SendItemSubBroadcastPacket），并按真实 Tars 结构解析（礼物ID@0、数量@2、送礼者UID@4、送礼者昵称@6、礼物名@20、实付总额@41）；全部字段逐个容错读取，单个字段缺失或类型不符不再丢弃整条礼物消息。
+- B站：SEND_GIFT 送礼者昵称改读平铺字段 `uname`（`user_info.uname` 仅存在于 SUPER_CHAT_MESSAGE）；礼物图标改读 `gift_info.img_basic`（原 `gift_cover` 字段不存在）；价格语义修正为实付瓜子数（`total_coin` 优先），保留 `coin_type` 区分金/银瓜子。
+- 抖音：礼物价格改用 `gift.diamondCount` 钻石单价（原实现误用 repeatCount）；图标在 `gift.image` 缺失时回退 `gift.icon`；连击数量按 repeatCount → comboCount → 1 兜底，并携带 repeatEnd 元数据。
+
+## 首页页签双击刷新
+
+- 双击「关注」页签重新拉取全部关注房间详情；双击「热门」页签强制重载当前平台推荐列表。
+- 双击检测统一收敛到 HomePage 的页签选中回调，手机底部导航栏与平板侧边导航栏共用同一逻辑；移除旧实现中挂在导航图标上的 GestureDetector（原实现只覆盖关注、仅手机端且与切页手势冲突）。
+
+## 其他
+
+- 版本号提升至 `2.0.6+4009`。
+
+---
+
 # Pure Live v2.1.4
 
 这是一次阶段性全平台更新：同步上游 `5d3e526a` 的 SOOP Live 当前播放与链接兼容修复，并汇总 Bilibili 热门封面、Windows 高刷新率、桌面交互性能、安装目录数据迁移和跨平台构建工程。
