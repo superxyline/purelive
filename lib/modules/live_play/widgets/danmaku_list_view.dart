@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
@@ -637,9 +638,29 @@ class GiftCard extends StatelessWidget {
   /// 点击卡片：弹出"屏蔽该礼物卡片展示"确认框（本直播间维度）
   final VoidCallback? onTap;
 
-  const GiftCard({super.key, required this.message, this.glassEffect = false, this.onTap});
+  // 非 const：_accentFuture 依赖 message 运行时初始化
+  GiftCard({super.key, required this.message, this.glassEffect = false, this.onTap});
+
+  /// 卡片强调色解析：网络礼物且带图标时从图标提取主导色调，
+  /// 主色到手前先以平台色兜底渲染，拿到后无感切换。
+  late final Future<Color> _accentFuture = _resolveAccent();
+
+  Future<Color> _resolveAccent() {
+    final url = _giftIconUrl;
+    if (_isLocal || url.isEmpty) return Future.value(_fallbackAccent);
+    final cached = _GiftPalette.cached(url);
+    if (cached != null) return Future.value(cached);
+    return _GiftPalette.resolve(url, _fallbackAccent);
+  }
 
   Map get _data => message.data is Map ? message.data as Map : const {};
+
+  bool get _isLocal => _data['local'] == true;
+
+  String get _platform => _data['platform']?.toString() ?? '';
+
+  /// 兜底强调色：本地礼物用消息自带颜色，网络礼物按平台色
+  Color get _fallbackAccent => _GiftPalette.fallbackFor(_platform, _isLocal, message);
 
   String get _giftName {
     final value = _data['giftName'];
@@ -705,35 +726,18 @@ class GiftCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<Color>(
+      future: _accentFuture,
+      builder: (context, snapshot) {
+        final accentColor = snapshot.data ?? _fallbackAccent;
+        return _buildWithAccent(context, accentColor);
+      },
+    );
+  }
+
+  Widget _buildWithAccent(BuildContext context, Color accentColor) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final platform = _data['platform']?.toString() ?? '';
-    final isLocal = _data['local'] == true;
-
-    // 本地礼物使用LiveMessage的颜色，网络礼物根据平台设置颜色
-    Color accentColor;
-    if (isLocal) {
-      // 本地礼物：使用消息中的颜色
-      accentColor = Color.fromARGB(255, message.color.r, message.color.g, message.color.b);
-    } else {
-      // 网络礼物：根据平台设置颜色
-      switch (platform) {
-        case 'bilibili':
-          accentColor = const Color(0xFFFF6B35); // B站橙色
-          break;
-        case 'douyin':
-          accentColor = const Color(0xFFFF2C55); // 抖音红色
-          break;
-        case 'huya':
-          accentColor = const Color(0xFFFFC107); // 虎牙金色
-          break;
-        case 'douyu':
-          accentColor = const Color(0xFFFFC107); // 斗鱼金色
-          break;
-        default:
-          accentColor = const Color(0xFFFFC107); // 默认金色
-      }
-    }
 
     // 玻璃版（全屏视频背景）：深色染色渐变底 + 提亮文字，保证可读性；
     // 普通版（弹幕列表）：维持原有低饱和底色与文字颜色。
@@ -923,6 +927,99 @@ class GiftCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// 礼物卡片强调色解析：从礼物图标图片提取主导色调（饱和度加权的
+/// 色相圆周平均），让卡片底色/竖条/数量色跟随礼物本身的颜色而非
+/// 固定平台色。结果按图标 URL 缓存，同一礼物只解码一次。
+class _GiftPalette {
+  _GiftPalette._();
+
+  static final Map<String, Color> _cache = {};
+
+  /// 兜底强调色：本地礼物用消息自带颜色，网络礼物按平台色
+  static Color fallbackFor(String platform, bool isLocal, LiveMessage message) {
+    if (isLocal) {
+      return Color.fromARGB(255, message.color.r, message.color.g, message.color.b);
+    }
+    switch (platform) {
+      case 'bilibili':
+        return const Color(0xFFFF6B35); // B站橙
+      case 'douyin':
+        return const Color(0xFFFF2C55); // 抖音红
+      default:
+        return const Color(0xFFFFC107); // 默认金（虎牙/斗鱼等）
+    }
+  }
+
+  static Color? cached(String url) => _cache[url];
+
+  static Future<Color> resolve(String url, Color fallback) async {
+    final cached = _cache[url];
+    if (cached != null) return cached;
+
+    Color result = fallback;
+    try {
+      // 礼物图标 CDN 同样有 referer 防盗链（B站等），与封面图共用请求头
+      final provider = NetworkImage(normalizeNetworkImageUrl(url), headers: networkImageHeaders(url));
+      final stream = provider.resolve(ImageConfiguration.empty);
+      final completer = Completer<ui.Image?>();
+      late ImageStreamListener listener;
+      listener = ImageStreamListener(
+        (info, _) {
+          if (!completer.isCompleted) completer.complete(info.image);
+          stream.removeListener(listener);
+        },
+        onError: (_, _) {
+          if (!completer.isCompleted) completer.complete(null);
+          stream.removeListener(listener);
+        },
+      );
+      stream.addListener(listener);
+      final image = await completer.future.timeout(const Duration(seconds: 3), onTimeout: () => null);
+      final dominant = image == null ? null : await _dominantHueColor(image);
+      if (dominant != null) result = dominant;
+    } catch (_) {
+      // 提取失败按兜底色缓存，避免同一图标反复解码
+    }
+    _cache[url] = result;
+    return result;
+  }
+
+  /// 降采样遍历像素，跳过近黑/近白/低饱和像素（避免白色横幅底、
+  /// 深色描边拉偏色调），以饱和度为权重做色相圆周平均，
+  /// 再以固定饱和度/亮度输出，保证作为卡片强调色观感稳定。
+  static Future<Color?> _dominantHueColor(ui.Image image) async {
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    if (bytes == null) return null;
+    final data = bytes.buffer.asUint8List();
+    final w = image.width;
+    final h = image.height;
+    final stepX = math.max(1, w ~/ 32);
+    final stepY = math.max(1, h ~/ 32);
+    double sinSum = 0;
+    double cosSum = 0;
+    double weightSum = 0;
+    for (var py = 0; py < h; py += stepY) {
+      for (var px = 0; px < w; px += stepX) {
+        final i = (py * w + px) * 4;
+        if (i + 3 >= data.length) break;
+        final alpha = data[i + 3];
+        if (alpha < 128) continue;
+        final hsl = HSLColor.fromColor(Color.fromARGB(alpha, data[i], data[i + 1], data[i + 2]));
+        if (hsl.lightness < 0.12 || hsl.lightness > 0.90 || hsl.saturation < 0.20) continue;
+        final rad = hsl.hue * math.pi / 180;
+        final weight = hsl.saturation;
+        sinSum += math.sin(rad) * weight;
+        cosSum += math.cos(rad) * weight;
+        weightSum += weight;
+      }
+    }
+    if (weightSum <= 0) return null;
+    var hue = math.atan2(sinSum, cosSum) * 180 / math.pi;
+    if (hue < 0) hue += 360;
+    return HSLColor.fromAHSL(1.0, hue, 0.62, 0.55).toColor();
   }
 }
 
