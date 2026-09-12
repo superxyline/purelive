@@ -66,6 +66,12 @@ class LiveRoomInfoView extends StatelessWidget {
       if ((detail.area ?? '').isNotEmpty) (label: i18n('room_info_area'), value: detail.area!),
       if ((detail.roomId ?? '').isNotEmpty) (label: i18n('osd_room'), value: detail.roomId!),
       ..._audienceRows,
+      // 粉丝数：仅部分平台详情接口提供（B站/虎牙登录态/斗鱼），缺失则不显示该行
+      if ((detail.followers ?? '').isNotEmpty && detail.followers != '0')
+        (
+          label: i18n('room_info_followers'),
+          value: readableCount(detail.followers!),
+        ),
       if (_liveDurationText != null) (label: i18n('room_info_live_duration'), value: _liveDurationText!),
     ];
     final introduction = (detail.introduction ?? '').trim();
