@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:brotli/brotli.dart';
 
 import '../common/binary_writer.dart';
+import 'bilibili_gift_v2.dart';
 
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/common/models/live_message.dart';
@@ -375,7 +376,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
         );
         onMessage?.call(liveMsg);
       } else if (cmd == "SEND_GIFT") {
-        // B站礼物消息
+        // B站礼物消息（JSON 旧格式）
         if (obj["data"] == null) {
           return;
         }
@@ -401,28 +402,83 @@ class BiliBiliDanmaku implements LiveDanmaku {
         final giftInfo = data["gift_info"];
         final giftIcon = (giftInfo is Map ? giftInfo["img_basic"] : null)?.toString() ?? '';
 
-        var liveMsg = LiveMessage(
-          type: LiveMessageType.gift,
-          userName: userName,
-          userId: userId,
-          message: '$action $giftName',
-          color: const LiveMessageColor(255, 150, 50), // B站礼物橙色
-          data: {
-            'giftId': giftId,
-            'giftCount': giftCount,
-            'giftName': giftName,
-            'giftIcon': giftIcon,
-            'price': price,
-            'coinType': coinType,
-            'platform': 'bilibili',
-            'action': action,
-          },
+        onMessage?.call(
+          _buildBiliGiftMessage(
+            userName: userName,
+            userId: userId,
+            giftName: giftName,
+            action: action,
+            giftCount: giftCount,
+            giftId: giftId,
+            giftIcon: giftIcon,
+            price: price,
+            coinType: coinType,
+          ),
         );
-        onMessage?.call(liveMsg);
+      } else if (cmd == "SEND_GIFT_V2") {
+        // B站礼物消息（2026-07 灰度 protobuf 新格式）：data.pb 为 base64 的
+        // SendGiftBroadcast，一次广播可能携带多件礼物（批量）。
+        final data = obj["data"];
+        final pb = data is Map ? data["pb"]?.toString() ?? '' : '';
+        if (pb.isEmpty) {
+          return;
+        }
+        final rawTimestamp = data is Map ? (data["timestamp"] as num?)?.toInt() ?? 0 : 0;
+        final sentAt = rawTimestamp > 0 ? DateTime.fromMillisecondsSinceEpoch(rawTimestamp * 1000) : null;
+        for (final item in parseSendGiftBroadcastBase64(pb)) {
+          onMessage?.call(
+            _buildBiliGiftMessage(
+              userName: item.uname,
+              userId: item.uid > 0 ? item.uid.toString() : '',
+              giftName: item.giftName,
+              action: item.action.isEmpty ? '投喂' : item.action,
+              giftCount: item.num,
+              giftId: item.giftId.toString(),
+              giftIcon: item.imgBasic,
+              price: item.totalCoin > 0 ? item.totalCoin : (item.price > 0 ? item.price : 1),
+              coinType: item.coinType,
+              sentAt: sentAt,
+            ),
+          );
+        }
       }
     } catch (e) {
       CoreLog.error(e);
     }
+  }
+
+  /// 组装礼物卡片消息：SEND_GIFT（JSON）与 SEND_GIFT_V2（protobuf）共用，
+  /// data 结构保持一致供礼物卡片组件与控制器合并逻辑消费。
+  LiveMessage _buildBiliGiftMessage({
+    required String userName,
+    required String userId,
+    required String giftName,
+    required String action,
+    required int giftCount,
+    required String giftId,
+    required String giftIcon,
+    required int price,
+    required String coinType,
+    DateTime? sentAt,
+  }) {
+    return LiveMessage(
+      type: LiveMessageType.gift,
+      userName: userName,
+      userId: userId,
+      message: '$action $giftName',
+      color: const LiveMessageColor(255, 150, 50), // B站礼物橙色
+      data: {
+        'giftId': giftId,
+        'giftCount': giftCount,
+        'giftName': giftName,
+        'giftIcon': giftIcon,
+        'price': price,
+        'coinType': coinType,
+        'platform': 'bilibili',
+        'action': action,
+      },
+      sentAt: sentAt,
+    );
   }
 
   String _preferredBilibiliUserName(dynamic packet, List<dynamic> metadata, String legacyName) {
