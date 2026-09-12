@@ -1019,6 +1019,11 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
         nativeUrl = "douyulink://?type=90001&schemeUrl=douyuapp%3A%2F%2Froom%3FliveType%3D0%26rid%3D${detail.roomId}";
         webUrl = "https://www.douyu.com/${detail.roomId}";
         break;
+      case Sites.kuaishouSite:
+        // 快手无稳定公开直播间 deep link，直接走网页
+        nativeUrl = "https://live.kuaishou.com/u/${detail.roomId}";
+        webUrl = "https://live.kuaishou.com/u/${detail.roomId}";
+        break;
     }
 
     try {

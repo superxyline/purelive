@@ -60,6 +60,7 @@ class SettingsPage extends GetView<SettingsService> {
                 if (cookie.huyaCookie.v.isNotEmpty) i18n("site_huya"),
                 if (cookie.douyuCookie.v.isNotEmpty) i18n("site_douyu"),
                 if (cookie.douyinCookie.v.isNotEmpty) i18n("site_douyin"),
+                if (cookie.kuaishouCookie.v.isNotEmpty) i18n("site_kuaishou"),
               ];
               final subtitle = loggedPlatforms.isEmpty
                   ? i18n("account_sync_none_logged")

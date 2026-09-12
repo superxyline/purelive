@@ -68,6 +68,26 @@ class LiveUrlTool {
       return [id, Sites.douyinSite];
     }
 
+    // 快手
+    if (realUrl.contains("live.kuaishou.com")) {
+      realUrl = realUrl.split("?")[0].trimEndChar('/');
+      Uri uri = Uri.parse(realUrl);
+      // /u/{主播id} 或 /s/{短码}（短码需跟随重定向）
+      if (uri.pathSegments.length >= 2) {
+        if (uri.pathSegments.first == "s") {
+          final location = await _getRedirectLocation(realUrl);
+          if (location.isNotEmpty) return parseLiveUrl(location);
+          return ["", Sites.kuaishouSite];
+        }
+        return [uri.pathSegments.last, Sites.kuaishouSite];
+      }
+    }
+    if (realUrl.contains("kuaishou.com") || realUrl.contains("chenzhongtech.com")) {
+      var reg = RegExp(r"(?:live\.kuaishou\.com|www\.kuaishou\.com)[^\/]*\/u\/([\w-]+)");
+      String id = reg.firstMatch(realUrl)?.group(1) ?? "";
+      return [id, Sites.kuaishouSite];
+    }
+
     return [];
   }
 
