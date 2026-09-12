@@ -319,6 +319,39 @@ class BiliBiliSite implements LiveSite {
     throw StateError('Bilibili room info failed after WBI refresh: $lastError');
   }
 
+  /// getInfoByRoom 里的主播粉丝数：anchor_info.relation_info.attention。
+  /// 字段是单数 attention；复数的 attentions 属于搜索接口 live_room，
+  /// 本接口没有该键（曾取错导致直播间信息长期缺这一行）。
+  static String parseFollowersFromRoomInfo(dynamic roomInfo) {
+    if (roomInfo is! Map) return '';
+    final anchorInfo = roomInfo["anchor_info"];
+    if (anchorInfo is! Map) return '';
+    final relationInfo = anchorInfo["relation_info"];
+    if (relationInfo is! Map) return '';
+    return relationInfo["attention"]?.toString() ?? '';
+  }
+
+  /// 从直播间网页（live.bilibili.com/{realRoomId}）内嵌的
+  /// `"relation_info":{"attention":<粉丝数>}` 抓取粉丝数。
+  /// 与 getInfoByRoom 同一字段，仅在接口风控缺失 relation_info 时兜底。
+  Future<String?> _fetchFollowersFromRoomPage(String realRoomId) async {
+    if (realRoomId.isEmpty) return null;
+    try {
+      final html = await HttpClient.instance.getText(
+        "https://live.bilibili.com/$realRoomId",
+        header: await getHeader(),
+      );
+      final anchor = html.indexOf('"relation_info"');
+      if (anchor < 0) return null;
+      final end = anchor + 300 < html.length ? anchor + 300 : html.length;
+      final match = RegExp(r'"attention"\s*:\s*(\d+)').firstMatch(html.substring(anchor, end));
+      return match?.group(1);
+    } catch (e) {
+      debugPrint('Bilibili followers scrape failed: $e');
+      return null;
+    }
+  }
+
   static String kImgKey = '';
   static String kSubKey = '';
   static DateTime? _wbiKeysUpdatedAt;
@@ -546,6 +579,14 @@ class BiliBiliSite implements LiveSite {
           biliLiveTime = asT<int?>(roomInit["data"]?["live_time"]) ?? 0;
         }
       } catch (_) {}
+      // 粉丝数：getInfoByRoom 的 anchor_info.relation_info.attention（单数）。
+      // 注意复数 attentions 是搜索接口 live_room 的字段名，本接口没有，
+      // 曾因取错字段名导致该行长期静默缺失。relation_info 偶尔会随
+      // 风控缺失，此时退回房间页 HTML 里的同一字段（网页抓取兜底）。
+      var followers = parseFollowersFromRoomInfo(roomInfo);
+      if (followers.isEmpty || followers == '0') {
+        followers = await _fetchFollowersFromRoomPage(realRoomId) ?? followers;
+      }
       return LiveRoom(
         roomId: roomId,
         title: roomInfo["room_info"]["title"].toString(),
@@ -562,8 +603,8 @@ class BiliBiliSite implements LiveSite {
         link: "https://live.bilibili.com/$roomId",
         introduction: roomInfo["room_info"]["description"].toString(),
         notice: "",
-        // 粉丝数：getInfoByRoom 的 anchor_info.relation_info.attentions
-        followers: roomInfo["anchor_info"]?["relation_info"]?["attentions"]?.toString() ?? '',
+        // 粉丝数：getInfoByRoom 的 anchor_info.relation_info.attention
+        followers: followers,
         platform: Sites.bilibiliSite,
         danmakuData: danmakuArgs,
       );
