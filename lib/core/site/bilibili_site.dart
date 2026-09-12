@@ -562,6 +562,8 @@ class BiliBiliSite implements LiveSite {
         link: "https://live.bilibili.com/$roomId",
         introduction: roomInfo["room_info"]["description"].toString(),
         notice: "",
+        // 粉丝数：getInfoByRoom 的 anchor_info.relation_info.attentions
+        followers: roomInfo["anchor_info"]?["relation_info"]?["attentions"]?.toString() ?? '',
         platform: Sites.bilibiliSite,
         danmakuData: danmakuArgs,
       );
