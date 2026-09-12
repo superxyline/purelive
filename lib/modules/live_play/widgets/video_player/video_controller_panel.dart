@@ -619,9 +619,13 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
 
     if (delta.distance < 0.5) return;
 
+    // 用手势区域自身尺寸划分左右半区：非全屏时该区域只是视频窗口，
+    // 比整屏小，用 MediaQuery 的屏幕尺寸会把右半区误判成左侧。
     final size = MediaQuery.of(context).size;
-    final width = size.width;
-    final height = size.height;
+    final RenderObject? renderObject = context.findRenderObject();
+    final boxSize = renderObject is RenderBox && renderObject.hasSize ? renderObject.size : size;
+    final width = boxSize.width;
+    final height = boxSize.height;
 
     final dargLeft = (position.dx > (width / 2)) ? false : true;
 
@@ -733,8 +737,10 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
     if (!PlatformUtils.isMobile || controller.showLocked.value) return;
-    if (!GlobalPlayerState.to.fullscreenUI) return;
     if (details.pointerCount >= 2) {
+      // 双指缩放仅在全屏启用；注意全屏判断必须放在双指分支内，
+      // 否则会连带拦截非全屏的单指亮度/音量拖动。
+      if (!GlobalPlayerState.to.fullscreenUI) return;
       // 双指（及以上）：激活缩放。不依赖 onScaleStart——不同框架版本对
       // "指针数量变化是否重发 onScaleStart"行为不一致，在 update 里兜底。
       _activatePinch();
