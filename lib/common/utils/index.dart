@@ -1,5 +1,6 @@
 library;
 
+export './gift_value.dart';
 export './text_util.dart';
 export './network_image_url.dart';
 export './snackbar_util.dart';
