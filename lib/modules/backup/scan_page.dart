@@ -22,6 +22,12 @@ class _ScanCodePageState extends State<ScanCodePage> {
   bool syncResult = false;
   bool isSuccess = false;
 
+  /// 防重入：相机识别到二维码后还会连续送出若干帧同一条码事件，
+  /// 若不拦截，会在首次请求未完成时并发发起第二次 POST，
+  /// 接收端并发执行两份覆盖导致其中一份失败，
+  /// 发送端把失败的提示覆盖到 UI 上——表现为"实际成功却提示失败"。
+  bool _processing = false;
+
   /// 跨端传输模式：把本机关注 + 登录 + 全部设置 POST 到对方接收服务（/api/importData）
   Future<bool> _pushTransferData(String httpAddress) async {
     final client = HttpClient();
@@ -118,6 +124,7 @@ class _ScanCodePageState extends State<ScanCodePage> {
                               hasFound = false;
                               syncResult = false;
                               isSuccess = false;
+                              _processing = false;
                             });
                             cameraController = MobileScannerController();
                           },
@@ -130,8 +137,10 @@ class _ScanCodePageState extends State<ScanCodePage> {
               // fit: BoxFit.contain,
               controller: cameraController,
               onDetect: (capture) async {
+                if (_processing) return;
                 final List<Barcode> barcodes = capture.barcodes;
                 if (barcodes.isNotEmpty && FileUtils.isHostUrl(barcodes[0].rawValue!)) {
+                  _processing = true;
                   setState(() {
                     hasFound = true;
                     syncResult = true;
