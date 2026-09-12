@@ -1286,6 +1286,8 @@
   "gift_effects": "Gift Effects",
   "local_gift_fullscreen_effect": "Local Gift Fullscreen Animation",
   "fullscreen_gift_card": "Fullscreen Gift Card (Bottom-left)",
+  "danmaku_list_gift_card": "Gift cards in danmaku list (this room only)",
+  "danmaku_list_gift_card_hint": "When off, gift cards are hidden in this room's danmaku list only; other rooms are unaffected",
   "windows_pip_always_on_top": "Keep Windows mini player on top",
   "windows_pip_always_on_top_subtitle": "When off, other applications can cover the mini player",
   "dual_view_title": "Dual View / Secondary Window",

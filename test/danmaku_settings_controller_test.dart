@@ -21,6 +21,8 @@ void main() {
       expect(config['enableDanmakuLongPressInteraction'], isTrue);
       expect(config['noEmojiMode'], isFalse);
       expect(config['pipDanmakuNoEmojiMode'], isFalse);
+      // 按房间的弹幕列表礼物卡片开关：老备份没有该键 → 空表（即全部房间默认显示）
+      expect(config['roomDanmakuGiftCards'], isEmpty);
     });
 
     test('migrates the upstream compact pure-text backup key', () {

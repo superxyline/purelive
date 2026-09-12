@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:pure_live/common/widgets/count_button.dart';
 import 'package:pure_live/modules/live_play/danmaku_viewing_preset.dart';
 import 'package:pure_live/modules/settings/pages/pip_danmaku_settings_page.dart';
+import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
 
@@ -20,6 +21,16 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
   late final ScrollController _scrollController;
 
   VideoController get controller => widget.controller;
+
+  /// 当前直播间（详情接口的返回值优先，切房后也保持最新）。
+  /// 用于"弹幕列表礼物卡片"这类按房间保存的设置项，以及按平台决定显示哪些设置。
+  LiveRoom? get _currentRoom {
+    if (Get.isRegistered<LivePlayController>()) {
+      final detail = Get.find<LivePlayController>().state.value.room.detail;
+      if (detail != null) return detail;
+    }
+    return widget.controller.room;
+  }
 
   @override
   void initState() {
@@ -121,19 +132,27 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
 
             const SizedBox(height: 20),
 
-            context.buildGroupTitle(i18n("super_chat")),
-            const SizedBox(height: 8),
-            reactiveCard(
-              () => [
-                _switch(
-                  theme,
-                  title: i18n("show_super_chat"),
-                  value: SettingsService.to.danmaku.showSuperChat.v,
-                  onChanged: (v) => SettingsService.to.danmaku.showSuperChat.v = v,
-                  labelColor: labelColor,
-                ),
-              ],
-            ),
+            // 醒目留言目前只有 B站 会产生消息，其它平台不显示这个设置项
+            Obx(() {
+              if (_currentRoom?.platform != Sites.bilibiliSite) return const SizedBox.shrink();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  context.buildGroupTitle(i18n("super_chat")),
+                  const SizedBox(height: 8),
+                  context.buildModernCard([
+                    _switch(
+                      theme,
+                      title: i18n("show_super_chat"),
+                      value: SettingsService.to.danmaku.showSuperChat.v,
+                      onChanged: (v) => SettingsService.to.danmaku.showSuperChat.v = v,
+                      labelColor: labelColor,
+                    ),
+                  ]),
+                ],
+              );
+            }),
 
             const SizedBox(height: 20),
 
@@ -153,6 +172,21 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
                   title: i18n('fullscreen_gift_card'),
                   value: SettingsService.to.danmaku.showFullscreenGiftCard.v,
                   onChanged: (v) => SettingsService.to.danmaku.showFullscreenGiftCard.v = v,
+                  labelColor: labelColor,
+                ),
+                _switch(
+                  theme,
+                  title: i18n('danmaku_list_gift_card'),
+                  subtitle: i18n('danmaku_list_gift_card_hint'),
+                  value: SettingsService.to.danmaku.showDanmakuListGiftCard(
+                    _currentRoom?.platform,
+                    _currentRoom?.roomId,
+                  ),
+                  onChanged: (v) => SettingsService.to.danmaku.setDanmakuListGiftCard(
+                    _currentRoom?.platform,
+                    _currentRoom?.roomId,
+                    v,
+                  ),
                   labelColor: labelColor,
                 ),
               ],
@@ -488,15 +522,27 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
     required bool value,
     required ValueChanged<bool> onChanged,
     required Color labelColor,
+    String? subtitle,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: labelColor),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: labelColor),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: AppTextStyles.t12Muted),
+                ],
+              ],
+            ),
           ),
           Switch(value: value, activeThumbColor: theme.colorScheme.primary, onChanged: onChanged),
         ],

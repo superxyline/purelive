@@ -343,6 +343,8 @@ class DouyinSite implements LiveSite {
       liveStartTime: roomStatus && douyinStartTime > 0 ? douyinStartTime * 1000 : null,
       introduction: owner["signature"].toString(),
       notice: "",
+      // 粉丝数：reflow/info 的 data.room.owner.follow_info（同一份响应，零额外请求）
+      followers: parseFollowersFromOwner(owner),
       danmakuData: DouyinDanmakuArgs(webRid: webRid, roomId: roomId, userId: userUniqueId, cookie: headers["cookie"]),
       data: room["stream_url"],
     );
@@ -389,6 +391,10 @@ class DouyinSite implements LiveSite {
         ? (roomData["create_time"] as num).toInt()
         : int.tryParse(roomData["create_time"]?.toString() ?? '') ?? 0;
 
+    // web enter 接口的 follow_info 只有关注状态，没有粉丝数，
+    // 用房间 id 补一次 reflow/info（App 接口）拿主播粉丝数。
+    final followers = await _fetchFollowersByRoomId(roomId);
+
     return LiveRoom(
       roomId: webRid,
       title: roomData["title"].toString(),
@@ -409,9 +415,35 @@ class DouyinSite implements LiveSite {
       area: '',
       introduction: owner?["signature"]?.toString() ?? "",
       notice: "",
+      followers: followers,
       danmakuData: DouyinDanmakuArgs(webRid: webRid, roomId: roomId, userId: userUniqueId, cookie: headers["cookie"]),
       data: roomStatus ? roomData["stream_url"] : {},
     );
+  }
+
+  /// 主播粉丝数：只在 reflow/info（App 接口）的 `data.room.owner.follow_info` 里。
+  /// web enter 接口的同一字段只有关注状态，没有粉丝数。
+  Future<String> _fetchFollowersByRoomId(String roomId) async {
+    if (roomId.isEmpty) return '';
+    try {
+      final roomData = await _getRoomDataByRoomId(roomId);
+      return parseFollowersFromOwner(roomData["data"]?["room"]?["owner"]);
+    } catch (e) {
+      CoreLog.error(e);
+      return '';
+    }
+  }
+
+  /// 从 owner.follow_info 取主播粉丝数。
+  static String parseFollowersFromOwner(dynamic owner) {
+    if (owner is! Map) return '';
+    final followInfo = owner["follow_info"];
+    if (followInfo is! Map) return '';
+    // 数字字段优先：follower_count_str 有时是"515.6万"这类展示串，
+    // 统一交给展示层的 readableCount 格式化，各平台口径才一致。
+    final value = followInfo["follower_count"] ?? followInfo["follower_count_str"];
+    final text = value?.toString() ?? '';
+    return text == '0' ? '' : text;
   }
 
   /// 通过WebRid访问直播间网页，从网页HTML中获取直播间信息
@@ -436,6 +468,9 @@ class DouyinSite implements LiveSite {
         ? (roomInfo["create_time"] as num).toInt()
         : int.tryParse(roomInfo["create_time"]?.toString() ?? '') ?? 0;
 
+    // 房间页 HTML 里没有主播粉丝数，沿用 reflow/info 兜底（拿不到就不显示）
+    final followers = await _fetchFollowersByRoomId(realRoomId);
+
     return LiveRoom(
       roomId: roomId,
       title: roomInfo["title"].toString(),
@@ -456,6 +491,7 @@ class DouyinSite implements LiveSite {
       platform: Sites.douyinSite,
       introduction: roomInfo["title"].toString(),
       notice: "",
+      followers: followers,
       danmakuData: DouyinDanmakuArgs(
         webRid: webRid,
         roomId: realRoomId,
