@@ -248,35 +248,66 @@ class HuyaSite implements LiveSite {
 
   @override
   Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
-    var resultText = await HttpClient.instance.getText(
-      'https://mp.huya.com/cache.php?m=Live&do=profileRoom&roomid=$roomId&showSecret=1',
-      header: {
-        'Accept': '*/*',
-        'Origin': 'https://www.huya.com',
-        'Referer': 'https://www.huya.com/',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site',
-        "user-agent": kUserAgent,
-        "Cookie": SettingsService.to.cookieManager.huyaCookie.v,
-      },
-    );
+    // 粉丝数在房间页 TT_PROFILE_INFO.fans，mp 接口不提供，与详情并行拉取
+    final results = await Future.wait<dynamic>([
+      HttpClient.instance.getText(
+        'https://mp.huya.com/cache.php?m=Live&do=profileRoom&roomid=$roomId&showSecret=1',
+        header: {
+          'Accept': '*/*',
+          'Origin': 'https://www.huya.com',
+          'Referer': 'https://www.huya.com/',
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-site',
+          "user-agent": kUserAgent,
+          "Cookie": SettingsService.to.cookieManager.huyaCookie.v,
+        },
+      ),
+      _fetchFansCount(roomId),
+    ]);
+    final resultText = results[0] as String;
+    final fansCount = results[1] as String;
     var result = json.decode(resultText);
     if (result['status'] == 200 && result['data']['stream'] != null) {
-      return _buildRoomFromProfileData(result['data'], roomId);
+      final room = _buildRoomFromProfileData(result['data'], roomId);
+      if (fansCount.isNotEmpty) room.followers = fansCount;
+      return room;
     } else {
-      return await _buildRoomWithFallback(platform, roomId);
+      return await _buildRoomWithFallback(platform, roomId, fansHint: fansCount);
+    }
+  }
+
+  /// 从房间页 HTML 提取 TT_PROFILE_INFO.fans（主播粉丝数）；失败返回空串。
+  Future<String> _fetchFansCount(String roomId) async {
+    try {
+      final pageText = await HttpClient.instance.getText(
+        'https://www.huya.com/$roomId',
+        queryParameters: const {},
+        header: {
+          'user-agent': kUserAgent,
+          'referer': 'https://www.huya.com/',
+        },
+      );
+      return RegExp(r'"fans"\s*:\s*"?(\d{2,})"?').firstMatch(pageText)?.group(1) ?? '';
+    } catch (_) {
+      return '';
     }
   }
 
   /// mp 接口失败时的回退：隐藏 WebView 加载房间页（真实 JS 环境可通过
   /// 虎牙风控），组装成 profileRoom 同构数据后走同一解析；仍失败则按
   /// 错误房间处理（播放中返回当前房间避免打断观看）。
-  Future<LiveRoom> _buildRoomWithFallback(String platform, String roomId) async {
+  Future<LiveRoom> _buildRoomWithFallback(String platform, String roomId, {String fansHint = ''}) async {
     try {
       final pageData = await fetchHuyaRoomInfoViaWebview(roomId);
       if (pageData != null && pageData.streamLines.isNotEmpty) {
-        return _buildRoomFromProfileData(_assembleProfileDataFromPage(pageData), roomId);
+        final room = _buildRoomFromProfileData(_assembleProfileDataFromPage(pageData), roomId);
+        if (fansHint.isNotEmpty) {
+          room.followers = fansHint;
+        } else if (pageData.fans > 0) {
+          room.followers = pageData.fans.toString();
+        }
+        return room;
       }
     } catch (e) {
       CoreLog.error(e);
@@ -296,7 +327,7 @@ class HuyaSite implements LiveSite {
     return <String, dynamic>{
       'liveStatus': streams.isNotEmpty ? 'ON' : 'OFF',
       'welcomeText': '',
-      'profileInfo': {'nick': page.nick, 'avatar180': page.avatar, 'uid': page.uid},
+      'profileInfo': {'nick': page.nick, 'avatar180': page.avatar, 'uid': page.uid, 'fans': page.fans},
       'liveData': {
         'screenshot': page.screenshot,
         'introduction': page.introduction,
@@ -426,7 +457,9 @@ class HuyaSite implements LiveSite {
         introduction: data['liveData']?['introduction'] ?? '',
         notice: data['welcomeText'] ?? '',
         // 粉丝数：登录态 mp 接口的 profileInfo 提供；网页回退组装时无此字段则为空
-        followers: data['profileInfo']?['fansCount']?.toString() ?? '',
+        // 粉丝数：mp 路径由房间页并行请求填入（followers 赋值）；
+        // 网页回退路径从 TT_PROFILE_INFO.fans 组装进 profileInfo
+        followers: (data['profileInfo']?['fans'] as num?)?.toString() ?? '',
         status: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY",
         liveStatus: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY" ? LiveStatus.live : LiveStatus.offline,
         liveStartTime: huyaStartSec > 0 ? huyaStartSec * 1000 : null,

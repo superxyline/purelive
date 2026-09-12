@@ -25,6 +25,9 @@ class HuyaRoomPageData {
   final int totalCount;
   final int gid;
 
+  /// 房间页 TT_PROFILE_INFO.fans（主播粉丝数），mp 接口不提供
+  final int fans;
+
   const HuyaRoomPageData({
     required this.streamLines,
     required this.nick,
@@ -36,6 +39,7 @@ class HuyaRoomPageData {
     required this.startTimeSec,
     required this.totalCount,
     required this.gid,
+    this.fans = 0,
   });
 
   static HuyaRoomPageData? fromMap(Map<dynamic, dynamic> map) {
@@ -55,6 +59,7 @@ class HuyaRoomPageData {
         startTimeSec: (live['startTime'] as num?)?.toInt() ?? 0,
         totalCount: (live['totalCount'] as num?)?.toInt() ?? 0,
         gid: (live['gid'] as num?)?.toInt() ?? 0,
+        fans: (map['profile']?['fans'] as num?)?.toInt() ?? 0,
       );
     } catch (_) {
       return null;
@@ -69,10 +74,12 @@ const String _kExtractJs = '''
     var data = (window.hyPlayerConfig && window.hyPlayerConfig.stream &&
                 window.hyPlayerConfig.stream.data && window.hyPlayerConfig.stream.data[0])
         ? window.hyPlayerConfig.stream.data[0] : null;
+    var profile = (typeof TT_PROFILE_INFO !== 'undefined') ? TT_PROFILE_INFO : null;
     return JSON.stringify({
       isOn: room ? (room.isOn === true || room.state === 'ON') : false,
       live: data ? data.gameLiveInfo : null,
-      streams: data ? (data.gameStreamInfoList || []) : []
+      streams: data ? (data.gameStreamInfoList || []) : [],
+      profile: profile ? { fans: profile.fans } : null
     });
   } catch (e) { return JSON.stringify({ error: String(e) }); }
 })();
