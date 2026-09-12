@@ -508,13 +508,12 @@ class PIPButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: i18n('float_window_play'),
-      color: Colors.white,
+    return LabeledIconAction(
+      icon: CustomIcons.float_window,
+      label: i18n('bar_pip'),
       onPressed: () {
         GlobalPlayerService.instance.playerManager.enablePip();
       },
-      icon: const Icon(CustomIcons.float_window),
     );
   }
 }
@@ -1513,17 +1512,61 @@ class TempMuteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => IconButton(
-        tooltip: i18n(controller.tempMuted.value ? 'temp_unmute' : 'temp_mute'),
-        visualDensity: VisualDensity.compact,
-        iconSize: 21,
+      () => LabeledIconAction(
+        icon: controller.tempMuted.value ? Icons.volume_off_rounded : Icons.volume_up_rounded,
         color: controller.tempMuted.value ? const Color(0xFFFFD166) : Colors.white,
+        label: i18n('bar_mute'),
         onPressed: () {
           controller.enableController();
           controller.toggleTempMute();
         },
-        icon: Icon(
-          controller.tempMuted.value ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+      ),
+    );
+  }
+}
+
+/// 图标下方带常显小字标签的控制条按钮。触屏设备没有 hover tooltip，
+/// 静音/音频/投屏/小窗这类图标语义模糊，常显标签比长按提示更直接。
+class LabeledIconAction extends StatelessWidget {
+  const LabeledIconAction({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.color = Colors.white,
+    this.iconSize = 21,
+    this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final double iconSize;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 7),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: iconSize),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 9,
+                height: 1.0,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1537,18 +1580,16 @@ class AudioOnlyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: i18n(controller.isAudioOnly ? 'restore_video_mode' : 'switch_audio_only_mode'),
-      visualDensity: VisualDensity.compact,
-      iconSize: 21,
-      color: controller.isAudioOnly ? const Color(0xFFFFD166) : Colors.white,
-      onPressed: () {
-        controller.enableController();
-        controller.toggleAudioOnly();
-      },
-      // The headphone always means room-scoped audio-only. A television icon
-      // is reserved exclusively for casting so the two actions stay distinct.
-      icon: Icon(controller.isAudioOnly ? Remix.headphone_fill : Remix.headphone_line),
+    return Obx(
+      () => LabeledIconAction(
+        icon: controller.isAudioOnly ? Remix.headphone_fill : Remix.headphone_line,
+        color: controller.isAudioOnly ? const Color(0xFFFFD166) : Colors.white,
+        label: i18n('bar_audio'),
+        onPressed: () {
+          controller.enableController();
+          controller.toggleAudioOnly();
+        },
+      ),
     );
   }
 }
@@ -1560,16 +1601,13 @@ class CastButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: i18n('cast_screen'),
-      visualDensity: VisualDensity.compact,
-      iconSize: 21,
-      color: Colors.white,
+    return LabeledIconAction(
+      icon: Remix.tv_2_line,
+      label: i18n('bar_cast'),
       onPressed: () {
         controller.enableController();
         LiveUrlTool.castPlayUrlByRoomId(roomId: controller.room.roomId ?? '', platform: controller.room.platform ?? '');
       },
-      icon: const Icon(Remix.tv_2_line),
     );
   }
 }
@@ -1615,16 +1653,13 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         EventBus.instance.emit('changeFavorite', true);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 2),
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 6),
         alignment: Alignment.center,
         height: 25,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(isFavorite ? Icons.check_rounded : Icons.close, color: Colors.white, size: 15),
-            Text(isFavorite ? i18n('followed') : i18n('follow'), style: TextStyle(color: Colors.white)),
-          ],
+        child: Icon(
+          isFavorite ? Icons.favorite : Icons.favorite_border,
+          color: isFavorite ? const Color(0xFFFF5B7F) : Colors.white,
+          size: 20,
         ),
       ),
     );

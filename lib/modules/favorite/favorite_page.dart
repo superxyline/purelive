@@ -101,9 +101,26 @@ class _FavoriteSiteTabsState extends State<_FavoriteSiteTabs> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final availableSitesList = widget.availableSitesList;
+    final tabController = _tabController ?? DefaultTabController.of(context);
     return Column(
       children: [
-        TabBar(isScrollable: true, tabs: availableSitesList.map((e) => Tab(text: e.name)).toList()),
+        TabBar(
+          isScrollable: true,
+          tabs: availableSitesList
+              .asMap()
+              .entries
+              .map(
+                (e) => Tab(
+                  child: PlatformTab(
+                    siteId: e.value.id,
+                    label: e.value.name,
+                    tabController: tabController,
+                    index: e.key,
+                  ),
+                ),
+              )
+              .toList(),
+        ),
         // 标签筛选行固定在滚动区之外：下拉刷新/上拉加载的浮动指示器不再与标签名重叠
         const FavoriteTagBar(),
         Expanded(

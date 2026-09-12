@@ -819,7 +819,11 @@ class RoomCard extends StatelessWidget {
                       return Positioned(
                         left: 8,
                         top: 8,
-                        child: LiveDurationBadge(startTimeMs: room.liveStartTime!, dense: dense),
+                        child: LiveDurationBadge(
+                          startTimeMs: room.liveStartTime!,
+                          dense: dense,
+                          platformName: PlatformAccent.displayName(room.platform),
+                        ),
                       );
                     }
                     return const SizedBox.shrink();
@@ -855,14 +859,15 @@ class RoomCard extends StatelessWidget {
                     : Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.grey[800] : Colors.grey[100],
+                          // 平台色点缀：徽标底色与文字跟随平台品牌色
+                          color: PlatformAccent.of(room.platform).withValues(alpha: isDark ? 0.22 : 0.12),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           room.platform?.toUpperCase() ?? '',
                           style: AppTextStyles.t11.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.grey[300] : Colors.grey[800],
+                            fontWeight: FontWeight.w700,
+                            color: PlatformAccent.of(room.platform),
                           ),
                         ),
                       ),
@@ -941,10 +946,13 @@ class CountChip extends StatelessWidget {
 }
 
 class LiveDurationBadge extends StatefulWidget {
-  const LiveDurationBadge({super.key, required this.startTimeMs, this.dense = false});
+  const LiveDurationBadge({super.key, required this.startTimeMs, this.dense = false, this.platformName});
 
   final int startTimeMs;
   final bool dense;
+
+  /// 平台显示名（如"虎牙"），拼在开播时长角标前，一眼区分聚合列表里的平台。
+  final String? platformName;
 
   @override
   State<LiveDurationBadge> createState() => _LiveDurationBadgeState();
@@ -969,9 +977,11 @@ class _LiveDurationBadgeState extends State<LiveDurationBadge> {
 
   @override
   Widget build(BuildContext context) {
+    final duration = formatLiveDuration(widget.startTimeMs);
+    final platform = widget.platformName ?? '';
     return CountChip(
       icon: Icons.access_time_rounded,
-      count: formatLiveDuration(widget.startTimeMs),
+      count: platform.isEmpty ? duration : '$platform · $duration',
       dense: widget.dense,
       color: const Color(0xFFE53935), // 直播红
     );
