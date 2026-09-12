@@ -463,23 +463,32 @@ class _BatteryInfoState extends State<BatteryInfo> {
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.all(12),
-      child: Container(
-        width: 35,
-        height: 15,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.4),
-          border: Border.all(color: Colors.white),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Center(
-          child: Obx(
-            () => Text(
-              '${widget.controller.batteryLevel.value}',
-              style: const TextStyle(color: Colors.white, fontSize: 9, decoration: TextDecoration.none),
+      child: Obx(() {
+        // 充电（含已充满插电）时绿色描边+闪电标识，与使用电池状态区分
+        final charging = widget.controller.batteryCharging.value;
+        final color = charging ? const Color(0xFF4ADE80) : Colors.white;
+        return Container(
+          width: 35,
+          height: 15,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.4),
+            border: Border.all(color: color),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (charging) Icon(Icons.bolt_rounded, color: color, size: 11),
+                Text(
+                  '${widget.controller.batteryLevel.value}',
+                  style: TextStyle(color: color, fontSize: 9, decoration: TextDecoration.none),
+                ),
+              ],
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }
