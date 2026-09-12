@@ -10,10 +10,20 @@ import 'package:pure_live/modules/live_play/widgets/live_room_info_page.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
 
 class RoomCard extends StatelessWidget {
-  const RoomCard({super.key, required this.room, this.dense = false, this.hideBadges = false});
+  const RoomCard({
+    super.key,
+    required this.room,
+    this.dense = false,
+    this.hideBadges = false,
+    this.showPlatformBadge = false,
+  });
   final LiveRoom room;
   final bool dense;
   final bool hideBadges;
+
+  /// 聚合列表（如关注页"全部"页签）下在开播时长角标内显示平台名；
+  /// 单平台页签下平台名冗余，调用方传 false 隐藏。
+  final bool showPlatformBadge;
 
   Widget _buildCover(BuildContext context, bool isDark) {
     final coverUrl = normalizeNetworkImageUrl(room.cover);
@@ -822,7 +832,7 @@ class RoomCard extends StatelessWidget {
                         child: LiveDurationBadge(
                           startTimeMs: room.liveStartTime!,
                           dense: dense,
-                          platformName: PlatformAccent.displayName(room.platform),
+                          platformName: showPlatformBadge ? PlatformAccent.displayName(room.platform) : null,
                         ),
                       );
                     }
