@@ -185,7 +185,9 @@ class EsportsController extends GetxController {
       // CS 默认选中热度最高赛事：避免"全部+按时间排序"淹没重点比赛。
       // 若该赛事当天没有比赛，则自动放开日期筛选，保证有内容展示。
       // 注意：必须在 matches.assignAll 之前设置 seriesFilter，这样 Obx 一次性更新UI
-      if (!_defaultSeriesApplied && gameFilter.value == 1 && list.isNotEmpty) {
+      // 仅在首次加载时应用；缓存秒开后的后台刷新不得改动筛选，
+      // 否则用户正在查看的"今天"列表（含进行中比赛）会被突然替换。
+      if (!isRefresh && !_defaultSeriesApplied && gameFilter.value == 1 && list.isNotEmpty) {
         _defaultSeriesApplied = true;
         final hottest = _pickHottestSeries(list);
         if (hottest != null && hottest.isNotEmpty && seriesFilter.value.isEmpty) {

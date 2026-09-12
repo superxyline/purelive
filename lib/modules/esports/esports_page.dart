@@ -407,7 +407,10 @@ class _MatchCard extends StatelessWidget {
       _navigateToRoom(context, match.livePlatform, match.liveRoomId);
       return;
     }
-    final selected = await showDialog<({String platform, String roomId})>(
+    // 泛型必须与 _csOfficialRooms 的三字段 record 一致：
+    // pop(room) 传出的元素含 label，若 showDialog 声明为两字段 record，
+    // pop 时会抛 record 子类型不匹配异常，导致弹窗卡死、路由栈损坏（白屏）。
+    final selected = await showDialog<({String platform, String roomId, String label})>(
       context: context,
       builder: (dialogContext) => SimpleDialog(
         title: Text(i18n('esports_select_live_room')),
