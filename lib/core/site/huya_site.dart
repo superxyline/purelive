@@ -425,6 +425,8 @@ class HuyaSite implements LiveSite {
         avatar: data['profileInfo']?['avatar180'] ?? '',
         introduction: data['liveData']?['introduction'] ?? '',
         notice: data['welcomeText'] ?? '',
+        // 粉丝数：登录态 mp 接口的 profileInfo 提供；网页回退组装时无此字段则为空
+        followers: data['profileInfo']?['fansCount']?.toString() ?? '',
         status: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY",
         liveStatus: data['liveStatus'] == "ON" || data['liveStatus'] == "REPLAY" ? LiveStatus.live : LiveStatus.offline,
         liveStartTime: huyaStartSec > 0 ? huyaStartSec * 1000 : null,

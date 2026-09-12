@@ -246,6 +246,8 @@ class DouyuSite implements LiveSite {
         avatar: roomInfo["owner_avatar"].toString(),
         introduction: roomInfo["show_details"].toString(),
         area: roomInfo["second_lvl_name"]?.toString() ?? '',
+        // 粉丝数：betard 接口的 fans_num（部分场景接口不返回则为空）
+        followers: roomInfo["fans_num"]?.toString() ?? '',
         notice: "",
         liveStatus: roomInfo["show_status"] == 1 ? LiveStatus.live : LiveStatus.offline,
         status: roomInfo["show_status"] == 1,
