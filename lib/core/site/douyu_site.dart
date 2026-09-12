@@ -220,6 +220,9 @@ class DouyuSite implements LiveSite {
         roomInfo = result["room"];
       }
 
+      // 粉丝数：betard 不含该字段，开放平台 RoomApi 的 fans_num 已失效（恒为 0），
+      // 改取主播卡片接口。该请求与下面的加密脚本请求并行，不增加进房耗时。
+      final fansFuture = _fetchAnchorFans(roomId);
       var jsEncResult = await HttpClient.instance.getText(
         "https://www.douyu.com/swf_api/homeH5Enc?rids=$roomId",
         queryParameters: {},
@@ -229,6 +232,7 @@ class DouyuSite implements LiveSite {
         },
       );
       var crptext = json.decode(jsEncResult)["data"]["room$roomId"].toString();
+      final fans = await fansFuture;
 
       // 斗鱼开播时间为 show_time（秒级时间戳）
       final douyuLiveTime = roomInfo["show_time"] is num
@@ -246,8 +250,8 @@ class DouyuSite implements LiveSite {
         avatar: roomInfo["owner_avatar"].toString(),
         introduction: roomInfo["show_details"].toString(),
         area: roomInfo["second_lvl_name"]?.toString() ?? '',
-        // 粉丝数：betard 接口的 fans_num（部分场景接口不返回则为空）
-        followers: roomInfo["fans_num"]?.toString() ?? '',
+        // 粉丝数：主播卡片接口的 data.roomInfo.fansNum
+        followers: fans,
         notice: "",
         liveStatus: roomInfo["show_status"] == 1 ? LiveStatus.live : LiveStatus.offline,
         status: roomInfo["show_status"] == 1,
@@ -265,6 +269,27 @@ class DouyuSite implements LiveSite {
         if (currentRoom != null) return currentRoom.getLiveRoomWithError();
       }
       return LiveRoom(roomId: roomId, platform: platform).getLiveRoomWithError();
+    }
+  }
+
+  /// 斗鱼主播卡片接口里的粉丝数。
+  /// betard 接口不含粉丝数（只有 fans_bn 粉丝牌名），open.douyucdn.cn 的
+  /// fans_num 已失效恒为 0；该接口免签名免登录，字段在 data.roomInfo.fansNum。
+  Future<String> _fetchAnchorFans(String roomId) async {
+    try {
+      final result = await HttpClient.instance.getJson(
+        "https://www.douyu.com/wgapi/livenc/liveweb/getAnchorNewCard",
+        queryParameters: {"rid": roomId, "client_sys": "web"},
+        header: {
+          'referer': 'https://www.douyu.com/$roomId',
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43',
+        },
+      );
+      final decoded = result is String ? json.decode(result) : result;
+      final fans = decoded?["data"]?["roomInfo"]?["fansNum"];
+      return fans?.toString() ?? '';
+    } catch (_) {
+      return '';
     }
   }
 

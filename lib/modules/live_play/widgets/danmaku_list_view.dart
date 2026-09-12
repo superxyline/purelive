@@ -86,9 +86,13 @@ class DanmakuListViewState extends State<DanmakuListView> {
   Worker? fullscreenWorker;
   Worker? windowFullscreenWorker;
   Worker? superChatWorker;
+  Worker? giftCardWorker;
   StreamSubscription? messagesSub;
 
   LivePlayController get controller => Get.find<LivePlayController>();
+
+  /// 当前直播间：礼物卡片显示开关按 platform|roomId 保存
+  LiveRoom? get _currentRoom => controller.state.value.room.detail;
 
   @override
   void initState() {
@@ -113,6 +117,11 @@ class DanmakuListViewState extends State<DanmakuListView> {
 
     // 醒目留言显示开关变化时刷新列表（不依赖响应式组件包裹，避免破坏列表更新）
     superChatWorker = ever(SettingsService.to.danmaku.showSuperChat, (_) {
+      if (mounted) setState(() {});
+    });
+
+    // 弹幕列表礼物卡片开关（按房间）变化时同样刷新，否则要等新消息才生效
+    giftCardWorker = ever(SettingsService.to.danmaku.rxRoomDanmakuGiftCards, (_) {
       if (mounted) setState(() {});
     });
 
@@ -162,6 +171,7 @@ class DanmakuListViewState extends State<DanmakuListView> {
     fullscreenWorker?.dispose();
     windowFullscreenWorker?.dispose();
     superChatWorker?.dispose();
+    giftCardWorker?.dispose();
     throttleTimer?.cancel();
     _resumeTimer?.cancel();
     _pendingMessageCount.dispose();
@@ -285,6 +295,15 @@ class DanmakuListViewState extends State<DanmakuListView> {
                         final msg = _visibleMessages[_visibleMessages.length - 1 - index];
                         final showSC = SettingsService.to.danmaku.showSuperChat.v;
                         if (msg.type == LiveMessageType.superChat && !showSC) {
+                          return const SizedBox.shrink();
+                        }
+                        // 礼物卡片显示开关按直播间保存，关掉后该房间整条不渲染
+                        // （消息仍留在列表数据里，重新打开即恢复）。
+                        if (msg.type == LiveMessageType.gift &&
+                            !SettingsService.to.danmaku.showDanmakuListGiftCard(
+                              _currentRoom?.platform,
+                              _currentRoom?.roomId,
+                            )) {
                           return const SizedBox.shrink();
                         }
                         return DanmakuItem(key: ObjectKey(msg), danmaku: msg);

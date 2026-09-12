@@ -935,21 +935,33 @@ class PlayerManager {
     _isHandlingError = true;
     try {
       hasError.value = true;
-      _errorSubject.add(error);
       _stateSubject.add(PlayerState.error);
 
+      // 解码失败也先换线路：同一清晰度下的多条线路编码/封装组合不同，
+      // 首条可能视频轨解不出来（只剩声音），换一条即可恢复——这正是用户
+      // 手动切线路能修好的原因。所以先自动换线，换线成功就不再弹提示。
+      final failedUrl = _currentUrl;
+      final switchableErrorType =
+          error.type == PlayerErrorType.network ||
+          error.type == PlayerErrorType.source ||
+          error.type == PlayerErrorType.codec;
+
       bool lineSwitched = false;
-      if ((error.type == PlayerErrorType.network || error.type == PlayerErrorType.source) &&
-          _currentPlayUrls.length > 1) {
-        lineManager.markFailed(_currentUrl!);
+      if (failedUrl != null && switchableErrorType && _currentPlayUrls.length > 1) {
+        lineManager.markFailed(failedUrl);
         if (!lineManager.hasAvailable(_currentPlayUrls)) {
           log("no available lines, fallback engine");
         } else {
           final nextLine = lineManager.next(_currentPlayUrls);
-          if (nextLine != _currentUrl) {
+          if (nextLine != failedUrl) {
             lineSwitched = true;
             log("switch line => $nextLine");
-            await Future.delayed(const Duration(seconds: 2));
+            // 解码失败是确定性的，不必像网络错误那样等 2 秒观察
+            await Future.delayed(
+              error.type == PlayerErrorType.codec
+                  ? const Duration(milliseconds: 200)
+                  : const Duration(seconds: 2),
+            );
             if (!_isSessionValid(mySessionId)) return;
             await play(nextLine, _currentPlayUrls, _currentHeaders, room: currentFloatRoom);
             return;
@@ -957,6 +969,8 @@ class PlayerManager {
         }
       }
 
+      // 换线路无法恢复时才上报错误，避免能自动恢复的场合白弹一次提示
+      _errorSubject.add(error);
       log(error.type.toString());
       if (!lineSwitched && fallbackManager.shouldFallback(error)) {
         final nextEngine = await fallbackManager.fallback(_runtimeEngine!, error);

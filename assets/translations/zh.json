@@ -1286,6 +1286,8 @@
   "gift_effects": "礼物效果",
   "local_gift_fullscreen_effect": "本地礼物全屏动效",
   "fullscreen_gift_card": "全屏左下角礼物卡片",
+  "danmaku_list_gift_card": "弹幕列表礼物卡片（仅本直播间）",
+  "danmaku_list_gift_card_hint": "关闭后该直播间的弹幕列表不再显示礼物卡片，其它直播间不受影响",
   "windows_pip_always_on_top": "Windows 小窗始终置顶",
   "windows_pip_always_on_top_subtitle": "关闭后切换到其他应用时，小窗会按普通窗口层级被遮挡",
   "dual_view_title": "双开 / 副窗口",

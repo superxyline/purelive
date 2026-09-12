@@ -432,6 +432,8 @@ class KuaishowSite implements LiveSite {
       avatar: author["avatar"]?.toString() ?? '',
       introduction: description,
       notice: description,
+      // 粉丝数在作者对象 counts.fan 里，是带单位的展示串（如 "152.7w"）
+      followers: parseFansCount(author["counts"]),
       status: live,
       liveStatus: live ? LiveStatus.live : LiveStatus.offline,
       platform: Sites.kuaishouSite,
@@ -441,6 +443,26 @@ class KuaishowSite implements LiveSite {
           : KuaishouDanmakuArgs(liveStreamId: liveStreamId, cookie: _effectiveCookie),
       data: includePlaybackData ? liveStream["playUrls"] : null,
     );
+  }
+
+  /// 快手作者对象里的粉丝数：`counts.fan`。
+  /// 它是带单位的展示串（实测 "152.7w"、"1.4w"），先换算成纯数字串，
+  /// 展示层再统一走 readableCount 格式化。缺失或解析不出则返回空串。
+  static String parseFansCount(dynamic counts) {
+    if (counts is! Map) return '';
+    final raw = counts["fan"]?.toString().trim() ?? '';
+    if (raw.isEmpty) return '';
+    final match = RegExp(r'^(\d+(?:\.\d+)?)\s*([万亿kwKW]?)').firstMatch(raw);
+    if (match == null) return '';
+    final value = double.tryParse(match.group(1) ?? '') ?? 0;
+    final ratio = switch (match.group(2) ?? '') {
+      'w' || 'W' || '万' => 10000.0,
+      'k' || 'K' => 1000.0,
+      '亿' => 100000000.0,
+      _ => 1.0,
+    };
+    final count = (value * ratio).floor();
+    return count > 0 ? count.toString() : '';
   }
 
   Map<String, dynamic> _roomHeaders() {
