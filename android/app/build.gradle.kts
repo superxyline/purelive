@@ -51,6 +51,13 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         manifestPlaceholders["appLabel"] = "纯粹直播（纯净版）"
+        // ABI 打包策略（配合 gradle.properties 的 disable-abi-filtering=true）：
+        // 默认仅 arm64-v8a。需要其它平台时用 -PtargetAbi 覆盖，
+        // 并与 --target-platform 配套，例如：
+        //   flutter build apk --release --target-platform android-x64 -PtargetAbi=x86_64
+        val targetAbi = (project.findProperty("targetAbi") as? String)
+            ?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }
+        ndk { abiFilters.addAll(targetAbi ?: listOf("arm64-v8a")) }
     }
 
     signingConfigs {
