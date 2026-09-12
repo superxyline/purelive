@@ -237,19 +237,27 @@ class DouyinDanmaku implements LiveDanmaku {
       final commonRoomId = common.hasRoomId() ? common.roomId.toString() : '';
       if (commonRoomId.isNotEmpty && commonRoomId != '0' && commonRoomId != danmakuArgs.roomId) return;
 
-      final giftName = giftMessage.gift.hasName() ? giftMessage.gift.name : '';
-      final giftId = giftMessage.giftId.toInt().toString();
-      final giftCount = giftMessage.repeatCount.toInt();
+      final gift = giftMessage.gift;
+      final giftName = gift.hasName() ? gift.name : '';
+      var giftIdNum = giftMessage.giftId.toInt();
+      if (giftIdNum == 0 && gift.hasId()) giftIdNum = gift.id.toInt();
+      final giftId = giftIdNum.toString();
+      // 连击数量：repeatCount 为累计值，comboCount 为连击位置，
+      // 单次礼物可能两者都取不到，兜底按 1 计。
+      var giftCount = giftMessage.repeatCount.toInt();
+      if (giftCount <= 0) giftCount = giftMessage.comboCount.toInt();
+      if (giftCount <= 0) giftCount = 1;
       final userName = giftMessage.user.hasNickName() ? giftMessage.user.nickName : '';
       final userId = giftMessage.user.hasId() ? giftMessage.user.id.toString() : '';
-      // 抖音礼物图标URL（从GiftStruct.image.urlListList获取第一个URL）
+      // 抖音礼物图标URL：image 优先，缺失时回退 icon（两者都是 url_list）
       String giftIcon = '';
-      if (giftMessage.gift.hasImage() && giftMessage.gift.image.urlListList.isNotEmpty) {
-        giftIcon = giftMessage.gift.image.urlListList.first;
+      if (gift.hasImage() && gift.image.urlListList.isNotEmpty) {
+        giftIcon = gift.image.urlListList.first;
+      } else if (gift.hasIcon() && gift.icon.urlListList.isNotEmpty) {
+        giftIcon = gift.icon.urlListList.first;
       }
-
-      // 抖音礼物价格（从giftMessage中获取，如果有）
-      final price = giftMessage.hasRepeatCount() ? giftMessage.repeatCount.toInt() : 1;
+      // 礼物价值取钻石单价（diamondCount），免费/粉丝团礼物可能为 0
+      final unitPrice = gift.hasDiamondCount() ? gift.diamondCount : 0;
 
       onMessage?.call(
         LiveMessage(
@@ -263,7 +271,8 @@ class DouyinDanmaku implements LiveDanmaku {
             'giftCount': giftCount,
             'giftName': giftName,
             'giftIcon': giftIcon,
-            'price': price,
+            'price': unitPrice > 0 ? unitPrice : 1,
+            'repeatEnd': giftMessage.repeatEnd,
             'platform': 'douyin',
           },
         ),

@@ -53,5 +53,85 @@ void main() {
       expect(update.value, 3212923);
       expect(messages.single.messageId, 'huya:2018964510849866752');
     });
+
+    test('decodes URI 6501 as a gift with the SendItemSubBroadcastPacket layout', () {
+      final giftPayload = TarsOutputStream();
+      giftPayload.write(31036, 0); // iItemType
+      giftPayload.write('pay-20260911', 1); // strPayId
+      giftPayload.write(3, 2); // iItemCount
+      giftPayload.write(0, 3); // lPresenterUid
+      giftPayload.write(12345, 4); // lSenderUid
+      giftPayload.write('主播昵称', 5); // sPresenterNick
+      giftPayload.write('测试用户', 6); // sSenderNick
+      giftPayload.write('', 7); // sSendContent
+      giftPayload.write('小花花', 20); // sPropsName
+      giftPayload.write(300, 41); // lPayTotal
+
+      final push = HYPushMessageV2()
+        ..groupId = 'live:2272316519'
+        ..items = <HYMessageItem>[
+          HYMessageItem()
+            ..uri = 6501
+            ..msg = giftPayload.toUint8List()
+            ..messageId = 2018964510849866753,
+        ];
+      final pushPayload = TarsOutputStream();
+      push.writeTo(pushPayload);
+      final frame = TarsOutputStream()
+        ..write(22, 0)
+        ..write(pushPayload.toUint8List(), 1);
+
+      final messages = <LiveMessage>[];
+      final danmaku = HuyaDanmaku()..onMessage = messages.add;
+      danmaku.decodeMessage(frame.toUint8List());
+
+      expect(messages, hasLength(1));
+      final gift = messages.single;
+      expect(gift.type, LiveMessageType.gift);
+      expect(gift.userName, '测试用户');
+      expect(gift.userId, '12345');
+      expect(gift.message, '小花花');
+      expect(gift.messageId, 'huya:2018964510849866753');
+
+      final data = gift.data as Map;
+      expect(data['giftId'], '31036');
+      expect(data['giftCount'], 3);
+      expect(data['giftName'], '小花花');
+      expect(data['price'], 300);
+      expect(data['platform'], 'huya');
+    });
+
+    test('falls back to defaults when the gift payload omits optional fields', () {
+      final giftPayload = TarsOutputStream();
+      giftPayload.write(100, 0); // iItemType
+      giftPayload.write(1, 2); // iItemCount
+      giftPayload.write(999, 4); // lSenderUid
+      giftPayload.write('只有昵称', 6); // sSenderNick
+
+      final push = HYPushMessageV2()
+        ..groupId = 'live:2272316519'
+        ..items = <HYMessageItem>[
+          HYMessageItem()
+            ..uri = 6501
+            ..msg = giftPayload.toUint8List(),
+        ];
+      final pushPayload = TarsOutputStream();
+      push.writeTo(pushPayload);
+      final frame = TarsOutputStream()
+        ..write(22, 0)
+        ..write(pushPayload.toUint8List(), 1);
+
+      final messages = <LiveMessage>[];
+      final danmaku = HuyaDanmaku()..onMessage = messages.add;
+      danmaku.decodeMessage(frame.toUint8List());
+
+      expect(messages, hasLength(1));
+      final gift = messages.single;
+      expect(gift.type, LiveMessageType.gift);
+      expect(gift.userName, '只有昵称');
+      final data = gift.data as Map;
+      expect(data['giftCount'], 1);
+      expect(data['price'], 1);
+    });
   });
 }

@@ -380,16 +380,26 @@ class BiliBiliDanmaku implements LiveDanmaku {
           return;
         }
         final data = obj["data"];
+        if (data is! Map) {
+          return;
+        }
         final giftName = data["giftName"]?.toString() ?? '';
-        final giftCount = data["num"] ?? 1;
+        final giftCount = (data["num"] as num?)?.toInt() ?? 1;
         final giftId = data["giftId"]?.toString() ?? '';
-        final userName = data["user_info"]?["uname"]?.toString() ?? '';
+        // SEND_GIFT 的送礼者昵称是平铺字段 uname；
+        // user_info.uname 只存在于 SUPER_CHAT_MESSAGE。
+        final userName = data["uname"]?.toString() ?? '';
         final userId = data["uid"]?.toString() ?? '';
         final action = data["action"]?.toString() ?? '投喂';
-        // B站礼物价格（gold coin价格，单位0.1元）
-        final price = data["price"] ?? 1;
-        // B站礼物图标URL：优先使用服务端返回的 gift_cover 字段
-        final giftIcon = data["gift_cover"]?.toString() ?? '';
+        // coin_type: gold=金瓜子（付费）、silver=银瓜子（免费），1000 金瓜子 = 1 元。
+        // total_coin 才是实付瓜子数，price 只是单价，两者可能被折扣拉平。
+        final coinType = data["coin_type"]?.toString() ?? '';
+        final totalCoin = (data["total_coin"] as num?)?.toInt() ?? 0;
+        final unitPrice = (data["price"] as num?)?.toInt() ?? 0;
+        final price = totalCoin > 0 ? totalCoin : (unitPrice > 0 ? unitPrice : 1);
+        // 礼物图标在 data.gift_info.img_basic（旧版消息可能没有该对象）
+        final giftInfo = data["gift_info"];
+        final giftIcon = (giftInfo is Map ? giftInfo["img_basic"] : null)?.toString() ?? '';
 
         var liveMsg = LiveMessage(
           type: LiveMessageType.gift,
@@ -403,6 +413,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
             'giftName': giftName,
             'giftIcon': giftIcon,
             'price': price,
+            'coinType': coinType,
             'platform': 'bilibili',
             'action': action,
           },

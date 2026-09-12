@@ -107,4 +107,12 @@ class PopularController extends GetxController with GetTickerProviderStateMixin 
       gridController.loadData();
     }
   }
+
+  /// 双击底部「热门」页签时强制重载当前平台列表（不依赖列表是否为空）。
+  void refreshCurrent() {
+    if (sites.isEmpty || index < 0 || index >= sites.length) return;
+    final siteId = sites[index].id;
+    if (!Get.isRegistered<BasePageScrollAndStateBone<LiveRoom>>(tag: siteId)) return;
+    Get.find<BasePageScrollAndStateBone<LiveRoom>>(tag: siteId).refreshData();
+  }
 }

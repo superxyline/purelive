@@ -85,7 +85,7 @@ void main() {
       expect(update.value, 18342);
     });
 
-    test('parses SEND_GIFT message with gift_cover', () {
+    test('parses SEND_GIFT with flat uname and gift_info image', () {
       final danmaku = BiliBiliDanmaku();
       final received = <LiveMessage>[];
       danmaku.onMessage = received.add;
@@ -96,10 +96,14 @@ void main() {
           'num': 1,
           'giftId': 20004,
           'uid': 12345,
-          'user_info': {'uname': '测试用户'},
+          // SEND_GIFT 的昵称是平铺字段 uname，user_info 只用于 SUPER_CHAT_MESSAGE
+          'uname': '测试用户',
           'action': '投喂',
           'price': 100,
-          'gift_cover': 'https://i0.hdslb.com/bfs/liveabled/gift/20004.png',
+          'total_coin': 100,
+          'coin_type': 'gold',
+          // 图标来自 gift_info.img_basic；协议里没有 gift_cover 字段
+          'gift_info': {'img_basic': 'https://i0.hdslb.com/bfs/liveabled/gift/20004.png'},
         },
       });
 
@@ -115,11 +119,12 @@ void main() {
       expect(data['giftCount'], 1);
       expect(data['giftId'], '20004');
       expect(data['price'], 100);
+      expect(data['coinType'], 'gold');
       expect(data['giftIcon'], 'https://i0.hdslb.com/bfs/liveabled/gift/20004.png');
       expect(data['platform'], 'bilibili');
     });
 
-    test('handles SEND_GIFT without gift_cover gracefully', () {
+    test('handles SEND_GIFT without gift_info gracefully', () {
       final danmaku = BiliBiliDanmaku();
       final received = <LiveMessage>[];
       danmaku.onMessage = received.add;
@@ -130,9 +135,11 @@ void main() {
           'num': 5,
           'giftId': 1,
           'uid': 67890,
-          'user_info': {'uname': '另一位用户'},
+          'uname': '另一位用户',
           'action': '投喂',
           'price': 1,
+          'total_coin': 5,
+          'coin_type': 'silver',
         },
       });
 
@@ -140,11 +147,14 @@ void main() {
 
       final gift = received.single;
       expect(gift.type, LiveMessageType.gift);
+      expect(gift.userName, '另一位用户');
 
       final data = gift.data as Map;
       expect(data['giftName'], '辣条');
       expect(data['giftCount'], 5);
       expect(data['giftIcon'], '');
+      expect(data['price'], 5);
+      expect(data['coinType'], 'silver');
       expect(data['platform'], 'bilibili');
     });
   });
