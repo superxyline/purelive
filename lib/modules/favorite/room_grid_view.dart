@@ -52,7 +52,14 @@ class RoomGridView extends GetView<FavoriteController> {
               itemCount: displayList.length,
               itemBuilder: (context, index) {
                 final room = displayList[index];
-                return RoomCard(key: ValueKey('${room.platform}:${room.roomId}'), room: room, dense: dense, hideBadges: hideBadges);
+                return RoomCard(
+                  key: ValueKey('${room.platform}:${room.roomId}'),
+                  room: room,
+                  dense: dense,
+                  hideBadges: hideBadges,
+                  // 仅聚合页签（全部）需要平台名区分来源
+                  showPlatformBadge: site == Sites.allSite,
+                );
               },
             );
           }),
