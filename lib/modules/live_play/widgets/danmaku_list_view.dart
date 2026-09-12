@@ -782,17 +782,14 @@ class GiftCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 平台色竖条：官方礼物横幅的识别元素，玻璃版才显示
+            // 平台色竖条：官方礼物横幅的识别元素，玻璃版才显示。
+            // 不加发光阴影——常驻 blur 阴影在多卡片堆叠时是持续合成负担。
             if (glassEffect)
               Container(
                 width: 4,
                 height: 40,
                 margin: const EdgeInsets.only(right: 10),
-                decoration: BoxDecoration(
-                  color: accentColor,
-                  borderRadius: BorderRadius.circular(2),
-                  boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.55), blurRadius: 6)],
-                ),
+                decoration: BoxDecoration(color: accentColor, borderRadius: BorderRadius.circular(2)),
               ),
             // 礼物图标（优先使用网络图片，否则使用emoji）
             Container(

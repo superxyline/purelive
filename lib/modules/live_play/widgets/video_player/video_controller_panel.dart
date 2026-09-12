@@ -224,7 +224,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                                 parent: animation,
                                 curve: Curves.easeOutCubic,
                               )),
-                              child: child,
+                              // 隔离每张卡片的重绘：任一卡片进场/合并数量时
+                              // 不再连带整层（含其它卡片）重新绘制，避免多卡
+                              // 堆叠时拖累视频渲染。
+                              child: RepaintBoundary(child: child),
                             );
                           },
                           child: GiftCard(
@@ -328,13 +331,18 @@ class TopActionBar extends StatelessWidget {
             height: barHeight,
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [Colors.transparent, Colors.black45],
-              ),
-            ),
+            // 渐变衬底仅全屏需要（标题文字压在画面上）；
+            // 非全屏没有标题，整条黑45渐变横在明亮画面上像一条白雾长条，
+            // 图标可读性由 LabeledIconAction 的文字/图标投影保证。
+            decoration: GlobalPlayerState.to.fullscreenUI
+                ? const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [Colors.transparent, Colors.black45],
+                    ),
+                  )
+                : null,
           child: Row(
             children: [
               if (GlobalPlayerState.to.fullscreenUI) BackButton(controller: controller),
@@ -1545,6 +1553,9 @@ class LabeledIconAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 无渐变衬底时（非全屏）图标/文字压在任意亮度的画面上，
+    // 用轻投影保证可读性。
+    final shadows = [Shadow(color: Colors.black.withValues(alpha: 0.55), blurRadius: 4)];
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onPressed,
@@ -1554,7 +1565,7 @@ class LabeledIconAction extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: iconSize),
+            Icon(icon, color: color, size: iconSize, shadows: shadows),
             const SizedBox(height: 2),
             Text(
               label,
@@ -1564,6 +1575,7 @@ class LabeledIconAction extends StatelessWidget {
                 height: 1.0,
                 decoration: TextDecoration.none,
                 fontWeight: FontWeight.w500,
+                shadows: shadows,
               ),
             ),
           ],
