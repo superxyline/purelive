@@ -245,6 +245,9 @@ class VideoController with ChangeNotifier {
   final isMenuOpen = false.obs;
   final showVolume = false.obs;
   final batteryLevel = 100.obs;
+
+  /// 充电（或已充满仍插电）状态，供视频界面电池 UI 区分显示
+  final batteryCharging = false.obs;
   final currentVolume = 1.0.obs;
 
   // 弹幕相关
@@ -461,12 +464,21 @@ class VideoController with ChangeNotifier {
       if (!_isDisposed) batteryLevel.value = value;
     });
 
+    // 初始充电状态（full = 已充满仍插电，按充电显示）
+    _battery.batteryState.then((state) {
+      if (!_isDisposed) batteryCharging.value = _isPowered(state);
+    }).catchError((_) {});
+
     final batterySub = _battery.onBatteryStateChanged.listen((BatteryState state) async {
+      if (!_isDisposed) batteryCharging.value = _isPowered(state);
       final value = await _battery.batteryLevel;
       if (!_isDisposed) batteryLevel.value = value;
     });
     _addSubscription(batterySub);
   }
+
+  static bool _isPowered(BatteryState state) =>
+      state == BatteryState.charging || state == BatteryState.full;
 
   // 音量管理
   void registerVolumeListener() {
