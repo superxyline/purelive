@@ -752,7 +752,7 @@ class GiftCard extends StatelessWidget {
             Color.alphaBlend(accentColor.withValues(alpha: 0.15), Colors.black.withValues(alpha: 0.64)),
           ],
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 0.8),
       );
       // 平台色整体偏暗（如抖音红），向白色提亮 35% 保证深色底上可读
@@ -782,31 +782,43 @@ class GiftCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // 平台色竖条：官方礼物横幅的识别元素，玻璃版才显示
+            if (glassEffect)
+              Container(
+                width: 4,
+                height: 40,
+                margin: const EdgeInsets.only(right: 10),
+                decoration: BoxDecoration(
+                  color: accentColor,
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.55), blurRadius: 6)],
+                ),
+              ),
             // 礼物图标（优先使用网络图片，否则使用emoji）
             Container(
-              width: 36,
-              height: 36,
+              width: glassEffect ? 44 : 36,
+              height: glassEffect ? 44 : 36,
               decoration: BoxDecoration(
                 color: accentColor.withValues(alpha: iconBgAlpha),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(glassEffect ? 10 : 8),
               ),
               child: _giftIconUrl.isNotEmpty
                   ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(glassEffect ? 10 : 8),
                       child: Image.network(
                         _giftIconUrl,
-                        width: 36,
-                        height: 36,
+                        width: glassEffect ? 44 : 36,
+                        height: glassEffect ? 44 : 36,
                         fit: BoxFit.contain,
                         errorBuilder: (_, _, _) => Center(
-                          child: Text(_emoji, style: const TextStyle(fontSize: 20)),
+                          child: Text(_emoji, style: TextStyle(fontSize: glassEffect ? 24 : 20)),
                         ),
                       ),
                     )
                   : Center(
                       child: Text(
                         _emoji,
-                        style: const TextStyle(fontSize: 20),
+                        style: TextStyle(fontSize: glassEffect ? 24 : 20),
                       ),
                     ),
             ),
@@ -839,13 +851,46 @@ class GiftCard extends StatelessWidget {
                           style: TextStyle(color: infoColor, fontSize: 12, shadows: textShadows),
                         ),
                         TextSpan(
-                          text: '$_giftName ×$_giftCount',
+                          text: _giftName,
                           style: TextStyle(
                             color: infoColor,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             shadows: textShadows,
                           ),
+                        ),
+                        // 数量用平台色强调；玻璃版（全屏）在数量合并时做跳动动画
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: glassEffect
+                              ? AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 250),
+                                  transitionBuilder: (child, animation) => ScaleTransition(
+                                    scale: Tween<double>(begin: 1.6, end: 1.0).animate(
+                                      CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+                                    ),
+                                    child: child,
+                                  ),
+                                  child: Text(
+                                    ' ×$_giftCount',
+                                    key: ValueKey(_giftCount),
+                                    style: TextStyle(
+                                      color: accentColor,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      shadows: textShadows,
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  ' ×$_giftCount',
+                                  style: TextStyle(
+                                    color: accentColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    shadows: textShadows,
+                                  ),
+                                ),
                         ),
                       ],
                     ),

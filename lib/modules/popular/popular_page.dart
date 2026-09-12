@@ -29,7 +29,20 @@ class PopularPage extends GetView<PopularController> {
                 isScrollable: true,
                 physics: const PureLiveScrollPhysics(),
                 dragStartBehavior: DragStartBehavior.down,
-                tabs: availableSitesList.map((e) => Tab(text: e.name)).toList(),
+                tabs: availableSitesList
+                    .asMap()
+                    .entries
+                    .map(
+                      (e) => Tab(
+                        child: PlatformTab(
+                          siteId: e.value.id,
+                          label: e.value.name,
+                          tabController: controller.tabController,
+                          index: e.key,
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
             body: TabBarView(

@@ -24,6 +24,7 @@ class AccountPage extends GetView<AccountController> {
               return _buildAccountTile(
                 context,
                 logo: 'assets/images/bilibili_2.png',
+                platformId: 'bilibili',
                 title: i18n("site_bilibili"),
                 subtitle: isLogined ? accountName : i18n("not_logged_in"),
                 isLogined: isLogined,
@@ -40,6 +41,7 @@ class AccountPage extends GetView<AccountController> {
               return _buildAccountTile(
                 context,
                 logo: 'assets/images/huya.png',
+                platformId: 'huya',
                 title: i18n("site_huya"),
                 subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
                 isLogined: isLogined,
@@ -62,6 +64,7 @@ class AccountPage extends GetView<AccountController> {
               return _buildAccountTile(
                 context,
                 logo: 'assets/images/douyin.png',
+                platformId: 'douyin',
                 title: i18n("site_douyin"),
                 subtitle: isLogined
                     ? controller.douyinNickName.value.isNotEmpty
@@ -88,6 +91,7 @@ class AccountPage extends GetView<AccountController> {
               return _buildAccountTile(
                 context,
                 logo: 'assets/images/kuaishou.png',
+                platformId: 'kuaishou',
                 title: i18n("site_kuaishou"),
                 subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
                 isLogined: isLogined,
@@ -105,6 +109,7 @@ class AccountPage extends GetView<AccountController> {
               return _buildAccountTile(
                 context,
                 logo: 'assets/images/douyu.png',
+                platformId: 'douyu',
                 title: i18n("site_douyu"),
                 subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
                 isLogined: isLogined,
@@ -133,11 +138,27 @@ class AccountPage extends GetView<AccountController> {
     required VoidCallback onTap,
     VoidCallback? onSync,
     bool isEnabled = true,
+    String? platformId,
   }) {
     final theme = Theme.of(context);
+    final accent = PlatformAccent.of(platformId);
+    final isDark = theme.brightness == Brightness.dark;
     return ListTile(
       enabled: isEnabled,
-      leading: Image.asset(logo, width: 24, height: 24),
+      leading: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          // 登录态用平台色淡底衬托 logo，未登录弱化为中性底
+          color: isLogined && isEnabled
+              ? accent.withValues(alpha: isDark ? 0.22 : 0.13)
+              : (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: Opacity(opacity: isLogined && isEnabled ? 1 : 0.5, child: Image.asset(logo, width: 24, height: 24)),
+        ),
+      ),
       title: Text(
         title,
         style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: isEnabled ? null : theme.disabledColor),
@@ -147,8 +168,8 @@ class AccountPage extends GetView<AccountController> {
         child: Text(
           subtitle,
           style: AppTextStyles.t12.copyWith(
-            color: isLogined ? theme.colorScheme.primary : theme.hintColor.withValues(alpha: 0.75),
-            fontWeight: isLogined ? FontWeight.w500 : FontWeight.normal,
+            color: isLogined && isEnabled ? accent : theme.hintColor.withValues(alpha: 0.75),
+            fontWeight: isLogined ? FontWeight.w600 : FontWeight.normal,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
