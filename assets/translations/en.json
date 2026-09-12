@@ -53,6 +53,7 @@
   "backup_directory": "Backup Directory",
   "backup_recover": "Backup &Recover",
   "backup_recover_subtitle": "Create backup and recover",
+  "backup_transfer_desc": "WebDAV cloud backup, QR cross-device sync, local backup",
   "iptv_settings": "IPTV Settings",
   "manage_iptv_sources": "Manage your playlists and EPG sources",
   "backup_to_webdav": "Backup to WebDav server",
