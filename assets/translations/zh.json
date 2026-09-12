@@ -53,6 +53,7 @@
   "backup_directory": "备份目录",
   "backup_recover": "备份与恢复",
   "backup_recover_subtitle": "创建备份与恢复",
+  "backup_transfer_desc": "WebDAV 云端备份、扫码跨端同步、本地备份恢复",
   "backup_to_webdav": "备份到WebDav服务器",
   "basic_config": "基础配置",
   "bilibili_login": "哔哩哔哩账号登录",

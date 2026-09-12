@@ -1,6 +1,5 @@
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/modules/backup/backup_page.dart';
 import 'package:pure_live/modules/settings/pages/refresh_settings.dart';
 import 'package:pure_live/modules/settings/pages/theme_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/video_settings_page.dart';
@@ -184,6 +183,15 @@ class SettingsPage extends GetView<SettingsService> {
               title: i18n("custom_network_proxy"),
               subtitle: i18n("custom_network_proxy_desc"),
               onTap: () => Get.to(() => const NetworkProxySettingsPage()),
+            ),
+            // 备份与传输入口：跨端扫码同步（发送/接收）、WebDAV 与本地备份
+            // 都收在备份页。原上游入口在首页菜单按钮的弹出菜单里，
+            // 定制版菜单简化后入口丢失，现收归设置页。
+            context.buildTile(
+              icon: Remix.archive_2_line,
+              title: i18n("backup_recover"),
+              subtitle: i18n("backup_transfer_desc"),
+              onTap: () => Get.toNamed(RoutePath.kBackup),
             ),
           ]),
 
