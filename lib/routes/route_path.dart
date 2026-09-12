@@ -89,6 +89,10 @@ class RoutePath {
 
   static const kDouyinWebLogin = "/douyin_web_login";
 
+  static const kKuaishouCookie = "/kuaishou_cookie";
+
+  static const kKuaishouWebLogin = "/kuaishou_web_login";
+
   // WebDavPage
   static const kWebDavPage = "/web_dav_page";
 

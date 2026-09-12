@@ -1,6 +1,7 @@
 import 'site/huya_site.dart';
 import 'site/douyu_site.dart';
 import 'site/douyin_site.dart';
+import 'site/kuaishou_site.dart';
 import 'interface/live_site.dart';
 
 import 'package:pure_live/common/index.dart';
@@ -12,11 +13,13 @@ class Sites {
   static const String douyuSite = "douyu";
   static const String huyaSite = "huya";
   static const String douyinSite = "douyin";
+  static const String kuaishouSite = "kuaishou";
   static const Set<String> supportedSiteIds = {
     bilibiliSite,
     douyuSite,
     huyaSite,
     douyinSite,
+    kuaishouSite,
   };
 
   static bool isSupported(String id) => supportedSiteIds.contains(id.trim().toLowerCase());
@@ -26,6 +29,7 @@ class Sites {
     Site(id: douyuSite, name: i18n("site_douyu"), logo: "assets/images/douyu.png", liveSite: DouyuSite()),
     Site(id: huyaSite, name: i18n("site_huya"), logo: "assets/images/huya.png", liveSite: HuyaSite()),
     Site(id: douyinSite, name: i18n("site_douyin"), logo: "assets/images/douyin.png", liveSite: DouyinSite()),
+    Site(id: kuaishouSite, name: i18n("site_kuaishou"), logo: "assets/images/kuaishou.png", liveSite: KuaishowSite()),
   ];
 
   static Site of(String id) {

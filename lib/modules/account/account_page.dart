@@ -82,6 +82,24 @@ class AccountPage extends GetView<AccountController> {
                       ),
               );
             }),
+
+            Obx(() {
+              final isLogined = cookie.kuaishouCookie.v.isNotEmpty;
+              return _buildAccountTile(
+                context,
+                logo: 'assets/images/kuaishou.png',
+                title: i18n("site_kuaishou"),
+                subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
+                isLogined: isLogined,
+                onTap: () => isLogined
+                    ? _showPlatformLogoutDialog(context, () => cookie.kuaishouCookie.v = "")
+                    : _showLoginChoiceDialog(
+                        context,
+                        onWebLogin: () => Get.toNamed(RoutePath.kKuaishouWebLogin),
+                        onManual: () => Get.toNamed(RoutePath.kKuaishouCookie),
+                      ),
+              );
+            }),
             Obx(() {
               final isLogined = cookie.douyuCookie.v.isNotEmpty;
               return _buildAccountTile(

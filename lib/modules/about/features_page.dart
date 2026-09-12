@@ -6,7 +6,7 @@ class FeaturesPage extends StatelessWidget {
   const FeaturesPage({super.key});
 
   static const List<({IconData icon, String title, String desc})> _features = [
-    (icon: Remix.apps_2_line, title: '四平台聚合', desc: '专注哔哩哔哩 / 斗鱼 / 虎牙 / 抖音四大直播平台'),
+    (icon: Remix.apps_2_line, title: '五平台聚合', desc: '专注哔哩哔哩 / 斗鱼 / 虎牙 / 抖音 / 快手五大直播平台'),
     (icon: Remix.heart_3_line, title: '关注三态页签', desc: '已开播 / 未开播 / 已关注三页签，已关注页纯净卡片展示'),
     (icon: Remix.time_line, title: '开播时长角标', desc: '关注列表实时显示主播已开播时长，可一键开关'),
     (icon: Remix.trophy_line, title: '赛事中心', desc: 'CS / LOL / VALORANT 赛程与赛果，支持关注比赛与筛选'),

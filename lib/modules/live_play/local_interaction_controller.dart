@@ -115,6 +115,14 @@ class LocalInteractionController extends GetxController {
       accentColor: Color(0xFFFE2C55),
       badge: '🎵',
     ),
+    LocalPlatformPack(
+      id: Sites.kuaishouSite,
+      name: '快手',
+      currencyKey: 'local_currency_kuaishou',
+      levelKey: 'local_level_kuaishou',
+      accentColor: Color(0xFFFF7900),
+      badge: '🎥',
+    ),
   ];
 
   static const _platformGifts = <String, List<LocalGift>>{
@@ -239,6 +247,32 @@ class LocalInteractionController extends GetxController {
         anim: 'full',
       ),
     ],
+    Sites.kuaishouSite: [
+      LocalGift(
+        id: 'kuaishou_coffee',
+        nameKey: 'local_gift_kuaishou_coffee',
+        emoji: '☕',
+        price: 10,
+        color: LiveMessageColor(255, 121, 0),
+      ),
+      LocalGift(
+        id: 'kuaishou_crown',
+        nameKey: 'local_gift_kuaishou_crown',
+        emoji: '👑',
+        price: 500,
+        color: LiveMessageColor(255, 152, 0),
+        anim: 'fly',
+      ),
+      LocalGift(
+        id: 'kuaishou_rocket',
+        nameKey: 'local_gift_kuaishou_rocket',
+        emoji: '🎆',
+        price: 2888,
+        color: LiveMessageColor(255, 87, 34),
+        effect: 'full',
+        anim: 'full',
+      ),
+    ],
   };
 
   static const titles = <String>['listener', 'night_owl', 'supporter', 'guardian'];
@@ -276,6 +310,7 @@ class LocalInteractionController extends GetxController {
     Sites.douyuSite => 'local_badge_douyu',
     Sites.huyaSite => 'local_badge_huya',
     Sites.douyinSite => 'local_badge_douyin',
+    Sites.kuaishouSite => 'local_badge_kuaishou',
     _ => 'local_badge_generic',
   };
 

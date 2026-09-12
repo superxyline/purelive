@@ -8,11 +8,13 @@ class CookieSettingsController extends GetxController {
   final RxString huyaCookie = hiveString('huyaCookie', '');
   final RxString douyinCookie = hiveString('douyinCookie', '');
   final RxString douyuCookie = hiveString('douyuCookie', '');
+  final RxString kuaishouCookie = hiveString('kuaishouCookie', '');
   void clearAllCookies() {
     bilibiliCookie.v = '';
     huyaCookie.v = '';
     douyinCookie.v = '';
     douyuCookie.v = '';
+    kuaishouCookie.v = '';
     bilibiliUid.v = 0;
   }
 
@@ -22,6 +24,7 @@ class CookieSettingsController extends GetxController {
       'huyaCookie': huyaCookie.v,
       'douyinCookie': douyinCookie.v,
       'douyuCookie': douyuCookie.v,
+      'kuaishouCookie': kuaishouCookie.v,
       'bilibiliUid': bilibiliUid.v,
     };
   }
@@ -31,6 +34,7 @@ class CookieSettingsController extends GetxController {
     huyaCookie.v = json['huyaCookie'] ?? '';
     douyinCookie.v = json['douyinCookie'] ?? '';
     douyuCookie.v = json['douyuCookie'] ?? '';
+    kuaishouCookie.v = json['kuaishouCookie'] ?? '';
     bilibiliUid.v = json['bilibiliUid'] ?? 0;
 
     BiliBiliAccountService.instance.setCookie(bilibiliCookie.v);
@@ -44,6 +48,7 @@ class CookieSettingsController extends GetxController {
       'huyaCookie': cookie['huyaCookie'] ?? '',
       'douyinCookie': cookie['douyinCookie'] ?? '',
       'douyuCookie': cookie['douyuCookie'] ?? '',
+      'kuaishouCookie': cookie['kuaishouCookie'] ?? '',
       'bilibiliUid': cookie['bilibiliUid'] ?? 0,
     };
   }

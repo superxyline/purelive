@@ -41,6 +41,10 @@ import 'package:pure_live/modules/account/douyin/douyin_web_login_page.dart';
 import 'package:pure_live/modules/account/douyin/douyin_web_login_binding.dart';
 import 'package:pure_live/modules/live_play/bindings/live_play_binding.dart';
 import 'package:pure_live/modules/account/douyin/douyin_cookie_binding.dart';
+import 'package:pure_live/modules/account/kuaishou/kuaishou_cookie_page.dart';
+import 'package:pure_live/modules/account/kuaishou/kuaishou_cookie_binding.dart';
+import 'package:pure_live/modules/account/kuaishou/kuaishou_web_login_page.dart';
+import 'package:pure_live/modules/account/kuaishou/kuaishou_web_login_binding.dart';
 import 'package:pure_live/modules/esports/esports_binding.dart';
 import 'package:pure_live/modules/esports/esports_page.dart';
 
@@ -106,6 +110,10 @@ class AppPages {
     GetPage(name: RoutePath.kDouyinCookie, page: () => const DouyinCookiePage(), bindings: [DouyinCookieBinding()]),
 
     GetPage(name: RoutePath.kDouyinWebLogin, page: () => const DouyinWebLoginPage(), bindings: [DouyinWebLoginBinding()]),
+
+    GetPage(name: RoutePath.kKuaishouCookie, page: () => const KuaishouCookiePage(), bindings: [KuaishouCookieBinding()]),
+
+    GetPage(name: RoutePath.kKuaishouWebLogin, page: () => const KuaishouWebLoginPage(), bindings: [KuaishouWebLoginBinding()]),
 
     GetPage(name: RoutePath.kWebDavPage, page: () => WebDavPage(), bindings: [WebDavBinding()]),
 
