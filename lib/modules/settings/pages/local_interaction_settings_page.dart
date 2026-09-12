@@ -202,12 +202,21 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
                       }
                       final total = formatWatchDuration(service.totalSeconds());
                       final week = formatWatchDuration(service.weekSeconds());
+                      final giftCount = service.totalGiftCount();
+                      final giftValue = service.totalGiftValueFen();
+                      final giftIncome = service.totalGiftIncomeFen();
                       final topLines = entries
                           .take(3)
                           .map((e) {
                             final nick = (e.value['nick'] as String?) ?? '';
                             final secs = (e.value['total'] as int?) ?? 0;
-                            return '· $nick（${formatWatchDuration(secs)}）';
+                            final gifts = (e.value['giftCount'] as int?) ?? 0;
+                            // 只有拿得到礼物时才补上礼物信息，避免全是 0 的噪音
+                            if (gifts <= 0) return '· $nick（${formatWatchDuration(secs)}）';
+                            final roomValue = WatchStatsService.entryGiftValueFen(e.value);
+                            final valueText = roomValue > 0 ? ' ≈ ${formatGiftValue(roomValue)}' : '';
+                            return '· $nick（${formatWatchDuration(secs)} · '
+                                '${i18n('watch_stats_gift_unit', args: {'count': '$gifts'})}$valueText）';
                           })
                           .join('\n');
                       return Padding(
@@ -218,6 +227,35 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
                             _watchStatRow(context, i18n('watch_stats_total'), total),
                             const SizedBox(height: 6),
                             _watchStatRow(context, i18n('watch_stats_week'), week),
+                            const SizedBox(height: 6),
+                            _watchStatRow(
+                              context,
+                              i18n('watch_stats_gifts'),
+                              i18n('watch_stats_gift_unit', args: {'count': '$giftCount'}),
+                            ),
+                            if (giftValue > 0) ...[
+                              const SizedBox(height: 6),
+                              _watchStatRow(
+                                context,
+                                i18n('watch_stats_gift_value'),
+                                formatGiftValue(giftValue),
+                              ),
+                              const SizedBox(height: 6),
+                              _watchStatRow(
+                                context,
+                                i18n('watch_stats_gift_income'),
+                                formatGiftValue(giftIncome),
+                              ),
+                            ],
+                            if (giftCount > 0) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                i18n('watch_stats_gift_estimate_hint'),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).hintColor,
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: 10),
                             Text(
                               '${i18n('watch_stats_top')}:\n$topLines',

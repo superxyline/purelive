@@ -248,6 +248,8 @@ class DanmakuController extends GetxController {
         // 礼物消息：添加到弹幕列表 + 全屏时显示礼物卡片（如果开关打开）
         _main.addDanmakuMessage(msg);
         _main.handleGiftCard(msg);
+        // 观看统计：礼物数量/价值累计（不受礼物卡片显示开关影响）
+        WatchStatsService.instance.recordGift(msg);
       }
     };
 
