@@ -184,9 +184,20 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n("custom_network_proxy_desc"),
               onTap: () => Get.to(() => const NetworkProxySettingsPage()),
             ),
-            // 备份与传输入口：跨端扫码同步（发送/接收）、WebDAV 与本地备份
-            // 都收在备份页。原上游入口在首页菜单按钮的弹出菜单里，
-            // 定制版菜单简化后入口丢失，现收归设置页。
+          ]),
+
+          const SizedBox(height: 20),
+          // ===== 数据与维护 =====
+          // v2.0.2 设置页整理时整组被误删(缓存与数据、备份与恢复)，
+          // 2026-09 恢复；跨端扫码同步入口就在备份页内。
+          context.buildGroupTitle(i18n("settings_group_data_maintenance")),
+          context.buildModernCard([
+            context.buildTile(
+              icon: Remix.database_2_line,
+              title: i18n("cache_and_data"),
+              subtitle: i18n("cache_and_data_desc"),
+              onTap: () => Get.to(() => const CacheDataSettingsPage()),
+            ),
             context.buildTile(
               icon: Remix.archive_2_line,
               title: i18n("backup_recover"),
