@@ -17,6 +17,7 @@ import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/interface/live_site.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:pure_live/core/danmaku/huya_danmaku.dart';
+import 'package:pure_live/core/site/huya_room_fallback.dart';
 import 'package:pure_live/common/utils/githup_mirror.dart';
 import 'package:pure_live/pkg/tars/net/base_tars_http.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -262,7 +263,69 @@ class HuyaSite implements LiveSite {
     );
     var result = json.decode(resultText);
     if (result['status'] == 200 && result['data']['stream'] != null) {
-      dynamic data = result['data'];
+      return _buildRoomFromProfileData(result['data'], roomId);
+    } else {
+      return await _buildRoomWithFallback(platform, roomId);
+    }
+  }
+
+  /// mp 接口失败时的回退：隐藏 WebView 加载房间页（真实 JS 环境可通过
+  /// 虎牙风控），组装成 profileRoom 同构数据后走同一解析；仍失败则按
+  /// 错误房间处理（播放中返回当前房间避免打断观看）。
+  Future<LiveRoom> _buildRoomWithFallback(String platform, String roomId) async {
+    try {
+      final pageData = await fetchHuyaRoomInfoViaWebview(roomId);
+      if (pageData != null && pageData.streamLines.isNotEmpty) {
+        return _buildRoomFromProfileData(_assembleProfileDataFromPage(pageData), roomId);
+      }
+    } catch (e) {
+      CoreLog.error(e);
+    }
+    if (Get.isRegistered<PlayerController>()) {
+      final PlayerController playerController = Get.find<PlayerController>();
+      final currentRoom = playerController.currentRoom;
+      if (currentRoom != null) return currentRoom.getLiveRoomWithError();
+    }
+    return LiveRoom(roomId: roomId, platform: platform).getLiveRoomWithError();
+  }
+
+  /// 把网页回退数据组装成 profileRoom 的 data 结构；
+  /// 开播状态以流列表非空为准（匿名 TT_ROOM_DATA 不可靠）。
+  Map<String, dynamic> _assembleProfileDataFromPage(HuyaRoomPageData page) {
+    final streams = page.streamLines;
+    return <String, dynamic>{
+      'liveStatus': streams.isNotEmpty ? 'ON' : 'OFF',
+      'welcomeText': '',
+      'profileInfo': {'nick': page.nick, 'avatar180': page.avatar, 'uid': page.uid},
+      'liveData': {
+        'screenshot': page.screenshot,
+        'introduction': page.introduction,
+        'gameFullName': page.gameFullName,
+        'gid': page.gid,
+        'startTime': page.startTimeSec,
+        'totalCount': page.totalCount,
+      },
+      'stream': {
+        'baseSteamInfoList': streams,
+        'flv': {
+          'multiLine': [
+            for (final line in streams)
+              {'cdnType': line['sCdnType']?.toString() ?? '', 'url': line['sFlvUrl']?.toString() ?? ''},
+          ],
+        },
+        'hls': {
+          'multiLine': [
+            for (final line in streams)
+              {'cdnType': line['sCdnType']?.toString() ?? '', 'url': line['sHlsUrl']?.toString() ?? ''},
+          ],
+        },
+        'rateArray': <dynamic>[],
+      },
+    };
+  }
+
+  /// 解析 mp.huya.com profileRoom 的 data（或网页回退的同构数据）为 LiveRoom。
+  LiveRoom _buildRoomFromProfileData(dynamic data, String roomId) {
       var topSid = 0;
       var subSid = 0;
       var huyaLines = <HuyaLineModel>[];
@@ -374,14 +437,6 @@ class HuyaSite implements LiveSite {
         ),
         link: "https://www.huya.com/$roomId",
       );
-    } else {
-      if (Get.isRegistered<PlayerController>()) {
-        final PlayerController playerController = Get.find<PlayerController>();
-        final currentRoom = playerController.currentRoom;
-        if (currentRoom != null) return currentRoom.getLiveRoomWithError();
-      }
-      return LiveRoom(roomId: roomId, platform: platform).getLiveRoomWithError();
-    }
   }
 
   String? findRoomId(List list, int targetUid, int targetYyid) {

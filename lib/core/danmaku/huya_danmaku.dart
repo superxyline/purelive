@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/common/models/live_message.dart';
+import 'package:pure_live/core/danmaku/huya_gift_catalog.dart';
 import 'package:pure_live/pkg/tars/codec/tars_struct.dart';
 import 'package:pure_live/core/common/web_socket_util.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
@@ -104,6 +105,15 @@ class HuyaDanmaku implements LiveDanmaku {
   void joinRoom() {
     var joinData = getJoinData(danmakuArgs.uid);
     webScoketUtils?.sendMessage(joinData);
+    // 注册成功后拉一次礼物目录（WUP getPropsList）：
+    // 6501 礼物消息的礼物名/图标在旧 payload 中可能缺失，用目录补齐。
+    try {
+      webScoketUtils?.sendMessage(
+        HuyaGiftCatalog.instance.buildGetPropsListRequest(uid: danmakuArgs.uid),
+      );
+    } catch (e) {
+      CoreLog.error(e);
+    }
   }
 
   List<int> getJoinData(int uid) {
@@ -153,6 +163,12 @@ class HuyaDanmaku implements LiveDanmaku {
         for (final item in push.items) {
           _decodePush(item.uri, item.msg, messageId: item.messageId);
         }
+      } else if (type == 4) {
+        // EWSCmd_WupRsp：WUP 响应（当前仅礼物目录 getPropsList）
+        final vData = stream.read(Uint8List, 1, false) as Uint8List?;
+        if (vData != null && vData.isNotEmpty) {
+          HuyaGiftCatalog.instance.handleWupResponse(vData);
+        }
       }
     } catch (e) {
       CoreLog.error(e);
@@ -193,7 +209,15 @@ class HuyaDanmaku implements LiveDanmaku {
       try {
         final gift = HuyaSendItemSubBroadcastPacket();
         gift.readFrom(TarsInputStream(Uint8List.fromList(payload)));
-        final giftName = gift.sPropsName.trim();
+        // 礼物名/图标缺失时查礼物目录补齐（旧版 payload 无 sPropsName@20）
+        final catalogInfo = HuyaGiftCatalog.instance.get(gift.iItemType);
+        var giftName = gift.sPropsName.trim();
+        if (giftName.isEmpty) giftName = catalogInfo?.name ?? '';
+        // 价格：实付总额优先（100 = 1 虎牙币）；缺失时用目录单价 × 数量
+        var price = gift.lPayTotal;
+        if (price <= 0 && catalogInfo != null && catalogInfo.priceYb > 0) {
+          price = catalogInfo.priceYb * (gift.iItemCount > 0 ? gift.iItemCount : 1);
+        }
         onMessage?.call(
           LiveMessage(
             type: LiveMessageType.gift,
@@ -205,10 +229,9 @@ class HuyaDanmaku implements LiveDanmaku {
               'giftId': gift.iItemType.toString(),
               'giftCount': gift.iItemCount > 0 ? gift.iItemCount : 1,
               'giftName': giftName,
-              // 图标留空：虎牙礼物图标需按 iItemType 查礼物目录，
-              // 缺失时卡片回退内置 emoji（与斗鱼一致）
-              'giftIcon': '',
-              'price': gift.lPayTotal > 0 ? gift.lPayTotal : 1, // 100 = 1 虎牙币
+              // 图标优先取礼物目录（消息本身不携带图标）
+              'giftIcon': catalogInfo?.icon ?? '',
+              'price': price > 0 ? price : 1,
               'platform': 'huya',
             },
             messageId: messageId > 0 ? 'huya:$messageId' : '',
