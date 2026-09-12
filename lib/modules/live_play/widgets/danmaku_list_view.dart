@@ -752,8 +752,9 @@ class GiftCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color.alphaBlend(accentColor.withValues(alpha: 0.30), Colors.black.withValues(alpha: 0.52)),
-            Color.alphaBlend(accentColor.withValues(alpha: 0.15), Colors.black.withValues(alpha: 0.64)),
+            // 无实时模糊后加深底色补偿可读性（原 0.52/0.64 为配合模糊的值）
+            Color.alphaBlend(accentColor.withValues(alpha: 0.30), Colors.black.withValues(alpha: 0.68)),
+            Color.alphaBlend(accentColor.withValues(alpha: 0.15), Colors.black.withValues(alpha: 0.78)),
           ],
         ),
         borderRadius: BorderRadius.circular(14),
@@ -916,16 +917,12 @@ class GiftCard extends StatelessWidget {
         child: card,
       );
     }
-    // 液体玻璃效果：先模糊背后画面（视频），再叠加染色渐变与描边
+    // 原为 BackdropFilter(blur 16) 实时模糊背后画面——它是 Flutter 中
+    // 开销最高的特效之一，多张卡片堆叠时每帧多次离屏渲染+高斯采样，
+    // 弹幕越多越卡。现改用加深的不透明染色渐变保证可读性，不再实时模糊。
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: card,
-        ),
-      ),
+      child: card,
     );
   }
 }
