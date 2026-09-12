@@ -179,28 +179,42 @@ class LiveUrlTool {
         url,
         options: dio.Options(followRedirects: true, headers: headers, maxRedirects: 100),
       );
+      final finalUrl = resp.realUri.toString();
+      // 抖音短链现多直接返回 200 渲染页（无 302），房间号内嵌在页面数据里
+      final body = resp.data is String ? resp.data as String : "";
 
-      final reg = RegExp(r"reflow/(\d+)");
-      String? roomId = reg.firstMatch(resp.realUri.toString())?.group(1);
-      if (roomId == null) return "";
+      // 1) 页面内嵌 webRid，一步到位
+      final webRid = RegExp(r'"webRid":"(\w+)"').firstMatch(body)?.group(1);
+      if (webRid != null && webRid.isNotEmpty) return webRid;
 
-      final infoResp = await dio.Dio().get(
-        "https://webcast.amemv.com/webcast/room/reflow/info/",
-        queryParameters: {
-          "room_id": roomId,
-          'verifyFp': '',
-          'type_id': 0,
-          'live_id': 1,
-          'sec_user_id': '',
-          'app_id': 1128,
-        },
-      );
+      // 2) 最终 URL / 页面内提取 room_id，走 reflow/info 换 web_rid
+      final roomId = RegExp(r"reflow/(\d+)").firstMatch(finalUrl)?.group(1) ??
+          RegExp(r"live\.douyin\.com/(\d+)").firstMatch(finalUrl)?.group(1) ??
+          RegExp(r"reflow/(\d+)").firstMatch(body)?.group(1) ??
+          RegExp(r'"id":"(\d{15,})"').firstMatch(body)?.group(1);
+      if (roomId == null || roomId.isEmpty) return "";
 
-      return infoResp.data['data']['room']['owner']['web_rid']?.toString() ?? "";
+      return await _getWebRidByRoomId(roomId, headers);
     } catch (e) {
       log(e.toString(), name: "_getRealDouyinRoomId");
       return "";
     }
+  }
+
+  static Future<String> _getWebRidByRoomId(String roomId, Map<String, String> headers) async {
+    final infoResp = await dio.Dio().get(
+      "https://webcast.amemv.com/webcast/room/reflow/info/",
+      queryParameters: {
+        "room_id": roomId,
+        'verifyFp': '',
+        'type_id': 0,
+        'live_id': 1,
+        'sec_user_id': '',
+        'app_id': 1128,
+      },
+      options: dio.Options(headers: headers),
+    );
+    return infoResp.data['data']['room']['owner']['web_rid']?.toString() ?? "";
   }
 
   static Future<void> getPlayUrlByRoomId({required String roomId, required String platform}) async {
