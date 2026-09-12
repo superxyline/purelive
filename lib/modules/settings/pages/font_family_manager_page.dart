@@ -5,7 +5,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/file_utils.dart';
 import 'package:pure_live/common/models/font_model.dart';
 import 'package:pure_live/common/utils/hive_pref_util.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/plugins/font_download_manager.dart';
 import 'package:pure_live/common/global/app_path_manager.dart';
 import 'package:pure_live/common/services/medels/download_status.dart';
@@ -251,7 +250,7 @@ class FontFamilyManagerPage extends GetView<SettingsService> {
             ),
           ),
           title: Text(
-            PlatformUtils.isWindows ? "PingFang" : "System Default",
+            "System Default",
             style: isDefaultActive
                 ? AppTextStyles.t14Bold.copyWith(color: theme.colorScheme.primary)
                 : AppTextStyles.t14SemiBold,

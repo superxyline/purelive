@@ -20,9 +20,8 @@ class MyTheme {
     if (customFonts.contains(selectedName)) {
       return selectedName;
     }
-    if (PlatformUtils.isWindows) {
-      return 'PingFang';
-    }
+    // Android 默认 Roboto（系统自带），中文自动回退系统字体（如 MIUI 的 MiSans）。
+    // 内置 PingFang 字体已移除（仅旧 Windows 分支使用，且体积 13MB）。
     if (PlatformUtils.isAndroid) {
       return GoogleFonts.roboto().fontFamily;
     }
