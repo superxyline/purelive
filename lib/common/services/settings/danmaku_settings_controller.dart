@@ -20,6 +20,9 @@ class DanmakuSettingsController extends GetxController {
   static const bool defaultNoEmojiMode = false;
   static const bool defaultPipDanmakuNoEmojiMode = false;
   static const bool defaultShowDanmakuListGiftCard = true;
+  /// 全屏浮层透明度默认 1.0（即当前观感不变，由用户按需调低）
+  static const double defaultFullscreenScOpacity = 1.0;
+  static const double defaultFullscreenGiftCardOpacity = 1.0;
 
   final RxBool hideDanmaku = hiveBool('hideDanmaku', false);
   final RxBool noEmojiMode = hiveBool('noEmojiMode', defaultNoEmojiMode);
@@ -30,6 +33,12 @@ class DanmakuSettingsController extends GetxController {
   // 存 Map 的 JSON（键为 platform|roomId），沿用 roomVolumes 的存法。
   final RxString _roomGiftCardsRaw = hiveString('roomDanmakuGiftCards', '{}');
   final RxMap<String, bool> rxRoomDanmakuGiftCards = <String, bool>{}.obs;
+  /// 全屏醒目留言 / 全屏礼物卡片的透明度（1.0 为当前默认观感）
+  final RxDouble fullscreenScOpacity = hiveDouble('fullscreenScOpacity', defaultFullscreenScOpacity);
+  final RxDouble fullscreenGiftCardOpacity = hiveDouble(
+    'fullscreenGiftCardOpacity',
+    defaultFullscreenGiftCardOpacity,
+  );
   final RxDouble danmakuTopArea = hiveDouble('danmakuTopArea', 0.0);
   final RxDouble danmakuArea = hiveDouble('danmakuArea', 1.0);
   final RxDouble danmakuBottomArea = hiveDouble('danmakuBottomArea', 0.5);
@@ -137,6 +146,8 @@ class DanmakuSettingsController extends GetxController {
       'showLocalGiftFullscreenEffect': showLocalGiftFullscreenEffect.v,
       'showFullscreenGiftCard': showFullscreenGiftCard.v,
       'roomDanmakuGiftCards': Map<String, bool>.from(rxRoomDanmakuGiftCards),
+      'fullscreenScOpacity': fullscreenScOpacity.v,
+      'fullscreenGiftCardOpacity': fullscreenGiftCardOpacity.v,
       'danmakuTopArea': danmakuTopArea.v,
       'danmakuArea': danmakuArea.v,
       'danmakuBottomArea': danmakuBottomArea.v,
@@ -183,6 +194,14 @@ class DanmakuSettingsController extends GetxController {
           : const <String, bool>{},
     );
     _roomGiftCardsRaw.v = jsonEncode(rxRoomDanmakuGiftCards);
+    fullscreenScOpacity.v = (json['fullscreenScOpacity'] ?? defaultFullscreenScOpacity)
+        .toDouble()
+        .clamp(0.1, 1.0)
+        .toDouble();
+    fullscreenGiftCardOpacity.v = (json['fullscreenGiftCardOpacity'] ?? defaultFullscreenGiftCardOpacity)
+        .toDouble()
+        .clamp(0.1, 1.0)
+        .toDouble();
     danmakuTopArea.v = json['danmakuTopArea']?.toDouble() ?? 0.0;
     danmakuArea.v = json['danmakuArea']?.toDouble() ?? 1.0;
     danmakuBottomArea.v = json['danmakuBottomArea']?.toDouble() ?? 0.5;
@@ -236,6 +255,14 @@ class DanmakuSettingsController extends GetxController {
       'roomDanmakuGiftCards': danmaku['roomDanmakuGiftCards'] is Map
           ? Map<String, dynamic>.from(danmaku['roomDanmakuGiftCards'] as Map)
           : const <String, dynamic>{},
+      'fullscreenScOpacity': (danmaku['fullscreenScOpacity'] ?? defaultFullscreenScOpacity)
+          .toDouble()
+          .clamp(0.1, 1.0)
+          .toDouble(),
+      'fullscreenGiftCardOpacity': (danmaku['fullscreenGiftCardOpacity'] ?? defaultFullscreenGiftCardOpacity)
+          .toDouble()
+          .clamp(0.1, 1.0)
+          .toDouble(),
       'danmakuTopArea': (danmaku['danmakuTopArea'] ?? 0.0).toDouble(),
       'danmakuArea': (danmaku['danmakuArea'] ?? 1.0).toDouble(),
       'danmakuBottomArea': (danmaku['danmakuBottomArea'] ?? 0.5).toDouble(),

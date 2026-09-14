@@ -44,6 +44,37 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
               isLong: true,
             ),
           ]),
+          // 全屏浮层透明度：作用于全屏时的醒目留言与礼物卡片，
+          // 与本地互动开关无关，因此固定显示在这个位置。
+          context.buildGroupTitle(i18n('fullscreen_overlay_opacity')),
+          context.buildModernCard([
+            Obx(
+              () => context.buildSliderTile(
+                context,
+                icon: Icons.chat_bubble_outline_rounded,
+                title: i18n('fullscreen_sc_opacity'),
+                value: SettingsService.to.danmaku.fullscreenScOpacity.v,
+                min: 0.1,
+                max: 1.0,
+                displayValue: '${(SettingsService.to.danmaku.fullscreenScOpacity.v * 100).round()}%',
+                onChanged: (v) => SettingsService.to.danmaku.fullscreenScOpacity.v = v,
+              ),
+            ),
+            Obx(
+              () => context.buildSliderTile(
+                context,
+                icon: Icons.card_giftcard_rounded,
+                title: i18n('fullscreen_gift_card_opacity'),
+                value: SettingsService.to.danmaku.fullscreenGiftCardOpacity.v,
+                min: 0.1,
+                max: 1.0,
+                displayValue:
+                    '${(SettingsService.to.danmaku.fullscreenGiftCardOpacity.v * 100).round()}%',
+                onChanged: (v) => SettingsService.to.danmaku.fullscreenGiftCardOpacity.v = v,
+              ),
+            ),
+          ]),
+          const SizedBox(height: 20),
           Obx(() {
             if (!controller.enabled.v) return const SizedBox.shrink();
             return Column(
