@@ -247,8 +247,9 @@ class HuyaSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
-    // 粉丝数在房间页 TT_PROFILE_INFO.fans，mp 接口不提供，与详情并行拉取
+  Future<LiveRoom> getRoomDetail({required String platform, required String roomId, bool light = false}) async {
+    // 粉丝数在房间页 TT_PROFILE_INFO.fans，mp 接口不提供，与详情并行拉取；
+    // 列表刷新（light）时卡片不展示粉丝数，跳过这次房间页抓取。
     final results = await Future.wait<dynamic>([
       HttpClient.instance.getText(
         'https://mp.huya.com/cache.php?m=Live&do=profileRoom&roomid=$roomId&showSecret=1',
@@ -263,7 +264,7 @@ class HuyaSite implements LiveSite {
           "Cookie": SettingsService.to.cookieManager.huyaCookie.v,
         },
       ),
-      _fetchFansCount(roomId),
+      light ? Future.value('') : _fetchFansCount(roomId),
     ]);
     final resultText = results[0] as String;
     final fansCount = results[1] as String;

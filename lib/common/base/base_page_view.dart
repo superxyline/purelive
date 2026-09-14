@@ -165,7 +165,9 @@ class BasePageView<C extends BasePageScrollAndStateBone<T>, T> extends Stateless
           left: 0,
           right: 0,
           child: Obx(() {
-            if (controller.list.isNotEmpty && controller.loadding.value && isDesktop) {
+            // 手机端同样显示：列表刷新（关注房间多时会持续一会儿）期间
+            // 至少让用户看到"正在刷新"，而不是以为界面卡住了。
+            if (controller.list.isNotEmpty && controller.loadding.value) {
               return SizedBox(
                 height: 2.5,
                 child: LinearProgressIndicator(

@@ -3,11 +3,22 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/services/medels/refresh_config_model.dart';
 
 class RefreshConfigController extends GetxController {
+  /// 收藏列表批量刷新的并发数。
+  ///
+  /// 旧默认值是 2，关注房间变多后冷启动要跑很多个串行批次，首页会长时间
+  /// 停留在上一次的状态；提到 6 后同样的房间数只需约三分之一的时间。
+  /// 太高会更容易触发平台风控，因此仍保留设置项供用户自行权衡。
+  static const int defaultMaxConcurrentRefresh = 6;
+
   final RxBool autoRefreshFavorite = hiveBool('autoRefreshFavorite', false);
   final RxInt autoRefreshInterval = hiveInt('autoRefreshInterval', 30);
-  final RxInt maxConcurrentRefresh = hiveInt('maxConcurrentRefresh', 2);
+  final RxInt maxConcurrentRefresh = hiveInt('maxConcurrentRefresh', defaultMaxConcurrentRefresh);
   final RxBool autoRefreshThumbnails = hiveBool('autoRefreshThumbnails', false);
   final RxInt thumbnailRefreshInterval = hiveInt('thumbnailRefreshInterval', 30);
+
+  /// 并发数默认值升级账本：只在用户没动过并发设置（还是旧的默认 2）时
+  /// 帮他升到新默认，改动过的不碰。
+  final RxInt concurrencyDefaultMigration = hiveInt('refreshConcurrencyMigration', 0);
 
   final _configStream = BehaviorSubject<RefreshConfig>();
   Stream<RefreshConfig> get configChanges => _configStream.stream;
@@ -15,6 +26,7 @@ class RefreshConfigController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _migrateConcurrencyDefault();
     _emitConfig();
     everAll([
       autoRefreshFavorite,
@@ -23,6 +35,14 @@ class RefreshConfigController extends GetxController {
       autoRefreshThumbnails,
       thumbnailRefreshInterval,
     ], (_) => _emitConfig());
+  }
+
+  void _migrateConcurrencyDefault() {
+    if (concurrencyDefaultMigration.value >= 1) return;
+    if (maxConcurrentRefresh.value == 2) {
+      maxConcurrentRefresh.value = defaultMaxConcurrentRefresh;
+    }
+    concurrencyDefaultMigration.value = 1;
   }
 
   void _emitConfig() {

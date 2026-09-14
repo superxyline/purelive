@@ -461,4 +461,12 @@ extension LiveRoomExtension on LiveRoom {
     liveRoom.isRecord = false;
     return liveRoom;
   }
+
+  /// 是否含有可用的卡片数据（标题 / 昵称 / 封面任一非空）。
+  ///
+  /// 详情接口失败或被风控降级时，各平台会返回一个只带 roomId/platform、
+  /// 状态置为离线的空对象；列表刷新若拿它覆盖缓存，会把卡片清空并落盘
+  /// （下次冷启动直接显示空卡片），因此合并前要先判断。
+  bool get hasUsableCardData =>
+      (title?.isNotEmpty ?? false) || (nick?.isNotEmpty ?? false) || (cover?.isNotEmpty ?? false);
 }
