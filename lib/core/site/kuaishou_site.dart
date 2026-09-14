@@ -22,10 +22,13 @@ class KuaishowSite implements LiveSite {
   @override
   String name = "快手直播";
 
-  String cookie = '';
-  Map<String, String> cookieObj = {};
-  Future<void>? _sessionBootstrap;
-  DateTime? _sessionUpdatedAt;
+  // 匿名会话与设备注册结果对同一进程内的所有实例都通用，且本来就有
+  // _sessionLifetime 的复用意图；Sites.of 每次新建实例，若做成实例字段则
+  // 列表批量刷新时每个房间都要重做一次 getCookie + registerDid。
+  static String cookie = '';
+  static Map<String, String> cookieObj = {};
+  static Future<void>? _sessionBootstrap;
+  static DateTime? _sessionUpdatedAt;
   static const Duration _sessionLifetime = Duration(minutes: 30);
   List<String> imageExtensions = [
     'svgz',
@@ -384,9 +387,11 @@ class KuaishowSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
+  Future<LiveRoom> getRoomDetail({required String platform, required String roomId, bool light = false}) async {
     try {
-      return await _loadRoom(roomId, includePlaybackData: true, ensureSession: true);
+      // 列表刷新（light）不附带播放地址：卡片用不到，收藏列表还会把它写进
+      // Hive；进入房间时播放页会重新拉完整详情。
+      return await _loadRoom(roomId, includePlaybackData: !light, ensureSession: true);
     } catch (e) {
       return LiveRoom(roomId: roomId, platform: platform).getLiveRoomWithError();
     }

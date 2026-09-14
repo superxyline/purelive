@@ -285,14 +285,14 @@ class DouyinSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
+  Future<LiveRoom> getRoomDetail({required String platform, required String roomId, bool light = false}) async {
     if (roomId.length <= 16) {
-      return await getRoomDetailByWebRid(roomId);
+      return await getRoomDetailByWebRid(roomId, light: light);
     }
-    return await getRoomDetailByRoomId(roomId);
+    return await getRoomDetailByRoomId(roomId, light: light);
   }
 
-  Future<LiveRoom> getRoomDetailByRoomId(String roomId) async {
+  Future<LiveRoom> getRoomDetailByRoomId(String roomId, {bool light = false}) async {
     // 读取房间信息
     var roomData = await _getRoomDataByRoomId(roomId);
 
@@ -312,7 +312,7 @@ class DouyinSite implements LiveSite {
     // roomId是一次性的，用户每次重新开播都会生成一个新的roomId
     // 所以如果roomId对应的直播间状态不是直播中，就通过webRid获取直播间信息
     if (status == 4) {
-      var result = await getRoomDetailByWebRid(webRid);
+      var result = await getRoomDetailByWebRid(webRid, light: light);
       return result;
     }
 
@@ -353,9 +353,9 @@ class DouyinSite implements LiveSite {
   /// 通过WebRid获取直播间信息
   /// - [webRid] 直播间RID
   /// - 返回直播间信息
-  Future<LiveRoom> getRoomDetailByWebRid(String webRid) async {
+  Future<LiveRoom> getRoomDetailByWebRid(String webRid, {bool light = false}) async {
     try {
-      var result = await _getRoomDetailByWebRidApi(webRid);
+      var result = await _getRoomDetailByWebRidApi(webRid, light: light);
       return result;
     } catch (e) {
       CoreLog.error(e);
@@ -366,7 +366,7 @@ class DouyinSite implements LiveSite {
   /// 通过WebRid访问直播间API，从API中获取直播间信息
   /// - [webRid] 直播间RID
   /// - 返回直播间信息
-  Future<LiveRoom> _getRoomDetailByWebRidApi(String webRid) async {
+  Future<LiveRoom> _getRoomDetailByWebRidApi(String webRid, {bool light = false}) async {
     // 读取房间信息
     var data = await _getRoomDataByApi(webRid);
 
@@ -393,8 +393,11 @@ class DouyinSite implements LiveSite {
 
     // web enter 接口的 follow_info 只有关注状态、没有粉丝数，房间页 HTML 的
     // room 对象又没有 create_time（实测），两者都缺的这两项统一从 reflow/info
-    // 补一次（同一个请求，不额外增加开销）。
-    final extra = await _fetchRoomExtra(roomId);
+    // 补一次（同一个请求，不额外增加开销）。列表刷新（light）时卡片不显示粉丝
+    // 数，只要 enter 已带 create_time（角标要用）就不必再补这次请求。
+    final extra = (light && douyinStartTime > 0)
+        ? (followers: '', startTimeSec: 0)
+        : await _fetchRoomExtra(roomId);
     // 开播时间：enter 自带 create_time 时优先用它，缺失时用 reflow 的
     final startTimeSec = douyinStartTime > 0 ? douyinStartTime : extra.startTimeSec;
 
@@ -458,6 +461,9 @@ class DouyinSite implements LiveSite {
   /// 通过WebRid访问直播间网页，从网页HTML中获取直播间信息
   /// - [webRid] 直播间RID
   /// - 返回直播间信息
+  /// 通过WebRid访问直播间网页，从网页HTML中获取直播间信息。
+  /// 房间页里既没有粉丝数也没有 create_time，所以这里不分轻量/完整：
+  /// 无论如何都要补一次 reflow（否则角标与粉丝行都会缺）。
   Future<LiveRoom> _getRoomDetailByWebRidHtml(String roomId) async {
     var detail = await _getRoomDataByHtml(roomId);
     var webRid = roomId;

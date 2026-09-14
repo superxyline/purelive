@@ -138,6 +138,8 @@ class DouyuSite implements LiveSite {
 
   @override
   Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
+    // detail.data 是弹幕/取流签名，只有完整详情（进房间时重新拉取的那份）里
+    // 才有；列表刷新用的轻量详情不会走到这里。
     var args = detail.data.toString();
     var data = quality.data as DouyuPlayData;
 
@@ -203,7 +205,7 @@ class DouyuSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
+  Future<LiveRoom> getRoomDetail({required String platform, required String roomId, bool light = false}) async {
     try {
       var result = await HttpClient.instance.getJson(
         "https://www.douyu.com/betard/$roomId",
@@ -220,19 +222,25 @@ class DouyuSite implements LiveSite {
         roomInfo = result["room"];
       }
 
-      // 粉丝数：betard 不含该字段，开放平台 RoomApi 的 fans_num 已失效（恒为 0），
-      // 改取主播卡片接口。该请求与下面的加密脚本请求并行，不增加进房耗时。
-      final fansFuture = _fetchAnchorFans(roomId);
-      var jsEncResult = await HttpClient.instance.getText(
-        "https://www.douyu.com/swf_api/homeH5Enc?rids=$roomId",
-        queryParameters: {},
-        header: {
-          'referer': 'https://www.douyu.com/$roomId',
-          'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
-        },
-      );
-      var crptext = json.decode(jsEncResult)["data"]["room$roomId"].toString();
-      final fans = await fansFuture;
+      // 列表刷新（light）：弹幕签名（homeH5Enc）与主播粉丝数都不参与卡片渲染，
+      // 跳过这两个请求，每房间只发一次 betard。进入房间时播放页会重新拉完整详情。
+      String? crptext;
+      var fans = '';
+      if (light) {
+        fans = '';
+      } else {
+        final fansFuture = _fetchAnchorFans(roomId);
+        var jsEncResult = await HttpClient.instance.getText(
+          "https://www.douyu.com/swf_api/homeH5Enc?rids=$roomId",
+          queryParameters: {},
+          header: {
+            'referer': 'https://www.douyu.com/$roomId',
+            'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+          },
+        );
+        crptext = json.decode(jsEncResult)["data"]["room$roomId"].toString();
+        fans = await fansFuture;
+      }
 
       // 斗鱼开播时间为 show_time（秒级时间戳）
       final douyuLiveTime = roomInfo["show_time"] is num
@@ -257,7 +265,7 @@ class DouyuSite implements LiveSite {
         status: roomInfo["show_status"] == 1,
         liveStartTime: douyuLiveTime > 0 ? douyuLiveTime * 1000 : null,
         danmakuData: roomInfo["room_id"].toString(),
-        data: DouyuSign.getSign(crptext, roomInfo["room_id"].toString()),
+        data: crptext == null ? null : DouyuSign.getSign(crptext, roomInfo["room_id"].toString()),
         platform: Sites.douyuSite,
         link: "https://www.douyu.com/$roomId",
         isRecord: roomInfo["videoLoop"] == 1,

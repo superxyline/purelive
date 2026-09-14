@@ -34,7 +34,18 @@ class LiveSite {
     return Future.value(<LiveRoom>[]);
   }
 
-  Future<LiveRoom> getRoomDetail({required String roomId, required String platform}) async {
+  /// 读取直播间详情。
+  ///
+  /// [light] 为 true 时只取"列表卡片需要的那几项"，跳过弹幕服务器发现、弹幕
+  /// 签名、粉丝数抓取等只有进入房间才需要的请求（收藏 / 热门列表批量刷新用，
+  /// 可显著减少每房间的请求数）。轻量详情**只交给卡片渲染**：进入房间时播放页
+  /// 会重新拉一次完整详情（`onInitPlayerState` → `getRoomDetail`），弹幕与
+  /// 播放流用的都是那份数据，因此不能把轻量详情当完整房间数据长期使用。
+  Future<LiveRoom> getRoomDetail({
+    required String roomId,
+    required String platform,
+    bool light = false,
+  }) async {
     return Future.value(
       LiveRoom(
         cover: '',

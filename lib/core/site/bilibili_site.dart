@@ -28,8 +28,10 @@ class BiliBiliSite implements LiveSite {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36";
   static const String kDefaultReferer = "https://live.bilibili.com/";
 
-  String buvid3 = "";
-  String buvid4 = "";
+  // buvid 与账号无关，是设备级标识：做成静态，避免 Sites.of 每次新建站点
+  // 实例后、列表批量刷新时每个房间都重新请求一次 spi 接口。
+  static String buvid3 = "";
+  static String buvid4 = "";
   String accessId = "";
   Future<Map<String, String>> getHeader() async {
     if (buvid3.isEmpty) {
@@ -536,18 +538,15 @@ class BiliBiliSite implements LiveSite {
   }
 
   @override
-  Future<LiveRoom> getRoomDetail({required String platform, required String roomId}) async {
+  Future<LiveRoom> getRoomDetail({required String platform, required String roomId, bool light = false}) async {
     try {
       var roomInfo = await getRoomInfo(roomId: roomId);
       var realRoomId = roomInfo["room_info"]["room_id"].toString();
       BiliBiliDanmakuArgs danmakuArgs;
-      try {
-        // Room entry must not wait through the whole chat retry chain.  A
-        // single quick discovery gives playback priority; the websocket layer
-        // then refreshes credentials with the full retry policy when needed.
-        danmakuArgs = await _discoverDanmaku(int.tryParse(realRoomId) ?? 0, maxAttempts: 1);
-      } catch (error) {
-        debugPrint('Bilibili danmaku discovery failed: $error');
+      if (light) {
+        // 列表刷新：不请求弹幕服务器发现（getDanmuInfo）。给一份只需在真正
+        // 连接弹幕时才会补全凭据的默认参数即可——进入房间时播放页会重新拉
+        // 完整详情，这里的数据只用于卡片。
         final headers = await getHeader();
         danmakuArgs = BiliBiliDanmakuArgs(
           roomId: int.tryParse(realRoomId) ?? 0,
@@ -564,6 +563,31 @@ class BiliBiliSite implements LiveSite {
           },
           refresh: () => _discoverDanmaku(int.tryParse(realRoomId) ?? 0),
         );
+      } else {
+        try {
+          // Room entry must not wait through the whole chat retry chain.  A
+          // single quick discovery gives playback priority; the websocket layer
+          // then refreshes credentials with the full retry policy when needed.
+          danmakuArgs = await _discoverDanmaku(int.tryParse(realRoomId) ?? 0, maxAttempts: 1);
+        } catch (error) {
+          debugPrint('Bilibili danmaku discovery failed: $error');
+          final headers = await getHeader();
+          danmakuArgs = BiliBiliDanmakuArgs(
+            roomId: int.tryParse(realRoomId) ?? 0,
+            uid: cookie.trim().isEmpty ? 0 : userId,
+            token: '',
+            serverUrls: const ['wss://broadcastlv.chat.bilibili.com/sub'],
+            buvid: buvid3,
+            cookie: headers['cookie'] ?? cookie,
+            headers: {
+              'user-agent': headers['user-agent'] ?? kDefaultUserAgent,
+              'origin': 'https://live.bilibili.com',
+              'referer': 'https://live.bilibili.com/$realRoomId',
+              if ((headers['cookie'] ?? '').isNotEmpty) 'cookie': headers['cookie'],
+            },
+            refresh: () => _discoverDanmaku(int.tryParse(realRoomId) ?? 0),
+          );
+        }
       }
       // 直播开播时间：room_init 接口（简单稳定，getInfoByRoom 可能被风控）。
       // 必须校验 code：风控时返回 code=-352 的 JSON（data 为 null），
@@ -583,8 +607,9 @@ class BiliBiliSite implements LiveSite {
       // 注意复数 attentions 是搜索接口 live_room 的字段名，本接口没有，
       // 曾因取错字段名导致该行长期静默缺失。relation_info 偶尔会随
       // 风控缺失，此时退回房间页 HTML 里的同一字段（网页抓取兜底）。
+      // 列表刷新（light）不抓房间页：卡片不展示粉丝数。
       var followers = parseFollowersFromRoomInfo(roomInfo);
-      if (followers.isEmpty || followers == '0') {
+      if (!light && (followers.isEmpty || followers == '0')) {
         followers = await _fetchFollowersFromRoomPage(realRoomId) ?? followers;
       }
       return LiveRoom(

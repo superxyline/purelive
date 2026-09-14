@@ -344,10 +344,19 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     EventBus.instance.emit('refresh_favorite_finish', true);
   }
 
+  /// 分批增量推到界面的最小间隔：既让卡片尽快更新，又避免大列表反复
+  /// 触发排序/标签匹配而卡顿。
+  static const Duration _progressivePushInterval = Duration(milliseconds: 400);
+
+  /// 详情刷新是否正在进行：避免启动刷新与下拉/双击刷新叠加，重复打接口。
+  bool _refreshingDetails = false;
+
   Future<void> _refreshRoomDetails(List<LiveRoom> rooms) async {
+    if (_refreshingDetails) return;
     final valid = rooms.where((r) => r.platform?.isNotEmpty ?? false).toList();
     if (valid.isEmpty) return;
 
+    _refreshingDetails = true;
     _refreshStopwatch = Stopwatch()..start();
 
     final int batch = refreshConfigController.maxConcurrentRefresh.value > 0
@@ -355,22 +364,35 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
         : 5;
     final persistedRooms = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
     var changed = false;
+    var lastPush = DateTime.now();
 
-    for (int i = 0; i < valid.length; i += batch) {
-      final end = i + batch > valid.length ? valid.length : i + batch;
-      final batchRooms = valid.sublist(i, end);
+    try {
+      for (int i = 0; i < valid.length; i += batch) {
+        final end = i + batch > valid.length ? valid.length : i + batch;
+        final batchRooms = valid.sublist(i, end);
 
-      try {
-        final futures = batchRooms
-            .map(
-              (room) => Sites.of(room.platform!).liveSite.getRoomDetail(roomId: room.roomId!, platform: room.platform!),
-            )
-            .toList();
+        try {
+          final futures = batchRooms
+              .map(
+                (room) => Sites.of(room.platform!).liveSite.getRoomDetail(
+                  roomId: room.roomId!,
+                  platform: room.platform!,
+                  // 列表只需要卡片字段：跳过弹幕发现/签名、粉丝抓取等
+                  // 只有进房间才需要的请求，显著缩短批量刷新耗时。
+                  light: true,
+                ),
+              )
+              .toList();
 
-        final results = await Future.wait(futures);
-        for (var updated in results) {
-          final idx = persistedRooms.indexWhere((e) => e.roomId == updated.roomId && e.platform == updated.platform);
-          if (idx != -1) {
+          final results = await Future.wait(futures);
+          for (var updated in results) {
+            final idx = persistedRooms.indexWhere(
+              (e) => e.roomId == updated.roomId && e.platform == updated.platform,
+            );
+            if (idx == -1) continue;
+            // 本次请求失败（平台返回空对象）时保留原卡片数据，不清空也不落盘，
+            // 否则一次瞬时超时就会把标题/封面清掉并持久化。
+            if (!updated.hasUsableCardData) continue;
             // 平台详情接口不认识本地标签；刷新时保留它们。整个刷新周期
             // 只提交一次 Hive，避免每个房间各写一份完整收藏列表。
             updated.tagIds = List<String>.from(persistedRooms[idx].tagIds);
@@ -384,15 +406,26 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
             persistedRooms[idx] = updated;
             changed = true;
           }
+        } catch (e) {
+          developer.log('Error refreshing room details: $e');
         }
-      } catch (e) {
-        developer.log('Error refreshing room details: $e');
+
+        // 每批就绪后就把已有结果推给界面（按时间节流），不必等所有房间
+        // 刷完——否则大列表下界面会长时间停留在上一次的旧状态。
+        if (changed && DateTime.now().difference(lastPush) >= _progressivePushInterval) {
+          lastPush = DateTime.now();
+          // 必须传新列表实例：Rx 对同一个对象不判为变化，否则既不会通知
+          // 界面也不会写盘。
+          SettingsService.to.fav.favoriteRooms.v = List<LiveRoom>.from(persistedRooms);
+          applyLocalFilter();
+        }
       }
+
+      if (changed) SettingsService.to.fav.favoriteRooms.v = List<LiveRoom>.from(persistedRooms);
+    } finally {
+      _refreshingDetails = false;
+      _refreshStopwatch?.stop();
+      _refreshStopwatch = null;
     }
-
-    if (changed) SettingsService.to.fav.favoriteRooms.v = persistedRooms;
-
-    _refreshStopwatch?.stop();
-    _refreshStopwatch = null;
   }
 }
