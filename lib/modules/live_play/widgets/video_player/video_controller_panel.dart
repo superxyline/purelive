@@ -46,6 +46,146 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
 
   VideoController get controller => widget.controller;
 
+  /// 当前直播间（详情接口的返回值优先，切房后也保持最新）。
+  LiveRoom? get _currentRoom =>
+      controller.livePlayController.state.value.room.detail ?? controller.room;
+
+  String? get _maskPlatform => _currentRoom?.platform;
+
+  String? get _maskRoomId => _currentRoom?.roomId;
+
+  /// 遮挡块本体：模糊框内画面（弹幕在其上层，因此不会被遮住）。
+  Widget _buildVideoMask(BuildContext context) {
+    return Obx(() {
+      final rect = VideoMaskService.instance.maskOf(_maskPlatform, _maskRoomId);
+      if (rect == null) return const SizedBox.shrink();
+      return Positioned.fill(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final height = constraints.maxHeight;
+            return IgnorePointer(
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: width * rect.x,
+                    top: height * rect.y,
+                    width: width * rect.width,
+                    height: height * rect.height,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: BackdropFilter(
+                        filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                        child: Container(color: Colors.black.withValues(alpha: 0.14)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  /// 遮挡块手柄：顶部拖动条（移动）+ 右下角手柄（缩放）。
+  ///
+  /// 缩小/移动都按画面比例换算，因此全屏与窗口模式共用同一份数据。
+  Widget _buildVideoMaskHandles(BuildContext context) {
+    return Obx(() {
+      final rect = VideoMaskService.instance.maskOf(_maskPlatform, _maskRoomId);
+      if (rect == null) return const SizedBox.shrink();
+      // 跟随控制条显隐：平时完全不占用手势，需要调整时点一下画面即可出现
+      if (!controller.showController.value || controller.showLocked.value) {
+        return const SizedBox.shrink();
+      }
+      return Positioned.fill(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final height = constraints.maxHeight;
+            final left = width * rect.x;
+            final top = height * rect.y;
+            final boxWidth = width * rect.width;
+            final boxHeight = height * rect.height;
+
+            // 手柄整体保持在画面内，避免被 Stack 裁掉后按不到
+            double clampX(double value, double handleWidth) =>
+                value < 0 ? 0 : (value + handleWidth > width ? width - handleWidth : value);
+            double clampY(double value, double handleHeight) =>
+                value < 0 ? 0 : (value + handleHeight > height ? height - handleHeight : value);
+
+            // 拖动条不低于顶栏，避免盖住右上角按钮
+            final gripTopRaw = top - 15;
+            final gripTop = gripTopRaw < barHeight + 4 ? barHeight + 4 : gripTopRaw;
+
+            void update({double? dx, double? dy, double? dw, double? dh}) {
+              VideoMaskService.instance.setMask(
+                _maskPlatform,
+                _maskRoomId,
+                rect.copyWith(
+                  x: dx == null ? null : rect.x + dx,
+                  y: dy == null ? null : rect.y + dy,
+                  width: dw == null ? null : rect.width + dw,
+                  height: dh == null ? null : rect.height + dh,
+                ),
+              );
+            }
+
+            return Stack(
+              children: [
+                // 顶部拖动条（移动）
+                Positioned(
+                  left: clampX(left + boxWidth / 2 - 26, 52),
+                  top: clampY(gripTop, 26),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanStart: (_) => controller.enableController(),
+                    onPanUpdate: (details) {
+                      if (width <= 0 || height <= 0) return;
+                      update(dx: details.delta.dx / width, dy: details.delta.dy / height);
+                    },
+                    onPanEnd: (_) => controller.enableController(),
+                    child: _maskHandleChip(Icons.drag_indicator_rounded, 52, 26),
+                  ),
+                ),
+                // 右下角手柄（缩放）
+                Positioned(
+                  left: clampX(left + boxWidth - 14, 28),
+                  top: clampY(top + boxHeight - 14, 28),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanStart: (_) => controller.enableController(),
+                    onPanUpdate: (details) {
+                      if (width <= 0 || height <= 0) return;
+                      update(dw: details.delta.dx / width, dh: details.delta.dy / height);
+                    },
+                    onPanEnd: (_) => controller.enableController(),
+                    child: _maskHandleChip(Icons.open_in_full_rounded, 28, 28, round: true),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  Widget _maskHandleChip(IconData icon, double width, double height, {bool round = false}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(round ? height / 2 : 13),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.7), width: 1),
+      ),
+      child: Icon(icon, size: round ? 16 : 18, color: Colors.white),
+    );
+  }
+
   /// 当前焦点是否在真正的文本输入框上（弹幕输入条等）。
   ///
   /// 播放器面板根节点带 Focus(autofocus: true) 用于接收键盘快捷键，
@@ -127,6 +267,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     ),
                   ),
                 ),
+                // 视频遮挡块（模糊框）本体：刻意放在弹幕层**之下**，弹幕始终
+                // 覆盖在它上面；整体 IgnorePointer，指针事件继续下落给下方的
+                // 手势层，所以滑动画面、点击弹幕都不受影响。
+                _buildVideoMask(context),
                 Obx(
                   () => Offstage(
                     offstage: controller.hideDanmaku.value,
@@ -164,6 +308,9 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 LockButton(controller: controller),
                 TopActionBar(controller: controller, barHeight: barHeight),
                 BottomActionBar(controller: controller, barHeight: barHeight),
+                // 遮挡块的拖拽/缩放手柄：手势层命中即截断，手柄必须放在它
+                // 之上才能收到拖拽；只在控制条显示时出现，平时不占用手势。
+                _buildVideoMaskHandles(context),
                 Obx(() {
                   final liveCtr = controller.livePlayController;
                   final sc = liveCtr.fsSC.value;
@@ -177,7 +324,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     width: width,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
-                      child: SuperChatCard(key: ValueKey(sc.id), sc: sc),
+                      child: Opacity(
+                        opacity: SettingsService.to.danmaku.fullscreenScOpacity.v,
+                        child: SuperChatCard(key: ValueKey(sc.id), sc: sc),
+                      ),
                     ),
                   );
                 }),
@@ -235,6 +385,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                             key: ValueKey(gift.sentAt!.millisecondsSinceEpoch),
                             message: gift,
                             glassEffect: true,
+                            opacity: SettingsService.to.danmaku.fullscreenGiftCardOpacity.v,
                             onTap: () => onGiftCardTap(context, gift),
                           ),
                         ),
@@ -386,6 +537,7 @@ class TopActionBar extends StatelessWidget {
                 BatteryInfo(controller: controller),
               ],
               TempMuteButton(controller: controller),
+              VideoMaskButton(controller: controller),
               AudioOnlyButton(controller: controller),
               if (PlatformUtils.isAndroid) CastButton(controller: controller),
               if (!GlobalPlayerState.to.fullscreenUI && PlatformUtils.isAndroid) PIPButton(controller: controller),
@@ -1542,9 +1694,40 @@ class TempMuteButton extends StatelessWidget {
   }
 }
 
+/// 视频遮挡块开关：点击在当前直播间放一个可移动/缩放的模糊框，用来遮住
+/// 画面固定位置的广告；再点一次即移除。位置与大小按直播间分别记住，
+/// 换直播间互不影响（详见 [VideoMaskService]）。
+class VideoMaskButton extends StatelessWidget {
+  const VideoMaskButton({super.key, required this.controller});
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final room = controller.livePlayController.state.value.room.detail ?? controller.room;
+      final platform = room.platform;
+      final roomId = room.roomId;
+      final active = VideoMaskService.instance.hasMask(platform, roomId);
+      return IconButton(
+        tooltip: i18n(active ? 'video_mask_remove' : 'video_mask_add'),
+        visualDensity: VisualDensity.compact,
+        iconSize: 21,
+        color: active ? const Color(0xFFFFD166) : Colors.white,
+        onPressed: () {
+          controller.enableController();
+          final created = VideoMaskService.instance.toggleMask(platform, roomId);
+          // 首次添加时给一句操作提示，否则用户不知道框还能拖动
+          if (created) ToastUtil.show(i18n('video_mask_created_hint'));
+        },
+        icon: Icon(active ? Icons.blur_on_rounded : Icons.blur_linear_rounded),
+      );
+    });
+  }
+}
+
 class AudioOnlyButton extends StatelessWidget {
   const AudioOnlyButton({super.key, required this.controller});
-
   final VideoController controller;
 
   @override

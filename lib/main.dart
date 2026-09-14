@@ -67,6 +67,8 @@ class _MyAppState extends State<MyApp> {
     Get.put(RecentRoomsService());
     // 按直播间维度的礼物卡片屏蔽
     Get.put(RoomGiftBlockService());
+    // 按直播间维度的视频遮挡块（模糊框）
+    Get.put(VideoMaskService());
     // 冷启动后台预取赛事数据：延后几秒避开首页首屏的网络竞争，
     // 用户点击赛事标签时大概率已就绪，直接命中缓存秒开。
     Future.delayed(const Duration(seconds: 5), () {

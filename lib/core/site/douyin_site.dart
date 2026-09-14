@@ -391,9 +391,12 @@ class DouyinSite implements LiveSite {
         ? (roomData["create_time"] as num).toInt()
         : int.tryParse(roomData["create_time"]?.toString() ?? '') ?? 0;
 
-    // web enter 接口的 follow_info 只有关注状态，没有粉丝数，
-    // 用房间 id 补一次 reflow/info（App 接口）拿主播粉丝数。
-    final followers = await _fetchFollowersByRoomId(roomId);
+    // web enter 接口的 follow_info 只有关注状态、没有粉丝数，房间页 HTML 的
+    // room 对象又没有 create_time（实测），两者都缺的这两项统一从 reflow/info
+    // 补一次（同一个请求，不额外增加开销）。
+    final extra = await _fetchRoomExtra(roomId);
+    // 开播时间：enter 自带 create_time 时优先用它，缺失时用 reflow 的
+    final startTimeSec = douyinStartTime > 0 ? douyinStartTime : extra.startTimeSec;
 
     return LiveRoom(
       roomId: webRid,
@@ -409,28 +412,34 @@ class DouyinSite implements LiveSite {
       audienceMetricType: AudienceMetricType.totalViewers,
       status: roomStatus,
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
-      liveStartTime: roomStatus && douyinStartTime > 0 ? douyinStartTime * 1000 : null,
+      liveStartTime: roomStatus && startTimeSec > 0 ? startTimeSec * 1000 : null,
       link: "https://live.douyin.com/$webRid",
       platform: Sites.douyinSite,
       area: '',
       introduction: owner?["signature"]?.toString() ?? "",
       notice: "",
-      followers: followers,
+      followers: extra.followers,
       danmakuData: DouyinDanmakuArgs(webRid: webRid, roomId: roomId, userId: userUniqueId, cookie: headers["cookie"]),
       data: roomStatus ? roomData["stream_url"] : {},
     );
   }
 
-  /// 主播粉丝数：只在 reflow/info（App 接口）的 `data.room.owner.follow_info` 里。
-  /// web enter 接口的同一字段只有关注状态，没有粉丝数。
-  Future<String> _fetchFollowersByRoomId(String roomId) async {
-    if (roomId.isEmpty) return '';
+  /// 从 reflow/info（App 接口）取网页与 enter 接口都拿不到的两项：
+  /// 主播粉丝数（`owner.follow_info`）与本次开播时间（`create_time`，秒级）。
+  /// 房间页 HTML 的 room 对象没有 create_time，web enter 的 follow_info
+  /// 只有关注状态，只有这个接口两样都有，且匿名可访问。
+  Future<({String followers, int startTimeSec})> _fetchRoomExtra(String roomId) async {
+    if (roomId.isEmpty) return (followers: '', startTimeSec: 0);
     try {
       final roomData = await _getRoomDataByRoomId(roomId);
-      return parseFollowersFromOwner(roomData["data"]?["room"]?["owner"]);
+      final room = roomData["data"]?["room"];
+      return (
+        followers: parseFollowersFromOwner(room?["owner"]),
+        startTimeSec: asT<int?>(room?["create_time"]) ?? 0,
+      );
     } catch (e) {
       CoreLog.error(e);
-      return '';
+      return (followers: '', startTimeSec: 0);
     }
   }
 
@@ -468,8 +477,10 @@ class DouyinSite implements LiveSite {
         ? (roomInfo["create_time"] as num).toInt()
         : int.tryParse(roomInfo["create_time"]?.toString() ?? '') ?? 0;
 
-    // 房间页 HTML 里没有主播粉丝数，沿用 reflow/info 兜底（拿不到就不显示）
-    final followers = await _fetchFollowersByRoomId(realRoomId);
+    // 房间页 HTML 里既没有主播粉丝数、也没有 create_time（实测 room 对象只有
+    // 标题/状态等字段），统一从 reflow/info 兜底取回，否则角标与粉丝行都不显示。
+    final extra = await _fetchRoomExtra(realRoomId);
+    final startTimeSec = douyinStartTime > 0 ? douyinStartTime : extra.startTimeSec;
 
     return LiveRoom(
       roomId: roomId,
@@ -484,14 +495,14 @@ class DouyinSite implements LiveSite {
       onlineViewers: _douyinOnlineViewers(roomInfo),
       audienceMetricType: AudienceMetricType.totalViewers,
       liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
-      liveStartTime: roomStatus && douyinStartTime > 0 ? douyinStartTime * 1000 : null,
+      liveStartTime: roomStatus && startTimeSec > 0 ? startTimeSec * 1000 : null,
       link: "https://live.douyin.com/$webRid",
       area: '',
       status: roomStatus,
       platform: Sites.douyinSite,
       introduction: roomInfo["title"].toString(),
       notice: "",
-      followers: followers,
+      followers: extra.followers,
       danmakuData: DouyinDanmakuArgs(
         webRid: webRid,
         roomId: realRoomId,

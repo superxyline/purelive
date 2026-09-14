@@ -18,6 +18,7 @@ import 'package:pure_live/common/services/settings/volume_settings_controller.da
 import 'package:pure_live/common/services/settings/cookie_settings_controller.dart';
 import 'package:pure_live/common/services/settings/danmaku_settings_controller.dart';
 import 'package:pure_live/common/services/room_gift_block_service.dart';
+import 'package:pure_live/common/services/video_mask_service.dart';
 
 class BackupController extends GetxController {
   static BackupController get to => Get.find();
@@ -49,6 +50,8 @@ class BackupController extends GetxController {
       'page': Get.find<PageSettingsController>().toJson(),
       // 本直播间礼物卡片屏蔽（按房间维度），随备份/跨端传输一并导出
       'roomGiftBlocks': Get.find<RoomGiftBlockService>().toJson(),
+      // 本直播间视频遮挡块（模糊框，按房间维度）
+      'videoMasks': Get.find<VideoMaskService>().toJson(),
     };
 
     if (includeSensitiveData) {
@@ -122,6 +125,10 @@ class BackupController extends GetxController {
 
     if (data.containsKey('roomGiftBlocks')) {
       Get.find<RoomGiftBlockService>().fromJson(data['roomGiftBlocks']);
+    }
+
+    if (data.containsKey('videoMasks')) {
+      Get.find<VideoMaskService>().fromJson(data['videoMasks']);
     }
 
     if (data.containsKey('webdav')) {

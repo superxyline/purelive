@@ -657,8 +657,17 @@ class GiftCard extends StatelessWidget {
   /// 点击卡片：弹出"屏蔽该礼物卡片展示"确认框（本直播间维度）
   final VoidCallback? onTap;
 
+  /// 整卡不透明度（全屏浮层可由设置调节，1.0 为默认观感）
+  final double opacity;
+
   // 非 const：_accentFuture 依赖 message 运行时初始化
-  GiftCard({super.key, required this.message, this.glassEffect = false, this.onTap});
+  GiftCard({
+    super.key,
+    required this.message,
+    this.glassEffect = false,
+    this.onTap,
+    this.opacity = 1.0,
+  });
 
   /// 卡片强调色解析：网络礼物且带图标时从图标提取主导色调，
   /// 主色到手前先以平台色兜底渲染，拿到后无感切换。
@@ -749,7 +758,9 @@ class GiftCard extends StatelessWidget {
       future: _accentFuture,
       builder: (context, snapshot) {
         final accentColor = snapshot.data ?? _fallbackAccent;
-        return _buildWithAccent(context, accentColor);
+        final card = _buildWithAccent(context, accentColor);
+        // opacity 为 1.0 时 Opacity 不会额外建图层，不影响默认路径性能
+        return opacity >= 1.0 ? card : Opacity(opacity: opacity, child: card);
       },
     );
   }
