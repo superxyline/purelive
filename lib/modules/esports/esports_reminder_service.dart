@@ -48,17 +48,8 @@ class EsportsReminderService {
         ?.createNotificationChannel(androidChannel);
   }
 
-  /// 处理通知点击跳转
+  /// 处理通知点击跳转：回到首页（不再从赛事跳转到直播间）
   void _handleNotificationTap(String gameKey) {
-    if (gameKey == 'cs') {
-      _navigateToCSLiveRoom();
-    } else {
-      Get.offAllNamed(RoutePath.kInitial);
-    }
-  }
-
-  /// 跳转到CS直播间
-  void _navigateToCSLiveRoom() {
     Get.offAllNamed(RoutePath.kInitial);
   }
 
