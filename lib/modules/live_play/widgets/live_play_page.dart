@@ -258,6 +258,16 @@ class LivePlayPage extends GetView<LivePlayController> {
                 final osd = SettingsService.to.app.showRoomInfoOsd;
                 osd.v = !osd.v;
                 ToastUtil.show(osd.v ? i18n('room_info_osd_on') : i18n('room_info_osd_off'));
+              } else if (index >= 10 && index < 10 + VideoMaskService.maxSlots) {
+                final slot = index - 10;
+                final maskRoom = controller.state.value.room.detail ?? controller.room;
+                // 该槽位第一次设遮罩时才提示操作方式；关掉再打开会沿用上次
+                // 调好的位置，不需要再提示一次。
+                final isNew =
+                    !VideoMaskService.instance.hasStoredMask(maskRoom.platform, maskRoom.roomId, slot);
+                final visible =
+                    VideoMaskService.instance.toggleMask(maskRoom.platform, maskRoom.roomId, slot);
+                if (visible && isNew) ToastUtil.show(i18n('video_mask_created_hint'));
               }
               controller.updateUI(isMenuOpen: false);
             },
@@ -344,6 +354,37 @@ class LivePlayPage extends GetView<LivePlayController> {
                     }),
                   ),
                 ),
+                // 画面遮挡块（模糊框）：每个直播间最多三个，逐个开关；
+                // 关掉只是隐藏，位置会记住，下次打开原样恢复。
+                for (int slot = 0; slot < VideoMaskService.maxSlots; slot++)
+                  PopupMenuItem(
+                    value: 10 + slot,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Builder(
+                      builder: (context) {
+                        final maskRoom =
+                            controller.state.value.room.detail ?? controller.room;
+                        final on = VideoMaskService.instance.isVisible(
+                          maskRoom.platform,
+                          maskRoom.roomId,
+                          slot,
+                        );
+                        return MenuListTile(
+                          leading: Icon(
+                            on ? Icons.blur_on_rounded : Icons.blur_linear_rounded,
+                            size: 20,
+                          ),
+                          text: i18n('video_mask_slot', args: {'n': '${slot + 1}'}),
+                          trailing: Text(
+                            on ? i18n('video_mask_on') : i18n('video_mask_off'),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: on ? Theme.of(context).colorScheme.primary : Theme.of(context).hintColor,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
               ];
             },
           ),

@@ -6,7 +6,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter/gestures.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/plugins/event_bus.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -55,10 +54,11 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
   String? get _maskRoomId => _currentRoom?.roomId;
 
   /// 遮挡块本体：模糊框内画面（弹幕在其上层，因此不会被遮住）。
+  /// 支持同一直播间多个遮挡块，逐个渲染。
   Widget _buildVideoMask(BuildContext context) {
     return Obx(() {
-      final rect = VideoMaskService.instance.maskOf(_maskPlatform, _maskRoomId);
-      if (rect == null) return const SizedBox.shrink();
+      final masks = VideoMaskService.instance.visibleMasksOf(_maskPlatform, _maskRoomId);
+      if (masks.isEmpty) return const SizedBox.shrink();
       return Positioned.fill(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -67,19 +67,20 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
             return IgnorePointer(
               child: Stack(
                 children: [
-                  Positioned(
-                    left: width * rect.x,
-                    top: height * rect.y,
-                    width: width * rect.width,
-                    height: height * rect.height,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: BackdropFilter(
-                        filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                        child: Container(color: Colors.black.withValues(alpha: 0.14)),
+                  for (final mask in masks)
+                    Positioned(
+                      left: width * mask.rect.x,
+                      top: height * mask.rect.y,
+                      width: width * mask.rect.width,
+                      height: height * mask.rect.height,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: BackdropFilter(
+                          filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                          child: Container(color: Colors.black.withValues(alpha: 0.14)),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             );
@@ -89,13 +90,13 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
     });
   }
 
-  /// 遮挡块手柄：顶部拖动条（移动）+ 右下角手柄（缩放）。
+  /// 遮挡块手柄：每个遮挡块一个顶部拖动条（移动）+ 右下角手柄（缩放）。
   ///
   /// 缩小/移动都按画面比例换算，因此全屏与窗口模式共用同一份数据。
   Widget _buildVideoMaskHandles(BuildContext context) {
     return Obx(() {
-      final rect = VideoMaskService.instance.maskOf(_maskPlatform, _maskRoomId);
-      if (rect == null) return const SizedBox.shrink();
+      final masks = VideoMaskService.instance.visibleMasksOf(_maskPlatform, _maskRoomId);
+      if (masks.isEmpty) return const SizedBox.shrink();
       // 跟随控制条显隐：平时完全不占用手势，需要调整时点一下画面即可出现
       if (!controller.showController.value || controller.showLocked.value) {
         return const SizedBox.shrink();
@@ -105,10 +106,6 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
           builder: (context, constraints) {
             final width = constraints.maxWidth;
             final height = constraints.maxHeight;
-            final left = width * rect.x;
-            final top = height * rect.y;
-            final boxWidth = width * rect.width;
-            final boxHeight = height * rect.height;
 
             // 手柄整体保持在画面内，避免被 Stack 裁掉后按不到
             double clampX(double value, double handleWidth) =>
@@ -116,26 +113,34 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
             double clampY(double value, double handleHeight) =>
                 value < 0 ? 0 : (value + handleHeight > height ? height - handleHeight : value);
 
-            // 拖动条不低于顶栏，避免盖住右上角按钮
-            final gripTopRaw = top - 15;
-            final gripTop = gripTopRaw < barHeight + 4 ? barHeight + 4 : gripTopRaw;
+            final handles = <Widget>[];
+            for (final mask in masks) {
+              final rect = mask.rect;
+              final slot = mask.slot;
+              final left = width * rect.x;
+              final top = height * rect.y;
+              final boxWidth = width * rect.width;
+              final boxHeight = height * rect.height;
 
-            void update({double? dx, double? dy, double? dw, double? dh}) {
-              VideoMaskService.instance.setMask(
-                _maskPlatform,
-                _maskRoomId,
-                rect.copyWith(
-                  x: dx == null ? null : rect.x + dx,
-                  y: dy == null ? null : rect.y + dy,
-                  width: dw == null ? null : rect.width + dw,
-                  height: dh == null ? null : rect.height + dh,
-                ),
-              );
-            }
+              void update({double? dx, double? dy, double? dw, double? dh}) {
+                VideoMaskService.instance.setMask(
+                  _maskPlatform,
+                  _maskRoomId,
+                  slot,
+                  rect.copyWith(
+                    x: dx == null ? null : rect.x + dx,
+                    y: dy == null ? null : rect.y + dy,
+                    width: dw == null ? null : rect.width + dw,
+                    height: dh == null ? null : rect.height + dh,
+                  ),
+                );
+              }
 
-            return Stack(
-              children: [
-                // 顶部拖动条（移动）
+              // 拖动条不低于顶栏，避免盖住右上角按钮
+              final gripTopRaw = top - 15;
+              final gripTop = gripTopRaw < barHeight + 4 ? barHeight + 4 : gripTopRaw;
+
+              handles.add(
                 Positioned(
                   left: clampX(left + boxWidth / 2 - 26, 52),
                   top: clampY(gripTop, 26),
@@ -150,7 +155,8 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     child: _maskHandleChip(Icons.drag_indicator_rounded, 52, 26),
                   ),
                 ),
-                // 右下角手柄（缩放）
+              );
+              handles.add(
                 Positioned(
                   left: clampX(left + boxWidth - 14, 28),
                   top: clampY(top + boxHeight - 14, 28),
@@ -165,8 +171,9 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     child: _maskHandleChip(Icons.open_in_full_rounded, 28, 28, round: true),
                   ),
                 ),
-              ],
-            );
+              );
+            }
+            return Stack(children: handles);
           },
         ),
       );
@@ -538,7 +545,6 @@ class TopActionBar extends StatelessWidget {
                 BatteryInfo(controller: controller),
               ],
               TempMuteButton(controller: controller),
-              VideoMaskButton(controller: controller),
               AudioOnlyButton(controller: controller),
               if (PlatformUtils.isAndroid) CastButton(controller: controller),
               if (!GlobalPlayerState.to.fullscreenUI && PlatformUtils.isAndroid) PIPButton(controller: controller),
@@ -1420,7 +1426,8 @@ class BottomActionBar extends StatelessWidget {
                           children: [
                             PlayPauseButton(controller: controller),
                             RefreshButton(controller: controller),
-                            FavoriteButton(controller: controller),
+                            // 关注按钮不放在这里：直播间顶部标题栏（直播名旁）
+                            // 已有一个关注爱心，避免重复。
                             if (SettingsService.to.danmaku.enableDanmakuDisplay.v) ...[
                               DanmakuButton(controller: controller),
                               SettingsButton(controller: controller),
@@ -1695,40 +1702,6 @@ class TempMuteButton extends StatelessWidget {
   }
 }
 
-/// 视频遮挡块开关：点击在当前直播间放一个可移动/缩放的模糊框，用来遮住
-/// 画面固定位置的广告；再点一次即移除。位置与大小按直播间分别记住，
-/// 换直播间互不影响（详见 [VideoMaskService]）。
-class VideoMaskButton extends StatelessWidget {
-  const VideoMaskButton({super.key, required this.controller});
-
-  final VideoController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final room = controller.livePlayController.state.value.room.detail ?? controller.room;
-      final platform = room.platform;
-      final roomId = room.roomId;
-      final active = VideoMaskService.instance.hasMask(platform, roomId);
-      return IconButton(
-        tooltip: i18n(active ? 'video_mask_remove' : 'video_mask_add'),
-        visualDensity: VisualDensity.compact,
-        iconSize: 21,
-        color: active ? const Color(0xFFFFD166) : Colors.white,
-        onPressed: () {
-          controller.enableController();
-          // 该直播间第一次设遮罩时才提示操作方式；关掉再打开会沿用上次调好的
-          // 位置，不需要再提示一次。
-          final isNewRoom = !VideoMaskService.instance.hasStoredMask(platform, roomId);
-          final visible = VideoMaskService.instance.toggleMask(platform, roomId);
-          if (visible && isNewRoom) ToastUtil.show(i18n('video_mask_created_hint'));
-        },
-        icon: Icon(active ? Icons.blur_on_rounded : Icons.blur_linear_rounded),
-      );
-    });
-  }
-}
-
 class AudioOnlyButton extends StatelessWidget {
   const AudioOnlyButton({super.key, required this.controller});
   final VideoController controller;
@@ -1768,60 +1741,6 @@ class CastButton extends StatelessWidget {
         LiveUrlTool.castPlayUrlByRoomId(roomId: controller.room.roomId ?? '', platform: controller.room.platform ?? '');
       },
       icon: const Icon(Remix.tv_2_line),
-    );
-  }
-}
-
-class FavoriteButton extends StatefulWidget {
-  const FavoriteButton({super.key, required this.controller});
-
-  final VideoController controller;
-
-  @override
-  State<FavoriteButton> createState() => _FavoriteButtonState();
-}
-
-class _FavoriteButtonState extends State<FavoriteButton> {
-  StreamSubscription<dynamic>? subscription;
-  late bool isFavorite = SettingsService.to.fav.isFavorite(widget.controller.room);
-
-  @override
-  void initState() {
-    super.initState();
-    listenFavorite();
-  }
-
-  void listenFavorite() {
-    subscription = EventBus.instance.listen('changeFavorite', (data) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        widget.controller.enableController();
-        if (isFavorite) {
-          SettingsService.to.fav.removeRoom(widget.controller.room);
-        } else {
-          SettingsService.to.fav.addRoom(widget.controller.room);
-        }
-        setState(() => isFavorite = !isFavorite);
-        EventBus.instance.emit('changeFavorite', true);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 6),
-        alignment: Alignment.center,
-        height: 25,
-        child: Icon(
-          isFavorite ? Icons.favorite : Icons.favorite_border,
-          color: isFavorite ? const Color(0xFFFF5B7F) : Colors.white,
-          size: 20,
-        ),
-      ),
     );
   }
 }
