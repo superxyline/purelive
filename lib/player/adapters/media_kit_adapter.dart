@@ -404,6 +404,7 @@ class MediaKitAdapter implements UnifiedPlayer {
     ]);
   }
 
+
   Future<void> _applyMpvEnhancements() async {
     if (_disposed) return;
     if (_player.platform is! NativePlayer) return;

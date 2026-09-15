@@ -159,13 +159,14 @@ class BiliBiliSite implements LiveSite {
       );
 
       // 展开 协议(stream)→格式(format)→编码(codec)→CDN(host) 全部组合，
-      // 保留 codec 与 host 供排序：编码偏好（HEVC 省流量）+ CDN 测速优选。
-      final entries = <({String url, String codec, String host})>[];
+      // 保留编码/格式/CDN 供排序：编码偏好（HEVC 省流量）+ CDN 测速优选。
+      final entries = <({String url, String codec, String host, String format})>[];
       var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
       for (var streamItem in streamList) {
         var formatList = streamItem["format"];
         for (var formatItem in formatList) {
           var codecList = formatItem["codec"];
+          final format = (formatItem["format_name"] ?? "").toString().toLowerCase();
           for (var codecItem in codecList) {
             var urlList = codecItem["url_info"];
             var baseUrl = codecItem["base_url"].toString();
@@ -176,6 +177,7 @@ class BiliBiliSite implements LiveSite {
                 url: "$host$baseUrl${urlItem["extra"]}",
                 codec: codec,
                 host: host,
+                format: format,
               ));
             }
           }
@@ -192,9 +194,12 @@ class BiliBiliSite implements LiveSite {
         }
       }
 
-      int rank({required String url, required String codec, required String host}) {
+      int rank({required String url, required String codec, required String host, required String format}) {
         // mCDN 是 P2P 回源节点，稳定性差，一律沉底
-        if (url.contains("mcdn")) return 3;
+        if (url.contains("mcdn")) return 4;
+        // HEVC 的 flv 线路实测拿不到视频轨（mpv 解析后 video-params 为空、
+        // 只有声音没有画面），排到 ts/fmp4/hls 之后，避免开局先黑屏一轮。
+        if (codec == 'hevc' && format == 'flv') return 2;
         // 编码偏好：非偏好编码排后（同清晰度 HEVC 省约一半带宽）
         final preferCodec = preferHEVC ? 'hevc' : 'avc';
         if (codec.isNotEmpty && codec != preferCodec) return 1;
@@ -205,8 +210,8 @@ class BiliBiliSite implements LiveSite {
       }
 
       entries.sort((a, b) {
-        final ra = rank(url: a.url, codec: a.codec, host: a.host);
-        final rb = rank(url: b.url, codec: b.codec, host: b.host);
+        final ra = rank(url: a.url, codec: a.codec, host: a.host, format: a.format);
+        final rb = rank(url: b.url, codec: b.codec, host: b.host, format: b.format);
         if (ra != rb) return ra.compareTo(rb);
         return 0;
       });
