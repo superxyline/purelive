@@ -219,7 +219,6 @@
   "esports_reminder_lead": "赛事提醒提前时间",
   "esports_reminder_lead_subtitle": "关注的赛事开始前提前 {minutes} 分钟提醒",
   "esports_reminder_lead_hint": "修改后重新进入赛事页生效；开关即赛事页的星标关注",
-  "esports_select_live_room": "选择观赛直播间",
   "anime4k_super_resolution": "Anime4K 超分",
   "anime4k_super_resolution_subtitle": "低清直播源画质增强，GPU 负载越高效果越好",
   "super_resolution_off": "关闭",
@@ -1359,6 +1358,5 @@
   "osd_room": "房间号",
   "osd_quality": "清晰度",
   "osd_resolution": "分辨率",
-  "osd_audio_bitrate": "音频码率",
-  "esports_watch_live": "观看直播"
+  "osd_audio_bitrate": "音频码率"
 }

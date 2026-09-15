@@ -218,7 +218,6 @@
   "esports_reminder_lead": "Esports Reminder Lead Time",
   "esports_reminder_lead_subtitle": "Remind {minutes} minutes before a followed match starts",
   "esports_reminder_lead_hint": "Takes effect after re-entering the esports page. Toggle = starring a match.",
-  "esports_select_live_room": "Choose a Live Room",
   "anime4k_super_resolution": "Anime4K Super Resolution",
   "anime4k_super_resolution_subtitle": "Enhance low-quality streams. Higher quality modes use more GPU",
   "super_resolution_off": "Off",
@@ -1359,6 +1358,5 @@
   "osd_room": "Room",
   "osd_quality": "Quality",
   "osd_resolution": "Resolution",
-  "osd_audio_bitrate": "Audio bitrate",
-  "esports_watch_live": "Watch live"
+  "osd_audio_bitrate": "Audio bitrate"
 }
