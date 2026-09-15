@@ -64,6 +64,22 @@ class PlayerManager {
   PlayerEngine? _defaultEngine;
   bool _runtimeAudioOnly = false;
 
+  /// "有声音没画面"看门狗：开播后观察这段时间，若已经在播却始终没有有效的
+  /// 视频宽高，就按解码失败处理（换下一条线路）。
+  ///
+  /// 实测 B站部分线路（HEVC 的 flv）能正常出声但**根本解析不出视频轨**
+  /// （mpv 的 video-params 恒为空），而且不会触发 error 事件，只靠错误回调
+  /// 无法自动换线——用户当时只能手动切线路才恢复。这里补上这种"静默无画面"
+  /// 的检测，换线动作与手动切换一致；取流侧也已把这类线路排到后面。
+  static const Duration _videoFrameWatchdogDelay = Duration(seconds: 7);
+
+  /// 连续换线仍无画面的次数上限，避免在全部线路都异常时无限换下去
+  static const int _maxNoVideoSwitches = 4;
+
+  Timer? _videoWatchdogTimer;
+  bool _videoFrameSeen = false;
+  int _noVideoSwitches = 0;
+
   String? _currentUrl;
   List<String> _currentPlayUrls = [];
   Map<String, String> _currentHeaders = {};
@@ -267,6 +283,10 @@ class PlayerManager {
     _currentHeaders = headers;
     currentFloatRoom = room;
     hasError.value = false;
+    // 新的一次打开：重新观察是否出画面（宽高会由适配器重新上报）
+    _videoFrameSeen = false;
+    _videoWatchdogTimer?.cancel();
+    _videoWatchdogTimer = null;
 
     try {
       _stateSubject.add(PlayerState.preparing);
@@ -284,6 +304,7 @@ class PlayerManager {
       LiveAudioService.start(room!.roomId!, room.nick ?? "", room.title ?? "", room.avatar);
       videoKey.value = ValueKey("video_${DateTime.now().millisecondsSinceEpoch}");
       _stateSubject.add(PlayerState.ready);
+      _armVideoWatchdog(mySessionId);
     } on PlayerException catch (e) {
       if (!_isHandlingError && _isSessionValid(mySessionId)) {
         await _handleError(e, sessionId: mySessionId);
@@ -909,6 +930,8 @@ class PlayerManager {
 
   Future<void> hardDispose() async {
     lineManager.reset();
+    _videoFrameSeen = false;
+    _noVideoSwitches = 0;
     await _clearSubscriptions();
     if (_runtimeEngine != null) {
       await playerPool.removeFromCache(_runtimeEngine!);
@@ -1056,11 +1079,64 @@ class PlayerManager {
         (w, h) => h! >= w!,
       ).distinct().listen((event) {
         isVerticalVideo.value = event;
+        // 收到有效宽高说明视频轨确实出画面了：撤掉看门狗并清零换线计数
+        _onVideoFrameSeen();
       }),
     );
   }
 
+  /// 视频轨已出画面：撤销"有声音没画面"看门狗。
+  void _onVideoFrameSeen() {
+    _videoFrameSeen = true;
+    _noVideoSwitches = 0;
+    _videoWatchdogTimer?.cancel();
+    _videoWatchdogTimer = null;
+  }
+
+  /// 开播后观察是否出画面；一直不出就按解码失败换下一条线路。
+  void _armVideoWatchdog(int sessionId) {
+    _videoWatchdogTimer?.cancel();
+    _videoWatchdogTimer = null;
+    // 纯音频模式本来就没有画面，不参与判断
+    if (_runtimeAudioOnly || _videoFrameSeen) return;
+    _videoWatchdogTimer = Timer(_videoFrameWatchdogDelay, () {
+      if (!_isSessionValid(sessionId)) return;
+      if (_videoFrameSeen) return;
+      final w = _widthSubject.value ?? 0;
+      final h = _heightSubject.value ?? 0;
+      if (w > 0 && h > 0) {
+        _videoFrameSeen = true;
+        return;
+      }
+      // 还没播起来（网络卡住/缓冲）时交给既有的错误与重连逻辑处理
+      if (!_playingSubject.value) {
+        log('no video frame yet but not playing, skip watchdog');
+        return;
+      }
+      if (_noVideoSwitches >= _maxNoVideoSwitches) {
+        log('no video frames after $_maxNoVideoSwitches line switches, report error');
+        unawaited(
+          _handleError(
+            PlayerException(message: 'no video frames on any line', type: PlayerErrorType.codec),
+            sessionId: sessionId,
+          ),
+        );
+        return;
+      }
+      _noVideoSwitches++;
+      log('no video frames while playing, switch line (attempt $_noVideoSwitches)');
+      unawaited(
+        _handleError(
+          PlayerException(message: 'no video frames while playing', type: PlayerErrorType.codec),
+          sessionId: sessionId,
+        ),
+      );
+    });
+  }
+
   Future<void> _clearSubscriptions() async {
+    _videoWatchdogTimer?.cancel();
+    _videoWatchdogTimer = null;
     if (_subscriptions.isEmpty) return;
     for (final item in _subscriptions.toList()) {
       await item.cancel();
