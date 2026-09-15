@@ -65,7 +65,7 @@ class VideoMaskRect {
   int get hashCode => Object.hash(x, y, width, height);
 }
 
-/// 一个直播间的遮罩状态：位置尺寸 + 是否显示。
+/// 一个有遮罩槽位的状态：位置尺寸 + 是否显示。
 ///
 /// 位置尺寸与显示开关分开保存，所以关闭遮罩不会丢掉调好的位置——
 /// 再次打开时回到原来的位置，不必重新调整。
@@ -91,19 +91,31 @@ class VideoMaskState {
 
 /// 按直播间记忆的视频遮挡块（模糊框）。
 ///
-/// 用户可在全屏/窗口画面上放一个模糊框遮挡固定位置的广告；位置与大小按
-/// `platform|roomId` 分别保存，换直播间互不影响，再次点按钮即隐藏（位置
-/// 保留，下次打开原样恢复）。
+/// 每个直播间最多 [maxSlots] 个槽位，用于遮挡画面上固定位置的多处广告；
+/// 位置与大小按 `platform|roomId|槽位` 分别保存，换直播间互不影响，
+/// 关闭某个槽位只是隐藏（位置保留，下次打开原样恢复）。
 class VideoMaskService extends GetxService {
   static const String _storageKey = 'videoMasksV1';
 
-  /// 新建遮挡块的默认位置与大小（画面中上部，避开底部控制栏）。
-  static const VideoMaskRect defaultRect = VideoMaskRect(x: 0.32, y: 0.16, width: 0.36, height: 0.18);
+  /// 每个直播间可设置的遮挡块数量
+  static const int maxSlots = 3;
+
+  /// 新建时的默认位置与大小：三个槽位纵向错开，避免叠在一起看不见。
+  static const List<VideoMaskRect> defaultRects = [
+    VideoMaskRect(x: 0.32, y: 0.14, width: 0.36, height: 0.16),
+    VideoMaskRect(x: 0.32, y: 0.40, width: 0.36, height: 0.16),
+    VideoMaskRect(x: 0.32, y: 0.66, width: 0.36, height: 0.16),
+  ];
+
+  static VideoMaskRect defaultRectFor(int slot) => defaultRects[slot.clamp(0, maxSlots - 1)];
+
+  /// 单槽位时代的默认位置，保留给旧调用与测试
+  static VideoMaskRect get defaultRect => defaultRects.first;
 
   static VideoMaskService? _instance;
   static VideoMaskService get instance => _instance!;
 
-  /// key（platform|roomId）→ 遮罩状态
+  /// key（platform|roomId|slot）→ 遮罩状态
   final RxMap<String, VideoMaskState> rxMasks = <String, VideoMaskState>{}.obs;
 
   Timer? _saveTimer;
@@ -126,35 +138,49 @@ class VideoMaskService extends GetxService {
   static String roomKey(String? platform, String? roomId) =>
       '${platform?.trim().toLowerCase() ?? ''}|${roomId?.trim() ?? ''}';
 
+  static String slotKey(String? platform, String? roomId, int slot) =>
+      '${roomKey(platform, roomId)}|$slot';
+
   static bool _isValidKey(String? platform, String? roomId) =>
       (platform ?? '').trim().isNotEmpty && (roomId ?? '').trim().isNotEmpty;
 
-  /// 当前**实际显示**的遮罩矩形；隐藏或未设过时返回 null（渲染用）。
-  VideoMaskRect? maskOf(String? platform, String? roomId) {
+  /// 指定槽位当前**实际显示**的遮罩矩形；隐藏或未设过时返回 null。
+  VideoMaskRect? maskOf(String? platform, String? roomId, int slot) {
     if (!_isValidKey(platform, roomId)) return null;
-    final state = rxMasks[roomKey(platform, roomId)];
+    final state = rxMasks[slotKey(platform, roomId, slot)];
     if (state == null || !state.visible) return null;
     return state.rect;
   }
 
-  /// 该直播间当前是否显示着遮罩（按钮高亮用）。
-  bool hasMask(String? platform, String? roomId) => maskOf(platform, roomId) != null;
+  /// 指定槽位是否正在显示遮罩（菜单项状态用）。
+  bool isVisible(String? platform, String? roomId, int slot) => maskOf(platform, roomId, slot) != null;
 
-  /// 该直播间是否有记录（含已隐藏的），用于判断"再次打开"要恢复位置还是用默认位置。
-  bool hasStoredMask(String? platform, String? roomId) =>
-      _isValidKey(platform, roomId) && rxMasks.containsKey(roomKey(platform, roomId));
+  /// 该直播间所有正在显示的遮罩（渲染与手柄用）。
+  List<({int slot, VideoMaskRect rect})> visibleMasksOf(String? platform, String? roomId) {
+    if (!_isValidKey(platform, roomId)) return const [];
+    final result = <({int slot, VideoMaskRect rect})>[];
+    for (var slot = 0; slot < maxSlots; slot++) {
+      final rect = maskOf(platform, roomId, slot);
+      if (rect != null) result.add((slot: slot, rect: rect));
+    }
+    return result;
+  }
 
-  /// 新建或更新遮罩（拖拽/缩放时高频调用，写盘做了节流）。
-  void setMask(String? platform, String? roomId, VideoMaskRect rect) {
+  /// 指定槽位是否有记录（含已隐藏的），用于判断"再次打开"要恢复位置还是用默认位置。
+  bool hasStoredMask(String? platform, String? roomId, int slot) =>
+      _isValidKey(platform, roomId) && rxMasks.containsKey(slotKey(platform, roomId, slot));
+
+  /// 新建或更新某个槽位（拖拽/缩放时高频调用，写盘做了节流）。
+  void setMask(String? platform, String? roomId, int slot, VideoMaskRect rect) {
     if (!_isValidKey(platform, roomId)) return;
-    rxMasks[roomKey(platform, roomId)] = VideoMaskState(rect: rect.clamped());
+    rxMasks[slotKey(platform, roomId, slot)] = VideoMaskState(rect: rect.clamped());
     _scheduleSave();
   }
 
-  /// 隐藏该直播间的遮罩：**保留位置尺寸**，下次打开原样恢复。
-  void hideMask(String? platform, String? roomId) {
+  /// 隐藏某个槽位：**保留位置尺寸**，下次打开原样恢复。
+  void hideMask(String? platform, String? roomId, int slot) {
     if (!_isValidKey(platform, roomId)) return;
-    final key = roomKey(platform, roomId);
+    final key = slotKey(platform, roomId, slot);
     final state = rxMasks[key];
     if (state == null) return;
     rxMasks[key] = state.copyWith(visible: false);
@@ -162,16 +188,16 @@ class VideoMaskService extends GetxService {
   }
 
   /// 开关切换的纯逻辑：已有记录（哪怕当前隐藏）就沿用它的位置尺寸，
-  /// 只有该直播间从未设过遮罩时才落到默认位置。
-  static VideoMaskState toggled(VideoMaskState? current) => current == null
-      ? const VideoMaskState(rect: defaultRect)
+  /// 只有该槽位从未设过遮罩时才落到该槽位的默认位置。
+  static VideoMaskState toggled(VideoMaskState? current, [int slot = 0]) => current == null
+      ? VideoMaskState(rect: defaultRectFor(slot))
       : current.copyWith(visible: !current.visible);
 
-  /// 开关该直播间的遮罩，返回切换后是否显示。
-  bool toggleMask(String? platform, String? roomId) {
+  /// 开关某个槽位，返回切换后是否显示。
+  bool toggleMask(String? platform, String? roomId, int slot) {
     if (!_isValidKey(platform, roomId)) return false;
-    final key = roomKey(platform, roomId);
-    final next = toggled(rxMasks[key]);
+    final key = slotKey(platform, roomId, slot);
+    final next = toggled(rxMasks[key], slot);
     rxMasks[key] = next;
     _scheduleSave();
     return next.visible;
@@ -181,19 +207,22 @@ class VideoMaskService extends GetxService {
     try {
       final raw = HivePrefUtil.getString(_storageKey);
       if (raw == null || raw.isEmpty) return;
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      rxMasks.assignAll(_parseStates(map));
+      rxMasks.assignAll(_parseStates(jsonDecode(raw)));
     } catch (_) {
       // 存量数据损坏时忽略，用户重新框选即可
     }
   }
 
+  /// 解析存储内容。旧版本只有单槽位、key 为 `platform|roomId`，读取时
+  /// 补成槽位 0（`platform|roomId|0`），老用户的遮罩不会丢。
   static Map<String, VideoMaskState> _parseStates(dynamic value) {
     if (value is! Map) return const {};
     final restored = <String, VideoMaskState>{};
     value.forEach((key, raw) {
       final state = VideoMaskState.fromJson(raw);
-      if (state != null) restored[key.toString()] = state;
+      if (state == null) return;
+      final name = key.toString();
+      restored[name.split('|').length >= 3 ? name : '$name|0'] = state;
     });
     return restored;
   }
@@ -212,8 +241,7 @@ class VideoMaskService extends GetxService {
     } catch (_) {}
   }
 
-  Map<String, dynamic> toJson() =>
-      rxMasks.map((key, state) => MapEntry(key, state.toJson()));
+  Map<String, dynamic> toJson() => rxMasks.map((key, state) => MapEntry(key, state.toJson()));
 
   void fromJson(dynamic value) {
     rxMasks.assignAll(_parseStates(value));

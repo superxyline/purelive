@@ -60,7 +60,27 @@ void main() {
     test('first time uses the default rect', () {
       final state = VideoMaskService.toggled(null);
       expect(state.visible, isTrue);
-      expect(state.rect, VideoMaskService.defaultRect);
+      expect(state.rect, VideoMaskService.defaultRectFor(0));
+    });
+
+    test('each slot starts from its own default position', () {
+      // 三个槽位的默认位置纵向错开，避免叠在一起看不见
+      final rects = [for (var slot = 0; slot < VideoMaskService.maxSlots; slot++)
+        VideoMaskService.toggled(null, slot).rect];
+      expect(rects.toSet().length, VideoMaskService.maxSlots);
+      for (var slot = 0; slot < VideoMaskService.maxSlots; slot++) {
+        expect(VideoMaskService.defaultRectFor(slot), rects[slot]);
+      }
+      // 越界槽位收敛到最后一个默认值，不会抛异常
+      expect(VideoMaskService.defaultRectFor(99), VideoMaskService.defaultRectFor(2));
+    });
+
+    test('slot keys are independent', () {
+      expect(
+        VideoMaskService.slotKey('bilibili', '6', 0),
+        isNot(VideoMaskService.slotKey('bilibili', '6', 1)),
+      );
+      expect(VideoMaskService.slotKey('Bilibili', '6', 2), 'bilibili|6|2');
     });
 
     test('hiding keeps the rect so re-opening restores the adjusted position', () {
