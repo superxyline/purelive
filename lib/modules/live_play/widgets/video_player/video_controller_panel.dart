@@ -400,25 +400,26 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   builder: (context, transform, _) => Obx(() {
                     // 与松手自动弹回的阈值保持一致：超过 1.02 倍即视为已缩放
                     final zoomed = transform.getMaxScaleOnAxis() > 1.02;
-                    if (!GlobalPlayerState.to.fullscreenUI || !zoomed || controller.showLocked.value) {
+                    // 跟随控制条一起显隐：控制条隐藏时不留半透明的还原按钮，
+                    // 点一下画面控制条回来时它一起出现。
+                    if (!GlobalPlayerState.to.fullscreenUI ||
+                        !zoomed ||
+                        !controller.showController.value ||
+                        controller.showLocked.value) {
                       return const SizedBox.shrink();
                     }
                     return Positioned(
                       top: barHeight + 20,
                       right: 16 + MediaQuery.of(context).padding.right,
-                      child: AnimatedOpacity(
-                        opacity: controller.showController.value ? 1.0 : 0.35,
-                        duration: const Duration(milliseconds: 200),
-                        child: Material(
-                          color: Colors.black38,
-                          shape: const CircleBorder(),
-                          clipBehavior: Clip.antiAlias,
-                          child: InkWell(
-                            onTap: () => GlobalPlayerService.instance.playerManager.resetPinchZoom(),
-                            child: const Padding(
-                              padding: EdgeInsets.all(10),
-                              child: Icon(Icons.close_fullscreen, color: Colors.white, size: 22),
-                            ),
+                      child: Material(
+                        color: Colors.black38,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => GlobalPlayerService.instance.playerManager.resetPinchZoom(),
+                          child: const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Icon(Icons.close_fullscreen, color: Colors.white, size: 22),
                           ),
                         ),
                       ),
@@ -1716,9 +1717,11 @@ class VideoMaskButton extends StatelessWidget {
         color: active ? const Color(0xFFFFD166) : Colors.white,
         onPressed: () {
           controller.enableController();
-          final created = VideoMaskService.instance.toggleMask(platform, roomId);
-          // 首次添加时给一句操作提示，否则用户不知道框还能拖动
-          if (created) ToastUtil.show(i18n('video_mask_created_hint'));
+          // 该直播间第一次设遮罩时才提示操作方式；关掉再打开会沿用上次调好的
+          // 位置，不需要再提示一次。
+          final isNewRoom = !VideoMaskService.instance.hasStoredMask(platform, roomId);
+          final visible = VideoMaskService.instance.toggleMask(platform, roomId);
+          if (visible && isNewRoom) ToastUtil.show(i18n('video_mask_created_hint'));
         },
         icon: Icon(active ? Icons.blur_on_rounded : Icons.blur_linear_rounded),
       );

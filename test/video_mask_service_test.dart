@@ -55,4 +55,42 @@ void main() {
       );
     });
   });
+
+  group('VideoMaskService.toggled', () {
+    test('first time uses the default rect', () {
+      final state = VideoMaskService.toggled(null);
+      expect(state.visible, isTrue);
+      expect(state.rect, VideoMaskService.defaultRect);
+    });
+
+    test('hiding keeps the rect so re-opening restores the adjusted position', () {
+      const adjusted = VideoMaskRect(x: 0.7, y: 0.05, width: 0.2, height: 0.3);
+      final shown = VideoMaskState(rect: adjusted);
+      final hidden = VideoMaskService.toggled(shown);
+      expect(hidden.visible, isFalse);
+      expect(hidden.rect, adjusted);
+      // 再次打开：位置尺寸必须还是调好的那份，不能回到默认值
+      final reopened = VideoMaskService.toggled(hidden);
+      expect(reopened.visible, isTrue);
+      expect(reopened.rect, adjusted);
+      expect(reopened.rect, isNot(VideoMaskService.defaultRect));
+    });
+  });
+
+  group('VideoMaskState json', () {
+    test('round-trips rect and visibility', () {
+      const state = VideoMaskState(rect: VideoMaskRect(x: 0.1, y: 0.2, width: 0.3, height: 0.4), visible: false);
+      final restored = VideoMaskState.fromJson(state.toJson());
+      expect(restored?.rect, state.rect);
+      expect(restored?.visible, isFalse);
+    });
+
+    test('treats legacy entries without the on flag as visible', () {
+      // 旧数据只存了 {x,y,w,h}（那时隐藏的遮罩会被直接删掉）
+      final restored = VideoMaskState.fromJson({'x': 0.3, 'y': 0.2, 'w': 0.3, 'h': 0.2});
+      expect(restored?.visible, isTrue);
+      expect(restored?.rect, const VideoMaskRect(x: 0.3, y: 0.2, width: 0.3, height: 0.2));
+      expect(VideoMaskState.fromJson({'x': 'abc'}), isNull);
+    });
+  });
 }
