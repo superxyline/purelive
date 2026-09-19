@@ -23,6 +23,12 @@ docker compose up -d --build
 
 浏览器访问 `http://<NAS-IP>:8090`。
 
+### 无公网镜像源的 NAS（飞牛 fnOS 等）实测备注
+
+- `Dockerfile.web`（flutter build）较重（镜像约 4GB），资源紧张时可在电脑上预先 `flutter build web`，把 `build/web` 产物 + `nas/server` 传到 NAS，web 服务直接用 `nginx:1.27-alpine` 挂载静态目录（参考本项目实际部署方式）。
+- 拉取 `node:20-alpine` 失败时，改用 NAS 上已有的镜像（如 `node:22-alpine`，只改 Dockerfile 的 FROM 即可）。
+- 用户不在 docker 组时用 `sudo docker compose up -d --build`。
+
 ## 登录与发弹幕（可选）
 
 Web 端默认只读观看。需要 B站发弹幕时：
