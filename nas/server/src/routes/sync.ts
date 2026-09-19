@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { FastifyPluginAsync } from 'fastify';
+import { setStoredCookie } from '../auth/store';
 
 /**
  * 手机 App 扫码同步：App 内「跨端传输」扫码后，会把本机关注+登录+全部设置
@@ -62,7 +63,20 @@ export const syncRoutes: FastifyPluginAsync = async (app) => {
     try {
       const list = extractFollows(req.body);
       writeSynced(list);
-      app.log.info(`[sync] imported ${list.length} follows from mobile app`);
+      // 同步各平台登录态（cookie）到托管存储：此后各平台 API 请求自动带登录态
+      //（App 推送的 exportTransferData 里 cookie 字段为 {bilibiliCookie: "...", ...}）
+      const cookie = (req.body as any)?.cookie;
+      let cookieCount = 0;
+      if (cookie && typeof cookie === 'object') {
+        for (const p of ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou']) {
+          const v = cookie[`${p}Cookie`];
+          if (typeof v === 'string' && v.trim()) {
+            setStoredCookie(p, v.trim());
+            cookieCount++;
+          }
+        }
+      }
+      app.log.info(`[sync] imported ${list.length} follows, ${cookieCount} cookies from mobile app`);
       return { data: true };
     } catch (err) {
       app.log.error(err);
