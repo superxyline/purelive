@@ -35,13 +35,28 @@ class BiliBiliAccountService extends GetxController {
     if (currentCookie.isEmpty) return;
 
     try {
-      final result = await HttpClient.instance.getJson(
-        "https://api.bilibili.com/x/member/web/account",
-        header: {"Cookie": currentCookie},
-      );
+      // Web 端：B站账号接口无法在浏览器直连，走 NAS 后端的会话代理
+      //（cookie 已托管在 NAS，本地仅有登录态标记）。
+      final dynamic result = PlatformUtils.isWeb
+          ? await HttpClient.instance.getJson("/api/auth/bilibili/session")
+          : await HttpClient.instance.getJson(
+              "https://api.bilibili.com/x/member/web/account",
+              header: {"Cookie": currentCookie},
+            );
       if (result == null || result["code"] != 0) {
         ToastUtil.show(i18n("bilibili_login_expired"));
         logout();
+        return;
+      }
+
+      if (PlatformUtils.isWeb) {
+        if (result["ok"] != true) {
+          ToastUtil.show(i18n("bilibili_login_expired"));
+          logout();
+          return;
+        }
+        name.value = result["uname"]?.toString() ?? i18n("not_logged_in");
+        SettingsService.to.cookieManager.bilibiliUid.value = result["mid"] ?? 0;
         return;
       }
 
