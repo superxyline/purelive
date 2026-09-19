@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
@@ -216,7 +215,7 @@ class PlayerManager {
       _runtimeAudioOnly = audioOnly;
       await _bindPlayerStreams(_currentPlayer!);
       LiveAudioService.setPlayer(_currentPlayer!);
-      if (Platform.isAndroid) {
+      if (PlatformUtils.isAndroid) {
         floating = Floating();
         _pipSubscription?.cancel();
         _pipSubscription = floating.pipStatusStream.listen((status) {
@@ -467,7 +466,7 @@ class PlayerManager {
   }
 
   Future<void> exitPip() async {
-    if (Platform.isWindows) {
+    if (PlatformUtils.isWindows) {
       GlobalPlayerState.to.reset();
     }
     // isInPip 由 pipStatusStream 驱动，但流可能丢事件导致标志卡在 true
@@ -480,7 +479,7 @@ class PlayerManager {
     if (!_appFloatingPrepared) return;
     floatingManager.disposeFloating(_floatTag);
     _hideTimer?.cancel();
-    double maxSide = Platform.isWindows ? 350 : 220;
+    double maxSide = PlatformUtils.isWindows ? 350 : 220;
     double ratio = currentVideoRatio;
     double floatWidth;
     double floatHeight;
@@ -497,7 +496,7 @@ class PlayerManager {
     }
 
     void resetHideTimer() {
-      if (Platform.isAndroid || Platform.isIOS) {
+      if (PlatformUtils.isAndroid || PlatformUtils.isIOS) {
         _hideTimer?.cancel();
         _hideTimer = Timer(const Duration(seconds: 3), () {
           isHovered.value = false;
@@ -510,10 +509,10 @@ class PlayerManager {
       FloatingOverlay(
         MouseRegion(
           onEnter: (_) {
-            if (Platform.isWindows || Platform.isMacOS) isHovered.value = true;
+            if (PlatformUtils.isWindows || PlatformUtils.isMacOS) isHovered.value = true;
           },
           onExit: (_) {
-            if (Platform.isWindows || Platform.isMacOS) isHovered.value = false;
+            if (PlatformUtils.isWindows || PlatformUtils.isMacOS) isHovered.value = false;
           },
           child: Container(
             width: floatWidth,
@@ -600,7 +599,7 @@ class PlayerManager {
     );
     floatingManager.getFloating(_floatTag).open(Get.context!);
     isFloating.value = true;
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (PlatformUtils.isAndroid || PlatformUtils.isIOS) {
       isHovered.value = true;
       resetHideTimer();
     }

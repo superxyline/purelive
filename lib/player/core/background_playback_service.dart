@@ -1,6 +1,6 @@
-import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 /// Holds Android CPU/Wi-Fi resources only while user-initiated background
 /// playback is active. The foreground media service remains the primary
@@ -10,7 +10,7 @@ class BackgroundPlaybackService {
   static bool sleepSessionActive = false;
 
   static Future<void> setKeepAlive(bool enabled) async {
-    if (!Platform.isAndroid) return;
+    if (!PlatformUtils.isAndroid) return;
     try {
       await _channel.invokeMethod<void>('setKeepAlive', {'enabled': enabled});
     } on PlatformException {

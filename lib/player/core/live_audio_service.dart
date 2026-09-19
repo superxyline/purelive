@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:pure_live/common/index.dart';
 import 'package:audio_service/audio_service.dart';
@@ -95,7 +94,7 @@ class LiveAudioService {
   }
 
   static Future<bool> requestPlatformPermissions() async {
-    if (!Platform.isAndroid) return true;
+    if (!PlatformUtils.isAndroid) return true;
 
     if (await Permission.notification.status != PermissionStatus.granted) {
       bool confirm = await _showExplainDialog(

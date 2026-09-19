@@ -1,10 +1,8 @@
-import 'dart:io' as io;
-
-import 'package:dio/io.dart';
 import 'package:dio/dio.dart';
 import 'package:pure_live/core/common/core_error.dart';
 import 'package:pure_live/core/common/custom_interceptor.dart';
-import 'package:pure_live/common/services/settings_service.dart';
+
+import 'dio_adapter_io.dart' if (dart.library.js_interop) 'dio_adapter_web.dart' as adapter;
 
 class HttpClient {
   static const Duration _connectTimeout = Duration(seconds: 20);
@@ -26,24 +24,7 @@ class HttpClient {
   late Dio dio = _createDio();
   Dio _createDio() {
     return Dio(BaseOptions(connectTimeout: _connectTimeout, receiveTimeout: _receiveTimeout, sendTimeout: _sendTimeout))
-      ..httpClientAdapter = IOHttpClientAdapter(
-        createHttpClient: () {
-          final client = io.HttpClient();
-          client.idleTimeout = const Duration(seconds: 30);
-          client.findProxy = (uri) {
-            final proxyCtrl = SettingsService.to.proxy;
-            if (proxyCtrl.enableAppProxy.value &&
-                proxyCtrl.appProxyHost.value.trim().isNotEmpty &&
-                proxyCtrl.appProxyPort.value > 0) {
-              final host = proxyCtrl.appProxyHost.value.trim();
-              final port = proxyCtrl.appProxyPort.value;
-              return 'PROXY $host:$port';
-            }
-            return 'DIRECT';
-          };
-          return client;
-        },
-      )
+      ..httpClientAdapter = adapter.createAdapter()
       ..interceptors.add(CustomLogInterceptor());
   }
 
@@ -158,43 +139,6 @@ class HttpClient {
     }
   }
 
-  Future<io.File> download(
-    String url,
-    String savePath, {
-    Map<String, dynamic>? header,
-    CancelToken? cancel,
-    Function(int value, int progress)? onReceiveProgress,
-  }) async {
-    final tempPath = "$savePath.part";
-    final tempFile = io.File(tempPath);
-
-    try {
-      if (!await tempFile.exists()) {
-        await tempFile.create(recursive: true);
-      }
-      final response = await dio.download(
-        url,
-        tempPath,
-        cancelToken: cancel,
-        onReceiveProgress: onReceiveProgress,
-        options: Options(headers: header),
-      );
-
-      if (response.statusCode == _downloadSuccessCode1 || response.statusCode == _downloadSuccessCode2) {
-        return await tempFile.rename(savePath);
-      } else {
-        throw HttpError(_errorDownloadFailed, statusCode: response.statusCode ?? 0);
-      }
-    } on DioException catch (e) {
-      if (CancelToken.isCancel(e)) {
-        throw HttpError(_errorDownloadCancel);
-      } else if (e.type == DioExceptionType.badResponse) {
-        throw HttpError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
-      } else {
-        throw HttpError(_errorDownload);
-      }
-    }
-  }
 
   HttpError _handleError(dynamic e, String defaultMsg) {
     if (e is DioException && e.type == DioExceptionType.badResponse) {

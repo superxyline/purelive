@@ -4,6 +4,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:pure_live/modules/settings/pages/audience_metric_settings_page.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 class GeneralSettingsPage extends GetView<SettingsService> {
   const GeneralSettingsPage({super.key});
@@ -18,7 +19,7 @@ class GeneralSettingsPage extends GetView<SettingsService> {
         children: [
           context.buildGroupTitle(i18n("general")),
           context.buildModernCard([
-            if (Platform.isAndroid)
+            if (PlatformUtils.isAndroid)
               Obx(() {
                 final info = DisplayModeService.info.value;
                 final suffix = info == null
@@ -32,7 +33,7 @@ class GeneralSettingsPage extends GetView<SettingsService> {
                   isLong: true,
                 );
               }),
-            if (Platform.isWindows)
+            if (PlatformUtils.isWindows)
               Obx(() {
                 final info = DisplayModeService.info.value;
                 final mode = info == null
@@ -122,7 +123,7 @@ class GeneralSettingsPage extends GetView<SettingsService> {
               );
             }),
 
-            if (Platform.isWindows) ...[
+            if (PlatformUtils.isWindows) ...[
               context.buildSwitchTile(
                 title: i18n("startup"),
                 subtitle: "",

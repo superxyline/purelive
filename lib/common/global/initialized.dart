@@ -29,24 +29,30 @@ class AppInitializer {
     WidgetsFlutterBinding.ensureInitialized();
     final String instanceId = _getInstanceIdFromArgs(args);
 
-    await AppPathManager().initialize(instanceId: instanceId);
     await EasyLocalization.ensureInitialized();
-    final Directory hiveDir = await AppPathManager().getDir(AppPathManager.dirHiveDB);
 
-    await Hive.initFlutter(hiveDir.path);
-    await HivePrefUtil.init();
-    final migrationReport = await SettingsUpgradeMigration.migrate(
-      target: Hive.box('app_settings'),
-      legacyHiveFiles: AppPathManager().legacyHiveFiles,
-      workingDirectory: await AppPathManager().migrationWorkingDir,
-    );
-    if (migrationReport.changed) {
-      log(
-        'Settings upgrade imported ${migrationReport.importedSources} source(s); '
-        'favorites=${migrationReport.favoriteCount}, '
-        'history=${migrationReport.historyCount}.',
+    if (PlatformUtils.isWeb) {
+      // Web 端：无文件系统，Hive 直接落 IndexedDB；跳过路径初始化与旧数据迁移。
+      await Hive.initFlutter();
+    } else {
+      await AppPathManager().initialize(instanceId: instanceId);
+      final Directory hiveDir = await AppPathManager().getDir(AppPathManager.dirHiveDB);
+
+      await Hive.initFlutter(hiveDir.path);
+      final migrationReport = await SettingsUpgradeMigration.migrate(
+        target: Hive.box('app_settings'),
+        legacyHiveFiles: AppPathManager().legacyHiveFiles,
+        workingDirectory: await AppPathManager().migrationWorkingDir,
       );
+      if (migrationReport.changed) {
+        log(
+          'Settings upgrade imported ${migrationReport.importedSources} source(s); '
+          'favorites=${migrationReport.favoriteCount}, '
+          'history=${migrationReport.historyCount}.',
+        );
+      }
     }
+    await HivePrefUtil.init();
 
     // Settings and controller registration is a hard startup dependency for
     // MyApp.build.  Leaving this future detached created a first-launch race:

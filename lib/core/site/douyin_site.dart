@@ -205,7 +205,7 @@ class DouyinSite implements LiveSite {
         "req_from": '2',
       },
     );
-    var requestUrl = DouyinSign.getAbogusUrl(uri.toString(), kDefaultUserAgent);
+    var requestUrl = await DouyinSign.getAbogusUrl(uri.toString(), kDefaultUserAgent);
     var result = await HttpClient.instance.getJson(requestUrl, header: await getRequestHeaders());
     var items = <LiveRoom>[];
     for (var item in result["data"]["data"]) {
@@ -258,7 +258,7 @@ class DouyinSite implements LiveSite {
           "req_from": '2',
         },
       );
-      var requestUrl = DouyinSign.getAbogusUrl(uri.toString(), kDefaultUserAgent);
+      var requestUrl = await DouyinSign.getAbogusUrl(uri.toString(), kDefaultUserAgent);
       var result = await HttpClient.instance.getJson(requestUrl, header: await getRequestHeaders());
       var items = <LiveRoom>[];
       for (var item in result["data"]["data"]) {
@@ -600,7 +600,7 @@ class DouyinSite implements LiveSite {
         "browser_version": "125.0.0.0",
       },
     );
-    var requestUrl = DouyinSign.getAbogusUrl(uri.toString(), kDefaultUserAgent);
+    var requestUrl = await DouyinSign.getAbogusUrl(uri.toString(), kDefaultUserAgent);
     var requestHeader = await getRequestHeaders();
     var result = await HttpClient.instance.getJson(requestUrl, header: requestHeader);
 

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
@@ -110,7 +109,7 @@ class VideoSettingsPage extends GetView<SettingsService> {
           // 播放行为设置
           context.buildGroupTitle(i18n("playback_behavior_settings")),
           context.buildModernCard([
-            if (Platform.isAndroid)
+            if (PlatformUtils.isAndroid)
               context.buildSwitchTile(
                 icon: Remix.music_2_line,
                 title: i18n("enable_background_play"),
@@ -118,7 +117,7 @@ class VideoSettingsPage extends GetView<SettingsService> {
                 value: SettingsService.to.app.enableBackgroundPlay,
                 onChanged: (val) async {
                   SettingsService.to.app.enableBackgroundPlay.v = val;
-                  if (val && Platform.isAndroid) {
+                  if (val && PlatformUtils.isAndroid) {
                     bool hasPermission = await LiveAudioService.requestPlatformPermissions();
                     SettingsService.to.app.enableBackgroundPlay.v = hasPermission;
                     await LiveAudioService.syncKeepAlive();
@@ -129,7 +128,7 @@ class VideoSettingsPage extends GetView<SettingsService> {
                   }
                 },
               ),
-            if (Platform.isAndroid)
+            if (PlatformUtils.isAndroid)
               context.buildSwitchTile(
                 icon: Remix.moon_clear_line,
                 title: i18n('asmr_sleep_mode'),
@@ -148,7 +147,7 @@ class VideoSettingsPage extends GetView<SettingsService> {
                   }
                 },
               ),
-            if (Platform.isAndroid)
+            if (PlatformUtils.isAndroid)
               Obx(
                 () => context.buildTile(
                   icon: Remix.timer_2_line,
@@ -173,7 +172,7 @@ class VideoSettingsPage extends GetView<SettingsService> {
               value: SettingsService.to.app.enableFullScreenDefault,
               icon: Remix.fullscreen_line,
             ),
-            if (Platform.isAndroid)
+            if (PlatformUtils.isAndroid)
               context.buildSwitchTile(
                 title: i18n('enable_screen_keep_on'),
                 subtitle: i18n('enable_screen_keep_on_subtitle'),
