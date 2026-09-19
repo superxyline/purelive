@@ -1,0 +1,26 @@
+services:
+  server:
+    build:
+      context: ../server
+      dockerfile: ../deploy/Dockerfile.server
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - NAS_MASTER_KEY=${NAS_MASTER_KEY:-}
+      - LOG_LEVEL=info
+      # 可选：环境变量方式注入各平台 cookie（大写平台名）
+      # - PURE_LIVE_COOKIE_BILIBILI=SESSDATA=xxx;bili_jct=xxx;DedeUserID=xxx
+    volumes:
+      - ../data:/app/data
+    expose:
+      - "8080"
+
+  web:
+    build:
+      context: ../..
+      dockerfile: nas/deploy/Dockerfile.web
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    depends_on:
+      - server

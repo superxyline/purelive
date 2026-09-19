@@ -72,3 +72,8 @@ app.*.map.json
 /analyze_out.txt
 /.codex/
 /docs/HANDOVER_*.md
+
+# NAS 网页端
+nas/server/node_modules/
+nas/data/
+nas/server/dist/

@@ -22,7 +22,10 @@ class WebDanmaku extends LiveDanmaku {
     final roomId = args?.toString() ?? '';
     if (roomId.isEmpty) return;
 
-    final uri = Uri.parse('/api/danmaku/$platform/$roomId'.replaceFirst('/api', _apiBase));
+    // Web 部署在 NAS 同源下直接用相对路径；独立调试时页面 URL 带 ?api=http://nas:port
+    final base = _apiBase;
+    final path = '/api/danmaku/$platform/$roomId';
+    final uri = Uri.parse(base.isEmpty ? path : base + path);
     try {
       _channel = WebSocketChannel.connect(uri);
       await _channel!.ready;
@@ -42,8 +45,7 @@ class WebDanmaku extends LiveDanmaku {
     }
   }
 
-  /// Web 部署在 NAS 同源下，页面访问地址即 API 地址；独立调试时可通过
-  /// ?api= 参数指定后端地址。
+  /// Web API 基址：同源部署为空串；独立调试时页面 URL 带 ?api=http://nas:port。
   static String get _apiBase {
     final apiParam = Uri.base.queryParameters['api'];
     return (apiParam != null && apiParam.isNotEmpty) ? apiParam : '';

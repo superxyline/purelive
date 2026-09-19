@@ -14,6 +14,7 @@ import {
 } from '../protocol';
 import { upstream, upstreamJson } from '../upstream';
 import { evalDouyuSign } from '../sign/douyu';
+import { sendDouyuDanmaku } from '../auth/douyu_send';
 import type { Site } from './types';
 
 /** Dart 里写死的 Edge UA（betard/homeH5Enc/getH5Play 共用）。 */
@@ -385,8 +386,8 @@ class DouyuSite implements Site {
     return detail.status;
   }
 
-  async sendDanmaku(_roomId: string, _message: string): Promise<[boolean, string]> {
-    return [false, '斗鱼暂不支持发送弹幕'];
+  async sendDanmaku(roomId: string, message: string): Promise<[boolean, string]> {
+    return sendDouyuDanmaku(roomId, message);
   }
 }
 
