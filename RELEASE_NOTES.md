@@ -1,6 +1,6 @@
 # Pure Live v2.1.5
 
-本版修一个实际使用中反馈的问题：**打开 B站直播间黑屏、只有声音**。
+本版修两个实际使用中反馈的问题：**打开 B站直播间黑屏、只有声音**；以及 **小米平板小白条无法沉浸**（底部一条大白条挡住直播间卡片）。
 
 ## 定位过程（真机实测）
 
@@ -19,6 +19,15 @@
 ## 保留行为
 
 - 原有的 `mcdn`（P2P 回源）线路沉底、编码偏好（HEVC 省流量）、CDN 测速排序均保持不变；AVC 用户的首选线路（avc+flv）不受影响。
+
+## 小白条沉浸（HyperOS 平板）
+
+参照 PiliPlus 的 edge-to-edge 实现，修复小米平板上底部手势条（小白条）区域显示一条不透明白条、直播间卡片无法延伸到其下方的问题。原因有两层：
+
+1. **系统强制对比遮罩**：Android 10+ 默认 `enforceNavigationBarContrast=true`，即使导航栏设为透明，系统也会在小白条下垫一层半透明白 scrim。此前所有 `SystemUiOverlayStyle` 都未提供 `systemNavigationBarContrastEnforced` 字段，而该调用未提供的字段会被引擎按默认值重置，所以白条反复出现。现已在全局样式三处入口（初始化、Android 初始化、恢复系统栏统一入口）显式关闭，并在明暗两套 Android theme 中加入 `enforceNavigationBarContrast=false`，覆盖启动到 Flutter 首帧之前的窗口。
+2. **布局裁剪**：平板横屏布局（HomeTabletView）原先用整页 SafeArea 包裹，列表被裁剪在导航栏区域上方。现改为只消费顶部与左右安全区、底部 inset 留给列表页自行处理，关注/热门/分区/赛事等列表底部滚动 padding 同步补上导航栏 inset，最后一个卡片可以滚出小白条区域；侧边导航栏（NavigationRail）单独垫高，避免图标落入手势条不可点区域。
+
+手机端布局（bottomNavigationBar）与直播播放页（自带全屏沉浸模式）保持原状。
 
 ## 其他
 

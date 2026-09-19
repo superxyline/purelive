@@ -79,7 +79,7 @@ class EsportsPage extends GetView<EsportsController> {
               final grouped = controller.groupByDate(filtered);
               return ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: EdgeInsets.only(bottom: 24 + MediaQuery.paddingOf(context).bottom),
                 itemCount: grouped.length,
                 itemBuilder: (context, index) {
                   final day = grouped.keys.elementAt(index);

@@ -37,7 +37,8 @@ class _PopularGridViewState extends State<PopularGridView> with AutomaticKeepAli
             final spacing = SettingsService.to.theme.crossAxisSpacing.v;
             final itemWidth = (width - 12 - spacing * (crossAxisCount - 1)) / crossAxisCount;
             return GridView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              // 底部补上导航栏 inset：首页沉浸后手势条区域被列表覆盖，最后一个卡片要能滚出小白条
+              padding: EdgeInsets.fromLTRB(6, 6, 6, 6 + MediaQuery.paddingOf(context).bottom),
               controller: scrollController,
               scrollCacheExtent: ScrollCacheExtent.pixels(width > 680 ? 960 : 480),
               addAutomaticKeepAlives: false,
