@@ -9,6 +9,7 @@ const index_1 = require("./index");
 const protocol_1 = require("../protocol");
 const upstream_1 = require("../upstream");
 const douyu_1 = require("../sign/douyu");
+const douyu_send_1 = require("../auth/douyu_send");
 /** Dart 里写死的 Edge UA（betard/homeH5Enc/getH5Play 共用）。 */
 const K_DOUYU_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43';
 /** 搜索接口用的是 .51 版本号。 */
@@ -329,8 +330,8 @@ class DouyuSite {
         const detail = await this.getRoomDetail(roomId);
         return detail.status;
     }
-    async sendDanmaku(_roomId, _message) {
-        return [false, '斗鱼暂不支持发送弹幕'];
+    async sendDanmaku(roomId, message) {
+        return (0, douyu_send_1.sendDouyuDanmaku)(roomId, message);
     }
 }
 (0, index_1.registerSite)('douyu', new DouyuSite());
