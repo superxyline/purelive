@@ -36,14 +36,20 @@
   <script src="js/hls.min.js"></script>
   <script src="js/mpegts.min.js"></script>
   <script>
-    // pureLivePlayer：按 URL 类型选择播放内核，返回带 destroy() 的句柄
+    // pureLivePlayer：按 URL 类型选择播放内核，返回带 destroy() 的句柄。
+    // hls.js / mpegts.js 的加载错误不会冒泡到 <video> 的 error 事件，
+    // 这里手动转发，否则上层"直连失败→切代理回退"的逻辑永远不触发。
     window.pureLivePlayer = {
       attach: function (video, url) {
         var handle = { type: 'native', destroy: function () { video.removeAttribute('src'); try { video.load(); } catch (e) {} } };
+        function signalError() { try { video.dispatchEvent(new Event('error')); } catch (e) {} }
         try {
           if (/\.m3u8(\?|$)/i.test(url) || /m3u8/i.test(url)) {
             if (window.Hls && window.Hls.isSupported()) {
               var hls = new window.Hls({ lowLatencyMode: true, backBufferLength: 30 });
+              hls.on(window.Hls.Events.ERROR, function (evt, data) {
+                if (data && data.fatal) signalError();
+              });
               hls.loadSource(url);
               hls.attachMedia(video);
               handle.type = 'hls';
@@ -52,11 +58,13 @@
             }
             // 不支持 MSE 时退回原生（Safari 可直接播 HLS）
             video.src = url;
+            video.addEventListener('error', signalError);
             handle.type = 'native-hls';
             return handle;
           }
           if (/\.flv(\?|$)/i.test(url) && window.mpegts && window.mpegts.getFeatureList().mseLivePlayback) {
             var player = window.mpegts.createPlayer({ type: 'flv', isLive: true, url: url }, { enableStashBuffer: false, liveBufferLatencyChasing: true });
+            player.on(window.mpegts.Events.ERROR, function (type, detail) { signalError(); });
             player.attachMediaElement(video);
             player.load();
             handle.type = 'flv';
@@ -64,6 +72,7 @@
             return handle;
           }
           video.src = url;
+          video.addEventListener('error', signalError);
           return handle;
         } catch (e) {
           video.src = url;
