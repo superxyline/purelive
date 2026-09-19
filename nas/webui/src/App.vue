@@ -32,7 +32,7 @@ const themeOverrides = { common: { primaryColor: '#63e2b7' } };
 body { margin: 0; background: #101014; }
 .nav-link { text-decoration: none; color: #cfd0d6; font-size: 14px; padding: 4px 2px; }
 .nav-link.router-link-active { color: #63e2b7; }
-.room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+.room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
 .room-card { cursor: pointer; }
 .room-cover { width: 100%; height: 148px; object-fit: cover; border-radius: 6px; background: #1a1a1f; display: block; }
 .room-title { font-size: 13px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

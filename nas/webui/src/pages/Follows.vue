@@ -1,5 +1,28 @@
 <template>
   <div>
+    <n-card size="small" style="margin-bottom: 14px">
+      <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap">
+        <div style="text-align: center">
+          <canvas ref="syncCanvas" style="width: 120px; height: 120px; background: #fff; border-radius: 6px; padding: 5px; display: block"></canvas>
+          <div style="font-size: 11px; color: #8b8b94; margin-top: 4px">App 扫码推送</div>
+        </div>
+        <div style="flex: 1; min-width: 260px; font-size: 13px; line-height: 1.9">
+          <div><b>手机关注列表同步到 Web</b></div>
+          <div style="color: #8b8b94">
+            手机打开 App → 设置 → 备份与恢复 → 跨端传输（扫码推送），扫描左侧二维码，
+            App 会把关注列表推送到 NAS。推送完成后点右侧按钮导入到本页。
+          </div>
+        </div>
+        <div style="text-align: center">
+          <n-button type="primary" @click="pullSynced" :loading="pulling" :disabled="syncedCount === 0">
+            导入{{ syncedCount > 0 ? `(${syncedCount}个)` : '' }}
+          </n-button>
+          <div style="font-size: 11px; color: #8b8b94; margin-top: 4px">
+            {{ syncedCount > 0 ? `NAS 已收到 ${syncedCount} 个` : 'NAS 尚未收到推送' }}
+          </div>
+        </div>
+      </div>
+    </n-card>
     <div style="display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; align-items: center">
       <n-tabs type="segment" v-model:value="statusTab" style="min-width: 360px">
         <n-tab name="live">已开播</n-tab>
@@ -29,9 +52,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { api, getFollows, PLATFORMS } from '../api';
+import QRCode from 'qrcode';
+import { api, getFollows, setFollows, PLATFORMS } from '../api';
 
 const router = useRouter();
 const rooms = ref([]);
@@ -90,5 +114,44 @@ async function refresh() {
   loading.value = false;
 }
 
-onMounted(refresh);
+// ---- 手机 App 扫码同步 ----
+const syncCanvas = ref(null);
+const syncedCount = ref(0);
+const pulling = ref(false);
+let statusTimer = null;
+
+async function pollSyncStatus() {
+  try {
+    const st = await fetch('/api/sync/status').then((r) => r.json());
+    syncedCount.value = st.count || 0;
+  } catch (_) {}
+}
+
+async function pullSynced() {
+  pulling.value = true;
+  try {
+    const r = await fetch('/api/sync/follows').then((x) => x.json());
+    const remote = r.list || [];
+    if (!remote.length) { window.$msg.warning('NAS 上还没有收到手机推送'); return; }
+    // 合并：本地已有 + 同步新增（按 platform:roomId 去重，同步来的覆盖本地同条目）
+    const local = getFollows();
+    const map = new Map(local.map((f) => [f.platform + ':' + f.roomId, f]));
+    for (const f of remote) map.set(f.platform + ':' + f.roomId, f);
+    localStorage.setItem('purelive_follows', JSON.stringify([...map.values()]));
+    window.$msg.success(`已导入 ${remote.length} 个关注直播间`);
+    await refresh();
+  } catch (e) {
+    window.$msg.error('导入失败: ' + e.message);
+  }
+  pulling.value = false;
+}
+
+onMounted(() => {
+  refresh();
+  // 二维码内容：当前访问地址（App 扫码后 POST 到 <地址>/api/importData）
+  QRCode.toCanvas(syncCanvas.value, location.origin, { width: 110, margin: 0 });
+  pollSyncStatus();
+  statusTimer = setInterval(pollSyncStatus, 5000);
+});
+onUnmounted(() => { if (statusTimer) clearInterval(statusTimer); });
 </script>
