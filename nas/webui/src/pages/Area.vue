@@ -9,7 +9,7 @@
       <n-empty v-if="!loading && rooms.length === 0" description="该分区暂无直播间" style="margin: 60px 0" />
       <div v-else class="room-grid">
         <div v-for="r in rooms" :key="r.roomId" class="room-card" @click="$router.push(`/room/${r.platform}/${r.roomId}`)">
-          <img class="room-cover" :src="r.cover" loading="lazy" @error="$event.target.style.opacity = 0" />
+          <img class="room-cover" :src="r.cover" referrerpolicy="no-referrer" loading="lazy" @error="$event.target.style.opacity = 0" />
           <div class="room-title">{{ r.title }}</div>
           <div class="room-sub"><span>{{ r.nick }}</span><span>🔥 {{ r.watching || r.popularity }}</span></div>
         </div>

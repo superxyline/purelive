@@ -37,4 +37,7 @@ body { margin: 0; background: #101014; }
 .room-cover { width: 100%; height: 148px; object-fit: cover; border-radius: 6px; background: #1a1a1f; display: block; }
 .room-title { font-size: 13px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .room-sub { font-size: 12px; color: #8b8b94; display: flex; justify-content: space-between; margin-top: 2px; }
+.room-plat { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.6); color: #ddd; font-size: 11px; padding: 1px 6px; border-radius: 4px; }
+.room-status { position: absolute; top: 6px; left: 6px; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 4px; }
+.room-duration { position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,.65); color: #ffd28a; font-size: 11px; padding: 1px 6px; border-radius: 4px; }
 </style>
