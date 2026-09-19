@@ -11,7 +11,13 @@ class MobileManager {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
       SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(statusBarColor: Colors.transparent, systemNavigationBarColor: Colors.transparent),
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
+          // Android 10+ 默认 enforceNavigationBarContrast=true，会给透明导航栏强制垫一层
+          // 半透明白 scrim（小米平板 HyperOS 上表现为小白条下方一条"大白条"），必须显式关闭。
+          systemNavigationBarContrastEnforced: false,
+        ),
       );
 
       if (Platform.isIOS) {
@@ -47,6 +53,7 @@ class MobileManager {
           systemNavigationBarColor: Colors.transparent,
           systemNavigationBarDividerColor: Colors.transparent,
           systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarContrastEnforced: false,
         ),
       );
 
@@ -98,6 +105,9 @@ class MobileManager {
             statusBarColor: Colors.transparent,
             systemNavigationBarColor: Colors.transparent,
             systemNavigationBarDividerColor: Colors.transparent,
+            // 每次恢复系统栏都要带上 false：该调用未提供的字段会被引擎按默认值重置，
+            // 漏掉它的话小白条区域会重新出现系统强制的大白条。
+            systemNavigationBarContrastEnforced: false,
             statusBarIconBrightness: isDarkTheme ? Brightness.light : Brightness.dark,
             systemNavigationBarIconBrightness: isDarkTheme ? Brightness.light : Brightness.dark,
           ),

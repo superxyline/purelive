@@ -46,7 +46,7 @@ class FavoriteAreasPage extends GetView<FavoriteAreasController> {
     return Obx(
       () => controller.favoriteAreas.isNotEmpty
           ? WaterfallFlow.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              padding: EdgeInsets.fromLTRB(6, 6, 6, 6 + MediaQuery.paddingOf(context).bottom),
               controller: ScrollController(),
               gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                 lastChildLayoutTypeBuilder: (index) => LastChildLayoutType.none,

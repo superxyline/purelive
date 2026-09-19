@@ -37,7 +37,8 @@ class RoomGridView extends GetView<FavoriteController> {
             final spacing = SettingsService.to.theme.crossAxisSpacing.v;
             final itemWidth = (width - 24 - spacing * (crossAxisCount - 1)) / crossAxisCount;
             return GridView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              // 底部补上导航栏 inset：首页沉浸后手势条区域被列表覆盖，最后一个卡片要能滚出小白条
+              padding: EdgeInsets.fromLTRB(12, 12, 12, 12 + MediaQuery.paddingOf(context).bottom),
               controller: scrollController,
               scrollCacheExtent: ScrollCacheExtent.pixels(width > 680 ? 960 : 480),
               addAutomaticKeepAlives: false,
