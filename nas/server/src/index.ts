@@ -5,6 +5,7 @@ import { siteRoutes } from './routes/sites';
 import { signRoutes } from './routes/sign';
 import { authRoutes } from './routes/auth';
 import { streamRoutes } from './routes/stream';
+import { syncRoutes } from './routes/sync';
 import { danmakuRoutes } from './danmaku/hub';
 
 const PORT = Number(process.env.PORT || 8080);
@@ -23,6 +24,7 @@ async function main() {
   await app.register(signRoutes, { prefix: '/api/sign' });
   await app.register(authRoutes, { prefix: '/api/auth' });
   await app.register(streamRoutes, { prefix: '/api/stream' });
+  await app.register(syncRoutes, { prefix: '/api' });
   await app.register(danmakuRoutes, { prefix: '/api/danmaku' });
 
   app.get('/api/health', async () => ({ ok: true, ts: Date.now() }));

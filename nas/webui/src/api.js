@@ -39,6 +39,7 @@ export const api = {
   bilibiliQr: () => get('/api/auth/bilibili/qrcode').then((d) => d.data),
   bilibiliPoll: (key) => get(`/api/auth/bilibili/qrcode/poll?qrcode_key=${encodeURIComponent(key)}`),
   bilibiliSession: () => get('/api/auth/bilibili/session'),
+  syncFollows: () => get('/api/sync/follows'),
   saveCookie: (p, cookie) =>
     fetch(`/api/auth/${p}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ cookie }) }).then((r) => r.json()),
 };
@@ -55,6 +56,9 @@ export function getFollows() {
 }
 export function isFollowed(platform, roomId) {
   return getFollows().some((f) => f.platform === platform && f.roomId === roomId);
+}
+export function setFollows(list) {
+  localStorage.setItem(FOLLOW_KEY, JSON.stringify(list.slice(0, 500)));
 }
 export function toggleFollow(room) {
   const list = getFollows();
