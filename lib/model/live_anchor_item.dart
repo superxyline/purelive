@@ -20,6 +20,12 @@ class LiveAnchorItem {
     required this.liveStatus,
   });
 
+  LiveAnchorItem.fromJson(Map<String, dynamic> json)
+      : roomId = json['roomId']?.toString() ?? '',
+        avatar = json['avatar']?.toString() ?? '',
+        userName = json['userName']?.toString() ?? '',
+        liveStatus = json['liveStatus'] == true;
+
   @override
   String toString() {
     return json.encode({

@@ -9,15 +9,10 @@ class HttpClient {
   static const Duration _receiveTimeout = Duration(seconds: 20);
   static const Duration _sendTimeout = Duration(seconds: 20);
 
-  static const int _downloadSuccessCode1 = 200;
-  static const int _downloadSuccessCode2 = 206;
 
   static const String _errorGet = "发送GET请求失败";
   static const String _errorPost = "发送POST请求失败";
   static const String _errorHead = "发送HEAD请求失败";
-  static const String _errorDownload = "下载请求失败";
-  static const String _errorDownloadFailed = "下载失败";
-  static const String _errorDownloadCancel = "下载已取消";
 
   HttpClient._();
   static final HttpClient instance = HttpClient._();

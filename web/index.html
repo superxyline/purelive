@@ -29,8 +29,49 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>pure_live</title>
+  <title>纯粹直播 Web</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- 直播流播放内核：HLS 用 hls.js，flv 直播流用 mpegts.js（本地 vendored，NAS 离线可用） -->
+  <script src="js/hls.min.js"></script>
+  <script src="js/mpegts.min.js"></script>
+  <script>
+    // pureLivePlayer：按 URL 类型选择播放内核，返回带 destroy() 的句柄
+    window.pureLivePlayer = {
+      attach: function (video, url) {
+        var handle = { type: 'native', destroy: function () { video.removeAttribute('src'); try { video.load(); } catch (e) {} } };
+        try {
+          if (/\.m3u8(\?|$)/i.test(url) || /m3u8/i.test(url)) {
+            if (window.Hls && window.Hls.isSupported()) {
+              var hls = new window.Hls({ lowLatencyMode: true, backBufferLength: 30 });
+              hls.loadSource(url);
+              hls.attachMedia(video);
+              handle.type = 'hls';
+              handle.destroy = function () { try { hls.destroy(); } catch (e) {} };
+              return handle;
+            }
+            // 不支持 MSE 时退回原生（Safari 可直接播 HLS）
+            video.src = url;
+            handle.type = 'native-hls';
+            return handle;
+          }
+          if (/\.flv(\?|$)/i.test(url) && window.mpegts && window.mpegts.getFeatureList().mseLivePlayback) {
+            var player = window.mpegts.createPlayer({ type: 'flv', isLive: true, url: url }, { enableStashBuffer: false, liveBufferLatencyChasing: true });
+            player.attachMediaElement(video);
+            player.load();
+            handle.type = 'flv';
+            handle.destroy = function () { try { player.pause(); player.unload(); player.detachMediaElement(); player.destroy(); } catch (e) {} };
+            return handle;
+          }
+          video.src = url;
+          return handle;
+        } catch (e) {
+          video.src = url;
+          return handle;
+        }
+      }
+    };
+  </script>
 </head>
 <body>
   <!--

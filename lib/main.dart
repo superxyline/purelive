@@ -86,7 +86,7 @@ class _MyAppState extends State<MyApp> {
     final PlayerEngine targetEngine = PlayerConsts.engines[validKey]!;
     final PlayerEngine defaultEngine;
 
-    if (PlatformUtils.isDesktop) {
+    if (PlatformUtils.isDesktop || PlatformUtils.isWeb) {
       defaultEngine = PlayerEngine.mediaKit;
     } else {
       defaultEngine = targetEngine;
