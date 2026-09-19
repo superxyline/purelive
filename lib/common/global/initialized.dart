@@ -34,11 +34,14 @@ class AppInitializer {
     if (PlatformUtils.isWeb) {
       // Web 端：无文件系统，Hive 直接落 IndexedDB；跳过路径初始化与旧数据迁移。
       await Hive.initFlutter();
+      await HivePrefUtil.init();
     } else {
       await AppPathManager().initialize(instanceId: instanceId);
       final Directory hiveDir = await AppPathManager().getDir(AppPathManager.dirHiveDB);
 
       await Hive.initFlutter(hiveDir.path);
+      // 必须先开 app_settings 盒（迁移的 target 依赖它已打开），再做旧数据迁移
+      await HivePrefUtil.init();
       final migrationReport = await SettingsUpgradeMigration.migrate(
         target: Hive.box('app_settings'),
         legacyHiveFiles: AppPathManager().legacyHiveFiles,
@@ -52,7 +55,6 @@ class AppInitializer {
         );
       }
     }
-    await HivePrefUtil.init();
 
     // Settings and controller registration is a hard startup dependency for
     // MyApp.build.  Leaving this future detached created a first-launch race:
