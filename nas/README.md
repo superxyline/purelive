@@ -21,7 +21,9 @@ cd nas/deploy
 docker compose up -d --build
 ```
 
-浏览器访问 `http://<NAS-IP>:8090`。
+浏览器访问 `http://<NAS-IP>:8090`（推荐，默认使用轻量原生 UI）或 `https://<NAS-IP>:8091`（自签证书，首次需信任）。
+
+> 前端有两套：`nas/webui`（Vue3 + Naive UI 轻量原生界面，默认，秒开且流畅）与旧版 Flutter Web（保留在 `/flutter/` 路径备用）。新 UI 开发调试：`cd nas/webui && npm run dev`。
 
 ### 无公网镜像源的 NAS（飞牛 fnOS 等）实测备注
 
