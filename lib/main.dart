@@ -62,6 +62,12 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     unawaited(initGlobalPlayer());
+    // Web 端动态加载内置苹方中文字体：canvaskit 渲染器不读系统字体，
+    // Google Fonts CDN 又不可达，缺字会导致中文显示为方框。
+    // 字体文件放在 web/fonts/ 下，只进 Web 部署产物、不占 APK 体积。
+    if (PlatformUtils.isWeb) {
+      unawaited(_loadWebFont());
+    }
     // 观看统计先于快捷方式注册：快捷方式的数据源是观看时长 Top3 主播
     Get.put(WatchStatsService());
     Get.put(RecentRoomsService());
@@ -78,6 +84,19 @@ class _MyAppState extends State<MyApp> {
       // 检查 gitee 上是否有新版本（弹窗提醒，可跳转项目主页）
       unawaited(UpdateChecker.check());
     });
+  }
+
+  /// Web 端动态加载中文字体并在完成后刷新主题（MyTheme.loaded 在 Obx 作用域内读取）。
+  Future<void> _loadWebFont() async {
+    try {
+      final bundle = NetworkAssetBundle(Uri.base.resolve(''));
+      final byteData = await bundle.load('fonts/PingFangSC.ttf');
+      final loader = FontLoader('WebSansSC')..addFont(Future.value(byteData));
+      await loader.load();
+      MyTheme.loaded.value = true;
+    } catch (e) {
+      debugPrint('Web font load failed: $e');
+    }
   }
 
   Future<void> initGlobalPlayer() async {

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
+import 'package:pure_live/common/utils/web_kv_store.dart';
 
 class HivePrefUtil {
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
@@ -32,7 +34,22 @@ class HivePrefUtil {
   /// 从系统安全存储获取（或首次生成并保存）Hive 加密密钥。
   /// 密钥由 Android Keystore / iOS Keychain 等平台安全存储持久化，
   /// 避免把加密密钥与密文存放在同一明文文件中。
+  ///
+  /// Web 端例外：FlutterSecureStorage 的 Web 实现依赖 crypto.subtle，
+  /// 在局域网 http://IP 直连（非安全上下文）下不可用，会直接导致启动崩溃。
+  /// 因此 Web 端把密钥降级存 localStorage（随机生成逻辑不变）。
   static Future<List<int>> _getOrCreateEncryptionKey() async {
+    if (PlatformUtils.isWeb) {
+      final stored = await webKvGet(_encryptionKeyName);
+      if (stored != null && stored.isNotEmpty) {
+        return base64Url.decode(stored);
+      }
+      final random = Random.secure();
+      final key = List<int>.generate(32, (_) => random.nextInt(256));
+      await webKvSet(_encryptionKeyName, base64Url.encode(key));
+      return key;
+    }
+
     final String? stored = await _secureStorage.read(key: _encryptionKeyName);
     if (stored != null && stored.isNotEmpty) {
       return base64Url.decode(stored);
