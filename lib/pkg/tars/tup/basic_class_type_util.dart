@@ -35,7 +35,7 @@ class BasicClassTypeUtil {
     if (type == BigInt.one.runtimeType.toString()) {
       if (obj is BigInt) {
         if (obj >= BigInt.from(-9223372036854775808) &&
-            obj <= BigInt.from(9223372036854775807)) {
+            obj <= BigInt.parse("9223372036854775807")) {
           return 'int64';
         }
         if (obj >= BigInt.zero && obj <= BigInt.parse('18446744073709551615')) {

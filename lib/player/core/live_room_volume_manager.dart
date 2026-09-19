@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:pure_live/common/services/utils/hive_rx.dart';
 import 'package:pure_live/common/services/settings_service.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 class LiveRoomVolumeManager {
   static String _getVolumeKey(String platform, String roomId) {
@@ -17,7 +17,7 @@ class LiveRoomVolumeManager {
     if (volume != null) return volume.clamp(0.0, 1.0);
 
     // 使用全局默认音量
-    return Platform.isAndroid || Platform.isIOS
+    return PlatformUtils.isAndroid || PlatformUtils.isIOS
         ? SettingsService.to.vol.defaultMobileVolume.v.clamp(0.0, 1.0)
         : SettingsService.to.vol.defaultDesktopVolume.v.clamp(0.0, 1.0);
   }

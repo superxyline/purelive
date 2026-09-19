@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
 
@@ -22,6 +21,7 @@ import 'package:pure_live/modules/live_play/states/load_type.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_message_actions.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 typedef AudioOnlyCallback = Future<void> Function(bool value);
 
@@ -29,11 +29,11 @@ enum PlayerStatus { idle, loading, playing, error, disposed }
 
 // 平台工具类
 class PlatformHelper {
-  static bool get isMobile => Platform.isAndroid || Platform.isIOS;
-  static bool get isDesktop => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
-  static bool get supportsBrightness => Platform.isAndroid || Platform.isIOS;
-  static bool get supportsVolumeController => Platform.isAndroid || Platform.isIOS;
-  static bool get supportsBatteryMonitoring => Platform.isAndroid || Platform.isIOS;
+  static bool get isMobile => PlatformUtils.isAndroid || PlatformUtils.isIOS;
+  static bool get isDesktop => PlatformUtils.isWindows || PlatformUtils.isLinux || PlatformUtils.isMacOS;
+  static bool get supportsBrightness => PlatformUtils.isAndroid || PlatformUtils.isIOS;
+  static bool get supportsVolumeController => PlatformUtils.isAndroid || PlatformUtils.isIOS;
+  static bool get supportsBatteryMonitoring => PlatformUtils.isAndroid || PlatformUtils.isIOS;
 }
 
 // 弹幕管理器
@@ -284,7 +284,7 @@ class VideoController with ChangeNotifier {
     return _brightnessController;
   }
 
-  bool get supportWindowFull => Platform.isWindows || Platform.isLinux;
+  bool get supportWindowFull => PlatformUtils.isWindows || PlatformUtils.isLinux;
 
   // 暴露 livePlayController 的 getter
   LivePlayController get livePlayController => _livePlayController;

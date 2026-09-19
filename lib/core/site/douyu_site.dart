@@ -265,7 +265,7 @@ class DouyuSite implements LiveSite {
         status: roomInfo["show_status"] == 1,
         liveStartTime: douyuLiveTime > 0 ? douyuLiveTime * 1000 : null,
         danmakuData: roomInfo["room_id"].toString(),
-        data: crptext == null ? null : DouyuSign.getSign(crptext, roomInfo["room_id"].toString()),
+        data: crptext == null ? null : await DouyuSign.getSign(crptext, roomInfo["room_id"].toString()),
         platform: Sites.douyuSite,
         link: "https://www.douyu.com/$roomId",
         isRecord: roomInfo["videoLoop"] == 1,

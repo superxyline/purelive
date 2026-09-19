@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:developer' as developer;
 
@@ -138,7 +137,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     currentSite = Sites.of(site);
     _localMessageDeliveryQueue = LocalMessageDeliveryQueue(onDeliver: _deliverLocalMessage);
 
-    final autoStartAsmr = Platform.isAndroid && SettingsService.to.app.enableAsmrSleepMode.v;
+    final autoStartAsmr = PlatformUtils.isAndroid && SettingsService.to.app.enableAsmrSleepMode.v;
     _asmrSessionActive = autoStartAsmr;
     state.value = LivePlayState(
       room: RoomState(detail: room),
@@ -960,7 +959,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     updatePlayer(hasUseDefaultResolution: false);
     updateUI(refreshKey: 0);
 
-    final autoStartAsmr = Platform.isAndroid && SettingsService.to.app.enableAsmrSleepMode.v;
+    final autoStartAsmr = PlatformUtils.isAndroid && SettingsService.to.app.enableAsmrSleepMode.v;
     _asmrSessionActive = autoStartAsmr;
     await LiveAudioService.configureSleepTimer(
       enabled: autoStartAsmr,
@@ -1027,7 +1026,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     }
 
     try {
-      if (Platform.isAndroid) {
+      if (PlatformUtils.isAndroid) {
         await launchUrlString(nativeUrl, mode: LaunchMode.externalApplication);
       } else {
         await launchUrlString(webUrl, mode: LaunchMode.externalApplication);

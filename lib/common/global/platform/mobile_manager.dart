@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
@@ -20,11 +19,11 @@ class MobileManager {
         ),
       );
 
-      if (Platform.isIOS) {
+      if (PlatformUtils.isIOS) {
         await _initializeIOS();
       }
 
-      if (Platform.isAndroid) {
+      if (PlatformUtils.isAndroid) {
         await _initializeAndroid();
       }
     } catch (e) {
@@ -91,7 +90,7 @@ class MobileManager {
     if (!PlatformUtils.isMobile) return;
 
     try {
-      if (Platform.isIOS) {
+      if (PlatformUtils.isIOS) {
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
             statusBarBrightness: isDarkTheme ? Brightness.dark : Brightness.light,
@@ -99,7 +98,7 @@ class MobileManager {
             statusBarColor: Colors.transparent,
           ),
         );
-      } else if (Platform.isAndroid) {
+      } else if (PlatformUtils.isAndroid) {
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,

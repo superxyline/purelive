@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -40,7 +39,7 @@ class WindowService {
 
   //竖屏/恢复竖屏：手机恢复竖屏；平板保持横屏。
   Future<void> verticalScreen() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (!PlatformUtils.isAndroid && !PlatformUtils.isIOS) return;
     await setPortraitOrTabletLandscape();
   }
 

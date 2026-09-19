@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +13,7 @@ import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/esports/esports_page.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
 import 'package:pure_live/modules/esports/favorite_match_controller.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     _syncInitialIndex();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      if (Platform.isAndroid) {
+      if (PlatformUtils.isAndroid) {
         // 统一系统栏样式：状态栏/导航栏透明 + 图标亮度随主题。不要把导航栏设成
         // navigationBarTheme 背景色，否则平板横屏下底部手势条区域会出现黑条。
         MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);

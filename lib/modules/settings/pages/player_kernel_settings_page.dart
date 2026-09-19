@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
@@ -95,7 +94,7 @@ class PlayerKernelSettingsPage extends GetView<SettingsService> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(padding: EdgeInsets.only(left: 16, right: 16, bottom: 0, top: 12), child: Divider()),
-        if (Platform.isAndroid)
+        if (PlatformUtils.isAndroid)
           context.buildSwitchTile(
             icon: Remix.shield_check_line,
             title: i18n('compat_mode'),

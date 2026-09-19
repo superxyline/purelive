@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:ui' as ui;
 
@@ -800,7 +799,7 @@ class BrightnessVolumnDargAreaState extends State<BrightnessVolumnDargArea> {
 
     final dargLeft = (position.dx > (width / 2)) ? false : true;
 
-    if (Platform.isWindows && dargLeft) return;
+    if (PlatformUtils.isWindows && dargLeft) return;
 
     if (_hideBVStuff || _isDargLeft != dargLeft) {
       _isDargLeft = dargLeft;
@@ -1463,8 +1462,8 @@ class BottomActionBar extends StatelessWidget {
                                   LineSelectorButton(controller: controller),
                               ],
                               VideoFitSetting(controller: controller),
-                              if (Platform.isWindows) OverlayVolumeControl(controller: controller),
-                              if (Platform.isWindows)
+                              if (PlatformUtils.isWindows) OverlayVolumeControl(controller: controller),
+                              if (PlatformUtils.isWindows)
                                 Obx(() {
                                   return Row(
                                     children: [

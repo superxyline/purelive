@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 
 import 'index.dart';
@@ -959,7 +958,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
     return isFavorite
         ? FilledButton(
             style: ButtonStyle(
-              padding: Platform.isWindows
+              padding: PlatformUtils.isWindows
                   ? WidgetStateProperty.all(EdgeInsets.all(12.0))
                   : WidgetStateProperty.all(EdgeInsets.all(5.0)),
               backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary.withAlpha(125)),
@@ -973,7 +972,7 @@ class _FavoriteFloatingButtonState extends State<FavoriteFloatingButton> {
           )
         : FilledButton(
             style: ButtonStyle(
-              padding: Platform.isWindows
+              padding: PlatformUtils.isWindows
                   ? WidgetStateProperty.all(EdgeInsets.all(12.0))
                   : WidgetStateProperty.all(EdgeInsets.all(5.0)),
               backgroundColor: WidgetStateProperty.all(Get.theme.colorScheme.primary),

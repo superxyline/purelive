@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
 
@@ -7,6 +6,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/utils.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/player/utils/fullscreen.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 /// APP页面跳转封装
 /// * 需要参数的页面都应使用此类
@@ -70,7 +70,7 @@ class AppNavigator {
   /// 跳转至哔哩哔哩登录
   static Future toBiliBiliLogin() async {
     var contents = [i18n("sms_login"), i18n("qrcode_login")];
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (PlatformUtils.isAndroid || PlatformUtils.isIOS) {
       var result = await Utils.showOptionDialog(contents, '', title: i18n("select_login_method"));
       if (result == i18n("sms_login")) {
         await Get.toNamed(RoutePath.kBiliBiliWebLogin);

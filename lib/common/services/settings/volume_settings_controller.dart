@@ -1,7 +1,7 @@
-import 'dart:io';
 import 'dart:convert';
 import 'package:pure_live/get/get.dart';
 import 'package:pure_live/common/services/utils/hive_rx.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 
 class VolumeSettingsController extends GetxController {
   final RxDouble defaultMobileVolume = hiveDouble('defaultMobileVolume', 0.5);
@@ -33,12 +33,12 @@ class VolumeSettingsController extends GetxController {
   }
 
   double get currentPlatformDefaultVolume {
-    return Platform.isAndroid || Platform.isIOS ? defaultMobileVolume.v : defaultDesktopVolume.v;
+    return PlatformUtils.isAndroid || PlatformUtils.isIOS ? defaultMobileVolume.v : defaultDesktopVolume.v;
   }
 
   void setCurrentPlatformDefaultVolume(double volume) {
     final v = volume.clamp(0.0, 1.0);
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (PlatformUtils.isAndroid || PlatformUtils.isIOS) {
       defaultMobileVolume.v = v;
     } else {
       defaultDesktopVolume.v = v;
