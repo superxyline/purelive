@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <base-config cleartextTrafficPermitted="false" />
+    <!-- 局域网场景需要 http 明文：跨端扫码推送（手机→NAS Web）与部分直播流回退 -->
+    <base-config cleartextTrafficPermitted="true" />
 </network-security-config>

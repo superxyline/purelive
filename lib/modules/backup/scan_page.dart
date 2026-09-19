@@ -31,6 +31,8 @@ class _ScanCodePageState extends State<ScanCodePage> {
   /// 跨端传输模式：把本机关注 + 登录 + 全部设置 POST 到对方接收服务（/api/importData）
   Future<bool> _pushTransferData(String httpAddress) async {
     final client = HttpClient();
+    // NAS Web 端使用自签证书（局域网 HTTPS），信任之，否则 TLS 握手直接失败
+    client.badCertificateCallback = (cert, host, port) => true;
     try {
       final request = await client.postUrl(Uri.parse('$httpAddress/api/importData'));
       request.headers.contentType = ContentType.json;

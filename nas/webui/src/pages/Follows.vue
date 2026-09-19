@@ -148,8 +148,10 @@ async function pullSynced() {
 
 onMounted(() => {
   refresh();
-  // 二维码内容：当前访问地址（App 扫码后 POST 到 <地址>/api/importData）
-  QRCode.toCanvas(syncCanvas.value, location.origin, { width: 110, margin: 0 });
+  // 二维码内容固定用 http 入口：手机 App 的原生 HTTP 客户端不信任自签证书，
+  // 若页面在 https 下，扫到的 https 地址会让 App 端 TLS 握手直接失败（同步失败）。
+  const syncTarget = `http://${location.hostname}:8090`;
+  QRCode.toCanvas(syncCanvas.value, syncTarget, { width: 110, margin: 0 });
   pollSyncStatus();
   statusTimer = setInterval(pollSyncStatus, 5000);
 });
