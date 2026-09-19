@@ -56,9 +56,13 @@ export const siteRoutes: FastifyPluginAsync = async (app) => {
     '/sites/:p/rooms/:roomId/play-urls',
     async (req) => {
       const site = getSite(req.params.p);
+      const quality = req.query.quality ?? '';
+      // 不带 quality 的调用是前端在取清晰度列表，此时不能解析播放地址
+      //（各平台 getPlayUrls 都要求有效清晰度，空值会抛错导致列表也拿不到）。
+      const urls = quality ? await site.getPlayUrls(req.params.roomId, quality) : [];
       return {
         qualities: await site.getPlayQualites(req.params.roomId),
-        urls: await site.getPlayUrls(req.params.roomId, req.query.quality ?? ''),
+        urls,
       };
     },
   );

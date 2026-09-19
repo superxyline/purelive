@@ -77,13 +77,17 @@ class _MyAppState extends State<MyApp> {
     Get.put(VideoMaskService());
     // 冷启动后台预取赛事数据：延后几秒避开首页首屏的网络竞争，
     // 用户点击赛事标签时大概率已就绪，直接命中缓存秒开。
-    Future.delayed(const Duration(seconds: 5), () {
-      unawaited(EsportsController.prefetch());
-      // 初始化赛事提醒服务
-      unawaited(EsportsReminderService().init());
-      // 检查 gitee 上是否有新版本（弹窗提醒，可跳转项目主页）
-      unawaited(UpdateChecker.check());
-    });
+    // Web 端跳过：赛事/版本检查都是直连外部站点的请求，浏览器 CORS
+    // 必然拦截，徒增无效连接与启动负载（恢复需后端代理，暂未实现）。
+    if (!PlatformUtils.isWeb) {
+      Future.delayed(const Duration(seconds: 5), () {
+        unawaited(EsportsController.prefetch());
+        // 初始化赛事提醒服务
+        unawaited(EsportsReminderService().init());
+        // 检查 gitee 上是否有新版本（弹窗提醒，可跳转项目主页）
+        unawaited(UpdateChecker.check());
+      });
+    }
   }
 
   /// Web 端动态加载中文字体并在完成后刷新主题（MyTheme.loaded 在 Obx 作用域内读取）。
