@@ -2,9 +2,11 @@ import 'site/huya_site.dart';
 import 'site/douyu_site.dart';
 import 'site/douyin_site.dart';
 import 'site/kuaishou_site.dart';
+import 'site/web/proxy_site.dart';
 import 'interface/live_site.dart';
 
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 
 class Sites {
@@ -24,12 +26,39 @@ class Sites {
 
   static bool isSupported(String id) => supportedSiteIds.contains(id.trim().toLowerCase());
 
+  /// Web 端全部走 NAS 后端代理（CORS/签名/风控都无法在浏览器内解决）；
+  /// 原生端直连平台 API。
   static List<Site> get supportSites => [
-    Site(id: bilibiliSite, name: i18n("site_bilibili"), logo: "assets/images/bilibili_2.png", liveSite: BiliBiliSite()),
-    Site(id: douyuSite, name: i18n("site_douyu"), logo: "assets/images/douyu.png", liveSite: DouyuSite()),
-    Site(id: huyaSite, name: i18n("site_huya"), logo: "assets/images/huya.png", liveSite: HuyaSite()),
-    Site(id: douyinSite, name: i18n("site_douyin"), logo: "assets/images/douyin.png", liveSite: DouyinSite()),
-    Site(id: kuaishouSite, name: i18n("site_kuaishou"), logo: "assets/images/kuaishou.png", liveSite: KuaishowSite()),
+    Site(
+      id: bilibiliSite,
+      name: i18n("site_bilibili"),
+      logo: "assets/images/bilibili_2.png",
+      liveSite: PlatformUtils.isWeb ? ProxySite(bilibiliSite) : BiliBiliSite(),
+    ),
+    Site(
+      id: douyuSite,
+      name: i18n("site_douyu"),
+      logo: "assets/images/douyu.png",
+      liveSite: PlatformUtils.isWeb ? ProxySite(douyuSite) : DouyuSite(),
+    ),
+    Site(
+      id: huyaSite,
+      name: i18n("site_huya"),
+      logo: "assets/images/huya.png",
+      liveSite: PlatformUtils.isWeb ? ProxySite(huyaSite) : HuyaSite(),
+    ),
+    Site(
+      id: douyinSite,
+      name: i18n("site_douyin"),
+      logo: "assets/images/douyin.png",
+      liveSite: PlatformUtils.isWeb ? ProxySite(douyinSite) : DouyinSite(),
+    ),
+    Site(
+      id: kuaishouSite,
+      name: i18n("site_kuaishou"),
+      logo: "assets/images/kuaishou.png",
+      liveSite: PlatformUtils.isWeb ? ProxySite(kuaishouSite) : KuaishowSite(),
+    ),
   ];
 
   static Site of(String id) {

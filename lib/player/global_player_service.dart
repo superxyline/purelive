@@ -9,6 +9,7 @@ import 'package:media_kit/media_kit.dart';
 import 'core/preload_player_manager.dart';
 import 'core/engine_fallback_manager.dart';
 import 'adapters/video_player_adapter.dart';
+import 'adapters/web_video_adapter.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 
 class GlobalPlayerService {
@@ -31,7 +32,9 @@ class GlobalPlayerService {
       factory: (engine) async {
         switch (engine) {
           case PlayerEngine.mediaKit:
-            return MediaKitAdapter();
+            // Web 端唯一的可用内核：media_kit/mpv 无浏览器实现，
+            // 统一落到 <video> + hls.js/mpegts.js 的 Web 播放器。
+            return PlatformUtils.isWeb ? WebVideoAdapter() : MediaKitAdapter();
           case PlayerEngine.fijk:
             return FijkAdapter();
           case PlayerEngine.exo:
@@ -45,7 +48,9 @@ class GlobalPlayerService {
       playerPool: playerPool,
       fallbackManager: EngineFallbackManager(
         defaultEngine: PlayerEngine.mediaKit,
-        supportedEngines: PlatformUtils.isMobile ? PlayerEngine.values : [PlayerEngine.mediaKit],
+        supportedEngines: PlatformUtils.isWeb
+            ? [PlayerEngine.mediaKit]
+            : (PlatformUtils.isMobile ? PlayerEngine.values : [PlayerEngine.mediaKit]),
       ),
       preloadManager: PreloadPlayerManager(),
       lineManager: LineFallbackManager(),

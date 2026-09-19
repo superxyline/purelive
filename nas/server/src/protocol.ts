@@ -113,6 +113,7 @@ export interface LiveAnchorItemJson {
 export interface DanmakuMessageJson {
   type: 'msg' | 'gift' | 'online' | 'sc' | 'reload';
   userName?: string;
+  userId?: string;
   message?: string;
   face?: string;
   giftName?: string;

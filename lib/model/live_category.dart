@@ -12,6 +12,13 @@ class LiveCategory {
     required this.children,
   });
 
+  LiveCategory.fromJson(Map<String, dynamic> json)
+      : id = json['id']?.toString() ?? '',
+        name = json['name']?.toString() ?? '',
+        children = (json['children'] as List? ?? [])
+            .map((e) => LiveArea.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
+
   @override
   String toString() {
     return json.encode({
