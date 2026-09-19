@@ -8,6 +8,9 @@ class MyTheme {
 
   MyTheme({this.primaryColor, this.colorScheme}) : assert(colorScheme == null || primaryColor == null);
 
+  /// Web 端中文字体加载状态：加载完成后触发主题重建（在 main.dart 的 Obx 作用域内读取）。
+  static final loaded = false.obs;
+
   static const FontWeight regular = FontWeight.w400;
   static const FontWeight medium = FontWeight.w500;
   static const FontWeight semiBold = FontWeight.w600;
@@ -20,8 +23,13 @@ class MyTheme {
     if (customFonts.contains(selectedName)) {
       return selectedName;
     }
+    // Web 端：canvaskit 不读系统字体，Google Fonts CDN（fonts.gstatic.com）又
+    // 无法访问，中文会渲染成方框。启动时从 web/fonts/ 动态加载内置苹方字体
+    // （见 main.dart _loadWebFont，字体只进 Web 产物、不占 APK 体积）。
+    if (PlatformUtils.isWeb) {
+      return MyTheme.loaded.v ? 'WebSansSC' : null;
+    }
     // Android 默认 Roboto（系统自带），中文自动回退系统字体（如 MIUI 的 MiSans）。
-    // 内置 PingFang 字体已移除（仅旧 Windows 分支使用，且体积 13MB）。
     if (PlatformUtils.isAndroid) {
       return GoogleFonts.roboto().fontFamily;
     }
