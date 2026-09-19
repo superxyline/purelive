@@ -1,6 +1,8 @@
+import { getStoredCookie } from './store';
+
 /**
- * 平台 cookie 托管（M5 将替换为 AES 加密落盘）。
- * 当前版本：环境变量 / 内存缓存，供各平台 site 实现统一取用。
+ * 平台 cookie 托管读取入口（site 实现统一调用）。
+ * 优先级：内存缓存 → 加密存储（routes/auth 写入）→ 环境变量。
  */
 
 const memCookies = new Map<string, string>();
@@ -11,9 +13,20 @@ function fromEnv(platform: string): string {
 }
 
 export function getCookie(platform: string): string {
-  return memCookies.get(platform) ?? fromEnv(platform);
+  const cached = memCookies.get(platform);
+  if (cached !== undefined) return cached;
+  const stored = getStoredCookie(platform);
+  if (stored) {
+    memCookies.set(platform, stored);
+    return stored;
+  }
+  return fromEnv(platform);
 }
 
 export function setCookie(platform: string, cookie: string): void {
-  memCookies.set(platform, cookie);
+  if (cookie) {
+    memCookies.set(platform, cookie);
+  } else {
+    memCookies.delete(platform);
+  }
 }

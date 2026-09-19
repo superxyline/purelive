@@ -1,0 +1,17 @@
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci --registry=https://registry.npmmirror.com || npm install --registry=https://registry.npmmirror.com
+COPY tsconfig.json ./
+COPY src ./src
+RUN ./node_modules/.bin/tsc
+
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PURE_LIVE_DATA_DIR=/app/data
+COPY package.json ./
+RUN npm install --omit=dev --registry=https://registry.npmmirror.com
+COPY --from=build /app/dist ./dist
+EXPOSE 8080
+CMD ["node", "dist/index.js"]

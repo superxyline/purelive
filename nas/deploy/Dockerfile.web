@@ -1,0 +1,12 @@
+# 前端构建：Flutter Web（canvaskit），产物给 nginx 托管
+FROM ghcr.io/cirruslabs/flutter:3.47.0 AS build
+WORKDIR /src
+# 先拷依赖清单利用层缓存（可选加速：COPY pubspec.* 后 flutter pub get）
+COPY pubspec.yaml pubspec.lock ./
+COPY . .
+RUN flutter config --no-analytics && flutter pub get && flutter build web --release
+
+FROM nginx:1.27-alpine
+COPY nas/deploy/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /src/build/web /usr/share/nginx/html
+EXPOSE 80
