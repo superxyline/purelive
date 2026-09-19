@@ -179,35 +179,39 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n("language_settings_desc"),
               onTap: () => Get.to(() => const LanguageSettingsPage()),
             ),
-            context.buildTile(
-              icon: Remix.shield_keyhole_line,
-              title: i18n("custom_network_proxy"),
-              subtitle: i18n("custom_network_proxy_desc"),
-              onTap: () => Get.to(() => const NetworkProxySettingsPage()),
-            ),
+            // Web 端浏览器内无法配置应用代理，隐藏该入口
+            if (!PlatformUtils.isWeb)
+              context.buildTile(
+                icon: Remix.shield_keyhole_line,
+                title: i18n("custom_network_proxy"),
+                subtitle: i18n("custom_network_proxy_desc"),
+                onTap: () => Get.to(() => const NetworkProxySettingsPage()),
+              ),
           ]),
 
           const SizedBox(height: 20),
           // ===== 数据与维护 =====
           // v2.0.2 设置页整理时整组被误删(缓存与数据、备份与恢复)，
           // 2026-09 恢复；跨端扫码同步入口就在备份页内。
-          context.buildGroupTitle(i18n("settings_group_data_maintenance")),
-          context.buildModernCard([
-            context.buildTile(
-              icon: Remix.database_2_line,
-              title: i18n("cache_and_data"),
-              subtitle: i18n("cache_and_data_desc"),
-              onTap: () => Get.to(() => const CacheDataSettingsPage()),
-            ),
-            context.buildTile(
-              icon: Remix.archive_2_line,
-              title: i18n("backup_recover"),
-              subtitle: i18n("backup_transfer_desc"),
-              onTap: () => Get.toNamed(RoutePath.kBackup),
-            ),
-          ]),
-
-          const SizedBox(height: 20),
+          // Web 端依赖本地文件系统/局域网服务的功能不可用，整组隐藏。
+          if (!PlatformUtils.isWeb) ...[
+            context.buildGroupTitle(i18n("settings_group_data_maintenance")),
+            context.buildModernCard([
+              context.buildTile(
+                icon: Remix.database_2_line,
+                title: i18n("cache_and_data"),
+                subtitle: i18n("cache_and_data_desc"),
+                onTap: () => Get.to(() => const CacheDataSettingsPage()),
+              ),
+              context.buildTile(
+                icon: Remix.archive_2_line,
+                title: i18n("backup_recover"),
+                subtitle: i18n("backup_transfer_desc"),
+                onTap: () => Get.toNamed(RoutePath.kBackup),
+              ),
+            ]),
+            const SizedBox(height: 20),
+          ],
           // ===== 关于 =====
           context.buildGroupTitle(i18n("about")),
           context.buildModernCard([

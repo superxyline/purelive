@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { upstream } from '../upstream';
-import { getStoredCookie, setStoredCookie, allPlatformsStatus } from './store';
+import { getStoredCookie, setStoredCookie, allPlatformsStatus } from '../auth/store';
+import { getCookie } from '../auth/cookies';
 
 /** 登录与 cookie 托管：B站扫码（后端代理 passport 接口）+ 各平台粘贴 cookie。 */
 export const authRoutes: FastifyPluginAsync = async (app) => {
@@ -44,6 +45,22 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // ---- 各平台粘贴 cookie ----
+  // B站会话信息：用托管 cookie 代理账号信息接口，供 Web 端展示登录态
+  app.get('/bilibili/session', async () => {
+    const cookie = getStoredCookie('bilibili') || getCookie('bilibili');
+    if (!cookie) return { ok: false, uname: '', mid: 0 };
+    try {
+      const res = await upstream('https://api.bilibili.com/x/member/web/account', {
+        headers: { cookie, referer: 'https://www.bilibili.com/' },
+      });
+      const body = JSON.parse(res.text);
+      if (body['code'] !== 0) return { ok: false, uname: '', mid: 0 };
+      return { ok: true, uname: String(body['data']?.uname ?? ''), mid: Number(body['data']?.mid ?? 0) };
+    } catch (_) {
+      return { ok: false, uname: '', mid: 0 };
+    }
+  });
+
   app.get<{ Params: { platform: string } }>('/:platform', async (req) => {
     const { platform } = req.params;
     if (!['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou'].includes(platform)) {

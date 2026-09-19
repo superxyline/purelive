@@ -29,9 +29,12 @@ class BiliBiliQRLoginController extends GetxController {
     try {
       qrStatus.value = QRStatus.loading;
 
-      var result = await HttpClient.instance.getJson(
-        "https://passport.bilibili.com/x/passport-login/web/qrcode/generate",
-      );
+      // Web 端：passport 接口无法在浏览器直连，由 NAS 后端代理，
+      // cookie 成功后自动托管在 NAS 上。
+      final String generateUrl = PlatformUtils.isWeb
+          ? "/api/auth/bilibili/qrcode"
+          : "https://passport.bilibili.com/x/passport-login/web/qrcode/generate";
+      var result = await HttpClient.instance.getJson(generateUrl);
       if (result["code"] != 0) {
         throw result["message"];
       }
@@ -53,8 +56,11 @@ class BiliBiliQRLoginController extends GetxController {
 
   void pollQRStatus() async {
     try {
+      final String pollUrl = PlatformUtils.isWeb
+          ? "/api/auth/bilibili/qrcode/poll"
+          : "https://passport.bilibili.com/x/passport-login/web/qrcode/poll";
       var response = await HttpClient.instance.get(
-        "https://passport.bilibili.com/x/passport-login/web/qrcode/poll",
+        pollUrl,
         queryParameters: {"qrcode_key": qrcodeKey},
       );
       if (response.data["code"] != 0) {
@@ -63,16 +69,27 @@ class BiliBiliQRLoginController extends GetxController {
       var data = response.data["data"];
       var code = data["code"];
       if (code == 0) {
-        var cookies = <String>[];
-        response.headers["set-cookie"]?.forEach((element) {
-          var cookie = element.split(";")[0];
-          cookies.add(cookie);
-        });
-        if (cookies.isNotEmpty) {
-          var cookieStr = cookies.join(";");
-          BiliBiliAccountService.instance.setCookie(cookieStr);
-          await BiliBiliAccountService.instance.loadUserInfo();
-          Navigator.of(Get.context!).pop();
+        if (PlatformUtils.isWeb) {
+          // cookie 已由后端托管，本地只标记登录态并拉取会话信息
+          final session = await HttpClient.instance.getJson("/api/auth/bilibili/session");
+          if (session["ok"] == true) {
+            BiliBiliAccountService.instance.setCookie("managed-by-nas");
+            BiliBiliAccountService.instance.name.value = session["uname"]?.toString() ?? '';
+            BiliBiliAccountService.instance.logined.value = true;
+            Navigator.of(Get.context!).pop();
+          }
+        } else {
+          var cookies = <String>[];
+          response.headers["set-cookie"]?.forEach((element) {
+            var cookie = element.split(";")[0];
+            cookies.add(cookie);
+          });
+          if (cookies.isNotEmpty) {
+            var cookieStr = cookies.join(";");
+            BiliBiliAccountService.instance.setCookie(cookieStr);
+            await BiliBiliAccountService.instance.loadUserInfo();
+            Navigator.of(Get.context!).pop();
+          }
         }
       } else if (code == 86038) {
         qrStatus.value = QRStatus.expired;
