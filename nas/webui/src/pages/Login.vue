@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import QRCode from 'qrcode';
 import { api } from '../api';
 
@@ -63,6 +63,8 @@ async function genQr() {
     const d = await api.bilibiliQr();
     qrKey = d.qrcode_key;
     qrUrl.value = d.url;
+    // canvas 在 v-if 下刚进入 DOM，必须等渲染后再画
+    await nextTick();
     await QRCode.toCanvas(qrCanvas.value, d.url, { width: 184, margin: 0 });
     startPoll();
   } catch (e) { window.$msg.error(String(e.message || e)); }
