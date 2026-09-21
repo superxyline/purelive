@@ -40,8 +40,9 @@ void main() {
       Sites.goodGameSite,
       Sites.fc2LiveSite,
       Sites.steamBroadcastSite,
+      Sites.jdLiveSite,
     ]);
-    expect(favorites.siteCatalogMigration.value, 32);
+    expect(favorites.siteCatalogMigration.value, 33);
     favorites.hotAreasList.remove(Sites.rumbleSite);
     await Hive.box<dynamic>('app_settings').flush();
     Get.reset();
@@ -54,7 +55,8 @@ void main() {
       Sites.goodGameSite,
       Sites.fc2LiveSite,
       Sites.steamBroadcastSite,
+      Sites.jdLiveSite,
     ]);
-    expect(reopened.siteCatalogMigration.value, 32);
+    expect(reopened.siteCatalogMigration.value, 33);
   });
 }
