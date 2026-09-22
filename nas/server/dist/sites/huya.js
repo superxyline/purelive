@@ -104,29 +104,39 @@ function buildRoomFromProfileData(data, roomId) {
     const bitRates = [];
     const baseSteamInfoList = data['stream']?.['baseSteamInfoList'] ?? [];
     const findByCdn = (cdnType) => baseSteamInfoList.find((element) => String(element.sCdnType) === String(cdnType ?? ''));
-    const pushLine = (item, url, lineType) => {
+    /**
+     * [item] 是 multiLine 里的一条，只用来提供 cdnType；URL 前缀必须取
+     * baseSteamInfoList 里的 sFlvUrl / sHlsUrl（形如 http://tx.flv.huya.com/src）。
+     * buildPlayUrl 会在此基础上拼 `{streamName}.{ext}?{antiCode}`，若直接把 multiLine
+     * 的完整 url 当前缀，会拼出路径里嵌套一层 flv/m3u8 的畸形地址。
+     */
+    const pushLine = (item, lineType) => {
         const currentStream = findByCdn(item['cdnType']);
         if (!currentStream)
+            return;
+        const prefix = String((lineType === 'flv' ? currentStream.sFlvUrl : currentStream.sHlsUrl) ?? '');
+        if (prefix === '')
             return;
         topSid = asInt(currentStream.lChannelId);
         subSid = asInt(currentStream.lSubChannelId);
         lines.push({
-            line: url,
+            line: prefix,
             lineType,
             flvAntiCode: String(currentStream.sFlvAntiCode ?? ''),
             hlsAntiCode: String(currentStream.sHlsAntiCode ?? ''),
             streamName: String(currentStream.sStreamName ?? ''),
-            cdnType: String(item['sCdnType'] ?? ''),
+            cdnType: String(currentStream.sCdnType ?? ''),
             presenterUid: topSid,
         });
     };
-    for (const item of data['stream']?.['flv']?.['multiLine'] ?? []) {
-        if (String(item['url'] ?? '') !== '')
-            pushLine(item, String(item['url']), 'flv');
-    }
+    // HLS 线路排在前面，前端按此顺序构造候选列表
     for (const item of data['stream']?.['hls']?.['multiLine'] ?? []) {
         if (String(item['url'] ?? '') !== '')
-            pushLine(item, String(item['url']), 'hls');
+            pushLine(item, 'hls');
+    }
+    for (const item of data['stream']?.['flv']?.['multiLine'] ?? []) {
+        if (String(item['url'] ?? '') !== '')
+            pushLine(item, 'flv');
     }
     // 清晰度：bitRateInfo（登录态 mp）优先，否则 rateArray
     let biterates = [];

@@ -1,10 +1,13 @@
 <template>
   <div>
-    <n-button-group size="small" style="margin-bottom: 14px">
-      <n-button v-for="p in platformTabs" :key="p.id" :type="platform === p.id ? 'primary' : 'default'" @click="platform = p.id">
-        {{ p.name }}
-      </n-button>
-    </n-button-group>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap">
+      <n-button-group size="small">
+        <n-button v-for="p in platformTabs" :key="p.id" :type="platform === p.id ? 'primary' : 'default'" @click="platform = p.id">
+          {{ p.name }}
+        </n-button>
+      </n-button-group>
+      <n-button size="small" quaternary @click="goArea">按分区浏览 →</n-button>
+    </div>
     <n-spin :show="loading">
       <n-empty v-if="!loading && rooms.length === 0" description="暂无直播间" style="margin: 80px 0" />
       <div v-else class="room-grid">
@@ -62,6 +65,8 @@ async function load(reset) {
 }
 function loadMore() { page.value += 1; load(false); }
 function goRoom(r) { router.push(`/room/${r.platform}/${r.roomId}`); }
+/** 进入分区浏览：选"全部"时先落到 B站分区，页内可再切换平台。 */
+function goArea() { router.push(`/area/${platform.value === 'all' ? 'bilibili' : platform.value}`); }
 
 watch(platform, () => load(true), { immediate: true });
 </script>

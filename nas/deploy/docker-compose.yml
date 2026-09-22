@@ -16,10 +16,12 @@ services:
       - "8080"
 
   web:
-    build:
-      context: ../..
-      dockerfile: nas/deploy/Dockerfile.web
+    image: nginx:1.27-alpine
     restart: unless-stopped
+    volumes:
+      # 前端构建产物：cd nas/webui && npm run build 后把 dist/ 内容放进该目录
+      - ../webui-dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "8090:80"
     depends_on:

@@ -10,6 +10,7 @@ const sites_1 = require("./routes/sites");
 const sign_1 = require("./routes/sign");
 const auth_1 = require("./routes/auth");
 const stream_1 = require("./routes/stream");
+const sync_1 = require("./routes/sync");
 const hub_1 = require("./danmaku/hub");
 const PORT = Number(process.env.PORT || 8080);
 const app = (0, fastify_1.default)({
@@ -24,6 +25,7 @@ async function main() {
     await app.register(sign_1.signRoutes, { prefix: '/api/sign' });
     await app.register(auth_1.authRoutes, { prefix: '/api/auth' });
     await app.register(stream_1.streamRoutes, { prefix: '/api/stream' });
+    await app.register(sync_1.syncRoutes, { prefix: '/api' });
     await app.register(hub_1.danmakuRoutes, { prefix: '/api/danmaku' });
     app.get('/api/health', async () => ({ ok: true, ts: Date.now() }));
     await app.listen({ port: PORT, host: '0.0.0.0' });
