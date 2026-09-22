@@ -13,7 +13,7 @@
           <div style="margin-top: 10px; font-size: 13px">{{ qrStatusText }}</div>
           <n-button quaternary size="small" style="margin-top: 6px" @click="genQr">刷新二维码</n-button>
         </template>
-        <div v-if="biliName" style="margin-top: 10px; color: #63e2b7">当前账号：{{ biliName }}</div>
+        <div v-if="biliName" style="margin-top: 10px; color: #7dd3fc">当前账号：{{ biliName }}</div>
       </div>
     </n-card>
 

@@ -30,7 +30,66 @@
 - cookie 托管（AES-256-GCM 加密落盘）+ 流媒体 Referer 回退代理；支持手机 App 扫码同步关注列表与登录态；
 - Web 播放器：HLS 走 hls.js、flv 走 mpegts.js，直连失败自动回退后端代理。
 
-部署方式见 [nas/README.md](nas/README.md)：`cd nas/deploy && docker compose up -d --build` 后浏览器访问 `http://<NAS-IP>:8090`。安卓客户端构建不受影响。
+### 部署到 NAS（详细步骤）
+
+**前置条件**
+
+- 一台已安装 Docker（含 `docker compose` v2 插件）的 NAS / Linux 设备（实测飞牛 fnOS）；
+- 一台能跑 **Node 18+** 的机器用于构建前端（本地 Windows / Linux / macOS 均可）；
+- 无公网镜像源的 NAS 需本地已有 `nginx:1.27-alpine` 与 `node:22-alpine` 镜像（server 的 Dockerfile `FROM` 改成本地已有镜像即可，不要用 `node:20`）。
+
+**1. 规划 NAS 上的部署目录**
+
+以仓库内 [`nas/deploy/docker-compose.yml`](nas/deploy/docker-compose.yml) 为模板（其中 `../server`、`../webui-dist`、`../data` 均为相对 compose 文件的路径）：
+
+```
+purelive-nas/
+├── server/                 # 后端源码：仓库 nas/server/ 整目录上传（去掉 node_modules）
+├── webui-dist/             # 前端产物：本地构建的 dist/ 内容（只覆盖内容，勿删目录本身）
+├── data/                   # 运行数据（加密 cookie、关注列表）——务必纳入备份
+├── certs/                  # 自签证书（走 8091 HTTPS 时需要，可选）
+└── deploy/
+    ├── docker-compose.yml  # 直接取自仓库 nas/deploy/
+    ├── Dockerfile.server
+    └── nginx.conf
+```
+
+**2. 构建前端**
+
+```bash
+cd nas/webui
+npm install       # 首次需要
+npm run build     # 产出 dist/
+```
+
+把 `dist/` 目录的**内容**上传覆盖到 NAS 的 `webui-dist/`（nginx 以 bind mount 挂载该目录，**不要删除目录本身**）。前端纯静态资源，替换后无需重启 nginx 容器也常能直接生效，但建议执行第 4 步的 recreate。
+
+**3. 启动服务**
+
+```bash
+cd purelive-nas/deploy
+sudo docker compose up -d --build     # 用户已在 docker 组时可去掉 sudo
+```
+
+首次启动会构建 `server` 镜像并创建两个容器：`purelive-server`（Node/Fastify 聚合后端）与 `purelive-web`（nginx:1.27-alpine）。
+
+**4. 访问与验证**
+
+浏览器打开 `http://<NAS-IP>:8090`（推荐）或 `https://<NAS-IP>:8091`（自签证书，首次需手动信任）。
+
+**5. 后续更新前端**
+
+```bash
+cd nas/webui && npm run build
+# 覆盖 dist/ 内容到 NAS 的 webui-dist/ 后：
+sudo docker compose up -d --force-recreate web
+```
+
+> ⚠️ 两个必踩的坑：
+> - **bind mount 换内容后必须 `--force-recreate web`**：容器内仍是旧 inode，`nginx -s reload` 不生效，表现为 403 或一直旧页面；单文件挂载的 `nginx.conf` 改动同理。
+> - **`index.html` 必须 no-cache**：强缓存会导致新版本不生效，[`nas/deploy/nginx.conf`](nas/deploy/nginx.conf) 已配置 `Cache-Control: no-cache`，勿删。
+
+架构图、环境变量（`NAS_MASTER_KEY` 等）、登录与发弹幕、安全注意事项见 [nas/README.md](nas/README.md)。安卓客户端构建不受影响。
 
 ---
 
@@ -160,27 +219,35 @@
 
 ---
 
-## 🔧 自行构建（不提供安装包）
+## 🔧 自编译安卓端（不提供安装包）
 
-本仓库**不提供预编译 APK**，请克隆源码后自行构建。
+本仓库**不提供预编译 APK**，请克隆源码后按下述步骤自行构建。
 
 ### 环境要求
 
-- Flutter SDK（3.x）
-- Android SDK（API 34+）
-- JDK 17+
+| 依赖 | 版本要求 | 说明 |
+| --- | --- | --- |
+| Flutter SDK | 3.x（实测 3.47.0） | [flutter.dev](https://flutter.dev) 安装，或使用国内镜像解压即用 |
+| Android SDK | cmdline-tools + API 34+ + build-tools | 通过 Android Studio 或单独安装 cmdline-tools 后 `sdkmanager` 拉取 |
+| JDK | 17+ | AGP 要求；Android Studio 自带的 JBR 即可 |
+| Git | 任意近期版本 | 克隆仓库 |
 
-### 构建步骤
+安装 Flutter 后确保 `flutter` 在 PATH 中（Windows 下即 `<flutter>/bin`），并先跑一次 `flutter doctor` 确认 Android 工具链全部打勾。
+
+### 构建步骤（Windows / Linux / macOS 通用）
 
 ```bash
-# 1. 克隆仓库
+# 1. 克隆仓库（国内网络建议走 gitee，GitHub 可用加速镜像）
 git clone https://gitee.com/superxyline/purelive.git
 cd purelive
 
-# 2. 安装依赖
+# 2. 拉取依赖
 flutter pub get
 
-# 3. 构建 arm64 release APK
+# 3. 静态检查（构建门禁：要求 lib/ 零 error，有 error 先修复再往下走）
+flutter analyze --no-pub
+
+# 4. 构建 arm64 release APK（无特殊情况只构建 arm64）
 flutter build apk --release --target-platform android-arm64
 ```
 
@@ -190,11 +257,15 @@ flutter build apk --release --target-platform android-arm64
 build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 ```
 
-### 构建说明
+安装到已连接的调试设备：`flutter install --release`，或直接 `adb install -r <上述apk路径>`。
 
-- 默认只构建 **arm64-v8a**（主流安卓手机 / 平板均为 64 位 ARM）
-- 如需其他架构，可调整 `--target-platform` 参数（如 `android-arm`、`android-x64`）
-- 正式签名使用仓库内 `android/key.jks`（请妥善保管密钥，勿外传）
+### 构建说明与常见问题
+
+- **为什么只出 arm64**：主流安卓手机 / 平板均为 64 位 ARM，只构建 arm64 可显著缩短编译时间与包体；如确需其他架构，调整 `--target-platform`（如 `android-arm`、`android-x64`），产物名会相应变化。
+- **签名**：正式签名使用仓库内 `android/key.jks`（请妥善保管密钥，勿外传）。
+- **Gradle 依赖下载慢 / 超时**：仓库 `tool/gradle-cn-mirrors.init.gradle` 提供国内镜像初始化脚本，可配合 Gradle 的 `--init-script` 参数使用；或为 `ANDROID_HOME` 配置国内代理镜像。
+- **Windows PowerShell**：以上命令直接可用；若提示找不到 `flutter`，先执行 `$env:Path += ";<flutter路径>\bin"`。
+- **改动了 `lib/` 之后**：提交或打包前重新跑第 3、4 步双验证（analyze 零 error + arm64 release 构建通过），避免引入启动崩溃类回归。
 
 ---
 

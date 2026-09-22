@@ -1,0 +1,440 @@
+/* Pure Live WebUI — Twitch 结构 + 天蓝主色（仅视觉，不改交互） */
+
+:root {
+  /* Twitch 暗色骨架 + 天蓝 accent */
+  --tw-bg: #0e0e10;
+  --tw-bg-elevated: #18181b;
+  --tw-bg-hover: #1f1f23;
+  --tw-bg-input: #18181b;
+  --tw-border: #2a2a2d;
+  --tw-border-strong: #3a3a3d;
+  --tw-text: #efeff1;
+  --tw-text-secondary: #adadb8;
+  --tw-text-muted: #8b8b94;
+  --tw-accent: #38bdf8;
+  --tw-accent-hover: #0ea5e9;
+  --tw-accent-soft: rgba(56, 189, 248, 0.16);
+  --tw-accent-border: rgba(56, 189, 248, 0.55);
+  --tw-live: #eb0400;
+  --tw-online: #00f593;
+  --tw-danger: #e91916;
+  --tw-radius: 6px;
+  --tw-radius-lg: 12px;
+  --tw-font: "Inter", "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  --tw-header-h: 52px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--tw-bg);
+  color: var(--tw-text);
+  font-family: var(--tw-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+/* ---------- 顶栏（Twitch 顶栏） ---------- */
+.n-layout-header.tw-header,
+.tw-header {
+  height: var(--tw-header-h) !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 20px !important;
+  gap: 6px !important;
+  background: var(--tw-bg-elevated) !important;
+  border-bottom: 1px solid var(--tw-border) !important;
+  box-shadow: none !important;
+}
+
+.tw-logo {
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--tw-accent);
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-right: 14px;
+  line-height: 1;
+}
+
+.tw-logo:hover {
+  background: var(--tw-accent-hover);
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--tw-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: var(--tw-radius);
+  transition: color 0.12s ease, background 0.12s ease;
+}
+
+.nav-link:hover {
+  color: var(--tw-text);
+  background: var(--tw-bg-hover);
+}
+
+.nav-link.nav-on {
+  color: #fff;
+  background: var(--tw-accent-soft);
+  box-shadow: inset 0 -2px 0 var(--tw-accent);
+}
+
+/* ---------- 页面内容区 ---------- */
+.n-layout-content {
+  background: var(--tw-bg) !important;
+}
+
+/* ---------- 直播间卡片网格 / 卡片 ---------- */
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px 14px;
+}
+
+.room-card {
+  cursor: pointer;
+  border-radius: var(--tw-radius);
+  transition: transform 0.12s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-2px);
+}
+
+.room-card:hover .room-cover {
+  box-shadow: 0 0 0 2px var(--tw-accent);
+}
+
+.room-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  border-radius: var(--tw-radius);
+  background: #18181b;
+  display: block;
+  transition: box-shadow 0.12s ease;
+}
+
+.room-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 8px;
+  line-height: 1.35;
+  color: var(--tw-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-sub {
+  font-size: 13px;
+  color: var(--tw-text-secondary);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.room-plat {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.room-status {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.room-status.is-live {
+  background: var(--tw-live);
+}
+
+.room-status.is-offline {
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--tw-text-secondary);
+  text-transform: none;
+}
+
+.room-duration {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+/* ---------- Naive UI 深色对齐 Twitch ---------- */
+.n-card {
+  --n-border-radius: 12px !important;
+}
+
+.n-card,
+.n-card__content,
+.n-select-menu,
+.n-drawer,
+.n-modal {
+  background-color: var(--tw-bg-elevated) !important;
+}
+
+.n-card {
+  border: 1px solid var(--tw-border) !important;
+  box-shadow: none !important;
+}
+
+.n-card__header {
+  color: var(--tw-text) !important;
+  font-weight: 700 !important;
+  border-bottom: 1px solid var(--tw-border);
+}
+
+.n-button--primary-type {
+  --n-color: var(--tw-accent) !important;
+  --n-color-hover: var(--tw-accent-hover) !important;
+  --n-color-pressed: var(--tw-accent-hover) !important;
+  --n-color-focus: var(--tw-accent) !important;
+}
+
+.n-button {
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+}
+
+.n-input,
+.n-input-wrapper {
+  background: var(--tw-bg-input) !important;
+}
+
+.n-tabs-bar {
+  background-color: var(--tw-accent) !important;
+}
+
+.n-tabs-tab {
+  font-weight: 600 !important;
+}
+
+.n-tabs-tab--active {
+  color: var(--tw-text) !important;
+}
+
+.n-tag {
+  border-radius: 999px !important;
+}
+
+/* 分区 / 关注页签：segment 更接近 Twitch 胶囊 */
+.n-tabs--segment-type .n-tabs-segment {
+  background: var(--tw-bg-elevated) !important;
+  border: 1px solid var(--tw-border);
+  border-radius: 999px !important;
+  padding: 3px !important;
+}
+
+.n-tabs--segment-type .n-tabs-segment-item {
+  border-radius: 999px !important;
+}
+
+.n-tabs--segment-type .n-tabs-segment-item--active {
+  background: var(--tw-accent) !important;
+}
+
+/* 空态 / 加载 */
+.n-empty__description {
+  color: var(--tw-text-secondary) !important;
+}
+
+/* 消息 toast */
+.n-message {
+  font-family: var(--tw-font);
+}
+
+/* ---------- 房间页（Twitch 观看页布局感） ---------- */
+.room-layout {
+  display: flex;
+  gap: 16px;
+  height: calc(100vh - var(--tw-header-h) - 48px);
+  min-height: 420px;
+}
+
+.room-player-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.room-player-wrap {
+  position: relative;
+  flex: 1;
+  background: #000;
+  border-radius: var(--tw-radius);
+  overflow: hidden;
+  border: 1px solid var(--tw-border);
+}
+
+.room-meta {
+  padding: 12px 4px 4px;
+}
+
+.room-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.room-title-strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tw-text);
+}
+
+.room-nick {
+  color: var(--tw-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.room-online {
+  color: var(--tw-online);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.room-play-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffb4b4;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* 聊天面板（Twitch chat 侧栏） */
+.room-chat {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: var(--tw-bg-elevated);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-lg);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.room-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+}
+
+.room-chat-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.65;
+  padding: 8px 4px;
+}
+
+.room-chat-user {
+  color: #7dd3fc;
+  font-weight: 700;
+}
+
+.room-chat-gift {
+  color: #ffd28a;
+}
+
+.room-chat-sc {
+  color: #ff7d7d;
+  font-weight: 700;
+}
+
+.room-chat-empty {
+  color: var(--tw-text-muted);
+  text-align: center;
+  padding: 28px 0;
+}
+
+.room-chat-footer {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--tw-border);
+  background: var(--tw-bg-elevated);
+  flex-shrink: 0;
+}
+
+/* 同步卡片 / 登录卡片微调 */
+.sync-hint {
+  color: var(--tw-text-secondary);
+}
+
+/* 跳过平台提示 */
+.skip-hint {
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--tw-text-secondary);
+}
+
+/* 滚动条（近 Twitch 细条） */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3a3d;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4d;
+}
