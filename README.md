@@ -254,8 +254,10 @@ flutter build apk --release --target-platform android-arm64
 构建产物位于：
 
 ```
-build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+build/app/outputs/flutter-apk/app-release.apk
 ```
+
+> 只构建单一架构（如 `--target-platform android-arm64`）时产物名为 `app-release.apk`；同时构建多架构时会带 ABI 后缀（如 `app-arm64-v8a-release.apk`）。
 
 安装到已连接的调试设备：`flutter install --release`，或直接 `adb install -r <上述apk路径>`。
 
