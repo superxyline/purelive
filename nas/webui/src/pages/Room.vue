@@ -1,21 +1,21 @@
 <template>
-  <div v-if="room" style="display: flex; gap: 14px; height: calc(100vh - 100px)">
-    <!-- 左：播放器 -->
-    <div style="flex: 1; display: flex; flex-direction: column; min-width: 0">
-      <div style="position: relative; flex: 1; background: #000; border-radius: 8px; overflow: hidden">
+  <div v-if="room" class="room-layout">
+    <!-- 左：播放器（Twitch 观看页） -->
+    <div class="room-player-col">
+      <div class="room-player-wrap">
         <video ref="videoEl" autoplay playsinline style="width: 100%; height: 100%; object-fit: contain"></video>
         <n-spin v-if="playerLoading" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center" size="large" />
-        <div v-if="playError" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #e88080">
+        <div v-if="playError" class="room-play-error">
           播放失败：{{ playError }}
         </div>
       </div>
       <!-- 信息与控制条 -->
-      <div style="padding: 10px 4px">
-        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
-          <strong style="font-size: 15px">{{ room.title }}</strong>
+      <div class="room-meta">
+        <div class="room-meta-row">
+          <strong class="room-title-strong">{{ room.title }}</strong>
           <n-tag size="small" :bordered="false">{{ platformName }}</n-tag>
-          <span style="color: #8b8b94; font-size: 13px">{{ room.nick }}</span>
-          <span v-if="online" style="color: #63e2b7; font-size: 13px">👁 {{ online }}</span>
+          <span class="room-nick">{{ room.nick }}</span>
+          <span v-if="online" class="room-online">👁 {{ online }}</span>
           <div style="flex: 1"></div>
           <n-button size="small" @click="toggleFollowBtn">{{ followed ? '已关注' : '关注' }}</n-button>
           <n-button size="small" @click="toggleMute">{{ muted ? '取消静音' : '静音' }}</n-button>
@@ -26,34 +26,58 @@
       </div>
     </div>
 
-    <!-- 右：弹幕 -->
-    <n-card
-      size="small"
-      style="width: 320px; display: flex; flex-direction: column"
-      content-style="flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden"
-      :bordered="true"
-    >
-      <template #header>弹幕 <span style="font-size: 12px; color: #8b8b94">{{ danmaku.length ? danmaku.length + ' 条' : '' }}</span></template>
-      <div ref="danmakuBox" style="flex: 1; min-height: 0; overflow-y: auto; font-size: 13px; line-height: 1.7">
-        <div v-for="(d, i) in danmaku" :key="i" style="margin-bottom: 4px; word-break: break-all">
-          <template v-if="d.type === 'msg'"><span style="color: #63e2b7">{{ d.userName }}</span>：{{ d.message }}</template>
-          <template v-else-if="d.type === 'gift'"><span style="color: #f2c97d">{{ d.userName }}</span> 送出 {{ d.giftName }} x{{ d.giftCount }}</template>
-          <template v-else-if="d.type === 'sc'"><span style="color: #e88080">【醒目留言】</span>{{ d.userName }}：{{ d.message }}</template>
+    <!-- 右：弹幕 / 礼物卡片 切换（Twitch chat 侧栏） -->
+    <div class="room-chat">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #2a2a2d">
+        <div class="room-chat-header">
+          <n-button-group size="tiny">
+            <n-button :type="dmView === 'list' ? 'primary' : 'default'" @click="setDmView('list')">弹幕</n-button>
+            <n-button :type="dmView === 'gift' ? 'primary' : 'default'" @click="setDmView('gift')">礼物</n-button>
+          </n-button-group>
+          <span style="font-size: 12px; color: #adadb8">
+            {{ dmView === 'list' ? (danmaku.length ? danmaku.length + ' 条' : '') : (giftCards.length ? giftCards.length + ' 张' : '') }}
+          </span>
         </div>
       </div>
-      <div style="display: flex; gap: 8px; margin-top: 8px; flex-shrink: 0">
+
+      <!-- 模式一：现有弹幕列表 -->
+      <div v-show="dmView === 'list'" ref="danmakuBox" class="room-chat-body">
+        <div v-for="(d, i) in danmaku" :key="i" style="margin-bottom: 6px; word-break: break-all">
+          <template v-if="d.type === 'msg'"><span class="room-chat-user">{{ d.userName }}</span><span style="color: #adadb8">: </span>{{ d.message }}</template>
+          <template v-else-if="d.type === 'gift'"><span class="room-chat-gift">{{ d.userName }}</span> 送出 {{ d.giftName }} x{{ d.giftCount }}</template>
+          <template v-else-if="d.type === 'sc'"><span class="room-chat-sc">【醒目留言】</span>{{ d.userName }}：{{ d.message }}</template>
+        </div>
+        <div v-if="!danmaku.length" class="room-chat-empty">暂无弹幕</div>
+      </div>
+
+      <!-- 模式二：安卓端礼物卡片 -->
+      <div v-show="dmView === 'gift'" ref="giftBox" class="room-chat-body">
+        <GiftCard
+          v-for="g in giftCards"
+          :key="g.id"
+          :user-name="g.userName"
+          :gift-name="g.giftName"
+          :gift-count="g.giftCount"
+          :gift-icon="g.giftIcon || ''"
+          :platform="g.platform"
+        />
+        <div v-if="!giftCards.length" class="room-chat-empty">暂无礼物卡片</div>
+      </div>
+
+      <div class="room-chat-footer">
         <n-input v-model:value="dmInput" size="small" placeholder="发个弹幕（需登录）" @keyup.enter="send" :disabled="!canSend" />
         <n-button size="small" type="primary" :disabled="!canSend" @click="send">发送</n-button>
       </div>
-    </n-card>
+    </div>
   </div>
   <n-spin v-else style="margin: 120px auto; display: block" />
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { api, withProxyFallback, toggleFollow, isFollowed } from '../api';
+import GiftCard from '../components/GiftCard.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -63,7 +87,9 @@ const roomId = route.params.roomId;
 const room = ref(null);
 const videoEl = ref(null);
 const danmakuBox = ref(null);
+const giftBox = ref(null);
 const danmaku = ref([]);
+const giftCards = ref([]);
 const online = ref('');
 const playError = ref('');
 const playerLoading = ref(true);
@@ -76,6 +102,19 @@ const muted = ref(false);
 const dmInput = ref('');
 const followed = ref(false);
 const canSend = ['bilibili', 'douyu'].includes(platform);
+
+// 弹幕区显示模式：list=文本弹幕 | gift=安卓礼物卡片（localStorage 记忆）
+const DM_VIEW_KEY = 'purelive_room_dm_view';
+const dmView = ref(localStorage.getItem(DM_VIEW_KEY) === 'gift' ? 'gift' : 'list');
+function setDmView(v) {
+  dmView.value = v;
+  localStorage.setItem(DM_VIEW_KEY, v);
+}
+
+// 礼物合并窗口（对齐安卓 giftMergeWindow = 3s）：同用户同礼物在窗口内累加数量
+const GIFT_MERGE_MS = 3000;
+const giftMergeWindows = new Map();
+let giftSeq = 0;
 
 const platformName = { bilibili: '哔哩哔哩', douyu: '斗鱼', huya: '虎牙', douyin: '抖音', kuaishou: '快手' }[platform] || platform;
 
@@ -177,6 +216,54 @@ function toggleFollowBtn() {
   followed.value = toggleFollow({ platform, roomId, nick: room.value?.nick, title: room.value?.title, cover: room.value?.cover });
 }
 
+// ---- 礼物卡片：合并 + 入队（安卓 live_play_controller 的 3s 合并窗口） ----
+function giftComboKey(m) {
+  const user = m.userId || m.userName || '';
+  return `${user}|${m.giftName || ''}`;
+}
+
+function pushGiftCard(m) {
+  const count = Number(m.giftCount) > 0 ? Number(m.giftCount) : 1;
+  const key = giftComboKey(m);
+  const win = giftMergeWindows.get(key);
+  if (win) {
+    // 窗口内：累加到已显示卡片并刷新
+    const card = giftCards.value.find((c) => c.id === win.id);
+    if (card) {
+      card.giftCount += count;
+      clearTimeout(win.timer);
+      win.timer = setTimeout(() => giftMergeWindows.delete(key), GIFT_MERGE_MS);
+      return;
+    }
+  }
+  const id = ++giftSeq;
+  giftCards.value.push({
+    id,
+    userName: m.userName || '',
+    userId: m.userId || '',
+    giftName: m.giftName || m.message || '礼物',
+    giftCount: count,
+    giftIcon: m.giftIcon || '',
+    platform,
+  });
+  if (giftCards.value.length > 80) giftCards.value.splice(0, giftCards.value.length - 80);
+  const timer = setTimeout(() => giftMergeWindows.delete(key), GIFT_MERGE_MS);
+  giftMergeWindows.set(key, { id, timer });
+}
+
+function scrollToBottom(boxRef) {
+  nextTick(() => {
+    const el = boxRef.value;
+    if (el) el.scrollTop = el.scrollHeight;
+  });
+}
+
+// 切到礼物页时滚到最新
+watch(dmView, (v) => {
+  if (v === 'gift') scrollToBottom(giftBox);
+  else scrollToBottom(danmakuBox);
+});
+
 // ---- 弹幕 ----
 let ws = null;
 let dmRetry = null;
@@ -189,7 +276,11 @@ function connectDanmaku() {
       if (m.type === 'online') { online.value = m.onlineCount ?? m.message; return; }
       danmaku.value.push(m);
       if (danmaku.value.length > 300) danmaku.value.splice(0, danmaku.value.length - 300);
-      nextTick(() => { if (danmakuBox.value) danmakuBox.value.scrollTop = danmakuBox.value.scrollHeight; });
+      if (m.type === 'gift') {
+        pushGiftCard(m);
+        if (dmView.value === 'gift') scrollToBottom(giftBox);
+      }
+      if (dmView.value === 'list') scrollToBottom(danmakuBox);
     } catch (_) {}
   };
   ws.onclose = () => { dmRetry = setTimeout(connectDanmaku, 3000); };
@@ -212,5 +303,7 @@ onUnmounted(() => {
   destroyPlayer();
   if (ws) { ws.onclose = null; ws.close(); }
   if (dmRetry) clearTimeout(dmRetry);
+  for (const win of giftMergeWindows.values()) clearTimeout(win.timer);
+  giftMergeWindows.clear();
 });
 </script>

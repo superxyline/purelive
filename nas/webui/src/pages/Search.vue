@@ -5,7 +5,7 @@
       <n-input v-model:value="keyword" placeholder="搜索直播间 / 主播，回车搜索" @keyup.enter="doSearch" />
       <n-button type="primary" :loading="loading" @click="doSearch">搜索</n-button>
     </div>
-    <div v-if="skipped.length" style="margin-bottom: 10px; font-size: 12px; color: #8b8b94">
+    <div v-if="skipped.length" class="skip-hint">
       已跳过搜索失败的平台：{{ skipped.join('、') }}
     </div>
     <n-empty v-if="!loading && searched && rooms.length === 0" description="没有找到相关直播间" style="margin: 60px 0" />

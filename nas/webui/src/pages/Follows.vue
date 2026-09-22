@@ -4,11 +4,11 @@
       <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap">
         <div style="text-align: center">
           <canvas ref="syncCanvas" style="width: 120px; height: 120px; background: #fff; border-radius: 6px; padding: 5px; display: block"></canvas>
-          <div style="font-size: 11px; color: #8b8b94; margin-top: 4px">App 扫码推送</div>
+          <div style="font-size: 11px; color: #adadb8; margin-top: 4px">App 扫码推送</div>
         </div>
         <div style="flex: 1; min-width: 260px; font-size: 13px; line-height: 1.9">
           <div><b>手机关注列表同步到 Web</b></div>
-          <div style="color: #8b8b94">
+          <div class="sync-hint">
             手机打开 App → 设置 → 备份与恢复 → 跨端传输（扫码推送），扫描左侧二维码，
             App 会把关注列表推送到 NAS。推送完成后点右侧按钮导入到本页。
           </div>
@@ -17,7 +17,7 @@
           <n-button type="primary" @click="pullSynced" :loading="pulling" :disabled="syncedCount === 0">
             导入{{ syncedCount > 0 ? `(${syncedCount}个)` : '' }}
           </n-button>
-          <div style="font-size: 11px; color: #8b8b94; margin-top: 4px">
+          <div style="font-size: 11px; color: #adadb8; margin-top: 4px">
             {{ syncedCount > 0 ? `NAS 已收到 ${syncedCount} 个` : 'NAS 尚未收到推送' }}
           </div>
         </div>
@@ -38,7 +38,7 @@
       <div v-for="r in filtered" :key="r.platform + r.roomId" class="room-card" @click="goRoom(r)">
         <div style="position: relative">
           <img class="room-cover" :src="r.cover" referrerpolicy="no-referrer" loading="lazy" />
-          <span class="room-status" :style="r.liveStatus === 0 ? 'background:#18a058' : 'background:#666'">
+          <span class="room-status" :class="r.liveStatus === 0 ? 'is-live' : 'is-offline'">
             {{ r.liveStatus === 0 ? '直播中' : '未开播' }}
           </span>
           <span v-if="r.liveStatus === 0 && liveDuration(r)" class="room-duration">⏱ {{ liveDuration(r) }}</span>
