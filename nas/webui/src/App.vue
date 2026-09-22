@@ -6,11 +6,12 @@
           <router-link to="/" style="text-decoration: none; font-weight: 700; font-size: 17px; color: #63e2b7">
             纯粹直播
           </router-link>
-          <router-link class="nav-link" to="/">热门</router-link>
-          <router-link class="nav-link" to="/follows">关注</router-link>
-          <router-link class="nav-link" to="/search">搜索</router-link>
+          <router-link class="nav-link" :class="{ 'nav-on': isOn('/') }" to="/">热门</router-link>
+          <router-link class="nav-link" :class="{ 'nav-on': isOn('/area') }" to="/area/bilibili">分区</router-link>
+          <router-link class="nav-link" :class="{ 'nav-on': isOn('/follows') }" to="/follows">关注</router-link>
+          <router-link class="nav-link" :class="{ 'nav-on': isOn('/search') }" to="/search">搜索</router-link>
           <div style="flex: 1"></div>
-          <router-link class="nav-link" to="/login">账号</router-link>
+          <router-link class="nav-link" :class="{ 'nav-on': isOn('/login') }" to="/login">账号</router-link>
         </n-layout-header>
         <n-layout-content position="absolute" style="top: 52px" :native-scrollbar="false">
           <div style="padding: 16px 20px">
@@ -24,14 +25,19 @@
 
 <script setup>
 import { darkTheme } from 'naive-ui';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const themeOverrides = { common: { primaryColor: '#63e2b7' } };
+
+/** 导航高亮：'/' 必须精确匹配（否则会匹配所有路径），其余按前缀匹配。 */
+const isOn = (prefix) => (prefix === '/' ? route.path === '/' : route.path.startsWith(prefix));
 </script>
 
 <style>
 body { margin: 0; background: #101014; }
 .nav-link { text-decoration: none; color: #cfd0d6; font-size: 14px; padding: 4px 2px; }
-.nav-link.router-link-active { color: #63e2b7; }
+.nav-link.nav-on { color: #63e2b7; }
 .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
 .room-card { cursor: pointer; }
 .room-cover { width: 100%; height: 148px; object-fit: cover; border-radius: 6px; background: #1a1a1f; display: block; }

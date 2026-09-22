@@ -8,7 +8,7 @@
 
 本项目是开源项目 [pure_live](https://github.com/liuchuancong/pure_live) 的**个人自用修改版**，在原版基础上做了大量裁剪与功能增强，专注 Android 平台，仅保留哔哩哔哩 / 斗鱼 / 虎牙 / 抖音 / 快手五大平台。
 
-- **当前版本**：`2.1.5+4017`（基于上游 v2.1.4 裁剪定制，最后更新：2026-09-19）
+- **当前版本**：`2.1.5+4017`（基于上游 v2.1.4 裁剪定制，最后更新：2026-09-22）
 - **应用包名**：`com.superxyline.purelive`
 - **目标平台**：Android（arm64）
 - **代码仓库**：[https://gitee.com/superxyline/purelive](https://gitee.com/superxyline/purelive)
@@ -21,11 +21,13 @@
 
 ## 🖥️ NAS 网页端（新增）
 
-除安卓客户端外，本项目内置一套可部署在 NAS 上的**纯 Web 版**（Flutter Web 前端 + Node 聚合后端），支持 B站 / 斗鱼 / 虎牙 / 抖音 / 快手五平台观看、弹幕、B站扫码登录与发弹幕：
+除安卓客户端外，本项目内置一套可部署在 NAS 上的**纯 Web 版**（Vue3 + Naive UI 前端 + Node 聚合后端），支持 B站 / 斗鱼 / 虎牙 / 抖音 / 快手五平台观看、弹幕、分区浏览、全平台搜索、B站扫码登录与发弹幕。旧版 Flutter Web 已移除，默认界面即 `nas/webui`：
 
 - 平台 API 聚合与取流签名（B站 WBI、斗鱼 ub98484234、抖音 a-bogus、虎牙 anticode）全部在服务端执行，浏览器无 CORS/风控问题；
-- 弹幕 WebSocket 代理（B站 brotli、斗鱼 STT、虎牙 Tars、抖音 protobuf、快手轮询 → 统一 JSON）；
-- cookie 托管（AES-256-GCM 加密落盘）+ 流媒体 Referer 回退代理；
+- 弹幕 WebSocket 代理（B站 brotli、斗鱼 STT、虎牙 Tars、抖音 protobuf、快手轮询 → 统一 JSON），直播间弹幕区可滚动回看；
+- 分区浏览：导航「分区」或首页「按分区浏览」进入，选平台 → 分类 → 子分区看房间网格（子分区按 `areaId` 请求，与各平台接口对齐）；
+- 全平台搜索：默认五平台并发检索并交错合并，结果卡片带平台角标，支持加载更多；
+- cookie 托管（AES-256-GCM 加密落盘）+ 流媒体 Referer 回退代理；支持手机 App 扫码同步关注列表与登录态；
 - Web 播放器：HLS 走 hls.js、flv 走 mpegts.js，直连失败自动回退后端代理。
 
 部署方式见 [nas/README.md](nas/README.md)：`cd nas/deploy && docker compose up -d --build` 后浏览器访问 `http://<NAS-IP>:8090`。安卓客户端构建不受影响。

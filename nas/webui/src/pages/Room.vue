@@ -27,16 +27,21 @@
     </div>
 
     <!-- 右：弹幕 -->
-    <n-card size="small" style="width: 320px; display: flex; flex-direction: column" :bordered="true">
+    <n-card
+      size="small"
+      style="width: 320px; display: flex; flex-direction: column"
+      content-style="flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden"
+      :bordered="true"
+    >
       <template #header>弹幕 <span style="font-size: 12px; color: #8b8b94">{{ danmaku.length ? danmaku.length + ' 条' : '' }}</span></template>
-      <div ref="danmakuBox" style="flex: 1; overflow-y: auto; font-size: 13px; line-height: 1.7">
+      <div ref="danmakuBox" style="flex: 1; min-height: 0; overflow-y: auto; font-size: 13px; line-height: 1.7">
         <div v-for="(d, i) in danmaku" :key="i" style="margin-bottom: 4px; word-break: break-all">
           <template v-if="d.type === 'msg'"><span style="color: #63e2b7">{{ d.userName }}</span>：{{ d.message }}</template>
           <template v-else-if="d.type === 'gift'"><span style="color: #f2c97d">{{ d.userName }}</span> 送出 {{ d.giftName }} x{{ d.giftCount }}</template>
           <template v-else-if="d.type === 'sc'"><span style="color: #e88080">【醒目留言】</span>{{ d.userName }}：{{ d.message }}</template>
         </div>
       </div>
-      <div style="display: flex; gap: 8px; margin-top: 8px">
+      <div style="display: flex; gap: 8px; margin-top: 8px; flex-shrink: 0">
         <n-input v-model:value="dmInput" size="small" placeholder="发个弹幕（需登录）" @keyup.enter="send" :disabled="!canSend" />
         <n-button size="small" type="primary" :disabled="!canSend" @click="send">发送</n-button>
       </div>
