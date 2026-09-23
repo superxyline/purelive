@@ -43,6 +43,16 @@ class PlayerSettingsController extends GetxController {
   /// CDN 测速：取流前对各 CDN 主机做 TCP 连接测速，线路按延迟自动排序
   final RxBool enableCdnSpeedTest = hiveBool('enableCdnSpeedTest', false);
 
+  // ======================
+  // 竖屏沉浸（上游 3.0.x 移植）
+  // ======================
+  /// 进入全屏的方向策略：landscape=强制横屏（默认，保持旧行为）/ followSystem / followSource
+  final RxString portraitFullscreenPolicy = hiveString('portraitFullscreenPolicy', 'landscape');
+  /// 每直播间方向覆盖：JSON `{ "platform:roomId": "portrait"|"landscape" }`（缺省/空=auto 跟随全局）
+  final RxString roomOrientationOverridesRaw = hiveString('roomOrientationOverrides', '{}');
+  /// 竖屏全屏 + contain 时的沉浸模糊背景（上游 PortraitFullscreenDisplayMode.ambient）
+  final RxBool portraitAmbientBackdrop = hiveBool('portraitAmbientBackdrop', true);
+
   List<BoxFit> get videoFitArray => AppConsts().videoFitType.map((e) => e['attr'] as BoxFit).toList();
 
   void changePreferResolution(String resolution) {
@@ -95,6 +105,9 @@ class PlayerSettingsController extends GetxController {
       'enableVolumeNormalization': enableVolumeNormalization.v,
       'preferHEVC': preferHEVC.v,
       'enableCdnSpeedTest': enableCdnSpeedTest.v,
+      'portraitFullscreenPolicy': portraitFullscreenPolicy.v,
+      'roomOrientationOverrides': roomOrientationOverridesRaw.v,
+      'portraitAmbientBackdrop': portraitAmbientBackdrop.v,
     };
   }
 
@@ -119,6 +132,9 @@ class PlayerSettingsController extends GetxController {
     enableVolumeNormalization.v = json['enableVolumeNormalization'] ?? false;
     preferHEVC.v = json['preferHEVC'] ?? false;
     enableCdnSpeedTest.v = json['enableCdnSpeedTest'] ?? false;
+    portraitFullscreenPolicy.v = json['portraitFullscreenPolicy'] ?? 'landscape';
+    roomOrientationOverridesRaw.v = json['roomOrientationOverrides'] ?? '{}';
+    portraitAmbientBackdrop.v = json['portraitAmbientBackdrop'] ?? true;
   }
 
   static Map<String, dynamic> extractConfig(Map<String, dynamic>? rootConfig) {
@@ -143,6 +159,9 @@ class PlayerSettingsController extends GetxController {
       'enableVolumeNormalization': player['enableVolumeNormalization'] ?? false,
       'preferHEVC': player['preferHEVC'] ?? false,
       'enableCdnSpeedTest': player['enableCdnSpeedTest'] ?? false,
+      'portraitFullscreenPolicy': player['portraitFullscreenPolicy'] ?? 'landscape',
+      'roomOrientationOverrides': player['roomOrientationOverrides'] ?? '{}',
+      'portraitAmbientBackdrop': player['portraitAmbientBackdrop'] ?? true,
     };
   }
 

@@ -123,6 +123,54 @@ function parseFollowersFromOwner(owner: any): string {
   return text === '0' ? '' : text;
 }
 
+function firstNonEmptyStr(values: unknown[]): string {
+  for (const v of values) {
+    if (v == null) continue;
+    const s = String(v).trim();
+    if (s) return s;
+  }
+  return '';
+}
+
+function firstCoverUrl(value: unknown): string {
+  if (Array.isArray(value)) {
+    const first = value[0];
+    return typeof first === 'string' ? first : '';
+  }
+  return typeof value === 'string' ? value : '';
+}
+
+/** 搜索结果多代结构：rawdata 可能是对象或嵌套 JSON 字符串。 */
+function parseDouyinRawLive(item: Record<string, any>): Record<string, any> | null {
+  const candidates = [
+    item['lives']?.['rawdata'],
+    item['lives']?.['raw_data'],
+    item['live']?.['rawdata'],
+    item['live_info']?.['rawdata'],
+    item['aweme_info']?.['live_info']?.['rawdata'],
+    item['rawdata'],
+    item['lives'],
+    item['live'],
+    item['live_info'],
+    item['aweme_info'],
+    item,
+  ];
+  for (const c of candidates) {
+    if (c == null) continue;
+    if (typeof c === 'string') {
+      try {
+        const d = JSON.parse(c);
+        if (d && typeof d === 'object') return d as Record<string, any>;
+      } catch {
+        /* next candidate */
+      }
+    } else if (typeof c === 'object') {
+      return c as Record<string, any>;
+    }
+  }
+  return null;
+}
+
 /** 并发在线人数候选字段（Dart _douyinOnlineViewers，顶层字段优先）。 */
 function douyinOnlineViewers(room: any): string {
   if (room == null || typeof room !== 'object') return '';
@@ -353,84 +401,213 @@ class DouyinSite implements Site {
     return detail.status;
   }
 
-  async searchRooms(keyword: string, page: number, _pageSize: number): Promise<LiveRoomJson[]> {
-    // Dart searchRooms 不做 a_bogus 签名（webapp 通道）
+  /**
+   * 上游方案（DouyinSearch 三级回退）：匿名 live 搜索 → 通用流式搜索 →
+   * 公开分区检索（双域名）。任一级拿到结果即返回；全部失败返回空列表，
+   * 不再抛"搜索被限制"（区分不了"风控"与"确实没结果"时静默降级）。
+   */
+  async searchRooms(keyword: string, page: number, pageSize: number): Promise<LiveRoomJson[]> {
+    const kw = keyword.trim();
+    if (!kw) return [];
+    const size = Math.min(Math.max(pageSize || 24, 1), 50);
+    try {
+      const live = await this.searchByLiveApi(kw, page, size);
+      if (live.length) return live;
+    } catch {
+      /* 降级下一级 */
+    }
+    try {
+      const general = await this.searchByGeneralApi(kw, page, size);
+      if (general.length) return general;
+    } catch {
+      /* 降级下一级 */
+    }
+    return this.searchByPartition(kw, page, size);
+  }
+
+  private async douyinSearchHeaders(keyword: string): Promise<Record<string, string>> {
+    const headers = await getRequestHeaders();
+    return {
+      accept: 'application/json, text/plain, */*',
+      'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+      cookie: headers['cookie'] ?? '',
+      referer: `https://www.douyin.com/search/${encodeURIComponent(keyword)}?source=switch_tab&type=live`,
+      origin: 'https://www.douyin.com',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-origin',
+      'user-agent': K_DOUYIN_UA,
+    };
+  }
+
+  private async searchByLiveApi(keyword: string, page: number, size: number): Promise<LiveRoomJson[]> {
     const params: Record<string, string> = {
       device_platform: 'webapp',
       aid: '6383',
       channel: 'channel_pc_web',
       search_channel: 'aweme_live',
-      keyword,
       search_source: 'switch_tab',
       query_correct_type: '1',
-      is_filter_search: '0',
-      from_group_id: '',
-      offset: String((page - 1) * 10),
-      count: '10',
-      pc_client_type: '1',
-      version_code: '170400',
-      version_name: '17.4.0',
-      cookie_enabled: 'true',
-      screen_width: '1980',
-      screen_height: '1080',
+      need_filter_settings: '1',
+      list_type: 'single',
+      keyword,
+      offset: String((page - 1) * size),
+      count: String(size),
+      os_version: '10',
+    };
+    const result = await upstreamJson(`https://www.douyin.com/aweme/v1/web/live/search/?${qsOf(params)}`, {
+      headers: await this.douyinSearchHeaders(keyword),
+    });
+    if (typeof result !== 'object' || (result as any)['status_code'] !== 0) return [];
+    return this.extractSearchItems((result as any)['data']);
+  }
+
+  private async searchByGeneralApi(keyword: string, page: number, size: number): Promise<LiveRoomJson[]> {
+    const params: Record<string, string> = {
+      device_platform: 'webapp',
+      aid: '6383',
+      channel: 'channel_pc_web',
+      keyword,
+      offset: String((page - 1) * size),
+      count: String(size),
+      os_version: '10',
+    };
+    const result = await upstreamJson(`https://www.douyin.com/aweme/v1/web/general/search/stream/?${qsOf(params)}`, {
+      headers: await this.douyinSearchHeaders(keyword),
+    });
+    if (typeof result !== 'object' || (result as any)['status_code'] !== 0) return [];
+    return this.extractSearchItems((result as any)['data']);
+  }
+
+  private async searchByPartition(keyword: string, page: number, size: number): Promise<LiveRoomJson[]> {
+    const headers = await this.douyinSearchHeaders(keyword);
+    const search = await upstreamJson(`https://live.douyin.com/webcast/web/partition/search/?${qsOf({ keyword, aid: '6383' })}`, {
+      headers,
+    });
+    const partitions = (search as any)?.['data']?.['SearchResult'];
+    if (!Array.isArray(partitions)) return [];
+    const merged: LiveRoomJson[] = [];
+    const seen = new Set<string>();
+    for (const item of partitions.slice(0, 3)) {
+      const partition = item?.['partition'];
+      const partitionId = String(partition?.['id_str'] ?? '');
+      const partitionType = partition?.['type'];
+      if (!partitionId || partitionType == null) continue;
+      try {
+        const rooms = await this.partitionRooms(partitionId, String(partitionType), page, size, headers);
+        for (const room of rooms) {
+          if (seen.has(room.roomId)) continue;
+          seen.add(room.roomId);
+          merged.push({ ...room, area: room.area || String(partition?.['title'] ?? keyword) });
+          if (merged.length >= size) return merged;
+        }
+      } catch {
+        /* 单分区失败继续 */
+      }
+    }
+    return merged;
+  }
+
+  private async partitionRooms(
+    partition: string,
+    partitionType: string,
+    page: number,
+    size: number,
+    headers: Record<string, string>,
+  ): Promise<LiveRoomJson[]> {
+    const params: Record<string, string> = {
+      aid: '6383',
+      app_name: 'douyin_web',
+      live_id: '1',
+      device_platform: 'web',
+      language: 'zh-CN',
       browser_language: 'zh-CN',
       browser_platform: 'Win32',
-      browser_name: 'Edge',
-      browser_version: '125.0.0.0',
-      browser_online: 'true',
-      engine_name: 'Blink',
-      engine_version: '125.0.0.0',
-      os_name: 'Windows',
-      os_version: '10',
-      cpu_core_num: '12',
-      device_memory: '8',
-      platform: 'PC',
-      downlink: '10',
-      effective_type: '4g',
-      round_trip_time: '100',
-      webid: '7382872326016435738',
+      browser_name: 'Chrome',
+      browser_version: '120.0.0.0',
+      partition,
+      partition_type: partitionType,
+      count: String(size),
+      offset: String((page - 1) * size),
+      cookie_enabled: 'true',
+      screen_width: '1920',
+      screen_height: '1080',
     };
-    const headers = await getRequestHeaders();
-    const result = await upstreamJson(`https://www.douyin.com/aweme/v1/web/live/search/?${qsOf(params)}`, {
-      headers: {
-        authority: 'www.douyin.com',
-        accept: 'application/json, text/plain, */*',
-        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-        cookie: headers['cookie'] ?? '',
-        priority: 'u=1, i',
-        referer: `https://www.douyin.com/search/${encodeURIComponent(keyword)}?type=live`,
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'user-agent': K_DOUYIN_UA,
-      },
-    });
-    const resultText = typeof result === 'string' ? result : '';
-    if (resultText === 'blocked') {
-      throw new Error('抖音直播搜索被限制，请稍后再试');
+    // 主域名失效时切备用域名（上游合同）
+    for (const url of [
+      'https://live.douyin.com/webcast/web/partition/detail/room/v2/',
+      'https://webcast.amemv.com/webcast/web/partition/detail/room/v2/',
+    ]) {
+      try {
+        const result = await upstreamJson(`${url}?${qsOf(params)}`, { headers });
+        if (typeof result !== 'object' || (result as any)['status_code'] !== 0) continue;
+        const list = (result as any)?.['data']?.['data'];
+        if (!Array.isArray(list) || !list.length) continue;
+        const rooms: LiveRoomJson[] = [];
+        for (const entry of list) {
+          const room = entry?.['room'];
+          if (!room) continue;
+          const owner = (room['owner'] ?? {}) as Record<string, any>;
+          const webRid = firstNonEmptyStr([entry?.['web_rid'], owner['web_rid']]);
+          const rid = String(room['id_str'] ?? room['id'] ?? '');
+          if (!rid) continue;
+          const stats = (room['stats'] ?? {}) as Record<string, any>;
+          rooms.push({
+            ...emptyRoom('douyin', webRid || rid),
+            title: String(room['title'] ?? ''),
+            cover: firstCoverUrl(room['cover']),
+            nick: String(owner['nickname'] ?? ''),
+            avatar: firstCoverUrl(owner['avatar_thumb']) || firstCoverUrl(owner['avatar_large']),
+            liveStatus: LiveStatus.live,
+            status: true,
+            watching: String(stats['total_user_str'] ?? ''),
+            totalViewers: String(stats['total_user_str'] ?? ''),
+            onlineViewers: douyinOnlineViewers(room),
+            audienceMetricType: 'totalViewers',
+            area: String(entry?.['tag_name'] ?? ''),
+          });
+        }
+        if (rooms.length) return rooms;
+      } catch {
+        /* 换备用域名 */
+      }
     }
-    const items: LiveRoomJson[] = [];
-    for (const item of result['data'] ?? []) {
-      const itemData = JSON.parse(String(item['lives']?.['rawdata'] ?? '{}'));
-      const roomStatus = asInt(itemData['status']) === 2;
-      items.push({
-        ...emptyRoom('douyin', String(itemData['owner']?.['web_rid'] ?? '')),
-        title: String(itemData['title'] ?? ''),
-        cover: String(itemData['cover']?.['url_list']?.[0] ?? ''),
-        nick: String(itemData['owner']?.['nickname'] ?? ''),
-        avatar: String(itemData['owner']?.['avatar_thumb']?.['url_list']?.[0] ?? ''),
-        liveStatus: roomStatus ? LiveStatus.live : LiveStatus.offline,
-        status: roomStatus,
-        watching: String(itemData['stats']?.['total_user_str'] ?? ''),
-        totalViewers: String(itemData['stats']?.['total_user_str'] ?? ''),
-        onlineViewers: douyinOnlineViewers(itemData),
+    return [];
+  }
+
+  /** 搜索结果结构多代兼容：lives.rawdata / live.rawdata / 嵌套 JSON 字符串… */
+  private extractSearchItems(payload: unknown): LiveRoomJson[] {
+    if (!Array.isArray(payload)) return [];
+    const out: LiveRoomJson[] = [];
+    const seen = new Set<string>();
+    for (const entry of payload) {
+      const itemMap = (entry ?? {}) as Record<string, any>;
+      const live = parseDouyinRawLive(itemMap);
+      if (!live) continue;
+      const room = (live['room'] ?? {}) as Record<string, any>;
+      const owner = (live['owner'] ?? room['owner'] ?? {}) as Record<string, any>;
+      const webRid = firstNonEmptyStr([owner['web_rid'], itemMap['web_rid'], live['id_str'], room['id_str'], room['id']]);
+      if (!webRid || seen.has(webRid)) continue;
+      seen.add(webRid);
+      const status = asInt(live['status'] ?? room['status']) === 2;
+      const stats = (room['stats'] ?? live['stats'] ?? {}) as Record<string, any>;
+      const total = String(stats['total_user_str'] ?? '');
+      out.push({
+        ...emptyRoom('douyin', webRid),
+        title: String(live['title'] ?? room['title'] ?? itemMap['title'] ?? itemMap['desc'] ?? ''),
+        cover: firstCoverUrl(room['cover']) || firstCoverUrl(live['cover']),
+        nick: String(owner['nickname'] ?? itemMap['nickname'] ?? '抖音直播'),
+        avatar: firstCoverUrl(owner['avatar_thumb']) || firstCoverUrl(owner['avatar_large']),
+        liveStatus: status ? LiveStatus.live : LiveStatus.offline,
+        status,
+        watching: total || String(stats['total_user'] ?? ''),
+        totalViewers: total,
+        onlineViewers: douyinOnlineViewers(room) || douyinOnlineViewers(live),
         audienceMetricType: 'totalViewers',
+        area: String(itemMap['search_keyword'] ?? ''),
       });
     }
-    return items;
+    return out;
   }
 
   async searchAnchors(_keyword: string, _page: number, _pageSize: number): Promise<LiveAnchorItemJson[]> {

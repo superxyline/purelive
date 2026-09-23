@@ -41,7 +41,8 @@ class FavoriteRoomController extends GetxController {
     },
   );
 
-  bool isFavorite(LiveRoom room) => favoriteRooms.v.any((e) => e.roomId == room.roomId);
+  // 复合身份（上游 2.5.1）：不同平台存在相同房间号，只比 roomId 会互相覆盖/误判已关注
+  bool isFavorite(LiveRoom room) => favoriteRooms.v.any((e) => e.hasSameIdentity(room));
   bool isFavoriteArea(LiveArea area) => favoriteAreas.v.any((e) => e.areaId == area.areaId);
 
   bool addRoom(LiveRoom room) {
@@ -58,7 +59,7 @@ class FavoriteRoomController extends GetxController {
   }
 
   bool updateRoom(LiveRoom room) {
-    final idx = favoriteRooms.v.indexWhere((e) => e.roomId == room.roomId);
+    final idx = favoriteRooms.v.indexWhere((e) => e.hasSameIdentity(room));
     if (idx == -1) return false;
     favoriteRooms.v[idx] = room;
     favoriteRooms.refresh();

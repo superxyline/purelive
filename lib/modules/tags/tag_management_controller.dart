@@ -44,11 +44,16 @@ class TagManagementController extends GetxController {
     await HivePrefUtil.setAnyPref(_roomTagsMappingKey, roomTagsMap);
   }
 
-  void setRoomTags(String roomId, List<String> newTagIds) {
+  /// [roomKey] 使用复合身份 `platform:roomId`（上游修复：不同平台房间号相同会互相覆盖）。
+  /// [legacyRoomId] 迁移用：写入新键时顺手删除旧的纯 roomId 键。
+  void setRoomTags(String roomKey, List<String> newTagIds, {String? legacyRoomId}) {
     if (newTagIds.isEmpty) {
-      roomTagsMap.remove(roomId);
+      roomTagsMap.remove(roomKey);
     } else {
-      roomTagsMap[roomId] = newTagIds;
+      roomTagsMap[roomKey] = newTagIds;
+    }
+    if (legacyRoomId != null && legacyRoomId != roomKey) {
+      roomTagsMap.remove(legacyRoomId);
     }
 
     roomTagsMap.refresh();
@@ -67,8 +72,9 @@ class TagManagementController extends GetxController {
   }
 
   List<String> getTagsForRoom(LiveRoom room) {
-    final String roomId = room.roomId.toString();
-    return roomTagsMap[roomId] ?? [];
+    // 新键 platform:roomId 优先，回退旧的纯 roomId 键（读侧兼容，写侧逐步迁移）
+    final legacy = roomTagsMap[room.roomId.toString()];
+    return roomTagsMap[room.identityKey] ?? legacy ?? [];
   }
 
   bool addTag(String name, String description) {

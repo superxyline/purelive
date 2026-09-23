@@ -320,6 +320,56 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
               ],
             ),
             const SizedBox(height: 20),
+            context.buildGroupTitle(i18n('danmaku_repeat_filter')),
+            const SizedBox(height: 8),
+            reactiveCard(
+              () => [
+                _switch(
+                  theme,
+                  title: i18n('collapse_repeated_danmaku'),
+                  value: SettingsService.to.danmaku.collapseRepeatedDanmaku.v,
+                  onChanged: (v) => SettingsService.to.danmaku.collapseRepeatedDanmaku.v = v,
+                  labelColor: labelColor,
+                ),
+                if (SettingsService.to.danmaku.collapseRepeatedDanmaku.v)
+                  _counter(
+                    theme,
+                    title: i18n('repeated_danmaku_window'),
+                    value: SettingsService.to.danmaku.repeatedDanmakuWindowSeconds.v,
+                    min: 1,
+                    max: 30,
+                    onChanged: (v) => SettingsService.to.danmaku.repeatedDanmakuWindowSeconds.v = v,
+                    labelColor: labelColor,
+                    digitColor: digitColor,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            context.buildGroupTitle(i18n('danmaku_similarity_filter')),
+            const SizedBox(height: 8),
+            reactiveCard(
+              () => [
+                _switch(
+                  theme,
+                  title: i18n('danmaku_similarity_filter_enable'),
+                  value: SettingsService.to.danmaku.enableDanmakuSimilarityFilter.v,
+                  onChanged: (v) => SettingsService.to.danmaku.enableDanmakuSimilarityFilter.v = v,
+                  labelColor: labelColor,
+                ),
+                if (SettingsService.to.danmaku.enableDanmakuSimilarityFilter.v)
+                  _counter(
+                    theme,
+                    title: i18n('danmaku_similarity_threshold'),
+                    value: SettingsService.to.danmaku.danmakuSimilarityThreshold.v,
+                    min: 50,
+                    max: 100,
+                    onChanged: (v) => SettingsService.to.danmaku.danmakuSimilarityThreshold.v = v,
+                    labelColor: labelColor,
+                    digitColor: digitColor,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
             context.buildGroupTitle(i18n('danmaku_screen_interaction')),
             const SizedBox(height: 8),
             reactiveCard(

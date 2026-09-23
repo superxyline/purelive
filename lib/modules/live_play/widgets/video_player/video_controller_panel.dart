@@ -7,6 +7,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:flame_barrage/flame_barrage.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
+import 'package:pure_live/player/utils/orientation_policy.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:pure_live/common/utils/live_url_tool.dart';
 import 'package:pure_live/common/widgets/count_button.dart';
@@ -1462,6 +1463,7 @@ class BottomActionBar extends StatelessWidget {
                                   LineSelectorButton(controller: controller),
                               ],
                               VideoFitSetting(controller: controller),
+                              OrientationOverrideSetting(controller: controller),
                               if (PlatformUtils.isWindows) OverlayVolumeControl(controller: controller),
                               if (PlatformUtils.isWindows)
                                 Obx(() {
@@ -1778,6 +1780,62 @@ class _VideoFitSettingState extends State<VideoFitSetting> {
         child: Obx(() => Text(descs[player.videoFitIndex.v], style: AppTextStyles.t15.copyWith(color: Colors.white))),
       ),
     );
+  }
+}
+
+/// 每直播间方向覆盖（上游 PortraitOrientationOverride）：自动 → 强制竖屏 → 强制横屏 循环。
+class OrientationOverrideSetting extends StatefulWidget {
+  const OrientationOverrideSetting({super.key, required this.controller});
+  final VideoController controller;
+
+  @override
+  State<OrientationOverrideSetting> createState() => _OrientationOverrideSettingState();
+}
+
+class _OrientationOverrideSettingState extends State<OrientationOverrideSetting> {
+  VideoController get controller => widget.controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        controller.enableController();
+        final room = controller.livePlayController.state.value.room.detail;
+        if (room == null || room.roomId == null) return;
+        final next = OrientationPolicy.cycleOverride(room.platform ?? '', room.roomId!);
+        controller.livePlayController.state.refresh();
+        windowMsg(next);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 2),
+        alignment: Alignment.center,
+        height: 25,
+        child: Obx(() {
+          final room = controller.livePlayController.state.value.room.detail;
+          final mode = room == null || room.roomId == null
+              ? 'auto'
+              : OrientationPolicy.overrideFor(room.platform ?? '', room.roomId!);
+          final label = switch (mode) {
+            'portrait' => i18n('orientation_portrait'),
+            'landscape' => i18n('orientation_landscape'),
+            _ => i18n('orientation_auto'),
+          };
+          return Text(
+            '${i18n('orientation_label')}:$label',
+            style: AppTextStyles.t15.copyWith(color: Colors.white),
+          );
+        }),
+      ),
+    );
+  }
+
+  void windowMsg(String mode) {
+    final label = switch (mode) {
+      'portrait' => i18n('orientation_portrait'),
+      'landscape' => i18n('orientation_landscape'),
+      _ => i18n('orientation_auto'),
+    };
+    ToastUtil.show('${i18n('orientation_label')}: $label');
   }
 }
 

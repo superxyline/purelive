@@ -1,3 +1,35 @@
+# Pure Live v2.2.0
+
+本版从上游 `liuchuancong/pure_live`（3.1.8 维护线）移植一批实用功能与修复，覆盖搜索、签名、弹幕、关注、竖屏沉浸与网络代理六个方面；版本号提升至 `2.2.0+4018`。
+
+## 上游移植
+
+- **抖音搜索三级回退**（上游 `DouyinSearch`）：匿名 live 搜索 → 通用流式搜索 → 公开分区检索（`live.douyin.com` 主域名失效自动切 `webcast.amemv.com` 备用），任一级命中即返回；被风控不再抛"搜索被限制"而是静默降级到下一级。NAS server 端（`douyin.ts`）同步移植同一套三级回退与多代结构解析。
+- **纯 Dart 签名，告别 flutter_js 调用链**：抖音 a-bogus 换上游 `ABogus` 纯 Dart 实现（`signFullUrl` 原位签名，三处取流调用点替换）；斗鱼换 `DouyuUtils`——`getEncryption` 描述符缓存校验（过期前 30 秒安全边界 + 5 分钟缓存上限）、`getH5PlayV1` 纯 Dart md5 签名、请求失败自动强刷重试一次；`parsePlayUrl` 优先采用完整地址，根除 `base/https://...` 双重拼接的畸形输入。`core/scripts` 的 JS 签名文件不再被引用。
+- **重复弹幕合并 + 相似弹幕过滤**（上游 `RepeatedDanmakuFilter` / `DanmakuSimilarityFilter`）：短窗口内不同账号发送相同文案只显示首条（窗口 1–30 秒可调，默认关）；编辑距离相似度达到阈值（50–100，默认 85）的近重复消息丢弃，本地弹幕不参与。设置页新增「重复弹幕过滤」「相似弹幕过滤」两组；Web 端弹幕屏蔽面板同步增加对应两个开关（8 秒 bigram 相似窗口）。
+- **关注复合身份修复**（上游 2.5.1）：`isFavorite` / `updateRoom` / 标签映射统一 `platform:roomId` 复合身份（LiveRoom 新增 `identityKey`/`hasSameIdentity`），不同平台相同房间号不再互相覆盖或误判已关注；房间标签写入迁移到复合键，读侧兼容旧的纯 roomId 键。
+- **竖屏沉浸方向**（上游 3.0.x 核心集）：
+  - 新增全屏方向策略 `portraitFullscreenPolicy`：`landscape`（默认，保持旧行为——进全屏强制横屏）/ `followSystem` / `followSource`（复用播放器已有的 `isVerticalVideo` 解码宽高信号）；
+  - 每直播间方向覆盖：全屏控制条新增「方向」按钮，按房间循环 自动 → 强制竖屏 → 强制横屏，按 `platform:roomId` 持久化；
+  - 竖屏全屏 + contain 适配时启用**封面模糊沉浸背景**（上游 `PortraitFullscreenDisplayMode.ambient`：sigma 24 模糊 + 15% 蒙层，封面缺失走暗色兜底，不启动第二路播放器、不截视频帧）；
+  - 上游 830 行的 `portrait_stream_support.dart`（方向/几何/策略纯逻辑库）已整体入库备用。
+  - **未接入**：竖屏源自动识别的自适应三档布局与「下滑隐藏弹幕栏」手势——上游这两块建立在其播放器几何链的 20 个版本迭代上，与本定制版几何路径差异大，留待专项评估（见「未移植」）。
+- **弹幕回看误暂停修复**：`isDanmakuUserScrollStart` 不再把程序滚动产生的 `UserScrollNotification` 当作用户上滑（安卓无桌面滚轮场景，删第三分支即根除，拖动阶段已覆盖暂停语义）。
+- **弹幕 WebSocket 走应用代理**（上游 3.1.0）：补上 WS 的代理缺口，弹幕连接与 API/封面读取同一套应用代理设置；DIRECT 时保持 SDK 默认 client，避免为纯直连构造自定义 HttpClient 导致 HTTP upgrade 挂到 connectTimeout。
+
+## 未移植与不适用说明
+
+- 平板关注页下拉刷新关闭缺陷（上游 Issue #826/#830）：定制版 `BasePageView` 的 `enableRefresh` 没有宽度条件，该缺陷不存在（不适用）。
+- 启动首帧竞态（上游 3.1.0）：定制版 `AppInitializer` 已含同等修复（等设置服务注册完成再继续），无需移植。
+- 上游的**录制、观看历史、IPTV、多画面同看、Firebase 账号**等大模块为后续候选，本版不含；Firebase 与项目"不使用云服务凭证"原则冲突，明确不移植。
+
+## 版本与验证
+
+- 版本：`2.2.0+4018`；同步 README（特色表新增 7 行移植条目）。
+- 门禁：`flutter analyze` lib 零 error、arm64 release 构建通过；server `tsc --noEmit` 零错误；WebUI `vite build` 通过。
+
+---
+
 # Pure Live v2.1.5
 
 本版修两个实际使用中反馈的问题：**打开 B站直播间黑屏、只有声音**；以及 **小米平板小白条无法沉浸**（底部一条大白条挡住直播间卡片）。

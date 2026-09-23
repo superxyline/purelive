@@ -5,7 +5,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:pure_live/model/live_category.dart';
 import 'package:pure_live/model/live_anchor_item.dart';
-import 'package:pure_live/core/scripts/douyu_sign.dart';
+import 'package:pure_live/core/site/douyu/douyu_utils.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/model/live_play_quality.dart';
 import 'package:pure_live/core/interface/live_site.dart';
@@ -138,34 +138,82 @@ class DouyuSite implements LiveSite {
 
   @override
   Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
-    // detail.data 是弹幕/取流签名，只有完整详情（进房间时重新拉取的那份）里
-    // 才有；列表刷新用的轻量详情不会走到这里。
-    var args = detail.data.toString();
     var data = quality.data as DouyuPlayData;
 
     List<String> urls = [];
     for (var item in data.cdns) {
-      var url = await getPlayUrl(detail.roomId!, args, data.rate, item);
-      if (url.isNotEmpty) {
-        urls.add(url);
+      try {
+        var url = await getPlayUrl(detail.roomId!, data.rate, item);
+        if (url.isNotEmpty) {
+          urls.add(url);
+        }
+      } on DouyuPlayApiException {
+        // 单条 CDN 失败继续试下一条（上游语义：只淘汰失败候选）
       }
     }
     return urls;
   }
 
-  Future<String> getPlayUrl(String roomId, String args, int rate, String cdn) async {
-    args += "&cdn=$cdn&rate=$rate";
-    var result = await HttpClient.instance.postJson(
-      "https://www.douyu.com/lapi/live/getH5Play/$roomId",
-      data: args,
-      header: {
-        'referer': 'https://www.douyu.com/$roomId',
-        'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
-      },
-      formUrlEncoded: true,
-    );
+  /// 上游 H5 取流：DouyuUtils 纯 Dart 签名 + getH5PlayV1，描述符过期自动强刷重试一次。
+  Future<String> getPlayUrl(String roomId, int rate, String cdn) async {
+    Object? lastError;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        final args = await DouyuUtils.sign(roomId, rate: rate, cdn: cdn, forceRefresh: attempt > 0);
+        final result = await HttpClient.instance.postJson(
+          "https://www.douyu.com/lapi/live/getH5PlayV1/$roomId",
+          data: args,
+          formUrlEncoded: true,
+          header: DouyuUtils.requestHeaders(roomId),
+        );
+        if (result is! Map) throw const DouyuPlayApiException('H5 play response is not an object');
+        final errorCode = result['error'] ?? result['code'] ?? -1;
+        final code = errorCode is num ? errorCode.toInt() : int.tryParse(errorCode.toString()) ?? -1;
+        if (code != 0) {
+          throw DouyuPlayApiException('H5 play API error $code ${result['msg'] ?? ''}');
+        }
+        final data = result['data'];
+        if (data is! Map) throw const DouyuPlayApiException('H5 play response missing data');
+        return parsePlayUrl(Map<String, dynamic>.from(data));
+      } catch (e) {
+        lastError = e;
+        if (attempt == 0) continue;
+        if (e is DouyuPlayApiException) rethrow;
+        throw DouyuPlayApiException('H5 play request failed after retry', cause: e);
+      }
+    }
+    throw DouyuPlayApiException('H5 play request failed after retry', cause: lastError);
+  }
 
-    return "${result["data"]["rtmp_url"]}/${HtmlUnescape().convert(result["data"]["rtmp_live"].toString())}";
+  /// 上游 parsePlayUrl：rtmp_live 已是完整地址时优先，防止 `base/https://...` 双重拼接。
+  static String parsePlayUrl(Map<String, dynamic> data) {
+    final unescape = HtmlUnescape();
+    final live = unescape.convert(data['rtmp_live']?.toString().trim() ?? '');
+    if (_isPlayableUrl(live)) return live;
+    for (final baseKey in const <String>['rtmp_url', 'flv_url']) {
+      final base = unescape.convert(data[baseKey]?.toString().trim() ?? '');
+      if (base.isEmpty || live.isEmpty) continue;
+      final combined = '${base.replaceFirst(RegExp(r'/+$'), '')}/${live.replaceFirst(RegExp(r'^/+'), '')}';
+      if (_isPlayableUrl(combined)) return combined;
+    }
+    for (final key in const <String>['player_1', 'stream_url', 'url']) {
+      final value = unescape.convert(data[key]?.toString().trim() ?? '');
+      if (_isPlayableUrl(value)) return value;
+    }
+    final flvUrl = unescape.convert(data['flv_url']?.toString().trim() ?? '');
+    if (_isDirectMediaUrl(flvUrl)) return flvUrl;
+    throw const DouyuPlayApiException('H5 play response has no playable URL');
+  }
+
+  static bool _isPlayableUrl(String value) {
+    final uri = Uri.tryParse(value);
+    return uri != null && uri.host.isNotEmpty && const {'http', 'https', 'rtmp'}.contains(uri.scheme);
+  }
+
+  static bool _isDirectMediaUrl(String value) {
+    if (!_isPlayableUrl(value)) return false;
+    final path = Uri.parse(value).path.toLowerCase();
+    return path.endsWith('.flv') || path.endsWith('.m3u8') || path.endsWith('.mp4');
   }
 
   @override
@@ -222,24 +270,14 @@ class DouyuSite implements LiveSite {
         roomInfo = result["room"];
       }
 
-      // 列表刷新（light）：弹幕签名（homeH5Enc）与主播粉丝数都不参与卡片渲染，
-      // 跳过这两个请求，每房间只发一次 betard。进入房间时播放页会重新拉完整详情。
-      String? crptext;
+      // 列表刷新（light）：主播粉丝数不参与卡片渲染，跳过该请求，每房间只发一次
+      // betard。取流签名已改为上游 DouyuUtils（纯 Dart，getEncryption 描述符 +
+      // getH5PlayV1），不再需要 homeH5Enc 的 crptext。
       var fans = '';
       if (light) {
         fans = '';
       } else {
-        final fansFuture = _fetchAnchorFans(roomId);
-        var jsEncResult = await HttpClient.instance.getText(
-          "https://www.douyu.com/swf_api/homeH5Enc?rids=$roomId",
-          queryParameters: {},
-          header: {
-            'referer': 'https://www.douyu.com/$roomId',
-            'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
-          },
-        );
-        crptext = json.decode(jsEncResult)["data"]["room$roomId"].toString();
-        fans = await fansFuture;
+        fans = await _fetchAnchorFans(roomId);
       }
 
       // 斗鱼开播时间为 show_time（秒级时间戳）
@@ -265,7 +303,6 @@ class DouyuSite implements LiveSite {
         status: roomInfo["show_status"] == 1,
         liveStartTime: douyuLiveTime > 0 ? douyuLiveTime * 1000 : null,
         danmakuData: roomInfo["room_id"].toString(),
-        data: crptext == null ? null : await DouyuSign.getSign(crptext, roomInfo["room_id"].toString()),
         platform: Sites.douyuSite,
         link: "https://www.douyu.com/$roomId",
         isRecord: roomInfo["videoLoop"] == 1,
@@ -414,4 +451,14 @@ class DouyuPlayData {
   final int rate;
   final List<String> cdns;
   DouyuPlayData(this.rate, this.cdns);
+}
+
+class DouyuPlayApiException implements Exception {
+  const DouyuPlayApiException(this.message, {this.cause});
+
+  final String message;
+  final Object? cause;
+
+  @override
+  String toString() => cause == null ? 'DouyuPlayApiException: $message' : 'DouyuPlayApiException: $message ($cause)';
 }

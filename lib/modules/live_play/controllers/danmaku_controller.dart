@@ -4,7 +4,9 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/modules/live_play/controllers/danmaku_message_gate.dart';
+import 'package:pure_live/modules/live_play/controllers/danmaku_similarity_filter.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
+import 'package:pure_live/modules/live_play/controllers/repeated_danmaku_filter.dart';
 import 'package:pure_live/modules/live_play/states/live_play_state.dart';
 
 /// Owns exactly one room-bound danmaku session.
@@ -18,11 +20,14 @@ class DanmakuController extends GetxController {
 
   final LivePlayController _main;
   final DanmakuMessageGate _messageGate = DanmakuMessageGate();
+  final RepeatedDanmakuFilter _repeatedMessageFilter = RepeatedDanmakuFilter();
+  final DanmakuSimilarityFilter _similarityFilter = DanmakuSimilarityFilter();
 
   LiveDanmaku? _liveDanmaku;
   Future<void> _operationTail = Future<void>.value();
   Worker? _settingsWorker;
   Worker? _filterWorker;
+  Worker? _similarityFilterWorker;
 
   int _requestEpoch = 0;
   int _sessionToken = 0;
@@ -56,7 +61,30 @@ class DanmakuController extends GetxController {
       settings.danmaku.enablePipDanmaku,
     ], (_) => unawaited(_syncConnectionForSettings()));
     _filterWorker = everAll([settings.fav.blockedDanmakuUsers, settings.fav.shieldList], (_) => _refreshFilters());
+    final dm = settings.danmaku;
+    _similarityFilterWorker = everAll([
+      dm.enableDanmakuSimilarityFilter,
+      dm.danmakuSimilarityThreshold,
+      dm.danmakuSimilarityCacheDuration,
+      dm.danmakuSimilarityMaxCacheSize,
+      dm.collapseRepeatedDanmaku,
+      dm.repeatedDanmakuWindowSeconds,
+    ], (_) => _updateSimilarityFilterConfig());
+    _updateSimilarityFilterConfig();
     _refreshFilters();
+  }
+
+  void _updateSimilarityFilterConfig() {
+    final settings = SettingsService.to.danmaku;
+    if (!settings.enableDanmakuSimilarityFilter.v) {
+      _similarityFilter.clear();
+      return;
+    }
+    _similarityFilter.updateConfig(
+      similarityThreshold: settings.danmakuSimilarityThreshold.v,
+      cacheDuration: Duration(seconds: settings.danmakuSimilarityCacheDuration.v),
+      maxCacheSize: settings.danmakuSimilarityMaxCacheSize.v,
+    );
   }
 
   /// Initial engine installation is synchronous so room initialization cannot
@@ -77,6 +105,8 @@ class DanmakuController extends GetxController {
       if (request != _requestEpoch) return;
       _liveDanmaku = danmaku;
       _messageGate.clear();
+      _repeatedMessageFilter.clear();
+      _similarityFilter.clear();
       _gateRoomKey = null;
     });
   }
@@ -100,6 +130,8 @@ class DanmakuController extends GetxController {
 
       if (_gateRoomKey != key) {
         _messageGate.clear();
+        _repeatedMessageFilter.clear();
+        _similarityFilter.clear();
         _gateRoomKey = key;
       }
 
@@ -169,6 +201,8 @@ class DanmakuController extends GetxController {
 
       if (_gateRoomKey != key) {
         _messageGate.clear();
+        _repeatedMessageFilter.clear();
+        _similarityFilter.clear();
         _gateRoomKey = key;
       }
 
@@ -226,6 +260,21 @@ class DanmakuController extends GetxController {
       debugPrint('DBG onMessage type=${msg.type} user=${msg.userName} msg=${msg.message}');
       if (msg.type == LiveMessageType.chat) {
         if (!_messageGate.accepts(msg) || _isBlocked(msg)) return;
+        final danmakuSettings = SettingsService.to.danmaku;
+        // 精确重复合并：短窗口内不同账号刷同文案只显示首条（本地弹幕不参与）
+        if (!_repeatedMessageFilter.accepts(
+          msg,
+          enabled: danmakuSettings.collapseRepeatedDanmaku.v,
+          window: Duration(seconds: danmakuSettings.repeatedDanmakuWindowSeconds.v.clamp(1, 30)),
+        )) {
+          return;
+        }
+        // 相似弹幕过滤：编辑距离相似度达到阈值的近重复消息丢弃（本地弹幕不参与）
+        if (!msg.isLocal &&
+            danmakuSettings.enableDanmakuSimilarityFilter.v &&
+            !_similarityFilter.shouldDisplay(msg.message)) {
+          return;
+        }
         // B站服务器会把自己发送的弹幕回显回来：按 uid 标记 isLocal，
         // 视频画面加框突出（发送端不再本地合成，避免重复显示）
         if (room.platform == Sites.bilibiliSite && _main.isOwnBilibiliMessage(msg.userId)) {
@@ -412,6 +461,7 @@ class DanmakuController extends GetxController {
   void onClose() {
     _settingsWorker?.dispose();
     _filterWorker?.dispose();
+    _similarityFilterWorker?.dispose();
     _requestEpoch++;
     _sessionToken++;
     final engine = _liveDanmaku;

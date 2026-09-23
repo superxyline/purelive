@@ -14,9 +14,11 @@ import 'package:pure_live/modules/live_play/widgets/danmaku_composer.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_message_actions.dart';
 
 bool isDanmakuUserScrollStart(ScrollNotification notification) {
+  // 只认带真实指针拖动的通知。曾经的第三分支（UserScroll != idle）会把程序
+  // jumpTo 触发的 UserScrollNotification 也当成用户上滑，回看暂停被误触发；
+  // 安卓触屏的惯性 fling 在拖动阶段（前两支）已经暂停过，无需该分支。
   return (notification is ScrollStartNotification && notification.dragDetails != null) ||
-      (notification is ScrollUpdateNotification && notification.dragDetails != null) ||
-      (notification is UserScrollNotification && notification.direction != ScrollDirection.idle);
+      (notification is ScrollUpdateNotification && notification.dragDetails != null);
 }
 
 /// 点击礼物卡片：确认后屏蔽该礼物在本直播间的卡片展示。

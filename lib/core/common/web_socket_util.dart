@@ -1,8 +1,34 @@
 import 'dart:async';
+import 'dart:io' as io;
 
 import 'package:web_socket_channel/io.dart';
+import 'package:pure_live/core/common/proxy_routing.dart';
+import 'package:pure_live/common/services/settings_service.dart';
 
 enum SocketStatus { connected, failed, closed }
+
+/// 弹幕 WebSocket 与 API 共用同一套应用代理设置（上游 3.1.0：补上 WS 的代理缺口）。
+/// DIRECT 时返回 null 让 SDK 用默认 client——为纯 DIRECT 造自定义 HttpClient
+/// 会让可达主机的 HTTP upgrade 挂到 connectTimeout。
+String _wsProxyDirective(Uri uri) {
+  try {
+    final p = SettingsService.to.proxy;
+    return buildProxyDirective(
+      enabled: p.enableAppProxy.value,
+      host: p.appProxyHost.value,
+      port: p.appProxyPort.value,
+    );
+  } catch (_) {
+    return 'DIRECT';
+  }
+}
+
+io.HttpClient? _wsHttpClient(Uri endpoint) {
+  if (_wsProxyDirective(endpoint) == 'DIRECT') return null;
+  final client = io.HttpClient()..idleTimeout = const Duration(seconds: 30);
+  client.findProxy = _wsProxyDirective;
+  return client;
+}
 
 /// WebSocket connection helper with endpoint failover and bounded reconnects.
 ///
@@ -87,6 +113,7 @@ class WebScoketUtils {
         connectTimeout: const Duration(seconds: 10),
         protocols: protocols,
         headers: headers,
+        customClient: _wsHttpClient(Uri.parse(endpoint)),
       );
       webSocket = channel;
       await channel.ready;
