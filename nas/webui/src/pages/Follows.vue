@@ -30,6 +30,10 @@
         <n-tab name="all">已关注</n-tab>
       </n-tabs>
       <n-select v-model:value="platformFilter" size="small" :options="platformOptions" style="width: 140px" placeholder="全部平台" clearable />
+      <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #adadb8">
+        <n-switch size="small" :value="autoPoll" @update:value="setAutoPoll" />
+        每分钟自动刷新
+      </span>
       <n-button quaternary size="small" @click="refresh" :loading="loading">刷新状态</n-button>
     </div>
 
@@ -55,7 +59,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import QRCode from 'qrcode';
-import { api, getFollows, setFollows, PLATFORMS } from '../api';
+import { api, getFollows, setFollows, restoreFollowsFromServer, PLATFORMS } from '../api';
 
 const router = useRouter();
 const rooms = ref([]);
@@ -137,7 +141,7 @@ async function pullSynced() {
     const local = getFollows();
     const map = new Map(local.map((f) => [f.platform + ':' + f.roomId, f]));
     for (const f of remote) map.set(f.platform + ':' + f.roomId, f);
-    localStorage.setItem('purelive_follows', JSON.stringify([...map.values()]));
+    setFollows([...map.values()]); // 走 api.js：本地存储 + 写穿 NAS 持久化
     window.$msg.success(`已导入 ${remote.length} 个关注直播间`);
     await refresh();
   } catch (e) {
@@ -146,7 +150,58 @@ async function pullSynced() {
   pulling.value = false;
 }
 
-onMounted(() => {
+// ---- 轻量开播轮询：60s 用 /live-status 单查保鲜状态；翻转开播的补一次详情拿开播时间 ----
+const POLL_KEY = 'purelive_follows_autopoll';
+const autoPoll = ref(localStorage.getItem(POLL_KEY) !== '0');
+let livePollTimer = null;
+
+function setAutoPoll(v) {
+  autoPoll.value = v;
+  localStorage.setItem(POLL_KEY, v ? '1' : '0');
+  v ? startLivePoll() : stopLivePoll();
+}
+
+async function pollLiveStatus() {
+  if (loading.value || !rooms.value.length) return;
+  const items = [...rooms.value];
+  let idx = 0;
+  async function worker() {
+    while (idx < items.length) {
+      const snap = items[idx++];
+      try {
+        const live = await api.liveStatus(snap.platform, snap.roomId);
+        // 列表可能已被 refresh 重载：按 key 找当前对象再改
+        const r = rooms.value.find((x) => x.platform === snap.platform && x.roomId === snap.roomId);
+        if (!r) continue;
+        const wasLive = r.liveStatus === 0;
+        if (live && !wasLive) {
+          r.liveStatus = 0;
+          // 刚开播：补详情拿 liveStartTime / 封面 / 标题（否则时长角标不显示）
+          try {
+            const d = await api.roomDetail(r.platform, r.roomId);
+            Object.assign(r, { ...d, nick: d.nick || r.nick, cover: d.cover || r.cover, title: d.title || r.title });
+          } catch (_) {}
+        } else if (!live && wasLive) {
+          r.liveStatus = 3;
+          r.liveStartTime = 0;
+        }
+      } catch (_) {}
+    }
+  }
+  await Promise.all([worker(), worker(), worker(), worker()]);
+}
+
+function startLivePoll() {
+  stopLivePoll();
+  if (autoPoll.value) livePollTimer = setInterval(pollLiveStatus, 60000);
+}
+function stopLivePoll() {
+  if (livePollTimer) { clearInterval(livePollTimer); livePollTimer = null; }
+}
+
+onMounted(async () => {
+  // 本地关注为空（换浏览器/清过缓存）时从 NAS 恢复
+  if (!getFollows().length) await restoreFollowsFromServer();
   refresh();
   // 二维码内容固定用 http 入口：手机 App 的原生 HTTP 客户端不信任自签证书，
   // 若页面在 https 下，扫到的 https 地址会让 App 端 TLS 握手直接失败（同步失败）。
@@ -154,6 +209,10 @@ onMounted(() => {
   QRCode.toCanvas(syncCanvas.value, syncTarget, { width: 110, margin: 0 });
   pollSyncStatus();
   statusTimer = setInterval(pollSyncStatus, 5000);
+  startLivePoll();
 });
-onUnmounted(() => { if (statusTimer) clearInterval(statusTimer); });
+onUnmounted(() => {
+  if (statusTimer) clearInterval(statusTimer);
+  stopLivePoll();
+});
 </script>

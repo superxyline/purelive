@@ -12,7 +12,8 @@ export interface Site {
   searchAnchors(keyword: string, page: number, pageSize: number): Promise<LiveAnchorItemJson[]>;
   getRoomDetail(roomId: string): Promise<LiveRoomJson>;
   getPlayQualites(roomId: string): Promise<LivePlayQualityJson[]>;
-  getPlayUrls(roomId: string, quality: string): Promise<string[]>;
+  /** codec: 首选编码（avc|hevc），仅 bilibili 使用，其余平台忽略。 */
+  getPlayUrls(roomId: string, quality: string, codec?: string): Promise<string[]>;
   getLiveStatus(roomId: string): Promise<boolean>;
   sendDanmaku(roomId: string, message: string): Promise<[boolean, string]>;
 }

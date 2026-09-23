@@ -49,8 +49,16 @@
           <span v-if="online" class="room-online">👁 {{ online }}</span>
           <div style="flex: 1"></div>
           <n-button size="small" @click="toggleFollowBtn">{{ followed ? '已关注' : '关注' }}</n-button>
+          <n-slider v-model:value="volume" size="small" style="width: 86px" :min="0" :max="1" :step="0.05" @update:value="onVolumeChange" />
           <n-button size="small" @click="toggleMute">{{ muted ? '取消静音' : '静音' }}</n-button>
           <n-select v-model:value="quality" size="small" style="width: 130px" :options="qualityOptions" @update:value="onQualityChange" />
+          <span
+            v-if="hevcAvailable"
+            class="hevc-toggle"
+            :class="{ 'is-on': preferHevc }"
+            title="H.265 编码：省流量，需浏览器支持硬解"
+            @click="toggleHevc"
+          >HEVC</span>
           <n-select v-model:value="lineIndex" size="small" style="width: 110px" :options="lineOptions" @update:value="onLineChange" />
           <n-button size="small" @click="fullscreen">全屏</n-button>
         </div>
@@ -69,16 +77,25 @@
             {{ dmView === 'list' ? (danmaku.length ? danmaku.length + ' 条' : '') : (giftCards.length ? giftCards.length + ' 张' : '') }}
           </span>
         </div>
+        <n-button size="tiny" quaternary @click="showShield = true">屏蔽</n-button>
       </div>
 
-      <!-- 模式一：现有弹幕列表 -->
-      <div v-show="dmView === 'list'" ref="danmakuBox" class="room-chat-body">
-        <div v-for="(d, i) in danmaku" :key="i" style="margin-bottom: 6px; word-break: break-all">
+      <!-- 模式一：弹幕列表（回看：非底部不强滚，10s 无操作自动回底；右键条目屏蔽该用户） -->
+      <div v-show="dmView === 'list'" ref="danmakuBox" class="room-chat-body" @scroll="onDmScroll">
+        <div
+          v-for="(d, i) in danmaku"
+          :key="i"
+          class="dm-row"
+          @contextmenu.prevent="shieldUserOf(d)"
+        >
           <template v-if="d.type === 'msg'"><span class="room-chat-user">{{ d.userName }}</span><span style="color: #adadb8">: </span>{{ d.message }}</template>
           <template v-else-if="d.type === 'sc'"><span class="room-chat-sc">【醒目留言】</span>{{ d.userName }}：{{ d.message }}</template>
         </div>
         <div v-if="!danmaku.length" class="room-chat-empty">暂无弹幕</div>
       </div>
+      <button v-if="dmView === 'list' && dmUnread > 0" class="dm-back-bottom" @click="jumpDmBottom">
+        ↓ {{ dmUnread }} 条新弹幕
+      </button>
 
       <!-- 模式二：安卓端礼物卡片 -->
       <div v-show="dmView === 'gift'" ref="giftBox" class="room-chat-body">
@@ -101,10 +118,19 @@
     </div>
   </div>
   <n-spin v-else style="margin: 120px auto; display: block" />
+
+  <!-- 弹幕屏蔽管理：普通词包含即屏蔽 / /正则/ / 通配 *?；用户名包含即屏蔽 -->
+  <n-modal v-model:show="showShield" preset="card" title="弹幕屏蔽" style="width: 460px">
+    <div class="shield-sec">屏蔽词（普通词 / 正则 /xxx/ / 通配符 * ?）</div>
+    <n-dynamic-tags v-model:value="shield.words" />
+    <div class="shield-sec" style="margin-top: 16px">屏蔽用户（用户名包含即屏蔽）</div>
+    <n-dynamic-tags v-model:value="shield.users" />
+    <div class="shield-hint">修改即时生效，存在本浏览器；右键弹幕可快捷屏蔽该用户。</div>
+  </n-modal>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { api, withProxyFallback, toggleFollow, isFollowed } from '../api';
 import GiftCard from '../components/GiftCard.vue';
@@ -132,6 +158,144 @@ const muted = ref(false);
 const dmInput = ref('');
 const followed = ref(false);
 const canSend = ['bilibili', 'douyu'].includes(platform);
+
+// ---- 清晰度 / 音量 / 静音记忆（localStorage；音量额外按房间记忆） ----
+const QUALITY_KEY = 'purelive_pref_quality';
+const VOL_KEY = 'purelive_pref_volume';
+const MUTE_KEY = 'purelive_pref_muted';
+const ROOM_VOL_KEY = `purelive_room_vol_${platform}_${roomId}`;
+const volume = ref(1);
+
+function applyVolume() {
+  const v = videoEl.value;
+  if (v) {
+    v.volume = Math.min(1, Math.max(0, volume.value));
+    v.muted = muted.value;
+  }
+}
+function onVolumeChange(val) {
+  volume.value = val;
+  localStorage.setItem(VOL_KEY, String(val));
+  localStorage.setItem(ROOM_VOL_KEY, String(val));
+  if (muted.value) {
+    muted.value = false;
+    localStorage.setItem(MUTE_KEY, '0');
+  }
+  applyVolume();
+}
+function toggleMute() {
+  muted.value = !muted.value;
+  localStorage.setItem(MUTE_KEY, muted.value ? '1' : '0');
+  applyVolume();
+}
+
+// ---- HEVC 开关（仅 B站；浏览器不支持 hvc1 硬解时不显示） ----
+const HEVC_KEY = 'purelive_pref_hevc';
+const hevcAvailable = computed(() => {
+  if (platform !== 'bilibili') return false;
+  return document.createElement('video').canPlayType('video/mp4; codecs="hvc1.1.6.L93.B0"') !== '';
+});
+const preferHevc = ref(localStorage.getItem(HEVC_KEY) === '1');
+function toggleHevc() {
+  preferHevc.value = !preferHevc.value;
+  localStorage.setItem(HEVC_KEY, preferHevc.value ? '1' : '0');
+  loadUrls();
+}
+
+// ---- 起播 watchdog：7 秒内没出任何视频帧自动换下一候选（对齐安卓 player_manager） ----
+const rvfcSupported = typeof HTMLVideoElement !== 'undefined' && 'requestVideoFrameCallback' in HTMLVideoElement.prototype;
+let frameWatchdog = null;
+let playGen = 0;
+let frameSeen = false;
+
+// ---- 弹幕回看：非底部不强推 + 未读计数 + 10s 无操作自动回底（对齐安卓 danmaku_list_view） ----
+const dmUnread = ref(0);
+const dmAtBottom = ref(true);
+let dmResumeTimer = null;
+
+function onDmScroll() {
+  const el = danmakuBox.value;
+  if (!el) return;
+  if (el.scrollHeight - el.scrollTop - el.clientHeight < 60) {
+    dmAtBottom.value = true;
+    if (dmUnread.value) dmUnread.value = 0;
+    if (dmResumeTimer) { clearTimeout(dmResumeTimer); dmResumeTimer = null; }
+  } else {
+    dmAtBottom.value = false;
+    if (dmResumeTimer) clearTimeout(dmResumeTimer);
+    dmResumeTimer = setTimeout(jumpDmBottom, 10000);
+  }
+}
+function jumpDmBottom() {
+  if (dmResumeTimer) { clearTimeout(dmResumeTimer); dmResumeTimer = null; }
+  dmAtBottom.value = true;
+  dmUnread.value = 0;
+  scrollToBottom(danmakuBox);
+}
+
+// ---- 弹幕屏蔽：关键词 / 正则 / 通配 + 用户名（localStorage 持久，改动即时生效） ----
+const SHIELD_KEY = 'purelive_shield';
+const showShield = ref(false);
+const shield = reactive(loadShield());
+let shieldRegexes = [];
+let shieldKw = [];
+let shieldWild = [];
+let shieldUserFrags = [];
+
+function loadShield() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SHIELD_KEY));
+    return {
+      words: Array.isArray(s?.words) ? s.words : [],
+      users: Array.isArray(s?.users) ? s.users : [],
+    };
+  } catch (_) {
+    return { words: [], users: [] };
+  }
+}
+function wildToRegExp(pat) {
+  const esc = pat.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.');
+  return new RegExp(`^${esc}$`, 'i');
+}
+function rebuildShield() {
+  shieldRegexes = [];
+  shieldKw = [];
+  shieldWild = [];
+  shieldUserFrags = shield.users.map((u) => String(u).toLowerCase()).filter(Boolean);
+  for (const w of shield.words) {
+    const m = /^\/(.+)\/([imsu]*)$/.exec(w);
+    if (m) {
+      try { shieldRegexes.push(new RegExp(m[1], m[2] || 'i')); } catch (_) {}
+    } else if (w.includes('*') || w.includes('?')) {
+      try { shieldWild.push(wildToRegExp(w)); } catch (_) {}
+    } else if (w) {
+      shieldKw.push(w.toLowerCase());
+    }
+  }
+}
+function isShielded(m) {
+  const user = String(m.userName || '').toLowerCase();
+  if (shieldUserFrags.some((u) => user.includes(u))) return true;
+  const text = String(m.message || '');
+  const lower = text.toLowerCase();
+  if (shieldKw.some((k) => lower.includes(k))) return true;
+  if (shieldRegexes.some((r) => r.test(text))) return true;
+  if (shieldWild.some((r) => r.test(text))) return true;
+  return false;
+}
+function shieldUserOf(d) {
+  const u = String(d.userName || '').trim();
+  if (!u) return;
+  if (!shield.users.includes(u)) {
+    shield.users.push(u);
+    window.$msg.success(`已屏蔽用户「${u}」`);
+  }
+}
+watch(shield, () => {
+  localStorage.setItem(SHIELD_KEY, JSON.stringify(shield));
+  rebuildShield();
+}, { deep: true });
+rebuildShield();
 
 // 弹幕区显示模式：list=文本弹幕 | gift=安卓礼物卡片（localStorage 记忆）
 const DM_VIEW_KEY = 'purelive_room_dm_view';
@@ -273,6 +437,8 @@ let candidateIdx = 0;
 let videoAbort = null;
 
 function destroyPlayer() {
+  playGen++; // 使旧的帧回调 / watchdog 全部失效
+  if (frameWatchdog) { clearTimeout(frameWatchdog); frameWatchdog = null; }
   if (handle) { try { handle.destroy(); } catch (_) {} handle = null; }
   if (videoAbort) { videoAbort.abort(); videoAbort = null; }
   const v = videoEl.value;
@@ -284,10 +450,28 @@ function signalError() { attachNext(); }
 function attach(url) {
   const video = videoEl.value;
   if (!video) return;
-  destroyPlayer();
+  destroyPlayer(); // 内部 playGen++
+  const gen = playGen;
+  frameSeen = false;
   videoAbort = new AbortController();
   const onErr = () => signalError();
   video.addEventListener('error', onErr, { once: true, signal: videoAbort.signal });
+  if (rvfcSupported) {
+    // 首帧到达即视为起播成功：关 loading、撤 watchdog
+    video.requestVideoFrameCallback(() => {
+      if (gen !== playGen || frameSeen) return;
+      frameSeen = true;
+      playerLoading.value = false;
+      if (frameWatchdog) { clearTimeout(frameWatchdog); frameWatchdog = null; }
+    });
+    // 7 秒仍无帧：换下一候选（直连→代理→下一线路）
+    frameWatchdog = setTimeout(() => {
+      if (gen === playGen && !frameSeen) {
+        console.log('[player] no frame in 7s, fallback');
+        attachNext();
+      }
+    }, 7000);
+  }
   try {
     if (/\.m3u8(\?|$)/i.test(url) && window.Hls && window.Hls.isSupported()) {
       const hls = new window.Hls({ lowLatencyMode: true, backBufferLength: 30 });
@@ -340,22 +524,43 @@ async function loadQualities() {
     playerLoading.value = false;
     return;
   }
-  quality.value = qualities.value[0].quality;
+  // 首选清晰度记忆：上次选过的还在就用它
+  const savedQ = localStorage.getItem(QUALITY_KEY);
+  quality.value = savedQ && qualities.value.some((q) => q.quality === savedQ) ? savedQ : qualities.value[0].quality;
   await loadUrls();
 }
 
+function hostOf(u) {
+  try { return new URL(u, location.href).hostname; } catch (_) { return ''; }
+}
+
+/** B站多 CDN：TCP 握手测速后按延迟升序（对齐安卓 CdnSpeedTest），失败静默保持原序。 */
+async function sortUrlsBySpeed() {
+  try {
+    const hosts = [...new Set(urls.value.map(hostOf).filter(Boolean))];
+    if (hosts.length < 2) return;
+    const lat = await api.speedTest(hosts);
+    urls.value = [...urls.value].sort((a, b) => (lat[hostOf(a)] ?? 9999) - (lat[hostOf(b)] ?? 9999));
+  } catch (_) {}
+}
+
 async function loadUrls() {
-  const r = await api.playUrls(platform, roomId, quality.value);
+  const codec = platform === 'bilibili' && preferHevc.value ? 'hevc' : undefined;
+  const r = await api.playUrls(platform, roomId, quality.value, codec);
   urls.value = r.urls || [];
   if (!urls.value.length) { playError.value = '未获取到播放地址'; playerLoading.value = false; return; }
+  if (platform === 'bilibili' && urls.value.length > 1) await sortUrlsBySpeed();
   lineIndex.value = 0;
   startPlay();
 }
 
-function onQualityChange(q) { quality.value = q; loadUrls(); }
+function onQualityChange(q) {
+  quality.value = q;
+  localStorage.setItem(QUALITY_KEY, q);
+  loadUrls();
+}
 function onLineChange(i) { lineIndex.value = i; currentCandidates = withProxyFallback(urls.value[i]); candidateIdx = 0; startPlay(); }
 
-function toggleMute() { muted.value = !muted.value; if (videoEl.value) videoEl.value.muted = muted.value; }
 function fullscreen() { videoEl.value?.parentElement?.requestFullscreen?.(); }
 function toggleFollowBtn() {
   followed.value = toggleFollow({ platform, roomId, nick: room.value?.nick, title: room.value?.title, cover: room.value?.cover });
@@ -403,10 +608,10 @@ function scrollToBottom(boxRef) {
   });
 }
 
-// 切到礼物页时滚到最新
+// 切页签：礼物页滚到最新；弹幕页回底并清未读
 watch(dmView, (v) => {
   if (v === 'gift') scrollToBottom(giftBox);
-  else scrollToBottom(danmakuBox);
+  else jumpDmBottom();
 });
 
 // ---- 弹幕 ----
@@ -426,10 +631,15 @@ function connectDanmaku() {
         if (dmView.value === 'gift') scrollToBottom(giftBox);
         return;
       }
+      if ((m.type === 'msg' || m.type === 'sc') && isShielded(m)) return;
       danmaku.value.push(m);
       if (danmaku.value.length > 300) danmaku.value.splice(0, danmaku.value.length - 300);
       if (m.type === 'msg' && overlayDm.value) pushFloatDm(m);
-      if (dmView.value === 'list') scrollToBottom(danmakuBox);
+      if (dmView.value === 'list') {
+        // 回看中（不在底部）不打断：累计未读，底部才自动滚
+        if (dmAtBottom.value) scrollToBottom(danmakuBox);
+        else dmUnread.value++;
+      }
     } catch (_) {}
   };
   ws.onclose = () => { dmRetry = setTimeout(connectDanmaku, 3000); };
@@ -444,6 +654,13 @@ async function send() {
 
 onMounted(async () => {
   followed.value = isFollowed(platform, roomId);
+  // 音量/静音：每房间音量优先，其次全局；初始化后应用到 video 元素
+  const roomVol = parseFloat(localStorage.getItem(ROOM_VOL_KEY) ?? '');
+  const globalVol = parseFloat(localStorage.getItem(VOL_KEY) ?? '');
+  volume.value = !Number.isNaN(roomVol) ? roomVol : !Number.isNaN(globalVol) ? globalVol : 1;
+  muted.value = localStorage.getItem(MUTE_KEY) === '1';
+  await nextTick();
+  applyVolume();
   try { room.value = await api.roomDetail(platform, roomId); } catch (e) { window.$msg.error('读取直播间信息失败: ' + e.message); }
   connectDanmaku();
   try { await loadQualities(); } catch (e) { playError.value = e.message; playerLoading.value = false; }
@@ -452,6 +669,7 @@ onUnmounted(() => {
   destroyPlayer();
   if (ws) { ws.onclose = null; ws.close(); }
   if (dmRetry) clearTimeout(dmRetry);
+  if (dmResumeTimer) clearTimeout(dmResumeTimer);
   for (const win of giftMergeWindows.values()) clearTimeout(win.timer);
   giftMergeWindows.clear();
   for (const d of floatDms.value) clearTimeout(d.timer);
