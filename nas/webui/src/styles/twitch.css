@@ -471,10 +471,6 @@ a {
   animation-fill-mode: forwards;
 }
 
-.fs-dm-user {
-  color: #38bdf8;
-}
-
 @keyframes fs-dm-fly {
   from {
     transform: translateX(0);
