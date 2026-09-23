@@ -23,7 +23,7 @@
             class="fs-dm-item"
             :style="{ top: d.lane * 30 + 10 + 'px', animationDuration: d.flyMs + 'ms' }"
           >
-            <b class="fs-dm-user">{{ d.userName }}</b>：{{ d.message }}
+            {{ d.message }}
           </span>
         </div>
 
@@ -174,7 +174,6 @@ function pushFloatDm(m) {
   const flyMs = 9000;
   const d = {
     id: ++floatSeq,
-    userName: m.userName || '观众',
     message: String(m.message || '').slice(0, 100),
     lane: laneSeq++ % 9,
     flyMs,
