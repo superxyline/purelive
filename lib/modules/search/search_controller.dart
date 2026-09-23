@@ -264,7 +264,8 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
     }
     final site = Sites().availableSites()[index.v - 1];
     final url = buildSearchUrl(site.id, searchController.text.trim());
-    if (Platform.isLinux) {
+    // 定制版没有 app 内 WebSearchPage（kWebSearch 路由未注册），Android 与 Linux 一样走外部浏览器
+    if (Platform.isAndroid || Platform.isLinux) {
       final opened = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       if (!opened) ToastUtil.show(i18n('external_browser_not_opened'));
       return;

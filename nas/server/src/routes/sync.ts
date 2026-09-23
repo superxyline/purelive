@@ -58,7 +58,8 @@ function extractList(rawList: unknown): SyncedFollow[] {
 
 /** App 的 exportTransferData → WebUI 关注列表格式 */
 function extractFollows(body: any): SyncedFollow[] {
-  return extractList(body?.favorite?.list);
+  // App 端 FavoriteRoomController.toJson() 的键是 favoriteRooms；早期方案/手工请求可能用 list，两者都认。
+  return extractList(body?.favorite?.favoriteRooms ?? body?.favorite?.list);
 }
 
 export const syncRoutes: FastifyPluginAsync = async (app) => {
@@ -100,10 +101,13 @@ export const syncRoutes: FastifyPluginAsync = async (app) => {
     return { syncedAt, count: list.length };
   });
 
-  // WebUI 关注列表写穿：浏览器本地关注变化时覆盖持久化到 NAS（多设备共享/换浏览器恢复）
-  app.put<{ Body: { list?: unknown } }>('/sync/follows', async (req) => {
+  // WebUI 关注列表写穿 / 安卓端推送：浏览器与 App 均覆盖持久化到 NAS（多设备共享/换设备恢复）
+  const saveFollows = async (req: { body?: { list?: unknown } }) => {
     const list = extractList((req.body as any)?.list);
     writeSynced(list);
     return { ok: true, count: list.length };
-  });
+  };
+  app.put<{ Body: { list?: unknown } }>('/sync/follows', saveFollows);
+  // App 的 HttpClient 只有 postJson，POST 同语义兼容
+  app.post<{ Body: { list?: unknown } }>('/sync/follows', saveFollows);
 };

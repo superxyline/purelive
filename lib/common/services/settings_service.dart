@@ -19,6 +19,7 @@ import 'package:pure_live/common/services/settings/player_settings_controller.da
 import 'package:pure_live/common/services/settings/cookie_settings_controller.dart';
 import 'package:pure_live/common/services/settings/volume_settings_controller.dart';
 import 'package:pure_live/common/services/settings/danmaku_settings_controller.dart';
+import 'package:pure_live/common/services/settings/nas_sync_controller.dart';
 
 class SettingsService extends GetxService {
   static SettingsService get to => Get.find<SettingsService>();
@@ -81,6 +82,7 @@ class SettingsService extends GetxService {
     Get.lazyPut(() => lockInject(() => BiliBiliAccountService()), fenix: true);
     Get.lazyPut(() => lockInject(() => FontSettingsController()), fenix: true);
     Get.lazyPut(() => lockInject(() => LogController()), fenix: true);
+    Get.lazyPut(() => lockInject(() => NasSyncController()), fenix: true);
 
     Get.put(ExitSettingsController(), permanent: true);
   }
