@@ -10,6 +10,7 @@ import 'package:pure_live/modules/transfer/receive_transfer_page.dart';
 import 'package:pure_live/common/global/app_path_manager.dart';
 import 'package:pure_live/plugins/backup_recovery_service.dart';
 import 'package:pure_live/common/services/settings/log_controller.dart';
+import 'package:pure_live/common/services/settings/nas_sync_controller.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
@@ -20,7 +21,32 @@ class BackupPage extends StatefulWidget {
 
 class _BackupPageState extends State<BackupPage> {
   final LogController logController = LogController.to;
+  final NasSyncController nasSync = NasSyncController.to;
   String get backupDirectory => SettingsService.to.backup.backupDirectory.v;
+
+  /// NAS 地址配置：保存即生效；"保存并同步"额外做一次并集同步（拉 NAS 关注并入本地，再把并集推回）
+  Future<void> _showNasSyncDialog() async {
+    final ctrl = TextEditingController(text: nasSync.serverAddress.v);
+    final action = await Get.dialog<String>(
+      AlertDialog(
+        title: Text(i18n('nas_sync_title')),
+        content: TextField(
+          controller: ctrl,
+          keyboardType: TextInputType.url,
+          autofocus: true,
+          decoration: InputDecoration(hintText: i18n('nas_addr_hint'), labelText: 'NAS'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, 'cancel'), child: Text(i18n('cancel'))),
+          TextButton(onPressed: () => Navigator.pop(context, 'save'), child: Text(i18n('save'))),
+          FilledButton(onPressed: () => Navigator.pop(context, 'sync'), child: Text(i18n('nas_save_and_sync'))),
+        ],
+      ),
+    );
+    if (action == null || action == 'cancel') return;
+    nasSync.saveAddress(ctrl.text);
+    if (action == 'sync') await nasSync.syncNow();
+  }
 
   Future<void> _openLogDirectory() async {
     try {
@@ -60,12 +86,6 @@ class _BackupPageState extends State<BackupPage> {
             ),
             if (Platform.isAndroid || Platform.isIOS) ...[
               context.buildTile(
-                icon: Remix.qr_code_line,
-                title: i18n("sync_tv_data"),
-                subtitle: i18n("sync_tv_data_subtitle"),
-                onTap: () => Get.to(() => const ScanCodePage()),
-              ),
-              context.buildTile(
                 icon: Remix.qr_scan_line,
                 title: i18n("transfer_send"),
                 subtitle: i18n("transfer_send_subtitle"),
@@ -78,6 +98,19 @@ class _BackupPageState extends State<BackupPage> {
                 onTap: () => Get.to(() => const ReceiveTransferPage()),
               ),
             ],
+          ]),
+          const SizedBox(height: 20),
+          // NAS 服务器常连同步：存地址 + 与 NAS 关注列表做并集
+          context.buildGroupTitle(i18n("nas_sync_title")),
+          context.buildModernCard([
+            Obx(() => context.buildTile(
+                  icon: Remix.server_line,
+                  title: i18n("nas_sync_title"),
+                  subtitle: nasSync.baseUrl.isEmpty
+                      ? i18n("nas_not_configured")
+                      : "${nasSync.serverAddress.v} · ${i18n('tap_to_sync')}",
+                  onTap: _showNasSyncDialog,
+                )),
           ]),
           const SizedBox(height: 20),
             context.buildGroupTitle(i18n("local_backup")),
