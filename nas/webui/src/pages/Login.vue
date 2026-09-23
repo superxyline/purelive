@@ -2,7 +2,10 @@
   <div style="max-width: 520px; margin: 0 auto">
     <n-card title="B站扫码登录">
       <template #header-extra>
-        <n-tag size="small" :type="biliLogged ? 'success' : 'default'">{{ biliLogged ? '已登录' : '未登录' }}</n-tag>
+        <div style="display: flex; gap: 8px; align-items: center">
+          <n-tag size="small" :type="biliLogged ? 'success' : 'default'">{{ biliLogged ? '已登录' : '未登录' }}</n-tag>
+          <n-button v-if="biliLogged" size="tiny" quaternary type="error" @click="logout('bilibili')">退出登录</n-button>
+        </div>
       </template>
       <div style="text-align: center">
         <div v-if="!qrUrl" style="padding: 30px 0">
@@ -23,6 +26,15 @@
       </n-tabs>
       <n-input v-model:value="cookieInput" type="textarea" :rows="3" placeholder="粘贴浏览器里复制的 Cookie 字符串" style="margin: 10px 0" />
       <n-button type="primary" @click="saveCookieBtn" :loading="saving">保存 Cookie</n-button>
+      <n-button
+        v-if="authSt[cookiePlatform]"
+        quaternary
+        type="error"
+        size="small"
+        style="margin-left: 8px"
+        @click="logout(cookiePlatform)"
+      >清除该平台登录</n-button>
+      <div v-if="authSt[cookiePlatform]" style="font-size: 12px; color: #8b8b94; margin-top: 8px">该平台已有托管的登录态</div>
     </n-card>
   </div>
 </template>
@@ -36,6 +48,7 @@ const biliLogged = ref(false);
 const biliName = ref('');
 const qrUrl = ref('');
 const qrCanvas = ref(null);
+const authSt = ref({}); // 各平台托管登录态（GET /api/auth/status）
 const qrStatusText = ref('请用哔哩哔哩 App 扫码');
 const qrLoading = ref(false);
 let qrKey = '';
@@ -49,10 +62,24 @@ const saving = ref(false);
 async function refreshStatus() {
   try {
     const st = await api.authStatus();
+    authSt.value = st;
     biliLogged.value = !!st.bilibili;
     const s = await api.bilibiliSession();
     if (s.ok) { biliName.value = s.uname; biliLogged.value = true; }
   } catch (_) {}
+}
+
+async function logout(p) {
+  try {
+    const r = await api.clearAuth(p);
+    if (r.ok) {
+      window.$msg.success('已清除该平台登录态');
+      if (p === 'bilibili') { biliLogged.value = false; biliName.value = ''; qrUrl.value = ''; }
+      await refreshStatus();
+    }
+  } catch (e) {
+    window.$msg.error('清除失败: ' + e.message);
+  }
 }
 
 async function genQr() {

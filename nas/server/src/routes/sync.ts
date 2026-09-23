@@ -33,9 +33,8 @@ function writeSynced(list: SyncedFollow[]): void {
   fs.writeFileSync(SYNC_FILE, JSON.stringify({ syncedAt: Date.now(), list }));
 }
 
-/** App 的 exportTransferData → WebUI 关注列表格式（去重） */
-function extractFollows(body: any): SyncedFollow[] {
-  const rawList = body?.favorite?.list;
+/** 任意来源的原始列表 → synced-follows 格式（去重+平台校验） */
+function extractList(rawList: unknown): SyncedFollow[] {
   if (!Array.isArray(rawList)) return [];
   const seen = new Set<string>();
   const out: SyncedFollow[] = [];
@@ -55,6 +54,11 @@ function extractFollows(body: any): SyncedFollow[] {
     });
   }
   return out;
+}
+
+/** App 的 exportTransferData → WebUI 关注列表格式 */
+function extractFollows(body: any): SyncedFollow[] {
+  return extractList(body?.favorite?.list);
 }
 
 export const syncRoutes: FastifyPluginAsync = async (app) => {
@@ -94,5 +98,12 @@ export const syncRoutes: FastifyPluginAsync = async (app) => {
   app.get('/sync/status', async () => {
     const { syncedAt, list } = readSynced();
     return { syncedAt, count: list.length };
+  });
+
+  // WebUI 关注列表写穿：浏览器本地关注变化时覆盖持久化到 NAS（多设备共享/换浏览器恢复）
+  app.put<{ Body: { list?: unknown } }>('/sync/follows', async (req) => {
+    const list = extractList((req.body as any)?.list);
+    writeSynced(list);
+    return { ok: true, count: list.length };
   });
 };

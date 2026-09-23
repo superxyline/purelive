@@ -439,6 +439,92 @@ a {
   background: #4a4a4d;
 }
 
+/* ---------- 房间页：弹幕回看 / 屏蔽 / 音量 / HEVC ---------- */
+.room-chat {
+  position: relative;
+}
+
+.dm-row {
+  position: relative;
+  padding-right: 18px;
+}
+
+.dm-row:hover::after {
+  content: "右键屏蔽";
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--tw-text-muted);
+  background: var(--tw-bg-elevated);
+  padding: 0 4px;
+  border-radius: 4px;
+  opacity: 0.85;
+}
+
+.dm-back-bottom {
+  position: absolute;
+  left: 50%;
+  bottom: 56px;
+  transform: translateX(-50%);
+  z-index: 7;
+  border: 1px solid var(--tw-accent-border);
+  background: rgba(12, 12, 15, 0.88);
+  color: var(--tw-accent);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dm-back-bottom:hover {
+  background: var(--tw-accent);
+  color: #06121a;
+}
+
+.shield-sec {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--tw-text);
+}
+
+.shield-hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--tw-text-secondary);
+}
+
+.hevc-toggle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  border-radius: var(--tw-radius);
+  border: 1px solid var(--tw-border-strong);
+  color: var(--tw-text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.hevc-toggle.is-on {
+  color: #06121a;
+  background: var(--tw-accent);
+  border-color: var(--tw-accent);
+}
+
+.hevc-toggle:hover {
+  border-color: var(--tw-accent-border);
+  color: var(--tw-text);
+}
+
+.hevc-toggle.is-on:hover {
+  color: #06121a;
+}
+
 /* ---------- 播放器浮层：开关 / 飘屏弹幕 / 左下角礼物卡片 ---------- */
 .fs-toggles {
   position: absolute;
