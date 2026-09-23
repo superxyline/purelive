@@ -8,6 +8,37 @@
         <div v-if="playError" class="room-play-error">
           播放失败：{{ playError }}
         </div>
+
+        <!-- 浮层开关（右上，localStorage 记忆） -->
+        <div class="fs-toggles">
+          <n-button size="tiny" :type="overlayDm ? 'primary' : 'secondary'" @click="toggleOverlayDm">弹幕</n-button>
+          <n-button size="tiny" :type="overlayGift ? 'primary' : 'secondary'" @click="toggleOverlayGift">礼物卡片</n-button>
+        </div>
+
+        <!-- 飘屏弹幕（仅普通弹幕进入，礼物/醒目留言不飘） -->
+        <div v-if="overlayDm && floatDms.length" class="fs-danmaku">
+          <span
+            v-for="d in floatDms"
+            :key="d.id"
+            class="fs-dm-item"
+            :style="{ top: d.lane * 30 + 10 + 'px', animationDuration: d.flyMs + 'ms' }"
+          >
+            <b class="fs-dm-user">{{ d.userName }}</b>：{{ d.message }}
+          </span>
+        </div>
+
+        <!-- 左下角礼物卡片（安卓 showFullscreenGift：价格分档时长 + 堆叠） -->
+        <div v-if="overlayGift && fsGifts.length" class="fs-gift-stack">
+          <GiftCard
+            v-for="g in fsGifts"
+            :key="g.id"
+            :user-name="g.userName"
+            :gift-name="g.giftName"
+            :gift-count="g.giftCount"
+            :gift-icon="g.giftIcon || ''"
+            :platform="g.platform"
+          />
+        </div>
       </div>
       <!-- 信息与控制条 -->
       <div class="room-meta">
@@ -44,7 +75,6 @@
       <div v-show="dmView === 'list'" ref="danmakuBox" class="room-chat-body">
         <div v-for="(d, i) in danmaku" :key="i" style="margin-bottom: 6px; word-break: break-all">
           <template v-if="d.type === 'msg'"><span class="room-chat-user">{{ d.userName }}</span><span style="color: #adadb8">: </span>{{ d.message }}</template>
-          <template v-else-if="d.type === 'gift'"><span class="room-chat-gift">{{ d.userName }}</span> 送出 {{ d.giftName }} x{{ d.giftCount }}</template>
           <template v-else-if="d.type === 'sc'"><span class="room-chat-sc">【醒目留言】</span>{{ d.userName }}：{{ d.message }}</template>
         </div>
         <div v-if="!danmaku.length" class="room-chat-empty">暂无弹幕</div>
@@ -115,6 +145,122 @@ function setDmView(v) {
 const GIFT_MERGE_MS = 3000;
 const giftMergeWindows = new Map();
 let giftSeq = 0;
+
+// ---- 播放器浮层开关（右上按钮，localStorage 记忆，默认开） ----
+const OVERLAY_DM_KEY = 'purelive_room_overlay_dm';
+const OVERLAY_GIFT_KEY = 'purelive_room_overlay_gift';
+const overlayDm = ref(localStorage.getItem(OVERLAY_DM_KEY) !== '0');
+const overlayGift = ref(localStorage.getItem(OVERLAY_GIFT_KEY) !== '0');
+function toggleOverlayDm() {
+  overlayDm.value = !overlayDm.value;
+  localStorage.setItem(OVERLAY_DM_KEY, overlayDm.value ? '1' : '0');
+  if (!overlayDm.value) {
+    for (const d of floatDms.value) clearTimeout(d.timer);
+    floatDms.value = [];
+  }
+}
+function toggleOverlayGift() {
+  overlayGift.value = !overlayGift.value;
+  localStorage.setItem(OVERLAY_GIFT_KEY, overlayGift.value ? '1' : '0');
+  if (!overlayGift.value) clearFsGifts();
+}
+
+// ---- 飘屏弹幕：普通弹幕从右向左飞过，礼物/SC 不进飘屏 ----
+const FLOAT_DM_MAX = 40;
+const floatDms = ref([]);
+let floatSeq = 0;
+let laneSeq = 0;
+function pushFloatDm(m) {
+  const flyMs = 9000;
+  const d = {
+    id: ++floatSeq,
+    userName: m.userName || '观众',
+    message: String(m.message || '').slice(0, 100),
+    lane: laneSeq++ % 9,
+    flyMs,
+    timer: null,
+  };
+  d.timer = setTimeout(() => {
+    const i = floatDms.value.findIndex((x) => x.id === d.id);
+    if (i >= 0) floatDms.value.splice(i, 1);
+  }, flyMs + 300);
+  floatDms.value.push(d);
+  if (floatDms.value.length > FLOAT_DM_MAX) {
+    const old = floatDms.value.shift();
+    if (old) clearTimeout(old.timer);
+  }
+}
+
+// ---- 左下角礼物卡片（安卓 showFullscreenGift）：价格分档时长 + 3s 合并窗 + 最多 5 张堆叠 ----
+const FS_GIFT_MAX = 5;
+const fsGifts = ref([]);
+const fsMergeWindows = new Map();
+const fsHideTimers = new Map();
+let fsSeq = 0;
+
+/** 与安卓 _giftDurationTiers 对齐：(价格上限, 秒) */
+function giftDurationMs(price) {
+  const p = Number(price) > 0 ? Number(price) : 0;
+  if (p <= 10) return 3000;
+  if (p <= 100) return 5000;
+  if (p <= 1000) return 8000;
+  return 12000;
+}
+
+function startFsHideTimer(card) {
+  clearTimeout(fsHideTimers.get(card.id));
+  fsHideTimers.set(
+    card.id,
+    setTimeout(() => {
+      fsHideTimers.delete(card.id);
+      const i = fsGifts.value.findIndex((c) => c.id === card.id);
+      if (i >= 0) fsGifts.value.splice(i, 1);
+    }, giftDurationMs(card.giftPrice)),
+  );
+}
+
+function pushFsGift(m) {
+  const count = Number(m.giftCount) > 0 ? Number(m.giftCount) : 1;
+  const key = giftComboKey(m);
+  const win = fsMergeWindows.get(key);
+  if (win) {
+    // 合并窗内同用户同礼物：累加数量并重置显示计时（安卓 _mergeFullscreenGift）
+    const card = fsGifts.value.find((c) => c.id === win.id);
+    if (card) {
+      card.giftCount += count;
+      clearTimeout(win.timer);
+      win.timer = setTimeout(() => fsMergeWindows.delete(key), GIFT_MERGE_MS);
+      startFsHideTimer(card);
+      return;
+    }
+  }
+  while (fsGifts.value.length >= FS_GIFT_MAX) {
+    const old = fsGifts.value.shift();
+    clearTimeout(fsHideTimers.get(old.id));
+    fsHideTimers.delete(old.id);
+  }
+  const card = {
+    id: ++fsSeq,
+    userName: m.userName || '',
+    giftName: m.giftName || m.message || '礼物',
+    giftCount: count,
+    giftIcon: m.giftIcon || '',
+    platform,
+    giftPrice: m.giftPrice || 0,
+  };
+  fsGifts.value.push(card);
+  startFsHideTimer(card);
+  const timer = setTimeout(() => fsMergeWindows.delete(key), GIFT_MERGE_MS);
+  fsMergeWindows.set(key, { id: card.id, timer });
+}
+
+function clearFsGifts() {
+  for (const t of fsHideTimers.values()) clearTimeout(t);
+  fsHideTimers.clear();
+  for (const w of fsMergeWindows.values()) clearTimeout(w.timer);
+  fsMergeWindows.clear();
+  fsGifts.value = [];
+}
 
 const platformName = { bilibili: '哔哩哔哩', douyu: '斗鱼', huya: '虎牙', douyin: '抖音', kuaishou: '快手' }[platform] || platform;
 
@@ -274,12 +420,16 @@ function connectDanmaku() {
     try {
       const m = JSON.parse(ev.data);
       if (m.type === 'online') { online.value = m.onlineCount ?? m.message; return; }
+      if (m.type === 'gift') {
+        // 礼物不进弹幕列表：只走右侧礼物页签与左下角浮层
+        pushGiftCard(m);
+        if (overlayGift.value) pushFsGift(m);
+        if (dmView.value === 'gift') scrollToBottom(giftBox);
+        return;
+      }
       danmaku.value.push(m);
       if (danmaku.value.length > 300) danmaku.value.splice(0, danmaku.value.length - 300);
-      if (m.type === 'gift') {
-        pushGiftCard(m);
-        if (dmView.value === 'gift') scrollToBottom(giftBox);
-      }
+      if (m.type === 'msg' && overlayDm.value) pushFloatDm(m);
       if (dmView.value === 'list') scrollToBottom(danmakuBox);
     } catch (_) {}
   };
@@ -305,5 +455,8 @@ onUnmounted(() => {
   if (dmRetry) clearTimeout(dmRetry);
   for (const win of giftMergeWindows.values()) clearTimeout(win.timer);
   giftMergeWindows.clear();
+  for (const d of floatDms.value) clearTimeout(d.timer);
+  floatDms.value = [];
+  clearFsGifts();
 });
 </script>
