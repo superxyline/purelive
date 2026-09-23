@@ -125,6 +125,15 @@
     <n-dynamic-tags v-model:value="shield.words" />
     <div class="shield-sec" style="margin-top: 16px">屏蔽用户（用户名包含即屏蔽）</div>
     <n-dynamic-tags v-model:value="shield.users" />
+    <div class="shield-sec" style="margin-top: 16px">重复与相似过滤</div>
+    <div style="display: flex; gap: 20px">
+      <n-switch v-model:value="shield.collapse" size="small" />
+      <span class="shield-hint" style="margin: 0">5 秒内相同文案只显示首条</span>
+    </div>
+    <div style="display: flex; gap: 20px; margin-top: 8px; align-items: center">
+      <n-switch v-model:value="shield.similar" size="small" />
+      <span class="shield-hint" style="margin: 0">过滤高度相似的刷屏弹幕（8 秒窗口）</span>
+    </div>
     <div class="shield-hint">修改即时生效，存在本浏览器；右键弹幕可快捷屏蔽该用户。</div>
   </n-modal>
 </template>
@@ -248,9 +257,12 @@ function loadShield() {
     return {
       words: Array.isArray(s?.words) ? s.words : [],
       users: Array.isArray(s?.users) ? s.users : [],
+      // 上游移植（Web 版）：短窗口重复合并 + 相似过滤，默认关
+      collapse: s?.collapse === true,
+      similar: s?.similar === true,
     };
   } catch (_) {
-    return { words: [], users: [] };
+    return { words: [], users: [], collapse: false, similar: false };
   }
 }
 function wildToRegExp(pat) {
@@ -290,6 +302,62 @@ function shieldUserOf(d) {
     shield.users.push(u);
     window.$msg.success(`已屏蔽用户「${u}」`);
   }
+}
+
+// ---- 重复合并 + 相似过滤（对齐安卓 RepeatedDanmakuFilter / DanmakuSimilarityFilter 简化版） ----
+const REPEAT_WINDOW_MS = 5000;
+const repeatedSeen = new Map(); // 归一化文本 → 上次时间
+const similarCache = []; // { text, bigrams:Set, at }
+
+function normalizeDmText(t) {
+  return String(t || '').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+function acceptRepeated(m) {
+  if (!shield.collapse) return true;
+  const now = Date.now();
+  const key = normalizeDmText(m.message);
+  if (!key) return true;
+  const prev = repeatedSeen.get(key);
+  repeatedSeen.set(key, now);
+  // 有界清理
+  if (repeatedSeen.size > 512) {
+    for (const [k, t] of repeatedSeen) {
+      if (now - t > REPEAT_WINDOW_MS) repeatedSeen.delete(k);
+      if (repeatedSeen.size <= 512) break;
+    }
+  }
+  return prev == null || now - prev > REPEAT_WINDOW_MS;
+}
+function bigramsOf(text) {
+  const s = normalizeDmText(text).replace(/\s/g, '');
+  const set = new Set();
+  for (let i = 0; i < s.length - 1; i++) set.add(s.slice(i, i + 2));
+  if (s.length === 1) set.add(s);
+  return set;
+}
+function jaccard(a, b) {
+  if (!a.size || !b.size) return 0;
+  let inter = 0;
+  for (const g of a) if (b.has(g)) inter++;
+  return inter / (a.size + b.size - inter);
+}
+function acceptSimilar(m) {
+  if (!shield.similar) return true;
+  const text = normalizeDmText(m.message);
+  if (!text) return true;
+  const now = Date.now();
+  const grams = bigramsOf(text);
+  for (let i = similarCache.length - 1; i >= 0; i--) {
+    const c = similarCache[i];
+    if (now - c.at > 8000) {
+      similarCache.splice(i, 1);
+      continue;
+    }
+    if (jaccard(grams, c.bigrams) >= 0.85) return false;
+  }
+  similarCache.push({ text, bigrams: grams, at: now });
+  if (similarCache.length > 100) similarCache.shift();
+  return true;
 }
 watch(shield, () => {
   localStorage.setItem(SHIELD_KEY, JSON.stringify(shield));
@@ -632,6 +700,10 @@ function connectDanmaku() {
         return;
       }
       if ((m.type === 'msg' || m.type === 'sc') && isShielded(m)) return;
+      if (m.type === 'msg') {
+        if (!acceptRepeated(m)) return;
+        if (!acceptSimilar(m)) return;
+      }
       danmaku.value.push(m);
       if (danmaku.value.length > 300) danmaku.value.splice(0, danmaku.value.length - 300);
       if (m.type === 'msg' && overlayDm.value) pushFloatDm(m);

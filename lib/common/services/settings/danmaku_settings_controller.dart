@@ -73,9 +73,20 @@ class DanmakuSettingsController extends GetxController {
   final RxInt pipDanmakuFps = hiveInt('pipDanmakuFps', defaultPipDanmakuFps);
   final RxBool pipDanmakuAutoFps = hiveBool('pipDanmakuAutoFps', true);
 
+  // ---- 上游移植：重复弹幕合并 + 相似弹幕过滤 ----
+  final RxBool collapseRepeatedDanmaku = hiveBool('collapseRepeatedDanmaku', false);
+  final RxInt repeatedDanmakuWindowSeconds = hiveInt('repeatedDanmakuWindowSeconds', 5);
+  final RxBool enableDanmakuSimilarityFilter = hiveBool('enableDanmakuSimilarityFilter', false);
+  final RxInt danmakuSimilarityThreshold = hiveInt('danmakuSimilarityThreshold', 85);
+  final RxInt danmakuSimilarityCacheDuration = hiveInt('danmakuSimilarityCacheDuration', 3);
+  final RxInt danmakuSimilarityMaxCacheSize = hiveInt('danmakuSimilarityMaxCacheSize', 100);
+
   @override
   void onInit() {
     super.onInit();
+    danmakuSimilarityThreshold.v = danmakuSimilarityThreshold.v.clamp(50, 100).toInt();
+    danmakuSimilarityCacheDuration.v = danmakuSimilarityCacheDuration.v.clamp(1, 60).toInt();
+    danmakuSimilarityMaxCacheSize.v = danmakuSimilarityMaxCacheSize.v.clamp(20, 1000).toInt();
     if (danmakuInteractionMigration.v < 1) {
       enableDanmakuTapInteraction.v = true;
       enableDanmakuLongPressInteraction.v = true;

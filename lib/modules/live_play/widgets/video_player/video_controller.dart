@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'video_controller_panel.dart';
+import 'package:pure_live/player/utils/orientation_policy.dart';
 
 import 'package:flutter/scheduler.dart';
 import 'package:pure_live/common/index.dart';
@@ -787,8 +788,20 @@ class VideoController with ChangeNotifier {
     isTransitioningFullScreen.value = true;
     GlobalPlayerState.to.isFullscreen.value = true;
     try {
-      // 进入全屏：强制横屏（平板本就恒横屏）。超时保护同 exitFullScreen。
-      await WindowService().landScape().timeout(const Duration(seconds: 3));
+      // 进入全屏：按竖屏沉浸方向策略（每房间覆盖 > 全局策略，默认强制横屏保持旧行为）。
+      final room = _livePlayController.state.value.room.detail;
+      final target = OrientationPolicy.resolveFullscreenOrientation(
+        platform: room?.platform ?? '',
+        roomId: room?.roomId ?? '',
+      );
+      if (target == 'portrait') {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]).timeout(const Duration(seconds: 3));
+      } else {
+        await WindowService().landScape().timeout(const Duration(seconds: 3));
+      }
       // 期间若已退出全屏，放弃本次设置，交还原来的方向。
       if (token != _fullscreenToken) return;
       // 全屏时隐藏系统状态栏/导航栏/手势条，沉浸式观看。

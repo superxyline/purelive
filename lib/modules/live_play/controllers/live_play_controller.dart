@@ -6,6 +6,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
+import 'package:pure_live/player/utils/orientation_policy.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:pure_live/plugins/emoji_manager.dart';
@@ -1071,7 +1072,19 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     try {
       setFullScreen();
       GlobalPlayerState.to.isFullscreen.value = true;
-      unawaited(WindowService().landScape());
+      final room = state.value.room.detail;
+      final target = OrientationPolicy.resolveFullscreenOrientation(
+        platform: room?.platform ?? '',
+        roomId: room?.roomId ?? '',
+      );
+      if (target == 'portrait') {
+        unawaited(SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]));
+      } else {
+        unawaited(WindowService().landScape());
+      }
       unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky));
     } catch (_) {
       // 原生调用失败时退化为普通进入，用户可手动点全屏

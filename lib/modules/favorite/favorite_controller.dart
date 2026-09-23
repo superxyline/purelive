@@ -123,7 +123,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   }
 
   void updateRoomTags(LiveRoom room, List<String> newTagIds) {
-    tagController.setRoomTags(room.roomId.toString(), newTagIds);
+    tagController.setRoomTags(room.identityKey, newTagIds, legacyRoomId: room.roomId.toString());
     applyLocalFilter();
   }
 

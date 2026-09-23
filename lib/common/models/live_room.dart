@@ -268,6 +268,11 @@ class LiveRoom {
     );
   }
 
+  /// 稳定房间身份：房间号只在平台内唯一（上游 2.5.1 复合身份修复）。
+  String get identityKey => '${(platform ?? '').trim().toLowerCase()}:${(roomId ?? '').trim()}';
+
+  bool hasSameIdentity(LiveRoom other) => identityKey == other.identityKey;
+
   @override
   bool operator ==(covariant LiveRoom other) => platform == other.platform && roomId == other.roomId;
 
