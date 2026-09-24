@@ -111,7 +111,8 @@
         <div v-if="!giftCards.length" class="room-chat-empty">暂无礼物卡片</div>
       </div>
 
-      <div class="room-chat-footer">
+      <!-- 仅 B站可真实发送弹幕；其余平台后端不支持，直接不显示发送框 -->
+      <div v-if="canSend" class="room-chat-footer">
         <n-input v-model:value="dmInput" size="small" placeholder="发个弹幕（需登录）" @keyup.enter="send" :disabled="!canSend" />
         <n-button size="small" type="primary" :disabled="!canSend" @click="send">发送</n-button>
       </div>
@@ -166,7 +167,7 @@ const usingProxy = ref(false);
 const muted = ref(false);
 const dmInput = ref('');
 const followed = ref(false);
-const canSend = ['bilibili', 'douyu'].includes(platform);
+const canSend = platform === 'bilibili';
 
 // ---- 清晰度 / 音量 / 静音记忆（localStorage；音量额外按房间记忆） ----
 const QUALITY_KEY = 'purelive_pref_quality';
