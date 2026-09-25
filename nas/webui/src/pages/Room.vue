@@ -167,7 +167,7 @@ const usingProxy = ref(false);
 const muted = ref(false);
 const dmInput = ref('');
 const followed = ref(false);
-const canSend = ['bilibili', 'douyu'].includes(platform);
+const canSend = platform === 'bilibili';
 
 // ---- 清晰度 / 音量 / 静音记忆（localStorage；音量额外按房间记忆） ----
 const QUALITY_KEY = 'purelive_pref_quality';
