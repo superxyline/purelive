@@ -24,6 +24,11 @@ function generateVk(roomId: string, devid: string, rt: string): string {
   return crypto.createHash('md5').update(`${roomId}${devid}${rt}${SALT}`, 'utf8').digest('hex');
 }
 
+/** STT 值转义：必须先转 @ 再转 /（否则 @S/@A 会被二次转义破坏帧结构）。 */
+function escapeStt(value: string): string {
+  return value.replace(/@/g, '@A').replace(/\//g, '@S');
+}
+
 function serializeDouyu(body: string): Buffer {
   const payload = Buffer.from(body, 'utf8');
   const total = 4 + 4 + payload.length + 1;
@@ -80,6 +85,42 @@ function waitForType(ws: WebSocket, expectedType: string, timeoutMs: number): Pr
   });
 }
 
+/**
+ * 发送后的结果校验（根治"盲发假成功"）：斗鱼服务器会把发送者自己的弹幕
+ * 以 `type=chatmsg, txt=<内容>` 回显到同一条连接；被拒时可能回 `type=error`。
+ * 命中回显 → 成功；收到 error → 失败；超时 → 视为被服务器静默丢弃。
+ */
+async function waitForChatEcho(ws: WebSocket, content: string, timeoutMs: number): Promise<[boolean, string]> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      ws.off('message', onMessage);
+      resolve([false, '发送已提交但未收到服务器回显，可能被忽略，请检查直播间']);
+    }, timeoutMs);
+    const onMessage = (data: WebSocket.RawData): void => {
+      const buf = Array.isArray(data) ? Buffer.concat(data) : Buffer.isBuffer(data) ? data : Buffer.from(data as ArrayBuffer);
+      for (const packet of deserializePackets(buf)) {
+        const type = sttType(packet);
+        if (type === 'error') {
+          clearTimeout(timer);
+          ws.off('message', onMessage);
+          resolve([false, `发送被服务器拒绝: ${packet.slice(0, 120)}`]);
+          return;
+        }
+        if (type === 'chatmsg' && sttValue(packet, 'txt') === content) {
+          clearTimeout(timer);
+          ws.off('message', onMessage);
+          resolve([true, '发送成功']);
+          return;
+        }
+      }
+    };
+    ws.on('message', onMessage);
+  });
+}
+
+/** 每房间发送节流：斗鱼要求间隔 > 1 秒。 */
+const lastSendAtByRoom = new Map<string, number>();
+
 export async function sendDouyuDanmaku(roomId: string, content: string): Promise<[boolean, string]> {
   const cookie = getCookie('douyu');
   const uid = extractCookieValue(cookie, 'acf_uid');
@@ -87,6 +128,12 @@ export async function sendDouyuDanmaku(roomId: string, content: string): Promise
   const aa1 = extractCookieValue(cookie, 'acf_aa1');
   if (!uid) return [false, '未登录斗鱼账号，请先在设置中登录'];
   if (!content.trim()) return [false, '弹幕内容不能为空'];
+
+  // 频率限制：同房间 1.2 秒内只放行一条
+  const now = Date.now();
+  const last = lastSendAtByRoom.get(roomId) ?? 0;
+  if (now - last < 1200) return [false, '发送太频繁，请稍后再试'];
+  lastSendAtByRoom.set(roomId, now);
 
   let ws: WebSocket;
   try {
@@ -113,13 +160,11 @@ export async function sendDouyuDanmaku(roomId: string, content: string): Promise
 
     ws.on('open', async () => {
       try {
-        const devid = generateDeviceId();
-        const rt = Math.floor(Date.now() / 1000).toString();
-        const vk = generateVk(roomId, devid, rt);
-        const loginBody =
-          `type@=loginreq/roomid@=${roomId}/devid@=${devid}/rt@=${rt}/` +
-          `ver@=21952015/vk@=${vk}/ct@=1/uid@=${uid}/stk@=${stk}/aa1@=${aa1}/`;
-        ws.send(serializeDouyu(loginBody));
+        // 认证 loginreq（2026-09 实测）：roomid + uid + stk 即可通过认证；
+        // 旧实现附加的 devid/rt/ver/vk(30位盐) 会导致服务器整体忽略握手不回包。
+        // aa1 段保留（与实测通过的探针格式逐字节一致，缺失时为空值段）。
+        ws.send(serializeDouyu(`type@=loginreq/roomid@=${roomId}/uid@=${uid}/stk@=${stk}/aa1@=${aa1}/`));
+        ws.send(serializeDouyu(`type@=joingroup/rid@=${roomId}/gid@=-9999/`));
 
         const loginResponse = await waitForType(ws, 'loginres', 8000);
         if (!loginResponse) return fail('登录响应超时');
@@ -130,18 +175,19 @@ export async function sendDouyuDanmaku(roomId: string, content: string): Promise
         await waitForType(ws, 'joingroup', 3000).catch(() => null);
 
         const cst = Date.now().toString();
+        const safeContent = escapeStt(content);
         const chatBody =
-          `type@=chatmessage/roomid@=${roomId}/content@=${content}/col@=0/pt@=0/ct@=${cst}/` +
-          `sn@=0/ss@=0/uid@=${uid}/nn@=guest/txt@=${content}/level@=1/dms@=5/cst@=${cst}/`;
+          `type@=chatmessage/roomid@=${roomId}/content@=${safeContent}/col@=0/pt@=0/ct@=${cst}/` +
+          `sn@=0/ss@=0/uid@=${serverUid}/nn@=guest/txt@=${safeContent}/level@=1/dms@=5/cst@=${cst}/`;
         ws.send(serializeDouyu(chatBody));
 
-        // 等一个可能的自检回应（chatmessage 回显/弹幕列表出现），成功即返回
-        await new Promise((r) => setTimeout(r, 1200));
+        // 等服务器回显自己的弹幕（type=chatmsg 且 txt 匹配）确认真发出去
+        const [ok, msg] = await waitForChatEcho(ws, content, 6000);
         clearTimeout(timeout);
         try {
           ws.close();
         } catch (_) {}
-        resolve([true, '发送成功']);
+        resolve([ok, msg]);
       } catch (e) {
         clearTimeout(timeout);
         fail(`发送失败: ${e}`);

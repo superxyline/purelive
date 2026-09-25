@@ -167,7 +167,7 @@ const usingProxy = ref(false);
 const muted = ref(false);
 const dmInput = ref('');
 const followed = ref(false);
-const canSend = platform === 'bilibili';
+const canSend = ['bilibili', 'douyu'].includes(platform);
 
 // ---- 清晰度 / 音量 / 静音记忆（localStorage；音量额外按房间记忆） ----
 const QUALITY_KEY = 'purelive_pref_quality';
@@ -717,9 +717,16 @@ function connectDanmaku() {
   };
   ws.onclose = () => { dmRetry = setTimeout(connectDanmaku, 3000); };
 }
+let lastSendAt = 0;
 async function send() {
   const text = dmInput.value.trim();
   if (!text) return;
+  const now = Date.now();
+  if (now - lastSendAt < 1500) {
+    window.$msg.warning('发送太频繁，请稍后再试');
+    return;
+  }
+  lastSendAt = now;
   const r = await api.sendDanmaku(platform, roomId, text);
   window.$msg[r.ok ? 'success' : 'error'](r.message || (r.ok ? '已发送' : '发送失败'));
   if (r.ok) dmInput.value = '';
