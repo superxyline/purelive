@@ -1,6 +1,7 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/utils.dart';
 import 'package:pure_live/core/common/http_client.dart';
+import 'package:pure_live/core/site/kuaishou_site.dart';
 import 'package:pure_live/core/tars/huya_follow_structs.dart';
 import 'package:pure_live/core/tars/huya_user_id.dart';
 import 'package:pure_live/pkg/tars/net/base_tars_http.dart';
@@ -473,6 +474,116 @@ class FollowSyncService {
       return FollowSyncResult(platform: Sites.douyinSite, error: e.toString());
     }
     return _commitRooms(rooms, Sites.douyinSite, failed);
+  }
+
+  // ---------------- 快手 ----------------
+  /// 同步快手账号关注的主播。
+  ///
+  /// 接口来自 live.kuaishou.com 关注页（/my-follow/living、/my-follow/all）的
+  /// 网页端实现（bundle pc-live-next/js/follow.js）：
+  /// - GET /live_api/follow/living       → data.list：正在直播的关注卡片
+  /// - GET /live_api/follow/all?pcursor= → data.list + data.pcursor（"no_more" 终止）
+  /// 未登录时两个接口静默返回空 list，因此仅在有 cookie 时调用。
+  /// 未开播主播只带 author 信息，导入后由关注列表刷新补齐房间状态。
+  static Future<FollowSyncResult> syncKuaishou() async {
+    final cookie = SettingsService.to.cookieManager.kuaishouCookie.v.trim();
+    if (cookie.isEmpty) {
+      return const FollowSyncResult(
+        platform: Sites.kuaishouSite,
+        error: "not_login",
+      );
+    }
+
+    final rooms = <LiveRoom>[];
+    final seenIds = <String>{};
+    var failed = 0;
+    try {
+      final header = <String, String>{
+        "cookie": cookie,
+        "user-agent": _webUa,
+        "referer": "https://live.kuaishou.com/my-follow/living",
+      };
+
+      // 正在直播的关注
+      final living = await HttpClient.instance.getJson(
+        "https://live.kuaishou.com/live_api/follow/living",
+        queryParameters: const {},
+        header: header,
+      );
+      final livingList = ((living?["data"] as Map?)?["list"] as List?) ?? const [];
+      for (final item in livingList) {
+        if (item is! Map) continue;
+        final room = _kuaishouRoomFromCard(item);
+        if (room == null) {
+          failed++;
+          continue;
+        }
+        if (seenIds.add(room.roomId!)) rooms.add(room);
+      }
+
+      // 全部关注（含未开播），pcursor 分页
+      var pcursor = '';
+      var page = 0;
+      while (page < 50) {
+        final all = await HttpClient.instance.getJson(
+          "https://live.kuaishou.com/live_api/follow/all",
+          queryParameters: {"pcursor": pcursor},
+          header: header,
+        );
+        final data = (all?["data"] as Map?) ?? const {};
+        final list = (data["list"] as List?) ?? const [];
+        for (final item in list) {
+          if (item is! Map) continue;
+          final room = _kuaishouRoomFromCard(item);
+          if (room == null) {
+            failed++;
+            continue;
+          }
+          if (seenIds.add(room.roomId!)) rooms.add(room);
+        }
+        final next = data["pcursor"]?.toString() ?? "no_more";
+        if (list.isEmpty || next == "no_more" || next.isEmpty) break;
+        pcursor = next;
+        page++;
+      }
+    } catch (e) {
+      return FollowSyncResult(platform: Sites.kuaishouSite, error: e.toString());
+    }
+    return _commitRooms(rooms, Sites.kuaishouSite, failed);
+  }
+
+  /// 关注接口条目 → LiveRoom。
+  /// 直播中卡片与作者对象同族结构：author(id/name/avatar/description/counts)
+  /// + liveStream(id/poster)+ gameInfo(name/watchingCount)；未开播条目只有 author。
+  static LiveRoom? _kuaishouRoomFromCard(Map item) {
+    final author = item["author"] is Map ? item["author"] as Map : item;
+    final roomId = author["id"]?.toString() ?? "";
+    if (roomId.isEmpty || roomId == "0") return null;
+    final liveStream = item["liveStream"] is Map ? item["liveStream"] as Map : const <dynamic, dynamic>{};
+    final gameInfo = item["gameInfo"] is Map ? item["gameInfo"] as Map : const <dynamic, dynamic>{};
+    final description = author["description"]?.toString() ?? '';
+    final liveStreamId = liveStream["id"]?.toString() ?? '';
+    final isLiving = item["isLiving"] ?? liveStream["isLiving"];
+    final live = isLiving == true ||
+        isLiving == 1 ||
+        isLiving?.toString().toLowerCase() == 'true' ||
+        (liveStreamId.isNotEmpty && liveStream["poster"] != null && item.containsKey("liveStream"));
+    return LiveRoom(
+      cover: liveStream["poster"]?.toString() ?? '',
+      watching: gameInfo["watchingCount"]?.toString() ??
+          liveStream["watchingCount"]?.toString() ??
+          "0",
+      roomId: roomId,
+      title: (liveStream["liveTitle"]?.toString() ?? description).replaceAll("\n", " "),
+      nick: author["name"]?.toString() ?? "",
+      avatar: author["avatar"]?.toString() ?? "",
+      introduction: description,
+      followers: KuaishowSite.parseFansCount(author["counts"]),
+      status: live,
+      liveStatus: live ? LiveStatus.live : LiveStatus.offline,
+      platform: Sites.kuaishouSite,
+      link: liveStreamId,
+    );
   }
 
   // ---------------- 公共 ----------------

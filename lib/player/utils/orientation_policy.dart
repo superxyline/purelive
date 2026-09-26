@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:pure_live/common/index.dart';
@@ -58,7 +59,10 @@ class OrientationPolicy {
         final vertical = GlobalPlayerService.instance.playerManager.isVerticalVideo.value;
         return vertical ? 'portrait' : 'landscape';
       default:
-        // landscape：保持旧行为（进入全屏强制横屏）
+        // 默认策略：竖屏源 + 手机 → 竖屏全屏（点全屏直接竖持观看）；
+        // 平板保持横屏全屏、竖屏内容居中显示（横持看竖屏的既有习惯）。
+        final vertical = GlobalPlayerService.instance.playerManager.isVerticalVideo.value;
+        if (vertical && isPhoneSize) return 'portrait';
         return 'landscape';
     }
   }
@@ -68,6 +72,25 @@ class OrientationPolicy {
     try {
       final view = WidgetsBinding.instance.platformDispatcher.views.first;
       return view.physicalSize.height > view.physicalSize.width;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// 手机 vs 平板：按物理对角线英寸判断（旋转/全屏都不改变对角线）。
+  /// 阈值 6.5 英寸：手机（≤6.7" 主流在 6.5 内的 dpr 下约 ≤6.4"）判手机，
+  /// 平板（≥8"）判平板。小米平板5（11"）≈6.9"、红米手机 6.6" 屏 ≈6.3"，
+  /// 短边 dp 判定会把 11 寸平板误判成手机，故用对角线。
+  static bool get isPhoneSize {
+    try {
+      final view = WidgetsBinding.instance.platformDispatcher.views.first;
+      final dpr = view.devicePixelRatio;
+      final size = view.physicalSize;
+      if (dpr <= 0 || size.width <= 0 || size.height <= 0) return false;
+      final diagonalInches = math.sqrt(
+        size.width * size.width + size.height * size.height,
+      ) / dpr / 160;
+      return diagonalInches < 6.5;
     } catch (_) {
       return false;
     }

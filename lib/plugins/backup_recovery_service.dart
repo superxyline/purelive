@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
-
-import 'file_utils.dart';
+import 'dart:typed_data';
 
 import 'package:pure_live/common/index.dart';
 import 'package:file_picker/file_picker.dart';
@@ -12,10 +11,28 @@ import 'package:pure_live/common/services/settings/backup_controller.dart';
 class BackupRecoveryService {
   Future<String?> createAppSettingsBackup(String backupDirectory) async {
     final backup = Get.find<BackupController>();
-    final granted = await FileUtils.requestStoragePermission();
-    if (!granted) {
-      ToastUtil.show(i18n("grant_storage_permission_first"));
-      return null;
+    final json = const JsonEncoder.withIndent('  ').convert(backup.exportAllSettings());
+    final dateStr = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss]);
+    final fileName = 'purelive_$dateStr.txt';
+
+    // 移动端走系统"另存为"（SAF）：targetSdk 37 下 manageExternalStorage 请求
+    // 必被拒（Manifest 未声明），而 SAF 写入本身无需存储权限。
+    if (Platform.isAndroid || Platform.isIOS) {
+      try {
+        final saved = await FilePicker.saveFile(
+          fileName: fileName,
+          bytes: Uint8List.fromList(utf8.encode(json)),
+          type: FileType.custom,
+          allowedExtensions: const ['txt'],
+          mimeType: 'text/plain',
+        );
+        if (saved == null) return null;
+        ToastUtil.show(i18n("create_backup_success"));
+        return saved.toString();
+      } catch (e) {
+        ToastUtil.show(i18n("create_backup_failed"));
+        return null;
+      }
     }
 
     String? selectedDirectory = await FilePicker.getDirectoryPath(
@@ -23,8 +40,7 @@ class BackupRecoveryService {
     );
     if (selectedDirectory == null) return null;
 
-    final dateStr = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss]);
-    final file = File('$selectedDirectory/purelive_$dateStr.txt');
+    final file = File('$selectedDirectory/$fileName');
 
     if (backup.backup(file)) {
       ToastUtil.show(i18n("create_backup_success"));

@@ -108,18 +108,35 @@ class DouyuSite implements LiveSite {
 
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) async {
-    var data = detail.data.toString();
-    data += "&cdn=&rate=-1&ver=Douyu_223061205&iar=1&ive=1&hevc=0&fa=0";
-    List<LivePlayQuality> qualities = [];
-    var result = await HttpClient.instance.postJson(
-      "https://www.douyu.com/lapi/live/getH5Play/${detail.roomId}",
-      data: data,
+    final roomId = detail.roomId!;
+    // 与取流同链路：DouyuUtils 纯 Dart 签名 + getH5PlayV1（rate=-1 拿全档清晰度）。
+    // 旧实现走老接口 getH5Play 且依赖从未赋值的 detail.data（表单里是字面量 "null"），
+    // 接口报错后又无错误码校验，直接空指针 → 「读取视频信息失败」。
+    final args = await DouyuUtils.sign(roomId, rate: -1, cdn: '');
+    final result = await HttpClient.instance.postJson(
+      "https://www.douyu.com/lapi/live/getH5PlayV1/$roomId",
+      data: args,
       formUrlEncoded: true,
+      header: DouyuUtils.requestHeaders(roomId),
     );
+    if (result is! Map) throw const DouyuPlayApiException('H5 play response is not an object');
+    final errorCode = result['error'] ?? result['code'] ?? -1;
+    final code = errorCode is num ? errorCode.toInt() : int.tryParse(errorCode.toString()) ?? -1;
+    if (code != 0) {
+      throw DouyuPlayApiException('H5 play API error $code ${result['msg'] ?? ''}');
+    }
+    final payload = result['data'];
+    if (payload is! Map) throw const DouyuPlayApiException('H5 play response missing data');
+    final data = Map<String, dynamic>.from(payload);
 
+    final cdnList = (data['cdnsWithName'] as List?) ?? const [];
+    final rates = (data['multirates'] as List?) ?? const [];
+    if (rates.isEmpty) {
+      throw const DouyuPlayApiException('H5 play response has no qualities');
+    }
     var cdns = <String>[];
-    for (var item in result["data"]["cdnsWithName"]) {
-      cdns.add(item["cdn"].toString());
+    for (var item in cdnList) {
+      if (item is Map) cdns.add(item['cdn'].toString());
     }
     // 如果cdn以scdn开头，将其放到最后
     cdns.sort((a, b) {
@@ -130,8 +147,11 @@ class DouyuSite implements LiveSite {
       }
       return 0;
     });
-    for (var item in result["data"]["multirates"]) {
-      qualities.add(LivePlayQuality(quality: item["name"].toString(), data: DouyuPlayData(item["rate"], cdns)));
+    final qualities = <LivePlayQuality>[];
+    for (var item in rates) {
+      if (item is Map) {
+        qualities.add(LivePlayQuality(quality: item['name'].toString(), data: DouyuPlayData(item['rate'], cdns)));
+      }
     }
     return qualities;
   }
