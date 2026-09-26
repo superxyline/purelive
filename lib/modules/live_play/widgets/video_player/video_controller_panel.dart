@@ -478,13 +478,22 @@ class TopActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => AnimatedPositioned(
+      () {
+        // 竖屏全屏（手机竖持看竖屏直播）时状态栏/手势条 insets 不归零，
+        // 会把 56 高的顶栏挤压裁切、且隐藏位移 -barHeight 不足以完全移出
+        // （顶部露半截）；竖屏时挖孔在顶部中间，左右按钮无需避让，故不吃 insets。
+        final portraitFullscreen = OrientationPolicy.systemIsPortrait();
+        return AnimatedPositioned(
         top: (controller.showController.value && !controller.showLocked.value) ? 0 : -barHeight,
         left: 0,
         right: 0,
         height: barHeight,
         duration: const Duration(milliseconds: 300),
         child: SafeArea(
+          top: !portraitFullscreen,
+          bottom: false,
+          left: !portraitFullscreen,
+          right: !portraitFullscreen,
           // 刘海屏适配：横屏沉浸时画面延伸进刘海/挖孔区，控制栏按钮避让挖孔
           child: Container(
             height: barHeight,
@@ -553,7 +562,8 @@ class TopActionBar extends StatelessWidget {
           ),
         ),
         ),
-      ),
+        );
+      },
     );
   }
 }
@@ -1395,6 +1405,12 @@ class BottomActionBar extends StatelessWidget {
         height: barHeight,
         duration: const Duration(milliseconds: 300),
         child: SafeArea(
+          // 竖屏全屏时手势条 insets 不归零会挤压底栏、且隐藏位移 -barHeight
+          // 不足以完全移出；竖屏时不再吃 insets（横屏保持避让挖孔）。
+          top: false,
+          bottom: !OrientationPolicy.systemIsPortrait(),
+          left: !OrientationPolicy.systemIsPortrait(),
+          right: !OrientationPolicy.systemIsPortrait(),
           // 刘海屏适配：横屏沉浸时画面延伸进刘海/挖孔区，控制栏按钮避让挖孔
           child: Container(
           height: barHeight,
