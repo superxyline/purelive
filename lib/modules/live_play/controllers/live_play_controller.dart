@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/common/core_log.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
@@ -574,9 +575,14 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   /// [fromLocal] 为 true 表示本地（自己发送的）礼物：无条件进入卡片队列，
   /// 非全屏时挂起、进入全屏后再显示；网络礼物仅在当前全屏时入队。
   void handleGiftCard(LiveMessage msg, {bool fromLocal = false}) {
+    final giftName = msg.data is Map ? (msg.data as Map)['giftName']?.toString() : null;
+    CoreLog.d(
+      '[gift-card] enter site=$site room=${room.roomId} fromLocal=$fromLocal '
+      'switch=${SettingsService.to.danmaku.showFullscreenGiftCard.v} '
+      'fullscreen=${GlobalPlayerState.to.fullscreenUI} gift=$giftName',
+    );
     if (!SettingsService.to.danmaku.showFullscreenGiftCard.v) return;
     // 本直播间被屏蔽的礼物：全屏左下角卡片不展示（弹幕列表卡片不受影响）
-    final giftName = msg.data is Map ? (msg.data as Map)['giftName']?.toString() : null;
     if (RoomGiftBlockService.instance.isBlocked(site, room.roomId, giftName)) return;
     if (!fromLocal && !GlobalPlayerState.to.fullscreenUI) return;
     try {
@@ -673,14 +679,10 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     }
 
     fsGifts.add(msg);
-    if (kDebugMode) {
-      debugPrint(
-        'DBG showFullscreenGift: user=${msg.userName} '
-        'gift=${msg.data is Map ? (msg.data as Map)['giftName'] : ''} '
-        'count=${msg.giftCount} dur=${_giftDisplayDuration(msg).inSeconds}s '
-        'pendingFullscreen=${!GlobalPlayerState.to.fullscreenUI}',
-      );
-    }
+    CoreLog.d(
+      '[gift-card] queued user=${msg.userName} gift=${msg.data is Map ? (msg.data as Map)['giftName'] : ''} '
+      'count=${msg.giftCount} dur=${_giftDisplayDuration(msg).inSeconds}s pendingFullscreen=${!GlobalPlayerState.to.fullscreenUI}',
+    );
     _startGiftDisplayTimer(msg);
   }
 

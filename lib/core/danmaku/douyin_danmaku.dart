@@ -258,6 +258,7 @@ class DouyinDanmaku implements LiveDanmaku {
       }
       // 礼物价值取钻石单价（diamondCount），免费/粉丝团礼物可能为 0
       final unitPrice = gift.hasDiamondCount() ? gift.diamondCount : 0;
+      CoreLog.d('[douyin-gift] decoded name=$giftName count=$giftCount price=$unitPrice user=$userName');
 
       onMessage?.call(
         LiveMessage(
