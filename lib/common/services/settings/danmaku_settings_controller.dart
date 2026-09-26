@@ -19,7 +19,7 @@ class DanmakuSettingsController extends GetxController {
   static const int defaultPipDanmakuFps = 30;
   static const bool defaultNoEmojiMode = false;
   static const bool defaultPipDanmakuNoEmojiMode = false;
-  static const bool defaultShowDanmakuListGiftCard = true;
+  static const bool defaultShowDanmakuListGiftCard = false;
   /// 全屏浮层透明度默认 1.0（即当前观感不变，由用户按需调低）
   static const double defaultFullscreenScOpacity = 1.0;
   static const double defaultFullscreenGiftCardOpacity = 1.0;
@@ -27,8 +27,9 @@ class DanmakuSettingsController extends GetxController {
   final RxBool hideDanmaku = hiveBool('hideDanmaku', false);
   final RxBool noEmojiMode = hiveBool('noEmojiMode', defaultNoEmojiMode);
   final RxBool showSuperChat = hiveBool('showSuperChat', true);
-  final RxBool showLocalGiftFullscreenEffect = hiveBool('showLocalGiftFullscreenEffect', true);
-  final RxBool showFullscreenGiftCard = hiveBool('showFullscreenGiftCard', true);
+  // 礼物特效/卡片类开关：首次安装默认全部关闭（2026-09-26 用户要求，仅可手动开启）
+  final RxBool showLocalGiftFullscreenEffect = hiveBool('showLocalGiftFullscreenEffect', false);
+  final RxBool showFullscreenGiftCard = hiveBool('showFullscreenGiftCard', false);
   // 弹幕列表里的礼物卡片：按直播间单独设置，未设置过的房间视为显示。
   // 存 Map 的 JSON（键为 platform|roomId），沿用 roomVolumes 的存法。
   final RxString _roomGiftCardsRaw = hiveString('roomDanmakuGiftCards', '{}');
@@ -196,8 +197,8 @@ class DanmakuSettingsController extends GetxController {
     hideDanmaku.v = json['hideDanmaku'] ?? false;
     noEmojiMode.v = json['noEmojiMode'] ?? defaultNoEmojiMode;
     showSuperChat.v = json['showSuperChat'] ?? true;
-    showLocalGiftFullscreenEffect.v = json['showLocalGiftFullscreenEffect'] ?? true;
-    showFullscreenGiftCard.v = json['showFullscreenGiftCard'] ?? true;
+    showLocalGiftFullscreenEffect.v = json['showLocalGiftFullscreenEffect'] ?? false;
+    showFullscreenGiftCard.v = json['showFullscreenGiftCard'] ?? false;
     final roomGiftCards = json['roomDanmakuGiftCards'];
     rxRoomDanmakuGiftCards.assignAll(
       roomGiftCards is Map
@@ -261,8 +262,8 @@ class DanmakuSettingsController extends GetxController {
       'hideDanmaku': danmaku['hideDanmaku'] ?? false,
       'noEmojiMode': danmaku['noEmojiMode'] ?? defaultNoEmojiMode,
       'showSuperChat': danmaku['showSuperChat'] ?? true,
-      'showLocalGiftFullscreenEffect': danmaku['showLocalGiftFullscreenEffect'] ?? true,
-      'showFullscreenGiftCard': danmaku['showFullscreenGiftCard'] ?? true,
+      'showLocalGiftFullscreenEffect': danmaku['showLocalGiftFullscreenEffect'] ?? false,
+      'showFullscreenGiftCard': danmaku['showFullscreenGiftCard'] ?? false,
       'roomDanmakuGiftCards': danmaku['roomDanmakuGiftCards'] is Map
           ? Map<String, dynamic>.from(danmaku['roomDanmakuGiftCards'] as Map)
           : const <String, dynamic>{},
