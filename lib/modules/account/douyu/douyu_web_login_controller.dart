@@ -16,21 +16,8 @@ class DouyuWebLoginController extends GetxController {
     return cookies.map((e) => "${e.name}=${e.value}").join(";");
   }
 
-  bool _isLogined(String cookieStr) {
-    return cookieStr.contains('acf_uid') && cookieStr.contains('acf_stk');
-  }
-
-  void onLoadStop(InAppWebViewController controller, WebUri? uri) async {
-    if (uri == null) return;
-    final cookieStr = await collectCookies(uri);
-    if (_isLogined(cookieStr)) {
-      SettingsService.to.cookieManager.douyuCookie.v = cookieStr;
-      ToastUtil.show(i18n('login_success'));
-      Navigator.of(Get.context!).pop(true);
-    }
-  }
-
-  /// 手动点击右上角完成，保存当前网页的 Cookie
+  // 不做登录态自动检测：检测到 cookie 就保存退出会导致无法在网页里
+  // 换登其他账号。统一由用户点右上角「完成」时抓取并保存。
   Future<void> saveAndClose() async {
     final uri = await webViewController?.getUrl();
     final cookieStr = await collectCookies(uri);

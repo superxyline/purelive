@@ -1,42 +1,14 @@
-﻿import 'dart:async';
 import 'package:pure_live/common/index.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class HuyaWebLoginController extends GetxController {
   InAppWebViewController? webViewController;
   final CookieManager cookieManager = CookieManager.instance();
-  Timer? _pollTimer;
-  bool _saved = false;
-
-  @override
-  void onClose() {
-    _pollTimer?.cancel();
-    super.onClose();
-  }
 
   void onWebViewCreated(InAppWebViewController controller) {
     webViewController = controller;
     // 虎牙登录是 SPA，无独立 passport 域名，直接打开登录页
     webViewController!.loadUrl(urlRequest: URLRequest(url: WebUri('https://www.huya.com/login')));
-    _startPolling();
-  }
-
-  void _startPolling() {
-    _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) => _checkLogin());
-  }
-
-  Future<void> _checkLogin() async {
-    if (_saved) return;
-    final uri = await webViewController?.getUrl();
-    final cookieStr = await collectCookies(uri);
-    if (_isLogined(cookieStr)) {
-      _saved = true;
-      _pollTimer?.cancel();
-      SettingsService.to.cookieManager.huyaCookie.v = cookieStr;
-      ToastUtil.show(i18n('login_success'));
-      Navigator.of(Get.context!).pop(true);
-    }
   }
 
   Future<String> collectCookies(WebUri? uri) async {
@@ -57,14 +29,9 @@ class HuyaWebLoginController extends GetxController {
     return cookieSet.join(';');
   }
 
-  bool _isLogined(String cookieStr) {
-    return cookieStr.contains('yyuid') && cookieStr.contains('token');
-  }
-
-  /// 手动点击右上角完成，保存当前网页的 Cookie
+  // 不做登录态自动检测：检测到 cookie 就保存退出会导致无法在网页里
+  // 换登其他账号。统一由用户点右上角「完成」时抓取并保存。
   Future<void> saveAndClose() async {
-    _saved = true;
-    _pollTimer?.cancel();
     final uri = await webViewController?.getUrl();
     final cookieStr = await collectCookies(uri);
     if (cookieStr.isNotEmpty) {

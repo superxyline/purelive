@@ -95,6 +95,10 @@ class AccountPage extends GetView<AccountController> {
                 title: i18n("site_kuaishou"),
                 subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
                 isLogined: isLogined,
+                onSync: () => FollowSyncService.runAndShowResult(
+                  task: FollowSyncService.syncKuaishou,
+                  loadingMsg: i18n("follow_syncing"),
+                ),
                 onTap: () => isLogined
                     ? _showPlatformLogoutDialog(context, () => cookie.kuaishouCookie.v = "")
                     : _showLoginChoiceDialog(
