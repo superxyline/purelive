@@ -152,8 +152,9 @@ class DownloadApkDialog extends StatefulWidget {
 
   /// Shows the "open folder" action next to the direct install button.
   ///
-  /// Only a user-selected download directory enables this action; the platform
-  /// default folder leaves direct installation as the only choice.
+  /// On by default: opening the folder the finished package sits in is useful
+  /// whichever directory was used. A host can hide it when only the direct
+  /// install makes sense on its platform.
   final bool showOpenFolder;
 
   @override
