@@ -1,3 +1,5 @@
+
+
 <div align="center">
 
 <img src="assets/icons/icon.png" width="150" alt="Pure Live 图标"/>
@@ -21,37 +23,35 @@ A third-party live stream aggregator built with Flutter.
 
 > **纯粹直播** 是一款开源的第三方多平台直播聚合播放器，使用 Flutter 构建，支持 Android、Android TV、Windows、Linux、macOS 和 iOS。一个应用看遍全网直播，支持多画面同看、弹幕、录制、定时关闭与数据同步。
 
+> 📺 **TV 请迁移至：<https://github.com/liuchuancong/pure_live_TV>**
+
 ---
 
 ## 📺 支持站点
 
-**45 个直播站点 + IPTV 自定义直播源，共 46 个适配器。** 各站分区、搜索、弹幕、人数口径与能力边界见[平台兼容性](docs/PLATFORM_COMPATIBILITY.md)。
+**34 个直播站点 + IPTV 自定义直播源，共 35 个适配器。** 各站分区、搜索、弹幕、人数口径与能力边界见[平台兼容性](docs/PLATFORM_COMPATIBILITY.md)。
 
-### 🇨🇳 国内平台（20 站）
+### 🇨🇳 国内平台（18 站）
 
 | | | |
 | --- | --- | --- |
 | <img src="assets/images/bilibili.png" width="26"/> **哔哩哔哩** | <img src="assets/images/douyu.png" width="26"/> **斗鱼** | <img src="assets/images/huya.png" width="26"/> **虎牙** |
 | <img src="assets/images/douyin.png" width="26"/> **抖音** | <img src="assets/images/kuaishou.png" width="26"/> **快手** | <img src="assets/images/yy.png" width="26"/> **YY 直播** |
 | <img src="assets/images/cc.png" width="26"/> **网易 CC** | <img src="assets/images/acfun.png" width="26"/> **AcFun** | <img src="assets/images/missevan.png" width="26"/> **猫耳 FM** |
-| <img src="assets/images/inke.png" width="26"/> **映客** | <img src="assets/images/kilakila.png" width="26"/> **克拉克拉** | <img src="assets/images/huajiao.png" width="26"/> **花椒直播** |
-| <img src="assets/images/xiaohongshu.png" width="26"/> **小红书** | <img src="assets/images/weibo.png" width="26"/> **微博直播** | <img src="assets/images/jd.png" width="26"/> **京东直播** |
-| <img src="assets/images/taobao.png" width="26"/> **淘宝直播** | <img src="assets/images/kugou.png" width="26"/> **酷狗直播** | <img src="assets/images/baidu.png" width="26"/> **百度直播** |
-| <img src="assets/images/sixroom.png" width="26"/> **六间房** | <img src="assets/images/look.png" width="26"/> **LOOK 直播** | |
+| <img src="assets/images/inke.png" width="26"/> **映客** | <img src="assets/images/kilakila.png" width="26"/> **克拉克拉** | <img src="assets/images/xiaohongshu.png" width="26"/> **小红书** |
+| <img src="assets/images/weibo.png" width="26"/> **微博直播** | <img src="assets/images/jd.png" width="26"/> **京东直播** | <img src="assets/images/kugou.png" width="26"/> **酷狗直播** |
+| <img src="assets/images/baidu.png" width="26"/> **百度直播** | <img src="assets/images/sixroom.png" width="26"/> **六间房** | <img src="assets/images/look.png" width="26"/> **LOOK 直播** |
 
-### 🌍 海外平台（25 站）
+### 🌍 海外平台（16 站）
 
 | | | |
 | --- | --- | --- |
 | <img src="assets/images/twitch.png" width="26"/> **Twitch** | <img src="assets/images/soop.png" width="26"/> **SOOP Live** | <img src="assets/images/youtube.png" width="26"/> **YouTube Live** |
 | <img src="assets/images/tiktok.png" width="26"/> **TikTok LIVE** | <img src="assets/images/kick.png" width="26"/> **Kick** | <img src="assets/images/chzzk.png" width="26"/> **CHZZK** |
 | <img src="assets/images/bigo.png" width="26"/> **Bigo Live** | <img src="assets/images/17live.png" width="26"/> **17LIVE** | <img src="assets/images/liveme.png" width="26"/> **LiveMe** |
-| <img src="assets/images/showroom.png" width="26"/> **SHOWROOM** | <img src="assets/images/niconico.png" width="26"/> **niconico** | <img src="assets/images/openrec.png" width="26"/> **OPENREC / mellow-fan** |
-| <img src="assets/images/ttinglive.png" width="26"/> **TTingLive / FLEX TV** | <img src="assets/images/picarto.png" width="26"/> **Picarto** | <img src="assets/images/twitcasting.png" width="26"/> **TwitCasting** |
-| <img src="assets/images/dailymotion.png" width="26"/> **Dailymotion** | <img src="assets/images/rumble.png" width="26"/> **Rumble** | <img src="assets/images/vk.png" width="26"/> **VK Video Live** |
-| <img src="assets/images/goodgame.png" width="26"/> **GoodGame** | <img src="assets/images/fc2.png" width="26"/> **FC2 Live** | <img src="assets/images/steam.png" width="26"/> **Steam 直播** |
-| <img src="assets/images/panda.png" width="26"/> **PandaTV** | <img src="assets/images/popkon.png" width="26"/> **PopkonTV** | <img src="assets/images/shopee.png" width="26"/> **Shopee Live** |
-| <img src="assets/images/nimo.png" width="26"/> **NimoTV** | | |
+| <img src="assets/images/showroom.png" width="26"/> **SHOWROOM** | <img src="assets/images/niconico.png" width="26"/> **niconico** | <img src="assets/images/picarto.png" width="26"/> **Picarto** |
+| <img src="assets/images/twitcasting.png" width="26"/> **TwitCasting** | <img src="assets/images/fc2.png" width="26"/> **FC2 Live** | <img src="assets/images/steam.png" width="26"/> **Steam 直播** |
+| <img src="assets/images/panda.png" width="26"/> **PandaTV** | | |
 
 ### 📡 IPTV / 自定义直播源
 
@@ -84,7 +84,7 @@ A third-party live stream aggregator built with Flutter.
 
 ### 🎬 多平台聚合
 
-- 聚合 45 个直播平台，按平台与分区浏览、筛选和隐藏入口
+- 聚合 34 个直播平台，按平台与分区浏览、筛选和隐藏入口
 - 跨平台搜索，支持综合 / 平台顺序 / 观众 / 粉丝等排序，直播 / 未开播筛选
 - 各平台保持独立分页状态；"全部"搜索按平台完成顺序渐进显示，单平台超时不挡其他结果
 
