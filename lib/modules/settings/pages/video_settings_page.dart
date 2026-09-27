@@ -179,6 +179,13 @@ class VideoSettingsPage extends GetView<SettingsService> {
                 value: SettingsService.to.app.enableScreenKeepOn,
                 icon: Remix.lightbulb_line,
               ),
+            if (PlatformUtils.isMobile)
+              context.buildSwitchTile(
+                title: i18n('gravity_auto_fullscreen'),
+                subtitle: i18n('gravity_auto_fullscreen_subtitle'),
+                value: SettingsService.to.player.gravityAutoFullscreen,
+                icon: Remix.smartphone_line,
+              ),
           ]),
 
           const SizedBox(height: 20),

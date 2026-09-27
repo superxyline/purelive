@@ -246,6 +246,8 @@
   "enable_polling_desc": "主播未开播时自动轮询",
   "enable_screen_keep_on": "屏幕常亮",
   "enable_screen_keep_on_subtitle": "当处于直播播放页，屏幕保持常亮",
+  "gravity_auto_fullscreen": "重力感应自动全屏",
+  "gravity_auto_fullscreen_subtitle": "手机看横屏直播时：转横持自动全屏，转竖持自动退出；手动切换全屏后 10 秒内不响应（竖屏直播间不启用）",
   "enabled": "已开启",
   "enter_download_link": "请输入下载链接",
   "enter_download_url": "请输入下载地址",

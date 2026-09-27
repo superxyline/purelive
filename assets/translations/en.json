@@ -245,6 +245,8 @@
   "enable_polling_desc": "Automatically poll when streamer is offline",
   "enable_screen_keep_on": "Keep Screen On",
   "enable_screen_keep_on_subtitle": "When in live play, keep screen on",
+  "gravity_auto_fullscreen": "Gravity auto-fullscreen",
+  "gravity_auto_fullscreen_subtitle": "On phones with landscape streams: rotate to landscape for fullscreen, back to portrait to exit. Ignores the sensor for 10s after any fullscreen change",
   "enabled": "Enabled",
   "enter_download_link": "Enter download link",
   "enter_download_url": "Enter download URL",

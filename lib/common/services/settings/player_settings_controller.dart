@@ -53,6 +53,14 @@ class PlayerSettingsController extends GetxController {
   /// 竖屏全屏 + contain 时的沉浸模糊背景（上游 PortraitFullscreenDisplayMode.ambient）
   final RxBool portraitAmbientBackdrop = hiveBool('portraitAmbientBackdrop', true);
 
+  // ======================
+  // 重力感应自动全屏
+  // ======================
+  /// 仅手机 + 横屏源直播间生效：竖持转横持自动进全屏，横持转竖持自动退全屏。
+  /// 任何全屏状态变化（手动 / 自动 / 进房间自动全屏）后 10 秒内忽略传感器；
+  /// 平放桌面与横竖临界角不触发。默认关闭。
+  final RxBool gravityAutoFullscreen = hiveBool('gravityAutoFullscreen', false);
+
   List<BoxFit> get videoFitArray => AppConsts().videoFitType.map((e) => e['attr'] as BoxFit).toList();
 
   void changePreferResolution(String resolution) {
@@ -108,6 +116,7 @@ class PlayerSettingsController extends GetxController {
       'portraitFullscreenPolicy': portraitFullscreenPolicy.v,
       'roomOrientationOverrides': roomOrientationOverridesRaw.v,
       'portraitAmbientBackdrop': portraitAmbientBackdrop.v,
+      'gravityAutoFullscreen': gravityAutoFullscreen.v,
     };
   }
 
@@ -135,6 +144,7 @@ class PlayerSettingsController extends GetxController {
     portraitFullscreenPolicy.v = json['portraitFullscreenPolicy'] ?? 'landscape';
     roomOrientationOverridesRaw.v = json['roomOrientationOverrides'] ?? '{}';
     portraitAmbientBackdrop.v = json['portraitAmbientBackdrop'] ?? true;
+    gravityAutoFullscreen.v = json['gravityAutoFullscreen'] ?? false;
   }
 
   static Map<String, dynamic> extractConfig(Map<String, dynamic>? rootConfig) {
@@ -162,6 +172,7 @@ class PlayerSettingsController extends GetxController {
       'portraitFullscreenPolicy': player['portraitFullscreenPolicy'] ?? 'landscape',
       'roomOrientationOverrides': player['roomOrientationOverrides'] ?? '{}',
       'portraitAmbientBackdrop': player['portraitAmbientBackdrop'] ?? true,
+      'gravityAutoFullscreen': player['gravityAutoFullscreen'] ?? false,
     };
   }
 
