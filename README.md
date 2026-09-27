@@ -240,7 +240,7 @@ sudo docker compose up -d --force-recreate web
 | --- | --- | --- |
 | Flutter SDK | 3.x（实测 3.47.0） | [flutter.dev](https://flutter.dev) 安装，或使用国内镜像解压即用 |
 | Android SDK | cmdline-tools + API 34+ + build-tools | 通过 Android Studio 或单独安装 cmdline-tools 后 `sdkmanager` 拉取 |
-| JDK | 17+ | AGP 要求；Android Studio 自带的 JBR 即可 |
+| JDK | 17+（本项目实测 25.0.3） | AGP 要求；Android Studio 自带的 JBR 亦可。本项目 Gradle 9.5 / AGP 9.3 下实测使用 JDK 25.0.3 |
 | Git | 任意近期版本 | 克隆仓库 |
 
 安装 Flutter 后确保 `flutter` 在 PATH 中（Windows 下即 `<flutter>/bin`），并先跑一次 `flutter doctor` 确认 Android 工具链全部打勾。
@@ -275,6 +275,7 @@ build/app/outputs/flutter-apk/app-release.apk
 ### 构建说明与常见问题
 
 - **为什么只出 arm64**：主流安卓手机 / 平板均为 64 位 ARM，只构建 arm64 可显著缩短编译时间与包体；如确需其他架构，调整 `--target-platform`（如 `android-arm`、`android-x64`），产物名会相应变化。
+- **包体（2.2.1 起）**：`ffmpeg_kit_extended_flutter` 在 Dart 层零引用、也无其它插件依赖它，已从依赖中移除（连带删除 `AndroidManifest` 的 `overrideLibrary` 声明与 `tool/prefetch_android_native.ps1` 的 AAR 预取）。arm64 release 包体由约 **110 MB 降至约 80 MB**（`libffmpegkit.so` 约 29 MB + 仅被它依赖的 `libc++_shared.so`）。播放器内核 mpv / ijkplayer、签名用的 QuickJS 引擎均不受影响。
 - **签名**：正式签名使用仓库内 `android/key.jks`（请妥善保管密钥，勿外传）。
 - **Gradle 依赖下载慢 / 超时**：仓库 `tool/gradle-cn-mirrors.init.gradle` 提供国内镜像初始化脚本，可配合 Gradle 的 `--init-script` 参数使用；或为 `ANDROID_HOME` 配置国内代理镜像。
 - **Windows PowerShell**：以上命令直接可用；若提示找不到 `flutter`，先执行 `$env:Path += ";<flutter路径>\bin"`。

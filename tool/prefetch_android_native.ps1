@@ -72,14 +72,3 @@ foreach ($asset in $mediaKitAssets) {
         -Url "https://ghfast.top/https://github.com/Predidit/libmpv-android-video-build/releases/download/v1.2.7/$($asset.Name)" `
         -Sha256 $asset.Sha256
 }
-
-# The ffmpeg_kit build hook uses Dart HttpClient, which may stall on GitHub's
-# release-asset redirect on some Windows networks. Seed its deterministic
-# shared cache from a verified machine cache before invoking Flutter.
-$ffmpegName = 'bundle-base-shared-lgpl-release.aar'
-Install-VerifiedAsset `
-    -Name $ffmpegName `
-    -Destination (Join-Path $repoRoot ".dart_tool\hooks_runner\shared\ffmpeg_kit_extended_flutter\build\ffmpeg_kit_cache\android\$ffmpegName") `
-    -CachePath (Join-Path $persistentRoot "ffmpeg-kit\v0.10.5-android\$ffmpegName") `
-    -Url "https://ghfast.top/https://github.com/akashskypatel/ffmpeg-kit-builders/releases/download/v0.10.5-android/$ffmpegName" `
-    -Sha256 'c3cc680706a24669a41cb078f2d9983aac3d17188ebef1db50c73b388471000d'

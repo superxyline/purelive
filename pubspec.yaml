@@ -75,7 +75,6 @@ dependencies:
   audio_service: ^0.18.18 # 后台音频服务
   audio_service_win: ^0.0.3
   audio_session: ^0.2.3 # 音频会话管理
-  ffmpeg_kit_extended_flutter: ^0.5.13
   # Vendored from liuchuancong/flv_lzc@030d611 so the Android attach-time
   # SurfaceTexture crash fix is reproducible in local/offline release builds.
   flv_lzc:
@@ -184,7 +183,7 @@ dependency_overrides:
   # share_handler 传递依赖的 Android 实现使用本地 Built-in Kotlin 兼容补丁。
   share_handler_android:
     path: plugins/built_in_kotlin/share_handler_android
-  # dart_quickjs 尚声明 hooks 1.x，但实现与 FFmpeg 插件使用的 2.x API 兼容。
+  # dart_quickjs 尚声明 hooks 1.x，但实现与本地 hook 运行时使用的 2.x API 兼容。
   hooks: ^2.1.0
   # webdav_client 1.2.2 uses APIs retained by xml 7.x; its hosted constraint still targets 6.x.
   xml: ^7.0.1
@@ -257,9 +256,3 @@ flutter:
     - family: CustomIcons
       fonts:
         - asset: assets/icons/CustomIcons.ttf
-
-# FFmpeg配置
-ffmpeg_kit_extended_config:
-  type: base
-  gpl: false
-  small: false
