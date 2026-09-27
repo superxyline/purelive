@@ -47,7 +47,7 @@ tasks.register<Delete>("clean") {
 
 // Disable release lintVital analysis across all modules. AGP(Lint) 9.x crashes
 // with NoSuchMethodError (List.removeLast) on JDK 21 during lintVital analysis
-// of library modules (e.g. ffmpeg_kit_extended_flutter).
+// of library modules (e.g. the vendored Kotlin plugin snapshots).
 subprojects {
     tasks.matching { it.name.startsWith("lintVital") }.configureEach {
         enabled = false

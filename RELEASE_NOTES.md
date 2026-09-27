@@ -1,3 +1,29 @@
+# Pure Live v2.2.1
+
+本版修四个实际使用反馈的问题、落地竖屏直播，并做一次包体瘦身；版本号 `2.2.1+4019`。
+
+## 修复
+
+- **斗鱼「读取视频信息失败」**：`getPlayQualites` 原走老接口并用未赋值的 `detail.data` 拼表单，接口报错后无校验直接空指针；改为与取流同一链路的 `DouyuUtils.sign(rate:-1)` + `getH5PlayV1`，并补错误码/结构校验。
+- **备份「提示授予权限」死循环**：targetSdk 37 下 `requestStoragePermission` 必拒；移动端改为 `FilePicker.saveFile`（SAF 另存为，零权限），桌面端保留原目录选择。
+- **登录页换号被踢**：斗鱼 / 快手 / 抖音 / 虎牙四个 `*_web_login_controller` 删除自动检测（onLoadStop 判定与 2 秒轮询），只保留右上角「完成」抓取 Cookie；B站扫码不受影响。
+- **快手关注同步**：新增 `FollowSyncService.syncKuaishou` 与账号页快手卡片同步入口，接口取自快手 web bundle（`live_api/follow/living` + `live_api/follow/all`）。
+
+## 竖屏直播
+
+- 全屏方向默认分支改为竖屏源（`isVerticalVideo`，解码宽高 h≥w）+ **手机竖屏全屏**，平板保持横屏全屏；手机判定用物理对角线 < 6.5 英寸（避免短边 dp 把平板误判成手机）。
+- 竖屏全屏控制条修复：顶/底栏 SafeArea 在竖屏方向不再吃状态栏与手势条 insets（横屏仍避让挖孔）。
+- 弹幕铺满黑区为预期行为，不做收窄。
+- 礼物特效 / 全屏礼物卡片 / 弹幕列表礼物卡片三个开关，首次安装默认关闭，手动开启后沿用。
+
+## 包体瘦身（2026-09-27）
+
+- 移除 `ffmpeg_kit_extended_flutter`：该依赖在 Dart 层零引用、也无任何插件依赖它，APK 中独占 `libffmpegkit.so`（约 29 MB）。连带清理 `AndroidManifest` 的 `overrideLibrary` 声明、`tool/prefetch_android_native.ps1` 的 AAR 预取段与 `docs/DEPENDENCY_AUDIT.md` 描述。
+- **arm64 release 包体由约 110 MB 降至约 80 MB**（另含仅被它依赖的 `libc++_shared.so`）。mpv / ijkplayer 播放内核、QuickJS 签名引擎均不受影响；已核验无任何 `.so` 依赖 `libc++_shared.so`。
+- 本次仅涉及依赖配置、Manifest、构建脚本与文档，**无 Dart 代码变更**。
+
+---
+
 # Pure Live v2.2.0
 
 本版从上游 `liuchuancong/pure_live`（3.1.8 维护线）移植一批实用功能与修复，覆盖搜索、签名、弹幕、关注、竖屏沉浸与网络代理六个方面；版本号提升至 `2.2.0+4018`。

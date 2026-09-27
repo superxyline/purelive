@@ -7,7 +7,7 @@
 - Flutter 3.47.0 / Dart 3.13.0（`.fvmrc`）。
 - Android compileSdk/targetSdk 37，Java 25 构建运行时，Java/Kotlin 17 字节码目标，AGP 9.3.1，Gradle 9.5.0。
 - Google Services Gradle Plugin 4.5.0。
-- FFmpeg Kit Extended Flutter 0.5.13，按插件配置解析 builders v0.10.5，并复用 Native Assets 共享缓存。
+- 已于 2026-09-27 移除 `ffmpeg_kit_extended_flutter`（Dart 层零引用、无其它包依赖它，APK 中独占 `libffmpegkit.so` 约 29 MB）；`tool/prefetch_android_native.ps1` 不再预取 FFmpeg Kit AAR。
 
 Android 已启用 AGP 9 Built-in Kotlin。主应用、`flv_lzc` 以及六个仍使用独立 KGP 的插件已完成本地迁移，根设置不再声明或应用 `org.jetbrains.kotlin.android`。当前 Flutter 3.47 的通用依赖检查会把 AGP 自带编译器套用到独立 KGP 最低版本规则，因此 Gradle 属性跳过该项误判，同时由 `tool/audit_built_in_kotlin.py` 固定检查 AGP/Gradle 下限、开关和全部本地模块；实际 release 编译继续作为最终门禁。
 
@@ -23,7 +23,7 @@ Android 已启用 AGP 9 Built-in Kotlin。主应用、`flv_lzc` 以及六个仍�
 - `media_kit`、`screen_retriever`、`dart_quickjs` 固定到已复核的完整 Git 提交；网页内核同步上游锁定到 `guide-inc-org/guide-flutter_inappwebview` 的 `sbi_fx_pc/v6.2.0-beta.3`（解析提交 `3e6c4c4a`），覆盖 Android、iOS、macOS 与 Windows。Android 子包保留同一提交的 Dart/Java 实现，并在 `plugins/built_in_kotlin/flutter_inappwebview_android` 修正 AGP 9 默认 ProGuard 文件、模块私有 AGP classpath 和 Java 17 目标。Linux 的网页搜索使用系统浏览器，避免额外 WPE WebKit 原生依赖。
 - Windows 单实例插件同步上游恢复为 hosted `windows_single_instance 1.2.0`，删除仓库内旧副本；`file_picker` 使用稳定版 12.0.0 API。
 - `flv_lzc` 固定自上游 `030d611` 并存放在 `plugins/flv_lzc`；仅移除 Android 注册阶段的临时 `SurfaceTexture` 探测，规避 Flutter 3.47 平台纹理注册断言，保留上游许可证和来源说明。
-- Android 本地构建会预取并校验 MediaKit arm64 库与 FFmpeg Kit AAR；后者预先写入 Native Assets 共享缓存，避开 Windows Dart 下载器在 GitHub Release 重定向处长时间等待。
+- Android 本地构建会预取并校验 MediaKit arm64 库，预先写入 Native Assets 共享缓存，避开 Windows Dart 下载器在 GitHub Release 重定向处长时间等待。
 - 删除已停止作用的 `sqlite3_flutter_libs`；项目使用 `sqlite3` 3.x 的 Native Assets。
 - 升级 `app_links`、`connectivity_plus`、`pro_mpack` 与 Syncfusion sliders，并通过静态分析和完整测试。
 - GitHub Actions 固定到已核验的完整提交 SHA，Dependabot 每月汇总检查 pub、Gradle 和 Actions 更新；日常分支推送不构建，仅手动入口或显式阶段标签按平台运行。
