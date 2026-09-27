@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 2.2.1+4019
+version: 2.2.2+4020
 
 environment:
   sdk: ^3.13.0
@@ -108,6 +108,7 @@ dependencies:
   battery_plus: ^7.0.0 # 电池状态获取
   permission_handler: ^13.0.1 # 权限管理
   device_info_plus: ^13.1.0 # 设备信息
+  sensors_plus: ^7.1.0 # 加速度计（重力感应自动全屏，无 native .so）
   # Local AGP 9 Built-in Kotlin patch; source version 7.4.0.
   mobile_scanner:
     path: plugins/built_in_kotlin/mobile_scanner

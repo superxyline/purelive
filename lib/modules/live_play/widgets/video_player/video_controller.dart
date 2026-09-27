@@ -23,6 +23,7 @@ import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_message_actions.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
+import 'package:pure_live/common/services/gravity_fullscreen_service.dart';
 
 typedef AudioOnlyCallback = Future<void> Function(bool value);
 
@@ -352,6 +353,7 @@ class VideoController with ChangeNotifier {
 
     initPlayerListener();
     _setupDefaultFullscreen();
+    _setupGravityAutoFullscreen();
 
     _setStatus(PlayerStatus.playing);
   }
@@ -399,6 +401,36 @@ class VideoController with ChangeNotifier {
     enterFullScreen();
     GlobalPlayerState.to.isFullscreen.value = true;
     enableController();
+  }
+
+  // 重力感应自动全屏
+  GravityFullscreenService get _gravity => GravityFullscreenService();
+
+  /// 满足条件时启动加速度计监听：开关打开 + 移动端 + 手机尺寸 + 横屏源直播间。
+  /// 竖屏源直播间交给竖屏沉浸方向策略处理，平板与桌面不接入。
+  void _setupGravityAutoFullscreen() {
+    if (_isDisposed) return;
+    if (!_gravity.isEnabled) return;
+    if (!PlatformHelper.isMobile) return;
+    if (!OrientationPolicy.isPhoneSize) return;
+    // 双开副窗口激活期间不接管全屏，避免与主窗口互相打断
+    if (SecondaryPlayerService.instance.isActive.value) return;
+    if (_playerManager.isVerticalVideo.value) return;
+    unawaited(_gravity.start(onTiltChanged: _onGravityTilt));
+  }
+
+  /// 姿态稳定变化后的回调：横持进全屏、竖持退全屏，均复用手动切换的同一条路径
+  /// （含 resetPinchZoom / setNormalScreen / markFullscreenExit 等既有副作用）。
+  void _onGravityTilt(DeviceTilt tilt) {
+    if (_isDisposed) return;
+    // 全屏切换动画进行中不叠加新动作，避免方向调用互相覆盖
+    if (isTransitioningFullScreen.value) return;
+    final isFullscreen = GlobalPlayerState.to.isFullscreen.value;
+    if (tilt == DeviceTilt.landscape && !isFullscreen) {
+      toggleFullScreen();
+    } else if (tilt == DeviceTilt.portrait && isFullscreen) {
+      toggleFullScreen();
+    }
   }
 
   // 资源管理方法
@@ -737,6 +769,8 @@ class VideoController with ChangeNotifier {
 
   // 全屏管理
   Future<void> exitFullScreen() async {
+    // 任何全屏变化都刷新重力感应的 10 秒冷却（手动 / 自动 / 进房间自动全屏）
+    _gravity.markFullscreenChanged();
     // 捕获令牌：若切换期间又发生新的进/退全屏，本次异步恢复作废，交给最新操作处理。
     final token = ++_fullscreenToken;
     isTransitioningFullScreen.value = true;
@@ -783,6 +817,8 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> enterFullScreen() async {
+    // 任何全屏变化都刷新重力感应的 10 秒冷却（手动 / 自动 / 进房间自动全屏）
+    _gravity.markFullscreenChanged();
     // 捕获令牌：防止与随后立刻的退出全屏竞态，避免方向残留覆盖恢复逻辑。
     final token = ++_fullscreenToken;
     isTransitioningFullScreen.value = true;
@@ -855,6 +891,8 @@ class VideoController with ChangeNotifier {
   @override
   void dispose() {
     if (_isDisposed) return;
+    // 停止重力感应监听，离开直播间后不再受传感器影响
+    _gravity.stop();
     _setStatus(PlayerStatus.disposed);
 
     // 清理资源
