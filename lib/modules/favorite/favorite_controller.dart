@@ -51,6 +51,9 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       applyLocalFilter();
+      // 冷启动：列表先用缓存渲染，随后跑一次轻量的开播状态快通道，把在线房间
+      // 尽快顶上来。不显示加载态、不阻塞界面，人气/时长角标等交给后续详情刷新。
+      unawaited(_primeLiveStatusIfNeeded(getAllRooms()));
     });
 
     tabController.addListener(() {
@@ -323,6 +326,8 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   @override
   Future<void> refreshData() async {
     currentPage = 1;
+    // 冷启动/本次会话首次刷新：先出开播状态，再补角标详情。
+    await _primeLiveStatusIfNeeded(getFilteredRoomsIgnoringLiveStatus());
     await _fullRefreshFilterRooms();
   }
 
@@ -338,10 +343,95 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   Future<void> _fullRefreshRooms() async {
     loadding.value = true;
     List<LiveRoom> roomsToRefresh = getAllRooms();
+    await _primeLiveStatusIfNeeded(roomsToRefresh);
     await _refreshRoomDetails(roomsToRefresh);
     applyLocalFilter();
     loadding.value = false;
     EventBus.instance.emit('refresh_favorite_finish', true);
+  }
+
+  /// 本次会话是否已跑过"状态优先"快通道。
+  /// 只在冷启动/首次进入时打 getLiveStatus；后续下拉、双击、定时刷新直接走详情
+  /// （详情本身也带回开播状态），避免每个房间被请求两次。
+  bool _statusPrimed = false;
+
+  /// 状态快通道并发度：只取开播状态，比详情便宜得多，可以开大。
+  static const int _statusBatchSize = 12;
+
+  /// 单个状态请求超时：个别平台卡住时不拖垮整批。
+  static const Duration _statusTimeout = Duration(seconds: 5);
+
+  /// 冷启动/首次刷新时先用轻量的开播状态接口把在线房间顶上来。
+  Future<void> _primeLiveStatusIfNeeded(List<LiveRoom> rooms) async {
+    if (_statusPrimed) return;
+    _statusPrimed = true;
+    await _refreshLiveStatusOnly(rooms);
+  }
+
+  /// 只拉"是否开播"，让在线房间立刻出现；人气、开播时长等角标交给后续详情刷新。
+  ///
+  /// 详情刷新每批只有 [refreshConfigController.maxConcurrentRefresh] 个、每 400ms
+  /// 才推一次界面，房间一多用户看到的一直是上一次的旧状态。状态接口轻量得多，
+  /// 先跑一遍就能先给出"谁在播"，卡片标题/封面/人气沿用缓存，不会闪成空白。
+  ///
+  /// 2026-09-26 起改为并发池流式：[_statusBatchSize] 个常驻 worker 竞争消费
+  /// 房间队列，谁先返回谁先更新并推 UI——上一版按批串行、每批 await 整批
+  /// （最慢者可拖到 5s 超时），关注一多要等好几轮，冷启动开播列表迟迟不全。
+  Future<void> _refreshLiveStatusOnly(List<LiveRoom> rooms) async {
+    final valid = rooms.where((r) => (r.platform?.isNotEmpty ?? false) && r.roomId != null).toList();
+    if (valid.isEmpty) return;
+
+    final persistedRooms = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
+    var dirty = false;
+    var lastPush = DateTime.now();
+
+    // 结果节流推送：150ms 合并一次，避免每个房间都触发大列表排序/标签匹配。
+    void flush({bool force = false}) {
+      if (!dirty) return;
+      final now = DateTime.now();
+      if (!force && now.difference(lastPush) < const Duration(milliseconds: 150)) return;
+      lastPush = now;
+      dirty = false;
+      SettingsService.to.fav.favoriteRooms.v = List<LiveRoom>.from(persistedRooms);
+      applyLocalFilter();
+    }
+
+    var next = 0;
+    Future<void> worker() async {
+      while (true) {
+        final i = next++;
+        if (i >= valid.length) return;
+        final room = valid[i];
+        final bool isLive;
+        try {
+          isLive = await Sites.of(room.platform!)
+              .liveSite
+              .getLiveStatus(platform: room.platform!, roomId: room.roomId!)
+              .timeout(_statusTimeout);
+        } catch (_) {
+          // 单个房间失败不影响其它：保留上一次状态继续下一个。
+          continue;
+        }
+        final idx = persistedRooms.indexWhere(
+          (e) => e.roomId == room.roomId && e.platform == room.platform,
+        );
+        if (idx == -1) continue;
+        final target = persistedRooms[idx];
+        final nextStatus = isLive ? LiveStatus.live : LiveStatus.offline;
+        if (target.liveStatus == nextStatus) continue;
+        // 只改开播状态，其它卡片字段维持缓存值，避免大列表闪烁。
+        target.liveStatus = nextStatus;
+        target.status = isLive;
+        dirty = true;
+        flush();
+      }
+    }
+
+    try {
+      await Future.wait(List.generate(_statusBatchSize, (_) => worker()));
+    } finally {
+      flush(force: true);
+    }
   }
 
   /// 分批增量推到界面的最小间隔：既让卡片尽快更新，又避免大列表反复

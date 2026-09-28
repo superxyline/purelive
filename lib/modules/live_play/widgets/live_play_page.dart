@@ -20,11 +20,23 @@ import 'package:pure_live/modules/live_play/widgets/local_gift_effect.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/common/services/settings/app_settings_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
+import 'package:pure_live/player/utils/orientation_policy.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/player/core/secondary_player_service.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/dual_view_picker_sheet.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/secondary_window.dart';
+
+/// 全屏 / 非全屏切换的过渡时长与曲线。
+///
+/// 切全屏时若让面板瞬间消失，播放区（AspectRatio，随可用空间变化）会一下子
+/// 跳到新尺寸，观感很突兀（澎湃 OS 只在手机转屏时给系统旋转动画，盖不住这里
+/// 的布局跳变）。这里让面板尺寸平滑收起，播放区跟着平滑放大/缩小。
+const Duration _fullscreenTransitionDuration = Duration(milliseconds: 260);
+const Curve _fullscreenTransitionCurve = Curves.easeInOutCubic;
+
+/// 平板右侧弹幕/信息面板宽度。
+const double _danmakuPanelWidth = 400;
 
 class LivePlayPage extends GetView<LivePlayController> {
   const LivePlayPage({super.key});
@@ -83,7 +95,8 @@ class LivePlayPage extends GetView<LivePlayController> {
                     final mode = state.ui.screenMode;
                     final videoController = state.player.videoController;
 
-                    final child = _withLocalGiftEffect(_buildConstrainedChild(isInPip, mode, context));
+                    var child = _withLocalGiftEffect(_buildConstrainedChild(isInPip, mode, context));
+                    child = _animateModeSwitch(child, mode: mode, isInPip: isInPip);
 
                     if (videoController == null) {
                       return child;
@@ -130,6 +143,48 @@ class LivePlayPage extends GetView<LivePlayController> {
         ),
       ],
     );
+  }
+
+  /// 模式切换（普通/宽屏/全屏）的平滑过渡：只给新子树做 260ms 淡入 +
+  /// 轻微缩放（与弹幕面板收起动画同时长同曲线），旧子树立即卸载。
+  /// 不用 AnimatedSwitcher 做双侧过渡——新旧子树并存会撞 danmuKey/playerKey
+  /// 等 GlobalKey。KeyedSubtree 的 key 随 mode 变化，未切换时不会重播动画。
+  Widget _animateModeSwitch(Widget child, {required VideoMode mode, required bool isInPip}) {
+    if (isInPip) return child;
+    if (!_modeSwitchKeepsOrientation(mode)) return child;
+    return KeyedSubtree(
+      key: ValueKey('mode_switch_$mode'),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: _fullscreenTransitionDuration,
+        curve: _fullscreenTransitionCurve,
+        builder: (context, t, widget) => Opacity(
+          opacity: t,
+          child: Transform.scale(scale: 0.97 + 0.03 * t, child: widget),
+        ),
+        child: child,
+      ),
+    );
+  }
+
+  /// 本次模式切换是否保持窗口方向。方向会变的场景（手机进全屏横竖旋转、
+  /// 平板竖持进全屏、手机退出全屏回竖屏）交给系统旋转动画，避免与
+  /// Flutter 过渡叠成双动画；方向不变（平板横持全屏/非全屏互切、宽屏切换）
+  /// 才做 Flutter 层过渡。
+  bool _modeSwitchKeepsOrientation(VideoMode mode) {
+    final current = OrientationPolicy.systemIsPortrait() ? 'portrait' : 'landscape';
+    if (mode == VideoMode.fullscreen) {
+      final room = controller.state.value.room.detail;
+      final target = OrientationPolicy.resolveFullscreenOrientation(
+        platform: room?.platform ?? '',
+        roomId: room?.roomId ?? '',
+      );
+      return target == current;
+    }
+    // 非全屏形态（含从全屏退出）：手机退出全屏固定恢复竖屏会旋转；
+    // 平板保持现方向。
+    final target = OrientationPolicy.isPhoneSize ? 'portrait' : current;
+    return target == current;
   }
 
   Widget _buildConstrainedChild(bool isInPip, VideoMode mode, BuildContext context) {
@@ -399,18 +454,40 @@ class LivePlayPage extends GetView<LivePlayController> {
                     ? Column(
                         children: <Widget>[
                           buildVideoPlayer(),
-                          const ResolutionsRow(),
-                          const Divider(height: 1),
                           Obx(() {
                             final state = controller.state.value;
                             if (!state.room.success) {
                               return const SizedBox.shrink();
                             }
                             final globalState = GlobalPlayerState.to;
-                            if (globalState.isFullscreen.value || globalState.isWindowFullscreen.value) {
-                              return const SizedBox.shrink();
-                            }
-                            return Expanded(child: DanmakuTabView(key: ValueKey(globalState.isFullscreen.value)));
+                            final collapsed =
+                                globalState.isFullscreen.value || globalState.isWindowFullscreen.value;
+                            // 播放区是 16:9 的 AspectRatio，占用高度 = 宽度 * 9/16，
+                            // 剩下的高度给弹幕面板（分辨率条与分割线一并收进面板，
+                            // 这样无需知道它们的高度也能算准，且一起平滑收起）。
+                            final insets = MediaQuery.of(context).padding;
+                            final available = constraint.maxHeight - insets.top - insets.bottom;
+                            final playerHeight = constraint.maxWidth * 9 / 16;
+                            final panelHeight = (available - playerHeight).clamp(0.0, constraint.maxHeight);
+                            return AnimatedContainer(
+                              duration: _fullscreenTransitionDuration,
+                              curve: _fullscreenTransitionCurve,
+                              height: collapsed ? 0 : panelHeight,
+                              child: ClipRect(
+                                child: AnimatedOpacity(
+                                  opacity: collapsed ? 0 : 1,
+                                  duration: _fullscreenTransitionDuration,
+                                  curve: _fullscreenTransitionCurve,
+                                  child: Column(
+                                    children: [
+                                      const ResolutionsRow(),
+                                      const Divider(height: 1),
+                                      Expanded(child: DanmakuTabView()),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
                           }),
                         ],
                       )
@@ -424,24 +501,33 @@ class LivePlayPage extends GetView<LivePlayController> {
                               return Container();
                             }
 
-                            return SizedBox(
-                              width: 400,
-                              child: Column(
-                                children: [
-                                  const ResolutionsRow(),
-                                  const Divider(height: 1),
-                                  if (state.room.success) ...[
-                                    Obx(() {
-                                      final globalState = GlobalPlayerState.to;
-                                      if (globalState.isFullscreen.value || globalState.isWindowFullscreen.value) {
-                                        return const SizedBox.shrink();
-                                      }
-                                      return Expanded(
-                                        child: DanmakuTabView(key: ValueKey(globalState.isFullscreen.value)),
-                                      );
-                                    }),
-                                  ],
-                                ],
+                            final globalState = GlobalPlayerState.to;
+                            final collapsed =
+                                globalState.isFullscreen.value || globalState.isWindowFullscreen.value;
+
+                            // 宽度平滑收起，左侧播放区（Expanded）跟着平滑变宽。
+                            // 内容保持固定宽度并用 ClipRect 裁切，避免收起过程中
+                            // 文字/列表反复重排造成抖动。
+                            return AnimatedContainer(
+                              duration: _fullscreenTransitionDuration,
+                              curve: _fullscreenTransitionCurve,
+                              width: collapsed ? 0 : _danmakuPanelWidth,
+                              child: ClipRect(
+                                child: AnimatedOpacity(
+                                  opacity: collapsed ? 0 : 1,
+                                  duration: _fullscreenTransitionDuration,
+                                  curve: _fullscreenTransitionCurve,
+                                  child: SizedBox(
+                                    width: _danmakuPanelWidth,
+                                    child: Column(
+                                      children: [
+                                        const ResolutionsRow(),
+                                        const Divider(height: 1),
+                                        if (state.room.success) Expanded(child: DanmakuTabView()),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                             );
                           }),
