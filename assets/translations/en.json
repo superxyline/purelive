@@ -1381,5 +1381,8 @@
   "osd_room": "Room",
   "osd_quality": "Quality",
   "osd_resolution": "Resolution",
-  "osd_audio_bitrate": "Audio bitrate"
+  "osd_audio_bitrate": "Audio bitrate",
+  "link_access": "Link Access",
+  "liquid_glass_style": "Liquid Glass Navigation",
+  "liquid_glass_style_desc": "When on, the home navigation uses the liquid-glass look (hover & press animations); off keeps the current style"
 }

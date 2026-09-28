@@ -137,6 +137,12 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n("dense_favorites_desc"),
               value: SettingsService.to.app.enableDenseFavorites,
             ),
+            context.buildSwitchTile(
+              icon: Remix.apps_2_line,
+              title: i18n("liquid_glass_style"),
+              subtitle: i18n("liquid_glass_style_desc"),
+              value: SettingsService.to.app.useLiquidGlass,
+            ),
           ]),
 
           const SizedBox(height: 20),

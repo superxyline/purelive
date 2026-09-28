@@ -1381,5 +1381,8 @@
   "osd_room": "房间号",
   "osd_quality": "清晰度",
   "osd_resolution": "分辨率",
-  "osd_audio_bitrate": "音频码率"
+  "osd_audio_bitrate": "音频码率",
+  "link_access": "链接访问",
+  "liquid_glass_style": "液态玻璃导航",
+  "liquid_glass_style_desc": "开启后首页导航使用液态玻璃视觉（含悬停与按压动效），关闭则沿用当前样式"
 }
