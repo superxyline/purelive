@@ -14,6 +14,8 @@ class AppSettingsController extends GetxController {
   Worker? _highRefreshRateWorker;
 
   final RxBool enableDenseFavorites = hiveBool('enableDenseFavorites', true);
+  /// 首页导航是否使用液态玻璃视觉（false=沿用现有 NavigationBar/NavigationRail 样式）
+  final RxBool useLiquidGlass = hiveBool('useLiquidGlass', false);
   final RxBool showLiveDurationBadge = hiveBool('showLiveDurationBadge', true);
   final RxBool showRoomInfoOsd = hiveBool('showRoomInfoOsd', false);
   final RxBool enableBackgroundPlay = hiveBool('enableBackgroundPlay', false);
@@ -120,6 +122,7 @@ class AppSettingsController extends GetxController {
       'preferRealOnlineCounts': preferRealOnlineCounts.v,
       'realOnlinePlatforms': realOnlinePlatforms.v,
       'savedMenuIds': savedMenuIds.v,
+      'useLiquidGlass': useLiquidGlass.v,
     };
   }
 
@@ -143,6 +146,7 @@ class AppSettingsController extends GetxController {
     realOnlinePlatforms.v = List<String>.from(json['realOnlinePlatforms'] ?? defaultRealOnlinePlatforms);
     _removeUnsupportedOnlinePlatforms();
     savedMenuIds.v = List<String>.from(json['savedMenuIds'] ?? HomeMenu.values.map((e) => e.id).toList());
+    useLiquidGlass.v = json['useLiquidGlass'] ?? false;
   }
 
   static Map<String, dynamic> extractConfig(Map<String, dynamic>? rootConfig) {
@@ -166,6 +170,7 @@ class AppSettingsController extends GetxController {
         List<String>.from(app['realOnlinePlatforms'] ?? defaultRealOnlinePlatforms),
       ),
       'savedMenuIds': List<String>.from(app['savedMenuIds'] ?? []),
+      'useLiquidGlass': app['useLiquidGlass'] ?? false,
     };
   }
 
