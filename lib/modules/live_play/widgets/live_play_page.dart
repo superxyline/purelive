@@ -145,25 +145,34 @@ class LivePlayPage extends GetView<LivePlayController> {
     );
   }
 
-  /// 模式切换（普通/宽屏/全屏）的平滑过渡：只给新子树做 260ms 淡入 +
-  /// 轻微缩放（与弹幕面板收起动画同时长同曲线），旧子树立即卸载。
-  /// 不用 AnimatedSwitcher 做双侧过渡——新旧子树并存会撞 danmuKey/playerKey
-  /// 等 GlobalKey。KeyedSubtree 的 key 随 mode 变化，未切换时不会重播动画。
+  /// 模式切换（普通/宽屏/全屏）的过渡（动画状态存 controller，见
+  /// LivePlayController.modeSwitchEpoch）。
+  ///
+  /// 关键约束：只有「mode 真正变化」才重播 260ms 淡入——进房间首帧、
+  /// 加载完成首帧 mode 没变，不能出现黑屏渐变（用户实测反馈）。
+  /// TweenAnimationBuilder 挂载时必播（initState 里 begin≠end 即 forward），
+  /// 因此用 epoch（切换代数）做 key：仅在检测到 mode 变化时 ++，重建 builder
+  /// 触发重播；首帧与加载完成 epoch 不变、builder 同 key 复用，不播。
   Widget _animateModeSwitch(Widget child, {required VideoMode mode, required bool isInPip}) {
-    if (isInPip) return child;
-    if (!_modeSwitchKeepsOrientation(mode)) return child;
-    return KeyedSubtree(
-      key: ValueKey('mode_switch_$mode'),
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0.0, end: 1.0),
-        duration: _fullscreenTransitionDuration,
-        curve: _fullscreenTransitionCurve,
-        builder: (context, t, widget) => Opacity(
-          opacity: t,
-          child: Transform.scale(scale: 0.97 + 0.03 * t, child: widget),
-        ),
-        child: child,
+    if (controller.lastObservedScreenMode != null && controller.lastObservedScreenMode != mode) {
+      controller.modeSwitchEpoch++;
+      // PiP 形态与方向会变的场景（手机旋转、平板竖持进全屏）不播 Flutter 过渡
+      //（begin=1 挂载即呈现），前者交给 PiP 自身逻辑、后者交给系统旋转动画。
+      controller.animateNextModeSwitch = !isInPip && _modeSwitchKeepsOrientation(mode);
+    }
+    controller.lastObservedScreenMode = mode;
+    // TweenAnimationBuilder 恒挂载（树结构稳定），靠 key(epoch) 变化才重播；
+    // 普通 rebuild 时同 key、tween 只补间到同一 end（1.0），不动画。
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('mode_switch_${controller.modeSwitchEpoch}'),
+      tween: Tween(begin: controller.animateNextModeSwitch ? 0.0 : 1.0, end: 1.0),
+      duration: _fullscreenTransitionDuration,
+      curve: _fullscreenTransitionCurve,
+      builder: (context, t, widget) => Opacity(
+        opacity: t,
+        child: Transform.scale(scale: 0.97 + 0.03 * t, child: widget),
       ),
+      child: child,
     );
   }
 

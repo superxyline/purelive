@@ -329,6 +329,14 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     );
   }
 
+  /// 全屏/非全屏模式切换的过渡动画状态（消费方：live_play_page._animateModeSwitch）。
+  /// epoch 仅在 screenMode 真正变化时 +1，TweenAnimationBuilder 以它为 key
+  /// 才重播——进房间首帧/加载完成首帧 mode 没变则不播，避免黑屏渐变。
+  int modeSwitchEpoch = 0;
+  VideoMode? lastObservedScreenMode;
+  /// 下一次模式切换是否播放淡入（首帧初值 false；每次 mode 变化时按方向判定重设）
+  bool animateNextModeSwitch = false;
+
   void updateUI({VideoMode? screenMode, int? refreshKey, bool? isMenuOpen, int? closeTimes, bool? closeTimeFlag}) {
     state.value = state.value.copyWith(
       ui: state.value.ui.copyWith(
