@@ -336,6 +336,11 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   VideoMode? lastObservedScreenMode;
   /// 下一次模式切换是否播放淡入（首帧初值 false；每次 mode 变化时按方向判定重设）
   bool animateNextModeSwitch = false;
+  /// 视频画面容器（AspectRatio 16:9）的全局屏幕矩形，由 _VideoRectProbe 上报。
+  /// 非全屏期间的值用于几何过渡快照（全屏/非全屏互切时画面从原位放大/缩回）。
+  Rect? lastVideoRect;
+  /// 切换进全屏前的非全屏画面矩形（退全屏时作为几何过渡的落点依据）。
+  Rect? lastNormalVideoRect;
 
   void updateUI({VideoMode? screenMode, int? refreshKey, bool? isMenuOpen, int? closeTimes, bool? closeTimeFlag}) {
     state.value = state.value.copyWith(
