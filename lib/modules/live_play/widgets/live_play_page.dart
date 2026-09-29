@@ -96,7 +96,12 @@ class LivePlayPage extends GetView<LivePlayController> {
                     final videoController = state.player.videoController;
 
                     var child = _withLocalGiftEffect(_buildConstrainedChild(isInPip, mode, context));
-                    child = _animateModeSwitch(child, mode: mode, isInPip: isInPip);
+                    child = _animateModeSwitch(
+                      child,
+                      mode: mode,
+                      isInPip: isInPip,
+                      windowSize: MediaQuery.sizeOf(context),
+                    );
 
                     if (videoController == null) {
                       return child;
@@ -146,33 +151,127 @@ class LivePlayPage extends GetView<LivePlayController> {
   }
 
   /// 模式切换（普通/宽屏/全屏）的过渡（动画状态存 controller，见
-  /// LivePlayController.modeSwitchEpoch）。
+  /// LivePlayController.modeSwitchEpoch / lastVideoRect / lastNormalVideoRect）。
   ///
-  /// 关键约束：只有「mode 真正变化」才重播 260ms 淡入——进房间首帧、
-  /// 加载完成首帧 mode 没变，不能出现黑屏渐变（用户实测反馈）。
-  /// TweenAnimationBuilder 挂载时必播（initState 里 begin≠end 即 forward），
-  /// 因此用 epoch（切换代数）做 key：仅在检测到 mode 变化时 ++，重建 builder
-  /// 触发重播；首帧与加载完成 epoch 不变、builder 同 key 复用，不播。
-  Widget _animateModeSwitch(Widget child, {required VideoMode mode, required bool isInPip}) {
-    if (controller.lastObservedScreenMode != null && controller.lastObservedScreenMode != mode) {
+  /// 三层策略，均由 epoch key 保证「只有 screenMode 真正变化才重播」
+  /// （进房间首帧/加载完成首帧 mode 没变不播，避免黑屏渐变）：
+  /// 1. 方向会变（手机旋转、平板竖持进全屏）→ begin=1 直接呈现，交给系统旋转动画；
+  /// 2. 全屏 ↔ 非全屏 → **几何过渡**：画面按流真实比例的“内容矩形”从
+  ///    非全屏位置放大铺满 / 退全屏缩回原位（锚点由 _VideoRectProbe 实测上报）；
+  /// 3. 其余（normal ↔ widescreen、矩形数据缺失）→ 退化为 260ms 淡入。
+  Widget _animateModeSwitch(
+    Widget child, {
+    required VideoMode mode,
+    required bool isInPip,
+    required Size windowSize,
+  }) {
+    final prev = controller.lastObservedScreenMode;
+    final switching = prev != null && prev != mode;
+    if (switching) {
       controller.modeSwitchEpoch++;
-      // PiP 形态与方向会变的场景（手机旋转、平板竖持进全屏）不播 Flutter 过渡
-      //（begin=1 挂载即呈现），前者交给 PiP 自身逻辑、后者交给系统旋转动画。
       controller.animateNextModeSwitch = !isInPip && _modeSwitchKeepsOrientation(mode);
+      if (controller.animateNextModeSwitch && mode == VideoMode.fullscreen) {
+        // 进全屏：此刻 probe 上报的仍是非全屏布局的画面容器矩形
+        //（同帧 postFrame 才会被全屏值覆盖），先快照供退全屏使用。
+        controller.lastNormalVideoRect = controller.lastVideoRect;
+      }
     }
     controller.lastObservedScreenMode = mode;
-    // TweenAnimationBuilder 恒挂载（树结构稳定），靠 key(epoch) 变化才重播；
-    // 普通 rebuild 时同 key、tween 只补间到同一 end（1.0），不动画。
+
+    final epochKey = ValueKey('mode_switch_${controller.modeSwitchEpoch}');
+    Widget plain() => TweenAnimationBuilder<double>(
+          key: epochKey,
+          tween: Tween(begin: 1.0, end: 1.0),
+          duration: _fullscreenTransitionDuration,
+          curve: _fullscreenTransitionCurve,
+          builder: (context, t, widget) => widget!,
+          child: child,
+        );
+
+    if (!controller.animateNextModeSwitch) return plain();
+
+    final geom = _geomParam(
+      toFullscreen: mode == VideoMode.fullscreen,
+      window: windowSize,
+      videoRatio: GlobalPlayerService.instance.playerManager.currentVideoRatio,
+    );
+    if (geom == null) {
+      return TweenAnimationBuilder<double>(
+        key: epochKey,
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: _fullscreenTransitionDuration,
+        curve: _fullscreenTransitionCurve,
+        builder: (context, t, widget) => Opacity(
+          opacity: t,
+          child: Transform.scale(scale: 0.97 + 0.03 * t, child: widget),
+        ),
+        child: child,
+      );
+    }
+
+    // 几何过渡：t=0 把新子树的视频内容映到对方位置/尺寸，t=1 回到自身布局（identity）。
+    // 两态内容矩形同为流真实比例，均匀 scale 四角对齐、内容不变形。
+    final a = geom.a;
+    final base = geom.base;
+    final target = geom.target;
     return TweenAnimationBuilder<double>(
-      key: ValueKey('mode_switch_${controller.modeSwitchEpoch}'),
-      tween: Tween(begin: controller.animateNextModeSwitch ? 0.0 : 1.0, end: 1.0),
+      key: epochKey,
+      tween: Tween(begin: 0.0, end: 1.0),
       duration: _fullscreenTransitionDuration,
       curve: _fullscreenTransitionCurve,
-      builder: (context, t, widget) => Opacity(
-        opacity: t,
-        child: Transform.scale(scale: 0.97 + 0.03 * t, child: widget),
-      ),
+      builder: (context, t, widget) {
+        final sc = a + (1.0 - a) * t;
+        final cx = target.dx + (base.dx - target.dx) * t;
+        final cy = target.dy + (base.dy - target.dy) * t;
+        return Transform(
+          transform: Matrix4.identity()
+            ..translate(cx, cy)
+            ..scale(sc)
+            ..translate(-base.dx, -base.dy),
+          filterQuality: FilterQuality.medium,
+          child: widget,
+        );
+      },
       child: child,
+    );
+  }
+
+  /// 几何过渡参数：缩放比 a、变换锚 base、t=0 时锚应所在 target。
+  /// [toFullscreen] true=进全屏（全屏内容缩到非全屏原位起步），false=退全屏反向。
+  ({double a, Offset base, Offset target})? _geomParam({
+    required bool toFullscreen,
+    required Size window,
+    required double videoRatio,
+  }) {
+    final normalContainer = controller.lastNormalVideoRect;
+    if (normalContainer == null || normalContainer.width <= 0 || videoRatio <= 0) return null;
+    // 内容矩形 = 容器按流真实比例 contain（probe 报的是容器；全屏容器=窗口）。
+    final n = _contentRect(normalContainer, videoRatio);
+    final f = _contentRect(Offset.zero & window, videoRatio);
+    if (n.width <= 0 || f.width <= 0) return null;
+    if (toFullscreen) {
+      return (a: n.width / f.width, base: f.center, target: n.center);
+    }
+    return (a: f.width / n.width, base: n.center, target: f.center);
+  }
+
+  /// 容器内按 [ratio]（宽/高）contain 出的内容矩形（与播放器 fit 语义一致）。
+  static Rect _contentRect(Rect container, double ratio) {
+    final fitHeight = container.width / ratio;
+    if (fitHeight <= container.height) {
+      return Rect.fromLTWH(
+        container.left,
+        container.top + (container.height - fitHeight) / 2,
+        container.width,
+        fitHeight,
+      );
+    }
+    final fitWidth = container.height * ratio;
+    return Rect.fromLTWH(
+      container.left + (container.width - fitWidth) / 2,
+      container.top,
+      fitWidth,
+      container.height,
     );
   }
 
@@ -571,7 +670,11 @@ class LivePlayPage extends GetView<LivePlayController> {
   }
 
   Widget buildVideoPlayer() {
-    return AspectRatio(
+    // 几何过渡锚点：上报画面容器（AspectRatio）全局矩形，供全屏互切时
+    // 以“流真实比例内容矩形”做放大/缩回映射。
+    return _VideoRectProbe(
+      controller: controller,
+      child: AspectRatio(
       aspectRatio: 16 / 9,
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -595,6 +698,7 @@ class LivePlayPage extends GetView<LivePlayController> {
             ],
           );
         },
+      ),
       ),
     );
   }
@@ -801,6 +905,52 @@ class LivePlayPage extends GetView<LivePlayController> {
       ),
     ).whenComplete(durationController.dispose);
   }
+}
+
+/// 上报视频画面容器（AspectRatio）的全局屏幕矩形到 LivePlayController。
+/// 全屏切换几何过渡用它做锚：进全屏快照此刻（非全屏布局）的值，
+/// 动画期间的 Transform 会让 global 坐标含变换，仅稳定期读取。
+class _VideoRectProbe extends StatefulWidget {
+  const _VideoRectProbe({required this.controller, required this.child});
+
+  final LivePlayController controller;
+  final Widget child;
+
+  @override
+  State<_VideoRectProbe> createState() => _VideoRectProbeState();
+}
+
+class _VideoRectProbeState extends State<_VideoRectProbe> {
+  @override
+  void initState() {
+    super.initState();
+    _scheduleReport();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scheduleReport();
+  }
+
+  @override
+  void didUpdateWidget(covariant _VideoRectProbe oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _scheduleReport();
+  }
+
+  void _scheduleReport() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final box = context.findRenderObject();
+      if (box is RenderBox && box.attached && box.hasSize) {
+        widget.controller.lastVideoRect = box.localToGlobal(Offset.zero) & box.size;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class ResolutionsRow extends StatefulWidget {
