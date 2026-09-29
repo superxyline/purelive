@@ -170,6 +170,10 @@ class LivePlayPage extends GetView<LivePlayController> {
     if (switching) {
       controller.modeSwitchEpoch++;
       controller.animateNextModeSwitch = !isInPip && _modeSwitchKeepsOrientation(mode);
+      // 动画窗口内 probe 冻结 rect 上报（Transform 生效时 global 坐标被污染，
+      // 曾导致多次切换后锚点累积偏移、画面从远处飞回 + 极端矩阵卡顿）。
+      // 260ms 动画 + 缓冲；动画结束后 probe 帧循环自动补报稳定值。
+      controller.animatingUntilMs = DateTime.now().millisecondsSinceEpoch + 320;
       if (controller.animateNextModeSwitch && mode == VideoMode.fullscreen) {
         // 进全屏：此刻 probe 上报的仍是非全屏布局的画面容器矩形
         //（同帧 postFrame 才会被全屏值覆盖），先快照供退全屏使用。
@@ -924,28 +928,25 @@ class _VideoRectProbeState extends State<_VideoRectProbe> {
   @override
   void initState() {
     super.initState();
-    _scheduleReport();
+    _tick();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _scheduleReport();
-  }
-
-  @override
-  void didUpdateWidget(covariant _VideoRectProbe oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _scheduleReport();
-  }
-
-  void _scheduleReport() {
+  /// 帧循环上报：每帧检查一次。
+  /// - 动画窗口内（controller.animatingUntilMs 之前）跳过——此时全局坐标被
+  ///   过渡 Transform 的矩阵污染，写入会让下一次切换的锚点累积偏移；
+  /// - 动画结束后的第一帧立即补报 identity 后的真实矩形。
+  /// 每帧仅一次 findRenderObject + localToGlobal，开销可忽略。
+  void _tick() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final box = context.findRenderObject();
-      if (box is RenderBox && box.attached && box.hasSize) {
-        widget.controller.lastVideoRect = box.localToGlobal(Offset.zero) & box.size;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (now >= widget.controller.animatingUntilMs) {
+        final box = context.findRenderObject();
+        if (box is RenderBox && box.attached && box.hasSize) {
+          widget.controller.lastVideoRect = box.localToGlobal(Offset.zero) & box.size;
+        }
       }
+      _tick();
     });
   }
 

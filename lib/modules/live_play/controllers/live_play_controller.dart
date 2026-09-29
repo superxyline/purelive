@@ -338,9 +338,13 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   bool animateNextModeSwitch = false;
   /// 视频画面容器（AspectRatio 16:9）的全局屏幕矩形，由 _VideoRectProbe 上报。
   /// 非全屏期间的值用于几何过渡快照（全屏/非全屏互切时画面从原位放大/缩回）。
+  /// 动画期间（Transform 矩阵生效时）global 坐标会被污染——probe 在
+  /// now < animatingUntilMs 时冻结上报，保证读到的永远是稳定布局的真值。
   Rect? lastVideoRect;
   /// 切换进全屏前的非全屏画面矩形（退全屏时作为几何过渡的落点依据）。
   Rect? lastNormalVideoRect;
+  /// 几何动画进行中的截止时间戳（毫秒）；epoch++ 时刷新，probe 冻结上报。
+  int animatingUntilMs = 0;
 
   void updateUI({VideoMode? screenMode, int? refreshKey, bool? isMenuOpen, int? closeTimes, bool? closeTimeFlag}) {
     state.value = state.value.copyWith(
