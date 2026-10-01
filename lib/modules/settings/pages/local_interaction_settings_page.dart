@@ -180,7 +180,7 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
                   Obx(
                     () => context.buildTile(
                       title: i18n('local_interaction_status'),
-                      subtitle: '${controller.coins.v} · Lv.${controller.level}',
+                      subtitle: '∞ · Lv.${controller.level}',
                       icon: Icons.toll_rounded,
                     ),
                   ),
@@ -200,15 +200,6 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
                       children: [
                         Text(i18n('local_experience_economy_desc'), style: Theme.of(context).textTheme.bodySmall),
                         const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          children: const [500, 2000, 10000]
-                              .map(
-                                (value) =>
-                                    OutlinedButton(onPressed: () => controller.recharge(value), child: Text('+$value')),
-                              )
-                              .toList(),
-                        ),
                         TextButton.icon(
                           onPressed: controller.history.isEmpty ? null : controller.clearHistory,
                           icon: const Icon(Icons.delete_sweep_outlined),
@@ -349,7 +340,7 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
             Text('${pack.badge} ${pack.name}', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              '${i18n(pack.levelKey)} Lv.${controller.level} · ${controller.coins.v} ${i18n(pack.currencyKey)}',
+              '${i18n(pack.levelKey)} Lv.${controller.level} · ∞ ${i18n(pack.currencyKey)}',
               style: TextStyle(color: pack.accentColor, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 10),

@@ -1295,7 +1295,7 @@
   "local_gift_effects": "Show local gift effects",
   "local_gift_effects_desc": "Show a platform-themed overlay; high-value gifts use a larger effect",
   "local_experience_economy": "Local coins and history",
-  "local_experience_economy_desc": "Coins remain on this device and preview gifts, levels, and titles.",
+  "local_experience_economy_desc": "Coins remain on this device and preview gifts, levels, and titles. (coins are unlimited; sending local gifts no longer deducts balance)",
   "local_clear_history": "Clear local interaction history",
   "local_currency_bili": "batteries",
   "local_currency_douyu": "fish fins",

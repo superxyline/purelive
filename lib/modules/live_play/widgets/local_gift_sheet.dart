@@ -48,7 +48,7 @@ class LocalGiftSheet extends StatelessWidget {
                 Obx(
                   () => Chip(
                     avatar: const Icon(Icons.toll_rounded, size: 18),
-                    label: Text('${controller.coins.v} ${i18n(pack.currencyKey)}'),
+                    label: Text('∞ ${i18n(pack.currencyKey)}'),
                     visualDensity: VisualDensity.compact,
                   ),
                 ),

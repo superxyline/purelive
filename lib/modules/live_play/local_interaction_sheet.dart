@@ -73,7 +73,7 @@ class _LocalInteractionSheetState extends State<LocalInteractionSheet> {
                   Obx(
                     () => Chip(
                       avatar: const Icon(Icons.toll_rounded, size: 18),
-                      label: Text('${local.coins.v} ${i18n(pack.currencyKey)} · ${i18n(pack.levelKey)} ${local.level}'),
+                      label: Text('∞ ${i18n(pack.currencyKey)} · ${i18n(pack.levelKey)} ${local.level}'),
                     ),
                   ),
                 ],
@@ -165,16 +165,6 @@ class _LocalInteractionSheetState extends State<LocalInteractionSheet> {
                 children: [
                   Text(i18n('local_experience_coins'), style: Theme.of(context).textTheme.titleSmall),
                   const Spacer(),
-                  for (final value in const [500, 2000, 10000])
-                    Padding(
-                      padding: const EdgeInsets.only(left: 6),
-                      child: OutlinedButton(
-                        onPressed: () {
-                          local.recharge(value);
-                        },
-                        child: Text('+$value'),
-                      ),
-                    ),
                 ],
               ),
               const SizedBox(height: 8),
