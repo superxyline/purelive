@@ -334,8 +334,8 @@ class LocalInteractionController extends GetxController {
 
   LiveMessage? sendGift(LocalGift gift, {String platform = ''}) {
     if (!enabled.v) return null;
-    if (coins.v < gift.price) return null;
-    coins.v -= gift.price;
+    // 金豆限制已取消（2026-09-28 用户要求）：本地礼物随便送，不再检查/扣除
+    // 余额；经验与等级仍按礼物价值增长。
     experience.v += gift.price;
     final giftName = i18n(gift.nameKey);
     final badge = profileLabel(platform);
