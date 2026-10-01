@@ -32,6 +32,15 @@ docker compose up -d --build
 - 用户不在 docker 组时用 `sudo docker compose up -d --build`。
 - 替换 nginx.conf 后必须 `sudo docker compose up -d --force-recreate web`（单文件 bind mount 改动后容器内仍是旧 inode，reload 不生效）。
 
+### 飞牛 fnOS 原生应用（fpk，免 Docker）
+
+飞牛用户可不装 Docker：应用中心「手动安装」上传 [`nas/fnos/purelive.fpk`](fnos/)（约 39MB，内置 Linux Node20 运行时与全部生产依赖），装完桌面点 **Pure Live** 图标打开 `http://<NAS-IP>:8090`。
+
+- 数据（加密 cookie、关注同步、日志）落在应用数据目录 `var/data/`，卸载应用也保留；备份即拷该目录；
+- 可选访问令牌：数据目录 `env` 文件里 `PURE_LIVE_TOKEN=` 填值后在应用中心重启生效（对应下文 WebUI 令牌弹窗 / `x-api-token` 头）；
+- 应用以独立包用户 `purelive` 运行，仅写自己的数据目录；启停用应用中心按钮（端口 8090，被占用会装不上）；
+- 自行打包：`bash nas/fnos/build_fpk.sh`（组装 server/webui 产物 → 下载 node 运行时 → fnpack → repack 移动端图标）。
+
 ## 登录与发弹幕（可选）
 
 Web 端默认只读观看。需要 B站发弹幕时：
@@ -45,6 +54,9 @@ Web 端默认只读观看。需要 B站发弹幕时：
 |---|---|---|
 | `NAS_MASTER_KEY` | 自动生成 | cookie 加密主密钥（≥16 字符，建议设置并保存） |
 | `PURE_LIVE_COOKIE_*` | — | 各平台 cookie 的环境变量注入方式（大写平台名，如 `PURE_LIVE_COOKIE_BILIBILI`） |
+| `PURE_LIVE_TOKEN` | 不设 | API 访问令牌（公网部署必设；WebUI 401 弹窗录入 / REST `x-api-token` 头 / WS `?token=`） |
+| `PURE_LIVE_DATA_DIR` | `<cwd>/../data` | 数据目录（fpk 指向 `TRIM_PKGVAR/data`，便携版指向包内 `data/`） |
+| `PURE_LIVE_WEBUI_DIR` | 不设（走 nginx） | 由 server 直接托管 WebUI 静态文件（fpk / 便携版用；含 SPA 回退） |
 | `LOG_LEVEL` | info | 日志级别 |
 
 ## 局域网与安全提示
