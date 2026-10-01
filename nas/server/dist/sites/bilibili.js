@@ -529,7 +529,7 @@ class BiliBiliSite {
         }
         return qualities;
     }
-    async getPlayUrls(roomId, quality) {
+    async getPlayUrls(roomId, quality, codec) {
         const header = await getHeader();
         const baseUrl = 'https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo';
         const baseParams = { room_id: roomId, protocol: '0,1', format: '0,1,2', codec: '0,1', platform: 'html5', dolby: 5 };
@@ -563,9 +563,9 @@ class BiliBiliSite {
                 }
             }
         }
-        // 后端不做 Socket 测速（CdnSpeedTest 跳过，latency 恒为空），保留 Dart 的排序规则；
-        // preferHEVC 默认 false（lib/common/services/settings/player_settings_controller.dart:41）。
-        const preferCodec = 'avc';
+        // TCP 测速拆到独立 speedtest 端点由前端按需调用；preferCodec 由 ?codec= 控制
+        //（默认 avc，对齐安卓 preferHEVC 默认 false）。
+        const preferCodec = codec === 'hevc' ? 'hevc' : 'avc';
         const rank = (e) => {
             if (e.url.includes('mcdn'))
                 return 4; // P2P 回源节点一律沉底

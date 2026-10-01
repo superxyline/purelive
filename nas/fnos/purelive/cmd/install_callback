@@ -1,0 +1,23 @@
+#!/bin/bash
+# 安装完成后: 建数据目录, 写默认 env(已存在则不覆盖), 归属给包用户
+set -u
+ENV_FILE="${TRIM_PKGVAR}/env"
+
+mkdir -p "${TRIM_PKGVAR}/data"
+
+# Windows 打包丢失 exec 位, 安装时以 root 补齐
+chmod +x "${TRIM_APPDEST}/app/runtime/node" 2>/dev/null || true
+
+if [ "$(id -u)" = "0" ] && [ -n "${TRIM_USERNAME:-}" ]; then
+    chown -R "${TRIM_USERNAME}:${TRIM_GROUPNAME:-${TRIM_USERNAME}}" "${TRIM_PKGVAR}"
+fi
+
+if [ ! -f "${ENV_FILE}" ]; then
+    cat > "${ENV_FILE}" <<ENVEOF
+# Pure Live 服务环境, 改完在应用中心重启生效
+# 接口访问令牌: 留空=不校验(局域网建议留空); 设置后 WebUI 会弹窗要求录入
+PURE_LIVE_TOKEN=
+ENVEOF
+    [ "$(id -u)" = "0" ] && [ -n "${TRIM_USERNAME:-}" ] && chown "${TRIM_USERNAME}:${TRIM_GROUPNAME:-${TRIM_USERNAME}}" "${ENV_FILE}"
+fi
+exit 0

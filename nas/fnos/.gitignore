@@ -1,0 +1,5 @@
+# 打包产物与下载的二进制不入库(以 nas/server、nas/webui 源码为准)
+purelive/app/server/
+purelive/app/webui/
+purelive/app/runtime/
+purelive.fpk

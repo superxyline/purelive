@@ -10,7 +10,7 @@
 
 - **当前版本**：`2.2.4+4022`（基于上游 v2.1.4 裁剪定制，最后更新：2026-09-28）
 - **应用包名**：`com.superxyline.purelive`
-- **运行形态**：安卓 App（arm64）+ Web 服务端（NAS Docker / 云服务器 / Windows 便携包，见下方矩阵）
+- **运行形态**：安卓 App（arm64）+ Web 服务端（飞牛 fpk / NAS Docker / 云服务器 / Windows 便携包，见下方矩阵）
 - **代码仓库**：[https://gitee.com/superxyline/purelive](https://gitee.com/superxyline/purelive)（GitHub 同步：[superxyline/purelive](https://github.com/superxyline/purelive)）
 - **发行版**：两端 Releases 均提供安卓 APK 与说明（[GitHub](https://github.com/superxyline/purelive/releases) / [Gitee](https://gitee.com/superxyline/pure_live/releases)）
 
@@ -26,7 +26,8 @@
 
 | 形态 | 适合谁 | 部署方式 | 访问令牌 | 说明 |
 | --- | --- | --- | --- | --- |
-| **NAS** | 有 NAS（群晖/飞牛等） | Docker Compose（`nas/deploy/`） | 局域网可不设 | 常开低功耗，手机 App 可同步关注 |
+| **NAS（飞牛 fpk）** | 飞牛 OS 用户 | 应用中心手动安装 `nas/fnos/purelive.fpk` | 局域网可不设 | 原生应用免 Docker，内置 Node 运行时，见下文 |
+| **NAS（其他）** | 群晖 / unRAID 等 | Docker Compose（`nas/deploy/`） | 局域网可不设 | 常开低功耗，手机 App 可同步关注 |
 | **云服务器** | 想随时随地公网访问 | Docker Compose 或 systemd（[nas/DEPLOY_CLOUD.md](nas/DEPLOY_CLOUD.md)） | **必设** `PURE_LIVE_TOKEN` + 建议 HTTPS | 公网部署安全清单见该文档 |
 | **Windows 电脑** | 没 NAS、临时本机用 | 绿色便携包（`nas/portable_build.sh` 组装，双击 `启动.bat`） | 可不设（本机） | 约 90MB 解压即用，数据在包内 `data/` |
 
@@ -102,6 +103,27 @@ sudo docker compose up -d --force-recreate web
 > - **`index.html` 必须 no-cache**：强缓存会导致新版本不生效，[`nas/deploy/nginx.conf`](nas/deploy/nginx.conf) 已配置 `Cache-Control: no-cache`，勿删。
 
 架构图、环境变量（`NAS_MASTER_KEY` 等）、登录与发弹幕、安全注意事项见 [nas/README.md](nas/README.md)。安卓客户端构建不受影响。
+
+---
+
+## 🐮 飞牛 OS 原生应用（fpk）
+
+飞牛 fnOS 用户不用装 Docker：应用中心「手动安装」上传 `nas/fnos/purelive.fpk`（约 39MB），装完桌面点 **Pure Live** 图标即可打开 Web 端（`http://<NAS_IP>:8090`），功能和 Docker 版完全一致。
+
+- **免 Docker、免外网**：包内自带 Linux x64 Node 20 运行时与全部生产依赖；
+- **数据持久化**：登录 Cookie、关注同步等全部落在应用数据目录（`var/data/`），卸载应用也保留；
+- **可选令牌**：数据目录 `env` 文件里把 `PURE_LIVE_TOKEN=` 填上令牌后重启生效，WebUI 会弹窗录入；
+- **启停管理**：应用中心直接启动/停止（端口 8090，端口被占用会导致安装失败）；
+- 应用以独立包用户 `purelive` 运行，只写自己的数据目录。
+
+### 自己打包
+
+```bash
+# 需要: node.exe(构建 server/webui)、E:\codex\tools\fnos\fnpack.exe
+bash nas/fnos/build_fpk.sh     # 产出 nas/fnos/purelive.fpk
+```
+
+脚本流程：组装 `server dist + 生产依赖 + webui dist` 进包（始终以仓库源码为准）→ 缺运行时先 `fetch-runtime.sh` 下载 → `fnpack build` → repack 把 `app/ui` 提到 fpk 外层顶层（否则手机端应用中心图标显示灰占位）。fpk 工程骨架在 [`nas/fnos/purelive/`](nas/fnos/purelive/)（manifest、9 个生命周期脚本、桌面入口、图标）。
 
 ---
 
