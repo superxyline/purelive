@@ -4,24 +4,33 @@
   <img src="assets/icons/icon.png" width="150" alt="纯粹直播（纯净版）图标"/>
 </p>
 
-<h4 align="center">基于 Flutter 的安卓多平台直播聚合播放器（自用修改版）</h4>
+<h4 align="center">安卓 App + 全平台 Web 服务端：可跑在 NAS / 云服务器 / Windows 电脑（自用修改版）</h4>
 
 本项目是开源项目 [pure_live](https://github.com/liuchuancong/pure_live) 的**个人自用修改版**，在原版基础上做了大量裁剪与功能增强，专注 Android 平台，仅保留哔哩哔哩 / 斗鱼 / 虎牙 / 抖音 / 快手五大平台。
 
-- **当前版本**：`2.2.2+4020`（基于上游 v2.1.4 裁剪定制，最后更新：2026-09-27）
+- **当前版本**：`2.2.3+4021`（基于上游 v2.1.4 裁剪定制，最后更新：2026-09-28）
 - **应用包名**：`com.superxyline.purelive`
-- **目标平台**：Android（arm64）
-- **代码仓库**：[https://gitee.com/superxyline/purelive](https://gitee.com/superxyline/purelive)
+- **运行形态**：安卓 App（arm64）+ Web 服务端（NAS Docker / 云服务器 / Windows 便携包，见下方矩阵）
+- **代码仓库**：[https://gitee.com/superxyline/purelive](https://gitee.com/superxyline/purelive)（GitHub 同步：[superxyline/purelive](https://github.com/superxyline/purelive)）
+- **发行版**：两端 Releases 均提供安卓 APK 与说明（[GitHub](https://github.com/superxyline/purelive/releases) / [Gitee](https://gitee.com/superxyline/pure_live/releases)）
 
 ![Pure Live 界面预览](assets/images/banner.png)
 
-> 本仓库**不提供预编译安装包**，如需使用请自行构建，详见下方「自行构建」章节。
+> 安卓 APK 已随 Release 提供（GitHub / Gitee Releases 页下载）；如需自行构建，详见下方「自编译安卓端」章节。
 
 ---
 
-## 🖥️ NAS 网页端（新增）
+## 🖥️ Web 服务端（NAS / 云服务器 / Windows 电脑）
 
-除安卓客户端外，本项目内置一套可部署在 NAS 上的**纯 Web 版**（Vue3 + Naive UI 前端 + Node 聚合后端），支持 B站 / 斗鱼 / 虎牙 / 抖音 / 快手五平台观看、弹幕、分区浏览、全平台搜索、B站扫码登录与发弹幕。旧版 Flutter Web 已移除，默认界面即 `nas/webui`，界面为 **Twitch 结构 + 天蓝主色**主题：
+除安卓客户端外，本项目内置一套**纯 Web 版**（Vue3 + Naive UI 前端 + Node 聚合后端），支持 B站 / 斗鱼 / 虎牙 / 抖音 / 快手五平台观看、弹幕、分区浏览、全平台搜索、B站扫码登录与发弹幕。旧版 Flutter Web 已移除，默认界面即 `nas/webui`，界面为 **Twitch 结构 + 天蓝主色**主题。**同一套 server + 同一份 WebUI，三种部署形态任选**：
+
+| 形态 | 适合谁 | 部署方式 | 访问令牌 | 说明 |
+| --- | --- | --- | --- | --- |
+| **NAS** | 有 NAS（群晖/飞牛等） | Docker Compose（`nas/deploy/`） | 局域网可不设 | 常开低功耗，手机 App 可同步关注 |
+| **云服务器** | 想随时随地公网访问 | Docker Compose 或 systemd（[nas/DEPLOY_CLOUD.md](nas/DEPLOY_CLOUD.md)） | **必设** `PURE_LIVE_TOKEN` + 建议 HTTPS | 公网部署安全清单见该文档 |
+| **Windows 电脑** | 没 NAS、临时本机用 | 绿色便携包（`nas/portable_build.sh` 组装，双击 `启动.bat`） | 可不设（本机） | 约 90MB 解压即用，数据在包内 `data/` |
+
+公网/多用户场景的安全核心：`PURE_LIVE_TOKEN` 访问令牌保护 `/api/*`（WebUI 首次访问弹窗录入一次即可），配合 HTTPS 反代使用；局域网/本机部署不设置则行为与旧版完全一致。
 
 - 平台 API 聚合与取流签名（B站 WBI、斗鱼 ub98484234、抖音 a-bogus、虎牙 anticode）全部在服务端执行，浏览器无 CORS/风控问题；
 - 弹幕 WebSocket 代理（B站 brotli、斗鱼 STT、虎牙 Tars、抖音 protobuf、快手轮询 → 统一 JSON）；
