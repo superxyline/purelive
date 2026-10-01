@@ -1,0 +1,13 @@
+{
+    ".url": {
+        "purelive.Application": {
+            "title": "Pure Live",
+            "icon": "images/icon_{0}.png",
+            "type": "iframe",
+            "protocol": "http",
+            "port": "8090",
+            "url": "/",
+            "allUsers": true
+        }
+    }
+}

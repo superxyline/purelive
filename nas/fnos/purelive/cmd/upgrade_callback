@@ -1,0 +1,6 @@
+#!/bin/bash
+# 升级后: 补齐数据目录结构, 绝不覆盖用户已有 env / 数据
+set -u
+mkdir -p "${TRIM_PKGVAR}/data"
+bash "${TRIM_PKGMETA}/cmd/install_callback" 2>/dev/null || true
+exit 0

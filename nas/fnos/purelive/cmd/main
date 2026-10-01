@@ -1,0 +1,143 @@
+#!/bin/bash
+# Pure Live fnOS 生命周期入口: start / stop / status
+#
+# 结构: app/runtime/node(Linux x64 运行时) + app/server(fastify dist+生产依赖)
+#       + app/webui(静态 SPA, 由 server 的 PURE_LIVE_WEBUI_DIR 托管)
+# 数据(登录 Cookie/关注同步/日志)全部落 $TRIM_PKGVAR/data, 卸载保留。
+set -u
+
+LOG_FILE="${TRIM_PKGVAR}/service.log"
+PID_FILE="${TRIM_PKGVAR}/app.pid"
+ENV_FILE="${TRIM_PKGVAR}/env"
+DATA_DIR="${TRIM_PKGVAR}/data"
+APP_DIR="${TRIM_APPDEST}/app"
+NODE_BIN="${APP_DIR}/runtime/node"
+DEFAULT_PORT=8090
+
+log_msg() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "${LOG_FILE}"
+}
+
+fail_msg() {
+    # 写给用户的可见错误(应用中心会弹出)
+    echo "$1" > "${TRIM_TEMP_LOGFILE}"
+    log_msg "ERROR: $1"
+}
+
+check_process() {
+    kill -0 "$1" 2>/dev/null
+}
+
+# 生命周期脚本可能以 root 运行(privilege 语义因版本而异):
+# root 时把数据目录交给包用户并降权启动服务; 非 root 直接执行
+as_app_user() {
+    if [ "$(id -u)" = "0" ] && [ -n "${TRIM_USERNAME:-}" ]; then
+        runuser -u "${TRIM_USERNAME}" -- "$@"
+    else
+        "$@"
+    fi
+}
+
+fix_owner() {
+    if [ "$(id -u)" = "0" ] && [ -n "${TRIM_USERNAME:-}" ]; then
+        chown -R "${TRIM_USERNAME}:${TRIM_GROUPNAME:-${TRIM_USERNAME}}" \
+            "${TRIM_PKGVAR}" 2>> "${LOG_FILE}" || true
+    fi
+}
+
+status() {
+    if [ -f "${PID_FILE}" ]; then
+        local pid
+        pid="$(head -n 1 "${PID_FILE}" | tr -d '[:space:]')"
+        if [ -n "${pid}" ] && check_process "${pid}"; then
+            return 0
+        fi
+        rm -f "${PID_FILE}"
+    fi
+    return 1
+}
+
+start_process() {
+    if status; then
+        return 0
+    fi
+    if [ ! -f "${APP_DIR}/server/dist/index.js" ]; then
+        fail_msg "server 产物缺失: ${APP_DIR}/server/dist/index.js"
+        return 1
+    fi
+    # Windows 上打的包 app.tgz 丢失 exec 位, 启动前兜底补(非 root 且非属主则报错)
+    if [ ! -x "${NODE_BIN}" ]; then
+        chmod +x "${NODE_BIN}" 2>/dev/null || true
+    fi
+    if [ ! -x "${NODE_BIN}" ]; then
+        fail_msg "Node 运行时不可执行且无权补 exec 位: ${NODE_BIN}"
+        return 1
+    fi
+
+    mkdir -p "${DATA_DIR}"
+    fix_owner
+
+    # 载入用户环境(PURE_LIVE_TOKEN 等), 文件在数据目录
+    if [ -f "${ENV_FILE}" ]; then
+        set -a
+        # shellcheck disable=SC1090
+        . "${ENV_FILE}"
+        set +a
+    fi
+
+    local port="${TRIM_SERVICE_PORT:-${PORT:-${DEFAULT_PORT}}}"
+
+    # runuser 会 fork 等待子进程, 直接 $! 记到的是 runuser 而非 node ——
+    # 让内层 shell 把后台 node 的真实 pid 写进 pidfile, 进程脱离会话存活
+    local launch="cd '${APP_DIR}/server' && env PORT='${port}' \
+PURE_LIVE_DATA_DIR='${DATA_DIR}' PURE_LIVE_WEBUI_DIR='${APP_DIR}/webui' \
+NODE_ENV=production nohup '${NODE_BIN}' dist/index.js >> '${LOG_FILE}' 2>&1 & echo \$! > '${PID_FILE}'"
+    log_msg "启动 Pure Live Web 服务 (port ${port}, data ${DATA_DIR}) ..."
+    as_app_user bash -c "${launch}"
+
+    sleep 2
+    if status; then
+        log_msg "Pure Live Web 服务已启动 (pid $(head -n 1 "${PID_FILE}"))"
+        return 0
+    fi
+    rm -f "${PID_FILE}"
+    fail_msg "Pure Live 启动失败, 详见数据目录 service.log"
+    return 1
+}
+
+stop_process() {
+    log_msg "停止 Pure Live Web 服务 ..."
+    if [ -r "${PID_FILE}" ]; then
+        local pid count=0
+        pid="$(head -n 1 "${PID_FILE}" | tr -d '[:space:]')"
+        if [ -n "${pid}" ] && check_process "${pid}"; then
+            kill -TERM "${pid}" 2>/dev/null
+            while check_process "${pid}" && [ ${count} -lt 10 ]; do
+                sleep 1; count=$((count + 1))
+            done
+            check_process "${pid}" && kill -KILL "${pid}" 2>/dev/null
+        fi
+        rm -f "${PID_FILE}"
+    fi
+    log_msg "已停止"
+    return 0
+}
+
+case $1 in
+start)
+    start_process
+    ;;
+stop)
+    stop_process
+    ;;
+status)
+    if status; then
+        exit 0
+    else
+        exit 3
+    fi
+    ;;
+*)
+    exit 1
+    ;;
+esac

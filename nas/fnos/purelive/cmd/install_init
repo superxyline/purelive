@@ -1,0 +1,5 @@
+#!/bin/bash
+
+### This script is called automatically by fnOS.
+
+exit 0

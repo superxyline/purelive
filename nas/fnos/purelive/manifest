@@ -1,0 +1,14 @@
+appname=purelive
+version=1.0.0
+display_name=Pure Live 直播
+desc=五平台直播聚合 Web 端: 观看/弹幕/关注同步/弹幕回看, 内置取流签名与弹幕代理服务
+maintainer=superxyline
+maintainer_url=https://github.com/superxyline
+source=thirdparty
+platform=x86
+desktop_uidir=ui
+desktop_applaunchname=purelive.Application
+service_port=8090
+checkport=true
+ctl_stop=true
+changelog=首个原生 FPK 版本(内置 Node 运行时, 免 Docker 直接跑 Web 端)
