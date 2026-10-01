@@ -142,7 +142,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { api, withProxyFallback, toggleFollow, isFollowed } from '../api';
+import { api, withProxyFallback, toggleFollow, isFollowed, getToken } from '../api';
 import GiftCard from '../components/GiftCard.vue';
 
 const route = useRoute();
@@ -688,7 +688,9 @@ let ws = null;
 let dmRetry = null;
 function connectDanmaku() {
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  ws = new WebSocket(`${proto}://${location.host}/api/danmaku/${platform}/${roomId}`);
+  const token = getToken();
+  const tokenQs = token ? `?token=${encodeURIComponent(token)}` : '';
+  ws = new WebSocket(`${proto}://${location.host}/api/danmaku/${platform}/${roomId}${tokenQs}`);
   ws.onmessage = (ev) => {
     try {
       const m = JSON.parse(ev.data);

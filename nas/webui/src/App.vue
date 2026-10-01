@@ -22,10 +22,27 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
 import { darkTheme } from 'naive-ui';
 import { useRoute } from 'vue-router';
+import { setToken, getToken } from './api';
 
 const route = useRoute();
+
+// 云服务器部署开启了 PURE_LIVE_TOKEN 时，API 返回 401 则弹出令牌录入；
+// 录入后存 localStorage 并刷新页面重新加载。局域网部署（未设令牌）不触发。
+onMounted(() => {
+  window.addEventListener('purelive:unauthorized', () => {
+    const t = window.prompt(
+      '该服务已开启访问令牌保护，请输入访问令牌（PURE_LIVE_TOKEN）：',
+      getToken(),
+    );
+    if (t !== null) {
+      setToken(t);
+      window.location.reload();
+    }
+  });
+});
 
 /** Twitch 结构 + 天蓝主色（仅覆盖视觉 token） */
 const themeOverrides = {

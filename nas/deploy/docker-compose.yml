@@ -8,6 +8,9 @@ services:
       - PORT=8080
       - NAS_MASTER_KEY=${NAS_MASTER_KEY:-}
       - LOG_LEVEL=info
+      # 公网（云服务器）部署必设：访问令牌，WebUI 首次访问时会弹窗录入。
+      # 局域网（NAS/家用）可留空。设置后所有 /api/* 需携带该令牌。
+      # - PURE_LIVE_TOKEN=change-me-to-a-long-random-string
       # 可选：环境变量方式注入各平台 cookie（大写平台名）
       # - PURE_LIVE_COOKIE_BILIBILI=SESSDATA=xxx;bili_jct=xxx;DedeUserID=xxx
     volumes:

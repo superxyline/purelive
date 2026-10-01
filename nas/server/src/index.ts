@@ -22,6 +22,26 @@ async function main() {
   await app.register(cors, { origin: true, credentials: true });
   await app.register(websocket, { options: { maxPayload: 4 * 1024 * 1024 } });
 
+  // 可选访问令牌：设置 PURE_LIVE_TOKEN 后，所有 /api/*（除 /api/health）要求
+  // 请求头 x-api-token 或查询参数 token 匹配——供公网（云服务器）部署做最小
+  // 访问控制（保护托管的平台登录 Cookie 与关注数据）。不设置则与原行为一致，
+  // 适用于 NAS 局域网 / 电脑便携版等可信网络。
+  const apiToken = process.env.PURE_LIVE_TOKEN || '';
+  if (apiToken) {
+    app.addHook('onRequest', async (req, reply) => {
+      const url = req.raw.url || '';
+      if (!url.startsWith('/api/') || url.startsWith('/api/health')) return;
+      const provided = (req.headers['x-api-token'] as string) || '';
+      const qIndex = url.indexOf('token=');
+      const queryToken = qIndex >= 0
+        ? decodeURIComponent(url.slice(qIndex + 6).split('&')[0])
+        : '';
+      if (provided === apiToken || queryToken === apiToken) return;
+      reply.code(401).send({ error: 'unauthorized: missing or invalid token' });
+    });
+    app.log.info('API access token protection enabled');
+  }
+
   await app.register(siteRoutes, { prefix: '/api' });
   await app.register(signRoutes, { prefix: '/api/sign' });
   await app.register(authRoutes, { prefix: '/api/auth' });

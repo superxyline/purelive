@@ -1,5 +1,37 @@
 /** 后端 REST 客户端：全部走同源 /api（nginx 反代到 Node 后端）。 */
 
+/**
+ * 可选访问令牌：服务端设置 PURE_LIVE_TOKEN（公网/云服务器部署）后启用。
+ * - 令牌存 localStorage，REST 走 x-api-token 头、WebSocket 走 ?token= 查询参数；
+ * - 收到 401 时广播 purelive:unauthorized，App.vue 弹出输入框重新录入；
+ * - 服务端未设令牌（NAS 局域网 / Windows 便携版）时以下逻辑全部透明跳过。
+ */
+const TOKEN_KEY = 'purelive_api_token';
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY) || '';
+}
+
+export function setToken(t) {
+  localStorage.setItem(TOKEN_KEY, (t || '').trim());
+}
+
+function authHeaders(extra = {}) {
+  const t = getToken();
+  return t ? { 'x-api-token': t, ...extra } : { ...extra };
+}
+
+function withTokenQuery(url) {
+  const t = getToken();
+  if (!t) return url;
+  return url + (url.includes('?') ? '&' : '?') + 'token=' + encodeURIComponent(t);
+}
+
+function check401(res) {
+  if (res.status === 401) window.dispatchEvent(new CustomEvent('purelive:unauthorized'));
+  return res;
+}
+
 export const PLATFORMS = [
   { id: 'bilibili', name: '哔哩哔哩' },
   { id: 'douyu', name: '斗鱼' },
@@ -9,7 +41,7 @@ export const PLATFORMS = [
 ];
 
 async function get(url) {
-  const res = await fetch(url);
+  const res = check401(await fetch(withTokenQuery(url), { headers: authHeaders() }));
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
     try { msg = (await res.json()).error || msg; } catch (_) {}
@@ -37,9 +69,9 @@ export const api = {
   speedTest: (hosts) =>
     get(`/api/sites/speedtest?hosts=${encodeURIComponent(hosts.join(','))}`).then((d) => d.data || {}),
   sendDanmaku: (p, roomId, message) =>
-    fetch(`/api/sites/${p}/danmaku/send`, {
+    fetch(withTokenQuery(`/api/sites/${p}/danmaku/send`), {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: authHeaders({ 'content-type': 'application/json' }),
       body: JSON.stringify({ roomId, message }),
     }).then((r) => r.json()),
   authStatus: () => get('/api/auth/status').then((d) => d.platforms || {}),
@@ -48,14 +80,14 @@ export const api = {
   bilibiliSession: () => get('/api/auth/bilibili/session'),
   syncFollows: () => get('/api/sync/follows'),
   saveSyncFollows: (list) =>
-    fetch('/api/sync/follows', {
+    fetch(withTokenQuery('/api/sync/follows'), {
       method: 'PUT',
-      headers: { 'content-type': 'application/json' },
+      headers: authHeaders({ 'content-type': 'application/json' }),
       body: JSON.stringify({ list }),
     }).then((r) => r.json()),
   saveCookie: (p, cookie) =>
-    fetch(`/api/auth/${p}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ cookie }) }).then((r) => r.json()),
-  clearAuth: (p) => fetch(`/api/auth/${p}`, { method: 'DELETE' }).then((r) => r.json()),
+    fetch(withTokenQuery(`/api/auth/${p}`), { method: 'POST', headers: authHeaders({ 'content-type': 'application/json' }), body: JSON.stringify({ cookie }) }).then((r) => r.json()),
+  clearAuth: (p) => fetch(withTokenQuery(`/api/auth/${p}`), { method: 'DELETE', headers: authHeaders() }).then((r) => r.json()),
 };
 
 /** 直播流地址：直连失败时改走后端代理（参考 Flutter 版 WebVideoAdapter 的回退策略）。 */
