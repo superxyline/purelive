@@ -96,6 +96,40 @@ sudo docker compose up -d --force-recreate web
 
 ---
 
+## 💻 电脑便携版（无 NAS 也能用 Web 端）
+
+没有 NAS？把服务跑在任何一台 Windows 电脑上，浏览器打开 `http://localhost:8090` 就是和 NAS Web 端**完全一致**的界面（五平台观看、弹幕、关注、屏蔽、测速等）。
+
+### 使用方法
+
+1. 解压便携包（`pure_live_portable_v*.zip`，约 32 MB，解压后约 90 MB）到任意文件夹；
+2. 双击 **`启动.bat`**，约 2 秒后浏览器自动打开 `http://localhost:8090`；
+3. 关闭黑色命令行窗口即停止服务；数据保存在文件夹内的 `data/`，删除整个文件夹即完全卸载。
+
+### 让手机 App 也连上它（可选）
+
+手机与电脑连同一局域网，App「设置 → 备份与恢复 → NAS 服务器同步」地址填
+`http://<电脑局域网IP>:8090`（`ipconfig` 查看 IPv4），关注列表即可与电脑双向同步。
+
+### 常见问题
+
+- **端口占用**：编辑「启动.bat」把 `8090` 改成其他端口；
+- **页面空白**：确认命令行窗口没关（窗口关了服务就停）；
+- **开机自启**：把「启动.bat」的快捷方式放进 `shell:startup` 文件夹。
+
+### 自己打包
+
+便携包由脚本从源码组装（Node 20 运行时 + server 编译产物 + 生产依赖 + webui 构建产物 + 启动脚本）：
+
+```bash
+cd nas/server && npm run build && cd ../webui && npm run build
+bash nas/portable_build.sh   # 产出 E:\codex\purelive-portable\pure_live_portable```
+
+服务端通过 `PURE_LIVE_WEBUI_DIR` 环境变量自托管 WebUI 静态文件（含 SPA 回退与
+路径穿越防护），与 NAS 的 nginx 架构无关；数据目录 `PURE_LIVE_DATA_DIR`、端口 `PORT`。
+
+---
+
 ## 🔄 原版与自用修改版的区别
 
 | 项目 | 原版 pure_live | 自用修改版（纯净版） |
