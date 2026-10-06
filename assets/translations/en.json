@@ -571,7 +571,6 @@
   "nas_push_done": "Pushed to NAS",
   "nas_pull_done": "Pulled from NAS",
   "nas_discover": "Search LAN services",
-  "nas_discover_sub": "Find running Pure Live servers on this network",
   "nas_discovering": "Searching the network…",
   "nas_discover_none": "No service found. Make sure the NAS is running and on the same network.",
   "danmaku_repeat_filter": "Repeated danmaku filter",
@@ -1394,5 +1393,7 @@
   "osd_audio_bitrate": "Audio bitrate",
   "link_access": "Link Access",
   "liquid_glass_style": "Liquid Glass Navigation",
-  "liquid_glass_style_desc": "When on, the home navigation uses the liquid-glass look (hover & press animations); off keeps the current style"
+  "liquid_glass_style_desc": "When on, the home navigation uses the liquid-glass look (hover & press animations); off keeps the current style",
+  "nas_discover_manual": "Enter address manually",
+  "nas_discover_retry": "Search again"
 }

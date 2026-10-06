@@ -25,87 +25,119 @@ class _BackupPageState extends State<BackupPage> {
   final NasSyncController nasSync = NasSyncController.to;
   String get backupDirectory => SettingsService.to.backup.backupDirectory.v;
 
-  /// NAS 地址配置：保存即生效；"保存并同步"额外做一次并集同步（拉 NAS 关注并入本地，再把并集推回）
+  /// NAS 服务选择：先自动搜索局域网，搜到列表选择；搜不到/想手填时切到地址输入。
+  /// 选中服务或填写保存后按 action 决定是否立即同步。
   Future<void> _showNasSyncDialog() async {
-    final ctrl = TextEditingController(text: nasSync.serverAddress.v);
-    final action = await Get.dialog<String>(
-      AlertDialog(
-        title: Text(i18n('nas_sync_title')),
-        content: TextField(
-          controller: ctrl,
-          keyboardType: TextInputType.url,
-          autofocus: true,
-          decoration: InputDecoration(hintText: i18n('nas_addr_hint'), labelText: 'NAS'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, 'cancel'), child: Text(i18n('cancel'))),
-          TextButton(onPressed: () => Navigator.pop(context, 'save'), child: Text(i18n('save'))),
-          FilledButton(onPressed: () => Navigator.pop(context, 'sync'), child: Text(i18n('nas_save_and_sync'))),
-        ],
-      ),
-    );
-    if (action == null || action == 'cancel') return;
-    nasSync.saveAddress(ctrl.text);
-    if (action == 'sync') await nasSync.syncNow();
-  }
-
-  /// 局域网自动发现：扫描同网段 8090 端口的 Pure Live 服务，选中即填地址并拉取
-  Future<void> _discoverNasServices() async {
+    var mode = 0; // 0=搜索中 1=结果列表 2=手动输入
     List<NasServiceInfo>? results;
     var progress = 0.0;
-    final confirmed = await Get.dialog<String>(
+    final ctrl = TextEditingController(text: nasSync.serverAddress.v);
+
+    Future<void> runScan(void Function(VoidCallback) setState) async {
+      setState(() {
+        mode = 0;
+        results = null;
+        progress = 0.0;
+      });
+      final found = await NasDiscoveryService.discover(
+        onProgress: (p) => setState(() => progress = p),
+      );
+      setState(() {
+        results = found;
+        mode = 1;
+      });
+    }
+
+    final action = await Get.dialog<String>(
       StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(i18n('nas_discover')),
+        builder: (dialogContext, setState) => AlertDialog(
+          title: Text(i18n('nas_sync_title')),
           content: SizedBox(
             width: double.maxFinite,
-            child: results == null
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      LinearProgressIndicator(value: progress <= 0 ? null : progress),
-                      const SizedBox(height: 12),
-                      Text(i18n('nas_discovering'), style: context.textTheme.bodySmall),
-                    ],
+            child: mode == 2
+                ? TextField(
+                    controller: ctrl,
+                    keyboardType: TextInputType.url,
+                    autofocus: true,
+                    decoration: InputDecoration(hintText: i18n('nas_addr_hint'), labelText: 'NAS'),
                   )
-                : results!.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(i18n('nas_discover_none'), style: context.textTheme.bodySmall),
+                : mode == 0
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          LinearProgressIndicator(value: progress <= 0 ? null : progress),
+                          const SizedBox(height: 12),
+                          Text(i18n('nas_discovering'), style: dialogContext.textTheme.bodySmall),
+                        ],
                       )
-                    : ConstrainedBox(
-                        constraints: const BoxConstraints(maxHeight: 320),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: results!.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1),
-                          itemBuilder: (_, i) {
-                            final s = results![i];
-                            return ListTile(
-                              dense: true,
-                              leading: const Icon(Remix.server_line),
-                              title: Text('Pure Live', style: context.textTheme.bodyMedium),
-                              subtitle: Text(
-                                '${s.address} · ${s.follows} 个关注',
-                                style: context.textTheme.bodySmall,
-                              ),
-                              trailing: const Icon(Remix.arrow_right_s_line),
-                              onTap: () => Navigator.pop(context, s.address),
-                            );
-                          },
-                        ),
-                      ),
+                    : results!.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              i18n('nas_discover_none'),
+                              style: dialogContext.textTheme.bodySmall,
+                            ),
+                          )
+                        : ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 320),
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: results!.length,
+                              separatorBuilder: (_, __) => const Divider(height: 1),
+                              itemBuilder: (_, i) {
+                                final s = results![i];
+                                return ListTile(
+                                  dense: true,
+                                  leading: const Icon(Remix.server_line),
+                                  title: Text('Pure Live', style: dialogContext.textTheme.bodyMedium),
+                                  subtitle: Text(
+                                    '${s.address} · ${s.follows} 个关注',
+                                    style: dialogContext.textTheme.bodySmall,
+                                  ),
+                                  trailing: const Icon(Remix.arrow_right_s_line),
+                                  onTap: () => Navigator.pop(dialogContext, s.address),
+                                );
+                              },
+                            ),
+                          ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, 'cancel'), child: Text(i18n('cancel'))),
+            TextButton(onPressed: () => Navigator.pop(dialogContext, 'cancel'), child: Text(i18n('cancel'))),
+            // 搜索完成后提供"重新搜索"；输入模式提供"搜索"返回；输入中不显示
+            if (mode == 1)
+              TextButton(
+                onPressed: () => runScan(setState),
+                child: Text(i18n('nas_discover_retry')),
+              ),
+            if (mode != 2)
+              TextButton(
+                onPressed: () => setState(() => mode = 2),
+                child: Text(i18n('nas_discover_manual')),
+              )
+            else
+              TextButton(
+                onPressed: () => runScan(setState),
+                child: Text(i18n('nas_discover')),
+              ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, 'sync'),
+              child: Text(i18n('nas_save_and_sync')),
+            ),
           ],
         ),
       ),
     );
-    if (confirmed == null || confirmed == 'cancel') return;
-    nasSync.saveAddress(confirmed);
-    setState(() {}); // 刷新卡片上显示的地址
-    await nasSync.pullNow();
+    if (action == null || action == 'cancel') return;
+    if (action == 'sync') {
+      // 'sync' 时地址来自输入框（选中服务的路径直接返回地址字符串）
+      nasSync.saveAddress(ctrl.text);
+      await nasSync.syncNow();
+      setState(() {}); // 刷新卡片上显示的地址
+    } else {
+      nasSync.saveAddress(action);
+      setState(() {});
+      await nasSync.pullNow();
+    }
   }
 
   Future<void> _openLogDirectory() async {
@@ -182,12 +214,6 @@ class _BackupPageState extends State<BackupPage> {
               title: i18n("nas_pull_tile"),
               subtitle: i18n("nas_pull_sub"),
               onTap: () => nasSync.pullNow(),
-            ),
-            context.buildTile(
-              icon: Remix.radar_line,
-              title: i18n("nas_discover"),
-              subtitle: i18n("nas_discover_sub"),
-              onTap: _discoverNasServices,
             ),
           ]),
           const SizedBox(height: 20),
