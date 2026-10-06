@@ -8,7 +8,7 @@
 
 本项目是开源项目 [pure_live](https://github.com/liuchuancong/pure_live) 的**个人自用修改版**，在原版基础上做了大量裁剪与功能增强，专注 Android 平台，仅保留哔哩哔哩 / 斗鱼 / 虎牙 / 抖音 / 快手五大平台。
 
-- **当前版本**：`2.2.4+4022`（基于上游 v2.1.4 裁剪定制，最后更新：2026-10-01）
+- **当前版本**：`2.2.5+4023`（基于上游 v2.1.4 裁剪定制，最后更新：2026-10-01）
 - **应用包名**：`com.superxyline.purelive`
 - **运行形态**：安卓 App（arm64）+ Web 服务端（飞牛 fpk / NAS Docker / 云服务器 / Windows 便携包，见下方矩阵）
 - **代码仓库**：[https://gitee.com/superxyline/purelive](https://gitee.com/superxyline/purelive)（GitHub 同步：[superxyline/purelive](https://github.com/superxyline/purelive)）
