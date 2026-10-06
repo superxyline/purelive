@@ -20,17 +20,66 @@ interface SyncedFollow {
   cover: string;
 }
 
-function readSynced(): { syncedAt: number; list: SyncedFollow[] } {
+/** 屏蔽数据：弹幕关键词 / 屏蔽用户 / 按房间礼物屏蔽（key 为 "platform|roomId"） */
+interface SyncedShields {
+  keywords: string[];
+  users: string[];
+  giftBlocks: Record<string, string[]>;
+}
+
+const EMPTY_SHIELDS: SyncedShields = { keywords: [], users: [], giftBlocks: {} };
+
+function readSynced(): { syncedAt: number; list: SyncedFollow[]; shields: SyncedShields } {
   try {
-    return JSON.parse(fs.readFileSync(SYNC_FILE, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(SYNC_FILE, 'utf8'));
+    const shields = data.shields ?? EMPTY_SHIELDS;
+    return {
+      syncedAt: data.syncedAt ?? 0,
+      list: Array.isArray(data.list) ? data.list : [],
+      shields: {
+        keywords: Array.isArray(shields.keywords) ? shields.keywords.map(String) : [],
+        users: Array.isArray(shields.users) ? shields.users.map(String) : [],
+        giftBlocks:
+          shields.giftBlocks && typeof shields.giftBlocks === 'object'
+            ? Object.fromEntries(
+                Object.entries(shields.giftBlocks)
+                  .filter(([, v]) => Array.isArray(v))
+                  .map(([k, v]) => [k, (v as unknown[]).map(String)]),
+              )
+            : {},
+      },
+    };
   } catch (_) {
-    return { syncedAt: 0, list: [] };
+    return { syncedAt: 0, list: [], shields: { ...EMPTY_SHIELDS } };
   }
 }
 
-function writeSynced(list: SyncedFollow[]): void {
+function writeSynced(list: SyncedFollow[], shields?: SyncedShields): void {
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(SYNC_FILE, JSON.stringify({ syncedAt: Date.now(), list }));
+  const prev = readSynced();
+  fs.writeFileSync(
+    SYNC_FILE,
+    JSON.stringify({ syncedAt: Date.now(), list, shields: shields ?? prev.shields }),
+  );
+}
+
+/** 归一化来源不明的屏蔽数据（坏结构静默丢弃，字符串去重去空） */
+function extractShields(raw: unknown): SyncedShields | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const s = raw as Record<string, unknown>;
+  const strList = (v: unknown): string[] =>
+    Array.isArray(v)
+      ? Array.from(new Set(v.map((x) => String(x ?? '').trim()).filter((x) => x.length > 0)))
+      : [];
+  const giftBlocks: Record<string, string[]> = {};
+  if (s.giftBlocks && typeof s.giftBlocks === 'object') {
+    for (const [key, value] of Object.entries(s.giftBlocks as Record<string, unknown>)) {
+      if (!key.trim()) continue;
+      const list = strList(value);
+      if (list.length) giftBlocks[key] = list;
+    }
+  }
+  return { keywords: strList(s.keywords), users: strList(s.users), giftBlocks };
 }
 
 /** 任意来源的原始列表 → synced-follows 格式（去重+平台校验） */
@@ -110,4 +159,42 @@ export const syncRoutes: FastifyPluginAsync = async (app) => {
   app.put<{ Body: { list?: unknown } }>('/sync/follows', saveFollows);
   // App 的 HttpClient 只有 postJson，POST 同语义兼容
   app.post<{ Body: { list?: unknown } }>('/sync/follows', saveFollows);
+
+  // 扩展同步：关注 + 屏蔽三件套（弹幕关键词/屏蔽用户/按房间礼物屏蔽）。
+  // list / shields 均可选，给了才覆盖对应部分——旧版 App 与 WebUI 只走
+  // /sync/follows，shields 字段保持原值不受影响。
+  const saveData = async (req: { body?: { list?: unknown; shields?: unknown } }) => {
+    const body = req.body as Record<string, unknown> | undefined;
+    let list: SyncedFollow[] | undefined;
+    if (body && 'list' in body) list = extractList(body.list);
+    const shields = extractShields(body?.shields);
+    writeSynced(list ?? readSynced().list, shields);
+    const after = readSynced();
+    return {
+      ok: true,
+      count: after.list.length,
+      shields: {
+        keywords: after.shields.keywords.length,
+        users: after.shields.users.length,
+        giftBlocks: Object.keys(after.shields.giftBlocks).length,
+      },
+    };
+  };
+  app.get('/sync/data', async () => {
+    const { syncedAt, list, shields } = readSynced();
+    return { syncedAt, list, shields };
+  });
+  app.put<{ Body: { list?: unknown; shields?: unknown } }>('/sync/data', saveData);
+  app.post<{ Body: { list?: unknown; shields?: unknown } }>('/sync/data', saveData);
+
+  // 局域网自动发现：App 扫描网段 8090 端口命中 /api/health 后，用本端点取服务信息
+  app.get('/discover', async () => {
+    const { syncedAt, list, shields } = readSynced();
+    return {
+      app: 'pure_live',
+      follows: list.length,
+      shields: shields.keywords.length + shields.users.length,
+      syncedAt,
+    };
+  });
 };

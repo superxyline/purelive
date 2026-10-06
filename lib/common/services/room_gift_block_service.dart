@@ -99,4 +99,25 @@ class RoomGiftBlockService extends GetxService {
     });
     _save();
   }
+
+  /// NAS 同步用并集合并：同房间的礼物名列表取并集，已有条目不删不重。
+  void mergeUnion(Map<String, List<String>> other) {
+    var changed = false;
+    other.forEach((key, list) {
+      final merged = List<String>.from(blockedGifts[key] ?? const <String>[]);
+      for (final name in list) {
+        final n = name.trim();
+        if (n.isEmpty || merged.contains(n)) continue;
+        merged.add(n);
+        changed = true;
+      }
+      if (merged.isNotEmpty) blockedGifts[key] = merged;
+    });
+    if (changed) _save();
+  }
+
+  /// 快照（拷贝，供推送序列化）
+  Map<String, List<String>> snapshot() => {
+    for (final entry in blockedGifts.entries) entry.key: List<String>.from(entry.value),
+  };
 }

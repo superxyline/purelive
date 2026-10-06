@@ -11,7 +11,9 @@
                   ├── /api/sites/:p/...   五平台 API 聚合（B站 WBI、斗鱼 ub98484234、抖音 a-bogus、虎牙 anticode 签名在服务端执行）
                   ├── /api/danmaku/:p/:roomId  弹幕 WebSocket 代理（B站 brotli、斗鱼 STT、虎牙 Tars、抖音 protobuf → 统一 JSON）
                   ├── /api/auth/...       B站扫码登录 + 各平台 cookie 托管（AES-256-GCM 加密落盘）
-                  └── /api/stream/proxy   直播流 Referer 校验时的回退代理
+                  ├── /api/stream/proxy   直播流 Referer 校验时的回退代理
+                  ├── /api/sync/data      App↔NAS 关注+屏蔽三件套同步（WebUI 用 /api/sync/follows）
+                  └── /api/discover       局域网自动发现（App 扫描网段后取服务信息）
 ```
 
 ## 部署

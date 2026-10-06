@@ -11,6 +11,7 @@ import 'package:pure_live/common/global/app_path_manager.dart';
 import 'package:pure_live/plugins/backup_recovery_service.dart';
 import 'package:pure_live/common/services/settings/log_controller.dart';
 import 'package:pure_live/common/services/settings/nas_sync_controller.dart';
+import 'package:pure_live/common/services/nas_discovery_service.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
@@ -46,6 +47,65 @@ class _BackupPageState extends State<BackupPage> {
     if (action == null || action == 'cancel') return;
     nasSync.saveAddress(ctrl.text);
     if (action == 'sync') await nasSync.syncNow();
+  }
+
+  /// 局域网自动发现：扫描同网段 8090 端口的 Pure Live 服务，选中即填地址并拉取
+  Future<void> _discoverNasServices() async {
+    List<NasServiceInfo>? results;
+    var progress = 0.0;
+    final confirmed = await Get.dialog<String>(
+      StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(i18n('nas_discover')),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: results == null
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      LinearProgressIndicator(value: progress <= 0 ? null : progress),
+                      const SizedBox(height: 12),
+                      Text(i18n('nas_discovering'), style: context.textTheme.bodySmall),
+                    ],
+                  )
+                : results!.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(i18n('nas_discover_none'), style: context.textTheme.bodySmall),
+                      )
+                    : ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 320),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: results!.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (_, i) {
+                            final s = results![i];
+                            return ListTile(
+                              dense: true,
+                              leading: const Icon(Remix.server_line),
+                              title: Text('Pure Live', style: context.textTheme.bodyMedium),
+                              subtitle: Text(
+                                '${s.address} · ${s.follows} 个关注',
+                                style: context.textTheme.bodySmall,
+                              ),
+                              trailing: const Icon(Remix.arrow_right_s_line),
+                              onTap: () => Navigator.pop(context, s.address),
+                            );
+                          },
+                        ),
+                      ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, 'cancel'), child: Text(i18n('cancel'))),
+          ],
+        ),
+      ),
+    );
+    if (confirmed == null || confirmed == 'cancel') return;
+    nasSync.saveAddress(confirmed);
+    setState(() {}); // 刷新卡片上显示的地址
+    await nasSync.pullNow();
   }
 
   Future<void> _openLogDirectory() async {
@@ -100,7 +160,7 @@ class _BackupPageState extends State<BackupPage> {
             ],
           ]),
           const SizedBox(height: 20),
-          // NAS 服务器常连同步：存地址 + 与 NAS 关注列表做并集
+          // NAS 服务器常连同步：存地址 + 方向可选（推送/拉取/并集）+ 局域网自动发现
           context.buildGroupTitle(i18n("nas_sync_title")),
           context.buildModernCard([
             Obx(() => context.buildTile(
@@ -111,6 +171,24 @@ class _BackupPageState extends State<BackupPage> {
                       : "${nasSync.serverAddress.v} · ${i18n('tap_to_sync')}",
                   onTap: _showNasSyncDialog,
                 )),
+            context.buildTile(
+              icon: Remix.upload_2_line,
+              title: i18n("nas_push_tile"),
+              subtitle: i18n("nas_push_sub"),
+              onTap: () => nasSync.pushNow(),
+            ),
+            context.buildTile(
+              icon: Remix.download_2_line,
+              title: i18n("nas_pull_tile"),
+              subtitle: i18n("nas_pull_sub"),
+              onTap: () => nasSync.pullNow(),
+            ),
+            context.buildTile(
+              icon: Remix.radar_line,
+              title: i18n("nas_discover"),
+              subtitle: i18n("nas_discover_sub"),
+              onTap: _discoverNasServices,
+            ),
           ]),
           const SizedBox(height: 20),
             context.buildGroupTitle(i18n("local_backup")),
