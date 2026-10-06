@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:pure_live/get/get.dart';
-
 /// 局域网发现的 Pure Live 服务信息
 class NasServiceInfo {
   final String ip;

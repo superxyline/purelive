@@ -572,7 +572,6 @@
   "nas_push_done": "已推送到 NAS",
   "nas_pull_done": "已从 NAS 拉取",
   "nas_discover": "搜索局域网服务",
-  "nas_discover_sub": "自动发现同网段正在运行的 Pure Live 服务",
   "nas_discovering": "正在搜索局域网服务…",
   "nas_discover_none": "未发现服务，请确认 NAS 正在运行且与手机在同一网络",
   "danmaku_repeat_filter": "重复弹幕过滤",
@@ -1394,5 +1393,7 @@
   "osd_audio_bitrate": "音频码率",
   "link_access": "链接访问",
   "liquid_glass_style": "液态玻璃导航",
-  "liquid_glass_style_desc": "开启后首页导航使用液态玻璃视觉（含悬停与按压动效），关闭则沿用当前样式"
+  "liquid_glass_style_desc": "开启后首页导航使用液态玻璃视觉（含悬停与按压动效），关闭则沿用当前样式",
+  "nas_discover_manual": "手动填写地址",
+  "nas_discover_retry": "重新搜索"
 }
