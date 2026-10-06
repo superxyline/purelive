@@ -175,7 +175,7 @@ class NasSyncController extends GetxController {
   /// 仅推送：本地覆盖 NAS（不动本地数据）。
   Future<void> pushNow() async {
     final ok = await _syncDirection(push);
-    ToastUtil.show(ok ? i18n('nas_push_done') : i18n('nas_sync_failed'));
+    ToastUtil.show(ok >= 0 ? i18n('nas_push_done') : i18n('nas_sync_failed'));
   }
 
   /// 仅拉取：NAS 并集入本地，不回推 NAS。
