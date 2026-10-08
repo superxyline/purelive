@@ -25,8 +25,8 @@ class _BackupPageState extends State<BackupPage> {
   final NasSyncController nasSync = NasSyncController.to;
   String get backupDirectory => SettingsService.to.backup.backupDirectory.v;
 
-  /// NAS 服务选择：先自动搜索局域网，搜到列表选择；搜不到/想手填时切到地址输入。
-  /// 选中服务或填写保存后按 action 决定是否立即同步。
+  /// NAS 服务选择：只搜索/选择并保存服务器地址，**不执行任何同步**——
+  /// 同步动作只从上一级菜单的「推送到 NAS」「从 NAS 拉取」两个按钮触发。
   Future<void> _showNasSyncDialog() async {
     var mode = 0; // 0=搜索中 1=结果列表 2=手动输入
     List<NasServiceInfo>? results;
@@ -137,8 +137,8 @@ class _BackupPageState extends State<BackupPage> {
                   child: Text(i18n('nas_discover')),
                 ),
               FilledButton(
-                onPressed: () => Navigator.pop(dialogContext, 'sync'),
-                child: Text(i18n('nas_save_and_sync')),
+                onPressed: () => Navigator.pop(dialogContext, 'save'),
+                child: Text(i18n('save')),
               ),
             ],
           );
@@ -146,16 +146,13 @@ class _BackupPageState extends State<BackupPage> {
       ),
     );
     if (action == null || action == 'cancel') return;
-    if (action == 'sync') {
-      // 'sync' 时地址来自输入框（选中服务的路径直接返回地址字符串）
+    // 纯地址配置：无论点选服务还是手动保存，都只存地址不触发同步
+    if (action == 'save') {
       nasSync.saveAddress(ctrl.text);
-      await nasSync.syncNow();
-      setState(() {}); // 刷新卡片上显示的地址
     } else {
       nasSync.saveAddress(action);
-      setState(() {});
-      await nasSync.pullNow();
     }
+    setState(() {}); // 刷新卡片上显示的地址
   }
 
   Future<void> _openLogDirectory() async {
@@ -218,7 +215,7 @@ class _BackupPageState extends State<BackupPage> {
                   title: i18n("nas_sync_title"),
                   subtitle: nasSync.baseUrl.isEmpty
                       ? i18n("nas_not_configured")
-                      : "${nasSync.serverAddress.v} · ${i18n('tap_to_sync')}",
+                      : "${nasSync.serverAddress.v} · ${i18n('tap_to_config')}",
                   onTap: _showNasSyncDialog,
                 )),
             context.buildTile(
