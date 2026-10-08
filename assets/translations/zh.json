@@ -1395,5 +1395,6 @@
   "liquid_glass_style": "液态玻璃导航",
   "liquid_glass_style_desc": "开启后首页导航使用液态玻璃视觉（含悬停与按压动效），关闭则沿用当前样式",
   "nas_discover_manual": "手动填写地址",
-  "nas_discover_retry": "重新搜索"
+  "nas_discover_retry": "重新搜索",
+  "tap_to_config": "点击配置服务地址"
 }

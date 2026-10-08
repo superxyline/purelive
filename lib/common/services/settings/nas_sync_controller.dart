@@ -8,7 +8,6 @@ import 'package:pure_live/common/services/utils/hive_rx.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
-import 'package:pure_live/common/services/room_gift_block_service.dart';
 
 /// NAS Web 服务常连同步：
 /// - 存 NAS 地址（扫码/手输/局域网自动发现，一次长期有效）

@@ -1395,5 +1395,6 @@
   "liquid_glass_style": "Liquid Glass Navigation",
   "liquid_glass_style_desc": "When on, the home navigation uses the liquid-glass look (hover & press animations); off keeps the current style",
   "nas_discover_manual": "Enter address manually",
-  "nas_discover_retry": "Search again"
+  "nas_discover_retry": "Search again",
+  "tap_to_config": "Tap to configure server"
 }
