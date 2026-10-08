@@ -31,18 +31,24 @@ class _BackupPageState extends State<BackupPage> {
     var mode = 0; // 0=搜索中 1=结果列表 2=手动输入
     List<NasServiceInfo>? results;
     var progress = 0.0;
+    var scanStarted = false; // 首次扫描只自动触发一次
     final ctrl = TextEditingController(text: nasSync.serverAddress.v);
 
-    Future<void> runScan(void Function(VoidCallback) setState) async {
-      setState(() {
+    Future<void> runScan(BuildContext dialogContext, void Function(VoidCallback) setState) async {
+      // 对话框可能在扫描完成前被关闭，state 回调必须先查 mounted
+      void safe(VoidCallback fn) {
+        if (dialogContext.mounted) setState(fn);
+      }
+
+      safe(() {
         mode = 0;
         results = null;
         progress = 0.0;
       });
       final found = await NasDiscoveryService.discover(
-        onProgress: (p) => setState(() => progress = p),
+        onProgress: (p) => safe(() => progress = p),
       );
-      setState(() {
+      safe(() {
         results = found;
         mode = 1;
       });
@@ -50,81 +56,93 @@ class _BackupPageState extends State<BackupPage> {
 
     final action = await Get.dialog<String>(
       StatefulBuilder(
-        builder: (dialogContext, setState) => AlertDialog(
-          title: Text(i18n('nas_sync_title')),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: mode == 2
-                ? TextField(
-                    controller: ctrl,
-                    keyboardType: TextInputType.url,
-                    autofocus: true,
-                    decoration: InputDecoration(hintText: i18n('nas_addr_hint'), labelText: 'NAS'),
-                  )
-                : mode == 0
-                    ? Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          LinearProgressIndicator(value: progress <= 0 ? null : progress),
-                          const SizedBox(height: 12),
-                          Text(i18n('nas_discovering'), style: dialogContext.textTheme.bodySmall),
-                        ],
-                      )
-                    : results!.isEmpty
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Text(
-                              i18n('nas_discover_none'),
-                              style: dialogContext.textTheme.bodySmall,
+        builder: (dialogContext, setState) {
+          // 打开对话框即自动启动首次扫描（此前 bug：只画了进度条没调 discover）
+          if (!scanStarted && mode == 0) {
+            scanStarted = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (dialogContext.mounted) runScan(dialogContext, setState);
+            });
+          }
+          return AlertDialog(
+            title: Text(i18n('nas_sync_title')),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: mode == 2
+                  ? TextField(
+                      controller: ctrl,
+                      keyboardType: TextInputType.url,
+                      autofocus: true,
+                      decoration: InputDecoration(hintText: i18n('nas_addr_hint'), labelText: 'NAS'),
+                    )
+                  : mode == 0
+                      ? Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            LinearProgressIndicator(value: progress <= 0 ? null : progress),
+                            const SizedBox(height: 12),
+                            Text(i18n('nas_discovering'), style: dialogContext.textTheme.bodySmall),
+                          ],
+                        )
+                      : results!.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                i18n('nas_discover_none'),
+                                style: dialogContext.textTheme.bodySmall,
+                              ),
+                            )
+                          : ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 320),
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: results!.length,
+                                separatorBuilder: (_, __) => const Divider(height: 1),
+                                itemBuilder: (_, i) {
+                                  final s = results![i];
+                                  return ListTile(
+                                    dense: true,
+                                    leading: const Icon(Remix.server_line),
+                                    title:
+                                        Text('Pure Live', style: dialogContext.textTheme.bodyMedium),
+                                    subtitle: Text(
+                                      '${s.address} · ${s.follows} 个关注',
+                                      style: dialogContext.textTheme.bodySmall,
+                                    ),
+                                    trailing: const Icon(Remix.arrow_right_s_line),
+                                    onTap: () => Navigator.pop(dialogContext, s.address),
+                                  );
+                                },
+                              ),
                             ),
-                          )
-                        : ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 320),
-                            child: ListView.separated(
-                              shrinkWrap: true,
-                              itemCount: results!.length,
-                              separatorBuilder: (_, __) => const Divider(height: 1),
-                              itemBuilder: (_, i) {
-                                final s = results![i];
-                                return ListTile(
-                                  dense: true,
-                                  leading: const Icon(Remix.server_line),
-                                  title: Text('Pure Live', style: dialogContext.textTheme.bodyMedium),
-                                  subtitle: Text(
-                                    '${s.address} · ${s.follows} 个关注',
-                                    style: dialogContext.textTheme.bodySmall,
-                                  ),
-                                  trailing: const Icon(Remix.arrow_right_s_line),
-                                  onTap: () => Navigator.pop(dialogContext, s.address),
-                                );
-                              },
-                            ),
-                          ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext, 'cancel'), child: Text(i18n('cancel'))),
-            // 搜索完成后提供"重新搜索"；输入模式提供"搜索"返回；输入中不显示
-            if (mode == 1)
-              TextButton(
-                onPressed: () => runScan(setState),
-                child: Text(i18n('nas_discover_retry')),
-              ),
-            if (mode != 2)
-              TextButton(
-                onPressed: () => setState(() => mode = 2),
-                child: Text(i18n('nas_discover_manual')),
-              )
-            else
-              TextButton(
-                onPressed: () => runScan(setState),
-                child: Text(i18n('nas_discover')),
-              ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, 'sync'),
-              child: Text(i18n('nas_save_and_sync')),
             ),
-          ],
-        ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, 'cancel'),
+                  child: Text(i18n('cancel'))),
+              // 搜索完成后提供"重新搜索"；输入模式提供"搜索"返回；输入中不显示
+              if (mode == 1)
+                TextButton(
+                  onPressed: () => runScan(dialogContext, setState),
+                  child: Text(i18n('nas_discover_retry')),
+                ),
+              if (mode != 2)
+                TextButton(
+                  onPressed: () => setState(() => mode = 2),
+                  child: Text(i18n('nas_discover_manual')),
+                )
+              else
+                TextButton(
+                  onPressed: () => runScan(dialogContext, setState),
+                  child: Text(i18n('nas_discover')),
+                ),
+              FilledButton(
+                onPressed: () => Navigator.pop(dialogContext, 'sync'),
+                child: Text(i18n('nas_save_and_sync')),
+              ),
+            ],
+          );
+        },
       ),
     );
     if (action == null || action == 'cancel') return;
