@@ -160,37 +160,22 @@ class DouyuSite implements LiveSite {
   Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
     var data = quality.data as DouyuPlayData;
 
-    // H5 响应带服务端实际确认的 rate（与请求可能不同，匿名时会被降档；
-    // 且 rate 代码不是数值可排序的码率：0=原画1080P30、3=超清、2=高清）。
-    // 按「实际档==请求档」分组前置，避免把降档转码流当原画播（上游 #853 审计同思路）。
-    final matched = <String>[];
-    final other = <String>[];
+    List<String> urls = [];
     for (var item in data.cdns) {
       try {
-        final r = await getPlayUrlDetail(detail.roomId!, data.rate, item);
-        if (r.url.isEmpty) continue;
-        if (r.actualRate != null && r.actualRate == data.rate) {
-          matched.add(r.url);
-        } else {
-          if (r.actualRate != null) {
-            debugPrint('[douyu-playurl] server clamped rate: requested=${data.rate} actual=${r.actualRate} cdn=$item');
-          }
-          other.add(r.url);
+        var url = await getPlayUrl(detail.roomId!, data.rate, item);
+        if (url.isNotEmpty) {
+          urls.add(url);
         }
       } on DouyuPlayApiException {
         // 单条 CDN 失败继续试下一条（上游语义：只淘汰失败候选）
       }
     }
-    return [...matched, ...other];
+    return urls;
   }
 
   /// 上游 H5 取流：DouyuUtils 纯 Dart 签名 + getH5PlayV1，描述符过期自动强刷重试一次。
-  /// 返回 URL；服务端确认档位在 [getPlayUrlDetail] 中一并给出。
-  Future<String> getPlayUrl(String roomId, int rate, String cdn) async =>
-      (await getPlayUrlDetail(roomId, rate, cdn)).url;
-
-  /// 带服务端实际确认档位的取流（actualRate 为 null 表示响应未给/非法，视为未知档）。
-  Future<({String url, int? actualRate})> getPlayUrlDetail(String roomId, int rate, String cdn) async {
+  Future<String> getPlayUrl(String roomId, int rate, String cdn) async {
     Object? lastError;
     for (var attempt = 0; attempt < 2; attempt++) {
       try {
@@ -209,11 +194,7 @@ class DouyuSite implements LiveSite {
         }
         final data = result['data'];
         if (data is! Map) throw const DouyuPlayApiException('H5 play response missing data');
-        final dataMap = Map<String, dynamic>.from(data);
-        // 服务端确认档位：空/非法/负值视为未知（上游审计：不截断小数伪造原画）
-        final rawRate = dataMap['rate'];
-        final actualRate = rawRate is num ? rawRate.toInt() : int.tryParse(rawRate?.toString() ?? '');
-        return (url: parsePlayUrl(dataMap), actualRate: actualRate != null && actualRate >= 0 ? actualRate : null);
+        return parsePlayUrl(Map<String, dynamic>.from(data));
       } catch (e) {
         lastError = e;
         if (attempt == 0) continue;
