@@ -1323,7 +1323,7 @@
   "show_super_chat": "Show Super Chat (Bilibili)",
   "gift_effects": "Gift Effects",
   "local_gift_fullscreen_effect": "Local Gift Fullscreen Animation",
-  "fullscreen_gift_card": "Fullscreen Gift Card (Bottom-left)",
+  "fullscreen_gift_card": "Fullscreen gift cards",
   "danmaku_list_gift_card": "Gift cards in danmaku list (this room only)",
   "danmaku_list_gift_card_hint": "When off, gift cards are hidden in this room's danmaku list only; other rooms are unaffected",
   "windows_pip_always_on_top": "Keep Windows mini player on top",
@@ -1396,5 +1396,15 @@
   "liquid_glass_style_desc": "When on, the home navigation uses the liquid-glass look (hover & press animations); off keeps the current style",
   "nas_discover_manual": "Enter address manually",
   "nas_discover_retry": "Search again",
-  "tap_to_config": "Tap to configure server"
+  "tap_to_config": "Tap to configure server",
+  "gift_card_position": "Card position",
+  "gift_card_position_hint": "Gift cards slide in and out from the selected position",
+  "pos_top_left": "Top-left",
+  "pos_top": "Top",
+  "pos_top_right": "Top-right",
+  "pos_left": "Left",
+  "pos_right": "Right",
+  "pos_bottom_left": "Bottom-left",
+  "pos_bottom": "Bottom",
+  "pos_bottom_right": "Bottom-right"
 }

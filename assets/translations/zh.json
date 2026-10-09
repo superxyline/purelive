@@ -1323,7 +1323,7 @@
   "show_super_chat": "显示醒目留言（B站）",
   "gift_effects": "礼物效果",
   "local_gift_fullscreen_effect": "本地礼物全屏动效",
-  "fullscreen_gift_card": "全屏左下角礼物卡片",
+  "fullscreen_gift_card": "全屏礼物卡片",
   "danmaku_list_gift_card": "弹幕列表礼物卡片（仅本直播间）",
   "danmaku_list_gift_card_hint": "关闭后该直播间的弹幕列表不再显示礼物卡片，其它直播间不受影响",
   "windows_pip_always_on_top": "Windows 小窗始终置顶",
@@ -1396,5 +1396,15 @@
   "liquid_glass_style_desc": "开启后首页导航使用液态玻璃视觉（含悬停与按压动效），关闭则沿用当前样式",
   "nas_discover_manual": "手动填写地址",
   "nas_discover_retry": "重新搜索",
-  "tap_to_config": "点击配置服务地址"
+  "tap_to_config": "点击配置服务地址",
+  "gift_card_position": "卡片位置",
+  "gift_card_position_hint": "礼物卡片从选中方位飘入飘出",
+  "pos_top_left": "左上",
+  "pos_top": "上",
+  "pos_top_right": "右上",
+  "pos_left": "左",
+  "pos_right": "右",
+  "pos_bottom_left": "左下",
+  "pos_bottom": "下",
+  "pos_bottom_right": "右下"
 }

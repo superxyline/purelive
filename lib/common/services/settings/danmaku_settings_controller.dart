@@ -30,6 +30,15 @@ class DanmakuSettingsController extends GetxController {
   // 礼物特效/卡片类开关：首次安装默认全部关闭（2026-09-26 用户要求，仅可手动开启）
   final RxBool showLocalGiftFullscreenEffect = hiveBool('showLocalGiftFullscreenEffect', false);
   final RxBool showFullscreenGiftCard = hiveBool('showFullscreenGiftCard', false);
+  /// 全屏礼物卡片锚点：四角+四边共 8 方位（默认保持旧观感的左下角）。
+  /// 取值：topLeft/top/topRight/left/right/bottomLeft/bottom/bottomRight。
+  final RxString giftCardAnchor = hiveString('giftCardAnchor', 'bottomLeft');
+  /// 8 方位的规范顺序（设置页九宫格与渲染侧共用）。
+  static const List<String> giftCardAnchors = [
+    'topLeft', 'top', 'topRight',
+    'left', 'right',
+    'bottomLeft', 'bottom', 'bottomRight',
+  ];
   // 弹幕列表里的礼物卡片：按直播间单独设置，未设置过的房间视为显示。
   // 存 Map 的 JSON（键为 platform|roomId），沿用 roomVolumes 的存法。
   final RxString _roomGiftCardsRaw = hiveString('roomDanmakuGiftCards', '{}');
