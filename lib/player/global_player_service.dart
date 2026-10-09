@@ -12,13 +12,6 @@ import 'adapters/video_player_adapter.dart';
 import 'adapters/web_video_adapter.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 
-/// release 构建下 dart:developer 的 log 不输出到 logcat——改走 debugPrint，
-/// 保证换线/降级/卡死等关键诊断日志在 logcat（I/flutter）里可见。
-void log(String message, {String? name, DateTime? time, Object? error, StackTrace? stackTrace}) {
-  final prefix = name != null ? '[$name] ' : '';
-  final err = error != null ? ' | error=$error' : '';
-  debugPrint('$prefix$message$err', wrapWidth: 160);
-}
 
 class GlobalPlayerService {
   GlobalPlayerService._();
