@@ -296,9 +296,15 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     }
                     final position = _lastTapPosition;
                     if (position != null && controller.handleDanmakuPointer(position, longPress: false)) return;
-                    GlobalPlayerService.instance.playerManager.isPlayingNow
-                        ? controller.toggleController()
-                        : GlobalPlayerService.instance.playerManager.togglePlayPause();
+                    final pm = GlobalPlayerService.instance.playerManager;
+                    if (pm.isPlayingNow) {
+                      controller.toggleController();
+                    } else {
+                      // 暂停/卡死态点击：先尝试恢复，恢复无效（流/实例已死）
+                      // 时自动按网络错误换线重连——此前静默 togglePlayPause
+                      // 对死实例无任何效果，用户视角就是"点了没任何反应"。
+                      pm.resumeWithWatchdog();
+                    }
                   },
                   onLongPressStart: (details) {
                     controller.handleDanmakuPointer(details.globalPosition, longPress: true);

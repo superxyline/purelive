@@ -79,6 +79,18 @@ class PlayerManager {
   bool _videoFrameSeen = false;
   int _noVideoSwitches = 0;
 
+  /// "播放中卡死"看门狗：起播成功后流断（CDN 断流/网络抖动）时 mpv 常常
+  /// 停在 buffering 且**不报 error**——此前只有起播期看门狗，播放中卡死
+  /// 无人检测，用户只能返回重进。这里对持续 buffering 超时按网络错误走
+  /// 既有换线机制自愈；期间点击暂停恢复无效的兜底见 [resumeWithWatchdog]。
+  static const Duration _stallWatchdogDelay = Duration(seconds: 12);
+
+  /// 连续卡缓冲换线的上限，全部线路都卡时停下报错（避免无限换线耗流量）
+  static const int _maxStallSwitches = 4;
+
+  Timer? _stallWatchdogTimer;
+  int _stallSwitches = 0;
+
   String? _currentUrl;
   List<String> _currentPlayUrls = [];
   Map<String, String> _currentHeaders = {};
@@ -1028,6 +1040,9 @@ class PlayerManager {
         if (event) {
           hasError.value = false;
           _stateSubject.add(PlayerState.playing);
+          // 恢复播放：撤销卡死看门狗并清零换线计数
+          _disarmStallWatchdog();
+          _stallSwitches = 0;
           if (_isSwitchingDueToFallback) {
             _isSwitchingDueToFallback = false;
           }
@@ -1041,6 +1056,12 @@ class PlayerManager {
         _loadingSubject.add(event);
         if (event && _stateSubject.value != PlayerState.buffering) {
           _stateSubject.add(PlayerState.buffering);
+        }
+        // 持续缓冲视为潜在卡死：起计时；缓冲结束（或出错换线）撤销
+        if (event) {
+          _armStallWatchdog(_sessionId);
+        } else {
+          _disarmStallWatchdog();
         }
       }),
     );
@@ -1092,6 +1113,59 @@ class PlayerManager {
     _videoWatchdogTimer = null;
   }
 
+  /// 进入缓冲：起一个"卡死"计时。缓冲结束（恢复 playing）即撤销。
+  /// 超时仍卡在 buffering → 按网络错误触发换线自愈。
+  void _armStallWatchdog(int sessionId) {
+    _stallWatchdogTimer?.cancel();
+    _stallWatchdogTimer = Timer(_stallWatchdogDelay, () {
+      if (!_isSessionValid(sessionId)) return;
+      if (isPlayingNow || !_loadingSubject.value) return; // 已恢复或未在缓冲
+      if (_stallSwitches >= _maxStallSwitches) {
+        log('stream stalled after $_maxStallSwitches line switches, report error');
+        _stallSwitches = 0;
+        unawaited(
+          _handleError(
+            PlayerException(message: 'stream stalled on all lines', type: PlayerErrorType.network),
+            sessionId: sessionId,
+          ),
+        );
+        return;
+      }
+      _stallSwitches++;
+      log('stream stalled in buffering ${_stallWatchdogDelay.inSeconds}s, switch line (attempt $_stallSwitches)');
+      unawaited(
+        _handleError(
+          PlayerException(message: 'stream stalled (buffering timeout)', type: PlayerErrorType.network),
+          sessionId: sessionId,
+        ),
+      );
+    });
+  }
+
+  void _disarmStallWatchdog() {
+    _stallWatchdogTimer?.cancel();
+    _stallWatchdogTimer = null;
+  }
+
+  /// 恢复播放兜底：直播流/播放器实例已死时 mpv 的 play() 会静默无效果，
+  /// 用户视角就是"点了屏幕没任何反应"。这里恢复后给 1.2s 观察期——
+  /// 仍未进入 playing 且不在缓冲（缓冲说明有进展）就按网络错误换线重连。
+  Future<void> resumeWithWatchdog() async {
+    if (_currentPlayer == null) return;
+    final mySession = _sessionId;
+    await _currentPlayer!.play();
+    await Future.delayed(const Duration(milliseconds: 1200));
+    if (_disposed || _isClosing || !_isSessionValid(mySession)) return;
+    if (isPlayingNow || _loadingSubject.value) return;
+    log('resume had no effect, treat as dead stream and reconnect');
+    unawaited(
+      _handleError(
+        PlayerException(message: 'resume had no effect (player stalled)', type: PlayerErrorType.network),
+        sessionId: mySession,
+      ),
+    );
+  }
+
   /// 开播后观察是否出画面；一直不出就按解码失败换下一条线路。
   void _armVideoWatchdog(int sessionId) {
     _videoWatchdogTimer?.cancel();
@@ -1136,6 +1210,7 @@ class PlayerManager {
   Future<void> _clearSubscriptions() async {
     _videoWatchdogTimer?.cancel();
     _videoWatchdogTimer = null;
+    _disarmStallWatchdog();
     if (_subscriptions.isEmpty) return;
     for (final item in _subscriptions.toList()) {
       await item.cancel();
