@@ -348,7 +348,10 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     return const SizedBox.shrink();
                   }
                   final width = _fullscreenCardWidth(context);
-                  // 计算基础底部位置：SC卡片下方（如果有SC则在SC下方，否则在控制栏上方）
+                  final pad = MediaQuery.of(context).padding;
+                  // 卡片锚点（8 方位），由弹幕设置 → 卡片位置 配置
+                  final anchor = SettingsService.to.danmaku.giftCardAnchor.v;
+                  // 底部系的基础位置：SC卡片下方（如果有SC则在SC下方，否则在控制栏上方）
                   final sc = liveCtr.fsSC.value;
                   final double baseBottom;
                   if (controller.showController.value && !controller.showLocked.value) {
@@ -356,46 +359,129 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   } else {
                     baseBottom = sc != null ? _scCardSpaceEstimate : 24;
                   }
+                  final double baseTop = 16 + pad.top;
+
+                  // 方位归类
+                  final isBottomRow = anchor == 'bottomLeft' || anchor == 'bottom' || anchor == 'bottomRight';
+                  final isTopRow = anchor == 'topLeft' || anchor == 'top' || anchor == 'topRight';
+                  final isLeftEdge = anchor == 'left';
+                  final isRightEdge = anchor == 'right';
+                  final isCenteredX = anchor == 'top' || anchor == 'bottom';
+                  // 飘入/飘出方向：从锚点所在边滑入，AnimatedSwitcher 退出动画
+                  // 反向播放即向同一边滑出
+                  final Offset slideBegin;
+                  if (isTopRow) {
+                    slideBegin = const Offset(0, -1);
+                  } else if (isLeftEdge) {
+                    slideBegin = const Offset(-1, 0);
+                  } else if (isRightEdge) {
+                    slideBegin = const Offset(1, 0);
+                  } else {
+                    slideBegin = const Offset(0, 1);
+                  }
+
                   // 构建堆叠的礼物卡片列表
                   final List<Widget> giftCards = [];
                   for (int i = 0; i < gifts.length; i++) {
                     final gift = gifts[i];
-                    // 每个卡片向上偏移（最新的在最下面）；
-                    // AnimatedPositioned 让新卡片加入时旧卡片平滑上移。
+                    // 堆叠偏移：底部系最新卡贴底向上长（原语义）；
+                    // 顶部系/左右系最新卡在堆叠首位向下长
                     final offset = (gifts.length - 1 - i) * LivePlayController.giftCardHeight;
+
+                    double? left;
+                    double? right;
+                    double? top;
+                    double? bottom;
+                    Widget inner = AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: slideBegin,
+                            end: Offset.zero,
+                          ).animate(CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeOutCubic,
+                          )),
+                          // 隔离每张卡片的重绘：任一卡片进场/合并数量时
+                          // 不再连带整层（含其它卡片）重新绘制，避免多卡
+                          // 堆叠时拖累视频渲染。
+                          child: RepaintBoundary(child: child),
+                        );
+                      },
+                      child: GiftCard(
+                        // 控制器保证 fsGifts 中的卡片均带 sentAt（缺失时已补当前时间）
+                        key: ValueKey(gift.sentAt!.millisecondsSinceEpoch),
+                        message: gift,
+                        glassEffect: true,
+                        opacity: SettingsService.to.danmaku.fullscreenGiftCardOpacity.v,
+                        onTap: () => onGiftCardTap(context, gift),
+                      ),
+                    );
+
+                    if (isBottomRow) {
+                      bottom = baseBottom + offset;
+                      if (anchor == 'bottomRight') {
+                        right = 16 + pad.right;
+                      } else if (anchor == 'bottomLeft') {
+                        left = 16 + pad.left;
+                      } else {
+                        left = 0;
+                        right = 0;
+                        inner = Align(
+                          alignment: Alignment.bottomCenter,
+                          child: SizedBox(width: width, child: inner),
+                        );
+                      }
+                    } else if (isTopRow) {
+                      top = baseTop + offset;
+                      if (anchor == 'topRight') {
+                        right = 16 + pad.right;
+                      } else if (anchor == 'topLeft') {
+                        left = 16 + pad.left;
+                      } else {
+                        left = 0;
+                        right = 0;
+                        inner = Align(
+                          alignment: Alignment.topCenter,
+                          child: SizedBox(width: width, child: inner),
+                        );
+                      }
+                    } else {
+                      // 左右边：整列垂直居中，多卡在居中线下向下堆叠
+                      top = 0;
+                      bottom = 0;
+                      if (isLeftEdge) {
+                        left = 16 + pad.left;
+                        inner = Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: offset),
+                            child: SizedBox(width: width, child: inner),
+                          ),
+                        );
+                      } else {
+                        right = 16 + pad.right;
+                        inner = Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: offset),
+                            child: SizedBox(width: width, child: inner),
+                          ),
+                        );
+                      }
+                    }
+
                     giftCards.add(
                       AnimatedPositioned(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeOutCubic,
-                        left: 16 + MediaQuery.of(context).padding.left,
-                        bottom: baseBottom + offset,
-                        width: width,
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(0, 1),
-                                end: Offset.zero,
-                              ).animate(CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.easeOutCubic,
-                              )),
-                              // 隔离每张卡片的重绘：任一卡片进场/合并数量时
-                              // 不再连带整层（含其它卡片）重新绘制，避免多卡
-                              // 堆叠时拖累视频渲染。
-                              child: RepaintBoundary(child: child),
-                            );
-                          },
-                          child: GiftCard(
-                            // 控制器保证 fsGifts 中的卡片均带 sentAt（缺失时已补当前时间）
-                            key: ValueKey(gift.sentAt!.millisecondsSinceEpoch),
-                            message: gift,
-                            glassEffect: true,
-                            opacity: SettingsService.to.danmaku.fullscreenGiftCardOpacity.v,
-                            onTap: () => onGiftCardTap(context, gift),
-                          ),
-                        ),
+                        left: left,
+                        right: right,
+                        top: top,
+                        bottom: bottom,
+                        width: isCenteredX || isLeftEdge || isRightEdge ? null : width,
+                        child: inner,
                       ),
                     );
                   }

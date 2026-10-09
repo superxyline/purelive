@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -174,6 +175,7 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
                   onChanged: (v) => SettingsService.to.danmaku.showFullscreenGiftCard.v = v,
                   labelColor: labelColor,
                 ),
+                _anchorRow(theme, labelColor),
                 _switch(
                   theme,
                   title: i18n('danmaku_list_gift_card'),
@@ -562,6 +564,132 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
             textStyle: TextStyle(color: digitColor, fontSize: 14, fontWeight: FontWeight.bold),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 锚点值(topLeft 等 camelCase) → i18n key(pos_top_left 等 snake_case)
+  static const Map<String, String> _posKeyMap = {
+    'topLeft': 'top_left',
+    'top': 'top',
+    'topRight': 'top_right',
+    'left': 'left',
+    'right': 'right',
+    'bottomLeft': 'bottom_left',
+    'bottom': 'bottom',
+    'bottomRight': 'bottom_right',
+  };
+
+  String _posKey(String anchor) => 'pos_${_posKeyMap[anchor] ?? anchor}';
+
+  /// 卡片位置行：显示当前锚点，点开九宫格选择（四角+四边 8 方位）。
+  Widget _anchorRow(ThemeData theme, Color labelColor) {
+    final anchor = SettingsService.to.danmaku.giftCardAnchor.v;
+    return InkWell(
+      onTap: _showGiftCardAnchorDialog,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    i18n('gift_card_position'),
+                    style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: labelColor),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(i18n('gift_card_position_hint'), style: AppTextStyles.t12Muted),
+                ],
+              ),
+            ),
+            Text(
+              i18n(_posKey(anchor)),
+              style: AppTextStyles.t14Muted.copyWith(color: theme.colorScheme.primary),
+            ),
+            Icon(Remix.arrow_right_s_line, size: 18, color: theme.hintColor),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 九宫格方位选择：3×3，中间是卡片示意，四周 8 格为可选方位。
+  Future<void> _showGiftCardAnchorDialog() async {
+    const anchors = <List<String>>[
+      ['topLeft', 'top', 'topRight'],
+      ['left', 'right'],
+      ['bottomLeft', 'bottom', 'bottomRight'],
+    ];
+    await Get.dialog<void>(
+      AlertDialog(
+        title: Text(i18n('gift_card_position')),
+        content: SizedBox(
+          width: 300,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final row in anchors)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (row.length == 1) ...[
+                        const SizedBox(width: 84, height: 56),
+                        const SizedBox(width: 8),
+                      ],
+                      for (final a in row) ...[
+                        _anchorCell(a),
+                        if (a != row.last) const SizedBox(width: 8),
+                      ],
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(i18n('cancel'))),
+        ],
+      ),
+    );
+    setState(() {});
+  }
+
+  Widget _anchorCell(String anchor) {
+    final theme = Theme.of(context);
+    final selected = SettingsService.to.danmaku.giftCardAnchor.v == anchor;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        SettingsService.to.danmaku.giftCardAnchor.v = anchor;
+        Navigator.pop(context);
+      },
+      child: Container(
+        width: 84,
+        height: 56,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected
+              ? theme.colorScheme.primary.withValues(alpha: 0.14)
+              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? theme.colorScheme.primary : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          i18n(_posKey(anchor)),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? theme.colorScheme.primary : theme.hintColor,
+          ),
+        ),
       ),
     );
   }
