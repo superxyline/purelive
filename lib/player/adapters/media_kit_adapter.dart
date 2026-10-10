@@ -531,6 +531,9 @@ class MediaKitAdapter implements UnifiedPlayer {
       child: Video(
         controller: _controller,
         controls: NoVideoControls,
+        // 纹理缩放滤镜默认 low(双线性最差档)，非 1:1 显示时发糊；
+        // 提到 medium 让放大显示的直播画面更锐利
+        filterQuality: FilterQuality.medium,
         pauseUponEnteringBackgroundMode: !SettingsService.to.app.enableBackgroundPlay.v,
         resumeUponEnteringForegroundMode: !SettingsService.to.app.enableBackgroundPlay.v,
       ),

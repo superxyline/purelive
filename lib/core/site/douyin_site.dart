@@ -25,9 +25,10 @@ class DouyinSite implements LiveSite {
   @override
   LiveDanmaku getDanmaku() => DouyinDanmaku();
 
-  /// 使用 QQBrowser User-Agent（参考 DouyinLiveRecorder）
-  static const String kDefaultUserAgent =
-      "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.97 Safari/537.36 Core/1.116.567.400 QQBrowser/19.7.6764.400";
+  /// UA 与 query 的 browser_name=Edge、a-bogus 签名共用同一常量——
+  /// 此前请求头 QQBrowser / query Edge / 签名 Edge 三处指纹互相矛盾，
+  /// 统一为 Edge 125 与官方网页口径一致（对齐上游/June 的单常量做法）。
+  static const String kDefaultUserAgent = DouyinRequestParams.kDefaultUserAgent;
 
   static const String kDefaultReferer = "https://live.douyin.com";
 
@@ -76,7 +77,7 @@ class DouyinSite implements LiveSite {
     final pairs = <String>[];
     for (final value in setCookieValues) {
       final pair = value.split(';').first.trim();
-      if (pair.startsWith('ttwid=') || pair.startsWith('UIFID_TEMP=')) {
+      if (pair.startsWith('ttwid=') || pair.startsWith('UIFID_TEMP=') || pair.startsWith('msToken=')) {
         pairs.add(pair);
       }
     }
@@ -578,6 +579,8 @@ class DouyinSite implements LiveSite {
   /// - [webRid] 直播间RID
   Future<Map> _getRoomDataByApi(String webRid) async {
     String serverUrl = "https://live.douyin.com/webcast/room/web/enter/";
+    // 先取 header（初始化 cookie 静态字段），供下面提取真实 msToken
+    var requestHeader = await getRequestHeaders();
     var uri = Uri.parse(serverUrl).replace(
       scheme: "https",
       port: 443,
@@ -599,13 +602,23 @@ class DouyinSite implements LiveSite {
         "browser_platform": "Win32",
         "browser_name": "Edge",
         "browser_version": "125.0.0.0",
+        // 官方网页 enter 请求带 msToken；匿名无真实值时给空串占位（上游同款）
+        "msToken": _msTokenFromCookie(cookie),
       },
     );
     var requestUrl = DouyinUtils.signFullUrl(uri.toString());
-    var requestHeader = await getRequestHeaders();
     var result = await HttpClient.instance.getJson(requestUrl, header: requestHeader);
 
     return result["data"];
+  }
+
+  /// 从 cookie 串提取 msToken（用户配置/匿名 set-cookie 里可能有）
+  static String _msTokenFromCookie(String cookie) {
+    const key = 'msToken=';
+    final idx = cookie.indexOf(key);
+    if (idx < 0) return '';
+    final end = cookie.indexOf(';', idx);
+    return end < 0 ? cookie.substring(idx + key.length) : cookie.substring(idx + key.length, end);
   }
 
   /// 通过roomId获取直播间信息
