@@ -94,18 +94,21 @@ class _VideoPlayerState extends State<VideoPlayer> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     final player = GlobalPlayerService.instance.playerManager;
 
+    debugPrint('[PauseTrace] lifecycle $state keepBg=${LiveAudioService.shouldContinueInBackground}'
+        ' playing=${player.isPlayingNow} pausedByLifecycle=$_isPausedByLifecycle');
+
     if (state == AppLifecycleState.paused) {
       if (!LiveAudioService.shouldContinueInBackground) {
         if (player.isPlayingNow) {
           _isPausedByLifecycle = true;
-          player.pause();
+          player.pause(source: 'lifecycle.paused');
         }
       } else {
-        player.resume();
+        player.resume(source: 'lifecycle.paused.keepBg');
       }
     } else if (state == AppLifecycleState.resumed) {
       if (_isPausedByLifecycle) {
-        player.resume();
+        player.resume(source: 'lifecycle.resumed');
         _isPausedByLifecycle = false;
       }
     }

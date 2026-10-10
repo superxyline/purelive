@@ -269,6 +269,9 @@ class MediaKitAdapter implements UnifiedPlayer {
       (playing) {
         if (_disposed) return;
 
+        // 内核播放态的原始翻转点（含 mpv 自行暂停/缓存暂停）
+        debugPrint('[PauseTrace] mediaKit.playing -> $playing loading=${_loadingSubject.value}');
+
         _playingSubject.add(playing);
 
         // 播放已实际恢复：启动阶段挂起的瞬态错误不再上报（mpv 内核已自行回退）
@@ -292,6 +295,8 @@ class MediaKitAdapter implements UnifiedPlayer {
     _bufferingSub = _player.stream.buffering.listen(
       (loading) {
         if (_disposed) return;
+
+        debugPrint('[PauseTrace] mediaKit.buffering -> $loading');
 
         _loadingSubject.add(loading);
 
@@ -538,16 +543,19 @@ class MediaKitAdapter implements UnifiedPlayer {
 
   @override
   Future<void> play() async {
+    debugPrint('[PauseTrace] mediaKit.play()');
     await _player.play();
   }
 
   @override
   Future<void> pause() async {
+    debugPrint('[PauseTrace] mediaKit.pause()');
     await _player.pause();
   }
 
   @override
   Future<void> stop() async {
+    debugPrint('[PauseTrace] mediaKit.stop()');
     await _player.pause();
 
     await _player.seek(Duration.zero);
@@ -557,6 +565,7 @@ class MediaKitAdapter implements UnifiedPlayer {
 
   @override
   Future<void> softStop() async {
+    debugPrint('[PauseTrace] mediaKit.softStop()');
     await _player.setVolume(0.0);
 
     await _player.pause();

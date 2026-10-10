@@ -98,6 +98,27 @@ class PlayerManager {
   Timer? _stallWatchdogTimer;
   int _stallSwitches = 0;
 
+  /// "播放中停摆"看门狗：mpv 可能在**不报 error、不报 buffering、也没被业务
+  /// 暂停**的情况下直接停止播放（2026-10-10 18:18:00 实测复现：playing→false，
+  /// 而 buffering 只在 1ms 内 true→false 闪了一下）。这种状态下卡缓冲看门狗
+  /// 会因缓冲结束被撤销、首帧看门狗早已出画面而永久失效，画面就永久冻住。
+  /// 检测口径：非主动暂停地停摆 N 秒 → 按网络错误走既有换线自愈。
+  static const Duration _stoppedWatchdogDelay = Duration(seconds: 8);
+
+  /// 连续停摆换线的上限，全部线路都停摆时停下报错（避免无限换线耗流量）
+  static const int _maxStoppedSwitches = 4;
+
+  Timer? _stoppedWatchdogTimer;
+  int _stoppedSwitches = 0;
+
+  /// 是否为业务主动暂停（点击/键盘/生命周期/定时器），停摆检测必须跳过它们
+  bool _pausedIntentionally = false;
+
+  /// 本会话是否**已经播放成功过**：冷启动/刚开流时会先收到一次
+  /// `onPlaying=false`（实测 18:40:37 有一例），若此时就起停摆检测，
+  /// 播放器根本还没开始播放就会被判"停摆"并误换线，必须先播起来过。
+  bool _playedInSession = false;
+
   String? _currentUrl;
   List<String> _currentPlayUrls = [];
   Map<String, String> _currentHeaders = {};
@@ -266,6 +287,10 @@ class PlayerManager {
   }) async {
     if (_disposed || _isClosing) return;
     final mySessionId = ++_sessionId;
+    // 新一轮开流（含错误换线后重开）：把上一轮的"主动暂停"标记清掉，
+    // 否则新会话在 playing=false 时会被旧标记挡住停摆检测
+    _pausedIntentionally = false;
+    _playedInSession = false;
 
     if (room?.roomId != currentFloatRoom?.roomId) {
       lineManager.reset();
@@ -421,17 +446,32 @@ class PlayerManager {
     await _bindPlayerStreams(player);
   }
 
-  Future<void> togglePlayPause() async {
+  /// [source] 仅用于排障：直播出现"画面冻住但状态正常"时，需要确认是谁暂停了播放。
+  Future<void> togglePlayPause({String source = 'unspecified'}) async {
     if (_currentPlayer == null) return;
+    log('[PauseTrace] togglePlayPause src=$source isPlaying=$isPlayingNow'
+        ' -> ${isPlayingNow ? 'pause' : 'resume'}');
     if (isPlayingNow) {
-      await pause();
+      await pause(source: source);
     } else {
-      await resume();
+      await resume(source: source);
     }
   }
 
-  Future<void> pause() async => await _currentPlayer?.pause();
-  Future<void> resume() async => await _currentPlayer?.play();
+  Future<void> pause({String source = 'unspecified'}) async {
+    _pausedIntentionally = true;
+    _disarmStoppedWatchdog();
+    log('[PauseTrace] pause() src=$source engine=${_runtimeEngine?.name}'
+        ' session=$_sessionId playing=$isPlayingNow');
+    await _currentPlayer?.pause();
+  }
+
+  Future<void> resume({String source = 'unspecified'}) async {
+    _pausedIntentionally = false;
+    log('[PauseTrace] resume() src=$source engine=${_runtimeEngine?.name}'
+        ' session=$_sessionId playing=$isPlayingNow');
+    await _currentPlayer?.play();
+  }
 
   Future<void> stop() async {
     await close();
@@ -575,7 +615,7 @@ class PlayerManager {
                               color: Colors.white,
                             ),
                             onPressed: () {
-                              togglePlayPause();
+                              togglePlayPause(source: 'ui.floatingCenterButton');
                               resetHideTimer();
                             },
                           );
@@ -673,7 +713,7 @@ class PlayerManager {
                             color: Colors.white,
                           ),
                           onPressed: () {
-                            togglePlayPause();
+                            togglePlayPause(source: 'ui.pipCenterButton');
                           },
                         );
                       },
@@ -922,6 +962,9 @@ class PlayerManager {
 
   Future<void> close() async {
     _sessionId++;
+    // 关房时播放器会异步再发一次 playing=false，这里先标记"本会话已不再播放"，
+    // 避免那一次迟到的事件把停摆看门狗起在已经关掉的房间上
+    _playedInSession = false;
     _isClosing = true;
     _pinchResetTicker?.stop();
     _pinchResetTicker = null;
@@ -950,6 +993,9 @@ class PlayerManager {
     lineManager.reset();
     _videoFrameSeen = false;
     _noVideoSwitches = 0;
+    _stoppedSwitches = 0;
+    _pausedIntentionally = false;
+    _playedInSession = false;
     await _clearSubscriptions();
     if (_runtimeEngine != null) {
       await playerPool.removeFromCache(_runtimeEngine!);
@@ -1050,11 +1096,18 @@ class PlayerManager {
           // 恢复播放：撤销卡死看门狗并清零换线计数
           _disarmStallWatchdog();
           _stallSwitches = 0;
+          // 恢复播放同样意味着"停摆"结束：撤销停摆看门狗
+          _disarmStoppedWatchdog();
+          _stoppedSwitches = 0;
+          _pausedIntentionally = false;
+          _playedInSession = true;
           if (_isSwitchingDueToFallback) {
             _isSwitchingDueToFallback = false;
           }
         } else {
           _stateSubject.add(PlayerState.paused);
+          // 播放中突然停止：起停摆计时（主动暂停、关房等由下方守卫跳过）
+          _armStoppedWatchdog(_sessionId);
         }
       }),
     );
@@ -1064,26 +1117,33 @@ class PlayerManager {
         if (event && _stateSubject.value != PlayerState.buffering) {
           _stateSubject.add(PlayerState.buffering);
         }
-        // 持续缓冲视为潜在卡死：起计时；缓冲结束（或出错换线）撤销
+        // 持续缓冲视为潜在卡死：起计时。
+        // 注意：缓冲结束**不等于**恢复播放——实测 buffering 会在 1ms 内
+        // true→false 闪一下而 playing 一直是 false，若此刻就撤销，12 秒计时
+        // 根本跑不完（这正是 2026-10-10 卡死时看门狗没触发的原因）。
+        // 只有真正回到 playing（onPlaying 分支）才撤销。
         if (event) {
           _armStallWatchdog(_sessionId);
-        } else {
+        } else if (isPlayingNow) {
           _disarmStallWatchdog();
         }
       }),
     );
     _subscriptions.add(
       player.onComplete.listen((event) {
+        log('[PauseTrace] onComplete -> $event session=$_sessionId');
         _completeSubject.add(event);
       }),
     );
     _subscriptions.add(
       player.onStateChanged.listen((event) {
+        log('[PauseTrace] onStateChanged -> $event');
         _stateSubject.add(event);
       }),
     );
     _subscriptions.add(
       player.onError.listen((error) {
+        log('[PauseTrace] onError -> ${error.message} type=${error.type}');
         if (!_isHandlingError) {
           unawaited(_handleError(error));
         }
@@ -1124,9 +1184,15 @@ class PlayerManager {
   /// 超时仍卡在 buffering → 按网络错误触发换线自愈。
   void _armStallWatchdog(int sessionId) {
     _stallWatchdogTimer?.cancel();
+    log('[PauseTrace] stallWatchdog armed (${_stallWatchdogDelay.inSeconds}s) session=$sessionId');
     _stallWatchdogTimer = Timer(_stallWatchdogDelay, () {
       if (!_isSessionValid(sessionId)) return;
-      if (isPlayingNow || !_loadingSubject.value) return; // 已恢复或未在缓冲
+      if (isPlayingNow || !_loadingSubject.value) {
+        // "画面冻住但没报 buffering" 时自愈不会触发，这里留下判据
+        log('[PauseTrace] stallWatchdog fired but skipped:'
+            ' playing=$isPlayingNow buffering=${_loadingSubject.value}');
+        return;
+      }
       if (_stallSwitches >= _maxStallSwitches) {
         log('stream stalled after $_maxStallSwitches line switches, report error');
         _stallSwitches = 0;
@@ -1150,8 +1216,72 @@ class PlayerManager {
   }
 
   void _disarmStallWatchdog() {
+    if (_stallWatchdogTimer != null) {
+      log('[PauseTrace] stallWatchdog disarmed');
+    }
     _stallWatchdogTimer?.cancel();
     _stallWatchdogTimer = null;
+  }
+
+  /// "播放中停摆"看门狗（字段处有成因说明）：playing 变 false 且既没被业务
+  /// 暂停、也不在缓冲时，起 N 秒计时；超时仍未恢复就按网络错误走既有换线。
+  void _armStoppedWatchdog(int sessionId) {
+    // 业务主动暂停、销毁/关房中、没有播放器实例 → 都不归停摆检测管
+    if (_pausedIntentionally || _disposed || _isClosing || _currentPlayer == null) {
+      return;
+    }
+    // 还没真正播放起来过（冷启动初始化也会先来一次 onPlaying=false）→ 不算停摆
+    if (!_playedInSession) return;
+    // 关房后 state 已回到 idle/stopped/error，不能在空闲态起自愈
+    final state = _stateSubject.value;
+    if (state == PlayerState.idle ||
+        state == PlayerState.stopped ||
+        state == PlayerState.error ||
+        state == PlayerState.disposed) {
+      return;
+    }
+    _stoppedWatchdogTimer?.cancel();
+    log('[PauseTrace] stoppedWatchdog armed (${_stoppedWatchdogDelay.inSeconds}s) session=$sessionId'
+        ' buffering=${_loadingSubject.value}');
+    _stoppedWatchdogTimer = Timer(_stoppedWatchdogDelay, () {
+      if (!_isSessionValid(sessionId)) return;
+      // 只在前台自愈：切后台时 media_kit 的 Video 组件会自行暂停播放，
+      // 后台换线既浪费流量也容易误判，交回给 lifecycle 恢复逻辑
+      if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        log('[PauseTrace] stoppedWatchdog skipped: app lifecycle=${WidgetsBinding.instance.lifecycleState}');
+        return;
+      }
+      if (isPlayingNow || _pausedIntentionally) return;
+      if (_loadingSubject.value) return; // 仍在缓冲 → 归卡缓冲看门狗管
+      if (_stoppedSwitches >= _maxStoppedSwitches) {
+        log('[PauseTrace] playback stopped after $_maxStoppedSwitches switches, report error');
+        _stoppedSwitches = 0;
+        unawaited(
+          _handleError(
+            PlayerException(message: 'playback stopped on all lines', type: PlayerErrorType.network),
+            sessionId: sessionId,
+          ),
+        );
+        return;
+      }
+      _stoppedSwitches++;
+      log('[PauseTrace] playback stopped ${_stoppedWatchdogDelay.inSeconds}s'
+          ' with neither pause source nor buffering, switch line (attempt $_stoppedSwitches)');
+      unawaited(
+        _handleError(
+          PlayerException(message: 'playback stopped (no buffering, no error)', type: PlayerErrorType.network),
+          sessionId: sessionId,
+        ),
+      );
+    });
+  }
+
+  void _disarmStoppedWatchdog() {
+    if (_stoppedWatchdogTimer != null) {
+      log('[PauseTrace] stoppedWatchdog disarmed');
+    }
+    _stoppedWatchdogTimer?.cancel();
+    _stoppedWatchdogTimer = null;
   }
 
   /// 恢复播放兜底：直播流/播放器实例已死时 mpv 的 play() 会静默无效果，
@@ -1160,6 +1290,8 @@ class PlayerManager {
   Future<void> resumeWithWatchdog() async {
     if (_currentPlayer == null) return;
     final mySession = _sessionId;
+    _pausedIntentionally = false;
+    log('[PauseTrace] resumeWithWatchdog() session=$mySession playing=$isPlayingNow');
     await _currentPlayer!.play();
     await Future.delayed(const Duration(milliseconds: 1200));
     if (_disposed || _isClosing || !_isSessionValid(mySession)) return;
@@ -1218,6 +1350,7 @@ class PlayerManager {
     _videoWatchdogTimer?.cancel();
     _videoWatchdogTimer = null;
     _disarmStallWatchdog();
+    _disarmStoppedWatchdog();
     if (_subscriptions.isEmpty) return;
     for (final item in _subscriptions.toList()) {
       await item.cancel();
