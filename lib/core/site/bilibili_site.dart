@@ -115,28 +115,56 @@ class BiliBiliSite implements LiveSite {
     }
   }
 
+  /// 取流公共参数：对齐官方网页 PC 端（PiliPlus 同款）——platform=web +
+  /// codec 含 av1 + ptype/panorama/web_location + WBI 签名。
+  /// 注意：匿名态服务端仍可能把 current_qn 钳到低档（如原画→250），
+  /// 那是登录态问题；本参数集保证与网页同源，登录后 cookie 生效即原画。
+  Future<Map<String, String>> _playUrlQuery(LiveRoom detail, {int? qn}) async {
+    const baseUrl = "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo";
+    final query = <String, String>{
+      "room_id": detail.roomId.toString(),
+      "protocol": "0,1",
+      "format": "0,1,2",
+      "codec": "0,1,2",
+      "platform": "web",
+      "ptype": "8",
+      "dolby": "5",
+      "panorama": "1",
+      "web_location": "444.8",
+      if (qn != null) "qn": qn.toString(),
+    };
+    return getWbiSign("$baseUrl?${Uri(queryParameters: query)}");
+  }
+
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) async {
     List<LivePlayQuality> qualities = [];
+    const baseUrl = "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo";
     var result = await HttpClient.instance.getJson(
-      "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo",
-      queryParameters: {
-        "room_id": detail.roomId,
-        "protocol": "0,1",
-        "format": "0,1,2",
-        "codec": "0,1",
-        "platform": "html5",
-        "dolby": "5",
-      },
+      baseUrl,
+      queryParameters: await _playUrlQuery(detail),
       header: await getHeader(),
     );
     var qualitiesMap = <int, String>{};
     for (var item in result["data"]["playurl_info"]["playurl"]["g_qn_desc"]) {
       qualitiesMap[int.tryParse(item["qn"].toString()) ?? 0] = item["desc"].toString();
     }
-    for (var item in result["data"]["playurl_info"]["playurl"]["stream"][0]["format"][0]["codec"][0]["accept_qn"]) {
-      var qualityItem = LivePlayQuality(quality: qualitiesMap[item] ?? "未知清晰度", data: item);
-      qualities.add(qualityItem);
+    // accept_qn 按编码/格式分组返回且各组不一致，取全部组的并集，
+    // 避免只读 codec[0] 漏掉某编码独有的档位（如 av1 的 4K/2K）
+    final qnSet = <int>{};
+    for (var streamItem in result["data"]["playurl_info"]["playurl"]["stream"]) {
+      for (var formatItem in streamItem["format"]) {
+        for (var codecItem in formatItem["codec"]) {
+          for (var qn in codecItem["accept_qn"] ?? const []) {
+            final v = int.tryParse(qn.toString()) ?? 0;
+            if (v > 0) qnSet.add(v);
+          }
+        }
+      }
+    }
+    final sortedQn = qnSet.toList()..sort((a, b) => b.compareTo(a));
+    for (var item in sortedQn) {
+      qualities.add(LivePlayQuality(quality: qualitiesMap[item] ?? "未知清晰度", data: item));
     }
     return qualities;
   }
@@ -144,23 +172,16 @@ class BiliBiliSite implements LiveSite {
   @override
   Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
     try {
+      final requestedQn = quality.data is int ? quality.data as int : 0;
       var result = await HttpClient.instance.getJson(
         "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo",
-        queryParameters: {
-          "room_id": detail.roomId,
-          "protocol": "0,1",
-          "format": "0,1,2",
-          "codec": "0,1",
-          "platform": "html5",
-          "dolby": "5",
-          "qn": quality.data,
-        },
+        queryParameters: await _playUrlQuery(detail, qn: requestedQn),
         header: await getHeader(),
       );
 
       // 展开 协议(stream)→格式(format)→编码(codec)→CDN(host) 全部组合，
-      // 保留编码/格式/CDN 供排序：编码偏好（HEVC 省流量）+ CDN 测速优选。
-      final entries = <({String url, String codec, String host, String format})>[];
+      // 保留编码/格式/CDN/实际档位供排序：确认档优先 + 编码偏好 + CDN 测速优选。
+      final entries = <({String url, String codec, String host, String format, int currentQn})>[];
       var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
       for (var streamItem in streamList) {
         var formatList = streamItem["format"];
@@ -171,6 +192,8 @@ class BiliBiliSite implements LiveSite {
             var urlList = codecItem["url_info"];
             var baseUrl = codecItem["base_url"].toString();
             final codec = (codecItem["codec_name"] ?? "").toString().toLowerCase();
+            // 服务端实际下发档位：匿名/风控时会低于请求档（如原画请求回 250）
+            final currentQn = int.tryParse(codecItem["current_qn"]?.toString() ?? "") ?? requestedQn;
             for (var urlItem in urlList) {
               final host = urlItem["host"].toString();
               entries.add((
@@ -178,6 +201,7 @@ class BiliBiliSite implements LiveSite {
                 codec: codec,
                 host: host,
                 format: format,
+                currentQn: currentQn,
               ));
             }
           }
@@ -194,27 +218,36 @@ class BiliBiliSite implements LiveSite {
         }
       }
 
-      int rank({required String url, required String codec, required String host, required String format}) {
+      int rank({required String url, required String codec, required String host, required String format, required int currentQn}) {
+        // 第一优先级：服务端确认档位 == 请求档的 URL 整组前置，
+        // 避免把被降档（current_qn < 请求 qn）的转码流当原画播
+        final tier = currentQn == requestedQn ? 0 : 1000;
         // mCDN 是 P2P 回源节点，稳定性差，一律沉底
-        if (url.contains("mcdn")) return 4;
+        if (url.contains("mcdn")) return tier + 4;
         // HEVC 的 flv 线路实测拿不到视频轨（mpv 解析后 video-params 为空、
         // 只有声音没有画面），排到 ts/fmp4/hls 之后，避免开局先黑屏一轮。
-        if (codec == 'hevc' && format == 'flv') return 2;
+        if (codec == 'hevc' && format == 'flv') return tier + 2;
         // 编码偏好：非偏好编码排后（同清晰度 HEVC 省约一半带宽）
         final preferCodec = preferHEVC ? 'hevc' : 'avc';
-        if (codec.isNotEmpty && codec != preferCodec) return 1;
+        if (codec.isNotEmpty && codec != preferCodec) return tier + 1;
         // CDN 延迟（未测速/未知时 0，不参与）
         final l = latency[host] ?? 0;
-        if (l > 0) return 100 + (l ~/ 100).clamp(0, 50);
-        return 0;
+        if (l > 0) return tier + 100 + (l ~/ 100).clamp(0, 50);
+        return tier;
       }
 
       entries.sort((a, b) {
-        final ra = rank(url: a.url, codec: a.codec, host: a.host, format: a.format);
-        final rb = rank(url: b.url, codec: b.codec, host: b.host, format: b.format);
+        final ra = rank(url: a.url, codec: a.codec, host: a.host, format: a.format, currentQn: a.currentQn);
+        final rb = rank(url: b.url, codec: b.codec, host: b.host, format: b.format, currentQn: b.currentQn);
         if (ra != rb) return ra.compareTo(rb);
         return 0;
       });
+      if (entries.isNotEmpty && entries.first.currentQn != requestedQn) {
+        debugPrint(
+          '[bilibili-playurl] server clamped qn: requested=$requestedQn actual=${entries.first.currentQn} '
+          '(anonymous/risk-control; login cookie unlocks higher tier)',
+        );
+      }
       return entries.map((e) => e.url).toList();
     } catch (e) {
       throw Exception(e.toString());
