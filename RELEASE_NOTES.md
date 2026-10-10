@@ -1,3 +1,39 @@
+# Pure Live v2.2.7
+
+本版解决「看直播一段时间画面冻死」的顽疾，并修复全屏下切换清晰度会误播过渡动画的问题；版本号 `2.2.7+4025`。
+
+## 修复：播放中停摆自愈（核心）
+
+实测复现定位：mpv 会在**不报 error、不报 buffering、也不是被业务暂停**的情况下停止播放（`playing=false`），而 `buffering` 只在同一毫秒内 true→false 闪了一下。由此三个既有看门狗全部够不着这个状态：
+
+- 卡缓冲看门狗：`buffering→false` 即被撤销，12 秒计时当场取消，根本跑不完；
+- 首帧看门狗：`_videoFrameSeen` 出画面后永久失效，只防起播；
+- `resumeWithWatchdog`：仅在用户点击时才会执行。
+
+结果就是**画面永久冻住，而弹幕与界面完全正常**（弹幕持续流入、UI 正常渲染）。
+
+- 新增**停摆看门狗**：非主动暂停地停摆 **8 秒**即按网络错误走既有换线自愈；连换 4 次仍失败则报错停下，不无限换线耗流量。
+- 卡缓冲看门狗改为**只有 `playing` 真正恢复才撤销**，不再被缓冲闪断骗过。
+- 三重守卫：业务主动暂停（点击/键盘/生命周期/定时器）、切后台（`lifecycleState != resumed`）、关房与空闲态（`_isClosing` / state 为 idle|stopped|error|disposed）一律不参与判定，避免误换线。
+
+## 修复：全屏下切换清晰度误播过渡动画
+
+`animateNextModeSwitch` 只在 `screenMode` 变化时赋值、之后不再复位；而全屏内切清晰度/线路走 `setResolution → close() + destroyPlayer()`，`videoController` 瞬时置空会让 Obx 返回类型变化（`VideoKeyboardShortcuts` 包装被拿掉），整棵子树重建、`TweenAnimationBuilder` 换成新元素，几何过渡动画于是被重放。现改为**只在模式真正切换的 320ms 窗口内播一次**（与画面矩形 probe 的冻结窗口同步），窗口外一律走静态分支。
+
+## 诊断埋点
+
+- 播放链路统一 `[PauseTrace]` 前缀：`pause/resume` 带 `src=` 来源标签（浮动窗按钮 / PiP 按钮 / 控制条按钮 / 键盘 / 生命周期 / 房间定时器），可直接判定「是谁暂停的」。
+- 补 `onComplete / onStateChanged / onError` 日志，以及看门狗 `armed / fired but skipped / disarmed`，可判定「自愈为何没触发」。
+- 修掉 `dart:developer` 在 release 构建下不进 logcat 的黑洞（改走 `debugPrint`）。
+
+## 验证
+
+- `flutter analyze` lib 零 error / warning；arm64 release 构建通过（约 80 MB）。
+- 平板 25091RP04C / 手机 23127PN0CC 均已安装 `2.2.7+4025`，冷启动实测**无停摆看门狗误报**（`_playedInSession` 守卫生效）。
+- 设备侧排障记录：MIUI 锁屏时 `screencap` 返回纯黑且 input 全部失效，已固化到项目记忆。
+
+---
+
 # Pure Live v2.2.2
 
 本版在 v2.2.1（包体瘦身）基础上新增**重力感应自动全屏**功能；版本号提升至 `2.2.2+4020`。
