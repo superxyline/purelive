@@ -403,7 +403,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
   Future<void> _onRoomPlaybackTimerEnded() async {
     updateUI(closeTimeFlag: false);
-    await GlobalPlayerService.instance.playerManager.pause();
+    await GlobalPlayerService.instance.playerManager.pause(source: 'timer.roomPlaybackEnded');
     await LiveAudioService.stop();
     ToastUtil.show(i18n('room_playback_timer_finished'));
   }

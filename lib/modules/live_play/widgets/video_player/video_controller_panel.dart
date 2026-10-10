@@ -1611,7 +1611,7 @@ class PlayPauseButton extends StatelessWidget {
     final playerManager = GlobalPlayerService.instance.playerManager;
 
     return GestureDetector(
-      onTap: () => playerManager.togglePlayPause(),
+      onTap: () => playerManager.togglePlayPause(source: 'ui.controlBarButton'),
       child: StreamBuilder<bool>(
         stream: playerManager.onPlaying.distinct(),
         initialData: playerManager.isPlayingNow,

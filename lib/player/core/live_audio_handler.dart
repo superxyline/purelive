@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 
+import 'package:flutter/foundation.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:pure_live/player/interface/unified_player_interface.dart';
@@ -28,6 +29,7 @@ class LiveAudioHandler extends BaseAudioHandler {
 
     // 音频中断（来电、通知）
     _session.interruptionEventStream.listen((event) {
+      debugPrint('[PauseTrace] audioInterruption begin=${event.begin} type=${event.type}');
       if (_currentPlayer == null) return;
       if (event.begin) {
         switch (event.type) {
@@ -54,7 +56,10 @@ class LiveAudioHandler extends BaseAudioHandler {
     });
 
     // 拔掉耳机 / 连接蓝牙音箱暂停
-    _session.becomingNoisyEventStream.listen((_) => pause());
+    _session.becomingNoisyEventStream.listen((_) {
+      debugPrint('[PauseTrace] becomingNoisy -> pause');
+      pause();
+    });
   }
 
   /// 监听播放状态同步到通知栏
@@ -62,6 +67,9 @@ class LiveAudioHandler extends BaseAudioHandler {
     if (_currentPlayer == null) return;
     _playStateSubscription?.cancel();
     _playStateSubscription = _currentPlayer!.onPlaying.listen((playing) {
+      // 播放态翻转的原始时间点：即使暂停来自 mpv/media_kit 内部（非本 App 调用），
+      // 这里也一定会留下记录，可与 [PauseTrace] pause() 对照判断来源。
+      debugPrint('[PauseTrace] onPlaying -> $playing');
       final keepAlive =
           playing &&
           (SettingsService.to.app.enableBackgroundPlay.value || BackgroundPlaybackService.sleepSessionActive);
@@ -96,6 +104,7 @@ class LiveAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> play() async {
+    debugPrint('[PauseTrace] audioHandler.play()');
     if (_currentPlayer == null) return;
     await _session.setActive(true);
     await _currentPlayer!.play();
@@ -103,6 +112,7 @@ class LiveAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> pause() async {
+    debugPrint('[PauseTrace] audioHandler.pause()');
     if (_currentPlayer == null) return;
     await _currentPlayer!.pause();
   }

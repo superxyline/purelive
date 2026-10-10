@@ -192,7 +192,14 @@ class LivePlayPage extends GetView<LivePlayController> {
           child: child,
         );
 
-    if (!controller.animateNextModeSwitch) return plain();
+    // 动画只在"刚发生模式切换"的 320ms 窗口内播一次（窗口与 probe 冻结同步）。
+    // animateNextModeSwitch 只在 screenMode 变化时赋值、之后不再复位，而全屏内
+    // 切清晰度走 setResolution → close()+destroyPlayer() 会让 videoController 瞬时
+    // 为 null，Obx 返回类型随之变化（VideoKeyboardShortcuts 包装被拿掉）→ 整棵
+    // 子树重建、TweenAnimationBuilder 换成新元素，几何动画就被重放（实测现象：
+    // 全屏下切换清晰度也播全屏过渡动画）。窗口外一律走 plain()，元素重建也不播。
+    final withinAnimWindow = DateTime.now().millisecondsSinceEpoch < controller.animatingUntilMs;
+    if (!controller.animateNextModeSwitch || !withinAnimWindow) return plain();
 
     final geom = _geomParam(
       toFullscreen: mode == VideoMode.fullscreen,
