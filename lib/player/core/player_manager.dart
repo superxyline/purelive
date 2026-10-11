@@ -1038,7 +1038,14 @@ class PlayerManager {
 
       bool lineSwitched = false;
       if (failedUrl != null && switchableErrorType && _currentPlayUrls.length > 1) {
-        lineManager.markFailed(failedUrl);
+        // network 类错误不拉黑线路：CDN 间歇断流(EOS)在同一线路上几秒后重连即
+        // 恢复，而 markFailed 在本会话内永不解除（markSuccess 无调用方）——
+        // 2026-10-11 斗鱼 YYF 实测：第一次断流换线拉黑 url1，5 分钟后第二次
+        // 断流拉黑 url2，两条全灭后自愈再无线路可换，画面永久冻住。
+        // 只有 codec/source 这类确定性失败才拉黑。
+        if (error.type != PlayerErrorType.network) {
+          lineManager.markFailed(failedUrl);
+        }
         if (!lineManager.hasAvailable(_currentPlayUrls)) {
           log("no available lines, fallback engine");
         } else {
@@ -1057,6 +1064,21 @@ class PlayerManager {
             return;
           }
         }
+      }
+
+      // 单线路 / 线路全灭时，network 类错误先原地重连当前 URL：断流后重新
+      // open 同一条 CDN 即可恢复，且重连会重新走开流状态序列，停摆看门狗
+      // 也随之重新武装（此前 fire 一次后无 re-arm，自愈两轮即死局）。
+      if (!lineSwitched &&
+          error.type == PlayerErrorType.network &&
+          _stoppedSwitches < _maxStoppedSwitches) {
+        _stoppedSwitches++;
+        log('no line to switch, reconnect current url (attempt $_stoppedSwitches)');
+        await Future.delayed(const Duration(seconds: 2));
+        if (!_isSessionValid(mySessionId)) return;
+        if (_currentUrl == null) return;
+        await play(_currentUrl!, _currentPlayUrls, _currentHeaders, room: currentFloatRoom);
+        return;
       }
 
       // 换线路无法恢复时才上报错误，避免能自动恢复的场合白弹一次提示
