@@ -117,8 +117,14 @@ class PlayerManager {
   /// 断流 EOS 自愈的「重新取流」钩子：直播地址有时效（斗鱼 H5 CDN 固定 5 分钟
   /// 踢线一次，地址签名随之过期，实测三次断流间隔 4:56/5:02/5:05），复用旧
   /// 地址重连大概率 403，必须重新签名取流后重播。上层在播放器初始化时注入，
-  /// 返回 true 表示已重新取流并重启播放；false/抛异常时退回换线/旧地址重连。
-  Future<bool> Function()? streamEndedRefresher;
+  /// 返回重签后的地址列表（空/抛异常=失败，退回复用旧地址换线/重连）。
+  /// 是否用新地址开流由 manager 决定（预签路径只取流不播）。
+  Future<List<String>?> Function()? streamEndedRefresher;
+
+  /// 踢线前预签好的地址：连接成功约 4 分钟后主动重新取流（服务端踢线计时
+  /// ≈连接时长），断流瞬间零 HTTP 直接切，把可感知冻结压到最短
+  List<String>? _prefetchedUrls;
+  Timer? _prefetchTimer;
 
   /// 是否为业务主动暂停（点击/键盘/生命周期/定时器），停摆检测必须跳过它们
   bool _pausedIntentionally = false;
@@ -300,6 +306,10 @@ class PlayerManager {
     // 否则新会话在 playing=false 时会被旧标记挡住停摆检测
     _pausedIntentionally = false;
     _playedInSession = false;
+    // 新会话的地址/计时基线都变了：上一轮的预签地址与预签定时器作废
+    _prefetchedUrls = null;
+    _prefetchTimer?.cancel();
+    _prefetchTimer = null;
 
     if (room?.roomId != currentFloatRoom?.roomId) {
       lineManager.reset();
@@ -975,6 +985,9 @@ class PlayerManager {
     // 避免那一次迟到的事件把停摆看门狗起在已经关掉的房间上
     _playedInSession = false;
     _isClosing = true;
+    _prefetchedUrls = null;
+    _prefetchTimer?.cancel();
+    _prefetchTimer = null;
     _pinchResetTicker?.stop();
     _pinchResetTicker = null;
     pinchTransform.value = Matrix4.identity();
@@ -1072,13 +1085,22 @@ class PlayerManager {
         }
       }
 
-      // 单线路 / 线路全灭时，network 类错误先原地重连当前 URL：断流后重新
-      // open 同一条 CDN 即可恢复，且重连会重新走开流状态序列，停摆看门狗
-      // 也随之重新武装（此前 fire 一次后无 re-arm，自愈两轮即死局）。
+      // 单线路 / 线路全灭时，network 类错误先恢复当前流：有预签地址直接用
+      // （旧地址可能已随踢线过期），没有才原地重连当前 URL。重连会重新走
+      // 开流状态序列，停摆看门狗随之重新武装（此前 fire 一次后无 re-arm）。
       if (!lineSwitched &&
           error.type == PlayerErrorType.network &&
           _stoppedSwitches < _maxStoppedSwitches) {
         _stoppedSwitches++;
+        final prefetched = _prefetchedUrls;
+        if (prefetched != null && prefetched.isNotEmpty) {
+          _prefetchedUrls = null;
+          log('no line to switch, replay with prefetched url (attempt $_stoppedSwitches)');
+          await Future.delayed(const Duration(seconds: 2));
+          if (!_isSessionValid(mySessionId)) return;
+          await play(prefetched.first, prefetched, _currentHeaders, room: currentFloatRoom);
+          return;
+        }
         log('no line to switch, reconnect current url (attempt $_stoppedSwitches)');
         await Future.delayed(const Duration(seconds: 2));
         if (!_isSessionValid(mySessionId)) return;
@@ -1132,6 +1154,8 @@ class PlayerManager {
           _stoppedSwitches = 0;
           _pausedIntentionally = false;
           _playedInSession = true;
+          // 连接成功即踢线计时开始：按约 4 分钟预签下一批地址
+          _scheduleStreamPrefetch();
           if (_isSwitchingDueToFallback) {
             _isSwitchingDueToFallback = false;
           }
@@ -1260,9 +1284,10 @@ class PlayerManager {
     _stallWatchdogTimer = null;
   }
 
-  /// 直播流 EOS 自愈：complete 事件（CDN 断流）后 800ms 观察窗内没有恢复
-  /// 播放就按网络错误换线。观察窗防两类误判：点播/回放自然播完、close 流程
-  /// 里 seek 引起的瞬时 complete。换线计数复用 [_stoppedSwitches]。
+  /// 直播流 EOS 自愈：complete 事件（CDN 断流）后 250ms 观察窗内没有恢复
+  /// 播放就换流。观察窗仅防 close 流程里瞬时 complete 与事件双发抖动——
+  /// 此前 800ms 纯粹白等（2026-10-11 实测断流到冻结恢复全程 1~3s 的主要
+  /// 组成之一）。换流计数复用 [_stoppedSwitches]。
   void _armStreamEndedWatchdog() {
     if (_disposed || _isClosing || _currentPlayer == null) return;
     // 冷启动/刚开流的初始化事件里也夹带 complete=false→true 序列，
@@ -1270,8 +1295,11 @@ class PlayerManager {
     if (!_playedInSession) return;
     final sessionId = _sessionId;
     _streamEndedTimer?.cancel();
-    _streamEndedTimer = Timer(const Duration(milliseconds: 800), () {
+    _streamEndedTimer = Timer(const Duration(milliseconds: 250), () {
       if (!_isSessionValid(sessionId) || _disposed || _isClosing) return;
+      // 主动暂停中不断流自愈：用户按了暂停就不该被自动续播打断；
+      // 恢复时 resumeWithWatchdog -> _handleError 链路会自然续上新流
+      if (_pausedIntentionally) return;
       if (isPlayingNow || _loadingSubject.value) return;
       // 只在前台自愈，口径与停摆看门狗一致
       if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
@@ -1290,13 +1318,22 @@ class PlayerManager {
         return;
       }
       _stoppedSwitches++;
-      // 优先重新取流：断流=CDN 踢线，旧地址签名已过期，重连旧地址会失败
-      final refresher = streamEndedRefresher;
-      if (refresher != null) {
-        log('[PauseTrace] stream completed (live EOS), refresh play url (attempt $_stoppedSwitches)');
-        unawaited(_refreshAfterStreamEnded(sessionId, refresher));
+      // ① 踢线前已预签好新地址：零 HTTP 直接切，冻结最短
+      final prefetched = _prefetchedUrls;
+      if (prefetched != null && prefetched.isNotEmpty) {
+        _prefetchedUrls = null;
+        log('[PauseTrace] stream completed (live EOS), switch to prefetched url (attempt $_stoppedSwitches)');
+        unawaited(_playUrlList(sessionId, prefetched, 'prefetched'));
         return;
       }
+      // ② 现场重新签名取流：断流=CDN 踢线，旧地址已过期，重连旧地址必然失败
+      final refresher = streamEndedRefresher;
+      if (refresher != null) {
+        log('[PauseTrace] stream completed (live EOS), refetch play url (attempt $_stoppedSwitches)');
+        unawaited(_refetchAndReplay(sessionId, refresher));
+        return;
+      }
+      // ③ 无钩子（纯 manager 层）：旧地址换线/重连兜底
       log('[PauseTrace] stream completed (live EOS), switch line (attempt $_stoppedSwitches)');
       unawaited(
         _handleError(
@@ -1307,14 +1344,59 @@ class PlayerManager {
     });
   }
 
-  /// EOS 自愈：先试重新取流（上层签名刷新链），失败退回复用旧地址的换线/重连
-  Future<void> _refreshAfterStreamEnded(int sessionId, Future<bool> Function() refresher) async {
+  /// 连接成功约 4 分钟后主动预签下一批地址：服务端踢线计时≈连接时长
+  /// （斗鱼固定 5 分钟），在断流前把新地址备好，complete 后零 HTTP 直接切。
+  /// 计时锚=连接成功时刻，换线/切清晰度等新会话会在 play() 里重置。
+  void _scheduleStreamPrefetch() {
+    _prefetchTimer?.cancel();
+    _prefetchTimer = null;
+    final refresher = streamEndedRefresher;
+    if (refresher == null) return;
+    _prefetchTimer = Timer(const Duration(minutes: 4), () async {
+      _prefetchTimer = null;
+      if (_disposed || _isClosing || !_playedInSession || !isPlayingNow) return;
+      try {
+        final urls = await refresher();
+        if (urls == null || urls.isEmpty) return;
+        if (_disposed || _isClosing || !_playedInSession || !isPlayingNow) return;
+        _prefetchedUrls = urls;
+        log('[PauseTrace] prefetched ${urls.length} play url(s) before server-side kick');
+      } catch (e, s) {
+        log('stream prefetch failed: $e', stackTrace: s);
+      }
+    });
+  }
+
+  /// 用给定地址列表开流（预签切换/重签重放共用），失败退回既有错误处理
+  Future<void> _playUrlList(int sessionId, List<String> urls, String tag) async {
     try {
-      if (await refresher()) return;
+      if (!_isSessionValid(sessionId) || _isClosing) return;
+      await play(urls.first, urls, _currentHeaders, room: currentFloatRoom);
+    } catch (e, s) {
+      log('$tag url replay failed: $e', stackTrace: s);
+      unawaited(
+        _handleError(
+          PlayerException(message: 'stream completed (live EOS)', type: PlayerErrorType.network),
+          sessionId: sessionId,
+        ),
+      );
+    }
+  }
+
+  /// 现场重签取流后直接换地址；取流失败/开流失败退回既有换线兜底
+  Future<void> _refetchAndReplay(int sessionId, Future<List<String>?> Function() refresher) async {
+    List<String>? urls;
+    try {
+      urls = await refresher();
     } catch (e, s) {
       log('stream refresher failed: $e', stackTrace: s);
     }
-    log('[PauseTrace] stream completed (live EOS), switch line (fallback after refresh)');
+    if (!_isSessionValid(sessionId) || _isClosing) return;
+    if (urls != null && urls.isNotEmpty) {
+      await _playUrlList(sessionId, urls, 'refetched');
+      return;
+    }
+    log('[PauseTrace] stream completed (live EOS), switch line (fallback after refetch)');
     unawaited(
       _handleError(
         PlayerException(message: 'stream completed (live EOS)', type: PlayerErrorType.network),
@@ -1465,6 +1547,9 @@ class PlayerManager {
     _disposed = true;
     _sessionId++;
     _isClosing = true;
+    _prefetchedUrls = null;
+    _prefetchTimer?.cancel();
+    _prefetchTimer = null;
     _hideTimer?.cancel();
     closeAppFloating();
     await _pipSubscription?.cancel();
