@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'dart:io' as io;
+import 'dart:typed_data';
 import 'package:pure_live/core/common/core_error.dart';
 import 'package:pure_live/core/common/custom_interceptor.dart';
 
@@ -45,6 +47,55 @@ class HttpClient {
       return result.data;
     } catch (e) {
       throw _handleError(e, _errorGet);
+    }
+  }
+
+  Future<Uint8List> getBytes(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? header,
+  }) async {
+    final result = await dio.get<List<int>>(
+      url,
+      queryParameters: queryParameters,
+      options: Options(responseType: ResponseType.bytes, headers: header),
+    );
+    return Uint8List.fromList(result.data ?? const <int>[]);
+  }
+
+  /// 下载文件到本地（.part 临时文件 + 成功后改名），供壁纸媒体库使用。
+  Future<io.File> download(
+    String url,
+    String savePath, {
+    Map<String, dynamic>? header,
+    Function(int value, int progress)? onReceiveProgress,
+  }) async {
+    final tempPath = "$savePath.part";
+    final tempFile = io.File(tempPath);
+
+    try {
+      if (!await tempFile.exists()) {
+        await tempFile.create(recursive: true);
+      }
+      final response = await dio.download(
+        url,
+        tempPath,
+        onReceiveProgress: onReceiveProgress,
+        options: Options(headers: header),
+      );
+      if (response.statusCode == 200 || response.statusCode == 206) {
+        return await tempFile.rename(savePath);
+      }
+      throw HttpError('download failed', statusCode: response.statusCode ?? 0);
+    } on DioException catch (e) {
+      if (CancelToken.isCancel(e)) {
+        if (tempFile.existsSync()) tempFile.deleteSync();
+        rethrow;
+      }
+      throw HttpError(e.message ?? 'download error', statusCode: e.response?.statusCode ?? 0);
+    } catch (e) {
+      if (tempFile.existsSync()) tempFile.deleteSync();
+      rethrow;
     }
   }
 

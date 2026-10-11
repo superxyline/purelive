@@ -15,6 +15,7 @@ class AppPathManager {
 
   static const String softNameDir = 'PURE_LIVE';
   static const String dirIptvCache = 'IPTV_CACHE';
+  static const String dirWallpaper = 'WALLPAPER';
   static const String iptvTable = 'pure_live_tv';
   static const String dirDownload = 'DOWNLOADS';
   static const String dirLogs = 'LOGS';
@@ -51,6 +52,7 @@ class AppPathManager {
     return directory;
   }
 
+    Future<Directory> get wallpaperDir => getDir(dirWallpaper);
   Future<Directory> get iptvCacheDir => getDir(dirIptvCache);
   Future<Directory> get downloadDir => getDir(dirDownload);
   Future<Directory> get logsDir => getDir(dirLogs);

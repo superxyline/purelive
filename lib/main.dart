@@ -13,6 +13,8 @@ import 'package:pure_live/routes/route_observer_controller.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
 import 'package:pure_live/common/utils/update_checker.dart';
 import 'package:pure_live/modules/esports/esports_reminder_service.dart';
+import 'package:pure_live/domains/wallpaper/domain/background_controller.dart';
+import 'package:pure_live/domains/wallpaper/presentation/app_background.dart';
 
 /// 安卓返回键修复：MIUI 手势返回有时以按键事件（KEYCODE_BACK→goBack）形式
 /// 送入 Flutter 键盘管线，而引擎对该键的"重派发→onBackPressed"链路存在丢事件
@@ -58,10 +60,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  StreamSubscription<bool>? _wallpaperHandoffSub;
   @override
   void initState() {
     super.initState();
-    unawaited(initGlobalPlayer());
+    unawaited(initGlobalPlayer().then((_) {
+      // 视频壁纸与直播流不能共享解码器：播放期间挂起壁纸播放（引擎为准，
+      // 与路由栈无关——房间退出/悬浮窗内直播仍在播）。
+      _wallpaperHandoffSub = GlobalPlayerService.instance.playerManager.onPlaying.listen((playing) {
+        unawaited(BackgroundController.to.setPlaybackActive(playing));
+      });
+    }));
     // Web 端动态加载内置苹方中文字体：canvaskit 渲染器不读系统字体，
     // Google Fonts CDN 又不可达，缺字会导致中文显示为方框。
     // 字体文件放在 web/fonts/ 下，只进 Web 部署产物、不占 APK 体积。
@@ -141,6 +150,14 @@ class _MyAppState extends State<MyApp> {
           } else {
             lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
             darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
+          }
+
+          // 壁纸由 AppBackgroundLayer 画在导航器之下：占据画布时页面
+          // scaffold 底色透明（GetX 只在启动读 theme:，运行时切换要在这里重建）。
+          final wallpaperOwnsCanvas = BackgroundController.to.occupiesCanvas.value;
+          if (wallpaperOwnsCanvas) {
+            lightTheme = lightTheme.copyWith(scaffoldBackgroundColor: Colors.transparent);
+            darkTheme = darkTheme.copyWith(scaffoldBackgroundColor: Colors.transparent);
           }
 
           return GetMaterialApp(
