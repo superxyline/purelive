@@ -114,6 +114,12 @@ class PlayerManager {
   /// 直播流 EOS（complete 事件）自愈计时器
   Timer? _streamEndedTimer;
 
+  /// 断流 EOS 自愈的「重新取流」钩子：直播地址有时效（斗鱼 H5 CDN 固定 5 分钟
+  /// 踢线一次，地址签名随之过期，实测三次断流间隔 4:56/5:02/5:05），复用旧
+  /// 地址重连大概率 403，必须重新签名取流后重播。上层在播放器初始化时注入，
+  /// 返回 true 表示已重新取流并重启播放；false/抛异常时退回换线/旧地址重连。
+  Future<bool> Function()? streamEndedRefresher;
+
   /// 是否为业务主动暂停（点击/键盘/生命周期/定时器），停摆检测必须跳过它们
   bool _pausedIntentionally = false;
 
@@ -1284,6 +1290,13 @@ class PlayerManager {
         return;
       }
       _stoppedSwitches++;
+      // 优先重新取流：断流=CDN 踢线，旧地址签名已过期，重连旧地址会失败
+      final refresher = streamEndedRefresher;
+      if (refresher != null) {
+        log('[PauseTrace] stream completed (live EOS), refresh play url (attempt $_stoppedSwitches)');
+        unawaited(_refreshAfterStreamEnded(sessionId, refresher));
+        return;
+      }
       log('[PauseTrace] stream completed (live EOS), switch line (attempt $_stoppedSwitches)');
       unawaited(
         _handleError(
@@ -1292,6 +1305,22 @@ class PlayerManager {
         ),
       );
     });
+  }
+
+  /// EOS 自愈：先试重新取流（上层签名刷新链），失败退回复用旧地址的换线/重连
+  Future<void> _refreshAfterStreamEnded(int sessionId, Future<bool> Function() refresher) async {
+    try {
+      if (await refresher()) return;
+    } catch (e, s) {
+      log('stream refresher failed: $e', stackTrace: s);
+    }
+    log('[PauseTrace] stream completed (live EOS), switch line (fallback after refresh)');
+    unawaited(
+      _handleError(
+        PlayerException(message: 'stream completed (live EOS)', type: PlayerErrorType.network),
+        sessionId: sessionId,
+      ),
+    );
   }
 
   /// "播放中停摆"看门狗（字段处有成因说明）：playing 变 false 且既没被业务

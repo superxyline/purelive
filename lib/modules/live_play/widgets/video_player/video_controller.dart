@@ -345,6 +345,10 @@ class VideoController with ChangeNotifier {
   Future<void> initVideoController() async {
     _setStatus(PlayerStatus.loading);
 
+    // 断流 EOS 自愈走完整刷新链：直播地址有时效（斗鱼 CDN 5 分钟踢线），
+    // 复用旧地址重连会因签名过期失败，必须重新签名取流。
+    _playerManager.streamEndedRefresher = _refreshPlayUrlOnStreamEnded;
+
     await _initVolumeController();
     if (_isDisposed) return;
 
@@ -356,6 +360,19 @@ class VideoController with ChangeNotifier {
     _setupGravityAutoFullscreen();
 
     _setStatus(PlayerStatus.playing);
+  }
+
+  /// EOS 自愈钩子：重新走刷新链（重取清晰度/签名地址 + 重建播放器）。
+  /// 重建出的新实例会在 initVideoController 里覆盖此钩子。
+  Future<bool> _refreshPlayUrlOnStreamEnded() async {
+    if (_isDisposed) return false;
+    try {
+      await refresh();
+      return true;
+    } catch (e) {
+      debugPrint('[PlayerError] stream refresh after EOS failed: $e');
+      return false;
+    }
   }
 
   Future<void> _initVolumeController() async {
