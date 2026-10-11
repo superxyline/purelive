@@ -506,6 +506,7 @@
   "search_input_hint": "输入直播关键字",
   "search_live": "搜索直播",
   "segment_duration": "视频切片时长",
+  "fullscreen_stream_settings": "全屏播放设置",
   "select_line": "选择线路",
   "select_login_method": "请选择登陆方式",
   "select_opacity": "选择透明度",
