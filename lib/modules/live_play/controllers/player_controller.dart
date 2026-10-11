@@ -150,6 +150,20 @@ class PlayerController extends GetxController {
     _main.updateRoom(success: true);
   }
 
+  /// 断流/踢线自愈用：只重新调取流接口拿新签名地址（斗鱼地址有时效，
+  /// 踢线后旧地址签名失效），不动清晰度选择、不触发播放器重建。
+  Future<List<String>> refetchPlayUrls() async {
+    final room = currentRoom;
+    final playerState = _state.player;
+    if (room == null || playerState.qualites.isEmpty || playerState.currentQuality >= playerState.qualites.length) {
+      return const [];
+    }
+    return currentSite.liveSite.getPlayUrls(
+      detail: room,
+      quality: playerState.qualites[playerState.currentQuality],
+    );
+  }
+
   Future<void> changeCurrentRoomAudioOnly(bool value) async {
     if (_state.player.isCurrentRoomAudioOnly == value) return;
     await GlobalPlayerService.instance.playerManager.hardDispose();

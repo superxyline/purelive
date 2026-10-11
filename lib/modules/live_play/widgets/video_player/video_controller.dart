@@ -345,9 +345,9 @@ class VideoController with ChangeNotifier {
   Future<void> initVideoController() async {
     _setStatus(PlayerStatus.loading);
 
-    // 断流 EOS 自愈走完整刷新链：直播地址有时效（斗鱼 CDN 5 分钟踢线），
-    // 复用旧地址重连会因签名过期失败，必须重新签名取流。
-    _playerManager.streamEndedRefresher = _refreshPlayUrlOnStreamEnded;
+    // 断流/踢线自愈：只重新签名取流（1~2 个 HTTP），不动房间/清晰度/弹幕、
+    // 不销毁播放器——manager 拿到新地址列表后直接复用播放器实例换地址。
+    _playerManager.streamEndedRefresher = _refetchPlayUrlsOnStreamEnded;
 
     await _initVolumeController();
     if (_isDisposed) return;
@@ -362,16 +362,15 @@ class VideoController with ChangeNotifier {
     _setStatus(PlayerStatus.playing);
   }
 
-  /// EOS 自愈钩子：重新走刷新链（重取清晰度/签名地址 + 重建播放器）。
-  /// 重建出的新实例会在 initVideoController 里覆盖此钩子。
-  Future<bool> _refreshPlayUrlOnStreamEnded() async {
-    if (_isDisposed) return false;
+  /// EOS 自愈/预签钩子：重新走取流接口拿新签名地址。重建出的新播放器实例
+  /// 会在 initVideoController 里覆盖此钩子。
+  Future<List<String>?> _refetchPlayUrlsOnStreamEnded() async {
+    if (_isDisposed) return null;
     try {
-      await refresh();
-      return true;
+      return await _livePlayController.playerController.refetchPlayUrls();
     } catch (e) {
-      debugPrint('[PlayerError] stream refresh after EOS failed: $e');
-      return false;
+      debugPrint('[PlayerError] refetch play urls failed: $e');
+      return null;
     }
   }
 
