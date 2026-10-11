@@ -10,18 +10,33 @@ import 'package:pure_live/modules/live_play/controllers/live_play_controller.dar
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 
 
-class DanmakuSettingsPage extends StatefulWidget {
-  const DanmakuSettingsPage({super.key, required this.controller});
+/// 弹幕设置内容页：竖屏房间 Tab 与全屏设置抽屉共用同一控件面（对齐上游
+/// v3.1.19 的单一设置面结构）。[embedded] 为 true 时使用紧凑样式——圆角
+/// 卡片容器、SwitchListTile 行、12 号字，由全屏右侧抽屉嵌入；
+/// [includePipSettings] 控制画中画分区是否显示（全屏抽屉里省略，保持
+/// 直播画面可见）。
+class DanmakuSettingsContent extends StatefulWidget {
+  const DanmakuSettingsContent({
+    super.key,
+    required this.controller,
+    this.embedded = false,
+    this.includePipSettings = true,
+  });
+
   final VideoController controller;
+  final bool embedded;
+  final bool includePipSettings;
 
   @override
-  State<DanmakuSettingsPage> createState() => _DanmakuSettingsPageState();
+  State<DanmakuSettingsContent> createState() => _DanmakuSettingsPageState();
 }
 
-class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
+class _DanmakuSettingsPageState extends State<DanmakuSettingsContent> {
   late final ScrollController _scrollController;
 
   VideoController get controller => widget.controller;
+
+  bool get isEmbedded => widget.embedded;
 
   /// 当前直播间（详情接口的返回值优先，切房后也保持最新）。
   /// 用于"弹幕列表礼物卡片"这类按房间保存的设置项，以及按平台决定显示哪些设置。
@@ -50,13 +65,25 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
     final theme = Theme.of(context);
     final Color labelColor = theme.colorScheme.onSurface;
     final Color digitColor = theme.colorScheme.primary;
-    Widget reactiveCard(List<Widget> Function() builder) => Obx(() => context.buildModernCard(builder()));
+    Widget reactiveCard(List<Widget> Function() builder) => Obx(() {
+          final children = builder();
+          if (isEmbedded) {
+            return Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(children: children),
+            );
+          }
+          return context.buildModernCard(children);
+        });
 
-    return Scaffold(
-      body: SingleChildScrollView(
+    final scrollChild = SingleChildScrollView(
         controller: _scrollController,
         physics: const PureLiveScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: isEmbedded ? 12 : 16, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -64,46 +91,91 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
             const SizedBox(height: 8),
             Obx(() {
               final activePreset = _matchingPreset();
-              return context.buildModernCard([
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (final preset in DanmakuViewingPreset.values)
-                            ChoiceChip(
-                              key: ValueKey('danmaku-template-${preset.id}'),
-                              selected: activePreset?.id == preset.id,
-                              showCheckmark: true,
-                              avatar: preset.id == 'best' ? const Icon(Icons.auto_awesome_rounded, size: 18) : null,
-                              label: Text(i18n(preset.labelKey)),
-                              onSelected: (_) => _applyPreset(preset),
+              final presetContent = Padding(
+                padding: EdgeInsets.all(isEmbedded ? 10 : 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: isEmbedded ? 6 : 8,
+                      runSpacing: isEmbedded ? 6 : 8,
+                      children: [
+                        for (final preset in DanmakuViewingPreset.values)
+                          ChoiceChip(
+                            key: ValueKey('danmaku-template-${preset.id}'),
+                            selected: activePreset?.id == preset.id,
+                            showCheckmark: false,
+                            backgroundColor:
+                                isEmbedded ? theme.colorScheme.surface : theme.colorScheme.surfaceContainerHighest,
+                            selectedColor: theme.colorScheme.primary,
+                            side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.35)),
+                            labelStyle: TextStyle(
+                              color: activePreset?.id == preset.id
+                                  ? theme.colorScheme.onPrimary
+                                  : theme.colorScheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                              fontSize: isEmbedded ? 12 : null,
                             ),
-                          OutlinedButton.icon(
-                            onPressed: _saveTemplate,
-                            icon: const Icon(Icons.save_outlined),
-                            label: Text(i18n('save_current_template')),
+                            avatar: SizedBox(
+                              width: isEmbedded ? 16 : 18,
+                              child: activePreset?.id == preset.id
+                                  ? Icon(Icons.check_rounded,
+                                      size: isEmbedded ? 16 : 18, color: theme.colorScheme.onPrimary)
+                                  : preset.id == 'best'
+                                      ? Icon(Icons.auto_awesome_rounded,
+                                          size: isEmbedded ? 16 : 18, color: theme.colorScheme.primary)
+                                      : null,
+                            ),
+                            label: Text(i18n(preset.labelKey)),
+                            onSelected: (_) => _applyPreset(preset),
                           ),
-                          OutlinedButton.icon(
-                            onPressed: _restoreTemplate,
-                            icon: const Icon(Icons.restore_rounded),
-                            label: Text(i18n('restore_saved_template')),
+                        OutlinedButton.icon(
+                          onPressed: _saveTemplate,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: theme.colorScheme.primary,
+                            side: BorderSide(color: theme.colorScheme.primary.withValues(alpha: 0.45)),
+                            padding: EdgeInsets.symmetric(horizontal: isEmbedded ? 10 : 12),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '${i18n('danmaku_best_preset_desc')}\n${i18n('danmaku_realtime_hint')}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.45),
-                      ),
-                    ],
-                  ),
+                          icon: Icon(Icons.save_outlined, size: isEmbedded ? 16 : 18),
+                          label:
+                              Text(i18n('save_current_template'), style: TextStyle(fontSize: isEmbedded ? 12 : null)),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: _restoreTemplate,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: theme.colorScheme.primary,
+                            side: BorderSide(color: theme.colorScheme.primary.withValues(alpha: 0.45)),
+                            padding: EdgeInsets.symmetric(horizontal: isEmbedded ? 10 : 12),
+                          ),
+                          icon: Icon(Icons.restore_rounded, size: isEmbedded ? 16 : 18),
+                          label: Text(i18n('restore_saved_template'),
+                              style: TextStyle(fontSize: isEmbedded ? 12 : null)),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: isEmbedded ? 8 : 10),
+                    Text(
+                      '${i18n('danmaku_best_preset_desc')}\n${i18n('danmaku_realtime_hint')}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            height: 1.45,
+                            fontSize: isEmbedded ? 11 : null,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
                 ),
-              ]);
+              );
+              if (isEmbedded) {
+                return Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: presetContent,
+                );
+              }
+              return context.buildModernCard([presetContent]);
             }),
             const SizedBox(height: 20),
             context.buildGroupTitle(i18n("danmaku_area")),
@@ -394,12 +466,13 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
             ),
             const SizedBox(height: 20),
 
-            const PipDanmakuSettingsSection(),
-            const SizedBox(height: 24),
+            if (widget.includePipSettings) const PipDanmakuSettingsSection(),
+            SizedBox(height: isEmbedded ? 12 : 24),
           ],
         ),
-      ),
-    );
+      );
+    if (isEmbedded) return scrollChild;
+    return Scaffold(body: scrollChild);
   }
 
   DanmakuViewingPreset? _matchingPreset() {
@@ -499,10 +572,13 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: labelColor),
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: labelColor),
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
@@ -552,10 +628,13 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: labelColor),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: labelColor),
+            ),
           ),
+          const SizedBox(width: 8),
           CountButton(
             maxValue: max,
             minValue: min,
@@ -702,6 +781,23 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
     required Color labelColor,
     String? subtitle,
   }) {
+    if (isEmbedded) {
+      return Material(
+        type: MaterialType.transparency,
+        child: SwitchListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+          visualDensity: VisualDensity.standard,
+          title: Text(
+            title,
+            style: AppTextStyles.t15.copyWith(fontWeight: FontWeight.w600, color: labelColor),
+          ),
+          subtitle: subtitle == null ? null : Text(subtitle, style: AppTextStyles.t12Muted),
+          value: value,
+          activeThumbColor: theme.colorScheme.primary,
+          onChanged: onChanged,
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -726,5 +822,17 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsPage> {
         ],
       ),
     );
+  }
+}
+
+/// 竖屏房间 Tab 的整页包装：与全屏抽屉共用 [DanmakuSettingsContent]。
+class DanmakuSettingsPage extends StatelessWidget {
+  const DanmakuSettingsPage({super.key, required this.controller});
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: DanmakuSettingsContent(controller: controller));
   }
 }
