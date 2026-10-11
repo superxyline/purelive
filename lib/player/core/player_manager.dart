@@ -111,6 +111,9 @@ class PlayerManager {
   Timer? _stoppedWatchdogTimer;
   int _stoppedSwitches = 0;
 
+  /// 直播流 EOS（complete 事件）自愈计时器
+  Timer? _streamEndedTimer;
+
   /// 是否为业务主动暂停（点击/键盘/生命周期/定时器），停摆检测必须跳过它们
   bool _pausedIntentionally = false;
 
@@ -1133,6 +1136,12 @@ class PlayerManager {
       player.onComplete.listen((event) {
         log('[PauseTrace] onComplete -> $event session=$_sessionId');
         _completeSubject.add(event);
+        // 直播流不存在"播完"：complete 等于 CDN 断流（mpv 播完残留缓冲后报
+        // completed，playing=false、无 error、无 buffering，画面就此冻住；
+        // 2026-10-11 斗鱼实测 10:40:20）。不等 8s 停摆看门狗，短观察窗后换线。
+        if (event) {
+          _armStreamEndedWatchdog();
+        }
       }),
     );
     _subscriptions.add(
@@ -1221,6 +1230,46 @@ class PlayerManager {
     }
     _stallWatchdogTimer?.cancel();
     _stallWatchdogTimer = null;
+  }
+
+  /// 直播流 EOS 自愈：complete 事件（CDN 断流）后 800ms 观察窗内没有恢复
+  /// 播放就按网络错误换线。观察窗防两类误判：点播/回放自然播完、close 流程
+  /// 里 seek 引起的瞬时 complete。换线计数复用 [_stoppedSwitches]。
+  void _armStreamEndedWatchdog() {
+    if (_disposed || _isClosing || _currentPlayer == null) return;
+    // 冷启动/刚开流的初始化事件里也夹带 complete=false→true 序列，
+    // 没真正播放过就 complete 的场景交给首帧/停摆看门狗
+    if (!_playedInSession) return;
+    final sessionId = _sessionId;
+    _streamEndedTimer?.cancel();
+    _streamEndedTimer = Timer(const Duration(milliseconds: 800), () {
+      if (!_isSessionValid(sessionId) || _disposed || _isClosing) return;
+      if (isPlayingNow || _loadingSubject.value) return;
+      // 只在前台自愈，口径与停摆看门狗一致
+      if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        log('[PauseTrace] streamEnded watchdog skipped: app lifecycle=${WidgetsBinding.instance.lifecycleState}');
+        return;
+      }
+      if (_stoppedSwitches >= _maxStoppedSwitches) {
+        log('[PauseTrace] stream completed after $_maxStoppedSwitches switches, report error');
+        _stoppedSwitches = 0;
+        unawaited(
+          _handleError(
+            PlayerException(message: 'stream completed on all lines', type: PlayerErrorType.network),
+            sessionId: sessionId,
+          ),
+        );
+        return;
+      }
+      _stoppedSwitches++;
+      log('[PauseTrace] stream completed (live EOS), switch line (attempt $_stoppedSwitches)');
+      unawaited(
+        _handleError(
+          PlayerException(message: 'stream completed (live EOS)', type: PlayerErrorType.network),
+          sessionId: sessionId,
+        ),
+      );
+    });
   }
 
   /// "播放中停摆"看门狗（字段处有成因说明）：playing 变 false 且既没被业务
@@ -1349,6 +1398,8 @@ class PlayerManager {
   Future<void> _clearSubscriptions() async {
     _videoWatchdogTimer?.cancel();
     _videoWatchdogTimer = null;
+    _streamEndedTimer?.cancel();
+    _streamEndedTimer = null;
     _disarmStallWatchdog();
     _disarmStoppedWatchdog();
     if (_subscriptions.isEmpty) return;

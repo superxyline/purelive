@@ -561,8 +561,9 @@ class MediaKitAdapter implements UnifiedPlayer {
     debugPrint('[PauseTrace] mediaKit.stop()');
     await _player.pause();
 
-    await _player.seek(Duration.zero);
-
+    // 不 seek(Duration.zero)：直播流没有"开头"可回，对已 EOS 的流 seek 会让
+    // mpv 反复 flush 解码器并等待网络（2026-10-11 斗鱼实测：断流后退出房间，
+    // close 链路走到这里再 dispose，isolate 直接卡死、页面关不掉）。
     _stateSubject.add(PlayerState.stopped);
   }
 
