@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:developer';
+
 
 import 'video_controller_panel.dart';
 import 'package:pure_live/player/utils/orientation_policy.dart';
@@ -466,7 +466,8 @@ class VideoController with ChangeNotifier {
   // 播放器监听
   void initPlayerListener() {
     final errorSub = _playerManager.onError.listen((error) {
-      log('error: ${error.toString()}', name: 'initPlayerListener');
+      // 用 debugPrint：release 包里 dart:developer 的 log() 不进 logcat（黑洞）
+      debugPrint('[PlayerError] $error');
       _handlePlayerError(error);
     });
     _addSubscription(errorSub);
