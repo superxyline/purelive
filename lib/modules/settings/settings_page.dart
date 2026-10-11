@@ -1,6 +1,7 @@
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/settings/pages/refresh_settings.dart';
+import 'package:pure_live/domains/wallpaper/presentation/wallpaper_page.dart';
 import 'package:pure_live/modules/settings/pages/theme_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/video_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/pip_danmaku_settings_page.dart';
@@ -154,6 +155,12 @@ class SettingsPage extends GetView<SettingsService> {
               title: i18n("theme_customization"),
               subtitle: i18n("theme_customization_desc"),
               onTap: () => Get.to(() => const ThemeSettingsPage()),
+            ),
+            context.buildTile(
+              icon: Remix.image_line,
+              title: i18n("ui_background_settings"),
+              subtitle: i18n("background_entry_subtitle"),
+              onTap: () => Get.to(() => const WallpaperPage()),
             ),
             context.buildTile(
               icon: Remix.font_size_2,

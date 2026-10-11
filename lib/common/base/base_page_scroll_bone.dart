@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/base/base_controller.dart';
 
 abstract class BasePageScrollAndStateBone<T> extends BaseController {
@@ -9,6 +10,9 @@ abstract class BasePageScrollAndStateBone<T> extends BaseController {
     controlFinishRefresh: true,
     controlFinishLoad: true,
   );
+
+  /// 桌面宽窗用分页按钮，移动端用无限滚动（对齐上游 v3.1.19）。
+  bool get usesDesktopPagination => _lastIsDesktop ?? (Get.width > 680 && !PlatformUtils.isMobile);
 
   int currentPage = 1;
   final pageSize = 20.obs;

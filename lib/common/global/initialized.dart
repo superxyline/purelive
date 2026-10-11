@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:developer';
 
@@ -13,6 +14,8 @@ import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/global/initial_services.dart';
 import 'package:pure_live/common/services/utils/settings_upgrade_migration.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
+import 'package:pure_live/domains/wallpaper/domain/background_controller.dart';
+import 'package:pure_live/plugins/app_image_cache_manager.dart';
 
 class AppInitializer {
   static final AppInitializer _instance = AppInitializer._internal();
@@ -64,6 +67,16 @@ class AppInitializer {
     await InitialServices.init();
     _initSmartDialog();
     initRefresh();
+
+    // 壁纸：控制器注册（fenix 保证热重载后仍在）；图片缓存走应用代理
+    Get.lazyPut(() => BackgroundController(), fenix: true);
+    unawaited(AppImageCacheManager.initialize(proxyDirectiveProvider: () {
+      final proxy = SettingsService.to.proxy;
+      if (!proxy.enableProxy.v) return 'DIRECT';
+      final host = proxy.proxyHost.v.trim();
+      if (host.isEmpty || host.contains(';') || host.contains('\n')) return 'DIRECT';
+      return 'PROXY $host:${proxy.proxyPort.v}';
+    }));
 
     if (PlatformUtils.isDesktop) {
       if (Platform.isWindows) {
