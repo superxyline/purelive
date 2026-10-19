@@ -13,7 +13,8 @@ import {
   type LiveRoomJson,
 } from '../protocol';
 import { upstream, upstreamJson } from '../upstream';
-import { evalDouyuSign } from '../sign/douyu';
+import { evalDouyuSign, DEFAULT_DEVICE_ID } from '../sign/douyu';
+import { getCookie } from '../auth/cookies';
 import { sendDouyuDanmaku } from '../auth/douyu_send';
 import type { Site } from './types';
 
@@ -28,6 +29,55 @@ const K_GET_H5_PLAY_EXTRA = '&cdn=&rate=-1&ver=Douyu_223061205&iar=1&ive=1&hevc=
 
 function douyuReferer(roomId: string): Record<string, string> {
   return { referer: `https://www.douyu.com/${roomId}`, 'user-agent': K_DOUYU_UA };
+}
+
+/**
+ * 取流会话 = 托管登录 cookie + 会话 did。
+ *
+ * 桌面版 DouyuUtils.cookieHeader 是「覆盖式」：丢掉 cookie 里的 dy_did/acf_did，
+ * 用进程随机 did 重建。这里改成**原样保留、缺了才补**，并把签名 did 对齐 cookie 里的
+ * acf_did（其次 dy_did），让设备 ID 与登录会话一致——否则斗鱼会把请求当成匿名会话，
+ * rate=0 的原画请求被服务端降成 4M（见 docs 里 #873 审计）。
+ */
+function douyuSession(): { did: string; cookie: string } {
+  const raw = getCookie('douyu')
+    .replace(/^Cookie:\s*/i, '')
+    // 粘贴/推送过来的 cookie 偶尔带换行或制表符，直接拼进请求头会让整条 header 失效
+    .replace(/[\r\n\t]+/g, '')
+    .trim();
+  const fields: string[] = [];
+  const seen = new Set<string>();
+  for (const piece of raw.split(';')) {
+    const idx = piece.indexOf('=');
+    if (idx <= 0) continue;
+    const name = piece.slice(0, idx).trim();
+    // cookie 名白名单字符（与桌面版 cookieHeader 同规则），防止脏字符拼进请求头
+    if (!/^[A-Za-z0-9_!#$%&'*+.^`|~-]+$/.test(name)) continue;
+    const lower = name.toLowerCase();
+    if (seen.has(lower)) continue;
+    seen.add(lower);
+    fields.push(`${name}=${piece.slice(idx + 1).trim()}`);
+  }
+  const fieldValue = (want: string): string => {
+    for (const field of fields) {
+      const idx = field.indexOf('=');
+      if (idx > 0 && field.slice(0, idx).trim().toLowerCase() === want) return field.slice(idx + 1).trim();
+    }
+    return '';
+  };
+  const usableDid = (value: string): boolean => /^[0-9A-Za-z]{8,64}$/.test(value);
+  const acfDid = fieldValue('acf_did');
+  const dyDid = fieldValue('dy_did');
+  const did = usableDid(acfDid) ? acfDid : usableDid(dyDid) ? dyDid : DEFAULT_DEVICE_ID;
+  // 缺 did 字段时补齐，保证请求头与签名 did 自洽（已有则保持原值不动）
+  if (!seen.has('dy_did')) fields.unshift(`dy_did=${did}`);
+  if (!seen.has('acf_did')) fields.unshift(`acf_did=${did}`);
+  return { did, cookie: fields.join('; ') };
+}
+
+/** 取流请求头：referer/UA + 托管登录 cookie。 */
+function douyuPlayHeaders(roomId: string): Record<string, string> {
+  return { ...douyuReferer(roomId), cookie: douyuSession().cookie };
 }
 
 /** dio getJson 等价：URL + query 参数，JSON 解析。 */
@@ -92,7 +142,7 @@ function generateRandomHexString(length: number): string {
  */
 async function getDouyuSign(roomId: string): Promise<string> {
   const res = await upstream(`https://www.douyu.com/swf_api/homeH5Enc?rids=${roomId}`, {
-    headers: douyuReferer(roomId),
+    headers: douyuPlayHeaders(roomId),
   });
   if (res.status >= 400) throw new Error(`upstream ${res.status} for swf_api/homeH5Enc`);
   const jsEncResult = JSON.parse(res.text) as Record<string, any>;
@@ -100,7 +150,8 @@ async function getDouyuSign(roomId: string): Promise<string> {
   if (crptext == null || String(crptext) === '') {
     throw new Error(`douyu homeH5Enc returned empty enc for room ${roomId}`);
   }
-  return evalDouyuSign(String(crptext), roomId);
+  // 签名 did 与请求头 cookie 的 dy_did/acf_did 对齐，登录态才不会按匿名会话处理
+  return evalDouyuSign(String(crptext), roomId, douyuSession().did);
 }
 
 /** 主播卡片接口的粉丝数（betard 不含粉丝数，免签名免登录）。 */
@@ -275,7 +326,7 @@ class DouyuSite implements Site {
       fetchAnchorFans(roomId),
       (async () => {
         const res = await upstream(`https://www.douyu.com/swf_api/homeH5Enc?rids=${roomId}`, {
-          headers: douyuReferer(roomId),
+          headers: douyuPlayHeaders(roomId),
         });
         if (res.status >= 400) throw new Error(`upstream ${res.status} for swf_api/homeH5Enc`);
         return String((JSON.parse(res.text) as Record<string, any>)?.['data']?.[`room${roomId}`] ?? '');
@@ -308,8 +359,8 @@ class DouyuSite implements Site {
       status: live,
       liveStartTime: douyuLiveTime > 0 ? douyuLiveTime * 1000 : null,
       danmakuData: realRoomId,
-      // LiveRoom.data = 取流签名串（getH5Play 的 body 前缀）
-      data: crptext === '' ? undefined : await evalDouyuSign(crptext, realRoomId),
+      // LiveRoom.data = 取流签名串（getH5Play 的 body 前缀），did 与 cookie 保持一致
+      data: crptext === '' ? undefined : await evalDouyuSign(crptext, realRoomId, douyuSession().did),
       link: `https://www.douyu.com/${roomId}`,
       isRecord: roomInfo['videoLoop'] === 1,
     };
@@ -318,9 +369,11 @@ class DouyuSite implements Site {
   async getPlayQualites(roomId: string): Promise<LivePlayQualityJson[]> {
     const sign = await getDouyuSign(roomId);
     // Dart 从 detail.data 取签名；后端无状态，这里按 roomId 重新拉签名。
+    // 必须带托管登录 cookie：匿名会话下 rate=0（原画）会被服务端降成蓝光 4M。
     const result = await postFormJson(
       `https://www.douyu.com/lapi/live/getH5Play/${roomId}`,
       sign + K_GET_H5_PLAY_EXTRA,
+      douyuPlayHeaders(roomId),
     );
     if (result?.['error'] !== 0) {
       throw new Error(`douyu getH5Play(qualities) error=${result?.['error']} msg=${result?.['msg']}`);
@@ -342,6 +395,7 @@ class DouyuSite implements Site {
     const result = await postFormJson(
       `https://www.douyu.com/lapi/live/getH5Play/${roomId}`,
       sign + K_GET_H5_PLAY_EXTRA,
+      douyuPlayHeaders(roomId),
     );
     if (result?.['error'] !== 0) {
       throw new Error(`douyu getH5Play(cdns) error=${result?.['error']} msg=${result?.['msg']}`);
@@ -373,7 +427,7 @@ class DouyuSite implements Site {
     const result = await postFormJson(
       `https://www.douyu.com/lapi/live/getH5Play/${roomId}`,
       `${args}&cdn=${cdn}&rate=${rate}`,
-      douyuReferer(roomId),
+      douyuPlayHeaders(roomId),
     );
     if (result?.['error'] !== 0 || result?.['data']?.['rtmp_url'] == null) {
       return '';

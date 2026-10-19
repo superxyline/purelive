@@ -23,6 +23,9 @@ import 'package:pure_live/pkg/tars/net/base_tars_http.dart';
 import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:pure_live/core/tars/get_cdn_token_ex_req.dart';
 import 'package:pure_live/core/tars/get_cdn_token_ex_resp.dart';
+import 'package:pure_live/core/tars/get_game_event_message_board_req.dart';
+import 'package:pure_live/core/tars/get_game_event_message_board_rsp.dart';
+import 'package:pure_live/core/tars/game_event_message_board_panel.dart';
 import 'package:pure_live/modules/live_play/controllers/player_controller.dart';
 
 class HuyaSite implements LiveSite {
@@ -140,15 +143,29 @@ class HuyaSite implements LiveSite {
 
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) {
-    List<LivePlayQuality> qualities = <LivePlayQuality>[];
-    var urlData = detail.data as HuyaUrlDataModel;
-    if (urlData.bitRates.isEmpty) {
-      urlData.bitRates = [HuyaBitRateModel(name: "原画", bitRate: 0), HuyaBitRateModel(name: "高清", bitRate: 2000)];
+    final urlData = detail.data as HuyaUrlDataModel;
+    final rates = urlData.bitRates.isEmpty
+        ? <HuyaBitRateModel>[HuyaBitRateModel(name: "原画", bitRate: 0)]
+        : urlData.bitRates;
+    // 只暴露平台真实返回的档位：4K 是会员专属，普通账号取流会失败，直接不展示；
+    // 同码率重复档只留第一个（上游 parsePlayQualities 同策略）。
+    final unique = <int, HuyaBitRateModel>{};
+    for (final rate in rates) {
+      if (rate.bitRate < 0 || rate.name.trim().isEmpty) continue;
+      if (rate.name.trim() == "4K") continue;
+      unique.putIfAbsent(rate.bitRate, () => rate);
     }
-    for (var item in urlData.bitRates) {
-      qualities.add(LivePlayQuality(data: {"urls": urlData.lines, "bitRate": item.bitRate}, quality: item.name));
+    if (unique.isEmpty) {
+      unique[0] = HuyaBitRateModel(name: "原画", bitRate: 0);
     }
-
+    final qualities = unique.values
+        .map(
+          (item) => LivePlayQuality(
+            data: {"urls": urlData.lines, "bitRate": item.bitRate},
+            quality: item.name,
+          ),
+        )
+        .toList();
     return Future.value(qualities);
   }
 
@@ -685,10 +702,53 @@ class HuyaSite implements LiveSite {
     ).query;
   }
 
+  /// 留言板客户端：与广场服务不同的 servant（wupui），超时压到 2 秒 ——
+  /// 它只是播放的附属请求，不能继承 TARS 默认的超长超时。
+  BaseTarsHttp createMessageBoardClient() =>
+      BaseTarsHttp("https://wup.huya.com", "wupui", timeOut: 2, headers: requestHeaders);
+
+  /// 拉取虎牙醒目留言（SC）快照。
+  ///
+  /// [first] = true 返回最新 10 条（进房间铺满），否则只回最新一条（增量通知用）。
+  /// 虎牙按「金额 → 等级 → 剩余时间」排序，这里统一改成时间序。
+  Future<List<LiveSuperChatMessage>> getHuyaSuperChatMessageList({required int lPid, bool first = false}) async {
+    final client = createMessageBoardClient();
+    final tid = HuyaUserId()..sHuYaUA = HYSDK_UA;
+    final req = GetGameEventMessageBoardReq()
+      ..lPid = lPid
+      ..tId = tid
+      ..iMessageBoardScope = 0
+      ..iPageSize = 50;
+    try {
+      final rsp = await client
+          .tupRequest("getHeadLineMessageBoard", req, GetGameEventMessageBoardRsp())
+          .timeout(const Duration(seconds: 3));
+      final messages = huyaSuperChatsFromPanel(rsp.tMessageBoardPanel);
+      messages.sort((a, b) => b.startTime.compareTo(a.startTime));
+      if (first) return messages.length > 10 ? messages.sublist(0, 10) : messages;
+      return messages.isEmpty ? messages : [messages.first];
+    } finally {
+      // timeout 只是不再等待，这里把传输关掉，避免反复触发时堆积连接
+      client.dio.close(force: true);
+    }
+  }
+
+  /// 留言板快照 → 统一 SC 模型（解析逻辑与弹幕侧共用一份，避免两处漂移）。
+  static List<LiveSuperChatMessage> huyaSuperChatsFromPanel(GameEventMessageBoardPanel panel, {DateTime? now}) =>
+      HuyaDanmaku.parseSuperChats(panel, now: now);
+
   @override
-  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) {
-    //尚不支持
-    return Future.value([]);
+  Future<List<LiveSuperChatMessage>> getSuperChatMessage({required String roomId}) async {
+    try {
+      // 留言板要的是主播频道号 lPid（danmakuData.topSid），不是房间号
+      final detail = await getRoomDetail(platform: Sites.huyaSite, roomId: roomId);
+      final args = detail.danmakuData;
+      if (args is! HuyaDanmakuArgs) return const <LiveSuperChatMessage>[];
+      return await getHuyaSuperChatMessageList(lPid: args.topSid, first: true);
+    } catch (_) {
+      // SC 拉取失败不影响播放
+      return const <LiveSuperChatMessage>[];
+    }
   }
 
   @override
@@ -748,12 +808,37 @@ class HuyaSite implements LiveSite {
     return antiCodeRes.entries.map((e) => '${e.key}=${e.value}').join('&');
   }
 
+  /// 随机生成虎牙 SDK UA（如 `adr&13.1.0.3456&official&31`）。
+  ///
+  /// 同步上游 dart_simple_live 的做法：`getCdnTokenInfoEx` 这类 WUP 请求原来固定用
+  /// `pc_exe&7060000&official`，固定 UA 更容易被风控识别，随机平台/子版本/API Level
+  /// 可以降低签名请求被拒的概率。
+  static String randomSdkUa([Random? random]) {
+    final rnd = random ?? Random();
+    const platforms = <({String name, String version, bool hasApiLevel})>[
+      (name: 'adr', version: '13.1.0', hasApiLevel: true),
+      (name: 'ios', version: '13.1.0', hasApiLevel: false),
+      (name: 'huya_nftv', version: '2.6.10', hasApiLevel: true),
+      (name: 'pc_exe', version: '7000000', hasApiLevel: false),
+    ];
+    final platform = platforms[rnd.nextInt(platforms.length)];
+    var version = platform.version;
+    if (platform.name == 'adr' || platform.name == 'huya_nftv') {
+      version = '$version.${rnd.nextInt(2000) + 3000}';
+    }
+    var ua = '${platform.name}&$version&official';
+    if (platform.hasApiLevel) {
+      ua = '$ua&${rnd.nextInt(9) + 28}';
+    }
+    return ua;
+  }
+
   /// return sFlvToken
   Future<String> getCndTokenInfoEx(String stream) {
     return _tokenCache.putIfAbsent(stream, () async {
       var func = "getCdnTokenInfoEx";
       var tid = HuyaUserId();
-      tid.sHuYaUA = "pc_exe&7060000&official";
+      tid.sHuYaUA = randomSdkUa();
       var tReq = GetCdnTokenExReq();
       tReq.tId = tid;
       tReq.sStreamName = stream;

@@ -1,4 +1,5 @@
 ﻿import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/site/douyu/douyu_utils.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class DouyuWebLoginController extends GetxController {
@@ -22,7 +23,17 @@ class DouyuWebLoginController extends GetxController {
     final uri = await webViewController?.getUrl();
     final cookieStr = await collectCookies(uri);
     if (cookieStr.isNotEmpty) {
-      SettingsService.to.cookieManager.douyuCookie.v = cookieStr;
+      final cookies = SettingsService.to.cookieManager;
+      cookies.douyuCookie.v = cookieStr;
+      // 记录保存时间：网页版 dy_auth 读不出过期时间，靠它 + 7 天规则判断
+      cookies.douyuCookieSavedAt.v = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      // 顺手抽出续期要用的两样东西（cookie 里通常都有）
+      final ltp0 = DouyuUtils.cookieField(cookieStr, DouyuUtils.longTermTokenName);
+      if (ltp0 != null && ltp0.isNotEmpty) cookies.douyuLtp0.v = ltp0;
+      final did = DouyuUtils.cookieField(cookieStr, DouyuUtils.deviceIdName);
+      if (did != null && did.isNotEmpty) cookies.douyuDid.v = did;
+      // 通知 NAS 补推登录态（关注列表没变也要推，否则 NAS 端拿不到新 cookie）
+      cookies.notifyLoginChanged();
     }
     Navigator.of(Get.context!).pop(true);
   }
