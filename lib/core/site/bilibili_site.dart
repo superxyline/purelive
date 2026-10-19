@@ -243,15 +243,69 @@ class BiliBiliSite implements LiveSite {
         return 0;
       });
       if (entries.isNotEmpty && entries.first.currentQn != requestedQn) {
+        final actualQn = entries.first.currentQn;
         debugPrint(
-          '[bilibili-playurl] server clamped qn: requested=$requestedQn actual=${entries.first.currentQn} '
+          '[bilibili-playurl] server clamped qn: requested=$requestedQn actual=$actualQn '
           '(anonymous/risk-control; login cookie unlocks higher tier)',
         );
+        // 已登录却被降档：多半是 cookie 过期被当成匿名会话，提醒一次
+        _alertIfLoginClamped(result, requestedQn, actualQn);
       }
       return entries.map((e) => e.url).toList();
     } catch (e) {
       throw Exception(e.toString());
     }
+  }
+
+  /// 已登录（本地有 B站 cookie）却只拿到低档时提示：cookie 过期会被当作匿名会话，
+  /// 原画（qn 10000 及以上）请求会被平台回落到 250 等低档。
+  void _alertIfLoginClamped(dynamic result, int requestedQn, int actualQn) {
+    if (actualQn >= requestedQn) return;
+    final cookie = SettingsService.to.cookieManager.bilibiliCookie.v.trim();
+    if (cookie.isEmpty) return;
+    final maxQn = _maxAcceptQn(result);
+    // 只在请求的是该房间最高档时提醒，用户主动选低清晰度不该误报
+    if (maxQn == null || requestedQn < maxQn) return;
+    QualityAlertService.to.reportClamped(
+      platform: Sites.bilibiliSite,
+      platformName: '哔哩哔哩',
+      requested: biliQnLabel(requestedQn),
+      actual: biliQnLabel(actualQn),
+    );
+  }
+
+  /// 该房间可选的最大 qn（各编码/格式分组的 accept_qn 并集）。
+  static int? _maxAcceptQn(dynamic result) {
+    int? maxQn;
+    try {
+      for (final streamItem in result["data"]["playurl_info"]["playurl"]["stream"] ?? const []) {
+        for (final formatItem in streamItem["format"] ?? const []) {
+          for (final codecItem in formatItem["codec"] ?? const []) {
+            for (final qn in codecItem["accept_qn"] ?? const []) {
+              final v = int.tryParse(qn.toString()) ?? 0;
+              if (v > 0 && (maxQn == null || v > maxQn)) maxQn = v;
+            }
+          }
+        }
+      }
+    } catch (_) {
+      return null;
+    }
+    return maxQn;
+  }
+
+  /// B站 qn 码 → 展示名。
+  static String biliQnLabel(int qn) {
+    const map = <int, String>{
+      30000: '杜比',
+      20000: '4K',
+      10000: '原画',
+      401: '蓝光',
+      250: '超清',
+      150: '高清',
+      80: '流畅',
+    };
+    return map[qn] ?? 'qn=$qn';
   }
 
   @override

@@ -36,6 +36,8 @@ class HuyaWebLoginController extends GetxController {
     final cookieStr = await collectCookies(uri);
     if (cookieStr.isNotEmpty) {
       SettingsService.to.cookieManager.huyaCookie.v = cookieStr;
+      // 通知 NAS 补推登录态（关注列表没变也要推，否则 NAS 端拿不到新 cookie）
+      SettingsService.to.cookieManager.notifyLoginChanged();
     }
     Navigator.of(Get.context!).pop(true);
   }

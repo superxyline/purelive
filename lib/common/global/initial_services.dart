@@ -8,6 +8,8 @@ class InitialServices {
     Get.put(SettingsService(), permanent: true);
     Get.put(LocalInteractionController(), permanent: true);
     Get.put(RouteObserverController(), permanent: true);
+    // 登录态降档告警：站点取流时可能在任何页面触发，必须提前常驻注册
+    Get.put(QualityAlertService(), permanent: true);
   }
 
   static void initLazyControllers() {

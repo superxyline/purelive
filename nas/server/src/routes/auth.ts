@@ -1,7 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { upstream } from '../upstream';
 import { getStoredCookie, setStoredCookie, allPlatformsStatus } from '../auth/store';
-import { getCookie } from '../auth/cookies';
+import { getCookie, setCookie } from '../auth/cookies';
 
 /** 登录与 cookie 托管：B站扫码（后端代理 passport 接口）+ 各平台粘贴 cookie。 */
 export const authRoutes: FastifyPluginAsync = async (app) => {
@@ -39,6 +39,8 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
         const existing = getStoredCookie('bilibili');
         const merged = mergeCookies(existing, pairs.join('; '));
         setStoredCookie('bilibili', merged);
+        // 同步进程内缓存，否则本次运行内 getCookie 仍返回旧值（重启前不生效）
+        setCookie('bilibili', merged);
       }
     }
     return JSON.parse(res.text);
@@ -75,12 +77,21 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     if (!['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou'].includes(platform)) {
       return reply.code(400).send({ ok: false, message: 'unknown platform' });
     }
-    setStoredCookie(platform, (req.body?.cookie ?? '').trim());
+    // 粘贴的 cookie 常带换行/制表符，先归一化再落盘，否则拼请求头时会整条失效
+    const value = (req.body?.cookie ?? '').replace(/[\r\n\t]+/g, '').trim();
+    setStoredCookie(platform, value);
+    // 同步进程内缓存：不刷新的话，本次运行期间各 site 仍会读到旧 cookie（需重启容器才生效）
+    setCookie(platform, value);
     return { ok: true };
   });
 
-  app.delete<{ Params: { platform: string } }>('/:platform', async (req) => {
-    setStoredCookie(req.params.platform, '');
+  app.delete<{ Params: { platform: string } }>('/:platform', async (req, reply) => {
+    const { platform } = req.params;
+    if (!['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou'].includes(platform)) {
+      return reply.code(400).send({ ok: false, message: 'unknown platform' });
+    }
+    setStoredCookie(platform, '');
+    setCookie(platform, '');
     return { ok: true };
   });
 };

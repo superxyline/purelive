@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { FastifyPluginAsync } from 'fastify';
 import { setStoredCookie } from '../auth/store';
+import { setCookie } from '../auth/cookies';
 
 /**
  * 手机 App 扫码同步：App 内「跨端传输」扫码后，会把本机关注+登录+全部设置
@@ -111,6 +112,30 @@ function extractFollows(body: any): SyncedFollow[] {
   return extractList(body?.favorite?.favoriteRooms ?? body?.favorite?.list);
 }
 
+const LOGIN_PLATFORMS = ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou'] as const;
+
+/**
+ * 把 App 推送体里的登录态写进托管存储。
+ * App 的 exportTransferData() 里 cookie 字段形如 {douyuCookie, huyaCookie, ...}。
+ * 写盘的同时刷新进程内缓存（auth/cookies 的 memCookies 优先于磁盘），
+ * 否则新 cookie 要等容器重启才会被各平台请求读到。
+ */
+function applyCookiesFromBody(body: any): number {
+  const cookie = body?.cookie;
+  if (!cookie || typeof cookie !== 'object') return 0;
+  let count = 0;
+  for (const p of LOGIN_PLATFORMS) {
+    const raw = cookie[`${p}Cookie`];
+    if (typeof raw !== 'string' || raw.trim() === '') continue;
+    // 与 /api/auth 粘贴路径同规则：去掉换行/制表符，避免污染请求头
+    const value = raw.replace(/[\r\n\t]+/g, '').trim();
+    setStoredCookie(p, value);
+    setCookie(p, value);
+    count++;
+  }
+  return count;
+}
+
 export const syncRoutes: FastifyPluginAsync = async (app) => {
   // 手机 App 扫码推送的接收端点（App 校验响应体 {data: true}）
   app.post('/importData', async (req, reply) => {
@@ -118,18 +143,7 @@ export const syncRoutes: FastifyPluginAsync = async (app) => {
       const list = extractFollows(req.body);
       writeSynced(list);
       // 同步各平台登录态（cookie）到托管存储：此后各平台 API 请求自动带登录态
-      //（App 推送的 exportTransferData 里 cookie 字段为 {bilibiliCookie: "...", ...}）
-      const cookie = (req.body as any)?.cookie;
-      let cookieCount = 0;
-      if (cookie && typeof cookie === 'object') {
-        for (const p of ['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou']) {
-          const v = cookie[`${p}Cookie`];
-          if (typeof v === 'string' && v.trim()) {
-            setStoredCookie(p, v.trim());
-            cookieCount++;
-          }
-        }
-      }
+      const cookieCount = applyCookiesFromBody(req.body);
       app.log.info(`[sync] imported ${list.length} follows, ${cookieCount} cookies from mobile app`);
       return { data: true };
     } catch (err) {
@@ -163,16 +177,19 @@ export const syncRoutes: FastifyPluginAsync = async (app) => {
   // 扩展同步：关注 + 屏蔽三件套（弹幕关键词/屏蔽用户/按房间礼物屏蔽）。
   // list / shields 均可选，给了才覆盖对应部分——旧版 App 与 WebUI 只走
   // /sync/follows，shields 字段保持原值不受影响。
-  const saveData = async (req: { body?: { list?: unknown; shields?: unknown } }) => {
+  // cookie（可选）：App「推送到 NAS」会一并带上登录态，这里落盘并刷新缓存。
+  const saveData = async (req: { body?: { list?: unknown; shields?: unknown; cookie?: unknown } }) => {
     const body = req.body as Record<string, unknown> | undefined;
     let list: SyncedFollow[] | undefined;
     if (body && 'list' in body) list = extractList(body.list);
     const shields = extractShields(body?.shields);
     writeSynced(list ?? readSynced().list, shields);
+    const cookieCount = applyCookiesFromBody(body);
     const after = readSynced();
     return {
       ok: true,
       count: after.list.length,
+      cookies: cookieCount,
       shields: {
         keywords: after.shields.keywords.length,
         users: after.shields.users.length,

@@ -2,6 +2,7 @@ package com.superxyline.purelive
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
@@ -21,6 +22,8 @@ class MainActivity : AudioServiceActivity() {
         private const val DISPLAY_MODE_CHANNEL = "pure_live/display_mode"
         private const val BACKGROUND_PLAYBACK_CHANNEL = "pure_live/background_playback"
         private const val APP_SHORTCUTS_CHANNEL = "pure_live/app_shortcuts"
+        private const val LOCAL_NETWORK_CHANNEL = "pure_live/local_network"
+        private const val LOCAL_NETWORK_REQUEST_CODE = 0x4C4E
         private const val EXTRA_SHORTCUT_ROOM = "pure_live.shortcut.ROOM"
         private var playbackWakeLock: PowerManager.WakeLock? = null
         private var playbackWifiLock: WifiManager.WifiLock? = null
@@ -96,6 +99,16 @@ class MainActivity : AudioServiceActivity() {
                 else -> result.notImplemented()
             }
         }
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            LOCAL_NETWORK_CHANNEL,
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "ensure" -> result.success(ensureLocalNetworkPermission())
+                "granted" -> result.success(isLocalNetworkGranted())
+                else -> result.notImplemented()
+            }
+        }
         applyPreferredDisplayMode(highRefreshRateEnabled)
     }
 
@@ -118,6 +131,24 @@ class MainActivity : AudioServiceActivity() {
         val value = pendingShortcutRoom
         pendingShortcutRoom = null
         return value
+    }
+
+    /// 局域网权限（Android 16 / API 36 起）：NAS 同步、局域网代理访问 192.168.x.x
+    /// 之前必须先拿到 ACCESS_LOCAL_NETWORK，否则系统直接拒绝连接且没有异常提示。
+    private fun isLocalNetworkGranted(): Boolean {
+        if (Build.VERSION.SDK_INT < 36) return true
+        return checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK") ==
+            PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun ensureLocalNetworkPermission(): Boolean {
+        if (isLocalNetworkGranted()) return true
+        requestPermissions(
+            arrayOf("android.permission.ACCESS_LOCAL_NETWORK"),
+            LOCAL_NETWORK_REQUEST_CODE,
+        )
+        // 授权是异步的：这里返回 false 表示"已弹出系统授权框"，调用方不阻塞。
+        return false
     }
 
     /// 更新桌面长按快捷方式：最近打开的直播间（最多 3 个）。

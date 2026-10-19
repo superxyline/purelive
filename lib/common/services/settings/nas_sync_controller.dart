@@ -8,6 +8,7 @@ import 'package:pure_live/common/services/utils/hive_rx.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
+import 'package:pure_live/common/services/settings/cookie_settings_controller.dart';
 
 /// NAS Web 服务常连同步：
 /// - 存 NAS 地址（扫码/手输/局域网自动发现，一次长期有效）
@@ -24,6 +25,7 @@ class NasSyncController extends GetxController {
   final RxBool autoPush = hiveBool('nasAutoPush', true);
 
   StreamSubscription<dynamic>? _eventSub;
+  StreamSubscription<dynamic>? _loginSub;
   Timer? _pushTimer;
 
   String get baseUrl {
@@ -36,11 +38,19 @@ class NasSyncController extends GetxController {
   void saveAddress(String addr) {
     final normalized = addr.trim();
     serverAddress.v = normalized;
+    // 保存的是局域网地址：Android 16+ 需要先拿到「本地网络」权限，
+    // 否则同步与播放都会连不上而且看不到权限提示。
+    if (normalized.isNotEmpty) {
+      LocalNetworkPermission.ensure();
+    }
   }
 
   @override
   void onInit() {
     super.onInit();
+    // 登录态变更监听不依赖是否已填 NAS 地址（地址可能稍后才填），
+    // pushLoginStateSoon 内部再校验地址与自动推送开关。
+    _loginSub = EventBus.instance.listen('login_state_changed', (_) => pushLoginStateSoon());
     if (baseUrl.isEmpty) return;
     _eventSub = EventBus.instance.listen('refresh_favorite_rooms', (_) => _debouncedPush());
   }
@@ -48,6 +58,7 @@ class NasSyncController extends GetxController {
   @override
   void onClose() {
     _eventSub?.cancel();
+    _loginSub?.cancel();
     _pushTimer?.cancel();
     super.onClose();
   }
@@ -56,6 +67,17 @@ class NasSyncController extends GetxController {
     if (!autoPush.v || baseUrl.isEmpty) return;
     _pushTimer?.cancel();
     _pushTimer = Timer(const Duration(seconds: 3), () {
+      push().catchError((_) => false);
+    });
+  }
+
+  /// 登录态变更后主动补推一次（登录成功回调里调用；未配置地址或关了自动推送则跳过）。
+  /// 关注不变更时不会触发 refresh_favorite_rooms，所以要单独补这一脚，
+  /// 否则 App 重新登录后 NAS 要等下次关注变动才拿得到新 cookie。
+  void pushLoginStateSoon() {
+    if (!autoPush.v || baseUrl.isEmpty) return;
+    _pushTimer?.cancel();
+    _pushTimer = Timer(const Duration(seconds: 1), () {
       push().catchError((_) => false);
     });
   }
@@ -84,14 +106,29 @@ class NasSyncController extends GetxController {
     };
   }
 
-  /// 把本地关注+屏蔽全量推到 NAS（覆盖写；推之前先做过并集拉取则不会丢 NAS 独有项）
+  /// 登录态快照：键名与 exportTransferData 的 cookie 段一致（douyuCookie/huyaCookie…），
+  /// NAS 端 /api/sync/data 读到后会写进加密托管存储，取流请求即带登录态。
+  /// 此前 push 只发关注+屏蔽，导致 App 重新登录后 NAS 一直拿不到新 cookie。
+  Map<String, dynamic> _cookiesSnapshot() {
+    try {
+      return Get.find<CookieSettingsController>().toJson();
+    } catch (_) {
+      return const <String, dynamic>{};
+    }
+  }
+
+  /// 把本地关注+屏蔽+登录态全量推到 NAS（覆盖写；推之前先做过并集拉取则不会丢 NAS 独有项）
   Future<bool> push() async {
     final addr = baseUrl;
     if (addr.isEmpty) return false;
     try {
       final resp = await HttpClient.instance.postJson(
         '$addr/api/sync/data',
-        data: {'list': _followsSnapshot(), 'shields': _shieldsSnapshot()},
+        data: {
+          'list': _followsSnapshot(),
+          'shields': _shieldsSnapshot(),
+          'cookie': _cookiesSnapshot(),
+        },
       );
       final body = resp is String ? jsonDecode(resp) : resp;
       return body['ok'] == true;

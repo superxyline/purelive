@@ -127,6 +127,10 @@ class LiveMessageColor {
 
 class LiveSuperChatMessage {
   final int id;
+
+  /// 平台事件 ID（虎牙 lMessageId 等）：同一事件重复推送与内容相同的两笔
+  /// 付费留言靠它区分，空串表示平台不提供。
+  final String messageId;
   final String userName;
   final String face;
   final String message;
@@ -139,6 +143,7 @@ class LiveSuperChatMessage {
   final String? nameColor;
   LiveSuperChatMessage({
     this.id = 0,
+    this.messageId = '',
     required this.backgroundBottomColor,
     required this.backgroundColor,
     required this.endTime,

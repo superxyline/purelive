@@ -516,13 +516,68 @@ class KuaishowSite implements LiveSite {
 
   @override
   Future<List<LiveRoom>> searchRooms(String keyword, {int page = 1, int pageSize = 30}) async {
-    // 快手无法搜索主播，只能搜索游戏分类这里不做展示
-    return [];
+    // 快手网页搜索页对未登录访客不再返回直播间（上游 #881），但主播搜索接口
+    // 仍然公开，并且会带上「是否在播」；这里按主播维度搜索，未开播的也能搜到。
+    await _ensureSession('https://live.kuaishou.com/search?keyword=${Uri.encodeQueryComponent(keyword)}');
+    final result = await HttpClient.instance.getJson(
+      'https://live.kuaishou.com/live_api/search/author',
+      queryParameters: {'keyword': keyword, 'page': page, 'lssid': ''},
+      header: _roomHeaders(),
+    );
+    return parseAuthorSearch(result).take(pageSize).toList(growable: false);
+  }
+
+  /// 主播搜索结果 → 直播间卡片。
+  /// 接口不提供观看人数，这里留空（界面显示「待刷新」）而不是编一个 0。
+  static List<LiveRoom> parseAuthorSearch(dynamic json) {
+    final data = json is Map ? json['data'] : null;
+    final list = data is Map ? data['list'] : null;
+    if (list is! List) return const [];
+    final rooms = <LiveRoom>[];
+    for (final author in list) {
+      if (author is! Map) continue;
+      final id = author['id']?.toString().trim() ?? '';
+      if (id.isEmpty) continue;
+      final name = author['name']?.toString() ?? '';
+      final avatar = author['avatar']?.toString() ?? '';
+      final counts = author['counts'];
+      final banned = author['bannedStatus'];
+      rooms.add(
+        LiveRoom(
+          platform: Sites.kuaishouSite,
+          roomId: id,
+          userId: id,
+          nick: name,
+          title: name,
+          avatar: avatar,
+          cover: avatar,
+          watching: '',
+          followers: counts is Map ? counts['fan']?.toString() ?? '0' : '0',
+          introduction: author['description']?.toString(),
+          link: 'https://live.kuaishou.com/u/$id',
+          liveStatus: banned is Map && banned['banned'] == true
+              ? LiveStatus.banned
+              : author['living'] == true
+              ? LiveStatus.live
+              : LiveStatus.offline,
+        ),
+      );
+    }
+    return rooms;
   }
 
   @override
   Future<List<LiveAnchorItem>> searchAnchors(String keyword, {int page = 1, int pageSize = 30}) async {
-    return [];
+    // 主播搜索只有这一个公开接口：直接复用结果，转成主播条目（不含关注按钮状态）
+    final rooms = await searchRooms(keyword, page: page, pageSize: pageSize);
+    return rooms
+        .map((room) => LiveAnchorItem(
+              roomId: room.roomId ?? '',
+              avatar: room.avatar ?? '',
+              userName: room.nick ?? '',
+              liveStatus: (room.liveStatus ?? LiveStatus.offline) == LiveStatus.live,
+            ))
+        .toList(growable: false);
   }
 
   @override

@@ -109,6 +109,9 @@ class DouyuSite implements LiveSite {
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) async {
     final roomId = detail.roomId!;
+    // 登录快到期就先静默续期：否则过期后只表现为「原画被降成4M」，
+    // 用户完全看不出是登录态的问题（见 DouyuUtils.sessionState）。
+    await DouyuUtils.ensureFreshSession();
     // 与取流同链路：DouyuUtils 纯 Dart 签名 + getH5PlayV1（rate=-1 拿全档清晰度）。
     // 旧实现走老接口 getH5Play 且依赖从未赋值的 detail.data（表单里是字面量 "null"），
     // 接口报错后又无错误码校验，直接空指针 → 「读取视频信息失败」。
@@ -165,6 +168,7 @@ class DouyuSite implements LiveSite {
     // 按「实际档==请求档」分组前置，避免把降档转码流当原画播（上游 #853 审计同思路）。
     final matched = <String>[];
     final other = <String>[];
+    var alerted = false;
     for (var item in data.cdns) {
       try {
         final r = await getPlayUrlDetail(detail.roomId!, data.rate, item);
@@ -174,6 +178,11 @@ class DouyuSite implements LiveSite {
         } else {
           if (r.actualRate != null) {
             debugPrint('[douyu-playurl] server clamped rate: requested=${data.rate} actual=${r.actualRate} cdn=$item');
+            // 已登录却被降档：多半是 cookie 过期被当成匿名会话，提醒一次
+            if (!alerted) {
+              alerted = true;
+              _alertIfLoginClamped(data.rate, r.actualRate!);
+            }
           }
           other.add(r.url);
         }
@@ -182,6 +191,38 @@ class DouyuSite implements LiveSite {
       }
     }
     return [...matched, ...other];
+  }
+
+  /// 已登录（本地有斗鱼 cookie）却被服务端降档时，提示登录态可能已失效。
+  /// 只在请求的是最高档（rate=0 原画）时提醒，避免用户主动选低清晰度时误报。
+  void _alertIfLoginClamped(int requestedRate, int actualRate) {
+    if (requestedRate != 0) return;
+    final cookie = SettingsService.to.cookieManager.douyuCookie.v.trim();
+    if (cookie.isEmpty) return;
+    QualityAlertService.to.reportClamped(
+      platform: Sites.douyuSite,
+      platformName: '斗鱼',
+      requested: '原画',
+      actual: douyuRateLabel(actualRate),
+    );
+  }
+
+  /// 斗鱼档位码 → 展示名。rate 不是可排序码率：0=原画、8/4=蓝光、3=超清、2=高清。
+  static String douyuRateLabel(int rate) {
+    switch (rate) {
+      case 0:
+        return '原画';
+      case 8:
+        return '蓝光8M';
+      case 4:
+        return '蓝光4M';
+      case 3:
+        return '超清';
+      case 2:
+        return '高清';
+      default:
+        return '低清晰度(rate=$rate)';
+    }
   }
 
   /// 上游 H5 取流：DouyuUtils 纯 Dart 签名 + getH5PlayV1，描述符过期自动强刷重试一次。
@@ -216,7 +257,11 @@ class DouyuSite implements LiveSite {
         return (url: parsePlayUrl(dataMap), actualRate: actualRate != null && actualRate >= 0 ? actualRate : null);
       } catch (e) {
         lastError = e;
-        if (attempt == 0) continue;
+        if (attempt == 0) {
+          // 首次失败：可能只是登录态刚过期，强制续期一次再重试
+          await DouyuUtils.ensureFreshSession(force: true);
+          continue;
+        }
         if (e is DouyuPlayApiException) rethrow;
         throw DouyuPlayApiException('H5 play request failed after retry', cause: e);
       }

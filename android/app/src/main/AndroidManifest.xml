@@ -13,6 +13,11 @@
   <!-- Internet access permissions. -->
   <uses-permission android:name="android.permission.INTERNET" />
   <!--
+    Android 16 (API 36) 起，访问局域网设备（NAS 同步、局域网代理）需要该运行时权限；
+    目标 SDK 已是 37，不声明并申请的话系统会直接拒绝连接且不报权限错误。
+  -->
+  <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+  <!--
 	Media access permissions.
 	Android 13 or higher.
 	https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions

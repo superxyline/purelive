@@ -1,6 +1,7 @@
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
+import 'package:pure_live/core/site/douyu/douyu_utils.dart';
 import 'package:pure_live/common/services/settings/bilibili_account_service.dart';
 
 class AccountPage extends GetView<AccountController> {
@@ -43,7 +44,7 @@ class AccountPage extends GetView<AccountController> {
                 logo: 'assets/images/huya.png',
                 platformId: 'huya',
                 title: i18n("site_huya"),
-                subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
+                subtitle: isLogined ? _uidLabel(cookie.huyaCookie.v, 'yyuid') : i18n("not_logged_in"),
                 isLogined: isLogined,
                 onSync: () => FollowSyncService.runAndShowResult(
                   task: FollowSyncService.syncHuya,
@@ -93,7 +94,7 @@ class AccountPage extends GetView<AccountController> {
                 logo: 'assets/images/kuaishou.png',
                 platformId: 'kuaishou',
                 title: i18n("site_kuaishou"),
-                subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
+                subtitle: isLogined ? _uidLabel(cookie.kuaishouCookie.v, 'userId') : i18n("not_logged_in"),
                 isLogined: isLogined,
                 onSync: () => FollowSyncService.runAndShowResult(
                   task: FollowSyncService.syncKuaishou,
@@ -110,12 +111,29 @@ class AccountPage extends GetView<AccountController> {
             }),
             Obx(() {
               final isLogined = cookie.douyuCookie.v.isNotEmpty;
+              // 斗鱼会话是有期限的（网页版 7 天、H5 版看 JWT），过期后只表现为
+              // 「原画被降成蓝光4M」，所以这里直接显示昵称 + 剩余时间/续期状态。
+              final douyuState = DouyuUtils.sessionState(cookie.douyuCookie.v);
+              final douyuExpiry = DouyuUtils.sessionExpiry(
+                cookie.douyuCookie.v,
+                savedAt: DouyuUtils.storedSessionSavedAt(),
+              );
+              final douyuNick = DouyuUtils.accountNick(cookie.douyuCookie.v);
+              final stateLabel = switch (douyuState) {
+                DouyuSessionState.none => i18n("not_logged_in"),
+                DouyuSessionState.guest => 'Cookie 无登录令牌（等同未登录）',
+                DouyuSessionState.valid =>
+                  douyuExpiry == null ? i18n("logined") : '剩余 ${_douyuRemainingLabel(douyuExpiry)}',
+                DouyuSessionState.expiredRefreshable => '登录已过期 · 下次播放会自动续期',
+                DouyuSessionState.expired => '登录已过期 · 请重新登录',
+              };
+              final subtitle = douyuNick.isEmpty ? stateLabel : '$douyuNick · $stateLabel';
               return _buildAccountTile(
                 context,
                 logo: 'assets/images/douyu.png',
                 platformId: 'douyu',
                 title: i18n("site_douyu"),
-                subtitle: isLogined ? i18n("logined") : i18n("not_logged_in"),
+                subtitle: subtitle,
                 isLogined: isLogined,
                 onSync: () => FollowSyncService.runAndShowResult(
                   task: FollowSyncService.syncDouyu,
@@ -131,6 +149,22 @@ class AccountPage extends GetView<AccountController> {
         ],
       ),
     );
+  }
+
+  /// 虎牙/快手的昵称要私有签名接口才能拿到，cookie 里只有账号 ID：
+  /// 退化为显示 UID，至少能区分是哪个号，比统一的「已登录」信息量多。
+  String _uidLabel(String cookie, String field) {
+    final match = RegExp('(?:^|;)\\s*$field=(\\d+)').firstMatch(cookie);
+    return match != null ? 'UID ${match.group(1)}' : i18n('logined');
+  }
+
+  /// 斗鱼登录剩余时间文案。
+  String _douyuRemainingLabel(DateTime expiry) {
+    final left = expiry.difference(DateTime.now());
+    if (left.isNegative) return '已到期';
+    if (left.inDays >= 1) return '剩余 ${left.inDays} 天';
+    if (left.inHours >= 1) return '剩余 ${left.inHours} 小时';
+    return '剩余 ${left.inMinutes} 分钟';
   }
 
   Widget _buildAccountTile(

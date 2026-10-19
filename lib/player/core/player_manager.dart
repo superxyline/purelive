@@ -19,6 +19,7 @@ import '../models/player_error_type.dart';
 
 import 'package:rxdart/rxdart.dart' hide Rx;
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/site/douyu/douyu_flv_relay.dart';
 
 import '../interface/unified_player_interface.dart';
 
@@ -337,7 +338,21 @@ class PlayerManager {
     // Every bundled player has a native audio-only path.  Opening the original
     // live URL directly avoids a second FFmpeg decode pipeline and removes the
     // previous fixed two-second wait / 30-second pipe timeout.
-    final String targetUrl = url;
+    //
+    // 斗鱼原画链接只有 5 分钟有效期：走本地 FLV 中继，由中继在到期前预取新链、
+    // 从关键帧续接，播放器看到的是一条连续流（中继不可用时自动直连）。
+    var targetUrl = url;
+    if (DouyuFlvRelay.shouldRelay(url)) {
+      final relayed = await DouyuFlvRelay.instance.createSession(
+        sourceUrl: url,
+        headers: headers,
+        refresh: streamEndedRefresher,
+        fallbackUrls: playUrls,
+      );
+      if (relayed != null && _isSessionValid(mySessionId)) {
+        targetUrl = relayed;
+      }
+    }
     final List<String> targetPlayUrls = List.from(playUrls);
 
     _currentUrl = targetUrl;
@@ -1344,15 +1359,18 @@ class PlayerManager {
     });
   }
 
-  /// 连接成功约 4 分钟后主动预签下一批地址：服务端踢线计时≈连接时长
-  /// （斗鱼固定 5 分钟），在断流前把新地址备好，complete 后零 HTTP 直接切。
+  /// 连接成功后主动预签下一批地址，断流瞬间零 HTTP 直接切。
+  ///
+  /// 时机优先按链接自带的有效期算（斗鱼未登录时 `expire=300`，登录后链接更长），
+  /// 提前 45 秒预签；读不到 expire 时退回 4 分钟经验值（斗鱼服务端踢线≈5 分钟）。
   /// 计时锚=连接成功时刻，换线/切清晰度等新会话会在 play() 里重置。
   void _scheduleStreamPrefetch() {
     _prefetchTimer?.cancel();
     _prefetchTimer = null;
     final refresher = streamEndedRefresher;
     if (refresher == null) return;
-    _prefetchTimer = Timer(const Duration(minutes: 4), () async {
+    final delay = _prefetchDelayFor(_currentUrl);
+    _prefetchTimer = Timer(delay, () async {
       _prefetchTimer = null;
       if (_disposed || _isClosing || !_playedInSession || !isPlayingNow) return;
       try {
@@ -1365,6 +1383,27 @@ class PlayerManager {
         log('stream prefetch failed: $e', stackTrace: s);
       }
     });
+  }
+
+  /// 预签延迟：链接里能读出 `expire` 就按它算（提前 45 秒），否则退回 4 分钟。
+  ///
+  /// 登录后斗鱼给的原画链接有效期明显长于匿名的 300 秒，但服务端仍可能按连接
+  /// 时长踢线，所以这里只把 4 分钟当上限，不会因为 expire 很长就无限推后。
+  Duration _prefetchDelayFor(String? url) {
+    const fallback = Duration(minutes: 4);
+    const margin = Duration(seconds: 45);
+    const minimum = Duration(seconds: 30);
+    if (url == null || url.isEmpty) return fallback;
+    final expire = Uri.tryParse(url)?.queryParameters['expire'];
+    final seconds = int.tryParse(expire ?? '');
+    if (seconds == null || seconds <= 0) return fallback;
+    // 斗鱼给的是秒数（300）；部分 CDN 给的是绝对时间戳
+    final ttl = seconds > 100000
+        ? Duration(seconds: seconds - DateTime.now().millisecondsSinceEpoch ~/ 1000)
+        : Duration(seconds: seconds);
+    if (ttl <= margin) return minimum;
+    final delay = ttl - margin;
+    return delay < fallback ? delay : fallback;
   }
 
   /// 用给定地址列表开流（预签切换/重签重放共用），失败退回既有错误处理

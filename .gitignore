@@ -79,3 +79,10 @@ nas/data/
 nas/server/dist/
 nas/webui/node_modules/
 nas/webui/dist/
+
+# 本地临时调试产物（非项目源码，误提交会污染仓库）
+/index.html
+/js/
+/static/
+/android/app/src/main/java/
+*.bak
