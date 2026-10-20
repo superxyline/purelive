@@ -380,15 +380,22 @@ class HuyaSite {
     async getPlayQualites(roomId) {
         const detail = await this.getRoomDetail(roomId);
         const urlData = (detail.data ?? {});
-        const bitRates = urlData.bitRates?.length
-            ? urlData.bitRates
-            : [
-                { name: '原画', bitRate: 0 },
-                { name: '高清', bitRate: 2000 },
-            ];
+        const bitRates = urlData.bitRates?.length ? urlData.bitRates : [{ name: '原画', bitRate: 0 }];
+        // 只暴露平台真实档位：4K 是会员专属（普通账号取流失败），同码率档留第一个
+        const unique = new Map();
+        for (const item of bitRates) {
+            if (item.bitRate < 0 || String(item.name ?? '').trim() === '')
+                continue;
+            if (String(item.name).trim() === '4K')
+                continue;
+            if (!unique.has(item.bitRate))
+                unique.set(item.bitRate, item);
+        }
+        if (unique.size === 0)
+            unique.set(0, { name: '原画', bitRate: 0 });
         const qualities = [];
         let sort = 0;
-        for (const item of bitRates) {
+        for (const item of unique.values()) {
             qualities.push({
                 quality: item.name,
                 data: { lines: urlData.lines ?? [], bitRate: item.bitRate },

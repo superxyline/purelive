@@ -33,6 +33,8 @@ const authRoutes = async (app) => {
                 const existing = (0, store_1.getStoredCookie)('bilibili');
                 const merged = mergeCookies(existing, pairs.join('; '));
                 (0, store_1.setStoredCookie)('bilibili', merged);
+                // 同步进程内缓存，否则本次运行内 getCookie 仍返回旧值（重启前不生效）
+                (0, cookies_1.setCookie)('bilibili', merged);
             }
         }
         return JSON.parse(res.text);
@@ -69,11 +71,20 @@ const authRoutes = async (app) => {
         if (!['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou'].includes(platform)) {
             return reply.code(400).send({ ok: false, message: 'unknown platform' });
         }
-        (0, store_1.setStoredCookie)(platform, (req.body?.cookie ?? '').trim());
+        // 粘贴的 cookie 常带换行/制表符，先归一化再落盘，否则拼请求头时会整条失效
+        const value = (req.body?.cookie ?? '').replace(/[\r\n\t]+/g, '').trim();
+        (0, store_1.setStoredCookie)(platform, value);
+        // 同步进程内缓存：不刷新的话，本次运行期间各 site 仍会读到旧 cookie（需重启容器才生效）
+        (0, cookies_1.setCookie)(platform, value);
         return { ok: true };
     });
-    app.delete('/:platform', async (req) => {
-        (0, store_1.setStoredCookie)(req.params.platform, '');
+    app.delete('/:platform', async (req, reply) => {
+        const { platform } = req.params;
+        if (!['bilibili', 'douyu', 'huya', 'douyin', 'kuaishou'].includes(platform)) {
+            return reply.code(400).send({ ok: false, message: 'unknown platform' });
+        }
+        (0, store_1.setStoredCookie)(platform, '');
+        (0, cookies_1.setCookie)(platform, '');
         return { ok: true };
     });
 };

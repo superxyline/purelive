@@ -397,12 +397,58 @@ class KuaishouSite {
         const room = await loadRoom(roomId, false, false).catch(() => loadRoom(roomId, false, true));
         return room.liveStatus === protocol_1.LiveStatus.live;
     }
-    async searchRooms(_keyword, _page, _pageSize) {
-        // 快手无法搜索主播，只能搜索游戏分类，这里不做展示
-        return [];
+    async searchRooms(keyword, page, pageSize) {
+        // 快手网页搜索页对未登录访客不再返回直播间（上游 #881），但主播搜索接口
+        // 仍然公开并带上「是否在播」，所以按主播维度搜索，未开播的主播也能搜到。
+        const searchUrl = `https://live.kuaishou.com/search?keyword=${encodeURIComponent(keyword)}`;
+        await ensureSession(searchUrl);
+        const api = 'https://live.kuaishou.com/live_api/search/author' +
+            `?keyword=${encodeURIComponent(keyword)}&page=${page}&lssid=`;
+        const result = await (0, upstream_1.upstreamJson)(api, {
+            headers: { ...roomHeaders(), referer: searchUrl, 'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors' },
+        });
+        const list = result?.data?.list;
+        if (!Array.isArray(list))
+            return [];
+        const rooms = [];
+        for (const author of list.slice(0, pageSize)) {
+            const id = String(author?.id ?? '').trim();
+            if (id === '')
+                continue;
+            const name = String(author?.name ?? '');
+            const avatar = String(author?.avatar ?? '');
+            const living = author?.living === true;
+            const banned = author?.bannedStatus?.banned === true;
+            rooms.push({
+                ...(0, protocol_1.emptyRoom)('kuaishou', id),
+                userId: id,
+                nick: name,
+                title: name,
+                avatar,
+                cover: avatar,
+                // 主播搜索接口没有观看人数：留空由前端显示「待刷新」，不编 0
+                watching: '',
+                followers: author?.counts?.fan != null ? String(author.counts.fan) : '0',
+                introduction: author?.description != null ? String(author.description) : '',
+                link: `https://live.kuaishou.com/u/${id}`,
+                liveStatus: banned ? protocol_1.LiveStatus.banned : living ? protocol_1.LiveStatus.live : protocol_1.LiveStatus.offline,
+                status: living && !banned,
+            });
+        }
+        return rooms;
     }
-    async searchAnchors(_keyword, _page, _pageSize) {
-        return [];
+    async searchAnchors(keyword, _page, pageSize) {
+        const rooms = await this.searchRooms(keyword, _page, pageSize);
+        return rooms.map((room) => ({
+            roomId: room.roomId,
+            title: room.title,
+            nick: room.nick,
+            avatar: room.avatar,
+            cover: room.cover,
+            platform: room.platform,
+            liveStatus: room.liveStatus,
+            followers: room.followers,
+        }));
     }
     async sendDanmaku(_roomId, _message) {
         // 快手 web 发送评论需要登录态与 __NS_sig3 签名，暂不支持

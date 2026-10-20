@@ -9,6 +9,7 @@ const index_1 = require("./index");
 const protocol_1 = require("../protocol");
 const upstream_1 = require("../upstream");
 const douyu_1 = require("../sign/douyu");
+const cookies_1 = require("../auth/cookies");
 const douyu_send_1 = require("../auth/douyu_send");
 /** Dart 里写死的 Edge UA（betard/homeH5Enc/getH5Play 共用）。 */
 const K_DOUYU_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43';
@@ -17,6 +18,59 @@ const K_DOUYU_SEARCH_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit
 const K_GET_H5_PLAY_EXTRA = '&cdn=&rate=-1&ver=Douyu_223061205&iar=1&ive=1&hevc=0&fa=0';
 function douyuReferer(roomId) {
     return { referer: `https://www.douyu.com/${roomId}`, 'user-agent': K_DOUYU_UA };
+}
+/**
+ * 取流会话 = 托管登录 cookie + 会话 did。
+ *
+ * 桌面版 DouyuUtils.cookieHeader 是「覆盖式」：丢掉 cookie 里的 dy_did/acf_did，
+ * 用进程随机 did 重建。这里改成**原样保留、缺了才补**，并把签名 did 对齐 cookie 里的
+ * acf_did（其次 dy_did），让设备 ID 与登录会话一致——否则斗鱼会把请求当成匿名会话，
+ * rate=0 的原画请求被服务端降成 4M（见 docs 里 #873 审计）。
+ */
+function douyuSession() {
+    const raw = (0, cookies_1.getCookie)('douyu')
+        .replace(/^Cookie:\s*/i, '')
+        // 粘贴/推送过来的 cookie 偶尔带换行或制表符，直接拼进请求头会让整条 header 失效
+        .replace(/[\r\n\t]+/g, '')
+        .trim();
+    const fields = [];
+    const seen = new Set();
+    for (const piece of raw.split(';')) {
+        const idx = piece.indexOf('=');
+        if (idx <= 0)
+            continue;
+        const name = piece.slice(0, idx).trim();
+        // cookie 名白名单字符（与桌面版 cookieHeader 同规则），防止脏字符拼进请求头
+        if (!/^[A-Za-z0-9_!#$%&'*+.^`|~-]+$/.test(name))
+            continue;
+        const lower = name.toLowerCase();
+        if (seen.has(lower))
+            continue;
+        seen.add(lower);
+        fields.push(`${name}=${piece.slice(idx + 1).trim()}`);
+    }
+    const fieldValue = (want) => {
+        for (const field of fields) {
+            const idx = field.indexOf('=');
+            if (idx > 0 && field.slice(0, idx).trim().toLowerCase() === want)
+                return field.slice(idx + 1).trim();
+        }
+        return '';
+    };
+    const usableDid = (value) => /^[0-9A-Za-z]{8,64}$/.test(value);
+    const acfDid = fieldValue('acf_did');
+    const dyDid = fieldValue('dy_did');
+    const did = usableDid(acfDid) ? acfDid : usableDid(dyDid) ? dyDid : douyu_1.DEFAULT_DEVICE_ID;
+    // 缺 did 字段时补齐，保证请求头与签名 did 自洽（已有则保持原值不动）
+    if (!seen.has('dy_did'))
+        fields.unshift(`dy_did=${did}`);
+    if (!seen.has('acf_did'))
+        fields.unshift(`acf_did=${did}`);
+    return { did, cookie: fields.join('; ') };
+}
+/** 取流请求头：referer/UA + 托管登录 cookie。 */
+function douyuPlayHeaders(roomId) {
+    return { ...douyuReferer(roomId), cookie: douyuSession().cookie };
 }
 /** dio getJson 等价：URL + query 参数，JSON 解析。 */
 async function getJson(url, params, header = {}) {
@@ -74,7 +128,7 @@ function generateRandomHexString(length) {
  */
 async function getDouyuSign(roomId) {
     const res = await (0, upstream_1.upstream)(`https://www.douyu.com/swf_api/homeH5Enc?rids=${roomId}`, {
-        headers: douyuReferer(roomId),
+        headers: douyuPlayHeaders(roomId),
     });
     if (res.status >= 400)
         throw new Error(`upstream ${res.status} for swf_api/homeH5Enc`);
@@ -83,7 +137,8 @@ async function getDouyuSign(roomId) {
     if (crptext == null || String(crptext) === '') {
         throw new Error(`douyu homeH5Enc returned empty enc for room ${roomId}`);
     }
-    return (0, douyu_1.evalDouyuSign)(String(crptext), roomId);
+    // 签名 did 与请求头 cookie 的 dy_did/acf_did 对齐，登录态才不会按匿名会话处理
+    return (0, douyu_1.evalDouyuSign)(String(crptext), roomId, douyuSession().did);
 }
 /** 主播卡片接口的粉丝数（betard 不含粉丝数，免签名免登录）。 */
 async function fetchAnchorFans(roomId) {
@@ -237,7 +292,7 @@ class DouyuSite {
             fetchAnchorFans(roomId),
             (async () => {
                 const res = await (0, upstream_1.upstream)(`https://www.douyu.com/swf_api/homeH5Enc?rids=${roomId}`, {
-                    headers: douyuReferer(roomId),
+                    headers: douyuPlayHeaders(roomId),
                 });
                 if (res.status >= 400)
                     throw new Error(`upstream ${res.status} for swf_api/homeH5Enc`);
@@ -268,8 +323,8 @@ class DouyuSite {
             status: live,
             liveStartTime: douyuLiveTime > 0 ? douyuLiveTime * 1000 : null,
             danmakuData: realRoomId,
-            // LiveRoom.data = 取流签名串（getH5Play 的 body 前缀）
-            data: crptext === '' ? undefined : await (0, douyu_1.evalDouyuSign)(crptext, realRoomId),
+            // LiveRoom.data = 取流签名串（getH5Play 的 body 前缀），did 与 cookie 保持一致
+            data: crptext === '' ? undefined : await (0, douyu_1.evalDouyuSign)(crptext, realRoomId, douyuSession().did),
             link: `https://www.douyu.com/${roomId}`,
             isRecord: roomInfo['videoLoop'] === 1,
         };
@@ -277,7 +332,8 @@ class DouyuSite {
     async getPlayQualites(roomId) {
         const sign = await getDouyuSign(roomId);
         // Dart 从 detail.data 取签名；后端无状态，这里按 roomId 重新拉签名。
-        const result = await postFormJson(`https://www.douyu.com/lapi/live/getH5Play/${roomId}`, sign + K_GET_H5_PLAY_EXTRA);
+        // 必须带托管登录 cookie：匿名会话下 rate=0（原画）会被服务端降成蓝光 4M。
+        const result = await postFormJson(`https://www.douyu.com/lapi/live/getH5Play/${roomId}`, sign + K_GET_H5_PLAY_EXTRA, douyuPlayHeaders(roomId));
         if (result?.['error'] !== 0) {
             throw new Error(`douyu getH5Play(qualities) error=${result?.['error']} msg=${result?.['msg']}`);
         }
@@ -293,7 +349,7 @@ class DouyuSite {
     async getPlayUrls(roomId, quality) {
         // detail.data 是取流签名；后端无状态，按 roomId 重新拉签名并重取 CDN 列表。
         const sign = await getDouyuSign(roomId);
-        const result = await postFormJson(`https://www.douyu.com/lapi/live/getH5Play/${roomId}`, sign + K_GET_H5_PLAY_EXTRA);
+        const result = await postFormJson(`https://www.douyu.com/lapi/live/getH5Play/${roomId}`, sign + K_GET_H5_PLAY_EXTRA, douyuPlayHeaders(roomId));
         if (result?.['error'] !== 0) {
             throw new Error(`douyu getH5Play(cdns) error=${result?.['error']} msg=${result?.['msg']}`);
         }
@@ -320,7 +376,7 @@ class DouyuSite {
         return urls;
     }
     async getPlayUrl(roomId, args, rate, cdn) {
-        const result = await postFormJson(`https://www.douyu.com/lapi/live/getH5Play/${roomId}`, `${args}&cdn=${cdn}&rate=${rate}`, douyuReferer(roomId));
+        const result = await postFormJson(`https://www.douyu.com/lapi/live/getH5Play/${roomId}`, `${args}&cdn=${cdn}&rate=${rate}`, douyuPlayHeaders(roomId));
         if (result?.['error'] !== 0 || result?.['data']?.['rtmp_url'] == null) {
             return '';
         }
