@@ -1,5 +1,5 @@
 appname=purelive
-version=1.0.0
+version=1.0.1
 display_name=Pure Live 直播
 desc=五平台直播聚合 Web 端: 观看/弹幕/关注同步/弹幕回看, 内置取流签名与弹幕代理服务
 maintainer=superxyline
@@ -11,4 +11,4 @@ desktop_applaunchname=purelive.Application
 service_port=8090
 checkport=true
 ctl_stop=true
-changelog=首个原生 FPK 版本(内置 Node 运行时, 免 Docker 直接跑 Web 端)
+changelog=1.0.1 同步 2026-10 服务端修复: 斗鱼取流注入托管登录态(原画不再被降 4M)/Cookie 粘贴即时生效/快手原生主播搜索/虎牙 4K 会员房过滤/App 同步可携带登录态
