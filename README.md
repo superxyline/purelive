@@ -51,64 +51,39 @@
 - cookie 托管（AES-256-GCM 加密落盘，支持退出登录）+ 流媒体 Referer 回退代理；支持手机 App 扫码同步关注列表与登录态；
 - Web 播放器：HLS 走 hls.js、flv 走 mpegts.js，直连失败自动回退后端代理。
 
-### 部署到 NAS（详细步骤）
+### 部署到 NAS / Linux（Docker Compose，一条命令）
 
 **前置条件**
 
-- 一台已安装 Docker（含 `docker compose` v2 插件）的 NAS / Linux 设备（实测飞牛 fnOS）；
-- 一台能跑 **Node 18+** 的机器用于构建前端（本地 Windows / Linux / macOS 均可）；
-- 无公网镜像源的 NAS 需本地已有 `nginx:1.27-alpine` 与 `node:22-alpine` 镜像（server 的 Dockerfile `FROM` 改成本地已有镜像即可，不要用 `node:20`）。
-
-**1. 规划 NAS 上的部署目录**
-
-以仓库内 [`nas/deploy/docker-compose.yml`](nas/deploy/docker-compose.yml) 为模板（其中 `../server`、`../webui-dist`、`../data` 均为相对 compose 文件的路径）：
-
-```
-purelive-nas/
-├── server/                 # 后端源码：仓库 nas/server/ 整目录上传（去掉 node_modules）
-├── webui-dist/             # 前端产物：本地构建的 dist/ 内容（只覆盖内容，勿删目录本身）
-├── data/                   # 运行数据（加密 cookie、关注列表）——务必纳入备份
-├── certs/                  # 自签证书（走 8091 HTTPS 时需要，可选）
-└── deploy/
-    ├── docker-compose.yml  # 直接取自仓库 nas/deploy/
-    ├── Dockerfile.server
-    └── nginx.conf
-```
-
-**2. 构建前端**
+- 一台装了 Docker 与 `docker compose` v2 插件的 NAS / Linux 设备（实测飞牛 fnOS）；
+- **不需要**在宿主机装 Node，也**不需要**预先构建前端——镜像内分三段自动完成（vite 构建 WebUI → tsc 编译 server → 只带生产依赖的运行时）。
 
 ```bash
-cd nas/webui
-npm install       # 首次需要
-npm run build     # 产出 dist/
+git clone https://gitee.com/superxyline/purelive.git && cd purelive/nas/deploy
+cp .env.example .env                 # 可选：改端口 / 令牌 / 镜像源
+docker compose up -d --build         # 用户不在 docker 组时加 sudo
 ```
 
-把 `dist/` 目录的**内容**上传覆盖到 NAS 的 `webui-dist/`（nginx 以 bind mount 挂载该目录，**不要删除目录本身**）。前端纯静态资源，替换后无需重启 nginx 容器也常能直接生效，但建议执行第 4 步的 recreate。
+浏览器打开 `http://<NAS-IP>:<PORT>`（默认 8090）。
 
-**3. 启动服务**
+**一个容器搞定 WebUI + API**：Node/Fastify 同时托管静态资源（SPA 回退）与 `/api/*`，不再需要 nginx 容器，也没有「前端产物放哪个目录」的坑。
 
-```bash
-cd purelive-nas/deploy
-sudo docker compose up -d --build     # 用户已在 docker 组时可去掉 sudo
-```
+| 配置项（`.env`） | 说明 |
+|---|---|
+| `PORT` | 宿主机端口，默认 8090 |
+| `NODE_IMAGE` | 构建用的基础镜像，默认 `node:20-alpine`；NAS 上只有 22 时写 `node:22-alpine` |
+| `NPM_REGISTRY` | npm 源，默认 npmmirror，海外可改官方源 |
+| `PURE_LIVE_TOKEN` | 公网部署**必设**，之后 `/api/*` 需带令牌（WebUI 弹窗录入） |
+| `NAS_MASTER_KEY` | 托管 cookie 的加密主密钥，留空则自动生成到 `data/.masterkey` |
+| `PURE_LIVE_COOKIE_<平台>` | 可选：环境变量直接注入平台 Cookie |
 
-首次启动会构建 `server` 镜像并创建两个容器：`purelive-server`（Node/Fastify 聚合后端）与 `purelive-web`（nginx:1.27-alpine）。
+**数据与备份**：全部落在 `nas/deploy/data/`（`cookies.enc`、`.masterkey`、`synced-follows.json`）。备份=拷该目录；迁移机器时**必须连 `.masterkey` 一起带走**，否则已托管登录态无法解密。
 
-**4. 访问与验证**
+**更新**：`git pull && docker compose up -d --build`。
 
-浏览器打开 `http://<NAS-IP>:8090`（推荐）或 `https://<NAS-IP>:8091`（自签证书，首次需手动信任）。
+**运维**：`docker compose ps`（含健康状态，判据是 `/api/health`）、`docker compose logs -f`、`docker compose down`（数据保留）。
 
-**5. 后续更新前端**
-
-```bash
-cd nas/webui && npm run build
-# 覆盖 dist/ 内容到 NAS 的 webui-dist/ 后：
-sudo docker compose up -d --force-recreate web
-```
-
-> ⚠️ 两个必踩的坑：
-> - **bind mount 换内容后必须 `--force-recreate web`**：容器内仍是旧 inode，`nginx -s reload` 不生效，表现为 403 或一直旧页面；单文件挂载的 `nginx.conf` 改动同理。
-> - **`index.html` 必须 no-cache**：强缓存会导致新版本不生效，[`nas/deploy/nginx.conf`](nas/deploy/nginx.conf) 已配置 `Cache-Control: no-cache`，勿删。
+> 仍想用「nginx 静态 + server 独立容器」的老架构（例如已有统一 nginx 网关）：见 [`nas/deploy/docker-compose.nginx.yml`](nas/deploy/docker-compose.nginx.yml)，该方案需要宿主自己 `npm run build` 并把产物覆盖到 `nas/webui-dist/`，且 bind mount 换内容后要 `--force-recreate`。
 
 架构图、环境变量（`NAS_MASTER_KEY` 等）、登录与发弹幕、安全注意事项见 [nas/README.md](nas/README.md)。安卓客户端构建不受影响。
 
