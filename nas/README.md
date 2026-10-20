@@ -16,23 +16,64 @@
                   └── /api/discover       局域网自动发现（App 扫描网段后取服务信息）
 ```
 
-## 部署
+## 部署（Docker Compose，一条命令）
+
+前置只需要装好 Docker + Compose 插件，**不需要在宿主机装 Node，也不需要先构建前端**——镜像内会分三段自动完成：vite 构建 WebUI → tsc 编译 server → 只带生产依赖的运行时。
 
 ```bash
 cd nas/deploy
+cp .env.example .env        # 可选：改端口/令牌/镜像源
 docker compose up -d --build
 ```
 
-浏览器访问 `http://<NAS-IP>:8090`（推荐）或 `https://<NAS-IP>:8091`（自签证书，首次需信任）。
+浏览器打开 `http://<主机IP>:8090`（端口在 `.env` 的 `PORT` 里改）。
 
-> 前端为 `nas/webui`（Vue3 + Naive UI）。开发调试：`cd nas/webui && npm run dev`；构建：`npm run build`，把产物 `dist/` 的内容覆盖到 NAS 的 `webui-dist/` 即可（内容覆盖，不要删除目录本身），无需重启 nginx。
+- 想改端口/开访问令牌/注入平台 Cookie：都在 `nas/deploy/.env` 里，改完 `docker compose up -d` 生效（密钥类变量需 `--force-recreate`）。
+- 国内网络默认用 `npmmirror` 拉 npm 依赖；海外可把 `NPM_REGISTRY` 改成 `https://registry.npmjs.org`。
+- 拉不动基础镜像时，把 `Dockerfile` 顶部的 `ARG NODE_IMAGE=node:20-alpine` 换成 NAS 上已有的版本（如 `node:22-alpine`）。
+- 用户不在 docker 组时命令前加 `sudo`。
 
-### 无公网镜像源的 NAS（飞牛 fnOS 等）实测备注
+### 常用运维命令
 
-- web 容器直接用 `nginx:1.27-alpine` 挂载前端构建产物（见 `nas/deploy/docker-compose.yml`），不需要在镜像里构建前端。
-- 拉取 `node:20-alpine` 失败时，改用 NAS 上已有的镜像（如 `node:22-alpine`，只改 Dockerfile 的 FROM 即可）。
-- 用户不在 docker 组时用 `sudo docker compose up -d --build`。
-- 替换 nginx.conf 后必须 `sudo docker compose up -d --force-recreate web`（单文件 bind mount 改动后容器内仍是旧 inode，reload 不生效）。
+```bash
+docker compose logs -f            # 看日志
+docker compose ps                 # 看状态（含 healthcheck）
+docker compose pull && docker compose up -d --build   # 更新代码后重建
+docker compose down               # 停止（数据保留在 ./data）
+```
+
+### 数据与备份
+
+| 内容 | 位置 | 说明 |
+|---|---|---|
+| 托管登录态 `cookies.enc` | `nas/deploy/data/cookies.enc` | AES-256-GCM，密钥见同目录 `.masterkey` 或 `.env` 的 `NAS_MASTER_KEY` |
+| 主密钥 | `nas/deploy/data/.masterkey`（或环境变量） | **迁移机器必须一起带走**，否则已托管 Cookie 无法解密 |
+| 关注/屏蔽同步 | `nas/deploy/data/synced.json` | App「推送到 NAS」写入 |
+| 日志 | 容器 stdout | `docker compose logs` 查看，已限制 10MB×3 轮转 |
+
+备份 = 直接拷 `nas/deploy/data/` 整个目录；恢复 = 放回同位置再 `up -d`。
+
+### 架构（单容器）
+
+```
+浏览器 ──> purelive 容器（Node/Fastify，端口 8080 → 宿主机 8090）
+             ├── /             WebUI 静态资源（镜像内 vite 构建，SPA 回退）
+             ├── /api/sites/:p/...          五平台 API 聚合（B站 WBI、斗鱼 ub98484234、抖音 a-bogus、虎牙 anticode 签名在服务端执行）
+             ├── /api/danmaku/:p/:roomId    弹幕 WebSocket 代理（B站 brotli、斗鱼 STT、虎牙 Tars、抖音 protobuf → 统一 JSON）
+             ├── /api/auth/...              B站扫码登录 + 各平台 cookie 托管（AES-256-GCM 加密落盘）
+             ├── /api/stream/proxy          直播流 Referer 校验时的回退代理
+             ├── /api/sync/data             App↔NAS 关注+屏蔽三件套同步（WebUI 用 /api/sync/follows）
+             ├── /api/discover              局域网自动发现（App 扫描网段后取服务信息）
+             └── /api/health                健康检查（容器 healthcheck 用的就是这个）
+```
+
+> 想保留「nginx 静态 + server 独立容器」的老架构，用 `docker-compose.nginx.yml`（需宿主自行 `npm run build` 并把产物覆盖到 `nas/webui-dist/`），见该文件头部注释。
+
+### 前端开发调试
+
+```bash
+cd nas/webui && npm run dev     # 5173 端口，/api 代理到本机 8090
+```
 
 ### 飞牛 fnOS 原生应用（fpk，免 Docker）
 

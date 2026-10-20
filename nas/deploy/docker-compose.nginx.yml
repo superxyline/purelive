@@ -1,0 +1,43 @@
+# 可选方案：nginx(静态) + server(API) 双容器。
+#
+# 默认方案请看同目录 docker-compose.yml（单容器，镜像内自动构建前端，零预处理）。
+# 这个文件保留给「想自己托管静态资源 / 已有 nginx」的场景，用法：
+#
+#   cd nas/webui && npm run build                       # 需要宿主有 Node
+#   cp -r nas/webui/dist/. nas/webui-dist/              # 覆盖内容，不要删目录
+#   cd nas/deploy && docker compose -f docker-compose.nginx.yml up -d --build
+#
+# 注意：替换 nginx.conf 后单文件 bind mount 会保留旧 inode，必须
+#   docker compose -f docker-compose.nginx.yml up -d --force-recreate web
+
+services:
+  server:
+    build:
+      context: ../server
+      dockerfile: ../deploy/Dockerfile.server
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - NAS_MASTER_KEY=${NAS_MASTER_KEY:-}
+      - LOG_LEVEL=info
+      # 公网（云服务器）部署必设：访问令牌，WebUI 首次访问时会弹窗录入。
+      # 局域网（NAS/家用）可留空。设置后所有 /api/* 需携带该令牌。
+      # - PURE_LIVE_TOKEN=change-me-to-a-long-random-string
+      # 可选：环境变量方式注入各平台 cookie（大写平台名）
+      # - PURE_LIVE_COOKIE_BILIBILI=SESSDATA=xxx;bili_jct=xxx;DedeUserID=xxx
+    volumes:
+      - ./data:/app/data
+    expose:
+      - "8080"
+
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      # 前端构建产物：cd nas/webui && npm run build 后把 dist/ 内容放进该目录
+      - ../webui-dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${PORT:-8090}:80"
+    depends_on:
+      - server

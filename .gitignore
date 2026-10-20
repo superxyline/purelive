@@ -86,3 +86,7 @@ nas/webui/dist/
 /static/
 /android/app/src/main/java/
 *.bak
+# Docker compose 部署：真实 .env（含令牌/密钥）与运行数据不入库
+/nas/deploy/.env
+/nas/deploy/data/
+/nas/deploy/*/data/

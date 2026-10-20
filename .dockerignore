@@ -1,0 +1,30 @@
+# docker compose 的构建上下文是仓库根目录：只保留 nas/ 下构建所需内容，
+# 否则 .git / build / android(含 flutter 产物) 会让上下文膨胀到数 GB。
+
+/.git
+/.github
+/build
+/android
+/lib
+/assets
+/js
+/plugins
+/static
+/shell
+/test
+/tool
+/docs
+/local-artifacts
+/node_modules
+
+/nas/server/node_modules
+/nas/server/dist
+/nas/webui/node_modules
+/nas/webui/dist
+/nas/fnos/purelive
+/nas/fnos/purelive.fpk
+/nas/deploy/data
+/nas/*/data
+
+*.log
+*.fpk

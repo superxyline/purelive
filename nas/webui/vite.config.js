@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     port: 5173,
     // 本地开发时把 /api 代理到 NAS 后端
-    proxy: { '/api': { target: 'http://192.168.31.26:8090', changeOrigin: true } },
+    proxy: { '/api': { target: 'http://127.0.0.1:8090', changeOrigin: true } },
   },
   build: {
     chunkSizeWarningLimit: 1500,

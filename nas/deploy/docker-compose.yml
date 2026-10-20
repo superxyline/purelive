@@ -1,31 +1,55 @@
-services:
-  server:
-    build:
-      context: ../server
-      dockerfile: ../deploy/Dockerfile.server
-    restart: unless-stopped
-    environment:
-      - PORT=8080
-      - NAS_MASTER_KEY=${NAS_MASTER_KEY:-}
-      - LOG_LEVEL=info
-      # 公网（云服务器）部署必设：访问令牌，WebUI 首次访问时会弹窗录入。
-      # 局域网（NAS/家用）可留空。设置后所有 /api/* 需携带该令牌。
-      # - PURE_LIVE_TOKEN=change-me-to-a-long-random-string
-      # 可选：环境变量方式注入各平台 cookie（大写平台名）
-      # - PURE_LIVE_COOKIE_BILIBILI=SESSDATA=xxx;bili_jct=xxx;DedeUserID=xxx
-    volumes:
-      - ../data:/app/data
-    expose:
-      - "8080"
+# Pure Live 一键部署（单容器：WebUI + API 同源）
+#
+#   cd nas/deploy
+#   cp .env.example .env      # 按需改端口/令牌
+#   docker compose up -d --build
+#
+# 打开 http://<主机IP>:8090 即可。镜像内会自行构建前端与后端，
+# 宿主机不需要装 Node/npm，也不需要手动 npm run build。
 
-  web:
-    image: nginx:1.27-alpine
+services:
+  purelive:
+    build:
+      # 上下文取仓库根目录：Dockerfile 要同时拷 nas/webui 与 nas/server
+      context: ../..
+      dockerfile: nas/deploy/Dockerfile
+      args:
+        # 基础镜像：NAS 上若没有 node:20-alpine，可在 .env 里写 NODE_IMAGE=node:22-alpine
+        NODE_IMAGE: ${NODE_IMAGE:-node:20-alpine}
+        # 国内默认走 npmmirror；海外或想用官方源改成 https://registry.npmjs.org
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmmirror.com}
+    image: purelive-nas:${IMAGE_TAG:-latest}
+    container_name: purelive
     restart: unless-stopped
-    volumes:
-      # 前端构建产物：cd nas/webui && npm run build 后把 dist/ 内容放进该目录
-      - ../webui-dist:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
-      - "8090:80"
-    depends_on:
-      - server
+      # 宿主机端口 : 容器内 8080
+      - "${PORT:-8090}:8080"
+    environment:
+      PORT: 8080
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      TZ: ${TZ:-Asia/Shanghai}
+      # 加密托管 cookie 的主密钥（留空则首次启动自动生成并存入数据目录）
+      NAS_MASTER_KEY: ${NAS_MASTER_KEY:-}
+      # 公网部署务必设置：设置后所有 /api/* 需带令牌（WebUI 会弹窗录入）
+      PURE_LIVE_TOKEN: ${PURE_LIVE_TOKEN:-}
+      # 可选：环境变量注入平台 cookie，键名 PURE_LIVE_COOKIE_<平台大写>
+      # PURE_LIVE_COOKIE_BILIBILI: "SESSDATA=xxx;bili_jct=xxx;DedeUserID=xxx"
+      # PURE_LIVE_COOKIE_DOUYU: "acf_uid=xxx;acf_stk=xxx;acf_ltkid=xxx;dy_did=xxx"
+    volumes:
+      # 数据（cookies.enc / 关注同步 / 日志）落在 ./data，卸载容器不丢
+      - ./data:/app/data
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
