@@ -133,29 +133,129 @@ class BiliBiliSite implements LiveSite {
       "web_location": "444.8",
       if (qn != null) "qn": qn.toString(),
     };
-    return getWbiSign("$baseUrl?${Uri(queryParameters: query)}");
+    // 注意：Uri(queryParameters:) 的 toString() 自带前导 '?'，
+    // 这里必须取 .query，否则 URL 变成 `...getRoomPlayInfo??room_id=...`，
+    // 签名时首个参数被解析成 `?room_id`，w_rid 永远对不上 → B站回 -400。
+    return getWbiSign("$baseUrl?${Uri(queryParameters: query).query}");
+  }
+
+  /// 免 WBI 的取流参数（上游 3.1.19 同款精简集）。
+  /// WBI 风控（-352）或密钥接口异常时用它兜底——直播取流本身并不强制签名。
+  Map<String, String> _unsignedPlayUrlQuery(LiveRoom detail, {int? qn}) {
+    return {
+      "room_id": detail.roomId.toString(),
+      "protocol": "0,1",
+      "format": "0,1,2",
+      "codec": "0,1,2",
+      "qn": (qn ?? 0).toString(),
+      "platform": "web",
+      "ptype": "8",
+      "dolby": "5",
+      "panorama": "1",
+      "mask": "0",
+      "no_playurl": "0",
+    };
+  }
+
+  /// 取流接口统一入口：先按官方网页参数（含 WBI 签名）请求，拿不到
+  /// `playurl_info` 或抛异常时，退回免签名参数集再试一次。
+  ///
+  /// 这样做的原因：B站列表接口不走 WBI，WBI 一旦被风控/降级（nav 不返回
+  /// wbi_img、签名过期、-352），表现出来的就是「首页能刷出房间，点进去
+  /// 每个房间都提示读取视频信息失败」，很难从现象定位到签名层。
+  Future<Map<String, dynamic>> _fetchPlayInfo(LiveRoom detail, {int? qn}) async {
+    const baseUrl = "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo";
+    // 三级兜底：
+    //   1) 官方网页参数 + WBI 签名（有登录态时能拿原画）
+    //   2) 免签名参数（WBI 被风控 / 密钥失效时仍可播放）
+    //   3) 免签名且不带 qn（匿名请求原画时 B站直接返回 playurl_info=null，
+    //      不带 qn 会按会话允许的最高档下发，播放器不至于整场失败）
+    final candidates = <(String tag, Map<String, String> query)>[];
+    candidates.add(('签名', await _signedQueryOrEmpty(detail, qn)));
+    candidates.add(('免签名', _unsignedPlayUrlQuery(detail, qn: qn)));
+    if (qn != null && qn > 0) {
+      candidates.add(('免签名-不限档', _unsignedPlayUrlQuery(detail)));
+    }
+
+    Object? lastError;
+    for (var attempt = 0; attempt < candidates.length; attempt++) {
+      final (tag, query) = candidates[attempt];
+      if (query.isEmpty) continue;
+      try {
+        final result = await HttpClient.instance.getJson(
+          baseUrl,
+          queryParameters: query,
+          header: await getHeader(),
+        );
+        if (_playUrlPayload(result) != null) {
+          if (attempt > 0) {
+            debugPrint('[bilibili-playurl] 第 ${attempt + 1} 级兜底（$tag）取流成功');
+          }
+          return Map<String, dynamic>.from(result as Map);
+        }
+        final code = result is Map ? result["code"] : null;
+        final message = result is Map ? result["message"] : null;
+        final data = result is Map ? result["data"] : null;
+        final liveStatus = data is Map ? data["live_status"] : null;
+        debugPrint(
+          '[bilibili-playurl] $tag 请求无 playurl_info: '
+          'code=$code message=$message live_status=$liveStatus qn=${qn ?? "-"}',
+        );
+        lastError = BiliPlayApiException('code=$code message=$message');
+        if (attempt == 0) kImgKey = '';
+      } catch (error) {
+        debugPrint('[bilibili-playurl] $tag 请求异常: $error');
+        lastError = error;
+        if (attempt == 0) kImgKey = '';
+      }
+    }
+    throw BiliPlayApiException('取流接口不可用：$lastError');
+  }
+
+  /// 签名参数；WBI 密钥拿不到时返回空表，让调用方直接跳到免签名兜底。
+  Future<Map<String, String>> _signedQueryOrEmpty(LiveRoom detail, int? qn) async {
+    try {
+      return await _playUrlQuery(detail, qn: qn);
+    } catch (error) {
+      debugPrint('[bilibili-playurl] WBI 签名失败，跳过签名请求: $error');
+      return const {};
+    }
+  }
+
+  /// 从接口响应里取出 `data.playurl_info.playurl`，结构不对时返回 null。
+  static Map<String, dynamic>? _playUrlPayload(dynamic result) {
+    if (result is! Map) return null;
+    final data = result["data"];
+    if (data is! Map) return null;
+    final info = data["playurl_info"];
+    if (info is! Map) return null;
+    final playurl = info["playurl"];
+    if (playurl is! Map) return null;
+    return Map<String, dynamic>.from(playurl);
   }
 
   @override
   Future<List<LivePlayQuality>> getPlayQualites({required LiveRoom detail}) async {
-    List<LivePlayQuality> qualities = [];
-    const baseUrl = "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo";
-    var result = await HttpClient.instance.getJson(
-      baseUrl,
-      queryParameters: await _playUrlQuery(detail),
-      header: await getHeader(),
-    );
-    var qualitiesMap = <int, String>{};
-    for (var item in result["data"]["playurl_info"]["playurl"]["g_qn_desc"]) {
-      qualitiesMap[int.tryParse(item["qn"].toString()) ?? 0] = item["desc"].toString();
+    final qualities = <LivePlayQuality>[];
+    final result = await _fetchPlayInfo(detail);
+    final playUrl = _playUrlPayload(result)!;
+    final qualitiesMap = <int, String>{};
+    for (var item in (playUrl["g_qn_desc"] as List?) ?? const []) {
+      if (item is! Map) continue;
+      final qn = int.tryParse(item["qn"]?.toString() ?? "") ?? 0;
+      if (qn <= 0) continue;
+      qualitiesMap[qn] = (item["desc"] ?? "未知清晰度").toString();
     }
     // accept_qn 按编码/格式分组返回且各组不一致，取全部组的并集，
     // 避免只读 codec[0] 漏掉某编码独有的档位（如 av1 的 4K/2K）
     final qnSet = <int>{};
-    for (var streamItem in result["data"]["playurl_info"]["playurl"]["stream"]) {
-      for (var formatItem in streamItem["format"]) {
-        for (var codecItem in formatItem["codec"]) {
-          for (var qn in codecItem["accept_qn"] ?? const []) {
+    for (var streamItem in (playUrl["stream"] as List?) ?? const []) {
+      if (streamItem is! Map) continue;
+      for (var formatItem in (streamItem["format"] as List?) ?? const []) {
+        if (formatItem is! Map) continue;
+        for (var codecItem in (formatItem["codec"] as List?) ?? const []) {
+          if (codecItem is! Map) continue;
+          for (var qn in (codecItem["accept_qn"] as List?) ?? const []) {
             final v = int.tryParse(qn.toString()) ?? 0;
             if (v > 0) qnSet.add(v);
           }
@@ -173,22 +273,22 @@ class BiliBiliSite implements LiveSite {
   Future<List<String>> getPlayUrls({required LiveRoom detail, required LivePlayQuality quality}) async {
     try {
       final requestedQn = quality.data is int ? quality.data as int : 0;
-      var result = await HttpClient.instance.getJson(
-        "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo",
-        queryParameters: await _playUrlQuery(detail, qn: requestedQn),
-        header: await getHeader(),
-      );
+      final result = await _fetchPlayInfo(detail, qn: requestedQn);
+      final playUrl = _playUrlPayload(result)!;
 
       // 展开 协议(stream)→格式(format)→编码(codec)→CDN(host) 全部组合，
       // 保留编码/格式/CDN/实际档位供排序：确认档优先 + 编码偏好 + CDN 测速优选。
       final entries = <({String url, String codec, String host, String format, int currentQn})>[];
-      var streamList = result["data"]["playurl_info"]["playurl"]["stream"];
+      final streamList = (playUrl["stream"] as List?) ?? const [];
       for (var streamItem in streamList) {
-        var formatList = streamItem["format"];
+        if (streamItem is! Map) continue;
+        final formatList = (streamItem["format"] as List?) ?? const [];
         for (var formatItem in formatList) {
-          var codecList = formatItem["codec"];
+          if (formatItem is! Map) continue;
+          final codecList = (formatItem["codec"] as List?) ?? const [];
           final format = (formatItem["format_name"] ?? "").toString().toLowerCase();
           for (var codecItem in codecList) {
+            if (codecItem is! Map) continue;
             var urlList = codecItem["url_info"];
             var baseUrl = codecItem["base_url"].toString();
             final codec = (codecItem["codec_name"] ?? "").toString().toLowerCase();
@@ -276,9 +376,11 @@ class BiliBiliSite implements LiveSite {
 
   /// 该房间可选的最大 qn（各编码/格式分组的 accept_qn 并集）。
   static int? _maxAcceptQn(dynamic result) {
+    final playUrl = _playUrlPayload(result);
+    if (playUrl == null) return null;
     int? maxQn;
     try {
-      for (final streamItem in result["data"]["playurl_info"]["playurl"]["stream"] ?? const []) {
+      for (final streamItem in playUrl["stream"] ?? const []) {
         for (final formatItem in streamItem["format"] ?? const []) {
           for (final codecItem in formatItem["codec"] ?? const []) {
             for (final qn in codecItem["accept_qn"] ?? const []) {
@@ -524,14 +626,24 @@ class BiliBiliSite implements LiveSite {
         cacheAge < const Duration(hours: 6)) {
       return (kImgKey, kSubKey);
     }
-    // 获取最新的 img_key 和 sub_key
-    var resp = await HttpClient.instance.getJson(
+    // 获取最新的 img_key 和 sub_key。
+    // 注意：nav 在未登录时返回 code=-101（账号未登录）但仍带 wbi_img；
+    // 风控时可能 data 为空。这里只认 wbi_img 是否可用，不再硬解构 data，
+    // 否则整条取流链路会以 NoSuchMethodError 形式直接失败。
+    final resp = await HttpClient.instance.getJson(
       'https://api.bilibili.com/x/web-interface/nav',
       header: await getHeader(),
     );
-
-    var imgUrl = resp["data"]["wbi_img"]["img_url"].toString();
-    var subUrl = resp["data"]["wbi_img"]["sub_url"].toString();
+    final data = resp is Map ? resp["data"] : null;
+    final wbi = data is Map ? data["wbi_img"] : null;
+    final imgUrl = wbi is Map ? (wbi["img_url"] ?? "").toString() : "";
+    final subUrl = wbi is Map ? (wbi["sub_url"] ?? "").toString() : "";
+    if (imgUrl.isEmpty || subUrl.isEmpty) {
+      throw BiliPlayApiException(
+        'WBI 密钥获取失败（nav code=${resp is Map ? resp["code"] : null} '
+        'message=${resp is Map ? resp["message"] : null}）',
+      );
+    }
     var imgKey = imgUrl.substring(imgUrl.lastIndexOf('/') + 1).split('.').first;
     var subKey = subUrl.substring(subUrl.lastIndexOf('/') + 1).split('.').first;
 
@@ -924,4 +1036,15 @@ class BiliBiliSite implements LiveSite {
     accessId = id ?? "";
     return accessId;
   }
+}
+
+/// B站取流失败：把接口 code/message 带出来，便于日志区分「风控」「房间不存在」
+/// 「签名失效」与真正的网络问题，而不是统一报「读取视频信息失败」。
+class BiliPlayApiException implements Exception {
+  BiliPlayApiException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'BiliPlayApiException: $message';
 }

@@ -1,3 +1,57 @@
+# Pure Live v2.3.1
+
+版本号 `2.3.1+4038`。**修复「B站所有直播间都提示读取视频信息失败」**，并给取流加上三级兜底。
+
+安装：下载 `PureLive-2.3.1-4038-arm64-v8a-release.apk` 覆盖安装即可（正式签名，数据不丢，Android 8.0+ / arm64）。
+
+## 一、根因：一个多余的问号
+
+B站取流（`getRoomPlayInfo`）需要 WBI 签名，签名 URL 的拼接写成了：
+
+```dart
+getWbiSign("$baseUrl?${Uri(queryParameters: query)}")
+```
+
+而 Dart 的 `Uri(queryParameters: ...)` 转字符串**本身自带前导 `?`**，实际请求变成：
+
+```
+.../getRoomPlayInfo??room_id=574872&protocol=0%2C1&...
+```
+
+`getWbiSign` 再用 `Uri.parse(url).queryParameters` 回解析时，第一个参数名被读成 `?room_id`，`w_rid` 按错误的参数串计算 → B站恒定返回 **`code=-400 请求错误`** → 上层拿不到 `playurl_info` → 统一提示「读取视频信息失败」。
+
+**为什么只有直播间挂**：WBI 签名只用在取流这一个接口，列表与分区接口不签名——所以「首页能刷出房间，点进去每个都失败」，很容易误判成 B站接口挂了或 Cookie 失效。
+
+修复：改为 `Uri(queryParameters: query).query`，签名恢复正确。
+
+## 二、顺带加固：取流三级兜底
+
+排查中发现两个真实存在的平台行为，一并处理：
+
+1. **WBI 被风控/密钥接口异常**：`getWbiKeys()` 原来硬解构 `resp["data"]["wbi_img"]`，nav 一旦降级就 `NoSuchMethodError`。现改为只认 `wbi_img` 是否存在，拿不到就跳过签名直接兜底。
+2. **匿名请求原画会被"直接拒绝"**：未登录时带 `qn=10000` 请求，B站返回 `code=0` 但 `playurl_info=null`（不是降档，是不给）。现在按三级顺序尝试：
+
+| 级别 | 参数 | 适用 |
+|---|---|---|
+| 1 | 官方网页参数 + WBI 签名 | 正常情况，登录态可拿原画 |
+| 2 | 免签名参数（`mask=0&no_playurl=0`，上游 3.1.19 同款） | WBI 风控 / 密钥失效 |
+| 3 | 免签名且**不带 qn** | 匿名请求原画被拒时，由服务端按会话允许的最高档下发 |
+
+任何一级成功即返回；全部失败才报错，且错误信息带上接口 `code/message`（新增 `BiliPlayApiException`），不再是笼统的「读取视频信息失败」。解析链路也全部改为空安全。
+
+## 三、验证
+
+- 平板 25091RP04C 装机后进入 B站直播间：画面正常，右上清晰度显示 **「原画」**
+- logcat 中 `[bilibili-playurl]` 无任何输出 → 说明签名请求一次成功，兜底未被触发（修复前会持续刷 `code=-400` + 兜底日志）
+- `dart analyze lib`：0 error / 0 warning
+
+## 四、升级提示
+
+- 覆盖安装即可，关注列表、登录态、播放偏好都不受影响。
+- 本次只改动 Android 端 `lib/core/site/bilibili_site.dart`，NAS 服务端无变化，无需重新部署。
+
+---
+
 # Pure Live v2.3.0
 
 版本号 `2.3.0+4037`。本版收口三件事：**斗鱼原画真·无缝续流**、**登录态不再"悄悄过期"**、**上游 7 项能力移植**（NAS 服务端同步更新）。
