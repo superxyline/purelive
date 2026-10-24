@@ -45,12 +45,12 @@ class LocalGiftSheet extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
-                Obx(
-                  () => Chip(
-                    avatar: const Icon(Icons.toll_rounded, size: 18),
-                    label: Text('∞ ${i18n(pack.currencyKey)}'),
-                    visualDensity: VisualDensity.compact,
-                  ),
+                // 余额恒为 ∞（本地礼物免扣），无响应式依赖——不能用 Obx 包裹，
+                // 空壳 Obx 会在 build 时抛 ObxError，release 下呈大片银灰错误框。
+                Chip(
+                  avatar: const Icon(Icons.toll_rounded, size: 18),
+                  label: Text('∞ ${i18n(pack.currencyKey)}'),
+                  visualDensity: VisualDensity.compact,
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
