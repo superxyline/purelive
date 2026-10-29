@@ -295,10 +295,6 @@ class DanmakuListViewState extends State<DanmakuListView> {
                       itemCount: _visibleMessages.length,
                       itemBuilder: (_, index) {
                         final msg = _visibleMessages[_visibleMessages.length - 1 - index];
-                        final showSC = SettingsService.to.danmaku.showSuperChat.v;
-                        if (msg.type == LiveMessageType.superChat && !showSC) {
-                          return const SizedBox.shrink();
-                        }
                         // 礼物卡片显示开关按直播间保存，关掉后该房间整条不渲染
                         // （消息仍留在列表数据里，重新打开即恢复）。
                         if (msg.type == LiveMessageType.gift &&
@@ -367,7 +363,11 @@ class DanmakuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (danmaku.type == LiveMessageType.superChat && danmaku.data is LiveSuperChatMessage) {
+    // SC 总开关（主设置 → 播放体验）关闭时，醒目留言不再渲染成卡片，
+    // 而是继续往下走普通弹幕分支——消息本身仍然完整出现在弹幕列表里。
+    if (danmaku.type == LiveMessageType.superChat &&
+        danmaku.data is LiveSuperChatMessage &&
+        SettingsService.to.danmaku.showSuperChat.v) {
       return SuperChatCard(sc: danmaku.data as LiveSuperChatMessage);
     }
     if (danmaku.type == LiveMessageType.gift && danmaku.data is Map) {

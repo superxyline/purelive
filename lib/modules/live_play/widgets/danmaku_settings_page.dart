@@ -205,30 +205,6 @@ class _DanmakuSettingsPageState extends State<DanmakuSettingsContent> {
 
             const SizedBox(height: 20),
 
-            // 醒目留言目前只有 B站 会产生消息，其它平台不显示这个设置项
-            Obx(() {
-              if (_currentRoom?.platform != Sites.bilibiliSite) return const SizedBox.shrink();
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  context.buildGroupTitle(i18n("super_chat")),
-                  const SizedBox(height: 8),
-                  context.buildModernCard([
-                    _switch(
-                      theme,
-                      title: i18n("show_super_chat"),
-                      value: SettingsService.to.danmaku.showSuperChat.v,
-                      onChanged: (v) => SettingsService.to.danmaku.showSuperChat.v = v,
-                      labelColor: labelColor,
-                    ),
-                  ]),
-                ],
-              );
-            }),
-
-            const SizedBox(height: 20),
-
             context.buildGroupTitle(i18n('gift_effects')),
             const SizedBox(height: 8),
             reactiveCard(

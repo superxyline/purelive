@@ -108,6 +108,13 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n('local_interaction_settings_desc'),
               onTap: () => Get.to(() => const LocalInteractionSettingsPage()),
             ),
+            context.buildSwitchTile(
+              icon: Icons.chat_bubble_outline_rounded,
+              title: i18n('super_chat_switch'),
+              subtitle: i18n('super_chat_switch_desc'),
+              value: SettingsService.to.danmaku.showSuperChat,
+              isLong: true,
+            ),
           ]),
 
           const SizedBox(height: 20),

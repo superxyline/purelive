@@ -1322,6 +1322,8 @@
   "danmaku_no_emoji": "Pure text mode (hide emoji)",
   "super_chat": "Super Chat",
   "show_super_chat": "Show Super Chat (Bilibili)",
+  "super_chat_switch": "Show Super Chat (SC)",
+  "super_chat_switch_desc": "When off, SC cards no longer pop up in fullscreen; SC messages still appear as normal danmaku in the list (Bilibili only).",
   "gift_effects": "Gift Effects",
   "local_gift_fullscreen_effect": "Local Gift Fullscreen Animation",
   "fullscreen_gift_card": "Fullscreen gift cards",

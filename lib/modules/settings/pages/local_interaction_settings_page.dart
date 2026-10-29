@@ -48,8 +48,10 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
           // 与本地互动开关无关，因此固定显示在这个位置。
           context.buildGroupTitle(i18n('fullscreen_overlay_opacity')),
           context.buildModernCard([
-            Obx(
-              () => context.buildSliderTile(
+            Obx(() {
+              // 总开关关掉后全屏不再出现 SC 卡片，这一项跟着隐藏
+              if (!SettingsService.to.danmaku.showSuperChat.v) return const SizedBox.shrink();
+              return context.buildSliderTile(
                 context,
                 icon: Icons.chat_bubble_outline_rounded,
                 title: i18n('fullscreen_sc_opacity'),
@@ -58,8 +60,8 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
                 max: 1.0,
                 displayValue: '${(SettingsService.to.danmaku.fullscreenScOpacity.v * 100).round()}%',
                 onChanged: (v) => SettingsService.to.danmaku.fullscreenScOpacity.v = v,
-              ),
-            ),
+              );
+            }),
             Obx(
               () => context.buildSliderTile(
                 context,
