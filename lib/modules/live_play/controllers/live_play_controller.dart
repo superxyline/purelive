@@ -170,6 +170,11 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _fullscreenGiftWorkers.addAll([
       ever<bool>(GlobalPlayerState.to.isFullscreen, (_) => _onFullscreenToggled()),
       ever<bool>(GlobalPlayerState.to.isWindowFullscreen, (_) => _onFullscreenToggled()),
+      // SC 总开关（主设置 → 播放体验）关掉时，立刻收起可能正在显示的全屏卡片，
+      // 不必等它自然到期。列表侧的降级由 danmaku_list_view 按同一开关处理。
+      ever<bool>(SettingsService.to.danmaku.showSuperChat, (value) {
+        if (!value) hideFullscreenSC();
+      }),
     ]);
     Future.microtask(_initCore);
   }
@@ -546,7 +551,9 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   ///   if (sc is LiveSuperChatMessage) _main.handleSuperChatMessage(sc);
   /// }
   /// ```
-  /// 默认始终展示（当前分支尚无 showSuperChat 开关，直接显示）。
+  /// 默认展示；受主设置 → 播放体验 →「醒目留言（SC）」总开关控制：
+  /// 关闭时仍把消息加进弹幕列表（列表侧降级为普通弹幕样式），
+  /// 但不再触发全屏左下角卡片。
   void handleSuperChatMessage(LiveSuperChatMessage sc) {
     if (isClosed) return;
     addDanmakuMessage(
@@ -558,6 +565,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
         data: sc,
       ),
     );
+    if (!SettingsService.to.danmaku.showSuperChat.v) return;
     if (GlobalPlayerState.to.fullscreenUI) {
       showFullscreenSC(sc);
     }

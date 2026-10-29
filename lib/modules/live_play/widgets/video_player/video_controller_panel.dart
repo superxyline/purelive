@@ -326,7 +326,8 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 _buildVideoMaskHandles(context),
                 Obx(() {
                   final liveCtr = controller.livePlayController;
-                  final sc = liveCtr.fsSC.value;
+                  // 总开关关闭时直接当作没有 SC，避免残留的旧值把卡片又画出来
+                  final sc = SettingsService.to.danmaku.showSuperChat.v ? liveCtr.fsSC.value : null;
                   if (!GlobalPlayerState.to.fullscreenUI || sc == null) {
                     return const SizedBox.shrink();
                   }
@@ -358,7 +359,8 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   // 卡片锚点（8 方位），由弹幕设置 → 卡片位置 配置
                   final anchor = SettingsService.to.danmaku.giftCardAnchor.v;
                   // 底部系的基础位置：SC卡片下方（如果有SC则在SC下方，否则在控制栏上方）
-                  final sc = liveCtr.fsSC.value;
+                  // 总开关关掉时 SC 卡片不画，这里也不该为它留出高度
+                  final sc = SettingsService.to.danmaku.showSuperChat.v ? liveCtr.fsSC.value : null;
                   final double baseBottom;
                   if (controller.showController.value && !controller.showLocked.value) {
                     baseBottom = sc != null ? barHeight + _scCardSpaceEstimate : barHeight + 16;

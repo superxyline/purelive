@@ -1322,6 +1322,8 @@
   "danmaku_no_emoji": "纯文字模式（隐藏表情）",
   "super_chat": "醒目留言",
   "show_super_chat": "显示醒目留言（B站）",
+  "super_chat_switch": "显示醒目留言（SC）",
+  "super_chat_switch_desc": "关闭后全屏不再弹出 SC 卡片，弹幕列表里仍以普通弹幕显示（仅 B站 有醒目留言）。",
   "gift_effects": "礼物效果",
   "local_gift_fullscreen_effect": "本地礼物全屏动效",
   "fullscreen_gift_card": "全屏礼物卡片",

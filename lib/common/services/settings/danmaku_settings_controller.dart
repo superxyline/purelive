@@ -26,6 +26,11 @@ class DanmakuSettingsController extends GetxController {
 
   final RxBool hideDanmaku = hiveBool('hideDanmaku', false);
   final RxBool noEmojiMode = hiveBool('noEmojiMode', defaultNoEmojiMode);
+  /// 醒目留言（SC）总开关，主设置 → 播放体验。
+  ///
+  /// 关闭后：全屏不再弹出 SC 卡片（`fsSC` 也不再有值，礼物卡片不会被挤高），
+  /// 但 SC 消息**照常进入弹幕列表**，只是改为普通弹幕样式渲染。
+  /// 打开时：弹幕列表恢复 SC 卡片样式，全屏恢复左下角卡片弹出。
   final RxBool showSuperChat = hiveBool('showSuperChat', true);
   // 礼物特效/卡片类开关：首次安装默认全部关闭（2026-09-26 用户要求，仅可手动开启）
   final RxBool showLocalGiftFullscreenEffect = hiveBool('showLocalGiftFullscreenEffect', false);
