@@ -10,7 +10,7 @@ class EsportsMatch {
   /// 游戏名称（如：英雄联盟 / CS）
   final String gameName;
 
-  /// 归一化游戏标识：lol / cs / dota2 / other
+  /// 归一化游戏标识：lol / cs / valorant / other
   final String gameKey;
 
   /// 联赛名称（如：英雄联盟职业联赛 / Esports World Cup）

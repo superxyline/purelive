@@ -133,8 +133,6 @@ class EsportsReminderService {
         return '英雄联盟';
       case 'valorant':
         return 'VALORANT';
-      case 'dota2':
-        return 'DOTA2';
       default:
         return '电竞';
     }

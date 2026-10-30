@@ -1,6 +1,7 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/plugins/area_pic_mapper.dart';
+import 'package:pure_live/plugins/app_image_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class AreaCard extends StatefulWidget {
@@ -30,6 +31,7 @@ class _AreaCardState extends State<AreaCard> {
             key: ValueKey('$imageUrl#$epoch'),
             cacheKey: imageUrl,
             imageUrl: imageUrl,
+            cacheManager: AppImageCacheManager.instance,
             httpHeaders: networkImageHeaders(imageUrl),
             fit: BoxFit.cover,
             filterQuality: FilterQuality.low,

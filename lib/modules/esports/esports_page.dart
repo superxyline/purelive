@@ -4,13 +4,13 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/common_appbar_actions.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
 import 'package:pure_live/modules/esports/esports_match.dart';
+import 'package:pure_live/plugins/app_image_cache_manager.dart';
 import 'package:pure_live/modules/esports/favorite_match.dart';
 import 'package:pure_live/modules/esports/favorite_match_controller.dart';
 
 /// 赛事页：展示从昨天到 7 天后的电竞赛事日程。
 ///
-/// 数据源：完美世界电竞（CS2）+ lolesports 官方（LOL/VALORANT）
-/// + Liquipedia（DOTA2）。
+/// 数据源：完美世界电竞（CS2）+ lolesports 官方（LOL/VALORANT）。
 class EsportsPage extends GetView<EsportsController> {
   const EsportsPage({super.key});
 
@@ -211,7 +211,8 @@ class EsportsPage extends GetView<EsportsController> {
                   child: Text(name, overflow: TextOverflow.ellipsis),
                 ),
             ],
-            onChanged: (String? v) => controller.seriesFilter.value = v ?? '',
+            // 选赛事后把日期对齐到该赛事有比赛的那天，避免"暂无赛事"空列表
+            onChanged: (String? v) => controller.setSeriesFilter(v ?? ''),
           ),
         ),
       );
@@ -485,6 +486,7 @@ class _MatchCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         child: CachedNetworkImage(
           imageUrl: logo,
+          cacheManager: AppImageCacheManager.instance,
           width: 30,
           height: 30,
           fit: BoxFit.cover,

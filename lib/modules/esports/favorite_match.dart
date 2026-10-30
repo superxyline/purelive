@@ -3,7 +3,7 @@
 /// 被用户关注的赛事（用于通知栏到点提醒）。
 class FavoriteMatch {
   final String matchId;
-  final String gameKey; // cs / lol / valorant / dota2
+  final String gameKey; // cs / lol / valorant
   final int startTime; // unix 秒
   final String display;
 

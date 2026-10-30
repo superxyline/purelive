@@ -51,6 +51,23 @@ class BiliBiliDanmaku implements LiveDanmaku {
   int heartbeatTime = 30 * 1000;
   bool _connected = false;
 
+  /// 单条 WebSocket 消息的字节上限。正常弹幕消息远小于此值，
+  /// 超过即视为异常数据直接丢弃，避免把整条消息读进内存后才发现。
+  static const int maxMessageBytes = 4 * 1024 * 1024;
+
+  /// 单个压缩包（zlib / brotli）的压缩体上限。
+  static const int maxCompressedBodyBytes = 1024 * 1024;
+
+  /// 一条消息内**累计**解压输出的上限：压缩炸弹的典型形态是
+  /// 多层嵌套、每层都放大几十倍，只限制单次解压挡不住，必须累计记账。
+  static const int maxDecompressedBytes = 16 * 1024 * 1024;
+
+  /// 单层包流的最大帧数，防止构造海量 16 字节空帧空转 CPU。
+  static const int maxFramesPerStream = 4096;
+
+  /// 压缩通知包可以再套完整包流，最多允许嵌套 8 层。
+  static const int maxNestingDepth = 8;
+
   @override
   bool get isConnected => _connected;
 
@@ -226,8 +243,12 @@ class BiliBiliDanmaku implements LiveDanmaku {
 
   void decodeMessage(List<int> data) {
     try {
-      _decodePacketStream(data, depth: 0);
+      if (data.length > maxMessageBytes) {
+        throw FormatException('Bilibili danmaku message too large: ${data.length} bytes');
+      }
+      _decodePacketStream(data, depth: 0, budget: _DecodeBudget(maxDecompressedBytes));
     } catch (e) {
+      // 坏帧只终止当前这条消息：下一帧正常弹幕仍然继续进入列表与画面。
       CoreLog.error(e);
     }
   }
@@ -237,13 +258,17 @@ class BiliBiliDanmaku implements LiveDanmaku {
   /// plain JSON. Parsing the 16-byte frames recursively keeps packet-length
   /// bytes away from the JSON decoder and prevents valid DANMU_MSG events from
   /// being dropped.
-  void _decodePacketStream(List<int> data, {required int depth}) {
-    if (depth > 8) {
+  void _decodePacketStream(List<int> data, {required int depth, required _DecodeBudget budget}) {
+    if (depth > maxNestingDepth) {
       throw const FormatException('Bilibili danmaku packet nesting is too deep');
     }
 
     var offset = 0;
+    var frames = 0;
     while (offset + 16 <= data.length) {
+      if (++frames > maxFramesPerStream) {
+        throw FormatException('Bilibili danmaku frame count exceeds $maxFramesPerStream');
+      }
       final packetLength = readInt(data, offset, 4);
       final headerLength = readInt(data, offset + 4, 2);
       final protocolVersion = readInt(data, offset + 6, 2);
@@ -256,7 +281,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
       }
 
       final body = data.sublist(offset + headerLength, offset + packetLength);
-      _decodePacket(protocolVersion, operation, body, depth: depth);
+      _decodePacket(protocolVersion, operation, body, depth: depth, budget: budget);
       offset += packetLength;
     }
 
@@ -265,7 +290,13 @@ class BiliBiliDanmaku implements LiveDanmaku {
     }
   }
 
-  void _decodePacket(int protocolVersion, int operation, List<int> body, {required int depth}) {
+  void _decodePacket(
+    int protocolVersion,
+    int operation,
+    List<int> body, {
+    required int depth,
+    required _DecodeBudget budget,
+  }) {
     if (operation == 3) {
       if (body.length < 4) return;
       final online = readInt(body, 0, 4);
@@ -283,8 +314,18 @@ class BiliBiliDanmaku implements LiveDanmaku {
 
     if (operation == 5) {
       if (protocolVersion == 2 || protocolVersion == 3) {
+        if (body.length > maxCompressedBodyBytes) {
+          throw FormatException('Bilibili danmaku compressed body too large: ${body.length} bytes');
+        }
         final decoded = protocolVersion == 2 ? zlib.decode(body) : brotli.decode(body);
-        _decodePacketStream(decoded, depth: depth + 1);
+        // 累计记账：单层限制挡不住"每层放大几十倍"的嵌套炸弹。
+        if (!budget.consume(decoded.length)) {
+          throw FormatException(
+            'Bilibili danmaku decompressed size exceeds budget: ${decoded.length} bytes, '
+            'remaining=${budget.remaining}',
+          );
+        }
+        _decodePacketStream(decoded, depth: depth + 1, budget: budget);
       } else {
         final text = utf8.decode(body, allowMalformed: true).trim();
         if (text.isNotEmpty) parseMessage(text);
@@ -546,5 +587,22 @@ class BiliBiliDanmaku implements LiveDanmaku {
     }
 
     return result;
+  }
+}
+
+/// 单条 WebSocket 消息的解压预算，跨递归层级累计扣减。
+///
+/// B站压缩通知包（protover 2/3）里可以再套完整包流，每层都可能翻倍放大；
+/// 只限制单次解压挡不住这种放大链，所以用共享预算做硬边界。
+class _DecodeBudget {
+  _DecodeBudget(this.remaining);
+
+  int remaining;
+
+  bool consume(int bytes) {
+    if (bytes <= 0) return true;
+    if (bytes > remaining) return false;
+    remaining -= bytes;
+    return true;
   }
 }

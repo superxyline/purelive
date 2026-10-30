@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/common/utils/network_image_url.dart';
+import 'package:pure_live/plugins/app_image_cache_manager.dart';
 
 class CommonAvatar extends StatelessWidget {
   final String? avatarUrl;
@@ -39,6 +40,8 @@ class CommonAvatar extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: normalizedAvatarUrl,
           cacheKey: normalizedAvatarUrl,
+          // 统一走带应用代理的图片缓存：开了网络代理时头像也能加载
+          cacheManager: AppImageCacheManager.instance,
           httpHeaders: networkImageHeaders(normalizedAvatarUrl),
           fit: BoxFit.cover,
           filterQuality: FilterQuality.low,

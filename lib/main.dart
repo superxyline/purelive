@@ -15,6 +15,7 @@ import 'package:pure_live/common/utils/update_checker.dart';
 import 'package:pure_live/modules/esports/esports_reminder_service.dart';
 import 'package:pure_live/domains/wallpaper/domain/background_controller.dart';
 import 'package:pure_live/domains/wallpaper/presentation/app_background.dart';
+import 'package:pure_live/common/services/share_intent_service.dart';
 
 /// 安卓返回键修复：MIUI 手势返回有时以按键事件（KEYCODE_BACK→goBack）形式
 /// 送入 Flutter 键盘管线，而引擎对该键的"重派发→onBackPressed"链路存在丢事件
@@ -80,6 +81,8 @@ class _MyAppState extends State<MyApp> {
     // 观看统计先于快捷方式注册：快捷方式的数据源是观看时长 Top3 主播
     Get.put(WatchStatsService());
     Get.put(RecentRoomsService());
+    // 其他 App 分享链接直达直播间（仅 Android 原生侧有通道）
+    if (!PlatformUtils.isWeb) Get.put(ShareIntentService());
     // 按直播间维度的礼物卡片屏蔽
     Get.put(RoomGiftBlockService());
     // 按直播间维度的视频遮挡块（模糊框）

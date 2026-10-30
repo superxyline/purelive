@@ -22,6 +22,7 @@ class MainActivity : AudioServiceActivity() {
         private const val DISPLAY_MODE_CHANNEL = "pure_live/display_mode"
         private const val BACKGROUND_PLAYBACK_CHANNEL = "pure_live/background_playback"
         private const val APP_SHORTCUTS_CHANNEL = "pure_live/app_shortcuts"
+        private const val SHARE_CHANNEL = "pure_live/share"
         private const val LOCAL_NETWORK_CHANNEL = "pure_live/local_network"
         private const val LOCAL_NETWORK_REQUEST_CODE = 0x4C4E
         private const val EXTRA_SHORTCUT_ROOM = "pure_live.shortcut.ROOM"
@@ -32,7 +33,9 @@ class MainActivity : AudioServiceActivity() {
     private var highRefreshRateEnabled = true
     private var displayModeChannel: MethodChannel? = null
     private var appShortcutsChannel: MethodChannel? = null
+    private var shareChannel: MethodChannel? = null
     private var pendingShortcutRoom: String? = null
+    private var pendingShareText: String? = null
     private var displayListenerRegistered = false
     private val mainHandler = Handler(Looper.getMainLooper())
     private val displayModeRefresh = Runnable {
@@ -71,6 +74,20 @@ class MainActivity : AudioServiceActivity() {
             }
         }
         pendingShortcutRoom = intent?.getStringExtra(EXTRA_SHORTCUT_ROOM)
+        shareChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            SHARE_CHANNEL,
+        ).also { channel ->
+            channel.setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getPendingShare" -> result.success(consumePendingShareText())
+                    else -> result.notImplemented()
+                }
+            }
+        }
+        // 冷启动：分享进来的链接在 Flutter 起来之前就到了，这里先存起来，
+        // Dart 侧注册好 handler 后会主动 getPendingShare 取走。
+        captureShareText(intent)
         displayModeChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             DISPLAY_MODE_CHANNEL,
@@ -125,6 +142,30 @@ class MainActivity : AudioServiceActivity() {
             pendingShortcutRoom = shortcutRoom
             appShortcutsChannel?.invokeMethod("onShortcut", shortcutRoom)
         }
+        // 热启动：App 已在后台，直接把分享文本推给 Dart 侧
+        captureShareText(intent)
+    }
+
+    /// 取分享进来的直播链接文本（`ACTION_SEND` 的 EXTRA_TEXT，或 `ACTION_VIEW` 的 data）。
+    ///
+    /// 只接管含 http 的内容：`purelive://`、`content://`、`file://` 这类自有 scheme
+    /// 走的是别的入口，交给链接解析只会误报"不支持"。
+    private fun captureShareText(intent: Intent?) {
+        if (intent == null) return
+        val raw = when (intent.action) {
+            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
+            Intent.ACTION_VIEW -> intent.dataString
+            else -> null
+        }?.trim()
+        if (raw.isNullOrEmpty() || !raw.contains("http")) return
+        pendingShareText = raw
+        shareChannel?.invokeMethod("onShare", raw)
+    }
+
+    private fun consumePendingShareText(): String? {
+        val value = pendingShareText
+        pendingShareText = null
+        return value
     }
 
     private fun consumePendingShortcutRoom(): String? {
