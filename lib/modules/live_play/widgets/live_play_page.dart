@@ -700,6 +700,12 @@ class LivePlayPage extends GetView<LivePlayController> {
                   if (state.room.success && videoController != null) {
                     return VideoPlayer(controller: videoController);
                   }
+                  // 取房间详情失败：显示原因和重试入口，而不是一直转圈或只弹一次 Toast。
+                  // 重试时 onInitPlayerState 会先清空 loadError，所以不会挡住 loading。
+                  final loadError = state.room.loadError;
+                  if (loadError != null && !state.room.isLoading) {
+                    return RoomLoadErrorView(controller: controller, message: loadError);
+                  }
                   if (state.room.isLoading || state.room.isLiving) {
                     return buildLoading();
                   }
@@ -1447,6 +1453,70 @@ class _RoomInfoOsdState extends State<_RoomInfoOsd> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 直播间加载失败视图：显示失败原因 + 重试入口。
+///
+/// 此前失败只有一次 Toast，视频区域会停在"未开播"视图或一直转圈，
+/// 用户既不知道原因也没有重试的地方（对照上游 3.2.1）。
+class RoomLoadErrorView extends StatelessWidget {
+  const RoomLoadErrorView({super.key, required this.controller, required this.message});
+
+  final LivePlayController controller;
+  final String message;
+
+  /// 平台/网络异常原文通常带 `Exception:` 之类前缀，展示前去掉。
+  static String cleanMessage(String raw) {
+    final text = raw
+        .replaceFirst(RegExp(r'^(Exception|Error|FormatException|StateError|TimeoutException|SocketException):\s*'), '')
+        .trim();
+    return text.isEmpty ? raw.trim() : text;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = cleanMessage(message);
+    return Material(
+      type: MaterialType.transparency,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.wifi_off_rounded, size: 40, color: Colors.white54),
+              const SizedBox(height: 12),
+              Text(
+                i18n('room_load_failed'),
+                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+              if (text.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  text,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
+                ),
+              ],
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: () => controller.onInitPlayerState(),
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: Text(i18n('retry')),
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

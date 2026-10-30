@@ -12,6 +12,7 @@ import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_composer.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_message_actions.dart';
+import 'package:pure_live/plugins/app_image_cache_manager.dart';
 
 bool isDanmakuUserScrollStart(ScrollNotification notification) {
   // 只认带真实指针拖动的通知。曾经的第三分支（UserScroll != idle）会把程序
@@ -488,6 +489,7 @@ class SuperChatCard extends StatelessWidget {
           ? placeholder()
           : CachedNetworkImage(
               imageUrl: sc.face,
+              cacheManager: AppImageCacheManager.instance,
               width: 40,
               height: 40,
               fit: BoxFit.cover,

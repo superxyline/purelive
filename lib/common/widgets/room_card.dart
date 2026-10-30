@@ -4,6 +4,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/widgets/common_avatar.dart';
+import 'package:pure_live/plugins/app_image_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/common/utils/share_command_handler.dart';
 import 'package:pure_live/modules/live_play/widgets/live_room_info_page.dart';
@@ -45,6 +46,7 @@ class RoomCard extends StatelessWidget {
             // the same room cover on every scheduled thumbnail refresh.
             cacheKey: coverUrl,
             imageUrl: coverUrl,
+            cacheManager: AppImageCacheManager.instance,
             httpHeaders: networkImageHeaders(coverUrl),
             fit: BoxFit.cover,
             filterQuality: FilterQuality.low,

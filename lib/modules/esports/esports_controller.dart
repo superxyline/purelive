@@ -9,12 +9,11 @@ import 'package:pure_live/modules/esports/esports_reminder_service.dart';
 import 'package:pure_live/common/utils/hive_pref_util.dart';
 
 /// 赛事页控制器：加载 完美世界(CS) + lolesports(LOL/Valorant) 赛事日程。
-/// Dota2 数据源暂未接入，筛选时显示占位提示。
 class EsportsController extends GetxController {
   final EsportsService _service = EsportsService();
   final EsportsReminderService _reminderService = EsportsReminderService();
 
-  /// 游戏筛选：0=全部 1=CS 2=Dota2 3=英雄联盟 4=Valorant
+  /// 游戏筛选：0=全部 1=CS 2=英雄联盟 3=Valorant
   final RxInt gameFilter = 1.obs;
 
   /// 赛事名筛选（空字符串 = 全部赛事）
@@ -43,7 +42,6 @@ class EsportsController extends GetxController {
   static const List<String> gameFilterKeys = [
     'esports_filter_all',
     'esports_filter_cs',
-    'esports_filter_dota2',
     'esports_filter_lol',
     'esports_filter_valorant',
   ];
@@ -51,9 +49,8 @@ class EsportsController extends GetxController {
   /// 归一化游戏标识集合
   static const Map<int, String> _filterGameKeys = {
     1: 'cs',
-    2: 'dota2',
-    3: 'lol',
-    4: 'valorant',
+    2: 'lol',
+    3: 'valorant',
   };
 
   /// 冷启动预取缓存：App 启动后在后台预取赛事数据，进入赛事页时直接命中缓存，
@@ -63,6 +60,11 @@ class EsportsController extends GetxController {
   /// 持久化缓存：网络加载成功后写入本地，跨启动生效。
   /// 下次启动先展示缓存内容（不转圈），随后后台刷新覆盖。
   static const String _cacheStorageKey = 'esportsMatchesCacheV1';
+
+  /// 过滤已下线的游戏：Dota2 没有可用的赛事数据源，已从筛选与抓取里移除。
+  /// 历史持久缓存（esportsMatchesCacheV1）里可能还留着旧数据，统一在这里挡掉。
+  static List<EsportsMatch> _withoutRetiredGames(Iterable<EsportsMatch> list) =>
+      list.where((m) => m.gameKey != 'dota2').toList();
 
   static void _writeDiskCache(List<EsportsMatch> list) {
     if (list.isEmpty) return;
@@ -162,7 +164,7 @@ class EsportsController extends GetxController {
         final now = DateTime.now();
         final from = DateTime(now.year, now.month, now.day);
         final to = from.add(const Duration(days: 8)).subtract(const Duration(seconds: 1));
-        matches.assignAll(cached);
+        matches.assignAll(_withoutRetiredGames(cached));
         loadedFrom = from;
         loadedTo = to;
         unawaited(loadData());
@@ -202,7 +204,7 @@ class EsportsController extends GetxController {
           if (!hasMatchToday) dateFilter.value = null;
         }
       }
-      matches.assignAll(list);
+      matches.assignAll(_withoutRetiredGames(list));
       if (list.isEmpty) {
         error.value = 'esports_load_failed';
       } else {
@@ -227,8 +229,52 @@ class EsportsController extends GetxController {
     seriesFilter.value = '';
   }
 
-  /// 当前筛选是否为 Dota2（用于页面显示"暂未接入"提示）
-  bool get isDota2Filter => gameFilter.value == 2;
+  /// 选择赛事：选完后把日期对齐到该赛事实际有比赛的那一天。
+  ///
+  /// 日期筛选默认停在"今天"，而很多赛事（尤其 CS 的 T1/T2 联赛）首日排在几天后，
+  /// 直接选过去只会看到"该时间段暂无赛事"。这里的规则：
+  /// 1. 赛事首日**在当前日期之后** → 跳到该赛事首日；
+  /// 2. 当前日期该赛事没有场次（例如赛事已开赛但今天休赛）→ 跳到最近的场次日；
+  /// 3. 当前日期本来就有场次 → 保持不动（用户可能就想看今天）。
+  /// `dateFilter` 为 null（全部日期）时不做调整。
+  void setSeriesFilter(String value) {
+    seriesFilter.value = value;
+    _alignDateToSeries(value);
+  }
+
+  void _alignDateToSeries(String series) {
+    final selectedDay = dateFilter.value;
+    if (series.isEmpty || selectedDay == null) return;
+
+    final days = matches
+        .where((m) => m.seriesName == series)
+        .map((m) => DateTime(m.startDateTime.year, m.startDateTime.month, m.startDateTime.day))
+        .toSet()
+        .toList()
+      ..sort();
+    if (days.isEmpty) return;
+
+    final current = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+    if (days.any((d) => _isSameDay(d, current))) return;
+
+    // 赛事整体在当前日期之后：直接跳到首日
+    if (days.first.isAfter(current)) {
+      final target = days.first;
+      if (_isSelectableDate(target)) dateFilter.value = target;
+      return;
+    }
+
+    // 赛事已开赛但今天（或所选日）没有场次：跳到之后的第一个比赛日，
+    // 全都已结束时退回最后一天，至少不显示空列表。
+    final target = days.firstWhere((d) => d.isAfter(current), orElse: () => days.last);
+    if (_isSelectableDate(target)) dateFilter.value = target;
+  }
+
+  /// 日期下拉只列出"今天 ~ +7 天"，写入其他日期会让 DropdownButton 的
+  /// value 不在 items 里直接断言失败（过期的持久缓存里可能带昨天的场次）。
+  bool _isSelectableDate(DateTime day) => dateFilterOptions.any((d) => _isSameDay(d, day));
+
+  static bool _isSameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
 
   /// 日期筛选选项：今天 到 +7 天
   List<DateTime> get dateFilterOptions {
@@ -248,7 +294,6 @@ class EsportsController extends GetxController {
   }
 
   /// 当前筛选下的赛事列表（游戏 + 赛事名 + 日期 三级过滤）。
-  /// Dota2（key=dota2）暂未接入数据源，恒为空列表。
   List<EsportsMatch> get filteredMatches {
     Iterable<EsportsMatch> list = matches;
     final key = _filterGameKeys[gameFilter.value];
