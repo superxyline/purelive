@@ -6,7 +6,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/core/common/core_log.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/player/utils/orientation_policy.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';

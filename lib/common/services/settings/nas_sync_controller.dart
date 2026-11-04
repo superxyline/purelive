@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:pure_live/get/get.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/models/live_room.dart';
-import 'package:pure_live/common/services/utils/hive_rx.dart';
 import 'package:pure_live/core/common/http_client.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
@@ -173,7 +170,7 @@ class NasSyncController extends GetxController {
     }
     // 屏蔽并集：关键词/屏蔽用户只加不删；按房间礼物屏蔽同 key 礼物名取并集
     if (shields != null) {
-      final mergeList = (dynamic v) => (v as List?)
+      List<String> mergeList(dynamic v) => (v as List?)
           ?.map((e) => e?.toString() ?? '')
           .where((s) => s.trim().isNotEmpty)
           .toList() ??

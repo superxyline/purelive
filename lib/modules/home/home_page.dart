@@ -13,7 +13,6 @@ import 'package:pure_live/modules/favorite/favorite_page.dart';
 import 'package:pure_live/modules/esports/esports_page.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
 import 'package:pure_live/modules/esports/favorite_match_controller.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

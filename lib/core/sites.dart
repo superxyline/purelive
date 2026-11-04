@@ -6,7 +6,6 @@ import 'site/web/proxy_site.dart';
 import 'interface/live_site.dart';
 
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 
 class Sites {

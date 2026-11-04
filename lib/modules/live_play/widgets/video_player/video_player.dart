@@ -23,7 +23,7 @@ class _AmbientBackdrop extends StatelessWidget {
         : Image.network(
             cover,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => fallback,
+            errorBuilder: (_, _, _) => fallback,
           );
     return ClipRect(
       child: Stack(

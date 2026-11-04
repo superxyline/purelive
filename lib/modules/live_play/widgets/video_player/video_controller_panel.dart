@@ -9,7 +9,6 @@ import 'package:flame_barrage/flame_barrage.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
 import 'package:pure_live/player/utils/orientation_policy.dart';
 import 'package:pure_live/common/utils/live_url_tool.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/modules/live_play/states/load_type.dart';
 import 'package:pure_live/modules/live_play/widgets/play_other.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';

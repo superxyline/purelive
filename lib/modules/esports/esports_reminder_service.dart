@@ -4,7 +4,6 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/esports/esports_match.dart';
 import 'package:pure_live/modules/esports/favorite_match_controller.dart';
 import 'package:pure_live/modules/esports/esports_service.dart';
-import 'package:pure_live/routes/route_path.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/widgets.dart';
 
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/states/load_type.dart';

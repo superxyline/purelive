@@ -10,7 +10,6 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:pure_live/common/utils/hive_pref_util.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/global/initial_services.dart';
 import 'package:pure_live/common/services/utils/settings_upgrade_migration.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';

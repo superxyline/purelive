@@ -3,7 +3,6 @@ import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:pure_live/modules/settings/pages/audience_metric_settings_page.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 class GeneralSettingsPage extends GetView<SettingsService> {
   const GeneralSettingsPage({super.key});

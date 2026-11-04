@@ -2,7 +2,6 @@
 import 'package:flutter/services.dart';
 
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/global/platform/mobile_manager.dart';
 
 /// 直播间退出兜底：任何路径离开直播间后调用，恢复手机竖屏与系统栏，
