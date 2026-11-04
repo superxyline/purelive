@@ -31,6 +31,7 @@ import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/compact_danmaku_overlay.dart';
+import 'package:pure_live/player/core/audio_companion_service.dart';
 
 /// release 构建下 dart:developer 的 log 不输出到 logcat——改走 debugPrint，
 /// 保证换线/降级/卡死等关键诊断日志在 logcat（I/flutter）里可见。
@@ -491,19 +492,24 @@ class PlayerManager {
     }
   }
 
-  Future<void> pause({String source = 'unspecified'}) async {
+  /// [syncCompanion] 为 false 时不动副音轨——用户用副音轨面板"暂停画面"对齐音画时，
+  /// 画面要停、声音必须继续放，否则没得对。
+  Future<void> pause({String source = 'unspecified', bool syncCompanion = true}) async {
     _pausedIntentionally = true;
     _disarmStoppedWatchdog();
     log('[PauseTrace] pause() src=$source engine=${_runtimeEngine?.name}'
         ' session=$_sessionId playing=$isPlayingNow');
     await _currentPlayer?.pause();
+    // 副音轨跟随暂停，否则画面停了副音轨还在响（睡眠定时结束同理）
+    if (syncCompanion) await AudioCompanionService.instance.pausePlayback();
   }
 
-  Future<void> resume({String source = 'unspecified'}) async {
+  Future<void> resume({String source = 'unspecified', bool syncCompanion = true}) async {
     _pausedIntentionally = false;
     log('[PauseTrace] resume() src=$source engine=${_runtimeEngine?.name}'
         ' session=$_sessionId playing=$isPlayingNow');
     await _currentPlayer?.play();
+    if (syncCompanion) await AudioCompanionService.instance.resumePlayback();
   }
 
   Future<void> stop() async {
@@ -511,7 +517,30 @@ class PlayerManager {
     closeAppFloating();
   }
 
+  /// 当前播放器的画面组件（副音轨的"音画对齐预览"要在同一屏渲染主画面）
+  Widget? get currentVideoWidget => _currentPlayer?.getVideoWidget();
+
   Future<void> setVolume(double volume) async {
+    final v = volume.clamp(0.0, 1.0);
+    // 副音轨接管音频时（桌面端走内核音量），音量调整作用在副音轨上，
+    // 主播放器保持静音，这样音量滑块/静音快捷键仍是"调你现在听到的声音"。
+    // 移动端的音量是系统媒体音量，两路天然一致，无需转发。
+    final companion = AudioCompanionService.instance;
+    if (companion.isActive.value) {
+      await companion.setVolume(v);
+      await _currentPlayer?.setVolume(0);
+      return;
+    }
+    await _currentPlayer?.setVolume(v);
+  }
+
+  /// 副音轨接管：把主播放器内核音量置 0。直接透传，不走上面的转发分支。
+  Future<void> muteMainForCompanion() async {
+    await _currentPlayer?.setVolume(0);
+  }
+
+  /// 副音轨结束：把原本的音量还给主播放器。
+  Future<void> restoreMainVolume(double volume) async {
     await _currentPlayer?.setVolume(volume.clamp(0.0, 1.0));
   }
 
@@ -1006,6 +1035,9 @@ class PlayerManager {
     _pinchResetTicker = null;
     pinchTransform.value = Matrix4.identity();
     await LiveAudioService.stop();
+    // 退出直播间时确保副音轨一并停止（不跨房间保留），
+    // 避免出现"画面已关、声音还在"的残留播放。
+    await AudioCompanionService.instance.stop();
     SettingsService.to.player.useHardStopOnExit.v ? await hardDispose() : await softStop();
     _isClosing = false;
   }

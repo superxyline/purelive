@@ -6,9 +6,12 @@ import 'package:pure_live/common/index.dart';
 /// 提供"收藏 / 搜索"两个标签：收藏直接挑一个已收藏的主播，
 /// 搜索支持按平台搜索直播间。选中后通过 [onPicked] 回调交给副窗口。
 class DualViewPickerSheet extends StatefulWidget {
-  const DualViewPickerSheet({super.key, required this.onPicked});
+  const DualViewPickerSheet({super.key, required this.onPicked, this.title});
 
   final ValueChanged<LiveRoom> onPicked;
+
+  /// 自定义标题；为空时用双开的默认标题（副音轨复用同一面板）
+  final String? title;
 
   @override
   State<DualViewPickerSheet> createState() => _DualViewPickerSheetState();
@@ -64,7 +67,7 @@ class _DualViewPickerSheetState extends State<DualViewPickerSheet>
               children: [
                 Expanded(
                   child: Text(
-                    i18n("dual_view_select_title"),
+                    widget.title ?? i18n("dual_view_select_title"),
                     style: AppTextStyles.t16.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

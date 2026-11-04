@@ -23,6 +23,7 @@ import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_message_actions.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/common/services/gravity_fullscreen_service.dart';
+import 'package:pure_live/player/core/audio_companion_service.dart';
 
 typedef AudioOnlyCallback = Future<void> Function(bool value);
 
@@ -389,6 +390,11 @@ class VideoController with ChangeNotifier {
 
   Future<void> _playVideo() async {
     await _playerManager.play(datasource, playUrs, headers, room: room, audioOnly: isAudioOnly);
+    // 副音轨接管期间每次重新起播（切清晰度/换线/重新进流）都要把主窗口压回静音，
+    // 否则新播放器的默认音量会让画面和副音轨同时出声。
+    if (AudioCompanionService.instance.isActive.value) {
+      await _playerManager.muteMainForCompanion();
+    }
   }
 
   void _setupDefaultFullscreen() {
