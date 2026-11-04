@@ -16,6 +16,7 @@ import 'package:pure_live/core/danmaku/huya_danmaku.dart';
 import 'package:pure_live/core/danmaku/douyin_danmaku.dart';
 import 'package:pure_live/player/core/live_audio_service.dart';
 import 'package:pure_live/player/core/secondary_player_service.dart';
+import 'package:pure_live/player/core/audio_companion_service.dart';
 import 'package:pure_live/modules/live_play/states/ui_state.dart';
 import 'package:pure_live/modules/live_play/states/load_type.dart';
 import 'package:pure_live/modules/live_play/states/room_state.dart';
@@ -1189,7 +1190,37 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     }
     // 退出直播间时结束双开副窗口，避免再次进入直播间时残留
     unawaited(SecondaryPlayerService.instance.close());
+    // 副音轨同样不跨直播间保留：退出即释放，下次进房恢复本房间声音
+    unawaited(AudioCompanionService.instance.stop());
     super.onClose();
+  }
+
+  /// 副音轨接管前的原音量（关闭时还原）
+  double _mainVolumeBeforeCompanion = 1.0;
+
+  /// 开启副音轨：画面仍是当前直播间，声音换成 [target] 的解说。
+  ///
+  /// 成功后把主播放器的内核音量压到 0（不动系统媒体音量），
+  /// 于是音量键/音量滑块依然整体作用于"你现在听到的声音"。
+  Future<bool> enableAudioCompanion(LiveRoom target) async {
+    final manager = GlobalPlayerService.instance.playerManager;
+    final detail = state.value.room.detail;
+    _mainVolumeBeforeCompanion = PlatformHelper.isDesktop ? (detail?.getSavedVolume() ?? 1.0) : 1.0;
+    final ok = await AudioCompanionService.instance.start(target);
+    if (!ok) {
+      final message = AudioCompanionService.instance.error.value;
+      ToastUtil.show(message.isEmpty ? i18n('audio_companion_failed') : message);
+      return false;
+    }
+    await manager.muteMainForCompanion();
+    return true;
+  }
+
+  /// 关闭副音轨，把声音还给当前直播间。
+  Future<void> disableAudioCompanion() async {
+    if (!AudioCompanionService.instance.isActive.value) return;
+    await AudioCompanionService.instance.stop();
+    await GlobalPlayerService.instance.playerManager.restoreMainVolume(_mainVolumeBeforeCompanion);
   }
 }
 

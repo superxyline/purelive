@@ -65,7 +65,7 @@ class SecondaryPlayerService {
         isFailed.value = true;
         return;
       }
-      final headers = _buildStreamHeaders(platform);
+      final headers = buildStreamHeaders(platform);
       await adapter.setDataSource(urls.first, urls, headers, room: detail);
       await adapter.setVolume(0); // 副窗口静音，音频只来自主窗口
       await adapter.play();
@@ -113,7 +113,8 @@ class SecondaryPlayerService {
   }
 
   /// 构造直播流请求头（与主播放器保持一致）。
-  Map<String, String> _buildStreamHeaders(String platform) {
+  /// 双开副窗口与副音轨共用。
+  static Map<String, String> buildStreamHeaders(String platform) {
     switch (platform) {
       case Sites.bilibiliSite:
         return {

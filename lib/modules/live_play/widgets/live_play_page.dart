@@ -23,6 +23,8 @@ import 'package:pure_live/player/utils/orientation_policy.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller_panel.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/player/core/secondary_player_service.dart';
+import 'package:pure_live/player/core/audio_companion_service.dart';
+import 'package:pure_live/modules/live_play/widgets/audio_companion/audio_companion_align_page.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/dual_view_picker_sheet.dart';
 import 'package:pure_live/modules/live_play/widgets/dual_view/secondary_window.dart';
 
@@ -427,11 +429,13 @@ class LivePlayPage extends GetView<LivePlayController> {
               } else if (index == 8) {
                 _openDualViewPicker(context);
               } else if (index == 9) {
+                unawaited(_openAudioCompanion(context));
+              } else if (index == 10) {
                 final osd = SettingsService.to.app.showRoomInfoOsd;
                 osd.v = !osd.v;
                 ToastUtil.show(osd.v ? i18n('room_info_osd_on') : i18n('room_info_osd_off'));
-              } else if (index >= 10 && index < 10 + VideoMaskService.maxSlots) {
-                final slot = index - 10;
+              } else if (index >= 11 && index < 11 + VideoMaskService.maxSlots) {
+                final slot = index - 11;
                 final maskRoom = controller.state.value.room.detail ?? controller.room;
                 // 该槽位第一次设遮罩时才提示操作方式；关掉再打开会沿用上次
                 // 调好的位置，不需要再提示一次。
@@ -513,6 +517,27 @@ class LivePlayPage extends GetView<LivePlayController> {
                   value: 9,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: MenuListTile(
+                    leading: const Icon(Remix.headphone_line, size: 20),
+                    text: i18n('audio_companion_menu'),
+                    trailing: Obx(() {
+                      final service = AudioCompanionService.instance;
+                      final on = service.isActive.value;
+                      final name = service.room.value?.nick ?? '';
+                      return Text(
+                        on
+                            ? (name.isEmpty ? i18n('audio_companion_on') : name)
+                            : i18n('audio_companion_off'),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: on ? Theme.of(context).colorScheme.primary : Theme.of(context).hintColor,
+                            ),
+                      );
+                    }),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 10,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: MenuListTile(
                     leading: const Icon(Icons.info_outline_rounded, size: 20),
                     text: i18n('room_info_osd'),
                     trailing: Obx(() {
@@ -530,7 +555,7 @@ class LivePlayPage extends GetView<LivePlayController> {
                 // 关掉只是隐藏，位置会记住，下次打开原样恢复。
                 for (int slot = 0; slot < VideoMaskService.maxSlots; slot++)
                   PopupMenuItem(
-                    value: 10 + slot,
+                    value: 11 + slot,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Builder(
                       builder: (context) {
@@ -674,6 +699,33 @@ class LivePlayPage extends GetView<LivePlayController> {
         onPicked: (room) {
           Navigator.of(ctx).pop();
           SecondaryPlayerService.instance.loadRoom(room);
+        },
+      ),
+    );
+  }
+
+  /// 副音轨：画面留给当前直播间，声音换成另一个直播间的解说。
+  /// 开启后直接进"双画面对比"页做对齐；已开启时再次点击也回到该页。
+  Future<void> _openAudioCompanion(BuildContext context) async {
+    final service = AudioCompanionService.instance;
+    if (service.isActive.value) {
+      Get.to(() => AudioCompanionAlignPage(controller: controller));
+      return;
+    }
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DualViewPickerSheet(
+        title: i18n('audio_companion_pick_title'),
+        onPicked: (room) async {
+          Navigator.of(ctx).pop();
+          final ok = await controller.enableAudioCompanion(room);
+          if (!ok) return;
+          final name = room.nick?.isNotEmpty == true ? room.nick! : (room.roomId ?? '');
+          ToastUtil.show(i18n('audio_companion_enabled', args: {'room': name}));
+          // 选完直接进双画面对比，用户在这里对齐好再退出
+          Get.to(() => AudioCompanionAlignPage(controller: controller));
         },
       ),
     );

@@ -581,6 +581,24 @@ class MediaKitAdapter implements UnifiedPlayer {
     await _player.setVolume(vol);
   }
 
+  /// 是否以纯音频模式初始化完成（副音轨复用时用来判断能否直接接着用）。
+  bool get audioInited => _initialized && _isAudioOnly;
+
+  /// 运行时开关视频轨解码。
+  ///
+  /// 注意：mpv 在 `video=no` 之后再恢复（`yes`）并不能可靠地重新选轨，
+  /// 会出现"有声音没画面"，所以副音轨现在**始终开着视频解码**（用的最低清晰度，
+  /// 开销很小），只在需要时把画面组件渲染出来。此方法保留给"明确要关闭"的场景。
+  Future<void> setVideoDecodingEnabled(bool enabled) async {
+    if (!_initialized) return;
+    final platform = _player.platform;
+    if (platform is! NativePlayer) return;
+    try {
+      await platform.setProperty('vid', enabled ? 'auto' : 'no');
+      await platform.setProperty('video', enabled ? 'auto' : 'no');
+    } catch (_) {}
+  }
+
   // =========================
   // applyAudioOnlySettings
   // =========================
