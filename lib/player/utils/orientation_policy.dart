@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:flutter/widgets.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/player/core/portrait_stream_support.dart';
-import 'package:pure_live/player/global_player_service.dart';
 
 /// 竖屏沉浸方向策略（上游 `PortraitFullscreenPolicy` / `PortraitOrientationOverride`
 /// 的接线层）。决策优先级：每房间覆盖 > 全局策略（默认 landscape 保持旧行为）。
@@ -94,11 +91,5 @@ class OrientationPolicy {
     } catch (_) {
       return false;
     }
-  }
-
-  /// 源方向枚举快捷读取（对齐上游 VideoSourceOrientation 语义）。
-  static VideoSourceOrientation get sourceOrientation {
-    final vertical = GlobalPlayerService.instance.playerManager.isVerticalVideo.value;
-    return vertical ? VideoSourceOrientation.portrait : VideoSourceOrientation.landscape;
   }
 }

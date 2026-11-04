@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pure_live/common/index.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 class ShareCommandHandler {
   static final ShareCommandHandler instance = ShareCommandHandler._internal();

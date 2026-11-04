@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 class AppSettingsController extends GetxController {
   static const int maxSleepMinutes = 525600;

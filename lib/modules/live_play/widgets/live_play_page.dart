@@ -6,7 +6,6 @@ import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/event_bus.dart';
 import 'package:pure_live/common/utils/live_url_tool.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/index.dart' hide BackButton;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pure_live/modules/live_play/states/ui_state.dart';

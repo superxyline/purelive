@@ -13,7 +13,6 @@ import '../utils/shader_utils.dart';
 
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:media_kit/media_kit.dart' hide PlayerState;
-import 'package:pure_live/common/global/platform_utils.dart';
 
 class MediaKitAdapter implements UnifiedPlayer {
   late final Player _player;

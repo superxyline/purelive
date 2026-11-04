@@ -97,7 +97,7 @@ class _BackupPageState extends State<BackupPage> {
                               child: ListView.separated(
                                 shrinkWrap: true,
                                 itemCount: results!.length,
-                                separatorBuilder: (_, __) => const Divider(height: 1),
+                                separatorBuilder: (_, _) => const Divider(height: 1),
                                 itemBuilder: (_, i) {
                                   final s = results![i];
                                   return ListTile(

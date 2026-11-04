@@ -1,7 +1,6 @@
 
 import 'package:pure_live/common/index.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/player/core/live_audio_handler.dart';
 import 'package:pure_live/player/core/background_playback_service.dart';
 import 'package:pure_live/player/interface/unified_player_interface.dart';

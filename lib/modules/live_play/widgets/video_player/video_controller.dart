@@ -22,7 +22,6 @@ import 'package:pure_live/modules/live_play/states/load_type.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/widgets/danmaku_message_actions.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/services/gravity_fullscreen_service.dart';
 
 typedef AudioOnlyCallback = Future<void> Function(bool value);

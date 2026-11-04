@@ -8,13 +8,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:pure_live/common/global/initialized.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
 import 'package:pure_live/player/models/player_engine.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/routes/route_observer_controller.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
 import 'package:pure_live/common/utils/update_checker.dart';
 import 'package:pure_live/modules/esports/esports_reminder_service.dart';
 import 'package:pure_live/domains/wallpaper/domain/background_controller.dart';
-import 'package:pure_live/domains/wallpaper/presentation/app_background.dart';
 import 'package:pure_live/common/services/share_intent_service.dart';
 
 /// 安卓返回键修复：MIUI 手势返回有时以按键事件（KEYCODE_BACK→goBack）形式

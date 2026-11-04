@@ -26,7 +26,6 @@ import '../interface/unified_player_interface.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:flutter_floating/flutter_floating.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/player/core/live_audio_service.dart';
 import 'package:pure_live/modules/live_play/controllers/player_state.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
@@ -1235,6 +1234,9 @@ class PlayerManager {
         _heightSubject.add(event);
       }),
     );
+    // 竖屏判定只此一处：解码宽高 h >= w 即视为竖屏源。
+    // 竖屏全屏策略、沉浸模糊背景、PiP 比例、每直播间方向覆盖都读
+    // [isVerticalVideo]，改这里的判定会同时影响这些布局，动之前先想清楚。
     _subscriptions.add(
       CombineLatestStream.combine2<int?, int?, bool>(
         width.where((w) => w != null && w > 0),

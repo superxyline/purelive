@@ -1,6 +1,5 @@
 import 'package:pure_live/common/index.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pure_live/common/global/platform_utils.dart';
 
 class MyTheme {
   final Color? primaryColor;

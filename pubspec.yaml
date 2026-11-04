@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 2.3.4+4041
+version: 2.3.5+4042
 
 environment:
   sdk: ^3.13.0
@@ -177,6 +177,7 @@ dependencies:
   scroll_animator: 0.3.0
   flutter_liquid_glass: ^1.0.0 # 液态玻璃导航视觉（Apple Liquid Glass 设计语言，含悬停/按压/视差动效）
 # 依赖覆盖（强制指定版本）
+  web: ^1.1.0 # Flutter Web DOM 互操作（Web 播放器，lib 内直接 import）
 dependency_overrides:
   # 上游网页内核的 Android 子包仍引用 AGP 9 已移除的默认 ProGuard 文件；
   # 本地副本只调整 Android 构建脚本，Dart/Java 实现保持解析提交 3e6c4c4a。
@@ -209,7 +210,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   shared_preferences: ^2.5.5 # widget tests mock localization persistence
-  web: ^1.1.0 # Flutter Web DOM 互操作（Web 播放器）
   change_app_package_name: ^1.5.0 # 修改应用包名
   json_serializable: ^6.7.1 # JSON序列化
   build_runner: ^2.4.15 # 代码生成器

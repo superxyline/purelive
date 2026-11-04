@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:remixicon/remixicon.dart'; // 🌟 Imported Remix Icons pack
 
 import 'features_page.dart';
+import 'package:pure_live/common/utils/update_checker.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -20,6 +21,9 @@ class _AboutPageState extends State<AboutPage> {
   void initState() {
     super.initState();
     _loadVersion();
+    // 启动时的检查可能还没跑完（或用户关了自动检查），关于页自己补一次：
+    // 只刷新状态不弹窗，保证「项目主页」那行能显示有无新发行版。
+    if (!UpdateChecker.checked) UpdateChecker.check(showDialog: false, force: true);
   }
 
   Future<void> _loadVersion() async {
@@ -112,15 +116,39 @@ class _AboutPageState extends State<AboutPage> {
           context.buildGroupTitle(i18n("project")),
           const SizedBox(height: 8),
           context.buildModernCard([
-            context.buildTile(
-              icon: Remix.code_s_slash_line,
-              title: i18n("project_page"),
-              subtitle: kProjectUrl,
-              isLong: true,
-              onTap: () {
-                launchUrl(Uri.parse(kProjectUrl), mode: LaunchMode.externalApplication);
-              },
-            ),
+            Obx(() {
+              final bool hasUpdate = UpdateChecker.hasUpdate.value;
+              final String? latest = UpdateChecker.latestVersion.value;
+              final bool showUpdate = hasUpdate && latest != null;
+              return context.buildTile(
+                icon: Remix.code_s_slash_line,
+                title: i18n("project_page"),
+                // 有新发行版时把地址换成更新提示；点击仍然打开项目主页下载
+                subtitle: showUpdate
+                    ? i18n('update_about_hint', args: {'version': latest})
+                    : kProjectUrl,
+                subtitleColor: showUpdate ? theme.colorScheme.error : null,
+                isLong: true,
+                // 徽标 + 原本的箭头，保留"可点击"的提示
+                trailing: showUpdate
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildUpdateBadge(theme),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: theme.hintColor.withValues(alpha: 0.4),
+                            size: 20,
+                          ),
+                        ],
+                      )
+                    : null,
+                onTap: () {
+                  launchUrl(Uri.parse(kProjectUrl), mode: LaunchMode.externalApplication);
+                },
+              );
+            }),
             buildTile(
               icon: Remix.error_warning_line,
               title: i18n("project_alert"),
@@ -130,6 +158,22 @@ class _AboutPageState extends State<AboutPage> {
             ),
           ]),
         ],
+      ),
+    );
+  }
+
+  /// 「项目主页」行右侧的更新徽标
+  Widget _buildUpdateBadge(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.error.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: theme.colorScheme.error.withValues(alpha: 0.4)),
+      ),
+      child: Text(
+        i18n('update_badge_new'),
+        style: TextStyle(color: theme.colorScheme.error, fontSize: 11, fontWeight: FontWeight.w700),
       ),
     );
   }

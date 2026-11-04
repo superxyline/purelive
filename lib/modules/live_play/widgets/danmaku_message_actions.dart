@@ -212,7 +212,7 @@ List<String> _tokenizeDanmaku(String text) {
   if (text.trim().isEmpty) return [];
   // 按中英文标点、空格分隔，过滤空串
   final tokens = text
-      .split(RegExp(r'[，。！？、；：""''「」【】（）\s,\.!?;:\'"()\[\]{}]+'))
+      .split(RegExp(r'[，。！？、；：""''「」【】（）s,.!?;:\'"()[]{}]+'))
       .where((t) => t.trim().isNotEmpty)
       .toList();
   return tokens;
