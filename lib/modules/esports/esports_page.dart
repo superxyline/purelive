@@ -3,6 +3,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/widgets/common_appbar_actions.dart';
 import 'package:pure_live/modules/esports/esports_controller.dart';
+import 'package:pure_live/modules/esports/esports_game_icon.dart';
 import 'package:pure_live/modules/esports/esports_match.dart';
 import 'package:pure_live/plugins/app_image_cache_manager.dart';
 import 'package:pure_live/modules/esports/favorite_match.dart';
@@ -116,7 +117,7 @@ class EsportsPage extends GetView<EsportsController> {
           itemBuilder: (context, index) {
             final bool selected = currentFilter == index;
             return ChoiceChip(
-              label: Text(i18n(EsportsController.gameFilterKeys[index])),
+              label: _gameFilterLabel(index),
               selected: selected,
               showCheckmark: false,
               onSelected: (_) => controller.setGameFilter(index),
@@ -125,6 +126,23 @@ class EsportsPage extends GetView<EsportsController> {
         ),
       );
     });
+  }
+
+  /// 筛选项标签：具体游戏带游戏图标，"全部"只有文字
+  static const Map<int, String> _filterKeyByIndex = {1: 'cs', 2: 'lol', 3: 'valorant'};
+
+  Widget _gameFilterLabel(int index) {
+    final gameKey = _filterKeyByIndex[index];
+    final text = Text(i18n(EsportsController.gameFilterKeys[index]));
+    if (gameKey == null) return text;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        EsportsGameIcon(gameKey, size: 14),
+        const SizedBox(width: 4),
+        text,
+      ],
+    );
   }
 
   /// 筛选下拉：日期 + 赛事 横向并列
@@ -208,7 +226,13 @@ class EsportsPage extends GetView<EsportsController> {
               for (final String name in series)
                 DropdownMenuItem<String>(
                   value: name,
-                  child: Text(name, overflow: TextOverflow.ellipsis),
+                  child: Row(
+                    children: [
+                      EsportsSeriesIcon(controller.logoForSeries(name), controller.gameKeyForSeries(name), size: 14),
+                      const SizedBox(width: 5),
+                      Expanded(child: Text(name, overflow: TextOverflow.ellipsis)),
+                    ],
+                  ),
                 ),
             ],
             // 选赛事后把日期对齐到该赛事有比赛的那天，避免"暂无赛事"空列表
@@ -324,18 +348,31 @@ class _MatchCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // 第一行：联赛名（左）+ 阶段名（中间列，与时间/比分垂直对齐）
+          // 第一行：游戏图标+联赛名（左）+ 阶段名（中间列，与时间/比分垂直对齐）
           Row(
             children: [
               Expanded(
-                child: Text(
-                  _seriesText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.t12.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Row(
+                  children: [
+                    EsportsSeriesIcon(
+                      match.seriesLogo,
+                      match.gameKey,
+                      size: 13,
+                      color: theme.colorScheme.primary,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        _seriesText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.t12.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(

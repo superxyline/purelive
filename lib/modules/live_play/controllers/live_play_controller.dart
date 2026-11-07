@@ -29,6 +29,7 @@ import 'package:pure_live/modules/live_play/local_message_delivery_queue.dart';
 import 'package:pure_live/modules/live_play/controllers/timer_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/player_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/danmaku_controller.dart';
+import 'package:pure_live/modules/live_play/controllers/audio_companion_danmaku.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/player/utils/fullscreen.dart';
 
@@ -54,6 +55,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   late final TimerController timerController;
   late final DanmakuController danmakuController;
   late final PlayerController playerController;
+  /// 副音轨房间弹幕连接（副音轨激活时保活，由开关决定是否上屏）
+  late final AudioCompanionDanmaku audioCompanionDanmaku;
 
   final LocalInteractionController localInteractionController = Get.find<LocalInteractionController>();
 
@@ -192,6 +195,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     timerController = Get.put(TimerController(onEnded: _onRoomPlaybackTimerEnded), tag: 'timer-$_controllerTag');
     danmakuController = Get.put(DanmakuController(this), tag: 'danmaku-$_controllerTag');
     playerController = Get.put(PlayerController(this), tag: 'player-$_controllerTag');
+    audioCompanionDanmaku = AudioCompanionDanmaku(this);
 
     playerController.initSite(currentSite);
 
@@ -1191,12 +1195,18 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     // 退出直播间时结束双开副窗口，避免再次进入直播间时残留
     unawaited(SecondaryPlayerService.instance.close());
     // 副音轨同样不跨直播间保留：退出即释放，下次进房恢复本房间声音
+    unawaited(audioCompanionDanmaku.detach());
     unawaited(AudioCompanionService.instance.stop());
     super.onClose();
   }
 
   /// 副音轨接管前的原音量（关闭时还原）
   double _mainVolumeBeforeCompanion = 1.0;
+
+  /// 当前是否处于"只显示副音轨弹幕"模式（弹幕渲染管线据此屏蔽主房间聊天弹幕）
+  bool get isAudioCompanionDanmakuOnly =>
+      AudioCompanionService.instance.hasRoom &&
+      SettingsService.to.danmaku.showAudioCompanionDanmaku.v;
 
   /// 开启副音轨：画面仍是当前直播间，声音换成 [target] 的解说。
   ///
@@ -1213,12 +1223,15 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       return false;
     }
     await manager.muteMainForCompanion();
+    // 副房间弹幕连接随之建立（是否上屏由 showAudioCompanionDanmaku 决定）
+    audioCompanionDanmaku.attach(AudioCompanionService.instance.room.value ?? target);
     return true;
   }
 
   /// 关闭副音轨，把声音还给当前直播间。
   Future<void> disableAudioCompanion() async {
     if (!AudioCompanionService.instance.isActive.value) return;
+    await audioCompanionDanmaku.detach();
     await AudioCompanionService.instance.stop();
     await GlobalPlayerService.instance.playerManager.restoreMainVolume(_mainVolumeBeforeCompanion);
   }

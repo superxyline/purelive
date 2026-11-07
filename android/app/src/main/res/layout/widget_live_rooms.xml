@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 直播间热度榜小组件（2×2）：已开播关注直播间按热度前 4，点击直达直播间。
+     样式对齐参考设计：粗体大标题 + 细分隔线 + 灰色次要信息 + 右上刷新按钮。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp">
+
+        <!-- 标题栏：点击打开 App -->
+        <LinearLayout
+            android:id="@+id/widget_live_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="直播间热度"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/widget_text_primary" />
+
+            <ImageView
+                android:id="@+id/widget_live_refresh"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:padding="3dp"
+                android:src="@drawable/ic_widget_refresh"
+                android:contentDescription="刷新" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/widget_live_div_header"
+            style="@style/WidgetDivider"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/widget_live_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="暂无已开播的关注的直播间"
+            android:textSize="11sp"
+            android:textColor="@color/widget_text_secondary"
+            android:visibility="gone" />
+
+        <!-- 四行数据模板：ID 由 Kotlin 侧 getIdentifier 动态解析 -->
+        <LinearLayout
+            android:id="@+id/widget_live_row_1"
+            style="@style/WidgetLiveRow">
+            <TextView android:id="@+id/widget_live_dot_1" style="@style/WidgetLiveDot" />
+            <TextView android:id="@+id/widget_live_nick_1" style="@style/WidgetLiveNick" />
+            <TextView android:id="@+id/widget_live_heat_1" style="@style/WidgetLiveHeat" />
+        </LinearLayout>
+        <View android:id="@+id/widget_live_div_1" style="@style/WidgetDivider" />
+        <LinearLayout
+            android:id="@+id/widget_live_row_2"
+            style="@style/WidgetLiveRow">
+            <TextView android:id="@+id/widget_live_dot_2" style="@style/WidgetLiveDot" />
+            <TextView android:id="@+id/widget_live_nick_2" style="@style/WidgetLiveNick" />
+            <TextView android:id="@+id/widget_live_heat_2" style="@style/WidgetLiveHeat" />
+        </LinearLayout>
+        <View android:id="@+id/widget_live_div_2" style="@style/WidgetDivider" />
+        <LinearLayout
+            android:id="@+id/widget_live_row_3"
+            style="@style/WidgetLiveRow">
+            <TextView android:id="@+id/widget_live_dot_3" style="@style/WidgetLiveDot" />
+            <TextView android:id="@+id/widget_live_nick_3" style="@style/WidgetLiveNick" />
+            <TextView android:id="@+id/widget_live_heat_3" style="@style/WidgetLiveHeat" />
+        </LinearLayout>
+        <View android:id="@+id/widget_live_div_3" style="@style/WidgetDivider" />
+        <LinearLayout
+            android:id="@+id/widget_live_row_4"
+            style="@style/WidgetLiveRow">
+            <TextView android:id="@+id/widget_live_dot_4" style="@style/WidgetLiveDot" />
+            <TextView android:id="@+id/widget_live_nick_4" style="@style/WidgetLiveNick" />
+            <TextView android:id="@+id/widget_live_heat_4" style="@style/WidgetLiveHeat" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

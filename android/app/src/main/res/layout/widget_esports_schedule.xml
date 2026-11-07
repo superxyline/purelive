@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 赛事日程小组件（2×2）：最近 2 场已关注赛事。
+     样式对齐参考设计：粗体大标题 + 细分隔线 + 灰色时间/赛事名 + 蓝色"前瞻"状态
+     + 队徽与队名加粗 + 比分加粗。点击进赛事中心。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp">
+
+        <!-- 标题栏：点击打开 App -->
+        <LinearLayout
+            android:id="@+id/widget_esports_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="赛事日程"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/widget_text_primary" />
+
+            <ImageView
+                android:id="@+id/widget_esports_refresh"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:padding="3dp"
+                android:src="@drawable/ic_widget_refresh"
+                android:contentDescription="刷新" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/widget_esports_div_header"
+            style="@style/WidgetDivider"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/widget_esports_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="暂无关注的赛事"
+            android:textSize="11sp"
+            android:textColor="@color/widget_text_secondary"
+            android:visibility="gone" />
+
+        <!-- 两场赛事模板：ID 由 Kotlin 侧 getIdentifier 动态解析 -->
+        <LinearLayout
+            android:id="@+id/widget_esports_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/widget_esports_row_1"
+                style="@style/WidgetEsportsRow">
+                <LinearLayout style="@style/WidgetEsportsMetaLine">
+                    <TextView android:id="@+id/widget_esports_time_1" style="@style/WidgetEsportsTime" />
+                    <TextView android:id="@+id/widget_esports_series_1" style="@style/WidgetEsportsSeries" />
+                    <TextView android:id="@+id/widget_esports_status_1" style="@style/WidgetEsportsStatus" />
+                </LinearLayout>
+                <LinearLayout style="@style/WidgetEsportsTeamsLine">
+                    <ImageView android:id="@+id/widget_esports_logo_a_1" style="@style/WidgetEsportsLogo" />
+                    <TextView android:id="@+id/widget_esports_name_a_1" style="@style/WidgetEsportsNameA" />
+                    <TextView
+                        style="@style/WidgetEsportsVs"
+                        android:text="vs" />
+                    <ImageView android:id="@+id/widget_esports_logo_b_1" style="@style/WidgetEsportsLogo" />
+                    <TextView android:id="@+id/widget_esports_name_b_1" style="@style/WidgetEsportsNameB" />
+                    <TextView android:id="@+id/widget_esports_score_1" style="@style/WidgetEsportsScore" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View android:id="@+id/widget_esports_div_1" style="@style/WidgetDivider" />
+
+            <LinearLayout
+                android:id="@+id/widget_esports_row_2"
+                style="@style/WidgetEsportsRow">
+                <LinearLayout style="@style/WidgetEsportsMetaLine">
+                    <TextView android:id="@+id/widget_esports_time_2" style="@style/WidgetEsportsTime" />
+                    <TextView android:id="@+id/widget_esports_series_2" style="@style/WidgetEsportsSeries" />
+                    <TextView android:id="@+id/widget_esports_status_2" style="@style/WidgetEsportsStatus" />
+                </LinearLayout>
+                <LinearLayout style="@style/WidgetEsportsTeamsLine">
+                    <ImageView android:id="@+id/widget_esports_logo_a_2" style="@style/WidgetEsportsLogo" />
+                    <TextView android:id="@+id/widget_esports_name_a_2" style="@style/WidgetEsportsNameA" />
+                    <TextView
+                        style="@style/WidgetEsportsVs"
+                        android:text="vs" />
+                    <ImageView android:id="@+id/widget_esports_logo_b_2" style="@style/WidgetEsportsLogo" />
+                    <TextView android:id="@+id/widget_esports_name_b_2" style="@style/WidgetEsportsNameB" />
+                    <TextView android:id="@+id/widget_esports_score_2" style="@style/WidgetEsportsScore" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

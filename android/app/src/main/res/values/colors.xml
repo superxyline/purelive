@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
+
+    <!-- 桌面小组件（澎湃OS 风格）：浅色 -->
+    <color name="widget_bg">#FFFFFF</color>
+    <color name="widget_text_primary">#E6000000</color>
+    <color name="widget_text_secondary">#999999</color>
+    <color name="widget_accent">#3478F6</color>
+    <color name="widget_live_badge">#E53935</color>
+    <color name="widget_divider">#22000000</color>
 </resources>

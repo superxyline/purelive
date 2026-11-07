@@ -63,6 +63,9 @@ class DanmakuSettingsController extends GetxController {
   final RxDouble danmakuFontBorder = hiveDouble('danmakuFontBorder', 1.5);
   final RxDouble danmakuOpacity = hiveDouble('danmakuOpacity', 1.0);
   final RxBool enableDanmakuDisplay = hiveBool('enableDanmakuDisplay', true);
+  /// 副音轨弹幕互斥开关：开启后只显示副音轨房间的弹幕，主直播间弹幕暂停上屏；
+  /// 关闭后恢复主直播间弹幕。仅在副音轨激活时有意义。
+  final RxBool showAudioCompanionDanmaku = hiveBool('showAudioCompanionDanmaku', false);
   final RxBool enableDanmakuStroke = hiveBool('enableDanmakuStroke', true);
   final RxInt danmakuFps = hiveInt('danmakuFps', 60);
   final RxBool danmakuAutoFps = hiveBool('danmakuAutoFps', true);
@@ -183,6 +186,7 @@ class DanmakuSettingsController extends GetxController {
       'danmakuFontBorder': danmakuFontBorder.v,
       'danmakuOpacity': danmakuOpacity.v,
       'enableDanmakuDisplay': enableDanmakuDisplay.v,
+      'showAudioCompanionDanmaku': showAudioCompanionDanmaku.v,
       'danmakuFontFamilyName': danmakuFontFamilyName.v,
       'enableDanmakuStroke': enableDanmakuStroke.v,
       'danmakuFps': danmakuFps.v,
@@ -237,6 +241,7 @@ class DanmakuSettingsController extends GetxController {
     danmakuFontBorder.v = (json['danmakuFontBorder']?.toDouble() ?? 1.5).clamp(0.0, 4.0).toDouble();
     danmakuOpacity.v = json['danmakuOpacity']?.toDouble() ?? 1.0;
     enableDanmakuDisplay.v = json['enableDanmakuDisplay'] ?? true;
+    showAudioCompanionDanmaku.v = json['showAudioCompanionDanmaku'] ?? false;
     danmakuFontFamilyName.v = json['danmakuFontFamilyName'] ?? 'Default';
     enableDanmakuStroke.v = json['enableDanmakuStroke'] ?? true;
     danmakuFps.v = json['danmakuFps']?.toInt() ?? 60;
@@ -298,6 +303,7 @@ class DanmakuSettingsController extends GetxController {
       'danmakuFontBorder': (danmaku['danmakuFontBorder'] ?? 1.5).toDouble().clamp(0.0, 4.0).toDouble(),
       'danmakuOpacity': (danmaku['danmakuOpacity'] ?? 1.0).toDouble(),
       'enableDanmakuDisplay': danmaku['enableDanmakuDisplay'] ?? true,
+      'showAudioCompanionDanmaku': danmaku['showAudioCompanionDanmaku'] ?? false,
       'danmakuFontFamilyName': danmaku['danmakuFontFamilyName'] ?? 'Default',
       'enableDanmakuStroke': danmaku['enableDanmakuStroke'] ?? true,
       'danmakuFps': (danmaku['danmakuFps'] ?? 60).toInt(),

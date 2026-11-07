@@ -79,6 +79,8 @@ class _MyAppState extends State<MyApp> {
     // 观看统计先于快捷方式注册：快捷方式的数据源是观看时长 Top3 主播
     Get.put(WatchStatsService());
     Get.put(RecentRoomsService());
+    // 桌面小组件数据（已开播热度前4直播间 + 已关注赛事前4），仅 Android
+    if (!PlatformUtils.isWeb && PlatformUtils.isAndroid) Get.put(AppWidgetService());
     // 其他 App 分享链接直达直播间（仅 Android 原生侧有通道）
     if (!PlatformUtils.isWeb) Get.put(ShareIntentService());
     // 按直播间维度的礼物卡片屏蔽

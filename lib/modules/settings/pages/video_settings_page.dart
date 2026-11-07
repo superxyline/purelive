@@ -196,6 +196,12 @@ class VideoSettingsPage extends GetView<SettingsService> {
               value: SettingsService.to.danmaku.enableDanmakuDisplay,
               icon: Remix.chat_smile_2_line,
             ),
+            context.buildSwitchTile(
+              title: i18n('audio_companion_danmaku_toggle'),
+              subtitle: i18n('audio_companion_danmaku_toggle_subtitle'),
+              value: SettingsService.to.danmaku.showAudioCompanionDanmaku,
+              icon: Remix.music_2_line,
+            ),
           ]),
           const SizedBox(height: 32),
         ],
