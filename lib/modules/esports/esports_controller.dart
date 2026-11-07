@@ -293,6 +293,22 @@ class EsportsController extends GetxController {
     return names;
   }
 
+  /// 赛事名 → 游戏标识（赛事下拉项前缀图标用；找不到返回空串）
+  String gameKeyForSeries(String name) {
+    for (final m in matches) {
+      if (m.seriesName == name && m.gameKey.isNotEmpty) return m.gameKey;
+    }
+    return '';
+  }
+
+  /// 赛事名 → 联赛官方图标 URL（下拉项优先展示；找不到返回空串）
+  String logoForSeries(String name) {
+    for (final m in matches) {
+      if (m.seriesName == name && m.seriesLogo.isNotEmpty) return m.seriesLogo;
+    }
+    return '';
+  }
+
   /// 当前筛选下的赛事列表（游戏 + 赛事名 + 日期 三级过滤）。
   List<EsportsMatch> get filteredMatches {
     Iterable<EsportsMatch> list = matches;

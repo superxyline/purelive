@@ -14,6 +14,7 @@ import android.os.Looper
 import android.os.PowerManager
 import android.view.Display
 import com.ryanheise.audioservice.AudioServiceActivity
+import com.superxyline.purelive.widget.WidgetData
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -24,8 +25,26 @@ class MainActivity : AudioServiceActivity() {
         private const val APP_SHORTCUTS_CHANNEL = "pure_live/app_shortcuts"
         private const val SHARE_CHANNEL = "pure_live/share"
         private const val LOCAL_NETWORK_CHANNEL = "pure_live/local_network"
+        private const val APP_WIDGET_CHANNEL = "pure_live/app_widget"
         private const val LOCAL_NETWORK_REQUEST_CODE = 0x4C4E
-        private const val EXTRA_SHORTCUT_ROOM = "pure_live.shortcut.ROOM"
+
+        /// 快捷方式/小组件共用的导航参数："platform|roomId" 或 "esports"
+        const val EXTRA_SHORTCUT_ROOM = "pure_live.shortcut.ROOM"
+
+        /// 小组件刷新按钮 → Dart 的实时转发通道（App 进程存活才非空）
+        @Volatile
+        var widgetRefreshChannel: MethodChannel? = null
+
+        /// 由 [com.superxyline.purelive.widget.WidgetRefreshReceiver] 调用：
+        /// App 进程存活时把刷新请求转发给 Dart 拉最新数据；未存活则静默忽略
+        /// （小组件保留最后一次缓存内容）。
+        fun requestWidgetRefresh(target: String) {
+            val channel = widgetRefreshChannel ?: return
+            Handler(Looper.getMainLooper()).post {
+                channel.invokeMethod("refresh", target)
+            }
+        }
+
         private var playbackWakeLock: PowerManager.WakeLock? = null
         private var playbackWifiLock: WifiManager.WifiLock? = null
     }
@@ -124,6 +143,23 @@ class MainActivity : AudioServiceActivity() {
                 "ensure" -> result.success(ensureLocalNetworkPermission())
                 "granted" -> result.success(isLocalNetworkGranted())
                 else -> result.notImplemented()
+            }
+        }
+        // 桌面小组件：Dart 推送数据（JSON）+ 触发重绘；刷新按钮经
+        // WidgetRefreshReceiver → widgetRefreshChannel 反向唤醒 Dart
+        widgetRefreshChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            APP_WIDGET_CHANNEL,
+        ).also { channel ->
+            channel.setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "updateWidgets" -> {
+                        WidgetData.save(this, call.argument<String>("live"), call.argument<String>("esports"))
+                        WidgetData.renderAll(this)
+                        result.success(true)
+                    }
+                    else -> result.notImplemented()
+                }
             }
         }
         applyPreferredDisplayMode(highRefreshRateEnabled)
@@ -260,6 +296,7 @@ class MainActivity : AudioServiceActivity() {
     override fun onDestroy() {
         mainHandler.removeCallbacks(displayModeRefresh)
         displayModeChannel = null
+        widgetRefreshChannel = null
         super.onDestroy()
     }
 

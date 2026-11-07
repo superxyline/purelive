@@ -286,6 +286,9 @@ class DanmakuController extends GetxController {
           _maskedNameNoticeShown = true;
           _addStatusMessage(i18n('bilibili_guest_name_masked'));
         }
+        // 副音轨弹幕模式：只显示副音轨房间的弹幕，主房间聊天弹幕不上屏
+        // （人数/SC/礼物等房间事件不受影响，连接保持原状，关开关即恢复）。
+        if (_main.isAudioCompanionDanmakuOnly) return;
         _main.addDanmakuMessage(msg);
         _state.player.videoController?.sendDanmaku(msg);
       } else if (msg.type == LiveMessageType.online) {

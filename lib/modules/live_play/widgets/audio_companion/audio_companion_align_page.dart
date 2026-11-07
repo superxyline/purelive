@@ -109,6 +109,27 @@ class _AudioCompanionAlignPageState extends State<AudioCompanionAlignPage> {
               );
             }),
           ),
+          // 副音轨弹幕开关：开=只看解说直播间弹幕，关=恢复主直播间弹幕
+          // （每次进对齐页都能顺手切，不用去设置页翻）
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: Obx(() {
+                return SwitchListTile(
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    i18n('audio_companion_danmaku_toggle'),
+                    style: AppTextStyles.t13.copyWith(color: Colors.white),
+                  ),
+                  value: SettingsService.to.danmaku.showAudioCompanionDanmaku.v,
+                  onChanged: (v) => SettingsService.to.danmaku.showAudioCompanionDanmaku.v = v,
+                );
+              }),
+            ),
+          ),
           SafeArea(
             top: false,
             child: Padding(

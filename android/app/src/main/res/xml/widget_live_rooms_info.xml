@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 直播间热度榜：2×2 -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/widget_live_rooms"
+    android:previewLayout="@layout/widget_live_rooms"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen" />

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 桌面小组件（澎湃OS 风格）：深色 -->
+    <color name="widget_bg">#1E1E22</color>
+    <color name="widget_text_primary">#FFFFFF</color>
+    <color name="widget_text_secondary">#99FFFFFF</color>
+    <color name="widget_accent">#7CACFF</color>
+    <color name="widget_live_badge">#FF6B6B</color>
+    <color name="widget_divider">#22FFFFFF</color>
+</resources>

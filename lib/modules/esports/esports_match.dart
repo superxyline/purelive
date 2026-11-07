@@ -19,6 +19,9 @@ class EsportsMatch {
   /// 联赛简称（如：LPL / EWC-2026）
   final String seriesShortName;
 
+  /// 联赛/赛事官方图标 URL（如 IEM→ESL、PGL、Worlds；两源均提供，可能为空）
+  final String seriesLogo;
+
   /// 比赛阶段（如：Week 12 / 常规赛）
   final String gameStage;
 
@@ -73,6 +76,7 @@ class EsportsMatch {
     required this.gameKey,
     required this.seriesName,
     required this.seriesShortName,
+    required this.seriesLogo,
     required this.gameStage,
     required this.startTime,
     required this.endTime,
@@ -97,6 +101,7 @@ class EsportsMatch {
         'gameKey': gameKey,
         'seriesName': seriesName,
         'seriesShortName': seriesShortName,
+        'seriesLogo': seriesLogo,
         'gameStage': gameStage,
         'startTime': startTime,
         'endTime': endTime,
@@ -128,6 +133,7 @@ class EsportsMatch {
       gameKey: str(json['gameKey']),
       seriesName: str(json['seriesName']),
       seriesShortName: str(json['seriesShortName']),
+      seriesLogo: str(json['seriesLogo']),
       gameStage: str(json['gameStage']),
       startTime: intVal(json['startTime']),
       endTime: intVal(json['endTime']),
@@ -225,6 +231,7 @@ class EsportsMatch {
       gameKey: 'cs',
       seriesName: seriesName,
       seriesShortName: eventNameZh.isNotEmpty ? eventNameZh : eventName,
+      seriesLogo: EsportsMatch.normalizeLogoUrl(str(event['logo'])),
       gameStage: str(item['stageName'] ?? item['eventSubTypeName']),
       startTime: startMs > 0 ? startMs ~/ 1000 : 0,
       endTime: endMs > 0 ? endMs ~/ 1000 : 0,
@@ -307,6 +314,7 @@ class EsportsMatch {
       gameKey: gameKey,
       seriesName: seriesName,
       seriesShortName: leagueName.isNotEmpty ? leagueName : seriesName,
+      seriesLogo: EsportsMatch.normalizeLogoUrl(str(league['image'])),
       gameStage: str(event['blockName']),
       startTime: (DateTime.tryParse(str(event['startTime']))?.millisecondsSinceEpoch ?? 0) ~/ 1000,
       endTime: (DateTime.tryParse(str(event['endTime']))?.millisecondsSinceEpoch ?? 0) ~/ 1000,

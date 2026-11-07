@@ -29,11 +29,103 @@ class _DualViewPickerSheetState extends State<DualViewPickerSheet>
   final _searching = false.obs;
   final _results = <LiveRoom>[].obs;
 
+  /// 收藏 tab 的开播状态刷新：打开面板时先按缓存展示，
+  /// 后台并发拉一遍 getLiveStatus，让已开播的房间顶到前面。
+  final _statusRefreshing = false.obs;
+  bool _statusRefreshed = false;
+
+  /// 状态快通道并发度/超时，与关注页 [FavoriteController] 保持一致。
+  static const int _statusBatchSize = 12;
+  static const Duration _statusTimeout = Duration(seconds: 5);
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshLiveStatusOnce();
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
     _searchCtrl.dispose();
     super.dispose();
+  }
+
+  /// 只拉"是否开播"并写回收藏缓存（复用关注页的并发 worker 模式），
+  /// 排序交给 [_sortedFavoriteRooms]，列表随 Rx 更新自动重排。
+  Future<void> _refreshLiveStatusOnce() async {
+    if (_statusRefreshed) return;
+    _statusRefreshed = true;
+    final rooms = SettingsService.to.fav.favoriteRooms.v
+        .where((r) => (r.platform?.isNotEmpty ?? false) && r.roomId != null)
+        .toList();
+    if (rooms.isEmpty) return;
+
+    _statusRefreshing.value = true;
+    final persistedRooms = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
+    var dirty = false;
+
+    void flush({bool force = false}) {
+      if (!dirty && !force) return;
+      dirty = false;
+      SettingsService.to.fav.favoriteRooms.v = List<LiveRoom>.from(persistedRooms);
+    }
+
+    var next = 0;
+    Future<void> worker() async {
+      while (true) {
+        final i = next++;
+        if (i >= rooms.length) return;
+        final room = rooms[i];
+        final bool isLive;
+        try {
+          isLive = await Sites.of(room.platform!)
+              .liveSite
+              .getLiveStatus(platform: room.platform!, roomId: room.roomId!)
+              .timeout(_statusTimeout);
+        } catch (_) {
+          continue;
+        }
+        final idx = persistedRooms.indexWhere(
+          (e) => e.roomId == room.roomId && e.platform == room.platform,
+        );
+        if (idx == -1) continue;
+        final target = persistedRooms[idx];
+        final nextStatus = isLive ? LiveStatus.live : LiveStatus.offline;
+        if (target.liveStatus == nextStatus) continue;
+        target.liveStatus = nextStatus;
+        target.status = isLive;
+        dirty = true;
+        flush();
+      }
+    }
+
+    try {
+      await Future.wait(List.generate(_statusBatchSize, (_) => worker()));
+    } finally {
+      flush(force: true);
+      _statusRefreshing.value = false;
+    }
+  }
+
+  /// 已开播在前，组内按热度降序；未开播的保持收藏顺序。
+  List<LiveRoom> _sortedFavoriteRooms() {
+    final app = SettingsService.to.app;
+    final rooms = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
+    rooms.sort((a, b) {
+      final la = a.liveStatus == LiveStatus.live && a.status == true ? 1 : 0;
+      final lb = b.liveStatus == LiveStatus.live && b.status == true ? 1 : 0;
+      if (la != lb) return lb.compareTo(la);
+      if (la == 0) return 0;
+      return b.audienceSortValue(
+        preferRealOnline: app.preferRealOnlineCounts.v,
+        platformEnabled: app.isRealOnlineEnabledFor(b.platform),
+      ) - a.audienceSortValue(
+        preferRealOnline: app.preferRealOnlineCounts.v,
+        platformEnabled: app.isRealOnlineEnabledFor(a.platform),
+      );
+    });
+    return rooms;
   }
 
   Future<void> _doSearch() async {
@@ -100,7 +192,7 @@ class _DualViewPickerSheetState extends State<DualViewPickerSheet>
 
   Widget _buildFavoriteTab(ThemeData theme) {
     return Obx(() {
-      final rooms = SettingsService.to.fav.favoriteRooms.v;
+      final rooms = _sortedFavoriteRooms();
       if (rooms.isEmpty) {
         return AppStatusView(
           type: AppStatusType.empty,
@@ -109,13 +201,40 @@ class _DualViewPickerSheetState extends State<DualViewPickerSheet>
           subtitle: '',
         );
       }
-      return ListView.separated(
-        itemCount: rooms.length,
-        separatorBuilder: (_, _) => const Divider(height: 1, indent: 68),
-        itemBuilder: (context, index) {
-          final room = rooms[index];
-          return _RoomTile(room: room, onTap: () => widget.onPicked(room));
-        },
+      return Column(
+        children: [
+          // 开播状态刷新提示：刷新完成后自动消失，不阻塞浏览。
+          Obx(() {
+            if (!_statusRefreshing.value) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+              child: Row(
+                children: [
+                  const SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    i18n("refresh_refreshing"),
+                    style: AppTextStyles.t12.copyWith(color: theme.hintColor),
+                  ),
+                ],
+              ),
+            );
+          }),
+          Expanded(
+            child: ListView.separated(
+              itemCount: rooms.length,
+              separatorBuilder: (_, _) => const Divider(height: 1, indent: 68),
+              itemBuilder: (context, index) {
+                final room = rooms[index];
+                return _RoomTile(room: room, onTap: () => widget.onPicked(room));
+              },
+            ),
+          ),
+        ],
       );
     });
   }

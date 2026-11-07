@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 赛事中心静态快捷方式：常驻，冷启动/热启动均通过 extra 传递 -->
+    <!-- 热门直播静态快捷方式：常驻，冷启动/热启动均通过 extra 传递 -->
     <shortcut
-        android:shortcutId="esports"
+        android:shortcutId="popular"
         android:enabled="true"
         android:icon="@drawable/ic_launcher_foreground"
-        android:shortcutShortLabel="@string/shortcut_esports"
-        android:shortcutLongLabel="@string/shortcut_esports">
+        android:shortcutShortLabel="@string/shortcut_popular"
+        android:shortcutLongLabel="@string/shortcut_popular">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.superxyline.purelive"
             android:targetClass="com.superxyline.purelive.MainActivity">
-            <extra android:name="pure_live.shortcut.ROOM" android:value="esports" />
+            <extra android:name="pure_live.shortcut.ROOM" android:value="popular" />
         </intent>
     </shortcut>
     <!-- 分享目标（androidx sharetarget，保持原 share_targets.xml 内容） -->

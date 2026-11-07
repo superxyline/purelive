@@ -99,6 +99,25 @@
         <action android:name="android.intent.action.MEDIA_BUTTON" />
       </intent-filter>
     </receiver>
+    <!-- 桌面小组件：直播间热度榜 / 赛事日程（澎湃OS 风格 4×2） -->
+    <receiver android:name="com.superxyline.purelive.widget.LiveRoomsWidgetProvider"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider"
+        android:resource="@xml/widget_live_rooms_info" />
+    </receiver>
+    <receiver android:name="com.superxyline.purelive.widget.EsportsWidgetProvider"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider"
+        android:resource="@xml/widget_esports_schedule_info" />
+    </receiver>
+    <receiver android:name="com.superxyline.purelive.widget.WidgetRefreshReceiver"
+      android:exported="false" />
   </application>
   <queries>
     <intent>
