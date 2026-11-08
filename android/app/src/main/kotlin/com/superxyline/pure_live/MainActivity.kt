@@ -2,6 +2,7 @@ package com.superxyline.purelive
 
 import android.content.Context
 import android.content.Intent
+import android.view.KeyEvent
 import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
@@ -26,6 +27,7 @@ class MainActivity : AudioServiceActivity() {
         private const val SHARE_CHANNEL = "pure_live/share"
         private const val LOCAL_NETWORK_CHANNEL = "pure_live/local_network"
         private const val APP_WIDGET_CHANNEL = "pure_live/app_widget"
+        private const val DEVICE_TYPE_CHANNEL = "pure_live/device_type"
         private const val LOCAL_NETWORK_REQUEST_CODE = 0x4C4E
 
         /// 快捷方式/小组件共用的导航参数："platform|roomId" 或 "esports"
@@ -50,6 +52,7 @@ class MainActivity : AudioServiceActivity() {
     }
 
     private var highRefreshRateEnabled = true
+    private var deviceTypeChannel: MethodChannel? = null
     private var displayModeChannel: MethodChannel? = null
     private var appShortcutsChannel: MethodChannel? = null
     private var shareChannel: MethodChannel? = null
@@ -145,6 +148,24 @@ class MainActivity : AudioServiceActivity() {
                 else -> result.notImplemented()
             }
         }
+        // TV 设备检测：UiModeManager 判电视 或 带 leanback feature，
+        // 双条件命中其一即视为 TV（Dart 侧据此启动 TV UI）
+        deviceTypeChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            DEVICE_TYPE_CHANNEL,
+        ).also { channel ->
+        channel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "isTv" -> {
+                    val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as? android.app.UiModeManager
+                    val byUiMode = uiModeManager?.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+                    val byLeanback = packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+                    result.success(byUiMode || byLeanback)
+                }
+                else -> result.notImplemented()
+            }
+        }
+        }
         // 桌面小组件：Dart 推送数据（JSON）+ 触发重绘；刷新按钮经
         // WidgetRefreshReceiver → widgetRefreshChannel 反向唤醒 Dart
         widgetRefreshChannel = MethodChannel(
@@ -163,6 +184,16 @@ class MainActivity : AudioServiceActivity() {
             }
         }
         applyPreferredDisplayMode(highRefreshRateEnabled)
+    }
+
+    /// TV 遥控菜单键：Android 层直接转发给 Dart（Flutter 对 KEYCODE_MENU 的
+    /// 逻辑键映射不可靠），由 TV 播放页决定呼出/退出 UI
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            deviceTypeChannel?.invokeMethod("menuKey", null)
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onStart() {
@@ -296,6 +327,7 @@ class MainActivity : AudioServiceActivity() {
     override fun onDestroy() {
         mainHandler.removeCallbacks(displayModeRefresh)
         displayModeChannel = null
+        deviceTypeChannel = null
         widgetRefreshChannel = null
         super.onDestroy()
     }

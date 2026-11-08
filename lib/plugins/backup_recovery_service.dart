@@ -93,4 +93,21 @@ class BackupRecoveryService {
       return false;
     }
   }
+
+  /// 扫码推送数据到电视端（TV 模式）。
+  /// 电视二维码 URL 路径以 /tv/ 开头；载荷与跨端传输一致（关注+登录+全部设置），
+  /// 走请求体而非查询串——全量设置拼接后可达数十 KB，超过 HTTP 头长度上限会被
+  /// 电视端直接断连（表现为"同步失败"）。电视端只提取关注与登录态。
+  Future<bool> pushDataToTv(String httpAddress) async {
+    final backup = Get.find<BackupController>();
+    try {
+      final response = await HttpClient.instance.postJson(
+        '$httpAddress/api/setSettings',
+        data: backup.exportTransferData(),
+      );
+      return jsonDecode(response)['data'] ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
 }

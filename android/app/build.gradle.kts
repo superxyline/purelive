@@ -57,7 +57,12 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         //   flutter build apk --release --target-platform android-x64 -PtargetAbi=x86_64
         val targetAbi = (project.findProperty("targetAbi") as? String)
             ?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }
-        ndk { abiFilters.addAll(targetAbi ?: listOf("arm64-v8a")) }
+        // split-per-abi 模式下 AGP 禁止 ndk.abiFilters 与 splits.abi 并存，
+        // 此时三架构产物由 --target-platform + splits 自动生成
+        val isSplitPerAbi = project.hasProperty("split-per-abi")
+        if (!isSplitPerAbi) {
+            ndk { abiFilters.addAll(targetAbi ?: listOf("arm64-v8a")) }
+        }
     }
 
     signingConfigs {

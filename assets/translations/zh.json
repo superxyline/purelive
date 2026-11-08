@@ -1003,5 +1003,6 @@
   "wallpaper_video_downloading": "正在下载动态壁纸…",
   "wallpaper_video_play_failed": "视频播放失败",
   "wallpaper_video_subtitle": "动态视频背景",
-  "wallpaper_video_wallpaper": "视频壁纸"
+  "wallpaper_video_wallpaper": "视频壁纸",
+  "exit_app_confirm": "再按一次返回键退出"
 }

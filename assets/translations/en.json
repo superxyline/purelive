@@ -952,5 +952,6 @@
   "pos_right": "Right",
   "pos_bottom_left": "Bottom-left",
   "pos_bottom": "Bottom",
-  "pos_bottom_right": "Bottom-right"
+  "pos_bottom_right": "Bottom-right",
+  "exit_app_confirm": "Press back again to exit"
 }

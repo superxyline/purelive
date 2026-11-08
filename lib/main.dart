@@ -14,6 +14,8 @@ import 'package:pure_live/common/utils/update_checker.dart';
 import 'package:pure_live/modules/esports/esports_reminder_service.dart';
 import 'package:pure_live/domains/wallpaper/domain/background_controller.dart';
 import 'package:pure_live/common/services/share_intent_service.dart';
+import 'package:pure_live/tv/core/tv_device_service.dart';
+import 'package:pure_live/tv/tv_app.dart';
 
 /// 安卓返回键修复：MIUI 手势返回有时以按键事件（KEYCODE_BACK→goBack）形式
 /// 送入 Flutter 键盘管线，而引擎对该键的"重派发→onBackPressed"链路存在丢事件
@@ -39,6 +41,26 @@ void main(List<String> args) async {
   await AppInitializer().initialize(args);
 
   HardwareKeyboard.instance.addHandler(_backKeyHandler);
+
+  // TV 设备检测：命中则走独立 TV UI 树（手机路径零影响）
+  debugPrint('[main] android=${PlatformUtils.isAndroid}');
+  if (PlatformUtils.isAndroid) {
+    await TvDeviceService.init();
+    debugPrint('[main] isTv=${TvDeviceService.isTv}');
+    if (TvDeviceService.isTv) {
+      debugPrint('[main] -> runApp(TvApp)');
+      runApp(
+        EasyLocalization(
+          supportedLocales: const [Locale('en'), Locale('zh')],
+          path: 'assets/translations',
+          fallbackLocale: const Locale('zh'),
+          assetLoader: const RootBundleAssetLoader(),
+          child: TvApp(),
+        ),
+      );
+      return;
+    }
+  }
 
   runApp(
     EasyLocalization(

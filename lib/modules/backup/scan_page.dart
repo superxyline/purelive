@@ -147,9 +147,18 @@ class _ScanCodePageState extends State<ScanCodePage> {
                     hasFound = true;
                     syncResult = true;
                   });
-                  final result = widget.transferMode
-                      ? await _pushTransferData(barcodes[0].rawValue!)
-                      : await BackupRecoveryService().pushSettingsToRemoteServer(barcodes[0].rawValue!);
+                  // 电视二维码：路径以 /tv/ 开头，走 body 载荷的 TV 专用推送
+                  final raw = barcodes[0].rawValue!;
+                  final uri = Uri.tryParse(raw);
+                  final isTvTarget = uri != null && uri.pathSegments.isNotEmpty && uri.pathSegments.first == 'tv';
+                  bool result;
+                  if (isTvTarget) {
+                    result = await BackupRecoveryService().pushDataToTv(raw);
+                  } else if (widget.transferMode) {
+                    result = await _pushTransferData(raw);
+                  } else {
+                    result = await BackupRecoveryService().pushSettingsToRemoteServer(raw);
+                  }
                   ToastUtil.show(result ? i18n("sync_success") : i18n("sync_failed"));
                   setState(() {
                     isSuccess = result;
