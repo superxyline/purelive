@@ -21,7 +21,8 @@ App 启动时自动检测设备形态：电视 / 安卓盒子进入全新的大�
 
 ## 三、发版产物
 
-- Release 附件：`PureLive-2.6.0-4045-arm64-v8a-release.apk`（手机 / 平板）、`PureLive-2.6.0-4045-armeabi-v7a-release.apk`（电视 / 老设备）、`PureLive-2.6.0-4045-x86_64-release.apk`（模拟器 / x86 平板）
+- **GitHub Release**：三个架构全量提供——`PureLive-2.6.0-4045-arm64-v8a-release.apk`（手机 / 平板）、`PureLive-2.6.0-4045-armeabi-v7a-release.apk`（电视 / 老设备）、`PureLive-2.6.0-4045-x86_64-release.apk`（模拟器 / x86 平板）
+- **Gitee Release**：受仓库附件总配额（1 GB）限制，仅提供 arm64 与 armeabi-v7a 两个 APK；**x86_64 请到 GitHub Release 下载**
 - 覆盖安装数据不丢，Android 8.0+（电视设备要求 Android 5.0+ / armeabi-v7a）
 
 ---
