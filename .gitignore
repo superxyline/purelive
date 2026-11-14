@@ -90,3 +90,9 @@ nas/webui/dist/
 /nas/deploy/.env
 /nas/deploy/data/
 /nas/deploy/*/data/
+
+# 斗鱼登录态数据库与加密主密钥（本地调试产物，严禁入库）
+tool/_edge_cookies.db
+tool/_master_key.bin
+tool/_*.db
+tool/_*.bin
