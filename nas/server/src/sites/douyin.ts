@@ -455,11 +455,60 @@ class DouyinSite implements Site {
       count: String(size),
       os_version: '10',
     };
-    const result = await upstreamJson(`https://www.douyin.com/aweme/v1/web/live/search/?${qsOf(params)}`, {
-      headers: await this.douyinSearchHeaders(keyword),
-    });
-    if (typeof result !== 'object' || (result as any)['status_code'] !== 0) return [];
-    return this.extractSearchItems((result as any)['data']);
+    try {
+      const res = await upstream(`https://www.douyin.com/aweme/v1/web/live/search/?${qsOf(params)}`, {
+        headers: await this.douyinSearchHeaders(keyword),
+      });
+      return this.extractFromChunks(res.text);
+    } catch {
+      /* 降级下一级 */
+    }
+    return [];
+  }
+
+  /**
+   * 抖音搜索接口（尤其 general/search/stream）返回 chunked 编码的原始响应
+   * （十六进制长度行 + JSON 文档流），直接 JSON.parse 会失败。非 chunked
+   * 响应按单个 JSON 文档处理（对齐安卓端同款修复）。
+   */
+  private static latin1Slice(bytes: Buffer, start: number, end: number): string {
+    return bytes.subarray(start, end).toString('latin1');
+  }
+
+  private decodeHttpChunks(body: string): string[] {
+    if (!/^[0-9a-fA-F]+\r?\n/.test(body)) return [body];
+    const bytes = Buffer.from(body, 'utf-8');
+    const documents: string[] = [];
+    let position = 0;
+    while (position < bytes.length) {
+      const end = bytes.indexOf(0x0a, position);
+      if (end < 0) break;
+      const size = parseInt(DouyinSite.latin1Slice(bytes, position, end).trim().split(';')[0], 16);
+      if (!Number.isFinite(size) || size === 0) break;
+      const start = end + 1;
+      if (start + size > bytes.length) break;
+      documents.push(bytes.subarray(start, start + size).toString('utf-8'));
+      position = start + size;
+      if (position < bytes.length && bytes[position] === 0x0d) position++;
+      if (position < bytes.length && bytes[position] === 0x0a) position++;
+    }
+    return documents;
+  }
+
+  /** 逐文档解析并聚合搜索结果：每个文档取 data 数组，交 extractSearchItems。 */
+  private extractFromChunks(body: string): LiveRoomJson[] {
+    const items: unknown[] = [];
+    for (const doc of this.decodeHttpChunks(body)) {
+      let decoded: unknown;
+      try {
+        decoded = JSON.parse(doc);
+      } catch {
+        continue;
+      }
+      const data = (decoded as Record<string, unknown>)?.['data'];
+      if (Array.isArray(data)) items.push(...data);
+    }
+    return this.extractSearchItems(items);
   }
 
   private async searchByGeneralApi(keyword: string, page: number, size: number): Promise<LiveRoomJson[]> {
@@ -472,11 +521,15 @@ class DouyinSite implements Site {
       count: String(size),
       os_version: '10',
     };
-    const result = await upstreamJson(`https://www.douyin.com/aweme/v1/web/general/search/stream/?${qsOf(params)}`, {
-      headers: await this.douyinSearchHeaders(keyword),
-    });
-    if (typeof result !== 'object' || (result as any)['status_code'] !== 0) return [];
-    return this.extractSearchItems((result as any)['data']);
+    try {
+      const res = await upstream(`https://www.douyin.com/aweme/v1/web/general/search/stream/?${qsOf(params)}`, {
+        headers: await this.douyinSearchHeaders(keyword),
+      });
+      return this.extractFromChunks(res.text);
+    } catch {
+      /* 降级下一级 */
+    }
+    return [];
   }
 
   private async searchByPartition(keyword: string, page: number, size: number): Promise<LiveRoomJson[]> {

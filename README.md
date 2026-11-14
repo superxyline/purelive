@@ -44,6 +44,33 @@
   </tr>
 </table>
 
+<p align="center">
+  <a href="preview_image/phone.png"><img src="preview_image/phone.png" width="280" alt="手机 · 竖屏关注页"></a>
+  <a href="preview_image/pad.png"><img src="preview_image/pad.png" width="600" alt="平板 · 横屏侧边栏"></a>
+  <a href="preview_image/tv.png"><img src="preview_image/tv.png" width="600" alt="电视 · 遥控器 UI"></a>
+</p>
+
+<p align="center">
+  <sub>左：手机竖屏关注页（液态玻璃底栏） · 中：平板横屏侧边栏 · 右：电视遥控器 UI</sub>
+</p>
+
+## 与原版相比的核心变化
+
+| 项目 | 原版 pure_live | 自用修改版（纯净版） |
+| --- | --- | --- |
+| 目标平台 | Android / Windows / Linux / macOS / iOS | 仅 Android（arm / arm64 / x86_64，三端界面自适应） |
+| 直播平台 | 30+ 平台 | 聚焦哔哩哔哩 / 斗鱼 / 虎牙 / 抖音 / 快手 |
+| 电视端 | 无 | 大屏遥控器 UI + 弹幕飘屏 + 扫码/互推同步 |
+| 跨端同步 | 无 | WebDAV + 扫码一键同步 + NAS 常连同步 + **三端局域网互推** |
+| 赛事中心 | 无 | CS / LOL / VALORANT 赛程赛果与关注 |
+| 醒目留言 | 无 | B站 SC 卡片 + 全屏弹窗 + 虎牙醒目留言 |
+| 真实发弹幕 | 仅本地回显 | B站登录后真实发送 |
+| 双开 / 副音轨 | 无 | 双窗口对比观看；副音轨听解说 |
+| 本地互动 | 无 | 本地资料、礼物、等级经验（金豆无限制） |
+| 本地数据加密 | 明文 | AES + 系统密钥加密 |
+| 液态玻璃导航 | 无 | 浮动玻璃胶囊 + 弹簧水滴 + 折射 shader |
+| 播放稳定性 | 基础 | 斗鱼 5 分钟踢线无缝续流、断流 EOS 秒级自愈、播放中停摆自愈、B站三层取流兜底 |
+
 ## 快速开始
 
 ### 前置条件
@@ -196,22 +223,6 @@ docker compose up -d --build         # 用户不在 docker 组时加 sudo
 
 解压便携包 → 双击 `启动.bat` → 浏览器打开 `http://localhost:8090`，与 NAS Web 端完全一致；手机 App 的「NAS 服务器同步」填电脑局域网 IP 即可双向同步关注。
 
-## 原版与自用修改版的区别
-
-| 项目 | 原版 pure_live | 自用修改版（纯净版） |
-| --- | --- | --- |
-| 目标平台 | Android / Windows / Linux / macOS / iOS | 仅 Android（arm / arm64 / x86_64，三端界面自适应） |
-| 直播平台 | 30+ 平台 | 聚焦哔哩哔哩 / 斗鱼 / 虎牙 / 抖音 / 快手 |
-| 电视端 | 无 | 大屏遥控器 UI + 弹幕飘屏 + 扫码/互推同步 |
-| 跨端同步 | 无 | WebDAV + 扫码一键同步 + NAS 常连同步 + **三端局域网互推** |
-| 赛事中心 | 无 | CS / LOL / VALORANT 赛程赛果与关注 |
-| 醒目留言 | 无 | B站 SC 卡片 + 全屏弹窗 + 虎牙醒目留言 |
-| 真实发弹幕 | 仅本地回显 | B站登录后真实发送 |
-| 双开 / 副音轨 | 无 | 双窗口对比观看；副音轨听解说 |
-| 本地互动 | 无 | 本地资料、礼物、等级经验（金豆无限制） |
-| 本地数据加密 | 明文 | AES + 系统密钥加密 |
-| 液态玻璃导航 | 无 | 浮动玻璃胶囊 + 弹簧水滴 + 折射 shader |
-
 ## 常见问题
 
 - **电视怎么同步关注**：电视与手机连同一 Wi-Fi，手机「备份与恢复 → 局域网设备互推」点电视即可（或电视「扫码同步」扫手机的码）。注意部分 ROM（如澎湃 OS）的局域网权限只放行部分方向——推荐**手机 / 平板推送到电视**；
@@ -232,6 +243,11 @@ docker compose up -d --build         # 用户不在 docker 组时加 sudo
 - **[pure_live_TV](https://github.com/liuchuancong/pure_live_TV)**：电视模式 UI 与键位交互的对齐参考，特此致谢！
 - **[wzgrx/PureLive](https://github.com/wzgrx/PureLive)**：液态玻璃导航（shader 与弹簧水滴实现参考）、弹幕大帧解码移出界面线程的思路、竖屏适配与多项功能设计的灵感来源，特此致谢！
 - **[PiliPlus](https://github.com/prdxxxxxxxx/PiliPlus)**：B站取流参数与 WBI 签名对齐参考，特此致谢！
+- **[media_kit](https://github.com/media-kit/media-kit)**：播放器内核（mpv）的 Flutter 封装，本项目播放体验的根基，特此致谢！
+- **[Anime4K](https://github.com/bloc97/Anime4K)**：直播源画质增强 shader 的原始实现，特此致谢！
+- **[hls.js](https://github.com/video-dev/hls.js) / [mpegts.js](https://github.com/xqq/mpegts.js)**：Web 服务端播放器内核（HLS / FLV 播放），特此致谢！
+- **[Naive UI](https://github.com/tusen-ai/naive-ui) 与 Vue3**：Web 服务端前端界面的组件基础，特此致谢！
+- **[DouyuUtils](https://github.com/hua0512/DouyuUtils) 与 ABogus 纯 Dart 移植**：斗鱼 / 抖音签名的纯 Dart 实现（脱离 JS 运行时），特此致谢！
 - 上游致谢：[dart_simple_live](https://github.com/xiaoyaocz/dart_simple_live) 等项目与开源社区。
 
 <p align="center">
