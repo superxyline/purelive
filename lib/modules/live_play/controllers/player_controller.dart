@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/tv/core/tv_device_service.dart';
 import 'package:pure_live/core/site/huya_site.dart';
 import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/model/live_play_quality.dart';
@@ -70,6 +71,14 @@ class PlayerController extends GetxController {
     _main.updatePlayer(videoController: videoController);
   }
 
+  /// 斗鱼取流失败时的登录态引导：电视端引导从手机互推登录态；
+  /// 手机 / 平板端提示登录态可能过期，去账号页重新登录。
+  String _douyuLoginHint(String base) {
+    if (currentRoom?.platform?.toLowerCase() != Sites.douyuSite) return base;
+    final hint = TvDeviceService.isTv ? i18n('douyu_login_hint_tv') : i18n('douyu_login_expired_hint');
+    return '$base' + '\n' + hint;
+  }
+
   Future<void> getPlayQualites() async {
     try {
       final room = currentRoom;
@@ -78,7 +87,7 @@ class PlayerController extends GetxController {
       final playQualites = await currentSite.liveSite.getPlayQualites(detail: room);
 
       if (playQualites.isEmpty) {
-        ToastUtil.show(i18n('cannot_read_video_info'));
+        ToastUtil.show(_douyuLoginHint(i18n('cannot_read_video_info')));
         _main.updateRoom(success: false);
         return;
       }
@@ -96,7 +105,7 @@ class PlayerController extends GetxController {
         name: 'PlayerController',
         stackTrace: stackTrace,
       );
-      ToastUtil.show(i18n('read_video_failed'));
+      ToastUtil.show(_douyuLoginHint(i18n('read_video_failed')));
       _main.updateRoom(success: false);
     }
   }

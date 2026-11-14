@@ -1034,5 +1034,7 @@
   "lan_receive_body": "来自 {ip} 的设备推送了关注同步数据（含关注 {count} 个直播间与登录态），是否接受并合并？",
   "lan_receive_done": "已合并 {count} 个新关注",
   "lan_perm_missing": "局域网访问权限未授予：Android 16+ 会静默拦截所有局域网连接，请在应用详情的权限管理中允许「本地网络 / 局域网访问」",
-  "lan_perm_open_settings": "打开应用详情页去授权"
+  "lan_perm_open_settings": "打开应用详情页去授权",
+  "douyu_login_hint_tv": "请在手机上登录斗鱼后，用「局域网设备互推」或「扫码同步」把登录态推给电视",
+  "douyu_login_expired_hint": "斗鱼登录态可能已过期或未登录，请到「账号」页重新登录斗鱼"
 }

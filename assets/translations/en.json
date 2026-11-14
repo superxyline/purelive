@@ -983,5 +983,7 @@
   "lan_receive_body": "Device {ip} pushed favorites & login state ({count} rooms). Accept and merge?",
   "lan_receive_done": "Merged {count} new favorites",
   "lan_perm_missing": "Local network permission not granted: Android 16+ silently drops all LAN connections. Allow \"Local network\" in App info > Permissions",
-  "lan_perm_open_settings": "Open app details to grant"
+  "lan_perm_open_settings": "Open app details to grant",
+  "douyu_login_hint_tv": "Douyu requires login: sign in on the phone app first, then push the login state to the TV via LAN sync or QR sync",
+  "douyu_login_expired_hint": "Douyu login state may be expired or missing. Sign in to Douyu again on the Account page"
 }
