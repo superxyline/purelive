@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:pure_live/get/get.dart';
 
@@ -63,6 +65,32 @@ class DisplayModeService {
       if (call.method != 'displayModeChanged' || call.arguments is! Map) return;
       info.value = DisplayModeInfo.fromMap(Map<dynamic, dynamic>.from(call.arguments as Map));
     });
+  }
+
+  /// 最近一次的全屏状态与用户开关，避免两个调用方互相依赖。
+  static bool _fullscreen = false;
+  static bool _followSetting = true;
+
+  /// 全屏状态变化（由 GlobalPlayerState 调用）
+  static void updateFullscreen(bool value) {
+    _fullscreen = value;
+    unawaited(applyEffectiveRefreshRate(fullscreen: value, followSetting: _followSetting));
+  }
+
+  /// 设置开关变化（由 AppSettingsController 调用）
+  static void updateFollowSetting(bool value) {
+    _followSetting = value;
+    unawaited(applyEffectiveRefreshRate(fullscreen: _fullscreen, followSetting: value));
+  }
+
+  /// 统一刷新率策略：用户开启高刷时，**非全屏页面**（首页、列表、设置页、半屏小窗）
+  /// 用屏幕最高刷新率保证滑动流畅；**全屏直播间**固定降到接近 60Hz 省电
+  /// （直播流一般只有 60 帧，高刷只会白耗电）。用户关闭高刷则全程接近 60Hz。
+  static Future<DisplayModeInfo?> applyEffectiveRefreshRate({
+    required bool fullscreen,
+    required bool followSetting,
+  }) {
+    return setHighRefreshRate(!fullscreen && followSetting);
   }
 
   static Future<DisplayModeInfo?> setHighRefreshRate(bool enabled) async {

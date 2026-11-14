@@ -5,6 +5,7 @@ import 'package:pure_live/common/index.dart';
 import '../core/tv_theme.dart';
 import '../widgets/tv_widgets.dart';
 import 'tv_play_page.dart';
+import 'tv_search_qr_page.dart';
 
 /// TV 搜索页：平台 Tab + 搜索框 + 结果网格。
 /// 进入页面自动聚焦搜索框唤起系统 IME（等同手机点输入框）；
@@ -86,6 +87,25 @@ class _TvSearchPageState extends State<TvSearchPage> {
     }
   }
 
+  /// 打开手机扫码输入页：电视起临时服务显示二维码，手机输入关键词后
+  /// 回调执行搜索。platform 为空时保持电视当前选中的平台。
+  Future<void> _openQrSearch() async {
+    _inputFocus.unfocus();
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => TvSearchQrPage(
+        onSearch: (keyword, platform) {
+          _keywordCtrl.text = keyword;
+          if (platform.isNotEmpty) {
+            final idx = _sites.indexWhere((s) => s.id.toLowerCase() == platform.toLowerCase());
+            if (idx != -1) _siteIndex = idx;
+          }
+          _doSearch();
+        },
+      ),
+    ));
+    if (mounted) setState(() {});
+  }
+
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
 
@@ -125,7 +145,8 @@ class _TvSearchPageState extends State<TvSearchPage> {
     if (key == LogicalKeyboardKey.arrowLeft || key == LogicalKeyboardKey.arrowRight) {
       final d = key == LogicalKeyboardKey.arrowRight ? 1 : -1;
       if (_zone == _TvZone.tab) {
-        setState(() => _siteIndex = (_siteIndex + d).clamp(0, _sites.length - 1));
+        // 末位（下标 = _sites.length）是「扫码输入」胶囊，不在 _sites 里
+        setState(() => _siteIndex = (_siteIndex + d).clamp(0, _sites.length));
       } else if (_zone == _TvZone.grid && _results.isNotEmpty) {
         setState(() {
           _cardIndex = (_cardIndex + d).clamp(0, _results.length - 1);
@@ -139,7 +160,11 @@ class _TvSearchPageState extends State<TvSearchPage> {
         return KeyEventResult.handled;
       }
       if (_zone == _TvZone.tab) {
-        _doSearch();
+        if (_siteIndex >= _sites.length) {
+          _openQrSearch();
+        } else {
+          _doSearch();
+        }
         return KeyEventResult.handled;
       }
       if (_zone == _TvZone.grid && _results.isNotEmpty && _cardIndex < _results.length) {
@@ -204,6 +229,35 @@ class _TvSearchPageState extends State<TvSearchPage> {
                                   color: i == _siteIndex ? Colors.white : TvTheme.textSecondary)),
                         ),
                       ),
+                    // 扫码输入：手机扫码后在手机上输入关键词，电视自动搜索
+                    GestureDetector(
+                      onTap: _openQrSearch,
+                      child: Container(
+                        margin: EdgeInsets.only(right: context.tvDp(8)),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: context.tvDp(18), vertical: context.tvDp(8)),
+                        decoration: BoxDecoration(
+                          color: _siteIndex >= _sites.length
+                              ? (_zone == _TvZone.tab ? TvTheme.focusColor : TvTheme.focusColor.withValues(alpha: 0.35))
+                              : TvTheme.subtleFill,
+                          borderRadius: BorderRadius.circular(context.tvDp(999)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.qr_code_scanner_rounded,
+                                size: context.tvDp(16),
+                                color: _siteIndex >= _sites.length ? Colors.white : TvTheme.textSecondary),
+                            SizedBox(width: context.tvDp(6)),
+                            Text('手机输入',
+                                style: TextStyle(
+                                    fontSize: context.tvSp(16),
+                                    fontWeight: FontWeight.w600,
+                                    color: _siteIndex >= _sites.length ? Colors.white : TvTheme.textSecondary)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

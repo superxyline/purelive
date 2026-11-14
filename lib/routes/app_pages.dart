@@ -1,4 +1,5 @@
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/modules/web_search/web_search_page.dart';
 import 'package:pure_live/modules/home/home_page.dart';
 import 'package:pure_live/modules/about/about_page.dart';
 import 'package:pure_live/modules/areas/areas_page.dart';
@@ -98,6 +99,8 @@ class AppPages {
     GetPage(name: RoutePath.kSettingsHotAreas, page: () => const HotAreasPage(), bindings: [HotAreasBinding()]),
 
     GetPage(name: RoutePath.kToolbox, page: () => const ToolBoxPage(), bindings: [ToolBoxBinding()]),
+
+    GetPage(name: RoutePath.kWebSearch, page: () => const WebSearchPage()),
 
     GetPage(name: RoutePath.kFavoriteAreas, page: () => const FavoriteAreasPage(), bindings: [FavoriteAreasBinding()]),
 

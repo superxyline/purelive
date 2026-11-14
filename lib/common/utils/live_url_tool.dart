@@ -6,7 +6,7 @@ import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/widgets/live_dlna_dialog.dart';
 
 class LiveUrlTool {
-  static Future<List<String>> parseLiveUrl(String url) async {
+  static Future<List<String>> parseLiveUrl(String url, {int depth = 0}) async {
     if (url.isEmpty) return [];
     final urlRegExp = RegExp(
       r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?",
@@ -22,9 +22,23 @@ class LiveUrlTool {
       return await parseLiveUrl(location);
     }
 
+    // 斗鱼分享短链（v.douyu.com/xxxx）与快手分享短链（v.kuaishou.com/xxx）：
+    // 必须在各平台域名判断之前拦截，否则路径段会被误当房间号
+    if (realUrl.contains("v.douyu.com") || realUrl.contains("v.kuaishou.com")) {
+      var location = await _getRedirectLocation(realUrl);
+      if (location.isNotEmpty) return await parseLiveUrl(location);
+      return [];
+    }
+
     // B站直播间
     if (realUrl.contains("bilibili.com")) {
-      var reg = RegExp(r"bilibili\.com/([\d|\w]+)");
+      // 优先 roomId 查询参数（活动页/黑板页样式）
+      final uri = Uri.tryParse(realUrl);
+      final roomIdParam = uri?.queryParameters["roomId"];
+      if (roomIdParam != null && roomIdParam.isNotEmpty) return [roomIdParam, Sites.bilibiliSite];
+      realUrl = realUrl.trimEndChar('/');
+      // 跳过 /h5/、/p/ 等页面路径前缀，避免把 "h5" 当房间号
+      var reg = RegExp(r"bilibili\.com/(?:h5/|p/)?([\d|\w]+)");
       String id = reg.firstMatch(realUrl)?.group(1) ?? "";
       return [id, Sites.bilibiliSite];
     }
@@ -86,6 +100,12 @@ class LiveUrlTool {
       var reg = RegExp(r"(?:live\.kuaishou\.com|www\.kuaishou\.com)[^\/]*\/u\/([\w-]+)");
       String id = reg.firstMatch(realUrl)?.group(1) ?? "";
       return [id, Sites.kuaishouSite];
+    }
+
+    // 兜底：未知域名的分享短链（如网抑云/微博等平台中转链），跟随重定向后再解析
+    if (depth < 2) {
+      final location = await _getRedirectLocation(realUrl);
+      if (location.isNotEmpty && location != realUrl) return parseLiveUrl(location, depth: depth + 1);
     }
 
     return [];
@@ -175,9 +195,16 @@ class LiveUrlTool {
 
   static Future<String> _getRedirectLocation(String url) async {
     try {
-      await dio.Dio().get(url, options: dio.Options(followRedirects: false));
+      // 部分短链服务（如快手）对无 UA 请求不返回 302，必须带浏览器 UA
+      await dio.Dio().get(
+        url,
+        options: dio.Options(
+          followRedirects: false,
+          headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+        ),
+      );
     } on dio.DioException catch (e) {
-      if (e.response?.statusCode == 302) {
+      if (e.response?.statusCode == 302 || e.response?.statusCode == 301) {
         return e.response?.headers.value("Location") ?? "";
       }
     } catch (e) {

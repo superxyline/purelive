@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'tv_lan_sync_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/player/utils/player_consts.dart';
@@ -117,6 +118,14 @@ class _TvSettingsPageState extends State<TvSettingsPage> {
           const cols = [4, 5, 6];
           final i = cols.indexOf(TvSettings.gridColumns.v);
           TvSettings.gridColumns.v = cols[(i + 1) % cols.length];
+        },
+      ),
+      const _TvSettingsRow(group: '同步（扫码 / 局域网互推）'),
+      _TvSettingsRow(
+        label: '局域网设备互推（发现同网络设备，直接推送关注与登录态）',
+        valueText: () => '',
+        onOk: () {
+          Navigator.of(Get.context!).push(MaterialPageRoute(builder: (_) => const TvLanSyncPage()));
         },
       ),
       const _TvSettingsRow(group: '账号登录态（手机扫码同步带入）'),

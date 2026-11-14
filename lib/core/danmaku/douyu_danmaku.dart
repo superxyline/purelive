@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pure_live/core/danmaku/frame_decode_queue.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -11,6 +12,9 @@ import 'package:pure_live/core/interface/live_danmaku.dart';
 import 'package:meta/meta.dart';
 
 class DouyuDanmaku implements LiveDanmaku {
+  /// 弹幕帧串行解码队列：STT 解析移出 UI 线程，保序分发。
+  final FrameDecodeQueue _decodeQueue = FrameDecodeQueue();
+
   @override
   int heartbeatTime = 45 * 1000;
   bool _connected = false;
@@ -103,10 +107,22 @@ class DouyuDanmaku implements LiveDanmaku {
   }
 
   void decodeMessage(List<int> data) {
-    try {
-      for (final result in deserializeDouyuPackets(data)) {
-        final jsonData = sttToJObject(result);
-        if (jsonData is! Map) continue;
+    // 帧拆包 + STT 解析一次性移出 UI 线程（弹幕高峰的大 dms 批量包是 CPU 大头），
+    // 队列串行保证消息顺序；isolate 不可用时回退同步。
+    _decodeQueue.enqueue(data, _decodeFrameAsync);
+  }
+
+  /// 纯解析：帧字节 → JSON 对象列表（无实例状态，可在 isolate 运行）。
+  static List<dynamic> parseDouyuFrame(List<int> data) =>
+      deserializeDouyuPackets(data).map(sttToJObject).toList();
+
+  Future<void> _decodeFrameAsync(List<int> data) async {
+    final jsonList = await runInIsolateOrSync<List<dynamic>>(
+      () => parseDouyuFrame(data),
+      () => parseDouyuFrame(data),
+    );
+    for (final jsonData in jsonList) {
+      if (jsonData is! Map) continue;
 
         var type = jsonData["type"]?.toString();
         //斗鱼好像不会返回人气值
@@ -168,9 +184,6 @@ class DouyuDanmaku implements LiveDanmaku {
           onMessage?.call(liveMsg);
         }
       }
-    } catch (e) {
-      CoreLog.error(e);
-    }
   }
 
   List<int> serializeDouyu(String body) {
@@ -204,7 +217,7 @@ class DouyuDanmaku implements LiveDanmaku {
   /// A single WebSocket frame often contains several Douyu protocol packets.
   /// Parsing only the first packet silently loses chat messages and can leave
   /// the UI looking frozen during busy rooms.
-  List<String> deserializeDouyuPackets(List<int> buffer) {
+  static List<String> deserializeDouyuPackets(List<int> buffer) {
     final packets = <String>[];
     try {
       var offset = 0;
@@ -226,7 +239,7 @@ class DouyuDanmaku implements LiveDanmaku {
   }
 
   //辣鸡STT
-  dynamic sttToJObject(String str) {
+  static dynamic sttToJObject(String str) {
     if (str.contains("//")) {
       var result = [];
       for (var field in str.split("//")) {
@@ -257,7 +270,7 @@ class DouyuDanmaku implements LiveDanmaku {
     }
   }
 
-  String unscapeSlashAt(String str) {
+  static String unscapeSlashAt(String str) {
     return str.replaceAll("@S", "/").replaceAll("@A", "@");
   }
 

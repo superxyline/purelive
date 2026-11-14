@@ -53,6 +53,7 @@ class RoomGridView extends GetView<FavoriteController> {
               itemCount: displayList.length,
               itemBuilder: (context, index) {
                 final room = displayList[index];
+                final selectionMode = controller.selectionMode.value;
                 return RoomCard(
                   key: ValueKey('${room.platform}:${room.roomId}'),
                   room: room,
@@ -60,6 +61,9 @@ class RoomGridView extends GetView<FavoriteController> {
                   hideBadges: hideBadges,
                   // 仅聚合页签（全部）需要平台名区分来源
                   showPlatformBadge: site == Sites.allSite,
+                  selectionMode: selectionMode,
+                  selected: selectionMode && controller.isSelected(room),
+                  onSelectionToggle: selectionMode ? () => controller.toggleSelection(room) : null,
                 );
               },
             );

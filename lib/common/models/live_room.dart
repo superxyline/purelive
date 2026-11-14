@@ -84,6 +84,9 @@ class LiveRoom {
   String? platform = 'UNKNOWN';
   List<String> tagIds = [];
 
+  /// 用户自定义备注（仅本地收藏使用，平台数据不覆盖）
+  String? note = '';
+
   /// 介绍
   String? introduction;
 
@@ -152,7 +155,9 @@ class LiveRoom {
     this.catchUpEnd,
     this.liveStartTime,
     List<String>? tagIds,
-  }) : tagIds = tagIds ?? [];
+    String? note,
+  }) : tagIds = tagIds ?? [],
+       note = note ?? '';
 
   LiveRoom.fromJson(Map<String, dynamic> json)
     : roomId = json['roomId'] ?? '',
@@ -174,6 +179,7 @@ class LiveRoom {
       followers = json['followers']?.toString() ?? '0',
       platform = json['platform'] ?? 'UNKNOWN',
       tagIds = List<String>.from(json['tagIds'] ?? []),
+      note = json['note']?.toString() ?? '',
       liveStatus = LiveStatus.values.firstWhere((e) => e.index == json['liveStatus'], orElse: () => LiveStatus.unknown),
       status = json['status'] ?? false,
       notice = json['notice'] ?? '',
@@ -232,6 +238,7 @@ class LiveRoom {
     int? catchUpEnd,
     int? liveStartTime,
     List<String>? tagIds,
+    String? note,
   }) {
     return LiveRoom(
       roomId: roomId ?? this.roomId,
@@ -265,6 +272,7 @@ class LiveRoom {
       catchUpEnd: catchUpEnd ?? this.catchUpEnd,
       liveStartTime: liveStartTime ?? this.liveStartTime,
       tagIds: tagIds ?? this.tagIds,
+      note: note ?? this.note,
     );
   }
 
@@ -309,6 +317,7 @@ class LiveRoom {
       'followers': followers,
       'platform': platform,
       'tagIds': tagIds,
+      'note': note,
       'liveStatus': liveStatus?.index ?? LiveStatus.offline.index,
       'isRecord': isRecord,
       'status': status,

@@ -44,6 +44,18 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
               isLong: true,
             ),
           ]),
+          // 醒目留言（SC）总开关：与下面的透明度、列表降级等 SC 相关项同页，
+          // 避免总开关在"播放体验"而相关项在这里的跨页找不到。
+          context.buildGroupTitle(i18n('super_chat_switch')),
+          context.buildModernCard([
+            context.buildSwitchTile(
+              icon: Icons.chat_bubble_outline_rounded,
+              title: i18n('super_chat_switch'),
+              subtitle: i18n('super_chat_switch_desc'),
+              value: SettingsService.to.danmaku.showSuperChat,
+              isLong: true,
+            ),
+          ]),
           // 全屏浮层透明度：作用于全屏时的醒目留言与礼物卡片，
           // 与本地互动开关无关，因此固定显示在这个位置。
           context.buildGroupTitle(i18n('fullscreen_overlay_opacity')),

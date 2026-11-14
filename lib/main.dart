@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pure_live/modules/backup/lan_sync_confirm.dart';
 
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/index.dart';
@@ -109,6 +110,20 @@ class _MyAppState extends State<MyApp> {
     Get.put(RoomGiftBlockService());
     // 按直播间维度的视频遮挡块（模糊框）
     Get.put(VideoMaskService());
+    // 局域网设备发现与互推同步（手机/平板；TV 端在 TvApp 自行启动）
+    debugPrint('lan discovery: initState reached');
+    if (!PlatformUtils.isWeb) {
+      try {
+        debugPrint('lan discovery: putting service');
+        Get.put(LanDiscoveryService());
+        debugPrint('lan discovery: service put, starting');
+        unawaited(Get.find<LanDiscoveryService>().start());
+        LanSyncConfirm.register();
+        debugPrint('lan discovery: init done');
+      } catch (e) {
+        debugPrint('lan discovery: init error: $e');
+      }
+    }
     // 冷启动后台预取赛事数据：延后几秒避开首页首屏的网络竞争，
     // 用户点击赛事标签时大概率已就绪，直接命中缓存秒开。
     // Web 端跳过：赛事/版本检查都是直连外部站点的请求，浏览器 CORS

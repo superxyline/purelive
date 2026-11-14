@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 2.6.0+4045
+version: 2.6.1+6046
 
 environment:
   sdk: ^3.13.0
@@ -175,7 +175,6 @@ dependencies:
   easy_localization: ^3.0.8 #多语言
   app_links: ^7.2.1
   scroll_animator: 0.3.0
-  flutter_liquid_glass: ^1.0.0 # 液态玻璃导航视觉（Apple Liquid Glass 设计语言，含悬停/按压/视差动效）
 # 依赖覆盖（强制指定版本）
   web: ^1.1.0 # Flutter Web DOM 互操作（Web 播放器，lib 内直接 import）
 dependency_overrides:
@@ -234,6 +233,8 @@ flutter:
   # config:
   #     enable-swift-package-manager: false
   # 资源文件
+  shaders:
+    - shaders/liquid_glass.frag
   assets:
     - assets/
     - assets/images/
@@ -241,7 +242,6 @@ flutter:
     - assets/icons/
     - assets/icons/esports/
     - assets/webdav/
-    - assets/shaders/
     - assets/version.json
     - assets/releases.json
     - assets/emo/images/huya/

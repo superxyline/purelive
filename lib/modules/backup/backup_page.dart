@@ -11,6 +11,7 @@ import 'package:pure_live/common/global/app_path_manager.dart';
 import 'package:pure_live/plugins/backup_recovery_service.dart';
 import 'package:pure_live/common/services/settings/log_controller.dart';
 import 'package:pure_live/common/services/settings/nas_sync_controller.dart';
+import 'package:pure_live/common/services/settings/backup_controller.dart';
 import 'package:pure_live/common/services/nas_discovery_service.dart';
 
 class BackupPage extends StatefulWidget {
@@ -175,6 +176,102 @@ class _BackupPageState extends State<BackupPage> {
     }
   }
 
+  /// 局域网设备列表对话框：实时列出发现的设备，点击推送。
+  Future<void> _showLanDevicesDialog() async {
+    final service = Get.isRegistered<LanDiscoveryService>() ? LanDiscoveryService.to : null;
+    if (service == null || !service.isRunning) {
+      ToastUtil.show(i18n('lan_sync_unavailable'));
+      return;
+    }
+    // 原生 showDialog + Navigator.of(context).pop：Get.back() 在嵌套场景
+    // 会 pop 错 route（把底层 backup 页退回设置页），Get 4.7.3 已知坑。
+    await showDialog(
+      context: Get.context!,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(i18n('lan_sync_title')),
+        content: SizedBox(
+          width: 380,
+          child: Obx(() {
+            final peers = service.peers.toList();
+            if (peers.isEmpty) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FutureBuilder<bool>(
+                    future: LocalNetworkPermission.isGranted(),
+                    builder: (context, snap) {
+                      // Android 16+ 未授予局域网权限时系统静默丢弃所有
+                      // 局域网连接（含 UDP/TCP），必须手动授权。
+                      if (snap.data == false) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Column(
+                            children: [
+                              Text(i18n('lan_perm_missing'), style: AppTextStyles.t14.copyWith(color: Theme.of(context).colorScheme.error)),
+                              const SizedBox(height: 4),
+                              TextButton(
+                                onPressed: () => LocalNetworkPermission.openAppDetails(),
+                                child: Text(i18n('lan_perm_open_settings')),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(i18n('lan_sync_searching'), textAlign: TextAlign.center),
+                  ),
+                ],
+              );
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final peer in peers)
+                  ListTile(
+                    leading: Icon(
+                      peer.type == 'tv'
+                          ? Icons.tv_rounded
+                          : peer.type == 'tablet'
+                              ? Icons.tablet_rounded
+                              : Icons.smartphone_rounded,
+                    ),
+                    title: Text(peer.name, style: const TextStyle(fontSize: 15)),
+                    subtitle: Text(peer.ip, style: const TextStyle(fontSize: 12)),
+                    trailing: const Icon(Icons.send_rounded, size: 18),
+                    onTap: () async {
+                      debugPrint('lan push: tapped ' + (peer.name ?? '') + ' ' + (peer.ip ?? ''));
+                      final result = await _pushToLanPeer(service, peer);
+                      debugPrint('lan push: done result=' + result.toString());
+                      ToastUtil.show(result ? i18n('sync_success') : i18n('sync_failed'));
+                    },
+                  ),
+              ],
+            );
+          }),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(i18n('close')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 推送载荷与扫码同步一致（关注+登录态+设置）。发起端不再二次确认
+  /// （对端已有确认框防误推），点击设备即直接推送，对端确认后并集合并。
+  Future<bool> _pushToLanPeer(LanDiscoveryService service, LanPeer peer) async {
+    final payload = Get.find<BackupController>().exportTransferData();
+    final result = await service.pushTo(peer, payload);
+    debugPrint('lan push result=$result to=${peer.ip}');
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,6 +302,14 @@ class _BackupPageState extends State<BackupPage> {
                 onTap: () => Get.to(() => const ReceiveTransferPage()),
               ),
             ],
+            // 局域网设备直推：自动发现同一网络里运行 PureLive 的手机/平板/电视，
+            // 点击直接推送关注与登录态（对端确认后合并），无需扫码。
+            context.buildTile(
+              icon: Icons.devices_rounded,
+              title: i18n('lan_sync_title'),
+              subtitle: i18n('lan_sync_subtitle'),
+              onTap: _showLanDevicesDialog,
+            ),
           ]),
           const SizedBox(height: 20),
           // NAS 服务器常连同步：存地址 + 方向可选（推送/拉取/并集）+ 局域网自动发现

@@ -1,7 +1,7 @@
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
-import 'package:pure_live/modules/home/widgets/liquid_glass_nav_button.dart';
+import 'package:pure_live/modules/home/widgets/liquid_glass_bar.dart';
 
 class HomeMobileView extends StatelessWidget {
   final Widget body;
@@ -83,29 +83,45 @@ class HomeMobileView extends StatelessWidget {
         );
       }
 
-      // 液态玻璃导航（替换现有底部栏）：四个玻璃按钮等宽铺满底栏
-      final Color accent = Theme.of(context).colorScheme.primary;
+      // 液态玻璃导航（参照 wzgrx/PureLive）：一条浮动玻璃胶囊，页面内容
+      // 从底栏后面穿过（extendBody），选中项是弹簧水滴。
+      // 必须用 viewPadding：extendBody 时 Scaffold 会把底栏高度注入
+      // padding.bottom，用它算 gap 会形成栏越高→gap越大的反馈循环，
+      // 把玻璃栏一路顶到屏幕中央；viewPadding 始终是系统手势条真实 inset。
+      final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
+      final gap = GlassBarMetrics.barGap(
+        safeBottom: safeBottom,
+        ios: Theme.of(context).platform == TargetPlatform.iOS,
+      );
+      int glassSelected = realIndices.indexOf(index);
+      if (glassSelected == -1) glassSelected = 0;
       return Scaffold(
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.only(
-            left: 12,
-            right: 12,
-            bottom: MediaQuery.of(context).padding.bottom + 10,
-            top: 8,
-          ),
-          child: Row(
-            children: [
-              for (int i = 0; i < menus.length; i++)
-                Expanded(
-                  child: LiquidGlassNavButton(
-                    icon: _iconFor(menus[i], selected: realIndices[i] == index),
-                    label: _labelFor(menus[i]),
-                    selected: realIndices[i] == index,
-                    accent: accent,
-                    onTap: () => onDestinationSelected(realIndices[i]),
-                  ),
-                ),
-            ],
+        extendBody: true,
+        bottomNavigationBar: Padding(
+          padding: EdgeInsets.only(left: 12, right: 12, bottom: gap),
+          // heightFactor: 1 必须加：bottomNavigationBar 的约束是松的（最大为屏高），
+          // 默认 Center 会撑满最大高度，把玻璃栏垂直居中到屏幕中央。
+          child: Center(
+            heightFactor: 1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: GlassBarMetrics.barMaxWidth),
+              child: LiquidGlassBar(
+                items: [
+                  for (int i = 0; i < menus.length; i++)
+                    LiquidGlassBarItem(
+                      icon: _iconFor(menus[i]),
+                      selectedIcon: _iconFor(menus[i], selected: true),
+                      label: _labelFor(menus[i]),
+                    ),
+                ],
+                selectedIndex: glassSelected,
+                onSelected: (int virtualIndex) {
+                  if (virtualIndex < realIndices.length) {
+                    onDestinationSelected(realIndices[virtualIndex]);
+                  }
+                },
+              ),
+            ),
           ),
         ),
         body: body,

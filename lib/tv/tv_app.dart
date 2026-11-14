@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:pure_live/modules/backup/lan_sync_confirm.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -38,6 +39,10 @@ class _TvAppState extends State<TvApp> {
     Get.put(WatchStatsService());
     Get.put(RoomGiftBlockService());
     Get.put(VideoMaskService());
+    // 局域网设备发现与互推同步（TV 端也可被手机/平板推送关注）
+    Get.put(LanDiscoveryService());
+    unawaited(Get.find<LanDiscoveryService>().start(deviceName: 'PureLive 电视', deviceType: 'tv'));
+    LanSyncConfirm.register();
     unawaited(_initPlayer());
   }
 

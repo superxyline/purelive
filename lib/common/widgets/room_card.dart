@@ -17,6 +17,9 @@ class RoomCard extends StatelessWidget {
     this.dense = false,
     this.hideBadges = false,
     this.showPlatformBadge = false,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionToggle,
   });
   final LiveRoom room;
   final bool dense;
@@ -25,6 +28,13 @@ class RoomCard extends StatelessWidget {
   /// 聚合列表（如关注页"全部"页签）下在开播时长角标内显示平台名；
   /// 单平台页签下平台名冗余，调用方传 false 隐藏。
   final bool showPlatformBadge;
+
+  /// 多选批量管理模式：点击卡片=切换选中，长按菜单禁用。
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionToggle;
+
+  bool get _hasNote => (room.note ?? '').trim().isNotEmpty;
 
   Widget _buildCover(BuildContext context, bool isDark) {
     final coverUrl = normalizeNetworkImageUrl(room.cover);
@@ -272,6 +282,17 @@ class RoomCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 FollowButton(room: room),
+                // 编辑备注：仅对已关注的房间生效（备注存于本地收藏）
+                IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(6),
+                  tooltip: i18n('edit_note'),
+                  icon: Icon(Remix.edit_2_line, size: 20, color: theme.colorScheme.primary),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _editNote(context);
+                  },
+                ),
                 // 直播间信息：拉取详情后以对话框展示（含简介）
                 IconButton(
                   constraints: const BoxConstraints(),
@@ -307,6 +328,59 @@ class RoomCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 编辑本地备注：仅已关注的房间可编辑，保存到收藏列表对应房间。
+  void _editNote(BuildContext context) {
+    final theme = Theme.of(context);
+    final favorites = SettingsService.to.fav;
+    final followed = favorites.favoriteRooms.v.any(
+      (r) => r.platform == room.platform && r.roomId == room.roomId,
+    );
+    if (!followed) {
+      SmartDialog.showToast(i18n('note_need_follow'));
+      return;
+    }
+    final controller = TextEditingController(text: (room.note ?? '').trim());
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(i18n('edit_note'), style: AppTextStyles.t16.copyWith(fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 30,
+          decoration: InputDecoration(hintText: i18n('note_hint'), counterText: ''),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(i18n('cancel'), style: AppTextStyles.t14.copyWith(color: theme.colorScheme.secondary)),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              final note = controller.text.trim();
+              final rooms = List<LiveRoom>.from(favorites.favoriteRooms.v);
+              final idx = rooms.indexWhere((r) => r.platform == room.platform && r.roomId == room.roomId);
+              if (idx != -1) {
+                rooms[idx].note = note;
+                favorites.favoriteRooms.v = rooms;
+              }
+              Navigator.of(context).pop();
+              SmartDialog.showToast(i18n('note_saved'));
+            },
+            child: Text(i18n('confirm'), style: AppTextStyles.t14.copyWith(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -753,13 +827,18 @@ class RoomCard extends StatelessWidget {
       child: Card(
         margin: EdgeInsets.zero,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: selectionMode && selected
+              ? BorderSide(color: Get.theme.colorScheme.primary, width: 2)
+              : BorderSide.none,
+        ),
         color: isDark ? Colors.grey[900] : Colors.white,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () => onTap(context),
-          onLongPress: () => onLongPress(context),
-          onSecondaryTap: () => onLongPress(context),
+          onTap: selectionMode ? onSelectionToggle : () => onTap(context),
+          onLongPress: selectionMode ? null : () => onLongPress(context),
+          onSecondaryTap: selectionMode ? null : () => onLongPress(context),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -776,9 +855,27 @@ class RoomCard extends StatelessWidget {
                       child: _buildCover(context, isDark),
                     ),
                   ),
-                  if (room.isRecord == true && !hideBadges)
+                  if (selectionMode)
                     Positioned(
                       right: 8,
+                      top: 8,
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: selected ? Get.theme.colorScheme.primary : Colors.black.withValues(alpha: 0.35),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.9), width: 2),
+                        ),
+                        child: selected
+                            ? Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                            : const SizedBox.shrink(),
+                      ),
+                    ),
+                  if (room.isRecord == true && !hideBadges)
+                    Positioned(
+                      // 多选模式的勾选标记占了右上角，录播角标让位
+                      right: selectionMode ? 44 : 8,
                       top: 8,
                       child: CountChip(
                         icon: Icons.videocam_rounded,
@@ -858,12 +955,15 @@ class RoomCard extends StatelessWidget {
                   ),
                 ),
                 subtitle: Text(
-                  room.nick ?? '',
+                  _hasNote ? room.note!.trim() : (room.nick ?? ''),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: (dense ? AppTextStyles.t12 : AppTextStyles.t13).copyWith(
                     fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.grey[400] : Colors.grey[700],
+                    fontStyle: _hasNote ? FontStyle.italic : FontStyle.normal,
+                    color: _hasNote
+                        ? Get.theme.colorScheme.primary
+                        : (isDark ? Colors.grey[400] : Colors.grey[700]),
                   ),
                 ),
                 trailing: dense

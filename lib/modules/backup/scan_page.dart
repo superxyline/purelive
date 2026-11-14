@@ -49,6 +49,34 @@ class _ScanCodePageState extends State<ScanCodePage> {
     }
   }
 
+  /// 弹出关键词输入对话框（电视扫码搜索）。
+  Future<String?> _askTvSearchKeyword() async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('电视搜索'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textInputAction: TextInputAction.search,
+          onSubmitted: (v) => Navigator.of(dialogContext).pop(v),
+          decoration: const InputDecoration(hintText: '输入要搜索的直播间关键词'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(i18n('cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+            child: Text(i18n('confirm')),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,12 +175,35 @@ class _ScanCodePageState extends State<ScanCodePage> {
                     hasFound = true;
                     syncResult = true;
                   });
-                  // 电视二维码：路径以 /tv/ 开头，走 body 载荷的 TV 专用推送
+                  // 电视二维码：路径以 /tv/ 开头。带 action=search 的是电视
+                  // 搜索页的扫码输入请求：在手机上输入关键词后 POST 回电视，
+                  // 电视自动执行搜索；其余为关注/设置同步推送。
                   final raw = barcodes[0].rawValue!;
                   final uri = Uri.tryParse(raw);
                   final isTvTarget = uri != null && uri.pathSegments.isNotEmpty && uri.pathSegments.first == 'tv';
                   bool result;
-                  if (isTvTarget) {
+                  if (isTvTarget && uri.queryParameters['action'] == 'search') {
+                    final keyword = await _askTvSearchKeyword();
+                    if (keyword == null || keyword.trim().isEmpty) {
+                      _processing = false;
+                      setState(() {
+                        hasFound = false;
+                        syncResult = false;
+                      });
+                      return;
+                    }
+                    result = await BackupRecoveryService().pushTvSearch(raw, keyword.trim());
+                    if (result) {
+                      ToastUtil.show('已发送，电视开始搜索');
+                      setState(() {
+                        isSuccess = true;
+                        syncResult = false;
+                      });
+                      await Future<void>.delayed(const Duration(seconds: 1));
+                      if (mounted) Navigator.of(context).maybePop();
+                      return;
+                    }
+                  } else if (isTvTarget) {
                     result = await BackupRecoveryService().pushDataToTv(raw);
                   } else if (widget.transferMode) {
                     result = await _pushTransferData(raw);

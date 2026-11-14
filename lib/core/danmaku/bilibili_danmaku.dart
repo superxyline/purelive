@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/danmaku/frame_decode_queue.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -47,6 +48,9 @@ class BiliBiliDanmakuArgs {
 }
 
 class BiliBiliDanmaku implements LiveDanmaku {
+  /// 弹幕帧串行解码队列：大帧解压移出 UI 线程，保序分发。
+  final FrameDecodeQueue _decodeQueue = FrameDecodeQueue();
+
   @override
   int heartbeatTime = 30 * 1000;
   bool _connected = false;
@@ -242,15 +246,15 @@ class BiliBiliDanmaku implements LiveDanmaku {
   }
 
   void decodeMessage(List<int> data) {
-    try {
-      if (data.length > maxMessageBytes) {
-        throw FormatException('Bilibili danmaku message too large: ${data.length} bytes');
-      }
-      _decodePacketStream(data, depth: 0, budget: _DecodeBudget(maxDecompressedBytes));
-    } catch (e) {
-      // 坏帧只终止当前这条消息：下一帧正常弹幕仍然继续进入列表与画面。
-      CoreLog.error(e);
+    // 大帧解压走 isolate（CPU 密集），队列串行保证消息顺序。
+    _decodeQueue.enqueue(data, _decodeFrameAsync);
+  }
+
+  Future<void> _decodeFrameAsync(List<int> data) async {
+    if (data.length > maxMessageBytes) {
+      throw FormatException('Bilibili danmaku message too large: ${data.length} bytes');
     }
+    await _decodePacketStream(data, depth: 0, budget: _DecodeBudget(maxDecompressedBytes));
   }
 
   /// A WebSocket message can contain multiple Bilibili packets. Compressed
@@ -258,7 +262,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
   /// plain JSON. Parsing the 16-byte frames recursively keeps packet-length
   /// bytes away from the JSON decoder and prevents valid DANMU_MSG events from
   /// being dropped.
-  void _decodePacketStream(List<int> data, {required int depth, required _DecodeBudget budget}) {
+  Future<void> _decodePacketStream(List<int> data, {required int depth, required _DecodeBudget budget}) async {
     if (depth > maxNestingDepth) {
       throw const FormatException('Bilibili danmaku packet nesting is too deep');
     }
@@ -281,7 +285,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
       }
 
       final body = data.sublist(offset + headerLength, offset + packetLength);
-      _decodePacket(protocolVersion, operation, body, depth: depth, budget: budget);
+      await _decodePacket(protocolVersion, operation, body, depth: depth, budget: budget);
       offset += packetLength;
     }
 
@@ -290,13 +294,13 @@ class BiliBiliDanmaku implements LiveDanmaku {
     }
   }
 
-  void _decodePacket(
+  Future<void> _decodePacket(
     int protocolVersion,
     int operation,
     List<int> body, {
     required int depth,
     required _DecodeBudget budget,
-  }) {
+  }) async {
     if (operation == 3) {
       if (body.length < 4) return;
       final online = readInt(body, 0, 4);
@@ -317,7 +321,12 @@ class BiliBiliDanmaku implements LiveDanmaku {
         if (body.length > maxCompressedBodyBytes) {
           throw FormatException('Bilibili danmaku compressed body too large: ${body.length} bytes');
         }
-        final decoded = protocolVersion == 2 ? zlib.decode(body) : brotli.decode(body);
+        // zlib/brotli 解压是弹幕高峰期的 CPU 大头，移出 UI 线程；
+        // isolate 不可用（无 Impeller 环境/测试）时回退同步。
+        final decoded = await runInIsolateOrSync<List<int>>(
+          () => protocolVersion == 2 ? zlib.decode(body) : brotli.decode(body),
+          () => protocolVersion == 2 ? zlib.decode(body) : brotli.decode(body),
+        );
         // 累计记账：单层限制挡不住"每层放大几十倍"的嵌套炸弹。
         if (!budget.consume(decoded.length)) {
           throw FormatException(
@@ -325,7 +334,7 @@ class BiliBiliDanmaku implements LiveDanmaku {
             'remaining=${budget.remaining}',
           );
         }
-        _decodePacketStream(decoded, depth: depth + 1, budget: budget);
+        await _decodePacketStream(decoded, depth: depth + 1, budget: budget);
       } else {
         final text = utf8.decode(body, allowMalformed: true).trim();
         if (text.isNotEmpty) parseMessage(text);

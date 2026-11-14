@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pure_live/core/common/core_log.dart';
 import 'dart:developer' as developer;
 
 import 'package:pure_live/common/index.dart';
@@ -30,6 +31,85 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   final allRooms = <LiveRoom>[].obs;
   final selectedTagId = TagManagementController.allTagKey.obs;
   final visibleTags = <LiveTag>[].obs;
+
+  // ===== 批量管理模式 =====
+  /// 是否处于多选模式（进入后点击卡片=切换选中，长按菜单禁用）。
+  final selectionMode = false.obs;
+
+  /// 已选房间的 identityKey 集合。
+  final selectedKeys = <String>[].obs;
+
+  bool isSelected(LiveRoom room) => selectedKeys.contains(room.identityKey);
+
+  void enterSelectionMode() {
+    selectionMode.value = true;
+    selectedKeys.clear();
+  }
+
+  void exitSelectionMode() {
+    selectionMode.value = false;
+    selectedKeys.clear();
+  }
+
+  void toggleSelection(LiveRoom room) {
+    final key = room.identityKey;
+    if (selectedKeys.contains(key)) {
+      selectedKeys.remove(key);
+    } else {
+      selectedKeys.add(key);
+    }
+  }
+
+  /// 按当前过滤结果全选/反选。
+  void selectAllVisible() {
+    final visible = getFilteredRooms();
+    if (visible.every((r) => selectedKeys.contains(r.identityKey))) {
+      for (final room in visible) {
+        selectedKeys.remove(room.identityKey);
+      }
+    } else {
+      for (final room in visible) {
+        if (!selectedKeys.contains(room.identityKey)) selectedKeys.add(room.identityKey);
+      }
+    }
+  }
+
+  /// 批量移出已选房间。
+  void batchRemoveSelected() {
+    final keys = selectedKeys.toSet();
+    final rooms = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
+    rooms.removeWhere((r) => keys.contains(r.identityKey));
+    SettingsService.to.fav.favoriteRooms.v = rooms;
+    SmartDialog.showToast(i18n('batch_removed'));
+    exitSelectionMode();
+  }
+
+  /// 批量设置备注（留空=清除）。
+  void batchSetNote(String note) {
+    final keys = selectedKeys.toSet();
+    final rooms = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
+    for (final r in rooms) {
+      if (keys.contains(r.identityKey)) r.note = note;
+    }
+    SettingsService.to.fav.favoriteRooms.v = rooms;
+    SmartDialog.showToast(i18n('note_saved'));
+  }
+
+  /// 批量合并标签（并集）。
+  void batchAddTags(List<String> tagIds) {
+    final keys = selectedKeys.toSet();
+    final rooms = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
+    for (final r in rooms) {
+      if (!keys.contains(r.identityKey)) continue;
+      final merged = List<String>.from(r.tagIds);
+      for (final id in tagIds) {
+        if (!merged.contains(id)) merged.add(id);
+      }
+      r.tagIds = merged;
+    }
+    SettingsService.to.fav.favoriteRooms.v = rooms;
+    SmartDialog.showToast(i18n('batch_tags_applied'));
+  }
 
   FavoriteController() : super();
 
@@ -381,9 +461,13 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     final valid = rooms.where((r) => (r.platform?.isNotEmpty ?? false) && r.roomId != null).toList();
     if (valid.isEmpty) return;
 
-    final persistedRooms = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
     var dirty = false;
     var lastPush = DateTime.now();
+
+    // 本轮产生的状态变更（identity → 新状态），flush 时合并进【最新】的收藏列表。
+    // 旧实现直接持有列表快照整体覆盖写回，会与并行的详情刷新互相回滚对方刚
+    // 写入的数据（卡片字段被旧对象替换回去），表现为列表偶发大面积异常。
+    final statusUpdates = <String, LiveStatus>{};
 
     // 结果节流推送：150ms 合并一次，避免每个房间都触发大列表排序/标签匹配。
     void flush({bool force = false}) {
@@ -392,7 +476,21 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
       if (!force && now.difference(lastPush) < const Duration(milliseconds: 150)) return;
       lastPush = now;
       dirty = false;
-      SettingsService.to.fav.favoriteRooms.v = List<LiveRoom>.from(persistedRooms);
+      // 读最新列表，只把状态字段按房间合并进去——不回滚其他路径的并发写入。
+      final latest = List<LiveRoom>.from(SettingsService.to.fav.favoriteRooms.v);
+      var merged = false;
+      statusUpdates.forEach((key, nextStatus) {
+        final idx = latest.indexWhere((e) => e.identityKey == key);
+        if (idx == -1) return;
+        if (latest[idx].liveStatus != nextStatus) {
+          latest[idx].liveStatus = nextStatus;
+          latest[idx].status = nextStatus == LiveStatus.live;
+          merged = true;
+        }
+      });
+      statusUpdates.clear();
+      if (!merged) return;
+      SettingsService.to.fav.favoriteRooms.v = latest;
       applyLocalFilter();
     }
 
@@ -402,28 +500,30 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
         final i = next++;
         if (i >= valid.length) return;
         final room = valid[i];
-        final bool isLive;
+        bool isLive;
         try {
           isLive = await Sites.of(room.platform!)
               .liveSite
               .getLiveStatus(platform: room.platform!, roomId: room.roomId!)
               .timeout(_statusTimeout);
         } catch (_) {
-          // 单个房间失败不影响其它：保留上一次状态继续下一个。
-          continue;
+          // 单个房间失败：重试一次再放弃；仍失败则保留上一次状态继续下一个。
+          try {
+            await Future<void>.delayed(const Duration(milliseconds: 300));
+            isLive = await Sites.of(room.platform!)
+                .liveSite
+                .getLiveStatus(platform: room.platform!, roomId: room.roomId!)
+                .timeout(_statusTimeout);
+          } catch (_) {
+            // 查询失败≠离线：保留上一次状态，只记日志供排查平台接口问题。
+            CoreLog.w('fav-status failed: ${room.platform}/${room.roomId}');
+            continue;
+          }
         }
-        final idx = persistedRooms.indexWhere(
-          (e) => e.roomId == room.roomId && e.platform == room.platform,
-        );
-        if (idx == -1) continue;
-        final target = persistedRooms[idx];
-        final nextStatus = isLive ? LiveStatus.live : LiveStatus.offline;
-        if (target.liveStatus == nextStatus) continue;
-        // 只改开播状态，其它卡片字段维持缓存值，避免大列表闪烁。
-        target.liveStatus = nextStatus;
-        target.status = isLive;
-        dirty = true;
-        flush();
+        _applyStatus(room, isLive ? LiveStatus.live : LiveStatus.offline, statusUpdates, () {
+          dirty = true;
+          flush();
+        });
       }
     }
 
@@ -432,6 +532,23 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     } finally {
       flush(force: true);
     }
+  }
+
+  /// 平台开播状态连续失败计数（诊断日志用：某个平台连续失败多次会列为嫌疑）。
+  final _statusFailures = <String, int>{};
+
+  void _applyStatus(LiveRoom room, LiveStatus nextStatus, Map<String, LiveStatus> updates, VoidCallback onDirty) {
+    if (nextStatus == LiveStatus.offline) {
+      // 误判下播的防线：一个之前在线的房间突然消失，多数是平台风控/接口降级
+      // 返回了不可信的失败态。只有连续两次查询都得到离线才接受。
+      final failCount = (_statusFailures[room.identityKey] ?? 0) + 1;
+      _statusFailures[room.identityKey] = failCount;
+      if (failCount < 2) return;
+    } else {
+      _statusFailures.remove(room.identityKey);
+    }
+    updates[room.identityKey] = nextStatus;
+    onDirty();
   }
 
   /// 分批增量推到界面的最小间隔：既让卡片尽快更新，又避免大列表反复
@@ -474,7 +591,15 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
               )
               .toList();
 
-          final results = await Future.wait(futures);
+          // 单个房间请求失败不能丢掉同批已成功的其它房间更新：
+          // Future.wait 任一错误即整批抛出，catch 后批内结果全部丢弃，
+          // 曾导致一次网络抖动让整批房间的卡片/状态停留在旧值。
+          final results = <LiveRoom>[];
+          for (final future in futures) {
+            try {
+              results.add(await future);
+            } catch (_) {}
+          }
           for (var updated in results) {
             final idx = persistedRooms.indexWhere(
               (e) => e.roomId == updated.roomId && e.platform == updated.platform,
@@ -486,6 +611,8 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
             // 平台详情接口不认识本地标签；刷新时保留它们。整个刷新周期
             // 只提交一次 Hive，避免每个房间各写一份完整收藏列表。
             updated.tagIds = List<String>.from(persistedRooms[idx].tagIds);
+            // 本地备注同理：平台详情不认识它，刷新时原样保留。
+            updated.note = persistedRooms[idx].note;
             // 开播中的房间若本次刷新没取到开播时间（多为接口被风控降级），
             // 保留上一次的值，避免角标被静默清掉。
             if (updated.liveStartTime == null &&

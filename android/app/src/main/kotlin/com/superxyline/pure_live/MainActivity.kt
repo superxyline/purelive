@@ -8,6 +8,7 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.hardware.display.DisplayManager
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
@@ -79,6 +80,17 @@ class MainActivity : AudioServiceActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // 局域网发现（UDP 广播互推）：不持有 Wi-Fi 组播锁时，部分 ROM 会过滤
+        // 组播/广播帧且 send 广播直接 EPERM（实测小米平板）。进程生命周期持有。
+        try {
+            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            @Suppress("DEPRECATION")
+            val lock = wifi.createMulticastLock("purelive_lan_discovery")
+            lock.setReferenceCounted(false)
+            lock.acquire()
+        } catch (e: Exception) {
+            android.util.Log.w("purelive", "multicast lock failed: ${e.message}")
+        }
         appShortcutsChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             APP_SHORTCUTS_CHANNEL,
@@ -145,6 +157,13 @@ class MainActivity : AudioServiceActivity() {
             when (call.method) {
                 "ensure" -> result.success(ensureLocalNetworkPermission())
                 "granted" -> result.success(isLocalNetworkGranted())
+                "openAppDetails" -> {
+                    startActivity(
+                        Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            .setData(Uri.fromParts("package", packageName, null))
+                    )
+                    result.success(true)
+                }
                 else -> result.notImplemented()
             }
         }
@@ -368,9 +387,16 @@ class MainActivity : AudioServiceActivity() {
             compareBy<Display.Mode> { it.refreshRate }.thenBy { it.modeId },
         ) ?: currentMode
 
+        // 关闭高刷时不能只清空偏好（那样会回落到系统默认，高刷屏可能仍是 120Hz），
+        // 要明确挑"最接近 60Hz"的模式，才能真正省电。
+        val powerSaveMode = compatibleModes.minByOrNull {
+            kotlin.math.abs(it.refreshRate - 60f)
+        } ?: currentMode
+
+        val targetMode = if (enabled) preferredMode else powerSaveMode
+        val targetModeId = targetMode.modeId
+        val targetRefreshRate = targetMode.refreshRate
         val attributes = window.attributes
-        val targetModeId = if (enabled) preferredMode.modeId else 0
-        val targetRefreshRate = if (enabled) preferredMode.refreshRate else 0f
         if (
             attributes.preferredDisplayModeId != targetModeId ||
             kotlin.math.abs(attributes.preferredRefreshRate - targetRefreshRate) > 0.01f
@@ -379,7 +405,7 @@ class MainActivity : AudioServiceActivity() {
             attributes.preferredRefreshRate = targetRefreshRate
             window.attributes = attributes
         }
-        return displayModeInfo(if (enabled) preferredMode else currentMode)
+        return displayModeInfo(targetMode)
     }
 
     private fun displayModeInfo(preferredMode: Display.Mode? = null): Map<String, Any> {

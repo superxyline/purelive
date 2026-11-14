@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/utils/live_url_tool.dart';
 import 'package:pure_live/modules/search/search_capability.dart';
 import 'package:pure_live/modules/search/search_ranking.dart';
+import 'package:pure_live/routes/app_navigation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SearchController extends GetxController with GetSingleTickerProviderStateMixin {
@@ -99,6 +101,8 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
       ToastUtil.show(i18n("please_input_keyword"));
       return;
     }
+    // 输入的是直播间链接（含分享短链）时直接跳转该直播间，不走关键词搜索。
+    if (await _openRoomFromLink(keyword)) return;
     FocusManager.instance.primaryFocus?.unfocus();
     if (scrollController.hasClients) scrollController.jumpTo(0);
     final generation = ++_searchGeneration;
@@ -114,6 +118,36 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
     results.clear();
 
     await _searchPage(keyword: keyword, page: 1, generation: generation, append: false);
+  }
+
+  /// 输入包含直播间链接时解析并直接打开该直播间（未开播也可进入，播放页会显示状态）。
+  /// 返回是否已按链接处理；解析失败或不是链接则回退关键词搜索。
+  Future<bool> _openRoomFromLink(String text) async {
+    List<String> parsed;
+    try {
+      parsed = await LiveUrlTool.parseLiveUrl(text);
+    } catch (_) {
+      return false;
+    }
+    if (parsed.length < 2 || parsed.first.isEmpty) return false;
+    FocusManager.instance.primaryFocus?.unfocus();
+    AppNavigator.toLiveRoomDetail(
+      liveRoom: LiveRoom(
+        roomId: parsed.first,
+        platform: parsed[1],
+        title: '',
+        cover: '',
+        nick: '',
+        watching: '',
+        avatar: '',
+        area: '',
+        liveStatus: LiveStatus.live,
+        status: true,
+        data: '',
+        danmakuData: '',
+      ),
+    );
+    return true;
   }
 
   Future<void> loadMore() async {
@@ -264,8 +298,9 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
     }
     final site = Sites().availableSites()[index.v - 1];
     final url = buildSearchUrl(site.id, searchController.text.trim());
-    // 定制版没有 app 内 WebSearchPage（kWebSearch 路由未注册），Android 与 Linux 一样走外部浏览器
-    if (Platform.isAndroid || Platform.isLinux) {
+    // 应用内 WebSearchPage：WebView 打开搜索页，识别到直播间链接可回跳应用内播放。
+    // Linux 无 WebView 支持时回退外部浏览器。
+    if (Platform.isLinux) {
       final opened = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       if (!opened) ToastUtil.show(i18n('external_browser_not_opened'));
       return;
@@ -274,7 +309,7 @@ class SearchController extends GetxController with GetSingleTickerProviderStateM
       showWebView2MissingDialog();
       return;
     }
-    Get.toNamed(RoutePath.kWebSearch, arguments: {'url': url, 'platform': site.id});
+    Get.toNamed(RoutePath.kWebSearch, arguments: {'url': url, 'platform': site.id, 'keyword': searchController.text.trim()});
   }
 
   void showWebView2MissingDialog() {

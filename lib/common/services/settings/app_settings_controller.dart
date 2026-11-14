@@ -41,10 +41,12 @@ class AppSettingsController extends GetxController {
     super.onInit();
     _removeUnsupportedOnlinePlatforms();
     if (PlatformUtils.isAndroid) {
-      unawaited(DisplayModeService.setHighRefreshRate(enableHighRefreshRate.v));
+      // 高刷只作用于非全屏页面（由 GlobalPlayerState 上报全屏状态），
+      // 全屏直播间固定降到接近 60Hz 省电（直播流约 60 帧）。
+      DisplayModeService.updateFollowSetting(enableHighRefreshRate.v);
       _highRefreshRateWorker = ever<bool>(
         enableHighRefreshRate,
-        (enabled) => unawaited(DisplayModeService.setHighRefreshRate(enabled)),
+        (enabled) => DisplayModeService.updateFollowSetting(enabled),
       );
     } else if (PlatformUtils.isWindows) {
       // Flutter follows the active Windows monitor's vsync. The native runner

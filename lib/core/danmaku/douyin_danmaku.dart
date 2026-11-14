@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pure_live/core/danmaku/frame_decode_queue.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -28,6 +29,9 @@ class DouyinDanmakuArgs {
 }
 
 class DouyinDanmaku implements LiveDanmaku {
+  /// 弹幕帧串行解码队列：gzip 解压移出 UI 线程，保序分发。
+  final FrameDecodeQueue _decodeQueue = FrameDecodeQueue();
+
   @override
   int heartbeatTime = 10 * 1000;
   bool _connected = false;
@@ -156,8 +160,11 @@ class DouyinDanmaku implements LiveDanmaku {
   }
 
   void decodeMessage(List<int> args) {
-    // CoreLog.i(args.toString());
+    // gzip 解压（大帧时数 MB 级）移出 UI 线程，队列串行保证消息顺序。
+    _decodeQueue.enqueue(args, _decodeFrameAsync);
+  }
 
+  Future<void> _decodeFrameAsync(List<int> args) async {
     var wssPackage = PushFrame.fromBuffer(args);
 
     var logId = wssPackage.logId;
@@ -165,7 +172,12 @@ class DouyinDanmaku implements LiveDanmaku {
     final isGzip =
         wssPackage.payloadEncoding.toLowerCase() == 'gzip' ||
         (encodedPayload.length >= 2 && encodedPayload[0] == 0x1f && encodedPayload[1] == 0x8b);
-    var decompressed = isGzip ? gzip.decode(encodedPayload) : encodedPayload;
+    final decompressed = isGzip
+        ? await runInIsolateOrSync<List<int>>(
+            () => gzip.decode(encodedPayload),
+            () => gzip.decode(encodedPayload),
+          )
+        : encodedPayload;
     var payloadPackage = Response.fromBuffer(decompressed);
     if (payloadPackage.needAck) {
       sendAck(logId, payloadPackage.internalExt);

@@ -316,6 +316,46 @@ class DouyinSearch {
   @visibleForTesting
   static List<LiveRoom> parseSearchPayloadForTesting(dynamic payload) => _extractSearchVideos(payload);
 
+  /// 抖音搜索接口（尤其 general/search/stream）返回 chunked 编码的原始
+  /// 响应（十六进制长度行 + JSON 文档流），直接 jsonDecode 会失败。
+  /// 非 chunked 响应按单个 JSON 文档处理。
+  static List<String> _decodeHttpChunks(String body) {
+    if (!RegExp(r'^[0-9a-fA-F]+\r?\n').hasMatch(body)) return [body];
+    final bytes = utf8.encode(body);
+    final documents = <String>[];
+    var position = 0;
+    while (position < bytes.length) {
+      final end = bytes.indexOf(0x0A, position);
+      if (end < 0) break;
+      final size = int.tryParse(latin1.decode(bytes.sublist(position, end)).trim().split(';').first, radix: 16);
+      if (size == null) break;
+      if (size == 0) break;
+      final start = end + 1;
+      if (start + size > bytes.length) break;
+      documents.add(utf8.decode(bytes.sublist(start, start + size), allowMalformed: true));
+      position = start + size;
+      if (position < bytes.length && bytes[position] == 0x0D) position++;
+      if (position < bytes.length && bytes[position] == 0x0A) position++;
+    }
+    return documents;
+  }
+
+  /// 逐文档解析并聚合搜索结果：每个文档取 data 数组，交 _extractSearchVideos。
+  static List<LiveRoom> _extractFromDocuments(List<String> documents) {
+    final items = <dynamic>[];
+    for (final doc in documents) {
+      dynamic decoded;
+      try {
+        decoded = jsonDecode(doc);
+      } catch (_) {
+        continue;
+      }
+      final data = _asMap(decoded)?['data'];
+      if (data is List) items.addAll(data);
+    }
+    return _extractSearchVideos(items);
+  }
+
   static Future<List<LiveRoom>> _searchByLiveApi(String keyword, int page, int pageSize) async {
     final count = pageSize.clamp(1, 50).toInt();
     final offset = count * (page - 1);
@@ -337,14 +377,19 @@ class DouyinSearch {
       'os_version': '10',
     };
 
-    final result = await HttpClient.instance.getJson(
-      'https://www.douyin.com/aweme/v1/web/live/search/',
-      queryParameters: params,
-      header: headers,
-    );
-
-    if (result['status_code'] != 0) return [];
-    return _extractSearchVideos(result['data']);
+    try {
+      final body = await HttpClient.instance.getText(
+        'https://www.douyin.com/aweme/v1/web/live/search/',
+        queryParameters: params,
+        header: headers,
+      );
+      final rooms = _extractFromDocuments(_decodeHttpChunks(body));
+      CoreLog.i('douyin search(live): rooms=${rooms.length}');
+      return rooms;
+    } catch (e) {
+      CoreLog.w('douyin search(live) failed: $e');
+      return [];
+    }
   }
 
   static Future<List<LiveRoom>> _searchByGeneralApi(String keyword, int page, int pageSize) async {
@@ -364,14 +409,19 @@ class DouyinSearch {
       'os_version': '10',
     };
 
-    final result = await HttpClient.instance.getJson(
-      'https://www.douyin.com/aweme/v1/web/general/search/stream/',
-      queryParameters: params,
-      header: headers,
-    );
-
-    if (result['status_code'] != 0) return [];
-    return _extractSearchVideos(result['data']);
+    try {
+      final body = await HttpClient.instance.getText(
+        'https://www.douyin.com/aweme/v1/web/general/search/stream/',
+        queryParameters: params,
+        header: headers,
+      );
+      final rooms = _extractFromDocuments(_decodeHttpChunks(body));
+      CoreLog.i('douyin search(stream): rooms=${rooms.length}');
+      return rooms;
+    } catch (e) {
+      CoreLog.w('douyin search(stream) failed: $e');
+      return [];
+    }
   }
 
   static Future<List<LiveRoom>> _searchByPartition(String keyword, int page, int pageSize) async {
@@ -388,6 +438,7 @@ class DouyinSearch {
     final partitions = data?['SearchResult'];
 
     if (partitions is! List || partitions.isEmpty) {
+      CoreLog.w('douyin search(partition) empty for: $keyword');
       return [];
     }
 

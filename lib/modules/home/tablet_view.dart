@@ -1,7 +1,9 @@
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/common/consts/app_consts.dart';
-import 'package:pure_live/modules/home/widgets/liquid_glass_nav_button.dart';
+import 'dart:ui' as ui;
+
+import 'package:pure_live/modules/home/widgets/liquid_glass_bar.dart';
 
 class HomeTabletView extends StatelessWidget {
   final Widget body;
@@ -142,13 +144,6 @@ class HomeTabletView extends StatelessWidget {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 0, bottom: 12, left: 12, right: 12),
                                   child: IconButton(
-                                    onPressed: () => Get.toNamed(RoutePath.kToolbox),
-                                    icon: const Icon(Remix.link),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 0, bottom: 12, left: 12, right: 12),
-                                  child: IconButton(
                                     onPressed: () => Get.toNamed(RoutePath.kSearch),
                                     icon: const Icon(CustomIcons.search),
                                   ),
@@ -171,8 +166,9 @@ class HomeTabletView extends StatelessWidget {
                   );
                 }
 
-                // 液态玻璃导航（替换现有左侧栏）：设置/搜索直播/链接访问 + 各菜单
-                final Color accent = Theme.of(context).colorScheme.primary;
+                // 液态玻璃导航（参照 wzgrx/PureLive）：竖向玻璃胶囊只含菜单项，
+                // 水滴在菜单项间弹簧移动；设置/搜索是动作入口，不纳入玻璃栏，
+                // 单独以磨砂小圆钮悬浮在左上角。
                 final List<int> realIndices = [];
                 final List<HomeMenu> menus = [];
                 for (String id in activeMenuIds) {
@@ -183,6 +179,10 @@ class HomeTabletView extends StatelessWidget {
                   }
                 }
 
+                final slot = GlassBarMetrics.railSlotHeight;
+                final barHeight = menus.length * slot;
+                int glassSelected = realIndices.indexOf(index);
+                if (glassSelected == -1) glassSelected = 0;
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -194,39 +194,42 @@ class HomeTabletView extends StatelessWidget {
                         left: 10,
                         right: 4,
                       ),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            LiquidGlassNavButton(
-                              icon: Icons.menu_rounded,
-                              label: i18n('settings_title'),
-                              accent: accent,
-                              onTap: () => Get.toNamed(RoutePath.kSettings),
+                      child: Column(
+                        children: [
+                          _GlassEntryButton(
+                            icon: Icons.menu_rounded,
+                            tooltip: i18n('settings_title'),
+                            onTap: () => Get.toNamed(RoutePath.kSettings),
+                          ),
+                          const SizedBox(height: 8),
+                          _GlassEntryButton(
+                            icon: CustomIcons.search,
+                            tooltip: i18n('search_live'),
+                            onTap: () => Get.toNamed(RoutePath.kSearch),
+                          ),
+                          const Spacer(),
+                          SizedBox(
+                            height: barHeight,
+                            child: LiquidGlassBar(
+                              axis: LiquidGlassBarAxis.vertical,
+                              height: slot,
+                              items: [
+                                for (int i = 0; i < menus.length; i++)
+                                  LiquidGlassBarItem(
+                                    icon: _iconFor(menus[i]),
+                                    selectedIcon: _iconFor(menus[i], selected: true),
+                                    label: _labelFor(menus[i]),
+                                  ),
+                              ],
+                              selectedIndex: glassSelected,
+                              onSelected: (int menuIndex) {
+                                if (menuIndex >= 0 && menuIndex < realIndices.length) {
+                                  onDestinationSelected(realIndices[menuIndex]);
+                                }
+                              },
                             ),
-                            LiquidGlassNavButton(
-                              icon: CustomIcons.search,
-                              label: i18n('search_live'),
-                              accent: accent,
-                              onTap: () => Get.toNamed(RoutePath.kSearch),
-                            ),
-                            LiquidGlassNavButton(
-                              icon: Icons.link,
-                              label: i18n('link_access'),
-                              accent: accent,
-                              onTap: () => Get.toNamed(RoutePath.kToolbox),
-                            ),
-                            const SizedBox(height: 10),
-                            for (int i = 0; i < menus.length; i++)
-                              LiquidGlassNavButton(
-                                icon: _iconFor(menus[i], selected: realIndices[i] == index),
-                                label: _labelFor(menus[i]),
-                                selected: realIndices[i] == index,
-                                accent: accent,
-                                onTap: () => onDestinationSelected(realIndices[i]),
-                              ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     const VerticalDivider(width: 1),
@@ -235,6 +238,48 @@ class HomeTabletView extends StatelessWidget {
                 );
               });
             },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 左上角的磨砂玻璃小圆钮（设置/搜索入口）：BackdropFilter 磨砂 + rim 描边，
+/// 与液态玻璃栏的磨砂降级同质感。
+class _GlassEntryButton extends StatelessWidget {
+  const _GlassEntryButton({required this.icon, required this.tooltip, required this.onTap});
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final dark = theme.brightness == Brightness.dark;
+    final tint = theme.colorScheme.surfaceContainerHighest;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(26),
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14, tileMode: TileMode.mirror),
+        child: Material(
+          color: tint.withValues(alpha: dark ? 0.30 : 0.34),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+            side: BorderSide(
+              color: (dark ? Colors.white : Colors.black).withValues(alpha: dark ? 0.16 : 0.10),
+              width: 1,
+            ),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(26),
+            onTap: onTap,
+            child: SizedBox(
+              width: 52,
+              height: 52,
+              child: Icon(icon, size: 24, color: theme.colorScheme.onSurfaceVariant),
+            ),
           ),
         ),
       ),

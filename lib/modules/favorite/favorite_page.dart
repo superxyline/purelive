@@ -4,6 +4,7 @@ import 'package:pure_live/modules/favorite/favorite_tag_bar.dart';
 import 'package:pure_live/modules/favorite/room_grid_view.dart';
 import 'package:pure_live/common/widgets/common_appbar_actions.dart';
 import 'package:pure_live/modules/tags/tag_management_controller.dart';
+import 'package:pure_live/modules/favorite/batch_actions_bar.dart';
 
 class FavoritePage extends GetView<FavoriteController> {
   const FavoritePage({super.key});
@@ -17,11 +18,51 @@ class FavoritePage extends GetView<FavoriteController> {
           final menuCount = SettingsService.to.app.savedMenuIds.v.length;
           final availableSitesList = Sites().availableSites(containsAll: true);
 
+          if (controller.selectionMode.value) {
+            return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: controller.exitSelectionMode,
+                ),
+                title: Text(i18n('selected_count', args: {'n': '${controller.selectedKeys.length}'})),
+                actions: [
+                  IconButton(
+                    tooltip: i18n('select_all'),
+                    icon: const Icon(Icons.select_all_rounded),
+                    onPressed: controller.selectAllVisible,
+                  ),
+                ],
+              ),
+              body: DefaultTabController(
+                length: availableSitesList.length,
+                child: Stack(
+                  children: [
+                    _FavoriteSiteTabs(controller: controller, availableSitesList: availableSitesList),
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      bottom: MediaQuery.paddingOf(context).bottom + 16,
+                      child: BatchActionsBar(controller: controller),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           return Scaffold(
             appBar: AppBar(
               centerTitle: true,
               leading: (showAction || menuCount <= 1) ? const MenuButton() : null,
-              actions: showAction ? [CommonAppBarActions()] : null,
+              actions: [
+                IconButton(
+                  tooltip: i18n('batch_manage'),
+                  icon: const Icon(Remix.checkbox_multiple_line),
+                  onPressed: controller.enterSelectionMode,
+                ),
+                if (showAction) ...[const SizedBox(width: 4), CommonAppBarActions()],
+              ],
               title: TabBar(
                 controller: controller.tabController,
                 isScrollable: true,

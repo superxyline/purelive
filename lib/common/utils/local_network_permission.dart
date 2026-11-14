@@ -29,6 +29,15 @@ class LocalNetworkPermission {
     return _granted;
   }
 
+  /// 打开系统应用详情页（用户手动授予权限的兜底入口：部分 ROM 的
+  /// requestPermissions 对该权限不弹框，如 vivo）。
+  static Future<void> openAppDetails() async {
+    if (!PlatformUtils.isAndroid) return;
+    try {
+      await _channel.invokeMethod('openAppDetails');
+    } catch (_) {}
+  }
+
   /// 只查询当前状态，不弹框。
   static Future<bool> isGranted() async {
     if (!PlatformUtils.isAndroid) return true;

@@ -110,4 +110,19 @@ class BackupRecoveryService {
       return false;
     }
   }
+
+  /// 扫码向电视搜索页发送关键词（电视扫码输入功能）。
+  /// URL 带 ?action=search 标记；电视端收到后自动执行搜索。
+  Future<bool> pushTvSearch(String httpAddress, String keyword) async {
+    try {
+      final base = httpAddress.split('?').first;
+      final response = await HttpClient.instance.postJson(
+        '/api/search',
+        data: {'keyword': keyword, 'platform': ''},
+      );
+      return jsonDecode(response)['data'] ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
 }
