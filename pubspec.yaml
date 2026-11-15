@@ -1,7 +1,7 @@
 name: pure_live
 description: 纯粹直播,一款开源的第三方多平台直播聚合播放器.
 publish_to: none
-version: 2.6.1+6046
+version: 2.6.2+6047
 
 environment:
   sdk: ^3.13.0
@@ -88,7 +88,9 @@ dependencies:
   waterfall_flow: ^3.1.1 # 瀑布流布局
   easy_refresh: ^3.5.0 # 下拉刷新/上拉加载
   flutter_smart_dialog: ^5.1.0 # 自定义弹窗
-  flex_color_picker: ^4.0.0 # 颜色选择器
+  flex_color_picker: ^3.8.0 # 颜色选择器（勿升 4.x：4.0 改用独立 material_ui 包的
+  # MaterialLocalizations，与本 App 的 flutter_localizations 委托不兼容，
+  # showPickerDialog 取不到本地化直接抛异常=点击无反应，2026-11-15 回退）
   bordered_text: ^3.0.2 # 带边框文字
   flutter_color: ^2.1.0 # 颜色工具
   syncfusion_flutter_sliders: ^34.2.3 # 滑块组件

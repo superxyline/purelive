@@ -893,10 +893,13 @@ class _FlyingDanmaku {
 class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
   final List<_FlyingDanmaku> _flying = [];
   int _lastSeenCount = 0;
-  int _lane = 0;
   Timer? _ticker;
   Worker? _msgWorker;
-  static const int _laneCount = 3;
+  // 动态车道：车道数随字号与屏幕高度自适应，铺满整屏
+  int _laneCount = 6;
+  double _laneH = 24;
+  // 每车道最新一条弹幕（防重叠选道用）
+  final List<_FlyingDanmaku?> _lastInLane = [];
   static const Duration _tick = Duration(milliseconds: 33);
 
   LivePlayController get _ctrl => Get.find<LivePlayController>();
@@ -908,6 +911,54 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
     // 消息监听只注册一次（不能放 build 里，否则每次重建叠加 worker）
     _msgWorker = ever(_ctrl.danmakuMessages, (_) => _onMessages());
     _ticker = Timer.periodic(_tick, (_) => _tickStep());
+  }
+
+  double get _fontSize {
+    return context.tvSp(SettingsService.to.danmaku.danmakuFontSize.v);
+  }
+
+  /// 用 TextPainter 精确测量一条弹幕的实际宽度（估算在长昵称/emoji 下偏差大）。
+  double _measureWidth(LiveMessage m, double fontSize) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: '${m.userName}：${m.message}',
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w500),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    return painter.width;
+  }
+
+  /// 防重叠选道：优先选「车道尾右缘已完全让出新弹幕宽度」的车道（零重叠）；
+  /// 全忙时选尾部进度最快（左缘最小、最早离开）的车道。
+  int _pickLane(double estWidth, double w) {
+    if (_lastInLane.length != _laneCount) {
+      _lastInLane
+        ..clear()
+        ..length = _laneCount;
+    }
+    int? free;
+    var freeRight = double.infinity;
+    int? busy;
+    var busyLeft = double.infinity;
+    for (var lane = 0; lane < _laneCount; lane++) {
+      final last = _lastInLane[lane];
+      if (last == null || last.t >= 1.0) {
+        _lastInLane[lane] = null;
+        return lane; // 空车道
+      }
+      final lastLeft = w - last.t * (w + last.width);
+      final lastRight = lastLeft + last.width;
+      if (lastRight <= w - estWidth && lastRight < freeRight) {
+        free = lane;
+        freeRight = lastRight;
+      }
+      if (lastLeft < busyLeft) {
+        busy = lane;
+        busyLeft = lastLeft;
+      }
+    }
+    return free ?? busy ?? 0;
   }
 
   void _tickStep() {
@@ -928,16 +979,24 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
       _lastSeenCount = messages.length; // 历史被清（切房等），不补发
       return;
     }
+    final w = MediaQuery.sizeOf(context).width;
+    final fontSize = _fontSize;
     for (var i = _lastSeenCount; i < messages.length; i++) {
       final m = messages[i];
       if (m.type != LiveMessageType.chat) continue;
       if (m.message.isEmpty) continue;
-      _flying.add(_FlyingDanmaku()
+      final width = _measureWidth(m, fontSize);
+      final lane = _pickLane(width, w);
+      final item = _FlyingDanmaku()
         ..message = m
-        ..lane = _lane
+        ..lane = lane
         ..t = 0
-        ..width = 0);
-      _lane = (_lane + 1) % _laneCount;
+        ..width = width;
+      if (lane >= _lastInLane.length) {
+        _lastInLane.length = lane + 1;
+      }
+      _lastInLane[lane] = item;
+      _flying.add(item);
     }
     _lastSeenCount = messages.length;
   }
@@ -957,13 +1016,15 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
         if (_flying.isNotEmpty) _flying.clear();
         return const SizedBox.shrink();
       }
-      final fontSize = context.tvSp(SettingsService.to.danmaku.danmakuFontSize.v);
+      final fontSize = _fontSize;
       final opacity = SettingsService.to.danmaku.danmakuOpacity.v.clamp(0.1, 1.0);
       final w = MediaQuery.sizeOf(context).width;
-      // 显示区域：占屏幕高度的比例（0.25~1.0），车道高度随之伸缩
-      final area = SettingsService.to.danmaku.danmakuArea.v.clamp(0.25, 1.0);
-      final overlayH = MediaQuery.sizeOf(context).height * 0.55 * area;
-      final laneH = (overlayH / _laneCount).clamp(fontSize * 1.4, double.infinity);
+      final h = MediaQuery.sizeOf(context).height;
+      // TV 端弹幕铺满整屏：车道高度随字号自适应，车道数随屏高动态（防重叠选道）
+      final overlayH = h - context.tvDp(16);
+      final laneH = (fontSize * 1.5).clamp(20.0, double.infinity);
+      _laneH = laneH;
+      _laneCount = (overlayH / laneH).floor().clamp(3, 20);
       // 文本宽度用字数×字号估算（省去逐帧测量）
       double itemLeft(_FlyingDanmaku item) {
         final estWidth = (item.message.userName.length + item.message.message.length) * fontSize * 1.05;
@@ -981,7 +1042,7 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
               for (final item in _flying)
                 Positioned(
                   left: itemLeft(item),
-                  top: context.tvDp(16) + item.lane * laneH,
+                  top: item.lane * _laneH,
                   child: Text(
                     '${item.message.userName}：${item.message.message}',
                     maxLines: 1,

@@ -110,14 +110,14 @@ class _MyAppState extends State<MyApp> {
     Get.put(RoomGiftBlockService());
     // 按直播间维度的视频遮挡块（模糊框）
     Get.put(VideoMaskService());
-    // 局域网设备发现与互推同步（手机/平板；TV 端在 TvApp 自行启动）
+    // 局域网设备发现与互推同步（手机/平板；TV 端在 TvApp 自行注册）。
+    // 只注册不 start：互推按需生效，打开互推对话框才启动发现/接收，
+    // 关闭即 stop——App 待机零 socket、零后台流量。
     debugPrint('lan discovery: initState reached');
     if (!PlatformUtils.isWeb) {
       try {
         debugPrint('lan discovery: putting service');
         Get.put(LanDiscoveryService());
-        debugPrint('lan discovery: service put, starting');
-        unawaited(Get.find<LanDiscoveryService>().start());
         LanSyncConfirm.register();
         debugPrint('lan discovery: init done');
       } catch (e) {

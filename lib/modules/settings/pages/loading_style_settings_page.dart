@@ -22,7 +22,10 @@ class _LoadingStyleSettingsPageState extends State<LoadingStyleSettingsPage> wit
     _rotateController = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this)..repeat();
   }
 
-  Future<bool> colorPickerDialog() async {
+  // context 参数必须传页面自身的 BuildContext：showPickerDialog 会在传入
+  // context 上取 MaterialLocalizations，Get.context 在 Localizations 作用域
+  // 之上会抛异常且被静默吞掉（点击无反应），与主题颜色页同款坑。
+  Future<bool> colorPickerDialog(BuildContext context) async {
     final bool isZh = Get.locale?.languageCode == 'zh';
     return ColorPicker(
       color: HexColor(
@@ -40,18 +43,18 @@ class _LoadingStyleSettingsPageState extends State<LoadingStyleSettingsPage> wit
       spacing: 5,
       runSpacing: 5,
       wheelDiameter: 155,
-      heading: Text(i18n("theme_color"), style: Theme.of(Get.context!).textTheme.titleMedium),
-      subheading: Text(i18n("select_opacity"), style: Theme.of(Get.context!).textTheme.titleMedium),
-      wheelSubheading: Text(i18n("theme_color_opacity"), style: Theme.of(Get.context!).textTheme.titleMedium),
+      heading: Text(i18n("theme_color"), style: Theme.of(context).textTheme.titleMedium),
+      subheading: Text(i18n("select_opacity"), style: Theme.of(context).textTheme.titleMedium),
+      wheelSubheading: Text(i18n("theme_color_opacity"), style: Theme.of(context).textTheme.titleMedium),
       showMaterialName: false,
       showColorName: false,
       showColorCode: true,
       copyPasteBehavior: const ColorPickerCopyPasteBehavior(longPressMenu: true),
-      materialNameTextStyle: Theme.of(Get.context!).textTheme.bodySmall,
-      colorNameTextStyle: Theme.of(Get.context!).textTheme.bodySmall,
-      colorCodeTextStyle: Theme.of(Get.context!).textTheme.bodyMedium,
-      colorCodePrefixStyle: Theme.of(Get.context!).textTheme.bodySmall,
-      selectedPickerTypeColor: Theme.of(Get.context!).colorScheme.primary,
+      materialNameTextStyle: Theme.of(context).textTheme.bodySmall,
+      colorNameTextStyle: Theme.of(context).textTheme.bodySmall,
+      colorCodeTextStyle: Theme.of(context).textTheme.bodyMedium,
+      colorCodePrefixStyle: Theme.of(context).textTheme.bodySmall,
+      selectedPickerTypeColor: Theme.of(context).colorScheme.primary,
       customColorSwatchesAndNames: AppConsts.colorsNameMap,
 
       pickerTypeLabels: <ColorPickerType, String>{
@@ -69,7 +72,7 @@ class _LoadingStyleSettingsPageState extends State<LoadingStyleSettingsPage> wit
         ColorPickerType.wheel: true,
       },
     ).showPickerDialog(
-      Get.context!,
+      context,
       actionsPadding: const EdgeInsets.all(16),
       constraints: const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
     );
@@ -472,7 +475,7 @@ class _LoadingStyleSettingsPageState extends State<LoadingStyleSettingsPage> wit
                     icon: Remix.palette_line,
                     title: i18n("change_loading_color"),
                     subtitle: i18n("change_loading_color_subtitle"),
-                    onTap: colorPickerDialog,
+                    onTap: () => colorPickerDialog(context),
                     trailing: Obx(
                       () => ColorIndicator(
                         width: 28,

@@ -910,6 +910,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
 
       final danmakuSettings = SettingsService.to.danmaku;
       final shouldConnectDanmaku = danmakuSettings.enableDanmakuDisplay.v || danmakuSettings.enablePipDanmaku.v;
+      debugPrint('[TvDanmaku] shouldConnect=$shouldConnectDanmaku danmakuDataLen=${liveRoom.danmakuData?.toString().length ?? 0} platform=${liveRoom.platform}');
       if (shouldConnectDanmaku) {
         await danmakuController.connectRoom(liveRoom);
       } else {

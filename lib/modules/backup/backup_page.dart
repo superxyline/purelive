@@ -177,21 +177,42 @@ class _BackupPageState extends State<BackupPage> {
   }
 
   /// 局域网设备列表对话框：实时列出发现的设备，点击推送。
+  /// 按需启动：打开对话框才 start（发现+接收生效），关闭即 stop——
+  /// App 平时不占任何 socket 与后台流量。
   Future<void> _showLanDevicesDialog() async {
     final service = Get.isRegistered<LanDiscoveryService>() ? LanDiscoveryService.to : null;
-    if (service == null || !service.isRunning) {
+    if (service == null) {
+      ToastUtil.show(i18n('lan_sync_unavailable'));
+      return;
+    }
+    if (!service.isRunning) await service.start();
+    if (!service.isRunning) {
       ToastUtil.show(i18n('lan_sync_unavailable'));
       return;
     }
     // 原生 showDialog + Navigator.of(context).pop：Get.back() 在嵌套场景
     // 会 pop 错 route（把底层 backup 页退回设置页），Get 4.7.3 已知坑。
-    await showDialog(
+    // 对话框打开期间开启高频发现（sweep+快广播），关闭彻底停止：
+    // 常驻 sweep 每轮 254 个 TCP 连接 ≈ 30MB/小时，不能在后台这么跑。
+    service.setActive(true);
+    try {
+      await showDialog(
       context: Get.context!,
       builder: (dialogContext) => AlertDialog(
         title: Text(i18n('lan_sync_title')),
         content: SizedBox(
           width: 380,
-          child: Obx(() {
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                i18n('lan_sync_only_active_hint'),
+                style: AppTextStyles.t12.copyWith(color: Theme.of(dialogContext).hintColor.withValues(alpha: 0.75)),
+              ),
+              const SizedBox(height: 8),
+              Flexible(
+                child: Obx(() {
             final peers = service.peers.toList();
             if (peers.isEmpty) {
               return Column(
@@ -243,7 +264,7 @@ class _BackupPageState extends State<BackupPage> {
                     subtitle: Text(peer.ip, style: const TextStyle(fontSize: 12)),
                     trailing: const Icon(Icons.send_rounded, size: 18),
                     onTap: () async {
-                      debugPrint('lan push: tapped ' + (peer.name ?? '') + ' ' + (peer.ip ?? ''));
+                      debugPrint('lan push: tapped ${peer.name} ${peer.ip}');
                       final result = await _pushToLanPeer(service, peer);
                       debugPrint('lan push: done result=' + result.toString());
                       ToastUtil.show(result ? i18n('sync_success') : i18n('sync_failed'));
@@ -252,6 +273,9 @@ class _BackupPageState extends State<BackupPage> {
               ],
             );
           }),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -260,7 +284,11 @@ class _BackupPageState extends State<BackupPage> {
           ),
         ],
       ),
-    );
+      );
+    } finally {
+      service.setActive(false);
+      await service.stop(); // 关闭互推即完全停止（HTTP/UDP/timer 全部清理）
+    }
   }
 
   /// 推送载荷与扫码同步一致（关注+登录态+设置）。发起端不再二次确认

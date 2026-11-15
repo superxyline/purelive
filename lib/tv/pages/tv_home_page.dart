@@ -238,6 +238,19 @@ class _TvHomePageState extends State<TvHomePage> {
 
   KeyEventResult _onKeyInner(FocusNode node, KeyEvent event) {
     final key = event.logicalKey;
+    // 遥控器菜单键：刷新当前页面数据（关注=重拉开播状态快通道；热门=强制刷新分页）
+    final isMenuKey = key == LogicalKeyboardKey.contextMenu;
+    if (isMenuKey) {
+      if (_menuIndex == 0) {
+        _favoriteRefreshed = false;
+        _refreshFavoriteStatus();
+        ToastUtil.show(i18n('tv_refresh_done'));
+      } else if (_menuIndex == 1) {
+        _loadPopularPage(refresh: true);
+        ToastUtil.show(i18n('tv_refresh_done'));
+      }
+      return KeyEventResult.handled;
+    }
     final confirm = key == LogicalKeyboardKey.select ||
         key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter ||
@@ -274,18 +287,32 @@ class _TvHomePageState extends State<TvHomePage> {
     if (key == LogicalKeyboardKey.arrowLeft) return _move(0, -1, rooms);
     if (key == LogicalKeyboardKey.arrowRight) return _move(0, 1, rooms);
     if (key == LogicalKeyboardKey.goBack || key == LogicalKeyboardKey.escape) {
-      // 主页返回 = 退出应用：二次确认防误退（遥控连按/加载中连按返回
-      // 第一次退页第二次就到桌面的反馈）
-      final now = DateTime.now();
-      if (_lastBackAt != null && now.difference(_lastBackAt!) <= const Duration(seconds: 2)) {
-        SystemNavigator.pop();
-        return KeyEventResult.handled;
-      }
-      _lastBackAt = now;
-      ToastUtil.show(i18n('exit_app_confirm'));
+      // 主页返回 = 退出应用：2 秒内连按两次才退出到桌面（防误退）。
+      // 双击判定在 _handleExitBack——PopScope 焦点兜底路径共用同一时间戳。
+      _handleExitBack();
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
+  }
+
+  /// 退出应用的连按判定：2 秒内第二次返回键才真正退出，否则提示。
+  /// 两条路径共用（①Focus.onKeyEvent 命中时；②Router popRoute→maybePop→
+  /// PopScope 兜底）。同一次物理按压会先后走这两条路径，300ms 内的重复
+  /// 调用视为同一次按压直接吞掉——否则单按返回就触发"第二次"直接退出
+  /// （实测现象：单击退出+toast 闪现）。
+  bool _handleExitBack() {
+    final now = DateTime.now();
+    if (_lastBackAt != null) {
+      final delta = now.difference(_lastBackAt!);
+      if (delta < const Duration(milliseconds: 150)) return false;
+      if (delta <= const Duration(seconds: 2)) {
+        SystemNavigator.pop();
+        return true;
+      }
+    }
+    _lastBackAt = now;
+    ToastUtil.show(i18n('exit_app_confirm'));
+    return false;
   }
 
   KeyEventResult _move(int dy, int dx, List<LiveRoom> rooms) {
@@ -454,10 +481,18 @@ class _TvHomePageState extends State<TvHomePage> {
   @override
   Widget build(BuildContext context) {
     final rooms = _rooms;
-    return Focus(
-      autofocus: true,
-      onKeyEvent: _onKey,
-      child: Scaffold(
+    // 根路由 PopScope 兜底：返回主页后 Focus 可能失焦，BACK 直达 Navigator
+    // 弹根路由导致单按退桌面。canPop:false 拦下所有弹根路由的尝试，统一走
+    // _handleExitBack 的 2 秒连按判定（与 Focus 路径共用 _lastBackAt）。
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) _handleExitBack();
+      },
+      child: Focus(
+        autofocus: true,
+        onKeyEvent: _onKey,
+        child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Stack(
           children: [
@@ -475,6 +510,7 @@ class _TvHomePageState extends State<TvHomePage> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

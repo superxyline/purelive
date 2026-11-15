@@ -39,9 +39,10 @@ class _TvAppState extends State<TvApp> {
     Get.put(WatchStatsService());
     Get.put(RoomGiftBlockService());
     Get.put(VideoMaskService());
-    // 局域网设备发现与互推同步（TV 端也可被手机/平板推送关注）
+    // 局域网设备发现与互推同步（TV 端也可被手机/平板推送关注）。
+    // 只注册不 start：仅在互推页打开时启动发现/接收，退出即 stop，
+    // 待机零 socket、零后台流量。
     Get.put(LanDiscoveryService());
-    unawaited(Get.find<LanDiscoveryService>().start(deviceName: 'PureLive 电视', deviceType: 'tv'));
     LanSyncConfirm.register();
     unawaited(_initPlayer());
   }

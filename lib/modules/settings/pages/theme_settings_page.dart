@@ -28,7 +28,12 @@ class ThemeSettingsPage extends GetView<SettingsService> {
               icon: Remix.palette_line,
               title: i18n("change_theme_color"),
               subtitle: i18n("change_theme_color_subtitle"),
-              onTap: colorPickerDialog,
+              // 必须传页面自身的 context：flex_color_picker 的 showPickerDialog
+              // 会在传入 context 上取 MaterialLocalizations，Get.context（
+              // GetMaterialApp 根上下文）在 Localizations 作用域之上，取值抛
+              // "No MaterialLocalizations found." 且异步错误被静默吞掉，
+              // 表现为点击 tile 毫无反应。
+              onTap: () => colorPickerDialog(context),
               trailing: Obx(
                 () => ColorIndicator(
                   width: 28,
@@ -148,7 +153,7 @@ class ThemeSettingsPage extends GetView<SettingsService> {
     );
   }
 
-  Future<bool> colorPickerDialog() async {
+  Future<bool> colorPickerDialog(BuildContext context) async {
     final bool isZh = Get.locale?.languageCode == 'zh';
     return ColorPicker(
       color: HexColor(SettingsService.to.theme.themeColorSwitch.v),
@@ -166,18 +171,18 @@ class ThemeSettingsPage extends GetView<SettingsService> {
       spacing: 5,
       runSpacing: 5,
       wheelDiameter: 155,
-      heading: Text(i18n("theme_color"), style: Theme.of(Get.context!).textTheme.titleMedium),
-      subheading: Text(i18n("select_opacity"), style: Theme.of(Get.context!).textTheme.titleMedium),
-      wheelSubheading: Text(i18n("theme_color_opacity"), style: Theme.of(Get.context!).textTheme.titleMedium),
+      heading: Text(i18n("theme_color"), style: Theme.of(context).textTheme.titleMedium),
+      subheading: Text(i18n("select_opacity"), style: Theme.of(context).textTheme.titleMedium),
+      wheelSubheading: Text(i18n("theme_color_opacity"), style: Theme.of(context).textTheme.titleMedium),
       showMaterialName: false,
       showColorName: false,
       showColorCode: true,
       copyPasteBehavior: const ColorPickerCopyPasteBehavior(longPressMenu: true),
-      materialNameTextStyle: Theme.of(Get.context!).textTheme.bodySmall,
-      colorNameTextStyle: Theme.of(Get.context!).textTheme.bodySmall,
-      colorCodeTextStyle: Theme.of(Get.context!).textTheme.bodyMedium,
-      colorCodePrefixStyle: Theme.of(Get.context!).textTheme.bodySmall,
-      selectedPickerTypeColor: Theme.of(Get.context!).colorScheme.primary,
+      materialNameTextStyle: Theme.of(context).textTheme.bodySmall,
+      colorNameTextStyle: Theme.of(context).textTheme.bodySmall,
+      colorCodeTextStyle: Theme.of(context).textTheme.bodyMedium,
+      colorCodePrefixStyle: Theme.of(context).textTheme.bodySmall,
+      selectedPickerTypeColor: Theme.of(context).colorScheme.primary,
       customColorSwatchesAndNames: AppConsts.colorsNameMap,
       pickerTypeLabels: <ColorPickerType, String>{
         ColorPickerType.primary: isZh ? "常用色" : "Primary",
@@ -194,7 +199,7 @@ class ThemeSettingsPage extends GetView<SettingsService> {
         ColorPickerType.wheel: true,
       },
     ).showPickerDialog(
-      Get.context!,
+      context,
       actionsPadding: const EdgeInsets.all(16),
       constraints: const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
     );

@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,13 +20,32 @@ class TvLanSyncPage extends StatefulWidget {
 class _TvLanSyncPageState extends State<TvLanSyncPage> {
   int _index = 0;
   bool _pushing = false;
+  StreamSubscription? _peersSub;
 
   @override
   void initState() {
     super.initState();
-    if (Get.isRegistered<LanDiscoveryService>()) {
-      LanDiscoveryService.to.peers.listen((_) => mounted ? setState(() {}) : null);
+    final service = Get.isRegistered<LanDiscoveryService>() ? LanDiscoveryService.to : null;
+    if (service != null) {
+      // 按需启动：仅在本页打开期间进行设备发现与接收推送，退出即停止，
+      // 平时不占任何 socket 与后台流量。
+      if (!service.isRunning) {
+        unawaited(service.start(deviceName: 'PureLive 电视', deviceType: 'tv'));
+      }
+      service.setActive(true);
+      _peersSub = service.peers.listen((_) => mounted ? setState(() {}) : null);
     }
+  }
+
+  @override
+  void dispose() {
+    _peersSub?.cancel();
+    final service = Get.isRegistered<LanDiscoveryService>() ? LanDiscoveryService.to : null;
+    if (service != null) {
+      service.setActive(false);
+      unawaited(service.stop()); // 退出互推页即完全停止（HTTP/UDP/timer 全部清理）
+    }
+    super.dispose();
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
@@ -97,7 +116,7 @@ class _TvLanSyncPageState extends State<TvLanSyncPage> {
               ),
               SizedBox(height: context.tvDp(6)),
               Text(
-                '同一 Wi-Fi 下运行 PureLive 的设备会自动出现在这里；选中后按 OK 推送本机的关注与登录态，对方确认后合并（已有的不重复）。',
+                '同一 Wi-Fi 下运行 PureLive 的设备会自动出现在这里；选中后按 OK 推送本机的关注与登录态，对方确认后合并（已有的不重复）。\n注意：设备发现与接收推送仅在本页打开期间生效，退出本页即自动停止，不产生任何后台流量。',
                 style: TextStyle(fontSize: context.tvSp(14), color: TvTheme.textSecondary, height: 1.6),
               ),
               SizedBox(height: context.tvDp(16)),

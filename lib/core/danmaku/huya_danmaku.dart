@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -102,6 +103,7 @@ class HuyaDanmaku implements LiveDanmaku {
 
   @override
   Future start(dynamic args) async {
+    debugPrint('[TvDanmaku] huya start argsType=${args.runtimeType} argsLen=${args?.toString().length ?? 0}');
     final generation = ++_generation;
     await webScoketUtils?.close();
     webScoketUtils = null;

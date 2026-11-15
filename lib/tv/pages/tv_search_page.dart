@@ -110,6 +110,14 @@ class _TvSearchPageState extends State<TvSearchPage> {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
 
     final key = event.logicalKey;
+    // 遥控器菜单键：按当前关键词重新搜索
+    if (key == LogicalKeyboardKey.contextMenu) {
+      if (_keywordCtrl.text.trim().isNotEmpty) {
+        _doSearch();
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    }
     final goBack = key == LogicalKeyboardKey.goBack || key == LogicalKeyboardKey.escape;
     final confirm = key == LogicalKeyboardKey.select ||
         key == LogicalKeyboardKey.enter ||

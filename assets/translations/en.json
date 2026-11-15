@@ -974,9 +974,10 @@
   "web_search_room_found": "Found {platform} room {id}",
   "web_search_open_room": "Open room",
   "lan_sync_title": "LAN device sync",
-  "lan_sync_subtitle": "Discover PureLive devices on the same Wi-Fi and push favorites & login state directly (no QR scan needed)",
+  "lan_sync_subtitle": "Discover PureLive devices on the same Wi-Fi and push favorites & login state directly (no QR scan needed). Only active while this feature is open; stops automatically when closed (no background traffic)",
   "lan_sync_unavailable": "LAN service not started. Restart the app and try again",
-  "lan_sync_searching": "Searching LAN devices (make sure the other device runs PureLive on the same Wi-Fi)…",
+  "lan_sync_searching": "Searching LAN devices (make sure the other device runs PureLive and stays on its LAN sync page)…",
+  "lan_sync_only_active_hint": "Note: discovery and receiving work only while this page is open and stop automatically when closed (no background traffic). The other device must also keep its LAN sync page open to be discovered.",
   "lan_push_confirm_title": "Push confirm",
   "lan_push_confirm_body": "Push this device's favorites and login state to \"{name}\"? The peer will confirm before merging.",
   "lan_receive_title": "LAN sync push received",
@@ -985,5 +986,6 @@
   "lan_perm_missing": "Local network permission not granted: Android 16+ silently drops all LAN connections. Allow \"Local network\" in App info > Permissions",
   "lan_perm_open_settings": "Open app details to grant",
   "douyu_login_hint_tv": "Douyu requires login: sign in on the phone app first, then push the login state to the TV via LAN sync or QR sync",
-  "douyu_login_expired_hint": "Douyu login state may be expired or missing. Sign in to Douyu again on the Account page"
+  "douyu_login_expired_hint": "Douyu login state may be expired or missing. Sign in to Douyu again on the Account page",
+  "tv_refresh_done": "Page data refreshed"
 }

@@ -1025,9 +1025,10 @@
   "web_search_room_found": "识别到{platform}直播间 {id}",
   "web_search_open_room": "打开直播间",
   "lan_sync_title": "局域网设备互推",
-  "lan_sync_subtitle": "自动发现同一 Wi-Fi 下运行 PureLive 的设备，直接推送关注与登录态（无需扫码）",
+  "lan_sync_subtitle": "自动发现同一 Wi-Fi 下运行 PureLive 的设备，直接推送关注与登录态（无需扫码）。仅在本功能打开期间生效，关闭后自动停止，不产生后台流量",
   "lan_sync_unavailable": "局域网服务未启动，请重启应用后重试",
-  "lan_sync_searching": "正在搜索局域网设备（请确认对端设备已打开 PureLive 且连同一 Wi-Fi）…",
+  "lan_sync_searching": "正在搜索局域网设备（请确认对端设备已打开 PureLive 且停留在「局域网设备互推」界面）…",
+  "lan_sync_only_active_hint": "提示：设备发现与接收推送仅在本界面打开期间生效，关闭后自动停止，不产生后台流量；对端设备也需要打开互推界面才会被发现。",
   "lan_push_confirm_title": "推送确认",
   "lan_push_confirm_body": "把本机的关注与登录态推送到「{name}」？对端确认后合并。",
   "lan_receive_title": "收到局域网同步推送",
@@ -1036,5 +1037,6 @@
   "lan_perm_missing": "局域网访问权限未授予：Android 16+ 会静默拦截所有局域网连接，请在应用详情的权限管理中允许「本地网络 / 局域网访问」",
   "lan_perm_open_settings": "打开应用详情页去授权",
   "douyu_login_hint_tv": "请在手机上登录斗鱼后，用「局域网设备互推」或「扫码同步」把登录态推给电视",
-  "douyu_login_expired_hint": "斗鱼登录态可能已过期或未登录，请到「账号」页重新登录斗鱼"
+  "douyu_login_expired_hint": "斗鱼登录态可能已过期或未登录，请到「账号」页重新登录斗鱼",
+  "tv_refresh_done": "已刷新当前页面数据"
 }

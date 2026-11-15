@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
+import 'package:flutter/widgets.dart';
 import 'dart:io';
 import 'dart:math';
 
@@ -11,6 +12,12 @@ import 'package:pure_live/get/get.dart';
 
 
 /// 局域网设备发现与互推同步（手机 / 平板 / 电视三端）。
+///
+/// 生命周期（按需启动）：
+/// - App 启动时只注册服务，**不 start()**——待机零 socket、零流量；
+/// - 仅在互推 UI 打开（手机互推对话框 / TV 互推页）时 `start()` +
+///   `setActive(true)`，关闭时 `setActive(false)` + `stop()`，发现与
+///   接收全部停止。
 ///
 /// 协议：
 /// - 每台设备周期性向 UDP 47478 端口广播宣告：设备名、类型、HTTP 端口、
@@ -27,6 +34,7 @@ class LanDiscoveryService extends GetxService {
 
   static const String _magic = 'purelive-lan-v1';
   static const Duration _announceInterval = Duration(seconds: 3);
+  static const Duration _sweepInterval = Duration(seconds: 15);
   static const Duration _peerTimeout = Duration(seconds: 10);
 
   RawDatagramSocket? _udp;
@@ -34,6 +42,11 @@ class LanDiscoveryService extends GetxService {
   Timer? _announceTimer;
   Timer? _sweepTimer;
   Timer? _cleanupTimer;
+  // 节能模式：互推对话框打开时高频发现（sweep+快广播），空闲时只保留
+  // 30 秒一次的低频广播，App 退后台完全静默。背景：sweep 每轮 254 个
+  // TCP 连接 ≈ 30MB/小时，常驻跑会持续吃流量。
+  bool _active = false;
+  AppLifecycleListener? _lifecycle;
   String _token = '';
   int _httpPort = 0;
   bool _starting = false;
@@ -145,10 +158,26 @@ class LanDiscoveryService extends GetxService {
         },
       );
 
-      _announceTimer = Timer.periodic(_announceInterval, (_) => unawaited(_announce()));
-        await _resolveOwnIp();
-      _sweepTimer = Timer.periodic(const Duration(seconds: 15), (_) => unawaited(_unicastSweep()));
-      unawaited(_unicastSweep());
+      await _resolveOwnIp();
+      _restartAnnounceTimer();
+      // sweep 常驻会持续吃流量（254 连接/轮 ≈ 30MB/小时）：空闲时不跑，
+      // 只在互推对话框打开（setActive(true)）时高频扫描。
+      _lifecycle = AppLifecycleListener(
+        onStateChange: (state) {
+          
+          if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+            _announceTimer?.cancel();
+            _sweepTimer?.cancel();
+            _sweepTimer = null;
+            debugPrint('lan discovery: app hidden, timers stopped');
+          } else {
+            _restartAnnounceTimer();
+            if (_active) {
+              _sweepTimer ??= Timer.periodic(_sweepInterval, (_) => unawaited(_unicastSweep()));
+            }
+          }
+        },
+      );
       _cleanupTimer = Timer.periodic(_peerTimeout, (_) => _cleanupPeers());
       unawaited(_announce());
       debugPrint('lan discovery: started (http=$_httpPort udp=$udpPort)');
@@ -158,6 +187,29 @@ class LanDiscoveryService extends GetxService {
     } finally {
       _starting = false;
     }
+  }
+
+  /// 互推对话框打开/关闭时调用：active=true 高频发现（3 秒广播+15 秒 TCP 扫描），
+  /// false 回空闲低频（30 秒一次广播、无扫描）。大幅降低待机流量。
+  void setActive(bool active) {
+    if (_active == active) return;
+    _active = active;
+    _restartAnnounceTimer();
+    _sweepTimer?.cancel();
+    _sweepTimer = null;
+    if (active) {
+      _sweepTimer = Timer.periodic(_sweepInterval, (_) => unawaited(_unicastSweep()));
+      unawaited(_unicastSweep());
+    }
+    debugPrint('lan discovery: active=$active');
+  }
+
+  void _restartAnnounceTimer() {
+    _announceTimer?.cancel();
+    _announceTimer = Timer.periodic(
+      _active ? _announceInterval : const Duration(seconds: 30),
+      (_) => unawaited(_announce()),
+    );
   }
 
   Future<void> stop() async {

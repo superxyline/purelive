@@ -139,6 +139,7 @@ class DanmakuController extends GetxController {
       final token = ++_sessionToken;
       _maskedNameNoticeShown = false;
       _connectingKey = key;
+      debugPrint('[TvDanmaku] connectRoom key=$key engine=${engine.runtimeType} danmakuDataLen=${room.danmakuData?.toString().length ?? 0}');
       _installCallbacks(engine, room, key, token);
 
       if (room.isRecord == true) _addStatusMessage(i18n('recording_mode_notice'));

@@ -29,14 +29,28 @@ class _TvSettingsRow {
 class _TvSettingsPageState extends State<TvSettingsPage> {
   int _index = 0;
   late List<_TvSettingsRow> _rows;
+  // 每行的 GlobalKey：焦点移动时用 Scrollable.ensureVisible 把选中行滚进
+  // 视口——否则列表不动，下半屏的设置项（同步/账号/关于）永远看不到。
+  late final List<GlobalKey> _rowKeys;
 
   @override
   void initState() {
     super.initState();
     _rows = _buildRows();
+    _rowKeys = List.generate(_rows.length, (_) => GlobalKey());
     // 初始高亮跳到第一个可选行（index 0 是分组标题）
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && !_isSelectable(_index)) _move(1);
+    });
+  }
+
+  void _ensureVisible(int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final ctx = _rowKeys[index].currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 200), alignment: 0.15);
+      }
     });
   }
 
@@ -166,6 +180,7 @@ class _TvSettingsPageState extends State<TvSettingsPage> {
       if (i < 0) i += _rows.length;
       if (_isSelectable(i)) {
         setState(() => _index = i);
+        _ensureVisible(i);
         return;
       }
     }
@@ -218,22 +233,27 @@ class _TvSettingsPageState extends State<TvSettingsPage> {
                   itemBuilder: (context, i) {
                     final row = _rows[i];
                     if (row.group != null) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                            top: context.tvDp(10), bottom: context.tvDp(6), left: context.tvDp(4)),
-                        child: Text(row.group!,
-                            style: TextStyle(
-                                fontSize: context.tvSp(13),
-                                fontWeight: FontWeight.w700,
-                                color: TvTheme.focusColor)),
+                      return KeyedSubtree(
+                        key: _rowKeys[i],
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              top: context.tvDp(10), bottom: context.tvDp(6), left: context.tvDp(4)),
+                          child: Text(row.group!,
+                              style: TextStyle(
+                                  fontSize: context.tvSp(13),
+                                  fontWeight: FontWeight.w700,
+                                  color: TvTheme.focusColor)),
+                        ),
                       );
                     }
                     final selected = i == _index;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() => _index = i);
-                        row.onOk?.call();
-                      },
+                    return KeyedSubtree(
+                      key: _rowKeys[i],
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() => _index = i);
+                          row.onOk?.call();
+                        },
                       child: Container(
                         margin: EdgeInsets.only(bottom: context.tvDp(4)),
                         padding: EdgeInsets.symmetric(
@@ -258,6 +278,7 @@ class _TvSettingsPageState extends State<TvSettingsPage> {
                                     color: selected ? Colors.white : TvTheme.textSecondary)),
                           ],
                         ),
+                      ),
                       ),
                     );
                   },
