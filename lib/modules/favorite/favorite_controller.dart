@@ -26,9 +26,14 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   Timer? _debounceTimer;
   final List<Worker> _audienceWorkers = [];
 
+  /// 是否进入过历史页签：离开时站点 TabBar 已重建，需要同步重置站点/标签选择
+  bool _historyTabVisited = false;
+
   final onlineRooms = <LiveRoom>[].obs;
   final offlineRooms = <LiveRoom>[].obs;
   final allRooms = <LiveRoom>[].obs;
+  // 观看历史（第 4 个页签）：按 watchedAt 倒序的最近观看直播间
+  final historyRooms = <LiveRoom>[].obs;
   final selectedTagId = TagManagementController.allTagKey.obs;
   final visibleTags = <LiveTag>[].obs;
 
@@ -117,7 +122,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
   void onInit() {
     super.onInit();
 
-    tabController = TabController(length: 3, vsync: this);
+    tabController = TabController(length: 4, vsync: this);
 
     debounce(SettingsService.to.fav.favoriteRooms, (_) => applyLocalFilter(), time: const Duration(milliseconds: 1000));
 
@@ -128,6 +133,14 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     ever(tagController.roomTagsMap, (_) => applyLocalFilter());
     _audienceWorkers.add(ever(SettingsService.to.app.preferRealOnlineCounts, (_) => applyLocalFilter()));
     _audienceWorkers.add(ever(SettingsService.to.app.realOnlinePlatforms, (_) => applyLocalFilter()));
+    // 观看历史：存储变化（记录/裁剪/清空）即同步到页签数据源
+    _audienceWorkers.add(ever(SettingsService.to.fav.watchHistory, (_) => syncHistory()));
+    syncHistory();
+    // 置顶切换：立即重排并落到显示池
+    _audienceWorkers.add(ever(SettingsService.to.fav.pinnedRooms, (_) {
+      syncRooms();
+      applyLocalFilter();
+    }));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       applyLocalFilter();
@@ -141,6 +154,16 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
         tabOnlineIndex.value = tabController.index;
         if (Get.width > 680) {
           currentPage = 1;
+        }
+        // 历史页签没有站点/标签筛选（DefaultTabController 被移出渲染树），
+        // 回到收藏页签时站点 TabBar 已重建为第一项，同步数据源索引，
+        // 避免站点选中项与过滤数据不一致。
+        if (tabController.index == 3) {
+          _historyTabVisited = true;
+        } else if (_historyTabVisited) {
+          _historyTabVisited = false;
+          tabSiteIndex.value = 0;
+          selectedTagId.value = TagManagementController.allTagKey;
         }
         applyLocalFilter();
       }
@@ -291,6 +314,16 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     return siteFiltered.where(_roomMatchesSelectedTag).toList();
   }
 
+  /// 同步观看历史页签数据源：存储本身按 watchedAt 倒序维护，直接拷贝展示。
+  void syncHistory() {
+    historyRooms.assignAll(SettingsService.to.fav.watchHistory.v);
+  }
+
+  /// 清空观看历史（带确认，由页面调用）。
+  void clearHistory() {
+    SettingsService.to.fav.clearWatchHistory();
+  }
+
   void syncRooms() {
     onlineRooms.clear();
     offlineRooms.clear();
@@ -349,6 +382,10 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     }
 
     onlineRooms.sort((a, b) {
+      // 开播即置顶：置顶的直播间开播后恒排最前，置顶组内仍按原有排序
+      final int pa = _pinnedSortValue(a);
+      final int pb = _pinnedSortValue(b);
+      if (pa != pb) return pb.compareTo(pa);
       if (selectedTagId.value == TagManagementController.allTagKey) {
         return _audienceSortValue(b).compareTo(_audienceSortValue(a));
       }
@@ -362,6 +399,10 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
       int la = a.liveStatus == LiveStatus.live ? 1 : 0;
       int lb = b.liveStatus == LiveStatus.live ? 1 : 0;
       if (la != lb) return lb.compareTo(la);
+      // 直播组内再置顶：置顶的直播间开播后排在其他开播直播间之前
+      final int pa = _pinnedSortValue(a);
+      final int pb = _pinnedSortValue(b);
+      if (pa != pb) return pb.compareTo(pa);
       if (selectedTagId.value == TagManagementController.allTagKey) {
         return _audienceSortValue(b).compareTo(_audienceSortValue(a));
       }
@@ -370,6 +411,11 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
       if (sa != sb) return sb.compareTo(sa);
       return _audienceSortValue(b).compareTo(_audienceSortValue(a));
     });
+  }
+
+  /// 开播即置顶的排序权重：置顶且开播=1，其余=0（未开播的置顶房间不置顶）。
+  int _pinnedSortValue(LiveRoom room) {
+    return (room.liveStatus == LiveStatus.live && SettingsService.to.fav.isPinned(room)) ? 1 : 0;
   }
 
   int _audienceSortValue(LiveRoom room) {

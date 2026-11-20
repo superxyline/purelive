@@ -294,7 +294,12 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                       return;
                     }
                     final position = _lastTapPosition;
-                    if (position != null && controller.handleDanmakuPointer(position, longPress: false)) return;
+                    // 锁定防误触：弹幕点击菜单不生效，点击统一回落到呼出控制栏（保留解锁入口）。
+                    if (position != null &&
+                        !controller.showLocked.value &&
+                        controller.handleDanmakuPointer(position, longPress: false)) {
+                      return;
+                    }
                     final pm = GlobalPlayerService.instance.playerManager;
                     if (pm.isPlayingNow) {
                       controller.toggleController();
@@ -306,6 +311,8 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                     }
                   },
                   onLongPressStart: (details) {
+                    // 锁定防误触：长按弹幕菜单不生效。
+                    if (controller.showLocked.value) return;
                     controller.handleDanmakuPointer(details.globalPosition, longPress: true);
                   },
                   onDoubleTap: () {
@@ -422,7 +429,9 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                         message: gift,
                         glassEffect: true,
                         opacity: SettingsService.to.danmaku.fullscreenGiftCardOpacity.v,
-                        onTap: () => onGiftCardTap(context, gift),
+                        // 锁定防误触：礼物卡片点击（屏蔽确认框）不生效；onTap=null 即禁用点击。
+                        // 所在 Obx 已读取 showLocked，锁定状态变化会重建生效。
+                        onTap: controller.showLocked.value ? null : () => onGiftCardTap(context, gift),
                       ),
                     );
 

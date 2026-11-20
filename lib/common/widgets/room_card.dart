@@ -282,6 +282,22 @@ class RoomCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 FollowButton(room: room),
+                // 开播即置顶：仅对已关注的房间生效（置顶身份存于本地收藏集合）
+                if (_isFollowed())
+                  IconButton(
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(6),
+                    tooltip: _isPinned() ? i18n('unpin_room') : i18n('pin_room'),
+                    icon: Icon(
+                      _isPinned() ? Remix.pushpin_fill : Remix.pushpin_line,
+                      size: 20,
+                      color: _isPinned() ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _togglePinned(context);
+                    },
+                  ),
                 // 编辑备注：仅对已关注的房间生效（备注存于本地收藏）
                 IconButton(
                   constraints: const BoxConstraints(),
@@ -332,6 +348,20 @@ class RoomCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// 房间是否已关注（置顶入口仅对已关注的房间开放）。
+  bool _isFollowed() {
+    return SettingsService.to.fav.favoriteRooms.v.any((r) => r.hasSameIdentity(room));
+  }
+
+  bool _isPinned() => SettingsService.to.fav.isPinned(room);
+
+  /// 切换"开播即置顶"。列表重排由 FavoriteController 的 ever(pinnedRooms) 监听
+  /// 自动触发，这里只做切换与提示。
+  void _togglePinned(BuildContext context) {
+    final pinned = SettingsService.to.fav.togglePinned(room);
+    SmartDialog.showToast(i18n(pinned ? 'room_pinned' : 'room_unpinned'));
   }
 
   /// 编辑本地备注：仅已关注的房间可编辑，保存到收藏列表对应房间。
@@ -920,6 +950,9 @@ class RoomCard extends StatelessWidget {
                     ),
                   Obx(() {
                     final bool showDuration = SettingsService.to.app.showLiveDurationBadge.v;
+                    // 开播即置顶的房间：红角标前缀"已置顶"（liveStartTime 缺失时
+                    // 独立显示置顶角标，标记不丢——置顶房间恰恰是要排最前的）
+                    final bool pinned = SettingsService.to.fav.isPinned(room);
                     if (room.isRecord == false &&
                         room.liveStatus == LiveStatus.live &&
                         room.liveStartTime != null &&
@@ -932,6 +965,19 @@ class RoomCard extends StatelessWidget {
                           startTimeMs: room.liveStartTime!,
                           dense: dense,
                           platformName: showPlatformBadge ? PlatformAccent.displayName(room.platform) : null,
+                          pinned: pinned,
+                        ),
+                      );
+                    }
+                    if (pinned && room.isRecord == false && room.liveStatus == LiveStatus.live && !hideBadges) {
+                      return Positioned(
+                        left: 8,
+                        top: 8,
+                        child: CountChip(
+                          icon: Icons.push_pin_rounded,
+                          count: i18n('room_pinned_badge'),
+                          dense: dense,
+                          color: const Color(0xFFE53935),
                         ),
                       );
                     }
@@ -1058,13 +1104,16 @@ class CountChip extends StatelessWidget {
 }
 
 class LiveDurationBadge extends StatefulWidget {
-  const LiveDurationBadge({super.key, required this.startTimeMs, this.dense = false, this.platformName});
+  const LiveDurationBadge({super.key, required this.startTimeMs, this.dense = false, this.platformName, this.pinned = false});
 
   final int startTimeMs;
   final bool dense;
 
   /// 平台显示名（如"虎牙"），拼在开播时长角标前，一眼区分聚合列表里的平台。
   final String? platformName;
+
+  /// 开播即置顶：角标前缀"已置顶"、图标换图钉，一眼看出为什么它排最前。
+  final bool pinned;
 
   @override
   State<LiveDurationBadge> createState() => _LiveDurationBadgeState();
@@ -1091,9 +1140,14 @@ class _LiveDurationBadgeState extends State<LiveDurationBadge> {
   Widget build(BuildContext context) {
     final duration = formatLiveDuration(widget.startTimeMs);
     final platform = widget.platformName ?? '';
+    final parts = <String>[
+      if (widget.pinned) i18n('room_pinned_badge'),
+      if (platform.isNotEmpty) platform,
+      duration,
+    ];
     return CountChip(
-      icon: Icons.access_time_rounded,
-      count: platform.isEmpty ? duration : '$platform · $duration',
+      icon: widget.pinned ? Icons.push_pin_rounded : Icons.access_time_rounded,
+      count: parts.join(' · '),
       dense: widget.dense,
       color: const Color(0xFFE53935), // 直播红
     );

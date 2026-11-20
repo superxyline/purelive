@@ -36,7 +36,58 @@ class KuaishouWebLoginController extends GetxController {
     final cookieStr = await collectCookies(uri);
     if (cookieStr.isNotEmpty) {
       SettingsService.to.cookieManager.kuaishouCookie.v = cookieStr;
+      // 尽力从登录后的页面提取昵称（账号页显示用户名而非 UID）：
+      // 快手无公开的当前用户信息接口，页面右上角/全局状态里带昵称。
+      // 必须在 pop 之前同步提取——pop 后 WebView 销毁，JS 就没得执行了。
+      // 提取失败静默——账号页回退显示 UID。
+      await _extractNick();
     }
     Navigator.of(Get.context!).pop(true);
+  }
+
+  /// 从登录后的页面提取自己的昵称：DOM 候选选择器 + 全局初始状态兜底。
+  static const String _nickExtractorJs = '''
+(function() {
+  try {
+    var candidates = document.querySelectorAll(
+      '[class*="username"] , [class*="nickName"] , [class*="nickname"] , ' +
+      '.header-user-name, .user-name, .user-nickname'
+    );
+    for (var i = 0; i < candidates.length; i++) {
+      var text = (candidates[i].textContent || '').trim();
+      if (text && text.length >= 1 && text.length <= 30 && text.indexOf('登录') === -1) return text;
+    }
+    var states = [window.__APOLLO_STATE__, window.__NUXT__, window.__INITIAL_STATE__, window.__data];
+    for (var s = 0; s < states.length; s++) {
+      var st = states[s];
+      if (!st || typeof st !== 'object') continue;
+      for (var key in st) {
+        var v = st[key];
+        if (!v || typeof v !== 'object') continue;
+        var nick = v.nickname || v.nickName || v.userName || v.name;
+        if (typeof nick === 'string' && nick && nick.length <= 30) return nick;
+      }
+    }
+  } catch (e) {}
+  return '';
+})();
+''';
+
+  Future<void> _extractNick() async {
+    try {
+      final controller = webViewController;
+      if (controller == null) return;
+      final result = await controller.evaluateJavascript(source: _nickExtractorJs);
+      final nick = result?.toString().trim() ?? '';
+      // evaluateJavascript 返回带引号的字符串字面量（如 "xxx"），剥掉
+      final cleaned = nick.length >= 2 && nick.startsWith('"') && nick.endsWith('"')
+          ? nick.substring(1, nick.length - 1)
+          : nick;
+      if (cleaned.isNotEmpty && cleaned != 'null' && cleaned != '""') {
+        SettingsService.to.cookieManager.kuaishouNick.v = cleaned;
+      }
+    } catch (_) {
+      // 页面已销毁/JS 执行失败：静默，账号页回退 UID
+    }
   }
 }

@@ -8,8 +8,26 @@ class FavoriteRoomController extends GetxController {
   final RxList<String> hotAreasList = hiveStringList('hotAreasList', AppConsts.supportSites);
   final RxInt siteCatalogMigration = hiveInt('siteCatalogMigration', 0);
   final RxString preferPlatform = hiveString('preferPlatform', Sites.bilibiliSite);
+
+  /// 开播即置顶的房间（identityKey 集合）：置顶直播间开播后在"已开播/已关注"
+  /// 页签恒排最前。独立集合存储而非 LiveRoom 字段——收藏条目会被直播详情
+  /// 刷新整体替换（updateRoom），字段会被平台新数据冲掉。
+  final RxList<String> pinnedRooms = hiveStringList('pinnedRooms', []);
   final Rx<List<LiveRoom>> favoriteRooms = hiveObject(
     'favoriteRooms',
+    <LiveRoom>[],
+    fromJson: (json) {
+      return List<LiveRoom>.from((json['list'] ?? []).map((e) => LiveRoom.fromJson(e)));
+    },
+    toJson: (list) {
+      return {'list': list.map((e) => e.toJson()).toList()};
+    },
+  );
+
+  /// 观看历史：最近观看的直播间，按 watchedAt 倒序，超出上限自动裁剪。
+  /// 仅本地存储，不参与备份/NAS 同步。
+  final Rx<List<LiveRoom>> watchHistory = hiveObject(
+    'watchHistory',
     <LiveRoom>[],
     fromJson: (json) {
       return List<LiveRoom>.from((json['list'] ?? []).map((e) => LiveRoom.fromJson(e)));
@@ -45,6 +63,20 @@ class FavoriteRoomController extends GetxController {
   bool isFavorite(LiveRoom room) => favoriteRooms.v.any((e) => e.hasSameIdentity(room));
   bool isFavoriteArea(LiveArea area) => favoriteAreas.v.any((e) => e.areaId == area.areaId);
 
+  bool isPinned(LiveRoom room) => pinnedRooms.contains(room.identityKey);
+
+  /// 切换置顶并返回置顶后的状态。
+  bool togglePinned(LiveRoom room) {
+    final key = room.identityKey;
+    if (pinnedRooms.contains(key)) {
+      pinnedRooms.remove(key);
+    } else {
+      pinnedRooms.add(key);
+    }
+    pinnedRooms.refresh();
+    return pinnedRooms.contains(key);
+  }
+
   bool addRoom(LiveRoom room) {
     if (isFavorite(room)) return false;
     favoriteRooms.v.add(room);
@@ -79,6 +111,45 @@ class FavoriteRoomController extends GetxController {
     return res;
   }
 
+  /// 记录观看历史：同身份房间去重置顶并合并最新信息，超出上限裁掉最旧的。
+  /// 幂等：同一直播间反复进入/切清晰度只会置顶刷新，不会产生重复条目。
+  /// 注意：直接引用传入的房间对象（与收藏 updateRoom 同语义），不得清空其
+  /// tagIds/note——调用方传入的是播放页正在使用的 detail，后续还会同步进收藏。
+  void recordWatchHistory(LiveRoom room, {int? limit}) {
+    final maxCount = limit ?? SettingsService.to.app.watchHistoryLimit.v;
+    if (maxCount <= 0) {
+      // 上限为 0 视为关闭记录功能，清空既有历史。
+      if (watchHistory.v.isNotEmpty) watchHistory.v.clear();
+      watchHistory.refresh();
+      return;
+    }
+    room.watchedAt = DateTime.now().millisecondsSinceEpoch;
+    watchHistory.v.removeWhere((e) => e.hasSameIdentity(room));
+    watchHistory.v.insert(0, room);
+    if (watchHistory.v.length > maxCount) {
+      watchHistory.v.removeRange(maxCount, watchHistory.v.length);
+    }
+    watchHistory.refresh();
+  }
+
+  void clearWatchHistory() {
+    watchHistory.v.clear();
+    watchHistory.refresh();
+  }
+
+  /// 按当前上限立即裁剪历史（设置里调小上限后调用）。
+  void recordWatchHistoryTrim() {
+    final maxCount = SettingsService.to.app.watchHistoryLimit.v;
+    if (maxCount <= 0) {
+      clearWatchHistory();
+      return;
+    }
+    if (watchHistory.v.length > maxCount) {
+      watchHistory.v.removeRange(maxCount, watchHistory.v.length);
+      watchHistory.refresh();
+    }
+  }
+
   void addShieldList(String value) => shieldList.v.add(value);
   void removeShieldList(int idx) => shieldList.v.removeAt(idx);
   void addBlockedDanmakuUser(String value) {
@@ -110,6 +181,7 @@ class FavoriteRoomController extends GetxController {
       'blockedDanmakuUsers': blockedDanmakuUsers.v,
       'hotAreasList': hotAreasList.v,
       'preferPlatform': preferPlatform.v,
+      'pinnedRooms': pinnedRooms.v,
       'favoriteRooms': favoriteRooms.v.map((e) => e.toJson()).toList(),
       'favoriteAreas': favoriteAreas.v.map((e) => e.toJson()).toList(),
     };
@@ -123,6 +195,8 @@ class FavoriteRoomController extends GetxController {
 
     preferPlatform.v = json['preferPlatform'] ?? Sites.bilibiliSite;
 
+    pinnedRooms.v = List<String>.from(json['pinnedRooms'] ?? []);
+
     favoriteRooms.v = BackupMigrationUtil.parseObjectList(json['favoriteRooms'], (m) => LiveRoom.fromJson(m));
 
     favoriteAreas.v = BackupMigrationUtil.parseObjectList(json['favoriteAreas'], (m) => LiveArea.fromJson(m));
@@ -135,6 +209,7 @@ class FavoriteRoomController extends GetxController {
       'blockedDanmakuUsers': List<String>.from(favorite['blockedDanmakuUsers'] ?? []),
       'hotAreasList': List<String>.from(favorite['hotAreasList'] ?? AppConsts.supportSites),
       'preferPlatform': favorite['preferPlatform'] ?? Sites.bilibiliSite,
+      'pinnedRooms': List<String>.from(favorite['pinnedRooms'] ?? []),
       'favoriteRooms': BackupMigrationUtil.parseObjectList(
         favorite['favoriteRooms'],
         LiveRoom.fromJson,

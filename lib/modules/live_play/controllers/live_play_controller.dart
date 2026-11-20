@@ -866,6 +866,8 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
       _handleCurrentLineAndQuality(reloadDataType, line, isReCalculate);
 
       updateRoom(detail: liveRoom);
+      // 观看历史：详情就绪后记录（信息完整、幂等置顶），进房即留痕。
+      SettingsService.to.fav.recordWatchHistory(liveRoom);
       updateUI(refreshKey: state.value.ui.refreshKey + 1);
 
       if (liveRoom.liveStatus == LiveStatus.unknown) {

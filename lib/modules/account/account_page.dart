@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/account/account_controller.dart';
@@ -6,6 +8,9 @@ import 'package:pure_live/common/services/settings/bilibili_account_service.dart
 
 class AccountPage extends GetView<AccountController> {
   const AccountPage({super.key});
+
+  /// 虎牙昵称懒查防重标志：一个 App 生命周期内只补查一次（登录时会主动查）。
+  static bool _huyaNickLazyFetched = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +44,20 @@ class AccountPage extends GetView<AccountController> {
 
             Obx(() {
               final isLogined = cookie.huyaCookie.v.isNotEmpty;
+              // 昵称懒查：存量登录没有存过昵称（hive 为空）时进页面补查一次，
+              // 接口结果落 hive 后 Rx 变化会自动刷新显示；失败静默回退 UID。
+              if (isLogined && cookie.huyaNick.v.isEmpty && !_huyaNickLazyFetched) {
+                _huyaNickLazyFetched = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  unawaited(FollowSyncService.fetchHuyaSelfNick());
+                });
+              }
               return _buildAccountTile(
                 context,
                 logo: 'assets/images/huya.png',
                 platformId: 'huya',
                 title: i18n("site_huya"),
-                subtitle: isLogined ? _uidLabel(cookie.huyaCookie.v, 'yyuid') : i18n("not_logged_in"),
+                subtitle: isLogined ? _accountLabel(cookie.huyaNick.v, cookie.huyaCookie.v, 'yyuid') : i18n("not_logged_in"),
                 isLogined: isLogined,
                 onSync: () => FollowSyncService.runAndShowResult(
                   task: FollowSyncService.syncHuya,
@@ -94,7 +107,7 @@ class AccountPage extends GetView<AccountController> {
                 logo: 'assets/images/kuaishou.png',
                 platformId: 'kuaishou',
                 title: i18n("site_kuaishou"),
-                subtitle: isLogined ? _uidLabel(cookie.kuaishouCookie.v, 'userId') : i18n("not_logged_in"),
+                subtitle: isLogined ? _accountLabel(cookie.kuaishouNick.v, cookie.kuaishouCookie.v, 'userId') : i18n("not_logged_in"),
                 isLogined: isLogined,
                 onSync: () => FollowSyncService.runAndShowResult(
                   task: FollowSyncService.syncKuaishou,
@@ -122,8 +135,7 @@ class AccountPage extends GetView<AccountController> {
               final stateLabel = switch (douyuState) {
                 DouyuSessionState.none => i18n("not_logged_in"),
                 DouyuSessionState.guest => 'Cookie 无登录令牌（等同未登录）',
-                DouyuSessionState.valid =>
-                  douyuExpiry == null ? i18n("logined") : '剩余 ${_douyuRemainingLabel(douyuExpiry)}',
+                DouyuSessionState.valid => _douyuValidLabel(cookie.douyuCookie.v, douyuExpiry),
                 DouyuSessionState.expiredRefreshable => '登录已过期 · 下次播放会自动续期',
                 DouyuSessionState.expired => '登录已过期 · 请重新登录',
               };
@@ -151,6 +163,13 @@ class AccountPage extends GetView<AccountController> {
     );
   }
 
+  /// 账号名展示：已存的昵称优先（虎牙 getUserProfile / 快手页面提取），
+  /// 昵称为空回退 UID——至少能区分是哪个号，比统一的「已登录」信息量多。
+  String _accountLabel(String nick, String cookie, String field) {
+    final trimmed = nick.trim();
+    return trimmed.isNotEmpty ? trimmed : _uidLabel(cookie, field);
+  }
+
   /// 虎牙/快手的昵称要私有签名接口才能拿到，cookie 里只有账号 ID：
   /// 退化为显示 UID，至少能区分是哪个号，比统一的「已登录」信息量多。
   String _uidLabel(String cookie, String field) {
@@ -165,6 +184,22 @@ class AccountPage extends GetView<AccountController> {
     if (left.inDays >= 1) return '剩余 ${left.inDays} 天';
     if (left.inHours >= 1) return '剩余 ${left.inHours} 小时';
     return '剩余 ${left.inMinutes} 分钟';
+  }
+
+  /// 斗鱼登录有效时的文案：有无续期密钥（LTP0+dy_did）表现完全不同——
+  /// 有则到期前自动续、无限滚动；没有则到期必须重新扫码。
+  String _douyuValidLabel(String cookie, DateTime? expiry) {
+    final canRenew = DouyuUtils.canRefreshSession(cookie);
+    if (expiry == null) return canRenew ? '已登录 · 可自动续期' : i18n("logined");
+    final until = '至 ${_douyuExpiryTime(expiry)}';
+    return canRenew ? '已登录 · 自动续期 $until' : '剩余 ${_douyuRemainingLabel(expiry)} · 到期需重新扫码';
+  }
+
+  /// 续期边界时间（本地时区 yyyy-MM-dd HH:mm）。
+  String _douyuExpiryTime(DateTime expiry) {
+    final local = expiry.toLocal();
+    String two(int value) => value.toString().padLeft(2, '0');
+    return '${local.year}-${two(local.month)}-${two(local.day)} ${two(local.hour)}:${two(local.minute)}';
   }
 
   Widget _buildAccountTile(

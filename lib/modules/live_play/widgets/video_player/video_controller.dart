@@ -231,6 +231,7 @@ class VideoController with ChangeNotifier {
   // 资源管理
   final List<StreamSubscription> _subscriptions = [];
   final List<Timer> _timers = [];
+  final List<Worker> _fullscreenWatchers = [];
 
   // 状态
   PlayerStatus _status = PlayerStatus.idle;
@@ -332,6 +333,7 @@ class VideoController with ChangeNotifier {
 
   void _initPagesConfig() {
     _danmakuManager.setupWorkers();
+    _setupFullscreenLockAutoRelease();
 
     if (allowScreenKeepOn) WakelockPlus.enable();
 
@@ -339,6 +341,29 @@ class VideoController with ChangeNotifier {
 
     unawaited(initVideoController());
     initBattery();
+  }
+
+  /// 退出全屏时自动解除锁定：锁是全屏内的临时防误触态，任何路径
+  /// （返回键/按钮/重力感应/兜底清理）退出全屏都统一解除，避免锁状态
+  /// 残留到非全屏后没有任何解锁入口（锁按钮只在全屏 UI 下渲染）。
+  void _setupFullscreenLockAutoRelease() {
+    _fullscreenWatchers.add(
+      ever(GlobalPlayerState.to.isFullscreen, (bool fullscreen) {
+        if (!fullscreen) showLocked.value = false;
+      }),
+    );
+    _fullscreenWatchers.add(
+      ever(GlobalPlayerState.to.isWindowFullscreen, (bool fullscreen) {
+        if (!fullscreen) showLocked.value = false;
+      }),
+    );
+  }
+
+  void _cancelAllFullscreenWatchers() {
+    for (final worker in _fullscreenWatchers) {
+      worker.dispose();
+    }
+    _fullscreenWatchers.clear();
   }
 
   // 播放器初始化
@@ -920,6 +945,7 @@ class VideoController with ChangeNotifier {
     // 清理资源
     _playerManager.detachVideoController(this);
     _danmakuManager.dispose();
+    _cancelAllFullscreenWatchers();
     _cancelAllTimers();
     _isMouseOverController = false;
     _isMouseOverPlayer = false;

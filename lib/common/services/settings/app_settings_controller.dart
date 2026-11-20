@@ -28,6 +28,8 @@ class AppSettingsController extends GetxController {
   /// 赛事提醒提前分钟数（关注的赛事开始前提前多久通知）
   final RxInt esportsReminderLeadMinutes = hiveInt('esportsReminderLeadMinutes', 10);
   static const int maxEsportsReminderLeadMinutes = 120;
+  /// 观看历史上限（保留最近观看的直播间数量，0=不记录历史）
+  final RxInt watchHistoryLimit = hiveInt('watchHistoryLimit', 20);
   final RxBool enableFullScreenDefault = hiveBool('enableFullScreenDefault', false);
   final RxBool showSplashPage = hiveBool('showSplashPage', true);
   final RxBool enableHighRefreshRate = hiveBool('enableHighRefreshRate', true);

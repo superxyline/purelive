@@ -279,6 +279,39 @@ class FollowSyncService {
   }
 
   // ---------------- 虎牙 ----------------
+  /// 查询虎牙当前登录账号的昵称（getUserProfile 传自己的 lUid）。
+  /// 供账号页显示用户名（cookie 里只有 uid），失败返回 null 静默回退 UID。
+  static Future<String?> fetchHuyaSelfNick() async {
+    final cookie = SettingsService.to.cookieManager.huyaCookie.v;
+    if (cookie.isEmpty) return null;
+    final uid = _cookieValue(cookie, "udb_uid");
+    final yyuid = _cookieValue(cookie, "yyuid");
+    final lUid = int.tryParse(uid.isEmpty ? yyuid : uid) ?? 0;
+    if (lUid <= 0) return null;
+    try {
+      final client = BaseTarsHttp(
+        "http://wup.huya.com",
+        "huyauserui",
+        headers: {
+          "Origin": "https://www.huya.com",
+          "Referer": "https://www.huya.com/",
+          "User-Agent": _webUa,
+        },
+      );
+      final req = GetUserProfileReq()
+        ..tId = _buildHuyaUserId(cookie, lUid)
+        ..lUid = lUid;
+      final rsp = GetUserProfileRsp();
+      final result = await client.tupRequest("getUserProfile", req, rsp);
+      final nick = result.tUserProfile.tUserBase.sNickName;
+      if (nick.isEmpty) return null;
+      SettingsService.to.cookieManager.huyaNick.v = nick;
+      return nick;
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<FollowSyncResult> syncHuya() async {
     final cookie = SettingsService.to.cookieManager.huyaCookie.v;
     if (cookie.isEmpty) {

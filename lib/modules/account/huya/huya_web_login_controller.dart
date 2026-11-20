@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:pure_live/common/index.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -36,6 +38,8 @@ class HuyaWebLoginController extends GetxController {
     final cookieStr = await collectCookies(uri);
     if (cookieStr.isNotEmpty) {
       SettingsService.to.cookieManager.huyaCookie.v = cookieStr;
+      // 顺手查一次自己的昵称（账号页显示用户名而非 UID）；失败静默回退 UID
+      unawaited(FollowSyncService.fetchHuyaSelfNick());
       // 通知 NAS 补推登录态（关注列表没变也要推，否则 NAS 端拿不到新 cookie）
       SettingsService.to.cookieManager.notifyLoginChanged();
     }

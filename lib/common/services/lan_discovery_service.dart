@@ -521,6 +521,9 @@ class LanDiscoveryService extends GetxService {
         final cookie = data['cookie'];
         if (cookie is Map && cookie.isNotEmpty) {
           SettingsService.to.cookieManager.fromJson(Map<String, dynamic>.from(cookie));
+          // 与扫码/手动登录路径同语义：广播登录态变更，NAS 常连同步及时感知，
+          // 避免 NAS 端的旧 cookie 在下次同步时回灌覆盖刚导入的登录态。
+          SettingsService.to.cookieManager.notifyLoginChanged();
         }
       } catch (_) {}
 

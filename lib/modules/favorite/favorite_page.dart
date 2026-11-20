@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/favorite/favorite_tag_bar.dart';
@@ -56,11 +57,20 @@ class FavoritePage extends GetView<FavoriteController> {
               centerTitle: true,
               leading: (showAction || menuCount <= 1) ? const MenuButton() : null,
               actions: [
-                IconButton(
-                  tooltip: i18n('batch_manage'),
-                  icon: const Icon(Remix.checkbox_multiple_line),
-                  onPressed: controller.enterSelectionMode,
-                ),
+                // 历史记录页签：批量管理与站点筛选无意义，换为清空历史入口
+                if (controller.tabOnlineIndex.value == 3) ...[
+                  IconButton(
+                    tooltip: i18n('history_clear'),
+                    icon: const Icon(Remix.delete_bin_line),
+                    onPressed: () => _confirmClearHistory(context),
+                  ),
+                ] else ...[
+                  IconButton(
+                    tooltip: i18n('batch_manage'),
+                    icon: const Icon(Remix.checkbox_multiple_line),
+                    onPressed: controller.enterSelectionMode,
+                  ),
+                ],
                 if (showAction) ...[const SizedBox(width: 4), CommonAppBarActions()],
               ],
               title: TabBar(
@@ -70,17 +80,114 @@ class FavoritePage extends GetView<FavoriteController> {
                   Tab(text: i18n("online_room_title")),
                   Tab(text: i18n("offline_room_title")),
                   Tab(text: i18n("favorites_all")),
+                  Tab(text: i18n("history_title")),
                 ],
               ),
             ),
-            body: DefaultTabController(
-              length: availableSitesList.length,
-              child: _FavoriteSiteTabs(controller: controller, availableSitesList: availableSitesList),
-            ),
+            body: controller.tabOnlineIndex.value == 3
+                ? const _HistoryTabView()
+                : DefaultTabController(
+                    length: availableSitesList.length,
+                    child: _FavoriteSiteTabs(controller: controller, availableSitesList: availableSitesList),
+                  ),
           );
         });
       },
     );
+  }
+
+  /// 清空观看历史（历史页签 AppBar 入口，带确认）。
+  void _confirmClearHistory(BuildContext context) {
+    final theme = Theme.of(context);
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(i18n('history_clear'), style: AppTextStyles.t16.copyWith(fontWeight: FontWeight.bold)),
+        content: Text(
+          i18n('history_clear_confirm'),
+          style: AppTextStyles.t14.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(i18n('cancel'), style: AppTextStyles.t14.copyWith(color: theme.colorScheme.secondary)),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Get.back();
+              controller.clearHistory();
+            },
+            child: Text(i18n('confirm'), style: AppTextStyles.t14.copyWith(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 观看历史页签：跨平台聚合展示最近观看的直播间。
+/// 数据源 [FavoriteController.historyRooms]，存储侧按 watchedAt 倒序维护；
+/// 与收藏页签不同，这里没有站点页签/标签筛选，条数即历史上限（≤100），无需分页。
+class _HistoryTabView extends GetView<FavoriteController> {
+  const _HistoryTabView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final rooms = controller.historyRooms;
+      if (rooms.isEmpty) {
+        return AppStatusView(
+          type: AppStatusType.empty,
+          icon: Remix.time_line,
+          title: i18n('history_empty_title'),
+          subtitle: i18n('history_empty_subtitle'),
+        );
+      }
+      final dense = SettingsService.to.app.enableDenseFavorites.v;
+      return LayoutBuilder(
+        builder: (context, constraint) {
+          final width = constraint.maxWidth;
+          int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
+          if (dense) {
+            crossAxisCount = width > 1280 ? 5 : (width > 960 ? 4 : (width > 640 ? 3 : 2));
+          }
+          final spacing = SettingsService.to.theme.crossAxisSpacing.v;
+          final itemWidth = (width - 24 - spacing * (crossAxisCount - 1)) / crossAxisCount;
+          return GridView.builder(
+            // 底部补上导航栏 inset：最后一个卡片要能滚出手势条区域
+            padding: EdgeInsets.fromLTRB(12, 12, 12, 12 + MediaQuery.paddingOf(context).bottom),
+            scrollCacheExtent: ScrollCacheExtent.pixels(width > 680 ? 960 : 480),
+            addAutomaticKeepAlives: false,
+            addRepaintBoundaries: false,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: spacing,
+              mainAxisSpacing: SettingsService.to.theme.mainAxisSpacing.v,
+              mainAxisExtent: itemWidth * 9 / 16 + (dense ? 72 : 84),
+            ),
+            itemCount: rooms.length,
+            itemBuilder: (context, index) {
+              final room = rooms[index];
+              return RoomCard(
+                key: ValueKey('history:${room.platform}:${room.roomId}'),
+                room: room,
+                dense: dense,
+                // 历史记录跨平台聚合，一律显示平台徽标区分来源
+                showPlatformBadge: true,
+              );
+            },
+          );
+        },
+      );
+    });
   }
 }
 

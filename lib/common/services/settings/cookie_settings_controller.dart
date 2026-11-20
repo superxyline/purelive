@@ -16,6 +16,10 @@ class CookieSettingsController extends GetxController {
   /// cookie 保存时间（秒）。网页版 dy_auth 读不出过期时间，靠它 + 7 天规则推算。
   final RxInt douyuCookieSavedAt = hiveInt('douyuCookieSavedAt', 0);
   final RxString kuaishouCookie = hiveString('kuaishouCookie', '');
+  /// 虎牙/快手账号昵称（账号页显示用户名）：虎牙来自 getUserProfile 接口，
+  /// 快手来自登录 WebView 页面提取。空则账号页回退显示 UID。
+  final RxString huyaNick = hiveString('huyaNick', '');
+  final RxString kuaishouNick = hiveString('kuaishouNick', '');
   void clearAllCookies() {
     bilibiliCookie.v = '';
     huyaCookie.v = '';
@@ -26,6 +30,8 @@ class CookieSettingsController extends GetxController {
     douyuCookieSavedAt.v = 0;
     kuaishouCookie.v = '';
     bilibiliUid.v = 0;
+    huyaNick.v = '';
+    kuaishouNick.v = '';
   }
 
   /// 登录态变更后广播一次：NAS 同步控制器会补推一次（关注列表没变也要推，
@@ -49,6 +55,8 @@ class CookieSettingsController extends GetxController {
       'douyuCookieSavedAt': douyuCookieSavedAt.v,
       'kuaishouCookie': kuaishouCookie.v,
       'bilibiliUid': bilibiliUid.v,
+      'huyaNick': huyaNick.v,
+      'kuaishouNick': kuaishouNick.v,
     };
   }
 
@@ -62,6 +70,8 @@ class CookieSettingsController extends GetxController {
     douyuCookieSavedAt.v = (json['douyuCookieSavedAt'] as num?)?.toInt() ?? 0;
     kuaishouCookie.v = json['kuaishouCookie'] ?? '';
     bilibiliUid.v = json['bilibiliUid'] ?? 0;
+    huyaNick.v = json['huyaNick'] ?? '';
+    kuaishouNick.v = json['kuaishouNick'] ?? '';
 
     BiliBiliAccountService.instance.setCookie(bilibiliCookie.v);
     BiliBiliAccountService.instance.loadUserInfo();
@@ -79,6 +89,8 @@ class CookieSettingsController extends GetxController {
       'douyuCookieSavedAt': cookie['douyuCookieSavedAt'] ?? 0,
       'kuaishouCookie': cookie['kuaishouCookie'] ?? '',
       'bilibiliUid': cookie['bilibiliUid'] ?? 0,
+      'huyaNick': cookie['huyaNick'] ?? '',
+      'kuaishouNick': cookie['kuaishouNick'] ?? '',
     };
   }
 

@@ -85,6 +85,18 @@ class GeneralSettingsPage extends GetView<SettingsService> {
                 onTap: () => _showReminderLeadDialog(context),
               );
             }),
+            // 观看历史上限：保留最近观看的直播间数量（首页"历史记录"页签）
+            Obx(() {
+              final limit = SettingsService.to.app.watchHistoryLimit.v;
+              return context.buildTile(
+                title: i18n('watch_history_limit'),
+                subtitle: i18n('watch_history_limit_subtitle', args: {'count': '$limit'}),
+                icon: Remix.history_line,
+                isLong: true,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => _showWatchHistoryLimitDialog(context),
+              );
+            }),
             context.buildSwitchTile(
               title: i18n('enable_countdown_close'),
               subtitle: i18n('enable_countdown_close_subtitle'),
@@ -194,6 +206,52 @@ class GeneralSettingsPage extends GetView<SettingsService> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showWatchHistoryLimitDialog(BuildContext context) {
+    const List<int> options = [10, 20, 30, 50, 100];
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(i18n('watch_history_limit')),
+          children: [
+            Obx(() {
+              final current = SettingsService.to.app.watchHistoryLimit.v;
+              return Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: options.map<Widget>((count) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: ChoiceChip(
+                      label: Text('$count'),
+                      selected: current == count,
+                      selectedColor: Theme.of(context).colorScheme.primaryContainer,
+                      labelStyle: TextStyle(
+                        color: current == count
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      onSelected: (bool selected) {
+                        if (selected) {
+                          SettingsService.to.app.watchHistoryLimit.v = count;
+                          // 上限调小后立即裁掉超出的旧记录，与自动裁剪行为一致。
+                          SettingsService.to.fav.recordWatchHistoryTrim();
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                  );
+                }).toList(),
+              );
+            }),
           ],
         );
       },

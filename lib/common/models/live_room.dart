@@ -87,6 +87,9 @@ class LiveRoom {
   /// 用户自定义备注（仅本地收藏使用，平台数据不覆盖）
   String? note = '';
 
+  /// 最近一次进入直播间的时间戳（毫秒，仅本地观看历史使用）
+  int? watchedAt;
+
   /// 介绍
   String? introduction;
 
@@ -192,7 +195,8 @@ class LiveRoom {
       isCatchUp = json['isCatchUp'] ?? false,
       catchUpStart = json['catchUpStart'],
       catchUpEnd = json['catchUpEnd'],
-      liveStartTime = json['liveStartTime'] {
+      liveStartTime = json['liveStartTime'],
+      watchedAt = json['watchedAt'] {
     // Earlier builds stored Huya's userCount/URI 8006 popularity in the
     // concurrent-viewer field. Current captures confirm both are popularity.
     if (platform == 'huya' && _hasExplicitAudienceValue(onlineViewers)) {
@@ -331,6 +335,7 @@ class LiveRoom {
       'catchUpStart': catchUpStart,
       'catchUpEnd': catchUpEnd,
       'liveStartTime': liveStartTime,
+      'watchedAt': watchedAt,
     };
   }
 
