@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:pure_live/common/index.dart';
 
+/// 一次拉全模型：接口一次性返回全部数据，客户端全量展示（无分页追加）。
+/// 平板/桌面与手机统一为全量显示（此前桌面为本地切片翻页，翻到末页后
+/// 上拉 footer 卡死，体验与手机不一致）。
 abstract class ServerAllPageController<T> extends BasePageScrollAndStateBone<T> {
   List<T>? _rawAllData;
 
@@ -15,25 +18,21 @@ abstract class ServerAllPageController<T> extends BasePageScrollAndStateBone<T> 
 
   @override
   Future<void> goToPage(int page) async {
-    if (loadding.value || page < 1 || _rawAllData == null) return;
-    if (Get.width <= 680) return;
-    final maxPage = (_rawAllData!.length / pageSize.value).ceil();
-    if (page > maxPage) return;
+    // 统一全量显示后无翻页概念；早退补 footer 复位以防历史调用方触发
+    // "正在刷新"永转。
+    if (loadding.value || page < 1 || _rawAllData == null) {
+      finishRefreshControllers(IndicatorResult.noMore);
+      return;
+    }
     currentPage = page;
     processLocalPaging();
   }
 
   @override
   void setPageSize(int? newSize) {
-    if (newSize == null || pageSize.value == newSize || _rawAllData == null) return;
-    if (Get.width <= 680) {
-      pageSize.value = newSize;
-      return;
-    }
-    final int currentFirstItemIndex = (currentPage - 1) * pageSize.value;
+    if (newSize == null || pageSize.value == newSize) return;
+    // 全量显示不分页，页大小仅作记录。
     pageSize.value = newSize;
-    currentPage = (currentFirstItemIndex ~/ newSize) + 1;
-    processLocalPaging();
   }
 
   @override
@@ -74,35 +73,10 @@ abstract class ServerAllPageController<T> extends BasePageScrollAndStateBone<T> 
     final allItems = _rawAllData!;
     totalCount.value = allItems.length;
 
-    if (allItems.isEmpty) {
-      list.clear();
-      canLoadMore.value = false;
-      pageEmpty.value = true;
-      finishRefreshControllers(IndicatorResult.noMore);
-      return;
-    }
-
-    if (Get.width > 680) {
-      int startIndex = (currentPage - 1) * pageSize.value;
-      if (startIndex >= allItems.length) {
-        currentPage = 1;
-        startIndex = 0;
-      }
-
-      int endIndex = startIndex + pageSize.value;
-      if (endIndex > allItems.length) endIndex = allItems.length;
-
-      final newData = allItems.sublist(startIndex, endIndex);
-      list.assignAll(newData);
-      canLoadMore.value = endIndex < allItems.length;
-      pageEmpty.value = list.isEmpty;
-      finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-      scrollToTopImmediate();
-    } else {
-      list.assignAll(allItems);
-      canLoadMore.value = false;
-      pageEmpty.value = list.isEmpty;
-      finishRefreshControllers(IndicatorResult.noMore);
-    }
+    // 平板/桌面与手机统一：全量展示（数据一次性拉全，无更多分页）。
+    list.assignAll(allItems);
+    canLoadMore.value = false;
+    pageEmpty.value = list.isEmpty;
+    finishRefreshControllers(IndicatorResult.noMore);
   }
 }

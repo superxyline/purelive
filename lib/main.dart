@@ -23,8 +23,18 @@ import 'package:pure_live/tv/tv_app.dart';
 /// 的情况（表现为滑动返回偶尔完全无反应）。这里在 Dart 层直接接管 goBack 键，
 /// 走与系统返回一致的 RouterDelegate.popRoute（尊重 PopScope/弹窗/全屏拦截）。
 /// 处理后返回 true 告知引擎"已处理"，避免引擎重派发造成双击返回。
+///
+/// 🔴 TV 必须排除：此 handler 位于 hardware 层（先于 Focus 树执行），TV 下
+/// 它会把 BACK 直接变成 popRoute→maybePop，导致 TV 各页面精心写的 Focus
+/// 分级返回（播放页收 UI→关信息卡→退房；搜索页输入态收键盘；主页双击
+/// 退出判定）全部收不到事件——SmartDialog/Navigator 弹窗开着时 maybePop
+/// 弹的是弹窗底下的页面，一次返回弹窗+页面一起消失（"连退两次"）。
+/// TV 的返回交给标准管线：页面 Focus 分级处理 → 未处理走引擎 popRoute。
 bool _backKeyHandler(KeyEvent event) {
   if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.goBack) {
+    return false;
+  }
+  if (TvDeviceService.isTv) {
     return false;
   }
   final context = Get.context;

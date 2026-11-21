@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:pure_live/common/index.dart';
 
+/// 真分页网络模型：按页请求、去重凑满 pageSize。平板/桌面与手机统一为
+/// "无限往下追加"（此前桌面为页缓存切片替换翻页，上拉到无更多时 footer
+/// 卡死，体验与手机不一致）。
 abstract class ServerRemotePageController<T> extends BasePageScrollAndStateBone<T> {
-  final Map<int, List<T>> _pageCache = {};
+  /// 网络翻页游标：连续请求递增，去重后凑满一屏为止。
   int _virtualNetworkPage = 1;
 
   ServerRemotePageController() : super();
@@ -14,18 +17,18 @@ abstract class ServerRemotePageController<T> extends BasePageScrollAndStateBone<
   Future<void> refreshData() async {
     currentPage = 1;
     _virtualNetworkPage = 1;
-    _pageCache.clear();
-    if (Get.width <= 680) {
-      list.clear();
-    }
+    list.clear();
     await loadData();
   }
 
   @override
   Future<void> goToPage(int page) async {
-    if (loadding.value || page < 1) return;
-    if (Get.width <= 680) return;
-    if (page > currentPage && !canLoadMore.value && !_pageCache.containsKey(page)) return;
+    // 统一追加模式后不再有外部翻页入口（loadMoreData 直接 currentPage++）。
+    // 早退补 footer 复位以防历史调用方触发"正在刷新"永转。
+    if (loadding.value || page < 1) {
+      finishRefreshControllers(IndicatorResult.noMore);
+      return;
+    }
     currentPage = page;
     await loadData();
   }
@@ -33,98 +36,14 @@ abstract class ServerRemotePageController<T> extends BasePageScrollAndStateBone<
   @override
   void setPageSize(int? newSize) {
     if (newSize == null || pageSize.value == newSize) return;
-    if (Get.width <= 680) {
-      pageSize.value = newSize;
-      return;
-    }
-
-    final int previousSize = pageSize.value;
-    final int currentFirstItemIndex = (currentPage - 1) * previousSize;
-
-    List<T> allHistoryItems = [];
-    final sortedKeys = _pageCache.keys.toList()..sort();
-    for (var key in sortedKeys) {
-      allHistoryItems.addAll(_pageCache[key]!);
-    }
-
+    // 统一追加：只更新页大小，下一页生效。
     pageSize.value = newSize;
-    currentPage = (currentFirstItemIndex ~/ newSize) + 1;
-
-    _pageCache.clear();
-
-    _adaptiveRebuildAndFetchMore(allHistoryItems);
-  }
-
-  Future<void> _adaptiveRebuildAndFetchMore(List<T> historyPool) async {
-    if (loadding.value) return;
-
-    final int targetTotalItemsNeeded = currentPage * pageSize.value;
-
-    if (historyPool.length < targetTotalItemsNeeded && canLoadMore.value) {
-      final bool isNetworkSafe = await checkNetworkBeforeRequest();
-      if (!isNetworkSafe) {
-        finishRefreshControllers(IndicatorResult.fail);
-        return;
-      }
-
-      try {
-        loadding.value = true;
-        final seen = historyPool.toSet();
-        var requestCount = 0;
-        var noProgressCount = 0;
-        while (historyPool.length < targetTotalItemsNeeded && requestCount < 20 && noProgressCount < 2) {
-          final int missingCount = targetTotalItemsNeeded - historyPool.length;
-          final result = await fetchNetworkData(_virtualNetworkPage, missingCount);
-          requestCount++;
-
-          if (result.isEmpty) break;
-
-          final previousLength = historyPool.length;
-          for (final item in result) {
-            if (seen.add(item)) historyPool.add(item);
-            if (historyPool.length >= targetTotalItemsNeeded) break;
-          }
-          noProgressCount = historyPool.length == previousLength ? noProgressCount + 1 : 0;
-          _virtualNetworkPage++;
-        }
-      } catch (e) {
-        handleError(e, showPageError: list.isEmpty);
-      } finally {
-        loadding.value = false;
-      }
-    }
-
-    int chunkIndex = 1;
-    for (int i = 0; i < historyPool.length; i += pageSize.value) {
-      int end = i + pageSize.value;
-      if (end > historyPool.length) end = historyPool.length;
-      _pageCache[chunkIndex] = historyPool.sublist(i, end);
-      chunkIndex++;
-    }
-
-    final cachedData = _pageCache[currentPage] ?? [];
-    list.assignAll(cachedData);
-    canLoadMore.value = cachedData.length >= pageSize.value;
-    pageEmpty.value = list.isEmpty;
-
-    finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-    update();
   }
 
   @override
   Future<void> loadData() async {
     if (loadding.value) return;
     totalCount.value = null;
-
-    if (Get.width > 680 && _pageCache.containsKey(currentPage)) {
-      final cachedData = _pageCache[currentPage]!;
-      list.assignAll(cachedData);
-      canLoadMore.value = cachedData.length >= pageSize.value;
-      pageEmpty.value = list.isEmpty;
-      finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-      scrollToTopImmediate();
-      return;
-    }
 
     final bool isNetworkSafe = await checkNetworkBeforeRequest();
     if (!isNetworkSafe) {
@@ -141,6 +60,7 @@ abstract class ServerRemotePageController<T> extends BasePageScrollAndStateBone<
       if (list.isEmpty) pageLoadding.value = true;
 
       List<T> combinedResult = [];
+      // 去重基准含已有列表（追加模式）：接口重复条目不再追加。
       final seen = <T>{...list};
       final int sizeToFetch = pageSize.value;
       var requestCount = 0;
@@ -167,19 +87,11 @@ abstract class ServerRemotePageController<T> extends BasePageScrollAndStateBone<
         return;
       }
 
-      if (Get.width > 680) {
-        canLoadMore.value = combinedResult.length >= pageSize.value;
-        _pageCache[currentPage] = combinedResult;
-        list.assignAll(combinedResult);
-        pageEmpty.value = list.isEmpty;
-        finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-        scrollToTopImmediate();
-      } else {
-        canLoadMore.value = combinedResult.length >= pageSize.value;
-        list.addAll(combinedResult);
-        pageEmpty.value = list.isEmpty;
-        finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-      }
+      // 平板/桌面与手机统一：追加到列表尾部（不再切片替换）。
+      canLoadMore.value = combinedResult.length >= pageSize.value;
+      list.addAll(combinedResult);
+      pageEmpty.value = list.isEmpty;
+      finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
     } catch (e) {
       currentPage = previousPageSnapshot;
       handleError(e, showPageError: list.isEmpty);

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:pure_live/common/index.dart';
 
+/// 大页固定尺寸网络分页模型：接口按 fixedServerPageSize 翻大页，客户端按
+/// pageSize 切片消费。平板/桌面与手机统一为"无限往下追加"（此前桌面为
+/// 切片替换翻页，上拉到无更多时 footer 卡死，体验与手机不一致）。
 abstract class ServerFixedPageController<T> extends BasePageScrollAndStateBone<T> {
   final int fixedServerPageSize;
   final Map<int, List<T>> _bigPageCache = {};
-  final Map<int, List<T>> _slicedSmallCache = {};
 
   ServerFixedPageController({required this.fixedServerPageSize}) : super();
 
@@ -13,18 +15,19 @@ abstract class ServerFixedPageController<T> extends BasePageScrollAndStateBone<T
   @override
   Future<void> refreshData() async {
     _bigPageCache.clear();
-    _slicedSmallCache.clear();
     currentPage = 1;
-    if (Get.width <= 680) {
-      list.clear();
-    }
+    list.clear();
     await loadData();
   }
 
   @override
   Future<void> goToPage(int page) async {
-    if (loadding.value || page < 1) return;
-    if (Get.width <= 680) return;
+    // 统一追加模式后不再有外部翻页入口（loadMoreData 直接 currentPage++）。
+    // 早退补 footer 复位以防历史调用方触发"正在刷新"永转。
+    if (loadding.value || page < 1) {
+      finishRefreshControllers(IndicatorResult.noMore);
+      return;
+    }
     currentPage = page;
     await loadData();
   }
@@ -32,31 +35,14 @@ abstract class ServerFixedPageController<T> extends BasePageScrollAndStateBone<T
   @override
   void setPageSize(int? newSize) {
     if (newSize == null || pageSize.value == newSize) return;
-    if (Get.width <= 680) {
-      pageSize.value = newSize;
-      return;
-    }
-    final int currentFirstItemIndex = (currentPage - 1) * pageSize.value;
+    // 统一追加：只更新页大小，下一页生效（不再重算切片游标）。
     pageSize.value = newSize;
-    currentPage = (currentFirstItemIndex ~/ newSize) + 1;
-    _slicedSmallCache.clear();
-    loadData();
   }
 
   @override
   Future<void> loadData() async {
     if (loadding.value) return;
     totalCount.value = null;
-
-    if (Get.width > 680 && _slicedSmallCache.containsKey(currentPage)) {
-      final cachedData = _slicedSmallCache[currentPage]!;
-      list.assignAll(cachedData);
-      canLoadMore.value = cachedData.length >= pageSize.value;
-      pageEmpty.value = list.isEmpty;
-      finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-      scrollToTopImmediate();
-      return;
-    }
 
     final bool isNetworkSafe = await checkNetworkBeforeRequest();
     if (!isNetworkSafe) {
@@ -111,19 +97,11 @@ abstract class ServerFixedPageController<T> extends BasePageScrollAndStateBone<T
         return;
       }
 
-      if (Get.width > 680) {
-        canLoadMore.value = combinedData.length >= pageSize.value;
-        _slicedSmallCache[currentPage] = combinedData;
-        list.assignAll(combinedData);
-        pageEmpty.value = list.isEmpty;
-        finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-        scrollToTopImmediate();
-      } else {
-        canLoadMore.value = combinedData.length >= pageSize.value;
-        list.addAll(combinedData);
-        pageEmpty.value = list.isEmpty;
-        finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-      }
+      // 平板/桌面与手机统一：追加到列表尾部（不再切片替换）。
+      canLoadMore.value = combinedData.length >= pageSize.value;
+      list.addAll(combinedData);
+      pageEmpty.value = list.isEmpty;
+      finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
     } catch (e) {
       currentPage = previousPageSnapshot;
       handleError(e, showPageError: list.isEmpty);

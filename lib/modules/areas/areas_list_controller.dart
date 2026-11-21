@@ -49,6 +49,8 @@ class AreasListController extends ServerAllPageController<LiveArea> {
     return _serverRawBackup[catId] ?? [];
   }
 
+  /// 分区列表一次拉全（getCategores(1, 1000)），平板/桌面与手机统一为全量
+  /// 展示：不再按页切片（此前桌面分支上滑翻页会整屏替换分区内容）。
   @override
   void processLocalPaging() {
     if (isFlatten) {
@@ -63,30 +65,10 @@ class AreasListController extends ServerAllPageController<LiveArea> {
         return;
       }
 
-      if (Get.width > 680) {
-        int startIndex = (currentPage - 1) * pageSize.value;
-        if (startIndex >= allItems.length) {
-          currentPage = 1;
-          startIndex = 0;
-        }
-
-        int endIndex = startIndex + pageSize.value;
-        if (endIndex > allItems.length) endIndex = allItems.length;
-
-        final newData = allItems.sublist(startIndex, endIndex);
-        list.assignAll(newData);
-        canLoadMore.value = endIndex < allItems.length;
-        pageEmpty.value = list.isEmpty;
-        finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-        if (currentPage == 1) {
-          scrollToTopImmediate();
-        }
-      } else {
-        list.assignAll(allItems);
-        canLoadMore.value = false;
-        pageEmpty.value = list.isEmpty;
-        finishRefreshControllers(IndicatorResult.noMore);
-      }
+      list.assignAll(allItems);
+      canLoadMore.value = false;
+      pageEmpty.value = list.isEmpty;
+      finishRefreshControllers(IndicatorResult.noMore);
       return;
     }
 
@@ -114,32 +96,11 @@ class AreasListController extends ServerAllPageController<LiveArea> {
       return;
     }
 
-    if (Get.width > 680) {
-      int startIndex = (currentPage - 1) * pageSize.value;
-      if (startIndex >= allItems.length) {
-        currentPage = 1;
-        startIndex = 0;
-      }
-
-      int endIndex = startIndex + pageSize.value;
-      if (endIndex > allItems.length) endIndex = allItems.length;
-
-      final newData = allItems.sublist(startIndex, endIndex);
-      list.assignAll(newData);
-      currentCategory.children.assignAll(newData);
-      canLoadMore.value = endIndex < allItems.length;
-      pageEmpty.value = list.isEmpty;
-      if (currentPage == 1) {
-        scrollToTopImmediate();
-      }
-      finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-    } else {
-      list.assignAll(allItems);
-      currentCategory.children.assignAll(allItems);
-      canLoadMore.value = false;
-      pageEmpty.value = list.isEmpty;
-      finishRefreshControllers(IndicatorResult.noMore);
-    }
+    list.assignAll(allItems);
+    currentCategory.children.assignAll(allItems);
+    canLoadMore.value = false;
+    pageEmpty.value = list.isEmpty;
+    finishRefreshControllers(IndicatorResult.noMore);
 
     categories.refresh();
   }

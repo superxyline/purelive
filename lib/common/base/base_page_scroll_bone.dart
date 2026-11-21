@@ -81,7 +81,9 @@ abstract class BasePageScrollAndStateBone<T> extends BaseController {
   }
 
   void finishRefreshControllers(IndicatorResult result) {
-    if (_lastIsDesktop ?? Get.width > 680) return;
+    // 🔴 桌面/平板不得跳过：EasyRefreshController(controlFinishLoad: true)
+    // 要求显式 finishLoad，跳过则上拉 footer 永转（"正在刷新"卡死）。
+    // 旧桌面切片翻页模式下靠该跳过+瞬间完成掩盖，统一追加模式后必须复位。
     easyRefreshController.finishRefresh(
       result == IndicatorResult.fail ? IndicatorResult.fail : IndicatorResult.success,
     );
@@ -120,12 +122,10 @@ abstract class BasePageScrollAndStateBone<T> extends BaseController {
   }
 
   Future<void> loadMoreData() async {
-    if (_lastIsDesktop ?? Get.width > 680) {
-      await goToPage(currentPage + 1);
-    } else {
-      currentPage++;
-      await loadData();
-    }
+    // 平板/桌面与手机统一为"无限往下追加"：不再走桌面切片翻页（上拉换一批
+    // 且翻到无更多数据时 footer 卡死），各控制器 loadData 内部负责追加语义。
+    currentPage++;
+    await loadData();
   }
 
   Future<void> loadData();

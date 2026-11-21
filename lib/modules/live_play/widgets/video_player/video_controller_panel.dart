@@ -584,9 +584,16 @@ class TopActionBar extends StatelessWidget {
         // 竖屏全屏（手机竖持看竖屏直播）时状态栏/手势条 insets 不归零，
         // 会把 56 高的顶栏挤压裁切、且隐藏位移 -barHeight 不足以完全移出
         // （顶部露半截）；竖屏时挖孔在顶部中间，左右按钮无需避让，故不吃 insets。
+        // 横屏沉浸（平板）SafeArea 会吃状态栏/挖孔 insets 把内容往下推：
+        // Container 的硬高度 56 在约束内向下溢出，隐藏位移只有 -barHeight
+        // 时溢出部分正好画回屏幕（平板全屏左上角返回按钮露一点）。位移量
+        // 补上 insets 保证完全移出；竖屏全屏 SafeArea 不吃 insets，无需补。
         final portraitFullscreen = OrientationPolicy.systemIsPortrait();
+        final topInset = portraitFullscreen ? 0.0 : MediaQuery.paddingOf(context).top;
         return AnimatedPositioned(
-        top: (controller.showController.value && !controller.showLocked.value) ? 0 : -barHeight,
+        top: (controller.showController.value && !controller.showLocked.value)
+            ? 0
+            : -(barHeight + topInset),
         left: 0,
         right: 0,
         height: barHeight,
@@ -1500,8 +1507,12 @@ class BottomActionBar extends StatelessWidget {
     return Obx(() {
       bool shouldShow =
           (controller.showController.value || controller.isMenuOpen.value) && !controller.showLocked.value;
+      // 同 TopActionBar：横屏沉浸时 SafeArea 吃手势条 insets，硬高度容器
+      // 向上溢出，隐藏位移只 -barHeight 时溢出部分画回屏幕（底部露一条）。
+      // 位移量补上 insets；竖屏全屏 SafeArea 不吃 insets，无需补。
+      final bottomInset = OrientationPolicy.systemIsPortrait() ? 0.0 : MediaQuery.paddingOf(context).bottom;
       return AnimatedPositioned(
-        bottom: shouldShow ? 0 : -barHeight,
+        bottom: shouldShow ? 0 : -(barHeight + bottomInset),
         left: 0,
         right: 0,
         height: barHeight,

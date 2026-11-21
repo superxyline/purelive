@@ -22,11 +22,18 @@ abstract class LocalReactivePageController<T> extends BasePageScrollAndStateBone
 
   @override
   Future<void> goToPage(int page) async {
-    if (loadding.value || page < 1) return;
+    // 早退分支补 footer 复位（翻过最后一页再上拉此前"正在刷新"永转）。
+    if (loadding.value || page < 1) {
+      finishRefreshControllers(IndicatorResult.noMore);
+      return;
+    }
     if (Get.width <= 680) return;
 
     final maxPage = (_localRawPool.length / pageSize.value).ceil();
-    if (page > maxPage) return;
+    if (page > maxPage) {
+      finishRefreshControllers(IndicatorResult.noMore);
+      return;
+    }
     currentPage = page;
     _processDataDistribution();
   }
@@ -52,36 +59,10 @@ abstract class LocalReactivePageController<T> extends BasePageScrollAndStateBone
 
   void _processDataDistribution() {
     totalCount.value = _localRawPool.length;
-
-    if (Get.width > 680) {
-      _processDesktopSlicing();
-    } else {
-      _processMobileDisplayAll();
-    }
-  }
-
-  void _processDesktopSlicing() {
-    int startIndex = (currentPage - 1) * pageSize.value;
-    if (startIndex >= _localRawPool.length) {
-      if (_localRawPool.isEmpty) {
-        list.clear();
-        canLoadMore.value = false;
-        pageEmpty.value = true;
-        finishRefreshControllers(IndicatorResult.noMore);
-        return;
-      }
-      currentPage = (_localRawPool.length / pageSize.value).ceil();
-      startIndex = (currentPage - 1) * pageSize.value;
-    }
-
-    int endIndex = startIndex + pageSize.value;
-    if (endIndex > _localRawPool.length) endIndex = _localRawPool.length;
-
-    list.assignAll(_localRawPool.sublist(startIndex, endIndex));
-    canLoadMore.value = endIndex < _localRawPool.length;
-    pageEmpty.value = list.isEmpty;
-    finishRefreshControllers(canLoadMore.value ? IndicatorResult.success : IndicatorResult.noMore);
-    scrollToTopImmediate();
+    // 平板/桌面与手机统一为全量展示：桌面切片翻页会让上滑"换一批"
+    // （关注页上滑后看到列表另一段，如只剩 B 站直播间），且翻到末页
+    // 后上拉 footer 卡死。本地池数据量有限，全量显示无分页必要。
+    _processMobileDisplayAll();
   }
 
   void _processMobileDisplayAll() {

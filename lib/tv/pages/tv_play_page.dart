@@ -148,6 +148,11 @@ class _TvPlayPageState extends State<TvPlayPage> {
 
   bool _globalKeyHandler(KeyEvent event) {
     if (event is! KeyDownEvent) return false;
+    // 页面正在退出（BACK 已 pop，退出动画期间 State 未 dispose、本 handler
+    // 仍注册）：吞掉所有按键。否则此窗口内的 BACK 会再走一次 nav.pop()——
+    // 播放页出栈完成后可能把主页也弹掉（"连退两次"），或把退出动画打断。
+    final currentRoute = ModalRoute.of(context);
+    if (currentRoute != null && !currentRoute.isCurrent) return true;
     final key = event.logicalKey;
     final confirm = key == LogicalKeyboardKey.select ||
         key == LogicalKeyboardKey.enter ||

@@ -152,9 +152,7 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
     tabController.addListener(() {
       if (tabOnlineIndex.value != tabController.index) {
         tabOnlineIndex.value = tabController.index;
-        if (Get.width > 680) {
-          currentPage = 1;
-        }
+        // 全量展示模式下 currentPage 已无分页语义（loadMore 不再切片）
         // 历史页签没有站点/标签筛选（DefaultTabController 被移出渲染树），
         // 回到收藏页签时站点 TabBar 已重建为第一项，同步数据源索引，
         // 避免站点选中项与过滤数据不一致。
@@ -222,9 +220,6 @@ class FavoriteController extends LocalReactivePageController<LiveRoom> with GetT
 
   void changeSelectedTag(String tagId) {
     selectedTagId.value = tagId;
-    if (Get.width > 680) {
-      currentPage = 1;
-    }
     applyLocalFilter();
   }
 
