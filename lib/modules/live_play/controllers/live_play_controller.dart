@@ -32,6 +32,7 @@ import 'package:pure_live/modules/live_play/controllers/danmaku_controller.dart'
 import 'package:pure_live/modules/live_play/controllers/audio_companion_danmaku.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
 import 'package:pure_live/player/utils/fullscreen.dart';
+import 'package:pure_live/tv/core/tv_device_service.dart';
 
 // live_play_controller.dart
 
@@ -292,6 +293,9 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
   Future<void> _restoreMobileScreenUi() async {
     try {
       if (PlatformUtils.isDesktop) return;
+      // TV 恒横屏：TV 播放页 pop → 本控制器 onClose 会走到这里，若按手机逻辑
+      // 下发竖屏锁定，电视会真的转成竖屏且无恢复路径（只能杀 App）。
+      if (TvDeviceService.isTv) return;
       await WindowService().verticalScreen();
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       MobileManager.setStatusBarStyle(isDarkTheme: Get.isDarkMode);

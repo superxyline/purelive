@@ -93,6 +93,15 @@ class FavoriteRoomController extends GetxController {
   bool updateRoom(LiveRoom room) {
     final idx = favoriteRooms.v.indexWhere((e) => e.hasSameIdentity(room));
     if (idx == -1) return false;
+    final previous = favoriteRooms.v[idx];
+    // 平台详情不认识本地字段：整体替换前把旧条目的备注/标签回填。
+    // 否则进一次直播间（onInitPlayerState 拿到详情后调本方法同步收藏）备注就被
+    // 冲成空，退出后卡片回落到平台原名，且没有任何路径能自愈（必须重新编辑）。
+    // 只在平台新对象没带值时才回填，调用方主动设置的字段不会被覆盖。
+    if (!identical(previous, room)) {
+      if ((room.note ?? '').isEmpty) room.note = previous.note;
+      if (room.tagIds.isEmpty) room.tagIds = List<String>.from(previous.tagIds);
+    }
     favoriteRooms.v[idx] = room;
     favoriteRooms.refresh();
     return true;

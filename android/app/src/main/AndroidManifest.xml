@@ -77,6 +77,13 @@
         android:value="androidx.sharetarget.ChooserTargetServiceCompat" />
     </activity>
     <meta-data android:name="flutterEmbedding" android:value="2" />
+    <!--
+      渲染后端兜底：部分电视/机顶盒（NVIDIA Shield TV 等 Tegra 设备）在 Impeller
+      (Vulkan) 下初始化失败，表现为整屏黑屏但有声音（官方原版同样现象，用户实测
+      切 Skia 后可正常播放）。这里全端回退 Skia 保证老 GPU 可播；
+      确认新设备无问题后可移除本行恢复 Impeller。
+    -->
+    <meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="false" />
     <meta-data android:name="ic_notification" android:resource="@drawable/ic_launcher_foreground" />
     <service android:name="flutter.overlay.window.flutter_overlay_window.OverlayService"
       android:exported="false" />

@@ -13,6 +13,8 @@ import 'package:pure_live/modules/settings/pages/cache_data_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/network_proxy_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/player_kernel_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/local_interaction_settings_page.dart';
+import 'package:pure_live/modules/settings/pages/official_shield_page.dart';
+import 'package:pure_live/modules/settings/pages/page_settings.dart';
 import 'package:pure_live/modules/settings/pages/language_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/font_and_text_page.dart';
 import 'package:pure_live/modules/settings/pages/settings_search_page.dart';
@@ -108,6 +110,12 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n('local_interaction_settings_desc'),
               onTap: () => Get.to(() => const LocalInteractionSettingsPage()),
             ),
+            context.buildTile(
+              icon: Icons.shield_outlined,
+              title: i18n('official_shield_manager'),
+              subtitle: i18n('official_shield_enable_desc'),
+              onTap: () => Get.to(() => const OfficialShieldPage()),
+            ),
           ]),
 
           const SizedBox(height: 20),
@@ -132,17 +140,18 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n("refresh_settings_subtitle"),
               onTap: () => Get.to(() => const RefreshSettingsPage()),
             ),
+            // 分页设置：列表交互行为（页码跳转/每页行数/置顶），原在主题定制页内，2026-11-22 归位
+            context.buildTile(
+              icon: Remix.layout_line,
+              title: i18n("page_settings"),
+              subtitle: i18n("page_settings_subtitle"),
+              onTap: () => Get.to(() => const PageSettingsPage()),
+            ),
             context.buildSwitchTile(
               icon: Remix.layout_grid_line,
               title: i18n("dense_favorites"),
               subtitle: i18n("dense_favorites_desc"),
               value: SettingsService.to.app.enableDenseFavorites,
-            ),
-            context.buildSwitchTile(
-              icon: Remix.apps_2_line,
-              title: i18n("liquid_glass_style"),
-              subtitle: i18n("liquid_glass_style_desc"),
-              value: SettingsService.to.app.useLiquidGlass,
             ),
           ]),
 
@@ -168,11 +177,12 @@ class SettingsPage extends GetView<SettingsService> {
               subtitle: i18n("font_text_settings_desc"),
               onTap: () => Get.to(() => const FontAndTextPage()),
             ),
-            context.buildTile(
-              icon: Remix.translate,
-              title: i18n("language_settings"),
-              subtitle: i18n("language_settings_desc"),
-              onTap: () => Get.to(() => const LanguageSettingsPage()),
+            // 液态玻璃风格：视觉风格开关，从"首页内容"归位到外观组
+            context.buildSwitchTile(
+              icon: Remix.apps_2_line,
+              title: i18n("liquid_glass_style"),
+              subtitle: i18n("liquid_glass_style_desc"),
+              value: SettingsService.to.app.useLiquidGlass,
             ),
           ]),
 

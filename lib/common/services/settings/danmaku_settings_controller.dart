@@ -48,6 +48,10 @@ class DanmakuSettingsController extends GetxController {
   // 存 Map 的 JSON（键为 platform|roomId），沿用 roomVolumes 的存法。
   final RxString _roomGiftCardsRaw = hiveString('roomDanmakuGiftCards', '{}');
   final RxMap<String, bool> rxRoomDanmakuGiftCards = <String, bool>{}.obs;
+  // ---- 房间级弹幕屏蔽（直播间内入口添加，仅当前直播间生效；
+  // 长按可升入 B 站官方云端列表，升入后从本 Map 移除）----
+  final RxString _roomDanmakuBlocksRaw = hiveString('roomDanmakuBlocks', '{}');
+  final RxMap<String, List<String>> rxRoomDanmakuBlocks = <String, List<String>>{}.obs;
   /// 全屏醒目留言 / 全屏礼物卡片的透明度（1.0 为当前默认观感）
   final RxDouble fullscreenScOpacity = hiveDouble('fullscreenScOpacity', defaultFullscreenScOpacity);
   final RxDouble fullscreenGiftCardOpacity = hiveDouble(
@@ -99,6 +103,17 @@ class DanmakuSettingsController extends GetxController {
   final RxInt danmakuSimilarityCacheDuration = hiveInt('danmakuSimilarityCacheDuration', 3);
   final RxInt danmakuSimilarityMaxCacheSize = hiveInt('danmakuSimilarityMaxCacheSize', 100);
 
+  // ---- B 站官方弹幕屏蔽（云端直同步，本地存快照）----
+  /// 开关：开启后官方屏蔽列表参与本地弹幕过滤（关键词 5 平台全局生效，
+  /// 屏蔽用户 uid 仅 B 站直播间生效，避免与其他平台 uid 撞号）。
+  final RxBool officialShieldEnabled = hiveBool('officialShieldEnabled', false);
+  /// 官方关键词快照（与 B 站云端账号数据一致，管理页增删会直同步云端）。
+  final RxList<String> officialShieldKeywords = hiveStringList('officialShieldKeywords', []);
+  /// 官方屏蔽用户快照，每条格式 "uid|uname"。
+  final RxList<String> officialShieldUsers = hiveStringList('officialShieldUsers', []);
+  /// 上次拉取时间戳（毫秒），0 表示从未拉取。
+  final RxInt lastOfficialShieldFetch = hiveInt('lastOfficialShieldFetch', 0);
+
   @override
   void onInit() {
     super.onInit();
@@ -111,6 +126,7 @@ class DanmakuSettingsController extends GetxController {
       danmakuInteractionMigration.v = 1;
     }
     _loadRoomGiftCards();
+    _loadRoomDanmakuBlocks();
   }
 
   void _loadRoomGiftCards() {
@@ -122,8 +138,44 @@ class DanmakuSettingsController extends GetxController {
     }
   }
 
+  void _loadRoomDanmakuBlocks() {
+    try {
+      final map = jsonDecode(_roomDanmakuBlocksRaw.v) as Map<String, dynamic>;
+      rxRoomDanmakuBlocks.assignAll(
+        map.map((k, v) => MapEntry(k, (v as List?)?.map((e) => e.toString()).toList() ?? <String>[])),
+      );
+    } catch (_) {
+      rxRoomDanmakuBlocks.clear();
+    }
+  }
+
   static String roomGiftCardKey(String? platform, String? roomId) =>
       '${platform?.trim().toLowerCase() ?? ''}|${roomId?.trim() ?? ''}';
+
+  /// 当前直播间（platform|roomId）的房间级屏蔽关键词列表
+  List<String> roomDanmakuBlocksOf(String? platform, String? roomId) =>
+      rxRoomDanmakuBlocks[roomGiftCardKey(platform, roomId)] ?? const <String>[];
+
+  void addRoomDanmakuBlock(String? platform, String? roomId, String keyword) {
+    final key = roomGiftCardKey(platform, roomId);
+    final list = rxRoomDanmakuBlocks[key] ?? <String>[];
+    if (list.contains(keyword)) return;
+    list.add(keyword);
+    rxRoomDanmakuBlocks[key] = list;
+    _roomDanmakuBlocksRaw.v = jsonEncode(rxRoomDanmakuBlocks);
+  }
+
+  void removeRoomDanmakuBlock(String? platform, String? roomId, String keyword) {
+    final key = roomGiftCardKey(platform, roomId);
+    final list = rxRoomDanmakuBlocks[key];
+    if (list == null || !list.remove(keyword)) return;
+    if (list.isEmpty) {
+      rxRoomDanmakuBlocks.remove(key);
+    } else {
+      rxRoomDanmakuBlocks[key] = list;
+    }
+    _roomDanmakuBlocksRaw.v = jsonEncode(rxRoomDanmakuBlocks);
+  }
 
   /// 该直播间是否在弹幕列表里显示礼物卡片（未设置过 → 显示）。
   bool showDanmakuListGiftCard(String? platform, String? roomId) {
@@ -194,6 +246,7 @@ class DanmakuSettingsController extends GetxController {
       'enableDanmakuTapInteraction': enableDanmakuTapInteraction.v,
       'enableDanmakuLongPressInteraction': enableDanmakuLongPressInteraction.v,
       'savedDanmakuTemplate': savedDanmakuTemplate.v,
+      'officialShieldEnabled': officialShieldEnabled.v,
       'enablePipDanmaku': enablePipDanmaku.v,
       'pipDanmakuAutoScale': pipDanmakuAutoScale.v,
       'pipDanmakuNoEmojiMode': pipDanmakuNoEmojiMode.v,
@@ -249,6 +302,7 @@ class DanmakuSettingsController extends GetxController {
     enableDanmakuTapInteraction.v = json['enableDanmakuTapInteraction'] ?? true;
     enableDanmakuLongPressInteraction.v = json['enableDanmakuLongPressInteraction'] ?? true;
     savedDanmakuTemplate.v = json['savedDanmakuTemplate']?.toString() ?? '';
+    officialShieldEnabled.v = json['officialShieldEnabled'] ?? false;
     enablePipDanmaku.v = json['enablePipDanmaku'] ?? defaultEnablePipDanmaku;
     pipDanmakuAutoScale.v = json['pipDanmakuAutoScale'] ?? defaultPipDanmakuAutoScale;
     pipDanmakuNoEmojiMode.v =
@@ -311,6 +365,7 @@ class DanmakuSettingsController extends GetxController {
       'enableDanmakuTapInteraction': danmaku['enableDanmakuTapInteraction'] ?? true,
       'enableDanmakuLongPressInteraction': danmaku['enableDanmakuLongPressInteraction'] ?? true,
       'savedDanmakuTemplate': danmaku['savedDanmakuTemplate']?.toString() ?? '',
+      'officialShieldEnabled': danmaku['officialShieldEnabled'] ?? false,
       'enablePipDanmaku': danmaku['enablePipDanmaku'] ?? defaultEnablePipDanmaku,
       'pipDanmakuAutoScale': danmaku['pipDanmakuAutoScale'] ?? defaultPipDanmakuAutoScale,
       'pipDanmakuNoEmojiMode':

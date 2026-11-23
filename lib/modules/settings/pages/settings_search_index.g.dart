@@ -15,6 +15,7 @@ import 'package:pure_live/modules/settings/pages/local_config_preveiw.dart';
 import 'package:pure_live/modules/settings/pages/local_interaction_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/navigation_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/network_proxy_settings_page.dart';
+import 'package:pure_live/modules/settings/pages/official_shield_page.dart';
 import 'package:pure_live/modules/settings/pages/page_settings.dart';
 import 'package:pure_live/modules/settings/pages/pip_danmaku_settings_page.dart';
 import 'package:pure_live/modules/settings/pages/platform_settings_page.dart';
@@ -93,7 +94,6 @@ class GeneratedSettingsSearchIndex {
     SettingsSearchEntry('enable_dynamic_color_subtitle', 'theme_customization', const ThemeSettingsPage()),
     SettingsSearchEntry('enable_fullscreen_default', 'video_settings', const VideoSettingsPage()),
     SettingsSearchEntry('enable_fullscreen_default_subtitle', 'video_settings', const VideoSettingsPage()),
-    SettingsSearchEntry('enable_player_proxy', 'player_kernel_settings', const PlayerKernelSettingsPage()),
     SettingsSearchEntry('enable_player_proxy', 'network_proxy_settings', const NetworkProxySettingsPage()),
     SettingsSearchEntry('enable_player_proxy_desc', 'network_proxy_settings', const NetworkProxySettingsPage()),
     SettingsSearchEntry('enable_screen_keep_on', 'video_settings', const VideoSettingsPage()),
@@ -114,8 +114,8 @@ class GeneratedSettingsSearchIndex {
     SettingsSearchEntry('font_lock_weight', 'settings', const FontFamilyManagerPage()),
     SettingsSearchEntry('font_lock_weight_desc', 'settings', const FontFamilyManagerPage()),
     SettingsSearchEntry('font_settings_desc', 'font_text_settings', const FontAndTextPage()),
-    SettingsSearchEntry('font_settings_title', 'font_settings_title', const FontSettingsPage()),
     SettingsSearchEntry('font_settings_title', 'font_text_settings', const FontAndTextPage()),
+    SettingsSearchEntry('font_settings_title', 'font_settings_title', const FontSettingsPage()),
     SettingsSearchEntry('font_size', 'pip_danmaku', const PipDanmakuSettingsPage()),
     SettingsSearchEntry('font_text_settings', 'font_text_settings', const FontAndTextPage()),
     SettingsSearchEntry('font_title_large_title', 'font_settings_title', const FontSettingsPage()),
@@ -163,10 +163,15 @@ class GeneratedSettingsSearchIndex {
     SettingsSearchEntry('network_proxy_settings', 'network_proxy_settings', const NetworkProxySettingsPage()),
     SettingsSearchEntry('network_proxy_subtitle', 'player_kernel_settings', const PlayerKernelSettingsPage()),
     SettingsSearchEntry('no_exit_confirm', 'general', const GeneralSettingsPage()),
+    SettingsSearchEntry('official_shield_del_confirm_title', 'official_shield_manager', const OfficialShieldPage()),
+    SettingsSearchEntry('official_shield_enable', 'local_interaction_settings', const LocalInteractionSettingsPage()),
+    SettingsSearchEntry('official_shield_enable_desc', 'local_interaction_settings', const LocalInteractionSettingsPage()),
+    SettingsSearchEntry('official_shield_fetch', 'local_interaction_settings', const LocalInteractionSettingsPage()),
+    SettingsSearchEntry('official_shield_keywords_count', 'settings', const KeywordBlockPage()),
+    SettingsSearchEntry('official_shield_manage_list', 'local_interaction_settings', const LocalInteractionSettingsPage()),
+    SettingsSearchEntry('official_shield_manager', 'official_shield_manager', const OfficialShieldPage()),
     SettingsSearchEntry('opacity', 'pip_danmaku', const PipDanmakuSettingsPage()),
-    SettingsSearchEntry('page_settings', 'theme_customization', const ThemeSettingsPage()),
     SettingsSearchEntry('page_settings', 'page_settings', const PageSettingsPage()),
-    SettingsSearchEntry('page_settings_subtitle', 'theme_customization', const ThemeSettingsPage()),
     SettingsSearchEntry('page_size_options_manage', 'page_settings', const PageSettingsPage()),
     SettingsSearchEntry('pip_danmaku', 'pip_danmaku', const PipDanmakuSettingsPage()),
     SettingsSearchEntry('pip_danmaku_auto_scale', 'pip_danmaku', const PipDanmakuSettingsPage()),
@@ -185,11 +190,12 @@ class GeneratedSettingsSearchIndex {
     SettingsSearchEntry('prefer_resolution', 'video_settings', const VideoSettingsPage()),
     SettingsSearchEntry('prefer_resolution_cellular', 'video_settings', const VideoSettingsPage()),
     SettingsSearchEntry('prefer_resolution_subtitle', 'video_settings', const VideoSettingsPage()),
-    SettingsSearchEntry('proxy_settings', 'player_kernel_settings', const PlayerKernelSettingsPage()),
     SettingsSearchEntry('refresh_loading', 'theme_customization', const ThemeSettingsPage()),
     SettingsSearchEntry('refresh_settings', 'refresh_settings', const RefreshSettingsPage()),
     SettingsSearchEntry('refresh_thumbnails', 'cache_and_data', const CacheDataSettingsPage()),
     SettingsSearchEntry('refresh_thumbnails_desc', 'cache_and_data', const CacheDataSettingsPage()),
+    SettingsSearchEntry('room_block_promote_title', 'settings', const KeywordBlockPage()),
+    SettingsSearchEntry('room_blocked_keywords', 'settings', const KeywordBlockPage()),
     SettingsSearchEntry('select_countdown_duration', 'general', const GeneralSettingsPage()),
     SettingsSearchEntry('show_danmaku', 'video_settings', const VideoSettingsPage()),
     SettingsSearchEntry('show_danmaku_subtitle', 'video_settings', const VideoSettingsPage()),

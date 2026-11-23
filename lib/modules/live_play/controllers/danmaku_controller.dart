@@ -8,6 +8,7 @@ import 'package:pure_live/modules/live_play/controllers/danmaku_similarity_filte
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/modules/live_play/controllers/repeated_danmaku_filter.dart';
 import 'package:pure_live/modules/live_play/states/live_play_state.dart';
+import 'package:pure_live/tv/core/tv_device_service.dart';
 
 /// Owns exactly one room-bound danmaku session.
 ///
@@ -41,6 +42,10 @@ class DanmakuController extends GetxController {
   List<String> _blockedKeywords = const <String>[];
   List<RegExp> _blockedRegexps = const <RegExp>[];
   List<String> _blockedWildcards = const <String>[];
+  /// B 站官方屏蔽列表快照（设置开启时参与过滤）：
+  /// 关键词并入 _blockedKeywords（5 平台全局生效）；
+  /// uid 单独存，仅 B 站直播间比对（B 站/斗鱼 uid 均为纯数字，跨平台比对会撞号）。
+  Set<String> _officialUids = const <String>{};
 
   /// 双开主副切换时挂起的存活连接（roomKey → 引擎）。
   /// 只摘回调不关 socket，心跳继续，切回时直接复用——
@@ -60,7 +65,14 @@ class DanmakuController extends GetxController {
       settings.danmaku.enableDanmakuDisplay,
       settings.danmaku.enablePipDanmaku,
     ], (_) => unawaited(_syncConnectionForSettings()));
-    _filterWorker = everAll([settings.fav.blockedDanmakuUsers, settings.fav.shieldList], (_) => _refreshFilters());
+    _filterWorker = everAll([
+      settings.fav.blockedDanmakuUsers,
+      settings.fav.shieldList,
+      settings.danmaku.officialShieldEnabled,
+      settings.danmaku.officialShieldKeywords,
+      settings.danmaku.officialShieldUsers,
+      settings.danmaku.rxRoomDanmakuBlocks,
+    ], (_) => _refreshFilters());
     final dm = settings.danmaku;
     _similarityFilterWorker = everAll([
       dm.enableDanmakuSimilarityFilter,
@@ -333,6 +345,10 @@ class DanmakuController extends GetxController {
   }
 
   bool _isBlocked(LiveMessage message) {
+    // B 站官方屏蔽用户：仅 B 站直播间比对 uid（其他平台 uid 体系不同，避免撞号误杀）
+    if (_officialUids.isNotEmpty && _main.site == Sites.bilibiliSite && _officialUids.contains(message.userId)) {
+      return true;
+    }
     final user = message.userName.trim().toLowerCase();
     if (user.isNotEmpty && _blockedUsers.contains(user)) return true;
     final text = message.message.toLowerCase();
@@ -372,33 +388,64 @@ class DanmakuController extends GetxController {
     final regexps = <RegExp>[];
     final wildcards = <String>[];
 
+    // 本地全局屏蔽：所有端（含 TV）无条件生效——保持 TV 现状
     for (final raw in favorite.shieldList) {
-      final keyword = raw.trim();
-      if (keyword.isEmpty) continue;
+      _classifyKeyword(raw, plainKeywords, regexps, wildcards);
+    }
 
-      // 正则表达式：以 / 开头和结尾，如 /模式/flags
-      if (keyword.length >= 2 && keyword.startsWith('/') && keyword.endsWith('/')) {
-        try {
-          final pattern = keyword.substring(1, keyword.length - 1);
-          regexps.add(RegExp(pattern, caseSensitive: false));
-        } catch (_) {
-          // 无效正则，降级为普通关键词
-          plainKeywords.add(keyword.toLowerCase());
-        }
+    // TV 端不应用新增屏蔽体系（官方列表 + 房间级）：保持 TV 原有状态
+    final dm = SettingsService.to.danmaku;
+    final applyNewShield = !TvDeviceService.isTv;
+
+    // B 站官方屏蔽：开关开启时并入快照。官方语义就是子串包含，走普通关键词通道（5 平台全局生效）。
+    final officialUids = <String>{};
+    if (applyNewShield && dm.officialShieldEnabled.v) {
+      for (final keyword in dm.officialShieldKeywords) {
+        final trimmed = keyword.trim();
+        if (trimmed.isNotEmpty) plainKeywords.add(trimmed.toLowerCase());
       }
-      // 通配符：包含 * 或 ?
-      else if (keyword.contains('*') || keyword.contains('?')) {
-        wildcards.add(keyword.toLowerCase());
+      for (final entry in dm.officialShieldUsers) {
+        final uid = entry.split('|').first.trim();
+        if (uid.isNotEmpty) officialUids.add(uid);
       }
-      // 普通关键词
-      else {
-        plainKeywords.add(keyword.toLowerCase());
+    }
+    _officialUids = officialUids;
+
+    // 房间级屏蔽：仅当前直播间生效（直播间内入口添加，长按可升入官方云端列表）
+    if (applyNewShield) {
+      for (final raw in dm.roomDanmakuBlocksOf(_main.site, _main.room.roomId)) {
+        _classifyKeyword(raw, plainKeywords, regexps, wildcards);
       }
     }
 
     _blockedKeywords = plainKeywords;
     _blockedRegexps = regexps;
     _blockedWildcards = wildcards;
+  }
+
+  /// 关键词分类解析：/正则/、*通配符?、普通包含（本地全局与房间级共用）
+  void _classifyKeyword(String raw, List<String> plainKeywords, List<RegExp> regexps, List<String> wildcards) {
+    final keyword = raw.trim();
+    if (keyword.isEmpty) return;
+
+    // 正则表达式：以 / 开头和结尾，如 /模式/flags
+    if (keyword.length >= 2 && keyword.startsWith('/') && keyword.endsWith('/')) {
+      try {
+        final pattern = keyword.substring(1, keyword.length - 1);
+        regexps.add(RegExp(pattern, caseSensitive: false));
+      } catch (_) {
+        // 无效正则，降级为普通关键词
+        plainKeywords.add(keyword.toLowerCase());
+      }
+    }
+    // 通配符：包含 * 或 ?
+    else if (keyword.contains('*') || keyword.contains('?')) {
+      wildcards.add(keyword.toLowerCase());
+    }
+    // 普通关键词
+    else {
+      plainKeywords.add(keyword.toLowerCase());
+    }
   }
 
   void _addStatusMessage(String text) {

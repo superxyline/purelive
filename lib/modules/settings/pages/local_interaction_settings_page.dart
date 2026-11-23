@@ -1,5 +1,8 @@
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/core/site/bilibili_shield.dart';
+import 'package:pure_live/core/site/bilibili_site.dart';
 import 'package:pure_live/modules/live_play/local_interaction_controller.dart';
+import 'package:pure_live/modules/settings/pages/official_shield_page.dart';
 
 class LocalInteractionSettingsPage extends StatefulWidget {
   const LocalInteractionSettingsPage({super.key});
@@ -86,6 +89,31 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
                     '${(SettingsService.to.danmaku.fullscreenGiftCardOpacity.v * 100).round()}%',
                 onChanged: (v) => SettingsService.to.danmaku.fullscreenGiftCardOpacity.v = v,
               ),
+            ),
+          ]),
+          // B 站官方屏蔽：列表存在 B 站账号云端，本页开关控制快照是否参与本地过滤；
+          // 增删关键词与管理列表在管理页内完成（云端直同步）。
+          context.buildGroupTitle(i18n('official_shield_manager')),
+          context.buildModernCard([
+            context.buildSwitchTile(
+              icon: Icons.shield_outlined,
+              title: i18n('official_shield_enable'),
+              subtitle: i18n('official_shield_enable_desc'),
+              value: SettingsService.to.danmaku.officialShieldEnabled,
+              isLong: true,
+            ),
+            Obx(
+              () => context.buildTile(
+                icon: Icons.sync_rounded,
+                title: i18n('official_shield_fetch'),
+                subtitle: _fetchSubtitle(),
+                onTap: _fetchSnapshot,
+              ),
+            ),
+            context.buildTile(
+              icon: Icons.tune_rounded,
+              title: i18n('official_shield_manage_list'),
+              onTap: () => Get.to(() => const OfficialShieldPage()),
             ),
           ]),
           const SizedBox(height: 20),
@@ -323,6 +351,38 @@ class _LocalInteractionSettingsPageState extends State<LocalInteractionSettingsP
         ],
       ),
     );
+  }
+
+  /// 官方屏蔽"拉取列表"行的副标题：快照数量 + 上次拉取时间
+  String _fetchSubtitle() {
+    final dm = SettingsService.to.danmaku;
+    final keywords = dm.officialShieldKeywords.length;
+    final users = dm.officialShieldUsers.length;
+    final ts = dm.lastOfficialShieldFetch.v;
+    final countText = i18n('official_shield_cached', args: {'count': '$keywords', 'userCount': '$users'});
+    if (ts <= 0) return countText;
+    final time = DateTime.fromMillisecondsSinceEpoch(ts);
+    final timeText =
+        '${time.month.toString().padLeft(2, '0')}-${time.day.toString().padLeft(2, '0')} '
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    return '$countText · ${i18n('official_shield_last_fetch_short', args: {'time': timeText})}';
+  }
+
+  /// 互动体验页内直接拉取官方屏蔽列表（与管理页共用写入快照逻辑）
+  Future<void> _fetchSnapshot() async {
+    if (!BiliBiliSite().hasShieldCredentials) {
+      ToastUtil.show(i18n('official_shield_need_login'));
+      return;
+    }
+    final (ok, msg, keywordCount, userCount) = await BiliBiliSite().fetchAndSaveShieldSnapshot();
+    if (!ok) {
+      ToastUtil.show(msg);
+      return;
+    }
+    ToastUtil.show(i18n('official_shield_fetch_done', args: {
+      'count': '$keywordCount',
+      'userCount': '$userCount',
+    }));
   }
 
   Widget _watchStatRow(BuildContext context, String label, String value) {

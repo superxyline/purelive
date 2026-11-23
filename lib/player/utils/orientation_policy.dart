@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/tv/core/tv_device_service.dart';
 
 /// 竖屏沉浸方向策略（上游 `PortraitFullscreenPolicy` / `PortraitOrientationOverride`
 /// 的接线层）。决策优先级：每房间覆盖 > 全局策略（默认 landscape 保持旧行为）。
@@ -44,6 +45,11 @@ class OrientationPolicy {
 
   /// 进入全屏时的目标方向：'landscape' | 'portrait'。
   static String resolveFullscreenOrientation({required String platform, required String roomId}) {
+    // TV 恒横屏：竖屏策略（含房间级覆盖与"跟随源/跟随系统"）只对手机有意义。
+    // 电视的 Activity 没有固定 screenOrientation，一旦下发竖屏锁定就会真的转成
+    // 竖屏且没有恢复路径；策略可能随备份/局域网互推从手机带过来，必须在这里拦住。
+    if (TvDeviceService.isTv) return 'landscape';
+
     final override = overrideFor(platform, roomId);
     if (override == 'portrait') return 'portrait';
     if (override == 'landscape') return 'landscape';

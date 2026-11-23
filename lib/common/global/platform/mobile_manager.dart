@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
+import 'package:pure_live/tv/core/tv_device_service.dart';
 
 class MobileManager {
   static Future<void> initialize() async {
@@ -55,6 +56,17 @@ class MobileManager {
           systemNavigationBarContrastEnforced: false,
         ),
       );
+
+      // TV 恒横屏：电视不做「平板/手机」尺寸判定，一开始就锁死横屏。
+      // 1080p 电视在 Android TV 上常报 320dpi（逻辑 960x540dp），会被尺寸判定
+      // 误当成手机而放开四方向——之后任何一次竖屏恢复调用都能把电视转成竖屏。
+      if (TvDeviceService.isTv) {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+        return;
+      }
 
       // 物理尺寸判定平板（shortestSide/dpr >= 600）：平板启动即锁横屏，实现全程横屏；
       // 手机保持四方向自由（现状）。

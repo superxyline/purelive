@@ -49,28 +49,34 @@ bool _backKeyHandler(KeyEvent event) {
 }
 
 void main(List<String> args) async {
+  // TV 设备检测必须早于 AppInitializer：MobileManager 在初始化阶段就要按 TV
+  // 锁横屏（晚于它的话 TvDeviceService 缓存仍是 null，电视会被当成手机放开
+  // 四方向，之后任何一次竖屏恢复调用都能把电视转成竖屏且无法自愈）。
+  // 通道调用前先初始化 binding（AppInitializer 内的 ensureInitialized 还没跑到）。
+  debugPrint('[main] android=${PlatformUtils.isAndroid}');
+  if (PlatformUtils.isAndroid) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await TvDeviceService.init();
+    debugPrint('[main] isTv=${TvDeviceService.isTv}');
+  }
+
   await AppInitializer().initialize(args);
 
   HardwareKeyboard.instance.addHandler(_backKeyHandler);
 
-  // TV 设备检测：命中则走独立 TV UI 树（手机路径零影响）
-  debugPrint('[main] android=${PlatformUtils.isAndroid}');
-  if (PlatformUtils.isAndroid) {
-    await TvDeviceService.init();
-    debugPrint('[main] isTv=${TvDeviceService.isTv}');
-    if (TvDeviceService.isTv) {
-      debugPrint('[main] -> runApp(TvApp)');
-      runApp(
-        EasyLocalization(
-          supportedLocales: const [Locale('en'), Locale('zh')],
-          path: 'assets/translations',
-          fallbackLocale: const Locale('zh'),
-          assetLoader: const RootBundleAssetLoader(),
-          child: TvApp(),
-        ),
-      );
-      return;
-    }
+  // TV 命中则走独立 TV UI 树（手机路径零影响）
+  if (PlatformUtils.isAndroid && TvDeviceService.isTv) {
+    debugPrint('[main] -> runApp(TvApp)');
+    runApp(
+      EasyLocalization(
+        supportedLocales: const [Locale('en'), Locale('zh')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('zh'),
+        assetLoader: const RootBundleAssetLoader(),
+        child: TvApp(),
+      ),
+    );
+    return;
   }
 
   runApp(
