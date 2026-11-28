@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/player/adapters/media_kit_adapter.dart';
@@ -46,6 +47,9 @@ class AudioCompanionService {
 
   /// 副画面组件（仅对齐预览页渲染）。
   Widget get videoWidget => _adapter?.getVideoWidget() ?? const SizedBox.shrink();
+
+  /// 抓取副音轨当前画面（自动对齐用），无画面时返回 null。
+  Future<Uint8List?> captureGrayFrame() async => _adapter?.captureGrayFrame();
 
   /// 启动（或替换）副音轨。启动成功后由调用方直接进对齐页。
   Future<bool> start(LiveRoom target) async {

@@ -329,4 +329,72 @@ class EsportsMatch {
       matchName: str(event['matchName']),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // 超凡电竞（DOTA2）解析
+  // ---------------------------------------------------------------------------
+
+  /// 从超凡电竞 `api/v1/tournament/match` 返回的 item 解析。
+  ///
+  /// 字段结构（实测）：`id`、`title`(赛事名)、`start_time`(秒)、`status_id`(1/2/3)、
+  /// `box`(赛制，3=BO3)、`home`/`away`{`name`, `logo`, `score`}。
+  /// 一条记录就是一整场 BO（score 为大比分，不是单局）。
+  ///
+  /// 该源没有「阶段」字段（[gameStage] 留空，卡片中间列会自动隐藏），
+  /// 也没有结束时间（[endTime] 为 0）；赛事 logo 只在 tournament 列表里，
+  /// 由调用方通过 [seriesLogo] / [seriesName] 带下来。
+  factory EsportsMatch.fromChaofanJson(
+    Map<String, dynamic> item, {
+    String seriesLogo = '',
+    String seriesName = '',
+  }) {
+    String str(dynamic v) => v == null ? '' : v.toString();
+    int intVal(dynamic v) => v is num ? v.toInt() : (v is String ? int.tryParse(v) ?? 0 : 0);
+
+    final Map<String, dynamic> home =
+        item['home'] is Map ? Map<String, dynamic>.from(item['home'] as Map) : const {};
+    final Map<String, dynamic> away =
+        item['away'] is Map ? Map<String, dynamic>.from(item['away'] as Map) : const {};
+
+    final String title = str(item['title']);
+    final String name = seriesName.isNotEmpty ? seriesName : title;
+    final int box = intVal(item['box']);
+    final int startSec = intVal(item['start_time']);
+
+    // 状态归一化：该源绝大多数是 1/2/3（与模型编码一致），但实测会出现
+    // 15 这类"小局/BP 进行中"的内部状态码。非 1/2/3 时按开赛时间推断，
+    // 否则卡片会走"未开始"分支并显示一个已经过去的时间。
+    final int rawStatus = intVal(item['status_id']);
+    int status;
+    if (rawStatus == 1 || rawStatus == 2 || rawStatus == 3) {
+      status = rawStatus;
+    } else {
+      final int nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      status = (startSec > 0 && nowSec >= startSec) ? 2 : 1;
+    }
+
+    return EsportsMatch(
+      matchId: str(item['id']),
+      eventLevel: '',
+      eventImportant: false,
+      eventHot: false,
+      gameName: 'DOTA2',
+      gameKey: 'dota2',
+      seriesName: name,
+      seriesShortName: name,
+      seriesLogo: normalizeLogoUrl(seriesLogo),
+      gameStage: '',
+      startTime: startSec,
+      endTime: 0,
+      status: status,
+      teamAName: str(home['name']),
+      teamALogo: normalizeLogoUrl(str(home['logo'])),
+      teamBName: str(away['name']),
+      teamBLogo: normalizeLogoUrl(str(away['logo'])),
+      scoreA: intVal(home['score']),
+      scoreB: intVal(away['score']),
+      roomId: '',
+      matchName: box > 1 ? 'BO$box' : '',
+    );
+  }
 }

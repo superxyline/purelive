@@ -1,5 +1,7 @@
 package com.superxyline.purelive
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
@@ -16,6 +18,8 @@ import android.os.Looper
 import android.os.PowerManager
 import android.view.Display
 import com.ryanheise.audioservice.AudioServiceActivity
+import com.superxyline.purelive.widget.EsportsWidgetProvider
+import com.superxyline.purelive.widget.LiveRoomsWidgetProvider
 import com.superxyline.purelive.widget.WidgetData
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -50,6 +54,12 @@ class MainActivity : AudioServiceActivity() {
 
         private var playbackWakeLock: PowerManager.WakeLock? = null
         private var playbackWifiLock: WifiManager.WifiLock? = null
+
+        /// 局域网互推组播锁：随 Dart 侧 LanDiscoveryService 的 start/stop
+        /// 按需 acquire/release（此前为进程生命周期永久持有，Wi-Fi 无法进
+        /// 省电休眠；互推 UI 没打开时纯耗电）。
+        @Suppress("DEPRECATION")
+        private var multicastLock: WifiManager.MulticastLock? = null
     }
 
     private var highRefreshRateEnabled = true
@@ -80,17 +90,6 @@ class MainActivity : AudioServiceActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        // 局域网发现（UDP 广播互推）：不持有 Wi-Fi 组播锁时，部分 ROM 会过滤
-        // 组播/广播帧且 send 广播直接 EPERM（实测小米平板）。进程生命周期持有。
-        try {
-            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            @Suppress("DEPRECATION")
-            val lock = wifi.createMulticastLock("purelive_lan_discovery")
-            lock.setReferenceCounted(false)
-            lock.acquire()
-        } catch (e: Exception) {
-            android.util.Log.w("purelive", "multicast lock failed: ${e.message}")
-        }
         appShortcutsChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             APP_SHORTCUTS_CHANNEL,
@@ -157,6 +156,10 @@ class MainActivity : AudioServiceActivity() {
             when (call.method) {
                 "ensure" -> result.success(ensureLocalNetworkPermission())
                 "granted" -> result.success(isLocalNetworkGranted())
+                "setMulticastLock" -> {
+                    setMulticastLock(call.argument<Boolean>("enabled") ?: false)
+                    result.success(true)
+                }
                 "openAppDetails" -> {
                     startActivity(
                         Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -198,6 +201,7 @@ class MainActivity : AudioServiceActivity() {
                         WidgetData.renderAll(this)
                         result.success(true)
                     }
+                    "hasWidgets" -> result.success(hasWidgets())
                     else -> result.notImplemented()
                 }
             }
@@ -333,6 +337,35 @@ class MainActivity : AudioServiceActivity() {
         }
     }
 
+    /// 是否已添加任意小组件（直播间热度榜 / 赛事日程）。Dart 侧据此决定
+    /// 是否做定时网络刷新——没放小组件就不轮询，省流量省电。
+    private fun hasWidgets(): Boolean {
+        val manager = AppWidgetManager.getInstance(this) ?: return false
+        val live = manager.getAppWidgetIds(ComponentName(this, LiveRoomsWidgetProvider::class.java))
+        val esports = manager.getAppWidgetIds(ComponentName(this, EsportsWidgetProvider::class.java))
+        return (live != null && live.isNotEmpty()) || (esports != null && esports.isNotEmpty())
+    }
+
+    /// 局域网互推组播锁按需持有：true=acquire（部分 ROM 不持锁时广播 send
+    /// 直接 EPERM，实测小米平板），false=release 让 Wi-Fi 进省电休眠。
+    @Suppress("DEPRECATION")
+    private fun setMulticastLock(enabled: Boolean) {
+        try {
+            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            if (enabled) {
+                val lock = multicastLock ?: wifi.createMulticastLock("purelive_lan_discovery").also {
+                    it.setReferenceCounted(false)
+                    multicastLock = it
+                }
+                if (!lock.isHeld) lock.acquire()
+            } else {
+                if (multicastLock?.isHeld == true) multicastLock?.release()
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("purelive", "multicast lock failed: ${e.message}")
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         scheduleDisplayModeRefresh(delayMillis = 0)
@@ -348,6 +381,7 @@ class MainActivity : AudioServiceActivity() {
         displayModeChannel = null
         deviceTypeChannel = null
         widgetRefreshChannel = null
+        if (multicastLock?.isHeld == true) multicastLock?.release()
         super.onDestroy()
     }
 

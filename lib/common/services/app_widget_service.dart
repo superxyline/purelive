@@ -14,16 +14,19 @@ import 'package:pure_live/plugins/event_bus.dart';
 /// 职责：把"已开播关注直播间热度前 4"和"已关注赛事时间序前 4"写入原生侧
 /// SharedPreferences，并触发 AppWidget 重绘。刷新时机：
 /// - 服务初始化（App 启动）；
-/// - 每 5 分钟定时（App 存活期间）；
+/// - 每 15 分钟定时（仅前台 + 已添加小组件时）；
 /// - 关注列表刷新完成（EventBus `refresh_favorite_finish`）；
-/// - 小组件上的刷新按钮（原生 `WidgetRefreshReceiver` → 通道 `refresh`）。
+/// - 小组件上的刷新按钮（原生 `WidgetRefreshReceiver` → 通道 `refresh`，强制刷新）。
 /// App 不在运行时小组件展示最后一次写入的缓存，点刷新按钮会先读缓存重绘，
 /// 并唤醒 App 拉取最新数据。
+///
+/// 省电守卫：没添加小组件时不做任何网络轮询；App 退后台暂停定时器。
+/// 原生侧新增/删除小组件无需通知——每轮刷新前都实时查询 hasWidgets。
 class AppWidgetService extends GetxService {
   static const MethodChannel _channel = MethodChannel('pure_live/app_widget');
 
   /// 定时刷新间隔：小组件的时效性靠它兜底
-  static const Duration _refreshInterval = Duration(minutes: 5);
+  static const Duration _refreshInterval = Duration(minutes: 15);
 
   /// 直播间开播状态刷新并发度/超时（与关注页快通道一致）
   static const int _statusBatchSize = 12;
@@ -34,6 +37,7 @@ class AppWidgetService extends GetxService {
 
   Timer? _timer;
   StreamSubscription? _favoriteRefreshSub;
+  AppLifecycleListener? _lifecycle;
   bool _refreshing = false;
 
   @override
@@ -43,28 +47,57 @@ class AppWidgetService extends GetxService {
     _favoriteRefreshSub = EventBus.instance.listen('refresh_favorite_finish', (_) {
       unawaited(refresh());
     });
+    _lifecycle = AppLifecycleListener(onStateChange: _onLifecycleChanged);
     // 延后几秒：避开首页首屏的网络竞争
     Future.delayed(const Duration(seconds: 4), () => unawaited(refresh()));
-    _timer = Timer.periodic(_refreshInterval, (_) => unawaited(refresh()));
+    _startTimer();
   }
 
   @override
   void onClose() {
     _timer?.cancel();
+    _lifecycle = null;
     _favoriteRefreshSub?.cancel();
     super.onClose();
   }
 
+  void _onLifecycleChanged(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _timer?.cancel();
+      _timer = null;
+    } else if (state == AppLifecycleState.resumed) {
+      _startTimer();
+    }
+  }
+
+  void _startTimer() {
+    if (_timer != null) return;
+    _timer = Timer.periodic(_refreshInterval, (_) => unawaited(refresh()));
+  }
+
   Future<dynamic> _onNativeCall(MethodCall call) async {
     if (call.method == 'refresh') {
-      unawaited(refresh());
+      // 小组件刷新按钮 = 小组件必然存在，绕过守卫直接刷
+      unawaited(refresh(force: true));
     }
     return null;
   }
 
+  /// 原生查询是否已添加任意小组件（直播间热度榜 / 赛事日程）。
+  /// 查询失败视为无小组件（下轮定时刷新会再查，可自愈）。
+  Future<bool> _hasWidgets() async {
+    try {
+      return await _channel.invokeMethod<bool>('hasWidgets') ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// 拉最新数据并推送小组件（幂等：进行中直接跳过）。
-  Future<void> refresh() async {
+  /// [force] 绕过"已添加小组件"守卫（仅原生刷新按钮使用）。
+  Future<void> refresh({bool force = false}) async {
     if (!PlatformUtils.isAndroid || _refreshing) return;
+    if (!force && !await _hasWidgets()) return;
     _refreshing = true;
     try {
       final live = await _collectLiveRooms();

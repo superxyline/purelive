@@ -150,7 +150,7 @@ class TvEmpty extends StatelessWidget {
         children: [
           Icon(icon, size: context.tvDp(56), color: TvTheme.textSecondary),
           SizedBox(height: context.tvDp(12)),
-          Text(message, style: TextStyle(fontSize: context.tvSp(16), color: TvTheme.textSecondary)),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(fontSize: context.tvSp(16), color: TvTheme.textSecondary)),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/modules/live_play/controllers/live_play_controller.dart';
 import 'package:pure_live/player/core/audio_companion_service.dart';
+import 'package:pure_live/player/core/audio_companion_sync.dart';
 
 /// 音画对齐预览：同一屏并排看"主直播间画面"和"解说源画面"，
 /// 各自可以独立暂停，把两边暂停在同一时刻后点确认，退出预览即为对齐状态。
@@ -8,6 +9,9 @@ import 'package:pure_live/player/core/audio_companion_service.dart';
 /// 为什么这样做：直播流没法回溯，靠听感判断几秒差很难；
 /// 但两个画面里同一个事件（比分、画面切镜、口型）是能对上的——
 /// 暂停快的那一路等另一路追上，两路播放位置就一致了，恢复后自然同步。
+///
+/// 顶部另有「自动对齐」：算法比对两路画面算出差值，自动完成上面这套暂停/恢复，
+/// 失败时给出具体原因，仍可继续手动对齐。
 class AudioCompanionAlignPage extends StatefulWidget {
   const AudioCompanionAlignPage({super.key, required this.controller});
 
@@ -22,6 +26,8 @@ class _AudioCompanionAlignPageState extends State<AudioCompanionAlignPage> {
 
   bool _mainPaused = false;
   bool _sourcePaused = false;
+  bool _autoAligning = false;
+  AutoAlignResult? _autoResult;
 
   @override
   void initState() {
@@ -64,6 +70,98 @@ class _AudioCompanionAlignPageState extends State<AudioCompanionAlignPage> {
     }
   }
 
+  /// 自动对齐：算法比对两路画面后自己完成"暂停快的一路 → 等另一路追上"。
+  Future<void> _runAutoAlign() async {
+    if (_autoAligning) return;
+    // 自动流程自己控制暂停/恢复，先把手动暂停状态收掉，避免两套状态互相打架
+    if (_mainPaused) {
+      _mainPaused = false;
+      await GlobalPlayerService.instance.playerManager
+          .resume(source: 'audioCompanion.preview', syncCompanion: false);
+    }
+    if (_sourcePaused) {
+      _sourcePaused = false;
+      await _service.resumePlayback();
+    }
+    setState(() {
+      _autoAligning = true;
+      _autoResult = null;
+    });
+    AutoAlignResult? result;
+    try {
+      result = await AudioCompanionSync.instance.autoAlign();
+    } catch (e) {
+      debugPrint('[AudioCompanion] autoAlign failed: $e');
+    }
+    if (!mounted) return;
+    setState(() {
+      _autoAligning = false;
+      _autoResult = result ?? const AutoAlignResult(failure: AutoAlignFailure.noPicture);
+    });
+  }
+
+  String get _autoAlignText {
+    if (_autoAligning) return i18n('audio_companion_auto_aligning');
+    final r = _autoResult;
+    if (r == null) return i18n('audio_companion_auto_align_hint');
+    if (!r.ok) {
+      return i18n('audio_companion_auto_failed', args: {'reason': _autoReason(r.failure!)});
+    }
+    final before = r.beforeSeconds.abs().toStringAsFixed(1);
+    if (r.withinTolerance) {
+      return i18n('audio_companion_auto_done', args: {'seconds': before});
+    }
+    return i18n('audio_companion_auto_residual',
+        args: {'seconds': r.afterSeconds.abs().toStringAsFixed(1)});
+  }
+
+  String _autoReason(AutoAlignFailure failure) {
+    switch (failure) {
+      case AutoAlignFailure.engineUnsupported:
+        return i18n('audio_companion_auto_reason_engine');
+      case AutoAlignFailure.noPicture:
+        return i18n('audio_companion_auto_reason_picture');
+      case AutoAlignFailure.notEnoughFrames:
+        return i18n('audio_companion_auto_reason_frames');
+      case AutoAlignFailure.staticPicture:
+        return i18n('audio_companion_auto_reason_static');
+      case AutoAlignFailure.noMatch:
+        return i18n('audio_companion_auto_reason_nomatch');
+      case AutoAlignFailure.ambiguous:
+        return i18n('audio_companion_auto_reason_ambiguous');
+      case AutoAlignFailure.outOfRange:
+        return i18n('audio_companion_auto_reason_range');
+    }
+  }
+
+  Widget _buildAutoAlignBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      child: Row(
+        children: [
+          FilledButton.tonalIcon(
+            onPressed: _autoAligning ? null : _runAutoAlign,
+            icon: _autoAligning
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.auto_fix_high_rounded, size: 18),
+            label: Text(i18n('audio_companion_auto_align')),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _autoAlignText,
+              style: AppTextStyles.t12.copyWith(color: Colors.white70, height: 1.3),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -84,6 +182,7 @@ class _AudioCompanionAlignPageState extends State<AudioCompanionAlignPage> {
               style: AppTextStyles.t12.copyWith(color: Colors.white70, height: 1.4),
             ),
           ),
+          _buildAutoAlignBar(context),
           Expanded(
             child: _Pane(
               label: i18n('audio_companion_align_main'),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:remixicon/remixicon.dart';
 import 'package:pure_live/common/index.dart';
+import 'package:pure_live/common/services/settings/favorite_room_controller.dart';
 import 'package:pure_live/routes/app_navigation.dart';
 import 'package:pure_live/common/widgets/common_avatar.dart';
 import 'package:pure_live/plugins/app_image_cache_manager.dart';
@@ -358,9 +359,15 @@ class RoomCard extends StatelessWidget {
   bool _isPinned() => SettingsService.to.fav.isPinned(room);
 
   /// 切换"开播即置顶"。列表重排由 FavoriteController 的 ever(pinnedRooms) 监听
-  /// 自动触发，这里只做切换与提示。
+  /// 自动触发，这里只做切换与提示。返回 null 表示已达置顶上限（3 个），未变更。
   void _togglePinned(BuildContext context) {
     final pinned = SettingsService.to.fav.togglePinned(room);
+    if (pinned == null) {
+      SmartDialog.showToast(
+        i18n('pin_limit_reached', args: {'max': '${FavoriteRoomController.maxPinnedRooms}'}),
+      );
+      return;
+    }
     SmartDialog.showToast(i18n(pinned ? 'room_pinned' : 'room_unpinned'));
   }
 

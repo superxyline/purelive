@@ -9,6 +9,7 @@ import 'package:pure_live/modules/live_play/states/load_type.dart';
 import 'package:pure_live/modules/live_play/states/live_play_state.dart';
 import 'package:pure_live/modules/live_play/controllers/player_controller.dart';
 import 'package:pure_live/modules/live_play/widgets/video_player/video_controller.dart';
+import 'package:pure_live/common/services/display_mode_service.dart';
 import 'package:qr_flutter/qr_flutter.dart' show QrVersions;
 
 import '../core/tv_device_service.dart';
@@ -81,6 +82,11 @@ class _TvPlayPageState extends State<TvPlayPage> {
   Timer? _channelTimer;
   int _channelDelta = 0;
   DateTime _lastLeftAt = DateTime.fromMillisecondsSinceEpoch(0);
+  /// 返回键防抖：部分电视/遥控器一次物理按压会重复送入 BACK 事件
+  /// （goBack+escape 双发，或引擎重复派发），250ms 内的重复事件直接吞掉。
+  DateTime _lastBackKeyAt = DateTime.fromMillisecondsSinceEpoch(0);
+  /// 菜单键同理：重复触发会让 UI 呼出又立刻收起，用户以为 UI 还开着。
+  DateTime _lastMenuKeyAt = DateTime.fromMillisecondsSinceEpoch(0);
   final ScrollController _panelScroll = ScrollController();
 
   /// 底部控制栏条目索引
@@ -106,12 +112,16 @@ class _TvPlayPageState extends State<TvPlayPage> {
     TvPlayPage.lastRoom = _currentRoom;
     HardwareKeyboard.instance.addHandler(_globalKeyHandler);
     TvDeviceService.setMenuKeyHandler(_toggleUi);
+    // 直播流一般只有 60 帧：TV 播放页期间锁定接近 60Hz（60Hz 电视无感，
+    // 120Hz 盒子上高刷只会白耗电），退出播放页恢复系统最高刷新率。
+    unawaited(DisplayModeService.setHighRefreshRate(false));
     _scheduleInfoHide();
     _scrollPanelToCurrent();
   }
 
   @override
   void dispose() {
+    unawaited(DisplayModeService.setHighRefreshRate(true));
     HardwareKeyboard.instance.removeHandler(_globalKeyHandler);
     TvDeviceService.setMenuKeyHandler(null);
     _bannerTimer?.cancel();
@@ -160,8 +170,15 @@ class _TvPlayPageState extends State<TvPlayPage> {
         key == LogicalKeyboardKey.gameButtonA;
 
     try {
-      // 菜单键：呼出/退出整个 UI（控制栏+面板）
+      // 菜单键：呼出/退出整个 UI（控制栏+面板）。
+      // 与返回键同样存在「一次按压重复送入」的问题：第一次呼出、第二次又收起，
+      // 用户以为 UI 还开着，再按返回就退出了——所以要一起防抖。
       if (key == LogicalKeyboardKey.contextMenu) {
+        final now = DateTime.now();
+        if (now.difference(_lastMenuKeyAt) < const Duration(milliseconds: 250)) {
+          return true;
+        }
+        _lastMenuKeyAt = now;
         _toggleUi();
         return true;
       }
@@ -170,7 +187,19 @@ class _TvPlayPageState extends State<TvPlayPage> {
       if (key == LogicalKeyboardKey.arrowDown) return _onVertical(1);
       if (key == LogicalKeyboardKey.arrowLeft) return _onLeft();
       if (key == LogicalKeyboardKey.arrowRight) return _onRight();
-      if (key == LogicalKeyboardKey.goBack || key == LogicalKeyboardKey.escape) return _onBack();
+      if (key == LogicalKeyboardKey.goBack || key == LogicalKeyboardKey.escape) {
+        // 防抖：同一物理按压在部分电视/遥控器上会重复送入 BACK 事件
+        // （goBack + escape 双发，或引擎重复派发）。第一次已收 UI，紧跟着的
+        // 第二次命中 _TvZone.none 分支会把页面整个 pop 掉——表现为「按一次
+        // 返回直接退到关注列表」。250ms 内的重复事件直接吞掉；用户刻意连按
+        // （间隔 >250ms）不受影响，仍可逐层退出。
+        final now = DateTime.now();
+        if (now.difference(_lastBackKeyAt) < const Duration(milliseconds: 250)) {
+          return true;
+        }
+        _lastBackKeyAt = now;
+        return _onBack();
+      }
     } catch (e) {
       debugPrint('[TvPlay] key handler error: $e');
     }
@@ -915,7 +944,18 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
     _lastSeenCount = _ctrl.danmakuMessages.length;
     // 消息监听只注册一次（不能放 build 里，否则每次重建叠加 worker）
     _msgWorker = ever(_ctrl.danmakuMessages, (_) => _onMessages());
-    _ticker = Timer.periodic(_tick, (_) => _tickStep());
+    // ticker 按需启动：没有飞行中的弹幕时不跑（空闲时每秒 30 次的
+    // 定时唤醒是 TV 播放页全程的纯耗电），首条弹幕入队才启动
+  }
+
+  void _startTicker() {
+    _ticker ??= Timer.periodic(_tick, (_) => _tickStep());
+  }
+
+  void _stopTickerIfIdle() {
+    if (_flying.isNotEmpty) return;
+    _ticker?.cancel();
+    _ticker = null;
   }
 
   double get _fontSize {
@@ -967,7 +1007,11 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
   }
 
   void _tickStep() {
-    if (!mounted || _flying.isEmpty) return;
+    if (!mounted) return;
+    if (_flying.isEmpty) {
+      _stopTickerIfIdle();
+      return;
+    }
     final speed = SettingsService.to.danmaku.danmakuSpeed.v.clamp(20, 400).toDouble() * 3;
     final w = MediaQuery.sizeOf(context).width;
     final dt = _tick.inMilliseconds / 1000.0;
@@ -975,7 +1019,9 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
       item.t += (speed * dt) / (w + item.width);
     }
     _flying.removeWhere((item) => item.t >= 1.0);
-    if (mounted) setState(() {});
+    // 全部飞完：停掉 ticker（最后一条在移除前一帧已滚出屏外左缘，无需再绘制）
+    _stopTickerIfIdle();
+    if (mounted && _flying.isNotEmpty) setState(() {});
   }
 
   void _onMessages() {
@@ -1004,6 +1050,7 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
       _flying.add(item);
     }
     _lastSeenCount = messages.length;
+    if (_flying.isNotEmpty) _startTicker();
   }
 
   @override
@@ -1019,6 +1066,7 @@ class _TvDanmakuOverlayState extends State<_TvDanmakuOverlay> {
       final enabled = SettingsService.to.danmaku.enableDanmakuDisplay.v;
       if (!enabled) {
         if (_flying.isNotEmpty) _flying.clear();
+        _stopTickerIfIdle();
         return const SizedBox.shrink();
       }
       final fontSize = _fontSize;

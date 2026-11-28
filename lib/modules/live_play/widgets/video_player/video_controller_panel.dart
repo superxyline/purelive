@@ -278,9 +278,14 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                 // 手势层，所以滑动画面、点击弹幕都不受影响。
                 _buildVideoMask(context),
                 Obx(
-                  () => Offstage(
-                    offstage: controller.hideDanmaku.value,
-                    child: DanmakuViewer(key: controller.danmuKey, controller: controller),
+                  // TickerMode：隐藏弹幕时把 Flame 游戏循环的 ticker 一起 mute，
+                  // 否则 Offstage 下的引擎 update 仍每 vsync 空转（纯耗电不渲染）。
+                  () => TickerMode(
+                    enabled: !controller.hideDanmaku.value,
+                    child: Offstage(
+                      offstage: controller.hideDanmaku.value,
+                      child: DanmakuViewer(key: controller.danmuKey, controller: controller),
+                    ),
                   ),
                 ),
                 GestureDetector(

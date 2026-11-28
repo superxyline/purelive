@@ -7,10 +7,13 @@ import 'package:pure_live/modules/live_play/controllers/live_play_controller.dar
 
 /// 副音轨房间的弹幕连接（独立于主弹幕会话 [DanmakuController]）。
 ///
-/// 副音轨激活期间始终保活一路到副房间的弹幕 WebSocket，切换开关零延迟；
-/// 是否上屏由 `showAudioCompanionDanmaku` 决定：
+/// 副音轨激活期间接入一路到副房间的弹幕 WebSocket，是否上屏由
+/// `showAudioCompanionDanmaku` 决定：
 /// - 开：只显示副音轨房间弹幕（主房间聊天弹幕由 [DanmakuController] 屏蔽）；
-/// - 关：主房间弹幕恢复，副房间消息静默丢弃（连接保持，不重复登录被限流）。
+/// - 关：主房间弹幕恢复，副房间消息静默丢弃。连接先保留 5 分钟
+///   （随手切回零延迟、也避开同房间快速二次登录被平台限流），
+///   超时仍不显示则断开——省掉一路心跳+收流解码（省电），
+///   重新打开开关时再连。
 ///
 /// 只转发聊天弹幕：人数/SC/礼物等副房间事件不属于"看副音轨弹幕"的范畴，
 /// 主房间的人数、SC 卡片、礼物卡片照常工作。
@@ -24,6 +27,10 @@ class AudioCompanionDanmaku {
   bool _showing = false;
   bool _connecting = false;
 
+  /// 显示关闭后保留连接的宽限期：期间切回零延迟，超时断开 WS。
+  static const Duration _idleDisconnectDelay = Duration(minutes: 5);
+  Timer? _idleDisconnectTimer;
+
   /// 副音轨激活时接入副房间弹幕连接（幂等：同房间重复接入直接忽略）。
   void attach(LiveRoom detail) {
     final key = _roomKey(detail);
@@ -34,12 +41,15 @@ class AudioCompanionDanmaku {
     _toggleWorker?.dispose();
     _toggleWorker = ever(SettingsService.to.danmaku.showAudioCompanionDanmaku, _onToggleChanged);
     unawaited(_connect());
+    // 恢复连接时开关就是关的：同样进入宽限期计时
+    if (!_showing) _scheduleIdleDisconnect();
   }
 
   /// 释放连接与监听（关闭副音轨/退出直播间时调用）。
   Future<void> detach() async {
     _toggleWorker?.dispose();
     _toggleWorker = null;
+    _cancelIdleDisconnect();
     _room = null;
     _showing = false;
     final engine = _engine;
@@ -94,6 +104,46 @@ class AudioCompanionDanmaku {
           ? i18n('audio_companion_danmaku_on')
           : i18n('audio_companion_danmaku_off'),
     );
+    if (value) {
+      _cancelIdleDisconnect();
+      _ensureConnected();
+    } else {
+      _scheduleIdleDisconnect();
+    }
+  }
+
+  /// 显示重新打开时确保连接存活（可能已被宽限期超时断开）。
+  void _ensureConnected() {
+    if (_room == null || _connecting) return;
+    if (_engine != null) return;
+    unawaited(_connect());
+  }
+
+  /// 启动/重置宽限期：超时仍处于"关闭显示"则断开 WS（房间信息保留，
+  /// 重新打开开关时经 [_ensureConnected] 重连）。
+  void _scheduleIdleDisconnect() {
+    _cancelIdleDisconnect();
+    _idleDisconnectTimer = Timer(_idleDisconnectDelay, () async {
+      _idleDisconnectTimer = null;
+      if (_showing || _room == null) return;
+      final engine = _engine;
+      _engine = null;
+      if (engine == null) return;
+      engine.onMessage = null;
+      engine.onClose = null;
+      engine.onReady = null;
+      debugPrint('[AudioCompanionDanmaku] idle ${_idleDisconnectDelay.inMinutes}min, disconnect companion ws');
+      try {
+        await engine.stop();
+      } catch (error, stackTrace) {
+        CoreLog.e('[AudioCompanionDanmaku] idle stop: $error', stackTrace);
+      }
+    });
+  }
+
+  void _cancelIdleDisconnect() {
+    _idleDisconnectTimer?.cancel();
+    _idleDisconnectTimer = null;
   }
 
   String _roomKey(LiveRoom room) => '${room.platform ?? ''}:${room.roomId ?? ''}';

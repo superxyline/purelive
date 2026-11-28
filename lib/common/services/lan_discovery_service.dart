@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:io';
 import 'dart:math';
@@ -28,6 +29,11 @@ import 'package:pure_live/get/get.dart';
 ///   落盘合并（并集），取消则回复 409。
 class LanDiscoveryService extends GetxService {
   static LanDiscoveryService get to => Get.find<LanDiscoveryService>();
+
+  /// Android 原生通道（MainActivity）：Wi-Fi 组播锁按需 acquire/release。
+  /// 不持锁时部分 ROM 会过滤组播/广播帧且 send 广播直接 EPERM（实测小米平板）；
+  /// 但锁常驻会阻止 Wi-Fi 进省电休眠——所以只在互推运行期间持有。
+  static const MethodChannel _kotlinChannel = MethodChannel('pure_live/local_network');
 
   /// UDP 宣告端口（三端固定，广播发往 255.255.255.255:udpPort）。
   static const int udpPort = 47478;
@@ -113,6 +119,7 @@ class LanDiscoveryService extends GetxService {
     try {
       await LocalNetworkPermission.ensure();
     } catch (_) {}
+    unawaited(_setMulticastLock(true));
     await _resolveSubnet();
     try {
       _token = _randomToken();
@@ -221,6 +228,15 @@ class LanDiscoveryService extends GetxService {
     await _http?.close(force: true);
     _http = null;
     peers.clear();
+    unawaited(_setMulticastLock(false));
+  }
+
+  /// 请求原生持有/释放 Wi-Fi 组播锁（随 start/stop 生命周期联动）。
+  /// 非 Android 平台调用会抛 MissingPluginException，静默忽略。
+  Future<void> _setMulticastLock(bool enabled) async {
+    try {
+      await _kotlinChannel.invokeMethod('setMulticastLock', {'enabled': enabled});
+    } catch (_) {}
   }
 
   Future<void> _announce() async {

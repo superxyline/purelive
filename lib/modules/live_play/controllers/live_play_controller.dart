@@ -36,7 +36,8 @@ import 'package:pure_live/tv/core/tv_device_service.dart';
 
 // live_play_controller.dart
 
-class LivePlayController extends GetxController with GetSingleTickerProviderStateMixin {
+class LivePlayController extends GetxController
+    with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
   LivePlayController({required this.room, required this.site})
     : startInFullscreen = Get.parameters['fullscreen'] == '1',
       startAudioOnly = Get.parameters['audioOnly'] == '1';
@@ -142,6 +143,7 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     _controllerTag = '${identityHashCode(this)}';
     currentSite = Sites.of(site);
     _localMessageDeliveryQueue = LocalMessageDeliveryQueue(onDeliver: _deliverLocalMessage);
+    WidgetsBinding.instance.addObserver(this);
 
     final autoStartAsmr = PlatformUtils.isAndroid && SettingsService.to.app.enableAsmrSleepMode.v;
     _asmrSessionActive = autoStartAsmr;
@@ -1165,10 +1167,65 @@ class LivePlayController extends GetxController with GetSingleTickerProviderStat
     state.close();
   }
 
+  // ---------------------------------------------------------------------------
+  // 生命周期省电：App 退后台停弹幕（PIP 小窗豁免）
+  // ---------------------------------------------------------------------------
+
+  /// 退后台时弹幕是否已被本类主动停掉（resumed 据此决定是否重连）。
+  bool _danmakuPausedByLifecycle = false;
+
+  /// App 退后台（paused/hidden，含桌面最小化）时停掉弹幕 WS：
+  /// 心跳（抖音 10s 一发）、收流、大帧 isolate 解码全部继续是纯耗电无收益
+  /// ——视频已暂停，弹幕也不上屏。媒体流/后台音频不受影响。
+  /// PIP 小窗仍在前台展示弹幕（enablePipDanmaku），必须豁免。
+  /// 回前台（resumed）按当前设置重连。
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _pauseDanmakuForBackground();
+    } else if (state == AppLifecycleState.resumed) {
+      _resumeDanmakuFromBackground();
+    }
+  }
+
+  Future<void> _pauseDanmakuForBackground() async {
+    if (GlobalPlayerState.to.isPipMode.value) return;
+    if (_danmakuPausedByLifecycle || _ownerClosed) return;
+    _danmakuPausedByLifecycle = true;
+    try {
+      await danmakuController.stopDanmaku();
+    } catch (_) {}
+    // 副音轨的第二路弹幕连接同样停掉（isActive 才有，幂等）
+    try {
+      await audioCompanionDanmaku.detach();
+    } catch (_) {}
+  }
+
+  Future<void> _resumeDanmakuFromBackground() async {
+    if (!_danmakuPausedByLifecycle || _ownerClosed) return;
+    _danmakuPausedByLifecycle = false;
+    // 副音轨仍激活时重挂副房间弹幕（是否上屏由 showAudioCompanionDanmaku 决定）
+    try {
+      if (AudioCompanionService.instance.isActive.value) {
+        final companionRoom = AudioCompanionService.instance.room.value;
+        if (companionRoom != null) audioCompanionDanmaku.attach(companionRoom);
+      }
+    } catch (_) {}
+    final detail = state.value.room.detail;
+    if (detail == null || !state.value.room.isLiving) return;
+    final danmakuSettings = SettingsService.to.danmaku;
+    final shouldConnect = danmakuSettings.enableDanmakuDisplay.v || danmakuSettings.enablePipDanmaku.v;
+    if (!shouldConnect) return;
+    try {
+      await danmakuController.connectRoom(detail);
+    } catch (_) {}
+  }
+
   @override
   void onClose() {
     _ownerClosed = true;
     _roomLoadEpoch++;
+    WidgetsBinding.instance.removeObserver(this);
     _localGiftEffectTimer?.cancel();
     _fsSCTimer?.cancel();
     _fsSCTimer = null;

@@ -129,7 +129,7 @@ class EsportsPage extends GetView<EsportsController> {
   }
 
   /// 筛选项标签：具体游戏带游戏图标，"全部"只有文字
-  static const Map<int, String> _filterKeyByIndex = {1: 'cs', 2: 'lol', 3: 'valorant'};
+  static const Map<int, String> _filterKeyByIndex = {1: 'cs', 2: 'lol', 3: 'valorant', 4: 'dota2'};
 
   Widget _gameFilterLabel(int index) {
     final gameKey = _filterKeyByIndex[index];

@@ -18,6 +18,7 @@ class EsportsGameIcon extends StatelessWidget {
     'cs': 'assets/icons/esports/counterstrike.svg',
     'lol': 'assets/icons/esports/leagueoflegends.svg',
     'valorant': 'assets/icons/esports/valorant.svg',
+    'dota2': 'assets/icons/esports/dota2.svg',
   };
 
   @override

@@ -44,6 +44,7 @@ class EsportsController extends GetxController {
     'esports_filter_cs',
     'esports_filter_lol',
     'esports_filter_valorant',
+    'esports_filter_dota2',
   ];
 
   /// 归一化游戏标识集合
@@ -51,6 +52,7 @@ class EsportsController extends GetxController {
     1: 'cs',
     2: 'lol',
     3: 'valorant',
+    4: 'dota2',
   };
 
   /// 冷启动预取缓存：App 启动后在后台预取赛事数据，进入赛事页时直接命中缓存，
@@ -60,11 +62,6 @@ class EsportsController extends GetxController {
   /// 持久化缓存：网络加载成功后写入本地，跨启动生效。
   /// 下次启动先展示缓存内容（不转圈），随后后台刷新覆盖。
   static const String _cacheStorageKey = 'esportsMatchesCacheV1';
-
-  /// 过滤已下线的游戏：Dota2 没有可用的赛事数据源，已从筛选与抓取里移除。
-  /// 历史持久缓存（esportsMatchesCacheV1）里可能还留着旧数据，统一在这里挡掉。
-  static List<EsportsMatch> _withoutRetiredGames(Iterable<EsportsMatch> list) =>
-      list.where((m) => m.gameKey != 'dota2').toList();
 
   static void _writeDiskCache(List<EsportsMatch> list) {
     if (list.isEmpty) return;
@@ -164,7 +161,7 @@ class EsportsController extends GetxController {
         final now = DateTime.now();
         final from = DateTime(now.year, now.month, now.day);
         final to = from.add(const Duration(days: 8)).subtract(const Duration(seconds: 1));
-        matches.assignAll(_withoutRetiredGames(cached));
+        matches.assignAll(cached);
         loadedFrom = from;
         loadedTo = to;
         unawaited(loadData());
@@ -204,7 +201,7 @@ class EsportsController extends GetxController {
           if (!hasMatchToday) dateFilter.value = null;
         }
       }
-      matches.assignAll(_withoutRetiredGames(list));
+      matches.assignAll(list);
       if (list.isEmpty) {
         error.value = 'esports_load_failed';
       } else {

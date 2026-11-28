@@ -68,6 +68,11 @@ class TvRoomCard extends StatelessWidget {
                           SizedBox(width: context.tvDp(4)),
                           TvStatusChip(label: 'LIVE'),
                         ],
+                        // 开播即置顶标记：长按 OK 切换，置顶的直播间开播后恒排最前
+                        if (SettingsService.to.fav.isPinned(room)) ...[
+                          SizedBox(width: context.tvDp(4)),
+                          TvStatusChip(label: '置顶', icon: Icons.push_pin_rounded),
+                        ],
                       ],
                     ),
                   ),

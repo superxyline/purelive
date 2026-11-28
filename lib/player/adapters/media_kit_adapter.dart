@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:rxdart/rxdart.dart';
 
+import '../core/frame_sync/frame_signature.dart';
 import '../models/player_state.dart';
 import '../models/player_exception.dart';
 import '../models/player_error_type.dart';
@@ -597,6 +599,37 @@ class MediaKitAdapter implements UnifiedPlayer {
       await platform.setProperty('vid', enabled ? 'auto' : 'no');
       await platform.setProperty('video', enabled ? 'auto' : 'no');
     } catch (_) {}
+  }
+
+  /// 抓取当前画面并归一化成 128×72 灰度（副音轨自动对齐用）。
+  ///
+  /// 返回 null 表示当前没有可用画面：未起播 / 纯音频会话 / 取帧失败。
+  /// 原始像素走 mpv 的 `screenshot-raw`（BGRA）而不是 JPEG —— 省掉一次编码
+  /// 加解码；stride 由字节总数反推（硬件解码的 surface 常带行对齐填充，
+  /// 不能假定等于 width * 4）。
+  Future<Uint8List?> captureGrayFrame() async {
+    if (!_initialized || _disposed) return null;
+    try {
+      final params = _player.state.videoParams;
+      var w = params.dw ?? 0;
+      var h = params.dh ?? 0;
+      final rotate = params.rotate ?? 0;
+      if (rotate == 90 || rotate == 270) {
+        final t = w;
+        w = h;
+        h = t;
+      }
+      if (w <= 0 || h <= 0) return null;
+
+      final bytes = await _player.screenshot(format: null);
+      if (bytes == null || bytes.isEmpty) return null;
+      final stride = bytes.length ~/ h;
+      if (stride < w * 4) return null;
+      return FrameSignature.grayFromBgra(bytes, srcWidth: w, srcHeight: h, stride: stride);
+    } catch (e) {
+      debugPrint('[FrameSync] screenshot failed: $e');
+      return null;
+    }
   }
 
   // =========================

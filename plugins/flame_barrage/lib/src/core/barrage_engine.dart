@@ -226,6 +226,9 @@ class BarrageEngine extends FlameGame with TapCallbacks {
   }
 
   void pushMessage(BarrageItem item) {
+    // 空闲节能：游戏循环可能因"无活动弹幕"被 pauseEngine 停掉（见 update 末尾），
+    // 新消息进来先恢复循环，否则弹幕永远不会入轨。
+    resumeEngine();
     final pending = _PendingBarrage(item, DateTime.now().millisecondsSinceEpoch);
     final maxPendingCount = _config.maxPendingCount.clamp(1, 10000);
     while (_waiting.length + _pausedBuffer.length >= maxPendingCount) {
@@ -313,6 +316,13 @@ class BarrageEngine extends FlameGame with TapCallbacks {
     if (_metricTimer >= 0.032) {
       _metricTimer = 0.0;
       _updateTrackMetrics(nowMs);
+    }
+
+    // 空闲节能：无活动弹幕且待发/暂停队列全空时停掉游戏循环——Flame ticker
+    // 不再每 vsync 空转（只剩 accumulator 数学，60fps 屏上每秒 60 次纯耗电）。
+    // 下一帧起生效；新弹幕经 pushMessage 的 resumeEngine 恢复。
+    if (_activeEntries.isEmpty && _waiting.isEmpty && _pausedBuffer.isEmpty) {
+      pauseEngine();
     }
   }
 

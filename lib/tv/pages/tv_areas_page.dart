@@ -28,6 +28,10 @@ class _TvAreasPageState extends State<TvAreasPage> {
   int _subIndex = 0;
   int _cardIndex = 0;
 
+  /// 顶部平台行是否持有焦点（cat 模式下从分类网格第一行按「上」进入）。
+  /// 以前平台按钮只有 onTap（触摸/鼠标），遥控器完全点不到，是 TV 端的硬伤。
+  bool _siteRowFocused = false;
+
   final Map<String, List<LiveCategory>> _catCache = {};
   final Map<String, List<LiveArea>> _subCache = {};
   final Map<String, List<LiveRoom>> _roomCache = {};
@@ -102,6 +106,23 @@ class _TvAreasPageState extends State<TvAreasPage> {
     if (mounted) setState(() {});
   }
 
+  /// 分类 / 子分区网格的列数（与 build 里的 crossAxisCount 保持一致）
+  static const int _areaGridColumns = 5;
+
+  /// 在平台行内左右切换平台：切平台即回到分类层并重新加载分类
+  void _switchSite(int d) {
+    final next = (_siteIndex + d).clamp(0, _sites.length - 1);
+    if (next == _siteIndex) return;
+    setState(() {
+      _siteIndex = next;
+      _mode = _TvMode.cat;
+      _catIndex = 0;
+      _subIndex = 0;
+      _cardIndex = 0;
+    });
+    _loadCategories();
+  }
+
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
     final key = event.logicalKey;
@@ -113,6 +134,16 @@ class _TvAreasPageState extends State<TvAreasPage> {
 
     if (key == LogicalKeyboardKey.arrowUp || key == LogicalKeyboardKey.arrowDown) {
       final d = key == LogicalKeyboardKey.arrowDown ? 1 : -1;
+      // 平台行：↑ 即顶部边界（停住不动），↓ 回分类网格
+      if (_siteRowFocused) {
+        if (d > 0) setState(() => _siteRowFocused = false);
+        return KeyEventResult.handled;
+      }
+      // 分类网格第一行按上 → 进入平台行（平台行只在分类层存在）
+      if (_mode == _TvMode.cat && d < 0 && _catIndex < _areaGridColumns) {
+        setState(() => _siteRowFocused = true);
+        return KeyEventResult.handled;
+      }
       if (_mode == _TvMode.cat && _catIndex + d < 0) return KeyEventResult.handled;
       if (_mode == _TvMode.sub && _subIndex + d < 0) return KeyEventResult.handled;
       setState(() {
@@ -128,6 +159,10 @@ class _TvAreasPageState extends State<TvAreasPage> {
     }
     if (key == LogicalKeyboardKey.arrowLeft || key == LogicalKeyboardKey.arrowRight) {
       final d = key == LogicalKeyboardKey.arrowRight ? 1 : -1;
+      if (_siteRowFocused) {
+        _switchSite(d);
+        return KeyEventResult.handled;
+      }
       setState(() {
         if (_mode == _TvMode.cat) {
           _catIndex = (_catIndex + d).clamp(0, (_categories.length - 1).clamp(0, 1 << 20));
@@ -140,10 +175,19 @@ class _TvAreasPageState extends State<TvAreasPage> {
       return KeyEventResult.handled;
     }
     if (confirm) {
+      // 平台行 OK：收回焦点到分类网格（平台切换已由左右键即时生效）
+      if (_siteRowFocused) {
+        setState(() => _siteRowFocused = false);
+        return KeyEventResult.handled;
+      }
       _confirm(items);
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.goBack || key == LogicalKeyboardKey.escape) {
+      if (_siteRowFocused) {
+        setState(() => _siteRowFocused = false);
+        return KeyEventResult.handled;
+      }
       if (_mode == _TvMode.rooms) {
         setState(() => _mode = _TvMode.sub);
         return KeyEventResult.handled;
@@ -231,29 +275,52 @@ class _TvAreasPageState extends State<TvAreasPage> {
             children: [
               Row(
                 children: [
-                  // 平台 Tab（仅 cat 模式可切）
+                  // 平台 Tab（cat 模式下可用遥控器 ↑ 进入本行，←→ 切换平台）
                   for (var i = 0; i < _sites.length; i++)
                     GestureDetector(
                       onTap: () {
-                        if (_mode != _TvMode.cat) setState(() => _mode = _TvMode.cat);
-                        setState(() => _siteIndex = i);
+                        setState(() {
+                          _siteRowFocused = false;
+                          if (_mode != _TvMode.cat) _mode = _TvMode.cat;
+                          _siteIndex = i;
+                          _catIndex = 0;
+                          _subIndex = 0;
+                          _cardIndex = 0;
+                        });
                         _loadCategories();
                       },
-                      child: Container(
-                        margin: EdgeInsets.only(right: context.tvDp(8)),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: context.tvDp(16), vertical: context.tvDp(6)),
-                        decoration: BoxDecoration(
-                          color: i == _siteIndex ? TvTheme.focusColor.withValues(alpha: 0.35) : TvTheme.subtleFill,
-                          borderRadius: BorderRadius.circular(context.tvDp(999)),
-                          border: i == _siteIndex ? Border.all(color: TvTheme.focusColor) : null,
-                        ),
-                        child: Text(_sites[i].name,
-                            style: TextStyle(
-                                fontSize: context.tvSp(15),
-                                fontWeight: FontWeight.w600,
-                                color: i == _siteIndex ? Colors.white : TvTheme.textSecondary)),
-                      ),
+                      child: Builder(builder: (context) {
+                        final selectedChip = i == _siteIndex;
+                        final focusedChip = _siteRowFocused && selectedChip;
+                        return Container(
+                          margin: EdgeInsets.only(right: context.tvDp(8)),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: context.tvDp(16), vertical: context.tvDp(6)),
+                          decoration: BoxDecoration(
+                            color: focusedChip
+                                ? TvTheme.focusColor
+                                : (selectedChip
+                                    ? TvTheme.focusColor.withValues(alpha: 0.35)
+                                    : TvTheme.subtleFill),
+                            borderRadius: BorderRadius.circular(context.tvDp(999)),
+                            border: selectedChip
+                                ? Border.all(
+                                    color: focusedChip ? Colors.white : TvTheme.focusColor,
+                                    width: focusedChip ? 2 : 1)
+                                : null,
+                            boxShadow: focusedChip ? TvTheme.focusGlow : null,
+                          ),
+                          child: Text(_sites[i].name,
+                              style: TextStyle(
+                                  fontSize: context.tvSp(15),
+                                  fontWeight: selectedChip || focusedChip
+                                      ? FontWeight.w700
+                                      : FontWeight.w600,
+                                  color: selectedChip || focusedChip
+                                      ? Colors.white
+                                      : TvTheme.textSecondary)),
+                        );
+                      }),
                     ),
                   SizedBox(width: context.tvDp(12)),
                   Text(_title,
@@ -303,7 +370,9 @@ class _TvAreasPageState extends State<TvAreasPage> {
                     ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
-                      final active = index == (_mode == _TvMode.cat ? _catIndex : _subIndex);
+                      // 平台行持有焦点时，分类网格不再显示高亮（焦点在顶部平台行）
+                      final active = index == (_mode == _TvMode.cat ? _catIndex : _subIndex) &&
+                          !(_mode == _TvMode.cat && _siteRowFocused);
                       final name = _mode == _TvMode.cat
                           ? (items[index] as LiveCategory).name
                           : ((items[index] as LiveArea).areaName ?? '');

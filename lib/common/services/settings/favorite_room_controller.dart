@@ -12,6 +12,10 @@ class FavoriteRoomController extends GetxController {
   /// 开播即置顶的房间（identityKey 集合）：置顶直播间开播后在"已开播/已关注"
   /// 页签恒排最前。独立集合存储而非 LiveRoom 字段——收藏条目会被直播详情
   /// 刷新整体替换（updateRoom），字段会被平台新数据冲掉。
+  ///
+  /// 上限 [maxPinnedRooms]：超出后新增置顶会被拒绝（已有置顶不受影响，
+  /// 保证老数据不会因上限收紧而丢失）。
+  static const int maxPinnedRooms = 3;
   final RxList<String> pinnedRooms = hiveStringList('pinnedRooms', []);
   final Rx<List<LiveRoom>> favoriteRooms = hiveObject(
     'favoriteRooms',
@@ -65,16 +69,19 @@ class FavoriteRoomController extends GetxController {
 
   bool isPinned(LiveRoom room) => pinnedRooms.contains(room.identityKey);
 
-  /// 切换置顶并返回置顶后的状态。
-  bool togglePinned(LiveRoom room) {
+  /// 切换置顶并返回置顶后的状态（true=已置顶，false=已取消）。
+  /// 已达上限 [maxPinnedRooms] 且本次是新增时返回 null（未做变更，调用方提示用户）。
+  bool? togglePinned(LiveRoom room) {
     final key = room.identityKey;
     if (pinnedRooms.contains(key)) {
       pinnedRooms.remove(key);
-    } else {
-      pinnedRooms.add(key);
+      pinnedRooms.refresh();
+      return false;
     }
+    if (pinnedRooms.length >= maxPinnedRooms) return null;
+    pinnedRooms.add(key);
     pinnedRooms.refresh();
-    return pinnedRooms.contains(key);
+    return true;
   }
 
   bool addRoom(LiveRoom room) {
